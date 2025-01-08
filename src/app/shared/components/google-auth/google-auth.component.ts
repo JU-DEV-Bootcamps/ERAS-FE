@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  SocialAuthService,
   GoogleSigninButtonModule,
+  SocialUser,
 } from '@abacritt/angularx-social-login';
+import { GoogleAuthService } from '../../../core/services/google-auth.service';
 
 @Component({
   selector: 'app-google-auth',
@@ -12,11 +13,19 @@ import {
   styleUrl: './google-auth.component.css',
 })
 export class GoogleAuthComponent implements OnInit {
-  constructor(private authService: SocialAuthService) {}
+  user?: SocialUser;
+  loggedIn?: boolean;
+
+  constructor(private googleAuthService: GoogleAuthService) {}
 
   ngOnInit(): void {
-    this.authService.authState.subscribe(user => {
-      console.log(user);
+    this.googleAuthService.authState().subscribe(user => {
+      this.user = user;
+      this.loggedIn = user != null;
     });
+  }
+
+  logout() {
+    this.googleAuthService.logout();
   }
 }
