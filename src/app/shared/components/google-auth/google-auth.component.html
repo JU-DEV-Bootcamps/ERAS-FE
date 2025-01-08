@@ -8,8 +8,8 @@
     <h4>{{ user.name }}</h4>
     <p>{{ user.email }}</p>
   </div>
-  <button (click)="logout()">Logout</button>
+  <button mat-raised-button color="primary" (click)="logout()">Logout</button>
 } @else {
-  <asl-google-signin-button type="standard" size="medium">
+  <asl-google-signin-button type="standard" size="large">
   </asl-google-signin-button>
 }
