@@ -8,10 +8,35 @@ import {
 } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
+import { provideHttpClient, withFetch } from '@angular/common/http';
+
+import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { environment } from '../environments/environment.development';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()), provideAnimationsAsync(),
+    provideClientHydration(withEventReplay()),
+    provideHttpClient(withFetch()),
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        lang: 'en',
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(environment.clientId),
+          },
+        ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+          console.error(error);
+        },
+      },
+    },
+    provideAnimationsAsync(),
+    provideAnimationsAsync(),
   ],
 };

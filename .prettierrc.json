@@ -6,6 +6,19 @@
   "bracketSpacing": true,
   "arrowParens": "avoid",
   "trailingComma": "es5",
-  "printWidth": 80
+  "printWidth": 80,
+  "overrides": [
+    {
+      "files": "**/*.html",
+      "options": {
+        "parser": "html"
+      }
+    },
+    {
+      "files": "**/*.component.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ]
 }
-
