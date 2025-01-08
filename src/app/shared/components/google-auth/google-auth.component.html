@@ -1,5 +1,9 @@
 @if (user) {
-  <img src="{{ user.photoUrl }}" referrerpolicy="no-referrer" />
+  <img
+    alt="user-photo"
+    src="{{ user.photoUrl }}"
+    referrerpolicy="no-referrer"
+  />
   <div>
     <h4>{{ user.name }}</h4>
     <p>{{ user.email }}</p>

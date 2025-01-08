@@ -1,0 +1,87 @@
+<div class="theme-preview-container">
+  <mat-toolbar color="primary">
+    <span>Theme Preview</span>
+  </mat-toolbar>
+  <div class="content">
+    <mat-card>
+      <mat-card-title>Card Title</mat-card-title>
+      <mat-card-content>
+        <p>This is a simple card with some content.</p>
+        <mat-form-field appearance="fill">
+          <mat-label>Input Field</mat-label>
+          <input matInput placeholder="Enter something" />
+        </mat-form-field>
+        <button mat-raised-button color="accent">Button</button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>Buttons</mat-card-title>
+      <mat-card-content>
+        <button mat-raised-button color="primary">Primary Button</button>
+        <button mat-raised-button color="accent">Accent Button</button>
+        <button mat-raised-button color="warn">Warn Button</button>
+        <button mat-flat-button>Default Button</button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>Form Fields</mat-card-title>
+      <mat-card-content>
+        <mat-form-field appearance="fill">
+          <mat-label>Primary Input</mat-label>
+          <input matInput placeholder="Primary Input" />
+        </mat-form-field>
+        <mat-form-field appearance="fill" color="accent">
+          <mat-label>Accent Input</mat-label>
+          <input matInput placeholder="Accent Input" />
+        </mat-form-field>
+        <mat-form-field appearance="fill" color="warn">
+          <mat-label>Warn Input</mat-label>
+          <input matInput placeholder="Warn Input" />
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>List Items</mat-card-title>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon matListIcon>folder</mat-icon>
+            <h4 matLine>Item 1</h4>
+            <p matLine>Subtitle 1</p>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListIcon>folder</mat-icon>
+            <h4 matLine>Item 2</h4>
+            <p matLine>Subtitle 2</p>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListIcon>folder</mat-icon>
+            <h4 matLine>Item 3</h4>
+            <p matLine>Subtitle 3</p>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>Progress Indicators</mat-card-title>
+      <mat-card-content>
+        <mat-progress-bar
+          mode="indeterminate"
+          color="primary"
+        ></mat-progress-bar>
+        <mat-progress-bar
+          mode="indeterminate"
+          color="accent"
+        ></mat-progress-bar>
+        <mat-progress-bar mode="indeterminate" color="warn"></mat-progress-bar>
+        <mat-spinner color="primary"></mat-spinner>
+        <mat-spinner color="accent"></mat-spinner>
+        <mat-spinner color="warn"></mat-spinner>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
