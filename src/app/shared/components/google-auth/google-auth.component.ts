@@ -24,7 +24,11 @@ export class GoogleAuthComponent implements OnInit {
     this.googleAuthService.authState().subscribe(user => {
       this.user = user;
       this.loggedIn = user != null;
-      if (this.loggedIn) {
+      if (
+        this.loggedIn &&
+        typeof window !== 'undefined' &&
+        window.localStorage
+      ) {
         localStorage.setItem('user', JSON.stringify(this.user));
         this.router.navigate(['profile']);
       }

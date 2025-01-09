@@ -27,15 +27,19 @@ import { MatMenuModule } from '@angular/material/menu';
 export class LayoutComponent implements OnInit {
   user?: { name: string; email: string; photoUrl: string };
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      this.user = JSON.parse(user);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const user = localStorage.getItem('user');
+      if (user) {
+        this.user = JSON.parse(user);
+      }
     }
   }
 
   router = inject(Router);
   logout() {
-    localStorage.removeItem('user');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('user');
+    }
     this.router.navigate(['login']);
   }
 }

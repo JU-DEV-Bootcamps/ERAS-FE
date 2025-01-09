@@ -15,9 +15,11 @@ export class ProfileComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      this.user = JSON.parse(user);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const user = localStorage.getItem('user');
+      if (user) {
+        this.user = JSON.parse(user);
+      }
     }
   }
 }
