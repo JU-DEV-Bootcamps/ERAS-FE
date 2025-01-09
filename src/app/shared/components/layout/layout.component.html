@@ -1,0 +1,37 @@
+<mat-sidenav-container>
+  <mat-sidenav #sidenav [mode]="'push'">
+    <p>
+      <button mat-button (click)="sidenav.toggle()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </p>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="custom-navbar">
+      <button mat-icon-button (click)="sidenav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      @if (user) {
+        <button [matMenuTriggerFor]="beforeMenu" class="avatar-button">
+          <img
+            class="avatar"
+            alt="user-photo"
+            src="{{ user.photoUrl }}"
+            referrerpolicy="no-referrer"
+          />
+        </button>
+      }
+      <mat-menu #beforeMenu="matMenu" xPosition="before">
+        <button mat-menu-item><mat-icon>person</mat-icon>Profile</button>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>Logout
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

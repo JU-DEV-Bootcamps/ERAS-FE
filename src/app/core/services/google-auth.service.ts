@@ -18,7 +18,7 @@ export class GoogleAuthService {
     return this.authService.authState;
   }
 
-  logout() {
-    this.authService.signOut();
+  async logout() {
+    await this.authService.signOut();
   }
 }
