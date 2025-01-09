@@ -26,18 +26,18 @@ html {
         medium-weight: var(--font-weight-medium),
         regular-weight: var(--font-weight-regular),
       ),
-      density: 0
-    ));
-  }
-  
+      density: 0,
+    )
+  );
+}
+
 body {
   margin: 0;
   padding: 0;
   height: 100vh;
   width: 100vw;
-
 }
 
-  * {
-    font-family: var(--font-family-plain);
-  }
+* {
+  font-family: var(--font-family-plain);
+}
