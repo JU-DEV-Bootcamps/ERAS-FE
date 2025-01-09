@@ -4,12 +4,13 @@ import {
   GoogleSigninButtonModule,
   SocialUser,
 } from '@abacritt/angularx-social-login';
-import { GoogleAuthService } from '../../../core/services/google-auth.service';
+import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { GoogleAuthService } from '../../../core/services/google-auth.service';
 
 @Component({
   selector: 'app-google-auth',
-  imports: [CommonModule, GoogleSigninButtonModule],
+  imports: [CommonModule, GoogleSigninButtonModule, MatButtonModule],
   templateUrl: './google-auth.component.html',
   styleUrl: './google-auth.component.css',
 })

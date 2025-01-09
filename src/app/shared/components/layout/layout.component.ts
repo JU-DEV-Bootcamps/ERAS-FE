@@ -33,6 +33,8 @@ export class LayoutComponent implements OnInit {
       const user = localStorage.getItem('user');
       if (user) {
         this.user = JSON.parse(user);
+      } else {
+        this.router.navigate(['']);
       }
     }
   }
@@ -45,5 +47,9 @@ export class LayoutComponent implements OnInit {
         this.router.navigate(['login']);
       });
     }
+  }
+
+  redirectProfile() {
+    this.router.navigate(['profile']);
   }
 }
