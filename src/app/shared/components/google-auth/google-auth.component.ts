@@ -23,7 +23,6 @@ export class GoogleAuthComponent implements OnInit {
 
   ngOnInit(): void {
     this.googleAuthService.authState().subscribe(user => {
-      // User authenticated
       this.user = user;
       this.loggedIn = user != null;
       if (

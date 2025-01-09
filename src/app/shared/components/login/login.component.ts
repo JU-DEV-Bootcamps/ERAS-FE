@@ -1,15 +1,13 @@
 import { Component } from '@angular/core';
 import { GoogleAuthComponent } from '../google-auth/google-auth.component';
-import {
-  MatCardContent,
-  MatCardHeader,
-  MatCardModule,
-} from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-login',
-  imports: [GoogleAuthComponent, MatCardModule, MatCardHeader, MatCardContent],
+  imports: [GoogleAuthComponent, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {}
