@@ -11,8 +11,10 @@
 }
 
 html {
-    color-scheme: dark-light;
-    @include mat.theme((
+  height: 100%;
+  color-scheme: dark-light;
+  @include mat.theme(
+    (
       color: (
         primary: theme-colors.$primary-palette,
         tertiary: theme-colors.$tertiary-palette,
@@ -27,7 +29,15 @@ html {
       density: 0
     ));
   }
+  
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
 
-  body, h1, h2, h3, h4, h5, h6, p, label {
+}
+
+  * {
     font-family: var(--font-family-plain);
   }

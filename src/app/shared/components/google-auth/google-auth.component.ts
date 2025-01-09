@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   GoogleSigninButtonModule,
@@ -16,25 +16,28 @@ import { GoogleAuthService } from '../../../core/services/google-auth.service';
 })
 export class GoogleAuthComponent implements OnInit {
   user?: SocialUser;
+  loggedIn?: boolean;
+  router = inject(Router);
 
-  constructor(
-    private googleAuthService: GoogleAuthService,
-    private router: Router
-  ) {}
+  constructor(private googleAuthService: GoogleAuthService) {}
 
   ngOnInit(): void {
     this.googleAuthService.authState().subscribe(user => {
       // User authenticated
       this.user = user;
-      if (user != null) {
-        const userCopy = {
-          photoUrl: this.user.photoUrl,
-          name: this.user.name,
-          email: this.user.email,
-        };
-        localStorage.setItem('user', JSON.stringify(userCopy));
-        this.router.navigate(['/home']);
+      this.loggedIn = user != null;
+      if (
+        this.loggedIn &&
+        typeof window !== 'undefined' &&
+        window.localStorage
+      ) {
+        localStorage.setItem('user', JSON.stringify(this.user));
+        this.router.navigate(['profile']);
       }
     });
+  }
+
+  logout() {
+    this.googleAuthService.logout();
   }
 }
