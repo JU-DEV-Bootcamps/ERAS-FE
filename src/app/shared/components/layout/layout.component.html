@@ -27,7 +27,7 @@
         </div>
       }
       <mat-menu #beforeMenu="matMenu" xPosition="before">
-        <button mat-menu-item class="menu-button">
+        <button mat-menu-item (click)="redirectProfile()" class="menu-button">
           <mat-icon>person</mat-icon>Profile
         </button>
         <button mat-menu-item (click)="logout()" class="menu-button">
