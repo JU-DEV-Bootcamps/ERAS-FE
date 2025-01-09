@@ -1,0 +1,13 @@
+.content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title{
+    color: #144D4D;
+    font-family:'Roboto', sans-serif; /* Tipo de fuente */
+    font-size: 32px; /* Tamaño de fuente */
+    font-weight: bold;
+}
