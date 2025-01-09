@@ -5,6 +5,19 @@
 /* .mat-toolbar.mat-toolbar.mat-toolbar-single-row { */
 /*   padding: 0; */
 /* } */
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 1em;
+}
+
+.username {
+  margin-right: 1em;
+  font-size: 0.9em;
+  font-weight: var(--font-weight-medium);
+  color: var(--mat-sys-primary);
+}
 
 .avatar {
   width: 50px;
@@ -19,6 +32,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.menu-button {
+  color: var(--mat-sys-primary);
 }
 
 .container {
