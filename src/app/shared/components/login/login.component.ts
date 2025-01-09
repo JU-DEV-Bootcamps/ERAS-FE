@@ -17,7 +17,6 @@ export class LoginComponent implements OnInit {
     if (typeof window !== 'undefined' && window.localStorage) {
       const user = localStorage.getItem('user');
       if (user) {
-        alert('User already logged in');
         this.router.navigate(['/profile']);
       }
     }
