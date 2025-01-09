@@ -5,6 +5,7 @@ import {
   SocialUser,
 } from '@abacritt/angularx-social-login';
 import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 import { GoogleAuthService } from '../../../core/services/google-auth.service';
 
 @Component({
@@ -15,18 +16,25 @@ import { GoogleAuthService } from '../../../core/services/google-auth.service';
 })
 export class GoogleAuthComponent implements OnInit {
   user?: SocialUser;
-  loggedIn?: boolean;
 
-  constructor(private googleAuthService: GoogleAuthService) {}
+  constructor(
+    private googleAuthService: GoogleAuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.googleAuthService.authState().subscribe(user => {
+      // User authenticated
       this.user = user;
-      this.loggedIn = user != null;
+      if (user != null) {
+        const userCopy = {
+          photoUrl: this.user.photoUrl,
+          name: this.user.name,
+          email: this.user.email,
+        };
+        localStorage.setItem('user', JSON.stringify(userCopy));
+        this.router.navigate(['/home']);
+      }
     });
-  }
-
-  logout() {
-    this.googleAuthService.logout();
   }
 }
