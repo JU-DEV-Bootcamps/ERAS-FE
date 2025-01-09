@@ -42,6 +42,7 @@ export class LayoutComponent implements OnInit {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('user');
       this.authService.logout().then(() => {
+        alert('Logout successful');
         this.router.navigate(['login']);
       });
     }

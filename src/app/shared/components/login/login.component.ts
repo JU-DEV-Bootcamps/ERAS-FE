@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { GoogleAuthComponent } from '../google-auth/google-auth.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,4 +11,15 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {}
+export class LoginComponent implements OnInit {
+  constructor(private router: Router) {}
+  ngOnInit(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const user = localStorage.getItem('user');
+      if (user) {
+        alert('User already logged in');
+        this.router.navigate(['/profile']);
+      }
+    }
+  }
+}
