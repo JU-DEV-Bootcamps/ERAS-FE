@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
+import { GoogleAuthService } from '../../../core/services/google-auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -25,6 +26,7 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './layout.component.css',
 })
 export class LayoutComponent implements OnInit {
+  constructor(private authService: GoogleAuthService) {}
   user?: { name: string; email: string; photoUrl: string };
   ngOnInit(): void {
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -39,7 +41,9 @@ export class LayoutComponent implements OnInit {
   logout() {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('user');
+      this.authService.logout().then(() => {
+        this.router.navigate(['login']);
+      });
     }
-    this.router.navigate(['login']);
   }
 }
