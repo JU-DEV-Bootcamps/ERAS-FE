@@ -16,5 +16,5 @@ export const routes: Routes = [
       { path: 'preview', component: ThemePreviewComponent },
     ],
   },
-  { path: 'comsmic-latte', component: CosmicLatteComponent}
+  { path: 'cosmic-latte', component: CosmicLatteComponent}
 ];
