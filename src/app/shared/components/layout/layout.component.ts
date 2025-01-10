@@ -54,4 +54,7 @@ export class LayoutComponent implements OnInit {
   redirectProfile() {
     this.router.navigate(['profile']);
   }
+  redirectReports() {
+    this.router.navigate(['heat-map']);
+  }
 }
