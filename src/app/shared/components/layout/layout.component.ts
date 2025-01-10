@@ -33,6 +33,8 @@ export class LayoutComponent implements OnInit {
       const user = localStorage.getItem('user');
       if (user) {
         this.user = JSON.parse(user);
+      } else {
+        this.router.navigate(['']);
       }
     }
   }
@@ -48,5 +50,8 @@ export class LayoutComponent implements OnInit {
   }
   redirectSettings() {
     this.router.navigate(['cosmic-latte']);
+  }
+  redirectProfile() {
+    this.router.navigate(['profile']);
   }
 }

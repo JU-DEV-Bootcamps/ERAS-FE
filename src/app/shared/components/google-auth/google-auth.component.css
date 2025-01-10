@@ -1,11 +1,7 @@
-button {
-  margin: 10px;
-  background-color: #3f51b5;
-  color: #fff;
-  border-radius: 4px;
-  padding: 10px 20px;
+.google-signin-container {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 25px;
 }
-
-img {
-  border-radius: 50%;
+.google-signin-container:hover {
+  border: 1px solid var(--mat-sys-primary-fixed-dim);
 }
