@@ -46,4 +46,7 @@ export class LayoutComponent implements OnInit {
       });
     }
   }
+  redirectSettings() {
+    this.router.navigate(['cosmic-latte']);
+  }
 }

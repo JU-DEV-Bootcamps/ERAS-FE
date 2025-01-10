@@ -1,8 +1,14 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav [mode]="'push'">
+  <mat-sidenav #sidenav [mode]="'over'">
     <p>
       <button mat-button (click)="sidenav.toggle()">
         <mat-icon>close</mat-icon>
+      </button>
+    </p>
+    <p>
+      <button mat-button (click)="redirectSettings()">
+        <mat-icon>settings</mat-icon>
+        Settings
       </button>
     </p>
   </mat-sidenav>

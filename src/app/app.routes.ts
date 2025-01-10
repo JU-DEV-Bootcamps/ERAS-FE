@@ -14,7 +14,7 @@ export const routes: Routes = [
     children: [
       { path: 'profile', component: ProfileComponent },
       { path: 'preview', component: ThemePreviewComponent },
+      { path: 'cosmic-latte', component: CosmicLatteComponent}
     ],
   },
-  { path: 'cosmic-latte', component: CosmicLatteComponent}
 ];

@@ -3,7 +3,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
+    width: 100%;
     margin:0;
 }
 
@@ -11,14 +12,14 @@
     display: flex;
     flex-direction: row;
     color: #144D4D;
-    font-family:'Roboto', sans-serif; /* Tipo de fuente */
-    font-size: 16px; /* Tamaño de fuente */
+    font-family:'Roboto', sans-serif;
+    font-size: 16px;
     font-weight: medium;
 }
 .title-status{
     color: #144D4D;
-    font-family:'Roboto', sans-serif; /* Tipo de fuente */
-    font-size: 14px; /* Tamaño de fuente */
+    font-family:'Roboto', sans-serif;
+    font-size: 14px;
     font-weight: medium;
 }
 
@@ -33,7 +34,7 @@
 
 .button{
     margin: 10px;
-    color: #19BFB9;
+    background: #19BFB9;
 }
 
 .check{

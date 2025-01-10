@@ -1,8 +1,9 @@
-import { Component, OnInit, resource, signal } from '@angular/core';
+import { Component, Injectable, OnInit, resource, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'cosmic-latte',
@@ -13,14 +14,14 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 export class CosmicLatteComponent implements OnInit {
 
   request = signal<string>('');
-
+  private apiUrl = environment.apiUrl;
   healthStatus = resource({
     request:()=> ({
       request: this.request()
     }),
     loader: async () => {
       const response = await 
-      fetch ('http://localhost:5074/cosmic-latte/status',{method: 'OPTIONS'})
+      fetch (this.apiUrl+'/cosmic-latte/status',{method: 'OPTIONS'})
       const json = await response.json();
       console.log(JSON.stringify(json));
       return json;

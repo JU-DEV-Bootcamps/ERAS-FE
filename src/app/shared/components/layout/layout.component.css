@@ -27,6 +27,7 @@
   margin: 0 auto;
   padding: 10px;
   box-sizing: border-box;
+  height: 90%;
 }
 
 .custom-navbar {
@@ -36,6 +37,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
+  height: 10%;
 }
 
 @media (max-width: 1200px) {
