@@ -3,6 +3,7 @@ import { ThemePreviewComponent } from './shared/components/theme-preview/theme-p
 import { LoginComponent } from './shared/components/login/login.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { ProfileComponent } from './shared/components/profile/profile.component';
+import { HeatMapComponent } from './shared/components/heat-map/components/heat-map.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -13,6 +14,7 @@ export const routes: Routes = [
     children: [
       { path: 'profile', component: ProfileComponent },
       { path: 'preview', component: ThemePreviewComponent },
+      { path: 'heat-map', component: HeatMapComponent },
     ],
   },
 ];
