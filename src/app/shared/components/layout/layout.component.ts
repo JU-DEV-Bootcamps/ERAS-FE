@@ -48,8 +48,13 @@ export class LayoutComponent implements OnInit {
       });
     }
   }
-
+  redirectSettings() {
+    this.router.navigate(['cosmic-latte']);
+  }
   redirectProfile() {
     this.router.navigate(['profile']);
+  }
+  redirectReports() {
+    this.router.navigate(['heat-map']);
   }
 }
