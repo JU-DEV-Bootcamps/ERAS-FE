@@ -30,4 +30,8 @@ export class CosmicLatteComponent implements OnInit {
   ngOnInit(): void {
     this.request();
   }
+
+  testConnection(){
+    this.request.update((current)=>current+"1");
+  } 
 }
