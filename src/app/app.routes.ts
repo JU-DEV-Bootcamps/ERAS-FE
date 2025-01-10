@@ -4,6 +4,7 @@ import { LoginComponent } from './shared/components/login/login.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { ProfileComponent } from './shared/components/profile/profile.component';
 import { CosmicLatteComponent } from './shared/components/cosmic-latte/cosmic-latte.component';
+import { HeatMapComponent } from './shared/components/heat-map/components/heat-map.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -14,7 +15,8 @@ export const routes: Routes = [
     children: [
       { path: 'profile', component: ProfileComponent },
       { path: 'preview', component: ThemePreviewComponent },
-      { path: 'cosmic-latte', component: CosmicLatteComponent}
+      { path: 'cosmic-latte', component: CosmicLatteComponent},
+      { path: 'heat-map', component: HeatMapComponent },
     ],
   },
 ];
