@@ -32,10 +32,7 @@
             ],
             "scripts": ["node_modules/apexcharts/dist/apexcharts.min.js"],
             "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            "ssr": false
           },
           "configurations": {
             "production": {
