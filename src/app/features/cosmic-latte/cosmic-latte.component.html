@@ -1,0 +1,28 @@
+<div class="content">
+  <div class="row">
+    <h1 class="title">Cosmic Latte</h1>
+  </div>
+  <div class="row grow">
+    <div class="col center">
+      <h3 class="title-status">Service Status</h3>
+      @if (isLoading) {
+        <mat-spinner></mat-spinner>
+      } @else {
+        @if (healthCheckResponse.status === true) {
+          <mat-icon class="check">check</mat-icon>
+        } @else {
+          <mat-icon class="close">close</mat-icon>
+        }
+        <h3 class="ligth">last test :</h3>
+        <h3 class="ligth">
+          {{ healthCheckResponse.dateTime }}
+        </h3>
+      }
+    </div>
+  </div>
+  <div class="row">
+    <button class="button" mat-flat-button (click)="testConnection()">
+      Test Connection
+    </button>
+  </div>
+</div>

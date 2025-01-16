@@ -4,8 +4,8 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import {
   generateMockupQuestions,
   generateMockupAnswers,
-} from '../services/data.generator';
-import { adaptAnswers, orderAnswers } from '../services/data.adapter';
+} from './services/data.generator';
+import { adaptAnswers, orderAnswers } from './services/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
 
