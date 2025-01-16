@@ -13,7 +13,7 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       { path: 'profile', component: ProfileComponent },
-      { path: 'cosmic-latte', component: CosmicLatteComponent},
+      { path: 'cosmic-latte', component: CosmicLatteComponent },
       { path: 'heat-map', component: HeatMapComponent },
     ],
   },

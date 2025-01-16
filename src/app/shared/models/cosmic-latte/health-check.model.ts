@@ -1,4 +1,4 @@
-export interface HealthCheckResponse{
-    status: boolean;
-    dateTime: string
+export interface HealthCheckResponse {
+  status: boolean;
+  dateTime: string;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, timestamp } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 
@@ -10,15 +10,15 @@ import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-che
 })
 export class CostmicLatteService {
   private apiUrl = environment.apiUrl;
-  constructor(private http: HttpClient) {
-
-  }
+  constructor(private http: HttpClient) {}
 
   healthCheck(): Observable<HealthCheckResponse> {
-    return this.http.options<HealthCheckResponse>(`${this.apiUrl}/cosmic-latte/status`).pipe(
-      catchError(() => {
-        return throwError(() => new Error('Error on health check'));
-      })
-    );
+    return this.http
+      .options<HealthCheckResponse>(`${this.apiUrl}/cosmic-latte/status`)
+      .pipe(
+        catchError(() => {
+          return throwError(() => new Error('Error on health check'));
+        })
+      );
   }
 }
