@@ -6,7 +6,7 @@ import {
 } from '@abacritt/angularx-social-login';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
-import { GoogleAuthService } from '../../../core/services/google-auth.service';
+import { GoogleAuthService } from '../../core/services/google-auth.service';
 
 @Component({
   selector: 'app-google-auth',
