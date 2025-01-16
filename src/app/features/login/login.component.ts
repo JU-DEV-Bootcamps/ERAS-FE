@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { GoogleAuthComponent } from '../google-auth/google-auth.component';
+import { GoogleAuthComponent } from '../../shared/components/google-auth/google-auth.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
