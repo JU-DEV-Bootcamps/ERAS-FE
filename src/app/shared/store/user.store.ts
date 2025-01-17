@@ -26,7 +26,6 @@ export const UserStore = signalStore(
         });
 
         cookieService.set('user', JSON.stringify(newUser));
-        // router.navigate(['profile']);
       },
       logout() {
         patchState(store, { user: null, isLoggedIn: false });
