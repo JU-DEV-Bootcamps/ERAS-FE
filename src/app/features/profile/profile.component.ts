@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { UserStore } from '../../shared/store/user.store';
 
 @Component({
   selector: 'app-profile',
@@ -14,12 +15,12 @@ export class ProfileComponent implements OnInit {
     photoUrl: '',
   };
 
+  userStore = inject(UserStore);
+
   ngOnInit(): void {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const user = localStorage.getItem('user');
-      if (user) {
-        this.user = JSON.parse(user);
-      }
+    const user = this.userStore.user();
+    if (user) {
+      this.user = user;
     }
   }
 }
