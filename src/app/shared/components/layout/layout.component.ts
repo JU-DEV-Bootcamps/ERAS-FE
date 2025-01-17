@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { GoogleAuthService } from '../../../core/services/google-auth.service';
+import { UserStore } from '../../store/user.store';
 
 @Component({
   selector: 'app-layout',
@@ -26,27 +26,20 @@ import { GoogleAuthService } from '../../../core/services/google-auth.service';
   styleUrl: './layout.component.css',
 })
 export class LayoutComponent implements OnInit {
-  constructor(private authService: GoogleAuthService) {}
+  userStore = inject(UserStore);
   user?: { name: string; email: string; photoUrl: string };
+
   ngOnInit(): void {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const user = localStorage.getItem('user');
-      if (user) {
-        this.user = JSON.parse(user);
-      } else {
-        this.router.navigate(['']);
-      }
+    const user = this.userStore.user();
+    if (user) {
+      this.user = user;
     }
   }
 
   router = inject(Router);
   logout() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem('user');
-      this.authService.logout().then(() => {
-        this.router.navigate(['login']);
-      });
-    }
+    this.router.navigate(['login']);
+    this.userStore.logout();
   }
   redirectSettings() {
     this.router.navigate(['cosmic-latte']);
