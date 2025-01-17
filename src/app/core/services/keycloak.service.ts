@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import Keycloak from 'keycloak-js';
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
@@ -11,9 +12,9 @@ export class KeycloakService {
   get keycloak(): Keycloak {
     if(!this._keycloak) {
         this._keycloak = new Keycloak({
-            url: 'http://localhost:18080',
-            realm: 'ERAS',
-            clientId: 'public-client'
+            url: environment.keycloak.url,
+            realm: environment.keycloak.realm,
+            clientId: environment.keycloak.clientId
         })
     }
     return this._keycloak;
