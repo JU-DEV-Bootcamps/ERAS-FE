@@ -4,6 +4,7 @@ import { LayoutComponent } from './shared/components/layout/layout.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
 import { HeatMapComponent } from './features/reports/heat-map.component';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -11,6 +12,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
+    canActivateChild: [authGuard],
     children: [
       { path: 'profile', component: ProfileComponent },
       { path: 'cosmic-latte', component: CosmicLatteComponent },
