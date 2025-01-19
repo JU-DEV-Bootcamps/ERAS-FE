@@ -1,0 +1,31 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+$sizes: (
+    padding: (
+        none: 0px,
+        xs: 4px,
+        s: 8px,
+        m: 10px,
+        md: 12px,
+        lg: 16px,
+        xl: 20px
+    ),
+    margin: (
+        none: 0px,
+        xs: 4px,
+        s: 8px,
+        md: 12px,
+        lg: 16px,
+        xl: 20px
+    ),
+    icon-size: (
+        standard: 24px,
+        large: 32px,
+        extra-large: 36px
+    )
+);
+
+@function get-size($group, $key) {
+    @return map.get(map.get($sizes, $group), $key);
+}

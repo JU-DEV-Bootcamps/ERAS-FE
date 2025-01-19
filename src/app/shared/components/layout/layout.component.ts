@@ -23,7 +23,7 @@ import { GoogleAuthService } from '../../../core/services/google-auth.service';
     MatMenuModule,
   ],
   templateUrl: './layout.component.html',
-  styleUrl: './layout.component.css',
+  styleUrl: './layout.component.scss',
 })
 export class LayoutComponent implements OnInit {
   constructor(private authService: GoogleAuthService) {}
