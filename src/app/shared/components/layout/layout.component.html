@@ -1,34 +1,42 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav [mode]="'over'">
-    <p>
-      <button mat-button (click)="sidenav.toggle()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </p>
-    <p>
-      <button mat-button>
-        <mat-icon>home</mat-icon>
-        Home
-      </button>
-    </p>
-    <p>
-      <button mat-button>
-        <mat-icon>insert_chart_outlined</mat-icon>
-        Surveys
-      </button>
-    </p>
-    <p>
-      <button mat-button (click)="redirectReports()">
-        <mat-icon>pie_chart_outline</mat-icon>
-        Reports
-      </button>
-    </p>
-    <p>
-      <button mat-button (click)="redirectSettings()">
-        <mat-icon>settings</mat-icon>
-        Settings
-      </button>
-    </p>
+  <mat-sidenav #sidenav [mode]="'side'" class="custom-sidenav">
+    <div class="custom-sidenav-header">
+      <p>ERAS</p>
+    </div>
+    <div class="custom-sidenav-content">
+      <p>
+        <button mat-button class="custom-nav-button">
+          <mat-icon>home</mat-icon>
+          Home
+        </button>
+      </p>
+      <p>
+        <button mat-button class="custom-nav-button">
+          <mat-icon>insert_chart_outlined</mat-icon>
+          Surveys
+        </button>
+      </p>
+      <p>
+        <button
+          mat-button
+          (click)="redirectReports()"
+          class="custom-nav-button"
+        >
+          <mat-icon>pie_chart_outline</mat-icon>
+          Reports
+        </button>
+      </p>
+      <p>
+        <button
+          mat-button
+          (click)="redirectSettings()"
+          class="custom-nav-button"
+        >
+          <mat-icon>settings</mat-icon>
+          Settings
+        </button>
+      </p>
+    </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
@@ -39,7 +47,9 @@
 
       @if (user) {
         <div class="user-info">
-          <span class="username">{{ user.name }}</span>
+          <button>
+            <mat-icon>notifications_none</mat-icon>
+          </button>
           <button [matMenuTriggerFor]="beforeMenu" class="avatar-button">
             <img
               class="avatar"
@@ -50,7 +60,7 @@
           </button>
         </div>
       }
-      <mat-menu #beforeMenu="matMenu" xPosition="before">
+      <mat-menu #beforeMenu="matMenu" xPosition="before" class="avatar-menu">
         <button mat-menu-item (click)="redirectProfile()" class="menu-button">
           <mat-icon>person</mat-icon>Profile
         </button>

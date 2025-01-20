@@ -23,7 +23,7 @@ import { UserStore } from '../../store/user.store';
     MatMenuModule,
   ],
   templateUrl: './layout.component.html',
-  styleUrl: './layout.component.css',
+  styleUrl: './layout.component.scss',
 })
 export class LayoutComponent implements OnInit {
   userStore = inject(UserStore);
