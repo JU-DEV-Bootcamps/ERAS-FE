@@ -1,0 +1,53 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use 'theme-colors.scss' as theme-colors;
+@use 'theme-fonts.scss' as theme-fonts;
+
+@forward "./theme-breakpoints";
+@forward "./theme-colors";
+@forward "./theme-sizes";
+@forward "./theme-fonts";
+
+:root {
+    --font-family-plain: 'Roboto', sans-serif;
+    --font-family-brand: 'Roboto', sans-serif;
+    --font-weight-bold: theme-fonts.get-font-weight('bold');
+    --font-weight-medium: theme-fonts.get-font-weight('medium');
+    --font-weight-regular: theme-fonts.get-font-weight('regular');
+  }
+  
+  mat-icon {
+    font-family: 'Material Icons', sans-serif;
+  }
+
+  html {
+    height: 100%;
+    color-scheme: dark-light;
+    @include mat.theme(
+      (
+        color: (
+          primary: theme-colors.$primary-palette,
+          tertiary: theme-colors.$tertiary-palette,
+        ),
+        typography: (
+          plain-family: var(--font-family-plain),
+          brand-family: var(--font-family-brand),
+          bold-weight: var(--font-weight-bold),
+          medium-weight: var(--font-weight-medium),
+          regular-weight: var(--font-weight-regular),
+        ),
+        density: 0,
+      )
+    );
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+  }
+  
+  * {
+    font-family: var(--font-family-plain);
+  }

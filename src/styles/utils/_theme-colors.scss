@@ -5,7 +5,7 @@
 @use '@angular/material' as mat;
 
 // Note: Color palettes are generated from primary: 19BFB9, secondary: 89427A, neutral: 939090
-$_palettes: (
+$palettes: (
   primary: (
     0: #000000,
     10: #00201f,
@@ -62,7 +62,10 @@ $_palettes: (
   ),
   neutral: (
     0: #000000,
+    4: #0f0e0e,
+    6: #141313,
     10: #1c1b1b,
+    12: #201f1f,
     20: #313030,
     25: #3c3b3b,
     30: #484646,
@@ -77,16 +80,6 @@ $_palettes: (
     98: #fdf8f8,
     99: #fffbff,
     100: #ffffff,
-    4: #0f0e0e,
-    6: #141313,
-    12: #201f1f,
-    17: #2b2a2a,
-    22: #363435,
-    24: #3a3939,
-    87: #ddd9d9,
-    92: #ece7e7,
-    94: #f1eded,
-    96: #f7f2f2,
   ),
   neutral-variant: (
     0: #000000,
@@ -127,11 +120,17 @@ $_palettes: (
 );
 
 $_rest: (
-  secondary: map.get($_palettes, secondary),
-  neutral: map.get($_palettes, neutral),
-  neutral-variant: map.get($_palettes,  neutral-variant),
-  error: map.get($_palettes, error),
+  secondary: map.get($palettes, secondary),
+  neutral: map.get($palettes, neutral),
+  neutral-variant: map.get($palettes,  neutral-variant),
+  error: map.get($palettes, error),
 );
 
-$primary-palette: map.merge(map.get($_palettes, primary), $_rest);
-$tertiary-palette: map.merge(map.get($_palettes, tertiary), $_rest);
+// With this function we can access to the color palette
+@function get-color($palette, $key) {
+  @return map.get(map.get($palettes, $palette), $key);
+}
+
+
+$primary-palette: map.merge(map.get($palettes, primary), $_rest);
+$tertiary-palette: map.merge(map.get($palettes, tertiary), $_rest);
