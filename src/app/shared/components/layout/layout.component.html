@@ -1,11 +1,8 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav [mode]="'side'" class="custom-sidenav">
-    <!-- Header del sidenav -->
     <div class="custom-sidenav-header">
       <p>ERAS</p>
     </div>
-
-    <!-- Contenido del sidenav -->
     <div class="custom-sidenav-content">
       <p>
         <button mat-button class="custom-nav-button">
@@ -50,7 +47,6 @@
 
       @if (user) {
         <div class="user-info">
-          <!-- <span class="username">{{ user.name }}</span> -->
           <button>
             <mat-icon>notifications_none</mat-icon>
           </button>
