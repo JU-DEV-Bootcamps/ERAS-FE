@@ -9,18 +9,16 @@
   display: flex;
   align-items: center;
   margin-left: auto;
-  margin-right: 1em;
+  margin-right: ut.get-size(margin, lg);
 }
 
 .user-info button {
   width: ut.get-size(icon-size, extra-large);
   height: ut.get-size(icon-size, extra-large);
-  margin: 5px;
+  margin: ut.get-size(margin, xs);
   border-radius: 50%;
   border: none;
   background-color: ut.get-color('neutral', 100);
-  margin: 5px;
-  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,9 +29,9 @@
 }
 
 .username {
-  margin-right: 1em;
-  font-size: 0.8em;
-  font-weight: var(--font-weight-medium);
+  margin-right: ut.get-size(margin, lg);
+  font-size: ut.get-font-size(label, medium);
+  font-weight: ut.get-font-weight(medium);
   color: var(--mat-sys-primary);
 }
 
@@ -95,7 +93,7 @@
 .custom-sidenav-header p {
   text-align: center;
   font-family: var(--Headline-Small-Font, Roboto);
-  font-size: var(--Headline-Small-Size, 24px);
+  font-size: ut.get-font-size(headline, small);
   font-style: normal;
   font-weight: 700;
   line-height: var(--Headline-Small-Line-Height, 32px);
@@ -111,16 +109,16 @@
 }
 
 .custom-sidenav-content p {
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin-top: ut.get-size(margin, xs);
+  margin-bottom: ut.get-size(margin, xs);
 }
 
 button.mat-mdc-button.custom-nav-button {
   color: ut.get-color('neutral', 100);
-  padding: 24px;
+  padding: ut.get-size(padding, xxl);
   justify-content: flex-start;
-  margin-left: 12px;
-  margin-right: 12px;
+  margin-left: ut.get-size(margin, md);
+  margin-right: ut.get-size(margin, md);
   width: calc(100% - 24px);
 }
 

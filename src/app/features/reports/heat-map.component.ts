@@ -10,7 +10,7 @@ import { adaptAnswers, orderAnswers } from './services/data.adapter';
 import { ApexOptions } from 'ng-apexcharts';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-charts',
   standalone: true,
   imports: [NgApexchartsModule],
   templateUrl: './heat-map.component.html',
