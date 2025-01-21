@@ -33,6 +33,7 @@
     "keycloak-js": "^26.0.8",
     "ng-apexcharts": "^1.15.0",
     "ngx-cookie-service": "^19.0.0",
+    "ng-openapi-gen": "^0.52.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
