@@ -1,16 +1,38 @@
-<div class="content">
-  <div class="row">
-    <h1>Import Students - CSV</h1>
+<div class="content center">
+  <div>
+    <h1 class="title">Import Students</h1>
   </div>
   <div class="grow center">
-    <h3>Upload Student List File</h3>
-    <input
-      type="file"
-      class="custom-file-input"
-      placeholder="Select CSV file"
-    />
+    <p class="subtitle">Upload Student List File</p>
+    <mat-form-field appearance="outline" class="custom-form-field">
+      <!--Hidden input file because Angular Material doesn't support-->
+      <input
+        #fileInput
+        type="file"
+        (change)="onFileSelected($event)"
+        style="display: none"
+      />
+
+      <input
+        matInput
+        [value]="selectedFile ? selectedFile.name : ''"
+        placeholder="CSV file"
+        readonly
+        (click)="fileInput.click()"
+      />
+    </mat-form-field>
+    @if (fileError) {
+      <mat-error>{{ fileError }}</mat-error>
+    }
   </div>
-  <div class="row" style="padding: 1em">
-    <button mat-flat-button disabled>Import File</button>
+  <div style="padding: 1em">
+    <button
+      class="button"
+      mat-flat-button
+      [disabled]="!selectedFile || fileError"
+      (click)="importFile()"
+    >
+      Import File
+    </button>
   </div>
 </div>
