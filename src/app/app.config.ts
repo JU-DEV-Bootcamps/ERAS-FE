@@ -38,7 +38,7 @@ export const appConfig: ApplicationConfig = {
       },
     },
     provideHttpClient(
-        withInterceptors([keycloakHttpInterceptor]),
+        //withInterceptors([keycloakHttpInterceptor]),
         withFetch()
     ),
     provideAppInitializer(() => {
