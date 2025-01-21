@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Keycloak from 'keycloak-js';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.development';
 @Injectable({
   providedIn: 'root'
 })
@@ -33,7 +33,7 @@ export class KeycloakService {
     return this.keycloak?.tokenParsed?.sub as string;
   }
 
-  get isTokenValik() {
+  get isTokenValid() {
     return !this.keycloak.isTokenExpired();
   }
 
@@ -42,7 +42,7 @@ export class KeycloakService {
   }
 
   logout() {
-    return this.keycloak.login({ redirectUri: 'http://localhost:4200' });
+    return this.keycloak.logout({ redirectUri: environment.keycloak.redirectUri });
   }
 
   accountManagement() {

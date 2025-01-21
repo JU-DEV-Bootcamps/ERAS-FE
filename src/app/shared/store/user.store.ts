@@ -1,6 +1,5 @@
 import { UserState } from '../../core/interfaces/user-state';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
-import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 
@@ -16,7 +15,6 @@ export const UserStore = signalStore(
   withMethods(
     (
       store,
-      router = inject(Router),
       cookieService = inject(CookieService)
     ) => ({
       login(newUser: UserState['user']) {
@@ -24,16 +22,17 @@ export const UserStore = signalStore(
           user: newUser,
           isLoggedIn: true,
         });
-
-        cookieService.set('user', JSON.stringify(newUser));
+        cookieService.set('user', JSON.stringify(newUser), {
+            expires: 1,
+            path: '/',
+            sameSite: 'Strict', //Protects against CSRF
+            //secure: true, // Send cookies over HTTPS
+        });
       },
       logout() {
         patchState(store, { user: null, isLoggedIn: false });
         cookieService.delete('user');
-        router.navigate(['login']);
       },
     })
   )
 );
-
-

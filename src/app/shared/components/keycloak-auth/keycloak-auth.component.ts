@@ -19,14 +19,25 @@ export class KeycloakAuthComponent implements OnInit{
   constructor(private keycloakService: KeycloakService) {}
 
   ngOnInit(): void {
-      this.keycloakService.init();
-      this.router.navigate(['profile']);
+    if(this.keycloakService.isTokenValid){
+        const userProfile = this.keycloakService.keycloak.tokenParsed as any;
+        this.userStore.login({
+            id: this.keycloakService.userId,
+            email:  userProfile.email || "No email found",
+            name: this.keycloakService.fullName,
+            photoUrl: this.keycloakService.userId,
+            firstName: userProfile.firstName || "given_name",
+            lastName: userProfile.lastName || "family_name",
+            authToken: this.keycloakService.keycloak.authServerUrl || "No token found",
+            idToken: this.keycloakService.keycloak.idToken || "No token found",
+            authorizationCode: this.keycloakService.keycloak.token || "No token found",
+        })
+        this.router.navigate(['profile']);
+    }
   }
-  login(): () => Promise<void>{
-    const initFn = (() => {
-        return () => this.keycloakService.init()
-    });
-    this.router.navigate(['profile']);
-    return initFn();
+  async login(): Promise<void>{
+    await this.keycloakService.init();
+    this.ngOnInit();
+    console.log("login with keycloak", this.keycloakService);
   }
 }

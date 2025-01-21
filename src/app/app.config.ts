@@ -12,7 +12,6 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment.development';
-import { KeycloakService } from './core/services/keycloak.service';
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-http.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -38,15 +37,9 @@ export const appConfig: ApplicationConfig = {
       },
     },
     provideHttpClient(
-        //withInterceptors([keycloakHttpInterceptor]),
+        withInterceptors([keycloakHttpInterceptor]),
         withFetch()
     ),
-    provideAppInitializer(() => {
-        const initFn = ((key: KeycloakService) => {
-            return () => key.init()
-        })(inject(KeycloakService));
-        return initFn();
-    }),
     provideAnimationsAsync(),
   ],
 };
