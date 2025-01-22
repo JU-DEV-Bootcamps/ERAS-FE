@@ -85,6 +85,9 @@ export class CsvCheckerService {
       this.validationErrors.push(
         `Missing headers: ${missingHeaders.join(', ')}`
       );
+      this.validationErrors.push(
+        'Tip: If your file has headers, double-check that it is saved with UTF-8 encoding.'
+      );
     }
   }
 

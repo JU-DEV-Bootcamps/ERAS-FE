@@ -14,6 +14,8 @@
 
 .grow {
   flex-grow: 1;
+  width: 100%;
+  max-width: 25rem;
 }
 
 .center {
@@ -36,10 +38,14 @@
 
 .custom-form-field {
   width: 100%;
+  max-width: 20rem;
 }
 
-mat-error {
+.errorMessage {
+  color: red;
   font-size: 0.9em;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .button:not([disabled]) {

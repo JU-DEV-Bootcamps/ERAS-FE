@@ -5,7 +5,7 @@
   <div class="grow center">
     <p class="subtitle">Upload Student List File</p>
     <mat-form-field appearance="outline" class="custom-form-field">
-      <!--Hidden input file because Angular Material doesn't support-->
+      <!--Hidden input file because Angular Material doesn't support it-->
       <input
         #fileInput
         type="file"
@@ -22,7 +22,14 @@
       />
     </mat-form-field>
     @if (fileError) {
-      <mat-error>{{ fileError }}</mat-error>
+      <mat-error class="errorMessage">{{ fileError }}</mat-error>
+      @if (csvErrors.length > 0) {
+        <ul>
+          @for (error of csvErrors; track error) {
+            <li class="errorMessage">{{ error }}</li>
+          }
+        </ul>
+      }
     }
   </div>
   <div style="padding: 1em">

@@ -13,6 +13,7 @@ import { CsvCheckerService } from '../../core/services/csv-checker.service';
 export class ImportStudentsComponent {
   selectedFile: File | null = null;
   fileError: string | null = null;
+  csvErrors: string[] = [];
 
   constructor(private csvCheckerService: CsvCheckerService) {}
 
@@ -22,12 +23,10 @@ export class ImportStudentsComponent {
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
       this.validateFile(this.selectedFile);
-    } else {
-      this.selectedFile = null;
     }
   }
 
-  async validateFile(file: File): Promise<void> {
+  private async validateFile(file: File): Promise<void> {
     const maxFileSize = 5 * 1024 * 1024; // 5MB
 
     if (file.size > maxFileSize) {
@@ -44,18 +43,14 @@ export class ImportStudentsComponent {
 
     // Pre-scan Papaparse to check for errors
     await this.csvCheckerService.validateCSV(file);
-    const errors = this.csvCheckerService.getErrors();
-    if (errors.length > 0) {
+    this.csvErrors = this.csvCheckerService.getErrors();
+    if (this.csvErrors.length > 0) {
       this.fileError = "Pre-scan: There are errors in the file's content.";
-      console.error(errors);
+      this.csvErrors = this.processErrors(this.csvErrors);
       return;
     }
 
     this.fileError = null;
-  }
-
-  getKeys(data: Record<string, unknown>): string[] {
-    return data ? Object.keys(data) : [];
   }
 
   importFile(): void {
@@ -64,18 +59,33 @@ export class ImportStudentsComponent {
       const jsonData = data.map((row: Record<string, unknown>) => {
         const filteredRow: Record<string, unknown> = {};
         for (const key in row) {
-          // Irrelevant index column
+          // Filter irrelevant index column
           if (key !== '') {
             filteredRow[key] = row[key];
           }
         }
         return filteredRow;
       });
-
       console.log(jsonData);
-      /**
-       * DELETE THIS CODE LINES - ONLY FOR TESTING
-       */
     }
+  }
+
+  private processErrors(errors: string[]): string[] {
+    const maxErrorsToShow = 4;
+    const maxLength = 140;
+    const processedErrors = errors.slice(0, maxErrorsToShow).map(error => {
+      if (error.length > maxLength) {
+        return error.substring(0, maxLength) + '...';
+      }
+      return error;
+    });
+
+    if (errors.length > maxErrorsToShow) {
+      processedErrors.push(
+        `And ${errors.length - maxErrorsToShow} more rows with errors...`
+      );
+    }
+
+    return processedErrors;
   }
 }
