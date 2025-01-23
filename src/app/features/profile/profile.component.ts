@@ -20,8 +20,6 @@ export class ProfileComponent implements OnInit {
   keycloak = inject(KeycloakService);
 
   ngOnInit(): void {
-    console.log("keycloak", this.keycloak);
-    console.log("google", this.userStore)
     const user = this.userStore.user();
     if (user) {
       this.user = user;

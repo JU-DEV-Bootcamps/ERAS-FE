@@ -50,7 +50,6 @@ export class KeycloakAuthComponent implements OnInit{
         console.error("Error on keycloak init", error);
     }
     try {
-        console.log("After keycloak init", this.keycloakService);
         this.ngOnInit();
     } catch (error) {
         console.error("Something went wrong with ngOnInit for KeycloakAuthComponent", error);

@@ -54,9 +54,6 @@ export class LayoutComponent implements OnInit {
     } catch (error) {
         console.error("Google logout error", error);
     }
-    console.log('try to navigate to login');
-    this.router.navigate(['login']);
-    console.log('AFTER: try to navigate to login');
   }
   redirectSettings() {
     this.router.navigate(['cosmic-latte']);

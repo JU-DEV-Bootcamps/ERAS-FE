@@ -6,8 +6,9 @@ import { environment } from '../../../environments/environment.development';
 })
 export class KeycloakService {
   private _keycloak: Keycloak | undefined;
+  public authenticated: boolean;
 
-  constructor() { }
+  constructor() { this.authenticated = false; }
 
   get keycloak(): Keycloak {
     if(!this._keycloak) {
@@ -21,7 +22,7 @@ export class KeycloakService {
   }
 
   async init() {
-    const authenticated = await this.keycloak.init({
+    this.authenticated = await this.keycloak.init({
         onLoad: 'login-required'
     });
   }
