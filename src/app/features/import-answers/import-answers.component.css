@@ -1,0 +1,37 @@
+.title-answer {
+    font-weight: 400;
+    text-align: center;
+    font-size: 22;
+}
+
+.container-form-answer {
+    padding: 0 18px;  
+}
+
+.input-date {
+    margin-top: 16px;
+}
+
+.button{
+    background-color: #19BFB9;
+}
+
+.row{
+    margin-top: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.input {
+    width: 100%;
+}
+
+@media screen and (min-width: 992px) {
+    .input {
+        width: 70%;
+    }
+    .container-form-answer {
+        padding: 0;
+    }
+}
