@@ -8,7 +8,6 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "start:dev": "ng serve --configuration=development",
-    "serve:ssr:ERAS-FE": "node dist/eras-fe/server/server.mjs",
     "lint": "ng lint"
   },
   "private": true,
@@ -29,8 +28,11 @@
     "@ngrx/signals": "^19.0.0",
     "apexcharts": "^4.3.0",
     "express": "^4.18.2",
+    "keycloak-angular": "^19.0.2",
+    "keycloak-js": "^26.0.8",
     "ng-apexcharts": "^1.15.0",
     "ngx-cookie-service": "^19.0.0",
+    "ng-openapi-gen": "^0.52.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

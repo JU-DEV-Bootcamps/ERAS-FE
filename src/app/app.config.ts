@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -8,17 +8,17 @@ import {
 } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment.development';
+import { keycloakHttpInterceptor } from './core/utilities/keycloak-http.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch()),
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {
@@ -36,6 +36,10 @@ export const appConfig: ApplicationConfig = {
         },
       },
     },
+    provideHttpClient(
+        withInterceptors([keycloakHttpInterceptor]),
+        withFetch()
+    ),
     provideAnimationsAsync(),
   ],
 };

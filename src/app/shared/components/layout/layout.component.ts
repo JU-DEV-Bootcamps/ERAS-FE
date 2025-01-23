@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { UserStore } from '../../store/user.store';
+import { GoogleAuthService } from '../../../core/services/google-auth.service';
+import { KeycloakService } from '../../../core/services/keycloak.service';
 
 @Component({
   selector: 'app-layout',
@@ -27,6 +29,8 @@ import { UserStore } from '../../store/user.store';
 })
 export class LayoutComponent implements OnInit {
   userStore = inject(UserStore);
+  googleService = inject(GoogleAuthService);
+  keycloakService = inject(KeycloakService);
   user?: { name: string; email: string; photoUrl: string };
 
   ngOnInit(): void {
@@ -37,9 +41,19 @@ export class LayoutComponent implements OnInit {
   }
 
   router = inject(Router);
-  logout() {
-    this.router.navigate(['login']);
-    this.userStore.logout();
+  async logout() {
+    try {
+        await this.keycloakService.logout();
+        this.userStore.logout();
+    } catch (error) {
+        console.error("Keycloak logout error", error);
+    }
+    try {
+        await this.googleService.logout();
+        this.userStore.logout();
+    } catch (error) {
+        console.error("Google logout error", error);
+    }
   }
   redirectSettings() {
     this.router.navigate(['cosmic-latte']);
