@@ -14,23 +14,17 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Convert repo name
-        id: convert-name
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const repoName = context.payload.repository.name;
-            const lowerCaseRepoName = repoName.toLowerCase();
-            return lowerCaseRepoName;
-      - name: Set Variables
+      - name: Set variables and use tags
         id: set-vars
         run: |
-          SHORT_SHA=$(git rev-parse --short $GITHUB_SHA)
-          echo "REPO_NAME=${{ steps.convert-name.outputs.result }}" >> $GITHUB_ENV
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          SHORT_SHA=$(git rev-parse --short ${{ github.sha }})
+
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ env.REPO_NAME }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}-prod
+          tags: ${{ github.event.repository.name | downcase }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}-prod
