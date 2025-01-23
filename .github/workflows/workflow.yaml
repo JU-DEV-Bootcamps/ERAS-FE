@@ -1,4 +1,7 @@
 on:
+  push:
+    branches:
+      - feature/ERAS-45/ci_cd
   workflow_dispatch:
 jobs:
   package:
