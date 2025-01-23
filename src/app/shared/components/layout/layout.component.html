@@ -5,7 +5,11 @@
     </div>
     <div class="custom-sidenav-content">
       <p>
-        <button mat-button class="custom-nav-button">
+        <button
+          mat-button
+          (click)="redirectProfile()"
+          class="custom-nav-button"
+        >
           <mat-icon>home</mat-icon>
           Home
         </button>
