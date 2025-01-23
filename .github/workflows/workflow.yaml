@@ -17,18 +17,14 @@ jobs:
       - name: Obtener el Último Tag
         id: get-latest-tag
         uses: actions-ecosystem/action-get-latest-tag@v1
-      - name: Obtener Short SHA del Tag
-        id: get-short-sha
+      - name: Set short git commit SHA
+        id: vars
         run: |
-          TAG=${{ steps.get-latest-tag.outputs.tag }}
-          echo "Último tag: $TAG"
-  
-          SHORT_SHA=$(git rev-parse --short $TAG)
-          echo "Short SHA del tag $TAG: $SHORT_SHA"
-          echo "${{ github.event.repository.name }}:${TAG}-${SHORT_SHA}:prod"    
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV   
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ github.event.repository.name }}:${{ steps.get-latest-tag.outputs.tag }}-${{$(git rev-parse --short $TAG)}}:prod
+          tags: ${{ github.event.repository.name }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}:prod
