@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
 import { ImportStudentService } from '../../core/services/import-students.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ImportDialogComponent } from './components/import-dialog.component';
 
 @Component({
   selector: 'app-import-students',
@@ -15,6 +17,7 @@ export class ImportStudentsComponent {
   selectedFile: File | null = null;
   fileError: string | null = null;
   csvErrors: string[] = [];
+  readonly dialog = inject(MatDialog);
 
   constructor(
     private csvCheckerService: CsvCheckerService,
@@ -58,31 +61,6 @@ export class ImportStudentsComponent {
     this.fileError = null;
   }
 
-  importFile(): void {
-    if (this.selectedFile) {
-      const data = this.csvCheckerService.getCSVData();
-      const jsonData = data.map((row: Record<string, unknown>) => {
-        const filteredRow: Record<string, unknown> = {};
-        for (const key in row) {
-          // Filter irrelevant index column
-          if (key !== '') {
-            filteredRow[key] = row[key];
-          }
-        }
-        return filteredRow;
-      });
-      console.log(jsonData);
-      this.importService.postData(jsonData).subscribe({
-        next: response => {
-          console.log('API call successful:', response);
-        },
-        error: error => {
-          console.error('API call failed:', error);
-        },
-      });
-    }
-  }
-
   private processErrors(errors: string[]): string[] {
     const maxErrorsToShow = 4;
     const maxLength = 140;
@@ -100,5 +78,48 @@ export class ImportStudentsComponent {
     }
 
     return processedErrors;
+  }
+
+  importFile(): void {
+    if (this.selectedFile) {
+      const data = this.csvCheckerService.getCSVData();
+      const jsonData = data.map((row: Record<string, unknown>) => {
+        const filteredRow: Record<string, unknown> = {};
+        for (const key in row) {
+          // Filter irrelevant index column
+          if (key !== '') {
+            filteredRow[key] = row[key];
+          }
+        }
+        return filteredRow;
+      });
+      this.importService.postData(jsonData).subscribe({
+        next: response => {
+          console.log('API call successful:', response);
+          this.openDialog(
+            false,
+            'The students information was saved into the system succesfully.'
+          );
+        },
+        error: error => {
+          console.error('API call failed:', error);
+          this.openDialog(
+            true,
+            'There was an error during the import process, please try again.'
+          );
+        },
+      });
+    }
+  }
+  private openDialog(isError: boolean, text: string): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+    this.dialog.open(ImportDialogComponent, {
+      data: {
+        title: isError ? 'Warning!!' : 'Succesfull Import',
+        message: text,
+        isError: isError,
+      },
+    });
   }
 }

@@ -1,0 +1,8 @@
+.error-style {
+  color: red;
+  font-weight: semibold;
+}
+.success-style {
+  color: #144d4d;
+  font-weight: semibold;
+}

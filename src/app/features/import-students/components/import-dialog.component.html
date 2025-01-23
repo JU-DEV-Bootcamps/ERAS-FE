@@ -1,0 +1,9 @@
+@if (data.isError) {
+  <h2 mat-dialog-title class="error-style">{{ data.title }}</h2>
+} @else {
+  <h2 mat-dialog-title class="success-style">{{ data.title }}</h2>
+}
+<mat-dialog-content> {{ data.message }} </mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="closeDialog()">Ok</button>
+</mat-dialog-actions>
