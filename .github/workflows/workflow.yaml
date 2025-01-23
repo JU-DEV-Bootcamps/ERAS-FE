@@ -21,10 +21,10 @@ jobs:
         id: vars
         run: |
           calculatedSha=$(git rev-parse --short ${{ github.sha }})
-          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV   
+          echo "SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ github.event.repository.name }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}-prod
+          tags: ${{ github.event.repository.name | downcase }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}-prod
