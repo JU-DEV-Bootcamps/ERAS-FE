@@ -1,0 +1,27 @@
+on:
+  workflow_dispatch:
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Obtener el Último Tag
+        id: get-latest-tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+      - name: Obtener Short SHA del Tag
+        id: get-short-sha
+        run: |
+          TAG=${{ steps.get-latest-tag.outputs.tag }}
+          echo "Último tag: $TAG"
+  
+          SHORT_SHA=$(git rev-parse --short $TAG)
+          echo "Short SHA del tag $TAG: $SHORT_SHA"
+
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_ENV    
+          echo "${{ github.event.repository.name }}:${TAG}-${SHORT_SHA}:prod"    
