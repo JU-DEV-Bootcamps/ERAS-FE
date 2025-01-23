@@ -14,11 +14,11 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set variables and use tags
+      - name: Set variables
         id: set-vars
         run: |
           REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
-          SHORT_SHA=$(git rev-parse --short ${{ github.sha }})
+          SHORT_SHA=$(git rev-parse --short $GITHUB_SHA)
 
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
