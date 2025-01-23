@@ -42,14 +42,21 @@ export class LayoutComponent implements OnInit {
 
   router = inject(Router);
   async logout() {
-    this.userStore.logout();
     try {
-      await this.googleService.logout();
-      await this.keycloakService.logout();
+        await this.keycloakService.logout();
+        this.userStore.logout();
     } catch (error) {
-      console.log("Only one provider logged at a time", error);
+        console.error("Keycloak logout error", error);
     }
+    try {
+        await this.googleService.logout();
+        this.userStore.logout();
+    } catch (error) {
+        console.error("Google logout error", error);
+    }
+    console.log('try to navigate to login');
     this.router.navigate(['login']);
+    console.log('AFTER: try to navigate to login');
   }
   redirectSettings() {
     this.router.navigate(['cosmic-latte']);

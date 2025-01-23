@@ -41,8 +41,8 @@ export class KeycloakService {
     return this.keycloak.tokenParsed?.['name'] as string;
   }
 
-  logout() {
-    return this.keycloak.logout({ redirectUri: environment.keycloak.redirectUri });
+  async logout() {
+    return await this.keycloak.logout({ redirectUri: environment.keycloak.redirectUri });
   }
 
   accountManagement() {
