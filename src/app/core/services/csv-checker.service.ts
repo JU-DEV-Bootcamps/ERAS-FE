@@ -96,6 +96,17 @@ export class CsvCheckerService {
       const rowErrors: string[] = [];
       const emailField = 'Correo electronico';
 
+      // Check for empty fields
+      Object.keys(row).forEach(field => {
+        if (
+          row[field] === null ||
+          row[field] === undefined ||
+          row[field] === ''
+        ) {
+          rowErrors.push(`Field ${field} is empty`);
+        }
+      });
+
       if (!this.validateEmail(row[emailField])) {
         rowErrors.push('Invalid email format');
       }

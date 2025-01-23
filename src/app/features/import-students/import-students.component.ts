@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
+import { ImportStudentService } from '../../core/services/import-students.service';
 
 @Component({
   selector: 'app-import-students',
@@ -15,13 +16,17 @@ export class ImportStudentsComponent {
   fileError: string | null = null;
   csvErrors: string[] = [];
 
-  constructor(private csvCheckerService: CsvCheckerService) {}
+  constructor(
+    private csvCheckerService: CsvCheckerService,
+    private importService: ImportStudentService
+  ) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
 
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
+      this.csvErrors = []; // Reset errors
       this.validateFile(this.selectedFile);
     }
   }
@@ -45,7 +50,7 @@ export class ImportStudentsComponent {
     await this.csvCheckerService.validateCSV(file);
     this.csvErrors = this.csvCheckerService.getErrors();
     if (this.csvErrors.length > 0) {
-      this.fileError = "Pre-scan: There are errors in the file's content.";
+      this.fileError = "CSV Scan: Errors detected in the file's content.";
       this.csvErrors = this.processErrors(this.csvErrors);
       return;
     }
@@ -67,6 +72,14 @@ export class ImportStudentsComponent {
         return filteredRow;
       });
       console.log(jsonData);
+      this.importService.postData(jsonData).subscribe({
+        next: response => {
+          console.log('API call successful:', response);
+        },
+        error: error => {
+          console.error('API call failed:', error);
+        },
+      });
     }
   }
 
