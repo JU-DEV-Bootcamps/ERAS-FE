@@ -22,14 +22,15 @@ jobs:
             const repoName = context.payload.repository.name;
             const lowerCaseRepoName = repoName.toLowerCase();
             return lowerCaseRepoName;
-      - name: Get short commit sha
+      - name: Set Variables
         id: set-vars
         run: |
           SHORT_SHA=$(git rev-parse --short $GITHUB_SHA)
+          echo "REPO_NAME=${{ steps.convert-name.outputs.result }}" >> $GITHUB_ENV
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ${{ steps.convert-name.outputs.result }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}-prod
+          tags: ${{ env.REPO_NAME }}:${{ steps.get-latest-tag.outputs.tag }}-${{ env.SHORT_SHA }}-prod
