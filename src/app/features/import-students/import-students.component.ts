@@ -94,8 +94,8 @@ export class ImportStudentsComponent {
         return filteredRow;
       });
       this.importService.postData(jsonData).subscribe({
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         next: response => {
-          console.log('API call successful:', response);
           this.openDialog(
             false,
             'The students information was saved into the system succesfully.'

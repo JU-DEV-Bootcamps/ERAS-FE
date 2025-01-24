@@ -18,7 +18,8 @@ describe('ImportStudentsComponent', () => {
   });
 
   it('should set fileError and not call validateFile if file size exceeds 5MB', () => {
-    const largeFile = new File(['a'.repeat(5 * 1024 * 1024 + 1)], 'large.csv', {
+    const largeFileContent = 'a'.repeat(5 * 1024 * 1024 + 1);
+    const largeFile = new File([largeFileContent], 'large.csv', {
       type: 'text/csv',
     });
     const event = { target: { files: [largeFile] } } as unknown as Event;
