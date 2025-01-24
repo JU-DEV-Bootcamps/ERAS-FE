@@ -54,11 +54,19 @@ export class ImportAnswersComponent {
       next: (response) => {
         this.isLoading = false;
         this.openDialog('Successful', 'The survey’s answers were saved in the system successfully', true);
+        this.resetForm()
       },
       error: (error) => {
         this.isLoading = false;
         this.openDialog('Warning', 'There was an error with the import, please try again or check the values.', false); 
+        this.resetForm()
       }
     });
+  }
+
+  resetForm() {
+    this.form.reset();
+    this.form.markAsPristine();
+    this.form.markAsUntouched();
   }
 }
