@@ -32,7 +32,7 @@ export class CostmicLatteService {
     }
 
     return this.http
-      .get<any>(`${this.apiUrl}/Evaluations?`, { params })
+      .get<any>(`${this.apiUrl}/api/Evaluations?`, { params })
       .pipe(
         catchError((error) => {
           return throwError(() => new Error('Failed to fetch answers by survey'));

@@ -33,14 +33,14 @@ describe('LoginComponent', ()=> {
         router = TestBed.inject(Router);
     });
 
-    // it('should navigate to /profile if user is in localStorage', () => {
-    //     // Mock the localStorage.getItem method to return a mock user
-    //     spyOn(localStorage, 'getItem').and.returnValue('mockUser');
-    //     // Call ngOnInit() to trigger the logic that checks localStorage
-    //     component.ngOnInit();
-    //     // Verify that the router's navigate method was called with the '/profile' route
-    //     expect(router.navigate).toHaveBeenCalledWith(['/profile']);
-    //   });
+    it('should navigate to /profile if user is in localStorage', () => {
+        // Mock the localStorage.getItem method to return a mock user
+        spyOn(localStorage, 'getItem').and.returnValue('mockUser');
+        // Call ngOnInit() to trigger the logic that checks localStorage
+        component.ngOnInit();
+        // Verify that the router's navigate method was called with the '/profile' route
+        expect(router.navigate).toHaveBeenCalledWith(['/profile']);
+      });
 
     it('should create login button', () => {
         // Check if the component instance is created

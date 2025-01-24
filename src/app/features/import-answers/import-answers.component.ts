@@ -26,7 +26,7 @@ export class ImportAnswersComponent {
 
   constructor(private fb: FormBuilder, private dialog: MatDialog, private cosmicLatteService: CostmicLatteService) {
     this.form = this.fb.group({
-      surveyName: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+      surveyName: ['', [Validators.pattern(/^(?!\s*$).+/)]],
       start: '',
       end: ''
     });
@@ -44,6 +44,8 @@ export class ImportAnswersComponent {
   }
 
   onSubmit() {
+    if (this.form.invalid) return;
+
     const name = this.form.value.surveyName.trim();
     const startDate = this.form.value.start ? formatDate(new Date(this.form.value.start)) : "";
     const endDate = this.form.value.end ? formatDate(new Date(this.form.value.end)) : "";
@@ -57,11 +59,9 @@ export class ImportAnswersComponent {
         this.resetForm()
       },
       error: (error) => {
-        setTimeout(() => {
-          this.isLoading = false;
+        this.isLoading = false;
         this.openDialog('Warning', 'There was an error with the import, please try again or check the values.', false); 
         this.resetForm();
-        }, 2000);
       }
     });
   }
