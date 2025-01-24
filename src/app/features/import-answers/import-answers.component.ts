@@ -57,9 +57,11 @@ export class ImportAnswersComponent {
         this.resetForm()
       },
       error: (error) => {
-        this.isLoading = false;
+        setTimeout(() => {
+          this.isLoading = false;
         this.openDialog('Warning', 'There was an error with the import, please try again or check the values.', false); 
-        this.resetForm()
+        this.resetForm();
+        }, 2000);
       }
     });
   }

@@ -42,7 +42,7 @@
         class="button"
         mat-flat-button
         type="submit"
-        [disabled]="form.invalid || !form.get('surveyName')?.value"
+        [disabled]="form.invalid || !form.get('surveyName')?.value || isLoading"
       >
         Import Answers
       </button>

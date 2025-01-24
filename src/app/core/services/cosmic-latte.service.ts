@@ -25,14 +25,14 @@ export class CostmicLatteService {
   importAnswerBySurvey(name: string, start?: string, end?: string): Observable<any> {
     let params = new HttpParams().set('name', name);
     if (start && start.length > 0) {
-      params = params.set('start', start);
+      params = params.set('startDate', start);
     }
     if (end && end.length > 0) {
-      params = params.set('end', end);
+      params = params.set('endDate', end);
     }
 
     return this.http
-      .get<any>(`${this.apiUrl}/Evaluations`, { params })
+      .get<any>(`${this.apiUrl}/Evaluations?`, { params })
       .pipe(
         catchError((error) => {
           return throwError(() => new Error('Failed to fetch answers by survey'));
