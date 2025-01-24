@@ -8,15 +8,15 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnswerDialog } from './components/dialog/dialog.component';
-import { formatDate } from '../../shared/utils/date-utils'
 import { CostmicLatteService } from '../../core/services/cosmic-latte.service'
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-import-answers',
   imports: [MatFormFieldModule, MatInputModule,MatDatepickerModule, MatButtonModule, ReactiveFormsModule, MatProgressSpinnerModule],
   templateUrl: './import-answers.component.html',
   styleUrl: './import-answers.component.css',
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportAnswersComponent {
@@ -24,7 +24,7 @@ export class ImportAnswersComponent {
   form: FormGroup;
   isLoading: boolean;
 
-  constructor(private fb: FormBuilder, private dialog: MatDialog, private cosmicLatteService: CostmicLatteService) {
+  constructor(private fb: FormBuilder, private dialog: MatDialog, private cosmicLatteService: CostmicLatteService, private datePipe: DatePipe) {
     this.form = this.fb.group({
       surveyName: ['', [Validators.pattern(/^(?!\s*$).+/)]],
       start: '',
@@ -47,8 +47,8 @@ export class ImportAnswersComponent {
     if (this.form.invalid) return;
 
     const name = this.form.value.surveyName.trim();
-    const startDate = this.form.value.start ? formatDate(new Date(this.form.value.start)) : "";
-    const endDate = this.form.value.end ? formatDate(new Date(this.form.value.end)) : "";
+    const startDate = this.formatDate(new Date(this.form.value.start));
+    const endDate = this.formatDate(new Date(this.form.value.end));
 
     this.isLoading = true;
 
@@ -64,6 +64,10 @@ export class ImportAnswersComponent {
         this.resetForm();
       }
     });
+  }
+
+  formatDate(date: Date): string {
+    return this.datePipe.transform(date, 'yyyy-MM-dd') || '';
   }
 
   resetForm() {
