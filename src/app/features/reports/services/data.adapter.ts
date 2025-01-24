@@ -28,23 +28,27 @@ const adaptAnswers = (
     for (let j = 0; j < question.possibleAnswers.length; j++) {
       const possibleAnswer = question.possibleAnswers[j];
 
-      adaptedAnswer.data.push({ x: possibleAnswer.description, y: 0 });
+      adaptedAnswer.data.push({
+        x: possibleAnswer.description,
+        y: 0,
+      });
     }
     adaptedAnswers.push(adaptedAnswer);
+  }
+  // Count users with same answers
+  for (let j = 0; j < rawSurveyAnswers.length; j++) {
+    const rawSurveyAnswer = rawSurveyAnswers[j];
 
-    // Count users with same answers
-    for (let j = 0; j < rawSurveyAnswers.length; j++) {
-      const rawSurveyAnswer = rawSurveyAnswers[j];
+    for (let k = 0; k < rawSurveyAnswer.answers.length; k++) {
+      const answer = rawSurveyAnswer.answers[k];
+      const adaptedAnswer = adaptedAnswers[k];
 
-      for (let k = 0; k < rawSurveyAnswer.answers.length; k++) {
-        const answer = rawSurveyAnswer.answers[k];
-        const idx = adaptedAnswer.data.findIndex(adapted => {
-          return adapted.x === answer.description;
-        });
+      const idx = adaptedAnswer.data.findIndex(adapted => {
+        return (adapted as Coordinate).x === answer.description;
+      });
 
-        if (idx > -1) {
-          adaptedAnswer.data[idx].y++;
-        }
+      if (idx > -1) {
+        (adaptedAnswer.data[idx] as Coordinate).y++;
       }
     }
   }

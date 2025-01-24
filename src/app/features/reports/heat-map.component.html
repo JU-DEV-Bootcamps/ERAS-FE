@@ -1,4 +1,13 @@
-<div style="text-align: center">
+<div style="text-align: left">
+  <mat-form-field>
+    <mat-label id="sl-component" for="sl-component">Component:</mat-label>
+    <mat-select (selectionChange)="handleChange($event.value)">
+      <mat-option value="ACADEMIC">Academic</mat-option>
+      <mat-option value="INDIVIDUAL">Individual</mat-option>
+      <mat-option value="FAMILIAR">Familiar</mat-option>
+      <mat-option value="SOCIAL">Social</mat-option>
+    </mat-select>
+  </mat-form-field>
   <apx-chart
     [series]="chartOptions.series!"
     [chart]="chartOptions.chart!"
@@ -7,6 +16,7 @@
     [colors]="chartOptions.colors!"
     [plotOptions]="chartOptions.plotOptions!"
     [title]="chartOptions.title!"
+    [tooltip]="chartOptions.tooltip!"
   >
   </apx-chart>
 </div>

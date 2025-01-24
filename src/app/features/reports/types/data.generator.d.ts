@@ -7,14 +7,14 @@ interface Conf {
   questions: number;
   cantStudents: number;
 }
-type Component = 'ACADEMIC' | 'INDIVIDUAL' | 'FAMILIAR' | 'SOCIAL';
+type SurveyKind = 'ACADEMIC' | 'INDIVIDUAL' | 'FAMILIAR' | 'SOCIAL';
 interface PossibleAnswer {
   description: string;
   value: number;
 }
 type Answer = PossibleAnswer;
 interface Answers {
-  component: Component;
+  surveyKind: SurveyKind;
   answers: Answer[];
 }
 interface Question {
@@ -23,16 +23,21 @@ interface Question {
   description?: string;
 }
 interface Questions {
-  component: Component;
+  surveyKind: SurveyKind;
   questions: Question[];
 }
+type MockUpAnswers = Record<
+  SurveyKind,
+  { questions: Questions; series: ApexAxisChartSeries } | null
+>;
 
 export type {
   Conf,
-  Component,
   PossibleAnswer,
   Answer,
   Answers,
   Question,
   Questions,
+  SurveyKind,
+  MockUpAnswers,
 };
