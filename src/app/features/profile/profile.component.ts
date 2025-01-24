@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { UserStore } from '../../shared/store/user.store';
+import { KeycloakService } from '../../core/services/keycloak.service';
 
 @Component({
   selector: 'app-profile',
@@ -16,11 +17,16 @@ export class ProfileComponent implements OnInit {
   };
 
   userStore = inject(UserStore);
+  keycloak = inject(KeycloakService);
 
   ngOnInit(): void {
     const user = this.userStore.user();
     if (user) {
       this.user = user;
     }
+  }
+
+  manageKeycloakUser(): void {
+    this.keycloak.accountManagement();
   }
 }
