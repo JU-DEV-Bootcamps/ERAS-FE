@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ImportStudentService {
   private apiUrl = environment.apiUrl;
-  private endpoint = 'import-students-url';
+  private endpoint = 'api/v1/Students';
 
   constructor(private http: HttpClient) {}
 
