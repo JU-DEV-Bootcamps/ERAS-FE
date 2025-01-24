@@ -1,0 +1,14 @@
+.login-button {
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  border: none;
+}
+.keycloak-signin-container {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 25px;
+  margin-top: 0.5rem;
+}
+.keycloak-signin-container:hover {
+  border: 1px solid var(--mat-sys-primary-fixed-dim);
+}
