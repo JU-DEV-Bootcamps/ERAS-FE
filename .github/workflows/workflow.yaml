@@ -7,21 +7,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '23.6.0'
+          node-version: '16'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Start Chrome
-        uses: browserless/chrome@latest
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
         with:
-          args: '--headless'
+          chrome-version: 'latest'
 
       - name: Run tests
         run: npm run test -- --watch=false --browsers=ChromeHeadless
