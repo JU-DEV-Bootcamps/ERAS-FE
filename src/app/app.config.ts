@@ -11,7 +11,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-http.interceptor';
 
 export const appConfig: ApplicationConfig = {

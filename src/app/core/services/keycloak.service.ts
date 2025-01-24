@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Keycloak from 'keycloak-js';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
@@ -43,7 +43,7 @@ export class KeycloakService {
   }
 
   async logout() {
-    return await this.keycloak.logout({ redirectUri: environment.keycloak.redirectUri });
+    return await this.keycloak.logout();
   }
 
   accountManagement() {

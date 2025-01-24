@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { GoogleAuthComponent } from '../../shared/components/google-auth/google-auth.component';
 import { KeycloakAuthComponent } from '../../shared/components/keycloak-auth/keycloak-auth.component';
@@ -13,7 +13,10 @@ import { UserStore } from '../../shared/store/user.store';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent  implements OnInit{
   userStore = inject(UserStore);
   constructor(private router: Router) {}
+  ngOnInit(): void{
+    console.info(this.router.url);
+  }
 }
