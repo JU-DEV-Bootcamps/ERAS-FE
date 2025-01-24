@@ -4,6 +4,27 @@ on:
       - feature/ERAS-45/ci_cd
   workflow_dispatch:
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '23.6.0'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start Chrome
+        uses: browserless/chrome@latest
+        with:
+          args: '--headless'
+
+      - name: Run tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
   package:
     runs-on: ubuntu-latest
     steps:
@@ -30,4 +51,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-prod
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-dev
