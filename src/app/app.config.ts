@@ -1,4 +1,4 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -11,7 +11,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-http.interceptor';
 
 export const appConfig: ApplicationConfig = {

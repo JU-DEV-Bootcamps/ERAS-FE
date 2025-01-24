@@ -1,10 +1,14 @@
 export const environment = {
-    production: false,
+    production: '',
     apiUrl: '',
     clientId: '',
     keycloak: {
         url: '',
         realm: '',
-        clientId: ''
+        clientId: '',
+        enable: '',
+        authority: '',
+        redirectUri: '',
+        postLogoutRedirectUri: '',
       }
 };
