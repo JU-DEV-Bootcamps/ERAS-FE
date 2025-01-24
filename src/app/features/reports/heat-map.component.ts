@@ -8,40 +8,73 @@ import {
 import { adaptAnswers, orderAnswers } from './services/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
+import { Conf, SurveyKind, MockUpAnswers } from './types/data.generator';
+
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-charts',
   standalone: true,
-  imports: [NgApexchartsModule],
+  imports: [NgApexchartsModule, MatSelectModule],
   templateUrl: './heat-map.component.html',
   styleUrl: './heat-map.component.css',
 })
 export class HeatMapComponent {
   public chartOptions: ApexOptions;
+  public mockupAnswers: MockUpAnswers = {
+    ACADEMIC: null,
+    INDIVIDUAL: null,
+    FAMILIAR: null,
+    SOCIAL: null,
+  };
 
   constructor() {
-    const questions = generateMockupQuestions('ACADEMIC');
-    const rawAnswers = generateMockupAnswers(questions);
-    const answers = adaptAnswers(questions, rawAnswers);
-    const orderedAnswers = orderAnswers(answers, true);
+    const baseConf: Conf = {
+      multiple_answers_action: 'AVG',
+      min_answers: 1,
+      max_answers: 10,
+      min_value: 1,
+      max_value: 5,
+      questions: 10,
+      cantStudents: 25,
+    };
+    const surveyKinds: SurveyKind[] = [
+      'ACADEMIC',
+      'INDIVIDUAL',
+      'FAMILIAR',
+      'SOCIAL',
+    ];
+    const defaultSurvey = surveyKinds[0];
+
+    surveyKinds.forEach(surveyKind => {
+      const conf = { ...baseConf };
+      const questions = generateMockupQuestions(surveyKind, conf);
+      const rawAnswers = generateMockupAnswers(questions, conf);
+      const answers = adaptAnswers(questions, rawAnswers);
+      const orderedAnswers = orderAnswers(answers, true);
+
+      this.mockupAnswers[surveyKind] = {
+        questions,
+        series: orderedAnswers,
+      };
+    });
 
     this.chartOptions = {
-      series: orderedAnswers!,
+      series: this.mockupAnswers[defaultSurvey]!.series,
       chart: {
         type: 'heatmap',
-        height: 500,
-        width: 800,
       },
       title: {
-        text: questions.component,
+        text: this.mockupAnswers[defaultSurvey]!.questions.surveyKind,
       },
       xaxis: {
         categories: [''],
       },
       plotOptions: {
         heatmap: {
-          distributed: true,
+          distributed: false,
           colorScale: {
+            inverse: false,
             ranges: [
               {
                 from: -1,
@@ -88,6 +121,44 @@ export class HeatMapComponent {
             ],
           },
         },
+      },
+      tooltip: {
+        y: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          formatter: function (val: number, opts?: any): string {
+            const rowIdx = opts.seriesIndex;
+            const colIdx = opts.dataPointIndex;
+            const grid = opts.series;
+
+            if (grid[rowIdx][colIdx] === -1) {
+              return '';
+            }
+            return val.toString();
+          },
+          title: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            formatter: function (seriesName: string, opts?: any): string {
+              const rowIdx = opts.seriesIndex;
+              const colIdx = opts.dataPointIndex;
+              const grid = opts.series;
+
+              if (grid[rowIdx][colIdx] === -1) {
+                return '';
+              }
+              return seriesName;
+            },
+          },
+        },
+      },
+    };
+  }
+
+  handleChange(surveyKind: SurveyKind): void {
+    this.chartOptions = {
+      ...this.chartOptions,
+      series: this.mockupAnswers[surveyKind]!.series,
+      title: {
+        text: this.mockupAnswers[surveyKind]!.questions.surveyKind,
       },
     };
   }
