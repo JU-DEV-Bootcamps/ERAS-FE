@@ -32,8 +32,18 @@
         <mat-hint>Not required</mat-hint>
       </mat-form-field>
     </div>
+    @if (isLoading === true) {
+      <div class="spinner-container">
+        <mat-spinner></mat-spinner>
+      </div>
+    }
     <div class="row">
-      <button class="button" mat-flat-button type="submit">
+      <button
+        class="button"
+        mat-flat-button
+        type="submit"
+        [disabled]="form.invalid || !form.get('surveyName')?.value"
+      >
         Import Answers
       </button>
     </div>

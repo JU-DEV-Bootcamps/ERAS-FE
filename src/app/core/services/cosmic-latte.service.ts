@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -18,6 +18,24 @@ export class CostmicLatteService {
       .pipe(
         catchError(() => {
           return throwError(() => new Error('Error on health check'));
+        })
+      );
+  }
+
+  importAnswerBySurvey(name: string, start?: string, end?: string): Observable<any> {
+    let params = new HttpParams().set('name', name);
+    if (start && start.length > 0) {
+      params = params.set('start', start);
+    }
+    if (end && end.length > 0) {
+      params = params.set('end', end);
+    }
+
+    return this.http
+      .get<any>(`${this.apiUrl}/Evaluations`, { params })
+      .pipe(
+        catchError((error) => {
+          return throwError(() => new Error('Failed to fetch answers by survey'));
         })
       );
   }
