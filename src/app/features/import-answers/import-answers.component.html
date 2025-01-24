@@ -1,0 +1,46 @@
+<div class="container-form-answer">
+  <h2 class="title-answer">Import survey responses</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <mat-form-field class="input" appearance="outline">
+        <mat-label>Survey Name</mat-label>
+        <input matInput placeholder="Survey" formControlName="surveyName" />
+        <mat-hint>Required</mat-hint>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field class="input">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input
+            matStartDate
+            placeholder="Start date"
+            formControlName="start"
+          />
+          <input matEndDate placeholder="End date" formControlName="end" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+        <mat-hint>Not required</mat-hint>
+      </mat-form-field>
+    </div>
+    @if (isLoading === true) {
+      <div class="spinner-container">
+        <mat-spinner></mat-spinner>
+      </div>
+    }
+    <div class="row">
+      <button
+        class="button"
+        mat-flat-button
+        type="submit"
+        [disabled]="form.invalid || !form.get('surveyName')?.value || isLoading"
+      >
+        Import Answers
+      </button>
+    </div>
+  </form>
+</div>

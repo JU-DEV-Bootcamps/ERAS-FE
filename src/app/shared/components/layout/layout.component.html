@@ -15,7 +15,11 @@
         </button>
       </p>
       <p>
-        <button mat-button class="custom-nav-button">
+        <button
+          mat-button
+          (click)="redirectImportAnswers()"
+          class="custom-nav-button"
+        >
           <mat-icon>insert_chart_outlined</mat-icon>
           Surveys
         </button>
