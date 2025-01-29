@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { UserStore } from '../../store/user.store';
-import { GoogleAuthService } from '../../../core/services/google-auth.service';
 import { KeycloakService } from '../../../core/services/keycloak.service';
 
 @Component({
@@ -29,7 +28,6 @@ import { KeycloakService } from '../../../core/services/keycloak.service';
 })
 export class LayoutComponent implements OnInit {
   userStore = inject(UserStore);
-  googleService = inject(GoogleAuthService);
   keycloakService = inject(KeycloakService);
   user?: { name: string; email: string; photoUrl: string };
 
@@ -47,12 +45,6 @@ export class LayoutComponent implements OnInit {
         this.userStore.logout();
     } catch (error) {
         console.error("Keycloak logout error", error);
-    }
-    try {
-        await this.googleService.logout();
-        this.userStore.logout();
-    } catch (error) {
-        console.error("Google logout error", error);
     }
   }
   redirectSettings() {
