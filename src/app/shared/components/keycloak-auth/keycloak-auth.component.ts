@@ -34,7 +34,7 @@ export class KeycloakAuthComponent implements OnInit{
             id: this.keycloakService.userId,
             email:  userProfile.email || "No email found",
             name: this.keycloakService.fullName,
-            photoUrl: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.com%2Fvectors%2Ffemale-avatar&psig=AOvVaw3oK75XzUS5aqvyrtXuzDvY&ust=1737743315407000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCKCqgru8jIsDFQAAAAAdAAAAABAE',
+            photoUrl: '',
             firstName: userProfile.firstName || "given_name",
             lastName: userProfile.lastName || "family_name",
             authToken: this.keycloakService.keycloak.authServerUrl || "No token found",

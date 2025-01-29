@@ -28,6 +28,7 @@ export class KeycloakService {
   }
   async login() {
     await this.keycloak.login();
+    console.log("Keycloak login", this.keycloak);
   }
 
   get userId() {
