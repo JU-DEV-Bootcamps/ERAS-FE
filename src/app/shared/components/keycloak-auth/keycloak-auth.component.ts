@@ -1,4 +1,3 @@
-import { SocialUser } from '@abacritt/angularx-social-login';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KeycloakService } from '../../../core/services/keycloak.service';
@@ -11,7 +10,6 @@ import { KeycloakService } from '../../../core/services/keycloak.service';
 })
 
 export class KeycloakAuthComponent implements OnInit{
-  user?: SocialUser;
   loggedIn?: boolean;
   router = inject(Router);
 
@@ -19,8 +17,8 @@ export class KeycloakAuthComponent implements OnInit{
 
   ngOnInit(): void {
     console.info("ngOnInit KeycloakAuthComponent", this.keycloakService);
-    if(this.keycloakService.isTokenValid){
-        this.keycloakService.logToUserStore();
+    if(this.keycloakService?.isTokenValid){
+        this.router.navigate(['profile']);
     }
   }
   async login(): Promise<void>{
@@ -28,11 +26,6 @@ export class KeycloakAuthComponent implements OnInit{
         await this.keycloakService.init();
     } catch (error) {
         console.error("Error on keycloak init", error);
-    }
-    try {
-        this.ngOnInit();
-    } catch (error) {
-        console.error("Something went wrong with ngOnInit for KeycloakAuthComponent", error);
     }
     this.router.navigate(['profile']);
   }

@@ -30,23 +30,8 @@ describe('LoginComponent', () => {
         fixture.detectChanges();
         router = TestBed.inject(Router);
     });
-    it('should navigate to /profile if user is in localStorage', () => {
-        component.userStore.login({
-            id: "mockId",
-            email: "mockEmail",
-            name: "mocked",
-            photoUrl: "",
-            firstName: "mock",
-            lastName: "mocker",
-            authToken: "authToken",
-            idToken: "idToken",
-            authorizationCode: "authCode"
-        });
-        expect(component.userStore.isLoggedIn).toBeTrue();
-        // Verify that the router's navigate method was called with the '/profile' route
-        //expect(router.navigate).toHaveBeenCalledWith(['/profile']);
-    });    it('should create login button', () => {
-            // Check if the component instance is created
-            expect(component).toBeTruthy();
-        });
+    it('should create login button', () => {
+        // Check if the component instance is created
+        expect(component).toBeTruthy();
+    });
 });

@@ -4,7 +4,7 @@ import { KeycloakAuthComponent } from '../../shared/components/keycloak-auth/key
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { UserStore } from '../../shared/store/user.store';
+import { KeycloakService } from '../../core/services/keycloak.service';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +13,6 @@ import { UserStore } from '../../shared/store/user.store';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  userStore = inject(UserStore);
+  userStore = inject(KeycloakService);
   constructor(private router: Router) {}
 }
