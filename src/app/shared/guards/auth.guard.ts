@@ -11,10 +11,11 @@ export const authGuard: CanActivateChildFn = (childRoute, state) => {
     router.navigate(['login']);
     return false;
   }
-
-  if (!userStore.user()) {
+  if (!userStore.user() && keycloak.authenticated) {
     keycloak.logToUserStore();
   }
-
+  if(state.url === '/login'){
+    router.navigate(['profile']);
+  }
   return true;
 };

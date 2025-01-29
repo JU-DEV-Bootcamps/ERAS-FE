@@ -32,7 +32,7 @@ export class KeycloakService {
 
   async init() {
     this.authenticated = await this.keycloak.init({
-        onLoad: 'login-required'
+        onLoad: 'login-required',
     });
   }
   async login() {
