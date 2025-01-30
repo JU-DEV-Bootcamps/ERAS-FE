@@ -6,13 +6,8 @@ export const environment = {
     url: '',
     realm: '',
     clientId: '',
-    keycloak: {
-      url: '',
-      realm: '',
-      clientId: '',
-      enable: '',
-      redirectUri: '',
-      postLogoutRedirectUri: '',
-    },
+    enable: '',
+    redirectUri: '',
+    postLogoutRedirectUri: '',
   },
 };
