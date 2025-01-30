@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { UserStore } from '../../shared/store/user.store';
-import { KeycloakService } from '../../core/services/keycloak.service';
+import {
+  KeycloakService,
+  OtherAttrTokenParse,
+} from '../../core/services/keycloak.service';
 
 @Component({
   selector: 'app-profile',
@@ -10,23 +12,25 @@ import { KeycloakService } from '../../core/services/keycloak.service';
   styleUrl: './profile.component.css',
 })
 export class ProfileComponent implements OnInit {
-  user?: { name: string; email: string; photoUrl: string } = {
+  user?: { name: string; email: string } = {
     name: '',
     email: '',
-    photoUrl: '',
   };
 
-  userStore = inject(UserStore);
-  keycloak = inject(KeycloakService);
+  keycloakService = inject(KeycloakService);
 
   ngOnInit(): void {
-    const user = this.userStore.user();
-    if (user) {
-      this.user = user;
+    const userInfo = this.keycloakService.keycloak
+      .tokenParsed as OtherAttrTokenParse;
+    if (this.keycloakService.authenticated) {
+      this.user = {
+        name: this.keycloakService.fullName || 'NameNot Found',
+        email: userInfo.email,
+      };
     }
   }
 
   manageKeycloakUser(): void {
-    this.keycloak.accountManagement();
+    this.keycloakService.accountManagement();
   }
 }

@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import Keycloak from 'keycloak-js';
 import { environment } from '../../../environments/environment';
+
+export interface OtherAttrTokenParse {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })

@@ -7,9 +7,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { UserStore } from '../../store/user.store';
-import { GoogleAuthService } from '../../../core/services/google-auth.service';
-import { KeycloakService } from '../../../core/services/keycloak.service';
+import {
+  KeycloakService,
+  OtherAttrTokenParse,
+} from '../../../core/services/keycloak.service';
 
 @Component({
   selector: 'app-layout',
@@ -28,31 +29,26 @@ import { KeycloakService } from '../../../core/services/keycloak.service';
   styleUrl: './layout.component.scss',
 })
 export class LayoutComponent implements OnInit {
-  userStore = inject(UserStore);
-  googleService = inject(GoogleAuthService);
-  keycloakService = inject(KeycloakService);
-  user?: { name: string; email: string; photoUrl: string };
+  keycloak = inject(KeycloakService);
+  user?: { name: string; email: string };
 
   ngOnInit(): void {
-    const user = this.userStore.user();
-    if (user) {
-      this.user = user;
+    if (this.keycloak.authenticated) {
+      const userInfo = this.keycloak.keycloak
+        .tokenParsed as OtherAttrTokenParse;
+      this.user = {
+        name: this.keycloak.fullName || 'NameNot Found',
+        email: userInfo.email,
+      };
     }
   }
 
   router = inject(Router);
   async logout() {
     try {
-      await this.keycloakService.logout();
-      this.userStore.logout();
+      await this.keycloak.logout();
     } catch (error) {
       console.error('Keycloak logout error', error);
-    }
-    try {
-      await this.googleService.logout();
-      this.userStore.logout();
-    } catch (error) {
-      console.error('Google logout error', error);
     }
   }
   redirectSettings() {
