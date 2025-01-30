@@ -7,6 +7,6 @@ export const environment = {
     clientId: 'your-keycloak-public-client',
     enable: true, //Enable or disable Keycloak for Frontend app
     redirectUri: 'Frontend app URL',
-    postLogoutRedirectUri: 'Optional value to redirect after logout'
-  }
+    postLogoutRedirectUri: 'Optional value to redirect after logout',
+  },
 };

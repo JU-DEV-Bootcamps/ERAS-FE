@@ -7,7 +7,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { KeycloakService, OtherAttrTokenParse } from '../../../core/services/keycloak.service';
+import {
+  KeycloakService,
+  OtherAttrTokenParse,
+} from '../../../core/services/keycloak.service';
 
 @Component({
   selector: 'app-layout',
@@ -27,24 +30,25 @@ import { KeycloakService, OtherAttrTokenParse } from '../../../core/services/key
 })
 export class LayoutComponent implements OnInit {
   keycloak = inject(KeycloakService);
-  user?: { name: string; email: string; };
+  user?: { name: string; email: string };
 
   ngOnInit(): void {
-    if(this.keycloak.authenticated){
-        const userInfo = this.keycloak.keycloak.tokenParsed as OtherAttrTokenParse;
-        this.user = {
-            name: this.keycloak.fullName || "NameNot Found",
-            email: userInfo.email,
-        };
+    if (this.keycloak.authenticated) {
+      const userInfo = this.keycloak.keycloak
+        .tokenParsed as OtherAttrTokenParse;
+      this.user = {
+        name: this.keycloak.fullName || 'NameNot Found',
+        email: userInfo.email,
+      };
     }
   }
 
   router = inject(Router);
   async logout() {
     try {
-        await this.keycloak.logout();
+      await this.keycloak.logout();
     } catch (error) {
-        console.error("Keycloak logout error", error);
+      console.error('Keycloak logout error', error);
     }
   }
   redirectSettings() {

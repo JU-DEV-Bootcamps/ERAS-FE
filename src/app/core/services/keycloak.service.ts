@@ -3,34 +3,36 @@ import Keycloak from 'keycloak-js';
 import { environment } from '../../../environments/environment';
 
 export interface OtherAttrTokenParse {
-  email: string,
-  firstName: string,
-  lastName: string
-};
+  email: string;
+  firstName: string;
+  lastName: string;
+}
 
 @Injectable({
-    providedIn: 'root'
-  })
+  providedIn: 'root',
+})
 export class KeycloakService {
   private _keycloak: Keycloak | undefined;
   public authenticated: boolean;
 
-  constructor() { this.authenticated = false; }
+  constructor() {
+    this.authenticated = false;
+  }
 
   get keycloak(): Keycloak {
-    if(!this._keycloak) {
-        this._keycloak = new Keycloak({
-            url: environment.keycloak.url,
-            realm: environment.keycloak.realm,
-            clientId: environment.keycloak.clientId
-        })
+    if (!this._keycloak) {
+      this._keycloak = new Keycloak({
+        url: environment.keycloak.url,
+        realm: environment.keycloak.realm,
+        clientId: environment.keycloak.clientId,
+      });
     }
     return this._keycloak;
   }
 
   async init() {
     this.authenticated = await this.keycloak.init({
-        onLoad: 'login-required'
+      onLoad: 'login-required',
     });
   }
   async login() {
@@ -50,7 +52,9 @@ export class KeycloakService {
   }
 
   async logout() {
-    return await this.keycloak.logout({ redirectUri: environment.keycloak.redirectUri });
+    return await this.keycloak.logout({
+      redirectUri: environment.keycloak.redirectUri,
+    });
   }
 
   accountManagement() {

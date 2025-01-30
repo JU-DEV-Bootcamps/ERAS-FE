@@ -8,7 +8,11 @@ import {
 } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-http.interceptor';
 
@@ -17,10 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(
-        withInterceptors([keycloakHttpInterceptor]),
-        withFetch()
-    ),
+    provideHttpClient(withInterceptors([keycloakHttpInterceptor]), withFetch()),
     provideAnimationsAsync(),
   ],
 };

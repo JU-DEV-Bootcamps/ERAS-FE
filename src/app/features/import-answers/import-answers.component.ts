@@ -12,7 +12,7 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AnswerDialog } from './components/dialog/dialog.component';
+import { AnswerDialogComponent } from './components/dialog/dialog.component';
 import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
 import { DatePipe } from '@angular/common';
 
@@ -54,7 +54,7 @@ export class ImportAnswersComponent {
     descriptionMessage: string,
     isSuccess: boolean
   ) {
-    this.dialog.open(AnswerDialog, {
+    this.dialog.open(AnswerDialogComponent, {
       data: {
         title: titleMessage,
         description: descriptionMessage,
@@ -75,7 +75,7 @@ export class ImportAnswersComponent {
     this.cosmicLatteService
       .importAnswerBySurvey(name, startDate, endDate)
       .subscribe({
-        next: response => {
+        next: () => {
           this.isLoading = false;
           this.openDialog(
             'Successful',
@@ -84,7 +84,7 @@ export class ImportAnswersComponent {
           );
           this.resetForm();
         },
-        error: error => {
+        error: () => {
           this.isLoading = false;
           this.openDialog(
             'Warning',
