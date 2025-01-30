@@ -13,6 +13,6 @@ import { KeycloakService } from '../../core/services/keycloak.service';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  userStore = inject(KeycloakService);
+  keycloakService = inject(KeycloakService);
   constructor(private router: Router) {}
 }

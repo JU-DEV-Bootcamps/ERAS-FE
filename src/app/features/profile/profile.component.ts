@@ -14,19 +14,19 @@ export class ProfileComponent implements OnInit {
     email: '',
   };
 
-  keycloak = inject(KeycloakService);
+  keycloakService = inject(KeycloakService);
 
   ngOnInit(): void {
-    const userInfo = this.keycloak.keycloak.tokenParsed as OtherAttrTokenParse;
-    if(this.keycloak.authenticated){
+    const userInfo = this.keycloakService.keycloak.tokenParsed as OtherAttrTokenParse;
+    if(this.keycloakService.authenticated){
         this.user = {
-            name: this.keycloak.fullName || "NameNot Found",
+            name: this.keycloakService.fullName || "NameNot Found",
             email: userInfo.email,
         };
     }
   }
 
   manageKeycloakUser(): void {
-    this.keycloak.accountManagement();
+    this.keycloakService.accountManagement();
   }
 }
