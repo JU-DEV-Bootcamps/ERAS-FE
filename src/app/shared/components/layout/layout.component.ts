@@ -43,16 +43,16 @@ export class LayoutComponent implements OnInit {
   router = inject(Router);
   async logout() {
     try {
-        await this.keycloakService.logout();
-        this.userStore.logout();
+      await this.keycloakService.logout();
+      this.userStore.logout();
     } catch (error) {
-        console.error("Keycloak logout error", error);
+      console.error('Keycloak logout error', error);
     }
     try {
-        await this.googleService.logout();
-        this.userStore.logout();
+      await this.googleService.logout();
+      this.userStore.logout();
     } catch (error) {
-        console.error("Google logout error", error);
+      console.error('Google logout error', error);
     }
   }
   redirectSettings() {

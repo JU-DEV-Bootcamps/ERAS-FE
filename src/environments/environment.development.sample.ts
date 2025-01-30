@@ -5,6 +5,6 @@ export const environment = {
   keycloak: {
     url: 'keycloak.server',
     realm: 'ERAS-realm',
-    clientId: 'public-client'
-  }
+    clientId: 'public-client',
+  },
 };

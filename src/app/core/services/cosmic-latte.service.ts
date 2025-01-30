@@ -22,7 +22,7 @@ export class CostmicLatteService {
       );
   }
 
-  importAnswerBySurvey(name: string, start?: string, end?: string): Observable<any> {
+  importAnswerBySurvey(name: string, start?: string, end?: string) {
     let params = new HttpParams().set('name', name);
     if (start && start.length > 0) {
       params = params.set('startDate', start);
@@ -31,12 +31,12 @@ export class CostmicLatteService {
       params = params.set('endDate', end);
     }
 
-    return this.http
-      .get<any>(`${this.apiUrl}/api/Evaluations?`, { params })
-      .pipe(
-        catchError((error) => {
-          return throwError(() => new Error('Failed to fetch answers by survey'));
-        })
-      );
+    return this.http.get(`${this.apiUrl}/api/Evaluations?`, { params }).pipe(
+      catchError(error => {
+        return throwError(
+          () => new Error('Failed to fetch answers by survey', error)
+        );
+      })
+    );
   }
 }

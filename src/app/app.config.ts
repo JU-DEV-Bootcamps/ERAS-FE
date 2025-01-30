@@ -8,7 +8,11 @@ import {
 } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
@@ -36,10 +40,7 @@ export const appConfig: ApplicationConfig = {
         },
       },
     },
-    provideHttpClient(
-        withInterceptors([keycloakHttpInterceptor]),
-        withFetch()
-    ),
+    provideHttpClient(withInterceptors([keycloakHttpInterceptor]), withFetch()),
     provideAnimationsAsync(),
   ],
 };

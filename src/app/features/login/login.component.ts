@@ -9,7 +9,13 @@ import { UserStore } from '../../shared/store/user.store';
 
 @Component({
   selector: 'app-login',
-  imports: [GoogleAuthComponent, KeycloakAuthComponent, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [
+    GoogleAuthComponent,
+    KeycloakAuthComponent,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

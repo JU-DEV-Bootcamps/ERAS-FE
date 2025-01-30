@@ -17,7 +17,7 @@ module.exports = tseslint.config(
     processor: angular.processInlineTemplates,
     rules: {
       '@angular-eslint/directive-selector': [
-        'off',
+        'warn',
         {
           type: 'attribute',
           prefix: 'app',
@@ -25,7 +25,7 @@ module.exports = tseslint.config(
         },
       ],
       '@angular-eslint/component-selector': [
-        'off',
+        'warn',
         {
           type: 'element',
           prefix: 'app',
@@ -33,7 +33,7 @@ module.exports = tseslint.config(
         },
       ],
       'prettier/prettier': [
-        'off',
+        'warn',
         {
           endOfLine: 'auto',
         },
@@ -48,7 +48,7 @@ module.exports = tseslint.config(
       eslintPluginPrettierRecommended,
     ],
     rules: {
-      //      'prettier/prettier': ['off', { parser: 'angular', endOfLine: 'auto' }],
+      'prettier/prettier': ['warn', { parser: 'angular', endOfLine: 'auto' }],
     },
   }
 );
