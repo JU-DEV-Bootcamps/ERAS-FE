@@ -1,15 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ImportStudentsComponent } from './import-students.component';
+import { ImportStudentService } from '../../core/services/import-students.service';
 
 describe('ImportStudentsComponent', () => {
   let component: ImportStudentsComponent;
   let fixture: ComponentFixture<ImportStudentsComponent>;
+  let mockService: jasmine.SpyObj<ImportStudentService>;
 
   beforeEach(async () => {
+    mockService = jasmine.createSpyObj('ImportStudentService', [
+      'importStudents',
+    ]);
     await TestBed.configureTestingModule({
       imports: [ImportStudentsComponent],
-      providers: [provideNoopAnimations()],
+      providers: [
+        { provide: ImportStudentService, useValue: mockService },
+        provideNoopAnimations(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImportStudentsComponent);
