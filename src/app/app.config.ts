@@ -10,8 +10,6 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
-import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
-import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-http.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -19,23 +17,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    {
-      provide: 'SocialAuthServiceConfig',
-      useValue: {
-        autoLogin: false,
-        lang: 'en',
-        providers: [
-          {
-            id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider(environment.clientId),
-          },
-        ],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onError: (error: any) => {
-          console.error(error);
-        },
-      },
-    },
     provideHttpClient(
         withInterceptors([keycloakHttpInterceptor]),
         withFetch()
