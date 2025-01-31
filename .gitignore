@@ -43,4 +43,3 @@ Thumbs.db
 
 # Agnular Environment files
 src/environments/environment.development.ts
-src/environments/environment.production.ts
