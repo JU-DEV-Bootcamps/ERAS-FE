@@ -7,11 +7,13 @@ COPY . ./
 
 # Install dependencies and build the application
 RUN npm install
-RUN npm run build --prod
+RUN npm run build --configuration=production
 
 # Final image to serve the application
 FROM nginx:alpine
-COPY --from=build /app/dist/eras-fe /usr/share/nginx/html
+COPY --from=build /app/dist/eras-fe/browser /usr/share/nginx/html
+
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
