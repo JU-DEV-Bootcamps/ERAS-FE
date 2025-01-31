@@ -15,6 +15,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnswerDialogComponent } from './components/dialog/dialog.component';
 import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
 import { DatePipe } from '@angular/common';
+import {
+  IMPORT_MESSAGES,
+  GENERAL_MESSAGES,
+} from '../../core/constants/messages';
 
 @Component({
   selector: 'app-import-answers',
@@ -78,8 +82,8 @@ export class ImportAnswersComponent {
         next: () => {
           this.isLoading = false;
           this.openDialog(
-            'Successful',
-            'The survey’s answers were saved in the system successfully',
+            GENERAL_MESSAGES.SUCCESS_TITLE,
+            IMPORT_MESSAGES.ANSWERS_SUCCESS,
             true
           );
           this.resetForm();
@@ -87,8 +91,8 @@ export class ImportAnswersComponent {
         error: () => {
           this.isLoading = false;
           this.openDialog(
-            'Warning',
-            'There was an error with the import, please try again or check the values.',
+            GENERAL_MESSAGES.ERROR_TITLE,
+            IMPORT_MESSAGES.ANSWERS_ERROR,
             false
           );
           this.resetForm();

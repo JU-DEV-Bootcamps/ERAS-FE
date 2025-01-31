@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ImportStudentsComponent } from './import-students.component';
 import { ImportStudentService } from '../../core/services/import-students.service';
+import { VALIDATION_MESSAGES } from '../../core/constants/messages';
 
 describe('ImportStudentsComponent', () => {
   let component: ImportStudentsComponent;
@@ -35,7 +36,7 @@ describe('ImportStudentsComponent', () => {
     component.onFileSelected(event);
 
     expect(component.fileError).toBe(
-      'File size exceeds the maximum limit of 5MB.'
+      VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)'
     );
     expect(component.selectedFile).toBeNull();
   });
@@ -49,7 +50,7 @@ describe('ImportStudentsComponent', () => {
     component.onFileSelected(event);
 
     expect(component.fileError).toBe(
-      'Invalid file type, please select a CSV file.'
+      VALIDATION_MESSAGES.INVALID_FILE_TYPE + '(.csv)'
     );
     expect(component.selectedFile).toBeNull();
   });

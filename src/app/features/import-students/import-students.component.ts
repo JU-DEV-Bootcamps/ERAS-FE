@@ -6,6 +6,11 @@ import { CsvCheckerService } from '../../core/services/csv-checker.service';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ImportDialogComponent } from './components/import-dialog.component';
+import {
+  GENERAL_MESSAGES,
+  IMPORT_MESSAGES,
+  VALIDATION_MESSAGES,
+} from '../../core/constants/messages';
 
 @Component({
   selector: 'app-import-students',
@@ -38,13 +43,13 @@ export class ImportStudentsComponent {
     const maxFileSize = 5 * 1024 * 1024; // 5MB
 
     if (file.size > maxFileSize) {
-      this.fileError = 'File size exceeds the maximum limit of 5MB.';
+      this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
       this.selectedFile = null;
       return;
     }
 
     if (file.type !== 'text/csv') {
-      this.fileError = 'Invalid file type, please select a CSV file.';
+      this.fileError = VALIDATION_MESSAGES.INVALID_FILE_TYPE + '(.csv)';
       this.selectedFile = null;
       return;
     }
@@ -53,7 +58,7 @@ export class ImportStudentsComponent {
     await this.csvCheckerService.validateCSV(file);
     this.csvErrors = this.csvCheckerService.getErrors();
     if (this.csvErrors.length > 0) {
-      this.fileError = "CSV Scan: Errors detected in the file's content.";
+      this.fileError = VALIDATION_MESSAGES.CSV_SCAN_ERROR;
       this.csvErrors = this.processErrors(this.csvErrors);
       return;
     }
@@ -94,31 +99,25 @@ export class ImportStudentsComponent {
         return filteredRow;
       });
       this.importService.postData(jsonData).subscribe({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         next: response => {
-          this.openDialog(
-            false,
-            'The students information was saved into the system succesfully.'
-          );
+          this.openDialog(IMPORT_MESSAGES.STUDENT_SUCCESS, true);
         },
         error: error => {
-          console.error('API call failed:', error);
-          this.openDialog(
-            true,
-            'There was an error during the import process, please try again.'
-          );
+          this.openDialog(IMPORT_MESSAGES.STUDENT_ERROR, false);
         },
       });
     }
   }
-  private openDialog(isError: boolean, text: string): void {
+  private openDialog(text: string, isSuccess: boolean): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ImportDialogComponent, {
       data: {
-        title: isError ? 'Warning!!' : 'Succesfull Import',
+        title: isSuccess
+          ? GENERAL_MESSAGES.SUCCESS_TITLE
+          : GENERAL_MESSAGES.ERROR_TITLE,
         message: text,
-        isError: isError,
+        isSuccess: isSuccess,
       },
     });
   }
