@@ -46,7 +46,6 @@ jobs:
           echo "LAST_TAG=${LAST_TAG}" >> $GITHUB_ENV
       - name: Replace environment variables
         run: |
-          cp src/environments/environment.production.template.ts src/environments/environment.production.ts
           sed -i "s|__API_URL__|${{ vars.API_URL }}|g" src/environments/environment.production.ts
           sed -i "s|__KEYCLOAK_URL__|${{ vars.KEYCLOAK_URL }}|g" src/environments/environment.production.ts
       - name: Login to Docker Hub
