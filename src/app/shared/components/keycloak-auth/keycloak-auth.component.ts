@@ -6,7 +6,7 @@ import { KeycloakService } from '../../../core/services/keycloak.service';
   selector: 'app-keycloak-auth',
   imports: [],
   templateUrl: './keycloak-auth.component.html',
-  styleUrl: './keycloak-auth.component.css',
+  styleUrl: './keycloak-auth.component.scss',
 })
 export class KeycloakAuthComponent implements OnInit {
   loggedIn?: boolean;

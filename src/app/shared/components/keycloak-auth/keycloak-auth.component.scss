@@ -1,0 +1,11 @@
+.login-button {
+    background-color: var(--mat-sys-primary);
+    margin-top: 1rem;
+    font-size: larger;
+    border-radius: 10%;
+    color: var(--mat-sys-on-primary);
+}
+.login-button:hover {
+  border: 1px solid var(--mat-sys-primary);
+  background-color: var(--mat-sys-secondary);
+}
