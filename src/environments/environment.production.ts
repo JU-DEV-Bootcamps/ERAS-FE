@@ -1,13 +1,13 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080',
+  apiUrl: '__API_URL__',
   keycloak: {
-    url: 'http://localhost:18080',
+    url: '__KEYCLOAK_URL__',
     realm: 'ERAS',
     clientId: 'public-client',
-    enable: true, //Enable or disable Keycloak for Frontend app
-    authority: 'http://localhost:18080', //Keycloak URL
-    redirectUri: 'http://localhost:4200', //Frontend app URL
-    postLogoutRedirectUri: 'http://localhost:4200/login', //Optional value
+    enable: true,
+    authority: '__KEYCLOAK_URL__',
+    redirectUri: 'http://localhost:4200',
+    postLogoutRedirectUri: 'http://localhost:4200/login',
   },
 };
