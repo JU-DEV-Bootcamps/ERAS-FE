@@ -1,10 +1,10 @@
 @use '../../../../styles/utils/index.scss' as ut;
 .login-button {
-    display: flex;
-    margin-top: 2rem;
+    margin: auto;
+    width: 100%;
     font-size: larger;
-    border-radius: 10%;
-    color: ut.get-color('neutral', 95);
+    border-radius: 5%;
+    color: ut.get-color('neutral', 100);
     background-color: ut.get-color('primary', 40);
 }
 .login-button:hover {
