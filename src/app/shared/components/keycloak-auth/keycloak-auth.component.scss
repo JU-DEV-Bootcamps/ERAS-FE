@@ -1,11 +1,12 @@
+@use '../../../../styles/utils/index.scss' as ut;
 .login-button {
-    background-color: var(--mat-sys-primary);
+    display: flex;
     margin-top: 2rem;
     font-size: larger;
     border-radius: 10%;
-    color: var(--mat-sys-on-primary);
+    color: ut.get-color('neutral', 95);
+    background-color: ut.get-color('primary', 40);
 }
 .login-button:hover {
-  border: 1px solid var(--mat-sys-primary);
-  background-color: var(--mat-sys-secondary);
+  background-color: ut.get-color('primary', 60);
 }
