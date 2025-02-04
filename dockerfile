@@ -13,7 +13,5 @@ RUN npm run build --configuration=production
 FROM nginx:alpine
 COPY --from=build /app/dist/eras-fe/browser /usr/share/nginx/html
 
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-
 # Expose port 80
 EXPOSE 80

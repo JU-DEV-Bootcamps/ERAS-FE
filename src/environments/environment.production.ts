@@ -7,7 +7,7 @@ export const environment = {
     clientId: 'public-client',
     enable: true,
     authority: '__KEYCLOAK_URL__',
-    redirectUri: 'http://localhost:4200',
-    postLogoutRedirectUri: 'http://localhost:4200/login',
+    redirectUri: '__WEB_URL__',
+    postLogoutRedirectUri: '__WEB_URL__/login',
   },
 };
