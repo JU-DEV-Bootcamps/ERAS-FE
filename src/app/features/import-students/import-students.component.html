@@ -3,9 +3,45 @@
     <h1 class="title">Import Students</h1>
   </div>
   <div class="grow center">
-    <p class="subtitle">Upload Student List File</p>
+    <!-- <p class="subtitle">Upload Student List File</p> -->
+    <div class="hint-container">
+      <p>
+        Import a CSV file with 4 columns with Name, Last Name, Phone and Email
+      </p>
+      <p>
+        For an example template download it
+        <a
+          href="https://ejemplo.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="See an example"
+        >
+          here
+        </a>
+      </p>
+    </div>
+
+    <input
+      #fileInput
+      type="file"
+      (change)="onFileSelected($event)"
+      style="display: none"
+    />
+    <div style="padding: 1em">
+      <button
+        class="button"
+        mat-flat-button
+        [disabled]="false"
+        (click)="fileInput.click()"
+      >
+        <!-- "!selectedFile || fileError" -->
+        Import File
+      </button>
+    </div>
+
+    <!--
     <mat-form-field appearance="outline" class="custom-form-field">
-      <!--Hidden input file because Angular Material doesn't support it-->
+      Hidden input file because Angular Material doesn't support it
       <input
         #fileInput
         type="file"
@@ -42,4 +78,5 @@
       Import File
     </button>
   </div>
+  --></div>
 </div>

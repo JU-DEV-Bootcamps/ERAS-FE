@@ -16,7 +16,7 @@ import {
   selector: 'app-import-students',
   imports: [MatButtonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './import-students.component.html',
-  styleUrl: './import-students.component.css',
+  styleUrl: './import-students.component.scss',
 })
 export class ImportStudentsComponent {
   selectedFile: File | null = null;
