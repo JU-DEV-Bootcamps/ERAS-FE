@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { KeycloakService } from '../../../core/services/keycloak.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-keycloak-auth',
-  imports: [],
+  imports: [MatButtonModule],
   templateUrl: './keycloak-auth.component.html',
   styleUrl: './keycloak-auth.component.scss',
 })

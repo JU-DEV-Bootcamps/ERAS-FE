@@ -1,12 +1,5 @@
-@use '../../../../styles/utils/index.scss' as ut;
 .login-button {
-    margin: auto;
-    width: 100%;
+    margin: 5%;
     font-size: larger;
-    border-radius: 5%;
-    color: ut.get-color('neutral', 100);
-    background-color: ut.get-color('primary', 40);
-}
-.login-button:hover {
-  background-color: ut.get-color('primary', 60);
+    width: 100%;
 }
