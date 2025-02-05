@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { NgClass, NgFor, NgIf } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, Output, EventEmitter } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogActions,
@@ -7,18 +8,23 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-import-dialog',
   templateUrl: './import-dialog.component.html',
-  styleUrls: ['./import-dialog.component.css'],
+  styleUrls: ['./import-dialog.component.scss'],
   standalone: true,
   imports: [
     MatButtonModule,
     MatDialogActions,
     MatDialogTitle,
     MatDialogContent,
+    MatIcon,
+    NgFor,
+    NgClass,
+    NgIf
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,8 +33,13 @@ export class ImportDialogComponent {
   private dialogRef = inject(MatDialogRef<ImportDialogComponent>);
   private router = inject(Router);
 
+  @Output()
+  fileChangedEvent = new EventEmitter<Event>();
+
   closeDialog(): void {
     this.dialogRef.close();
-    if (!this.data.isError) this.router.navigate(['/profile']);
+  }
+  closeAndGetNewFile(){
+    this.dialogRef.close(true); 
   }
 }

@@ -12,10 +12,15 @@ export const IMPORT_MESSAGES = {
 export const VALIDATION_MESSAGES = {
   FILE_SIZE_EXCEEDED: 'File size exceeds the maximum limit.',
   INVALID_FILE_TYPE: 'Invalid file type, please select a correct file.',
-  CSV_SCAN_ERROR: "CSV Scan: Following errors detected in the file's content.",
+  CSV_SCAN_ERROR: "Following errors detected",
 };
 
 export const GENERAL_MESSAGES = {
   SUCCESS_TITLE: 'Successful',
+  SUCCESS_IMPORT_TITLE: 'Successful import',
   ERROR_TITLE: 'Warning',
+  ERROR_IMPORT_TITLE: 'Error Importing file',
+  ERROR_500:'Internal error, please try again',
+  ERROR_UNKNOWN : 'Please contact support - The following error occurred: ',
+  DETAILS: "Details:"
 };
