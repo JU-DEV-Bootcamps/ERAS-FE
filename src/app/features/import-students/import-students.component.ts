@@ -99,10 +99,10 @@ export class ImportStudentsComponent {
         return filteredRow;
       });
       this.importService.postData(jsonData).subscribe({
-        next: response => {
+        next: () => {
           this.openDialog(IMPORT_MESSAGES.STUDENT_SUCCESS, true);
         },
-        error: error => {
+        error: () => {
           this.openDialog(IMPORT_MESSAGES.STUDENT_ERROR, false);
         },
       });
