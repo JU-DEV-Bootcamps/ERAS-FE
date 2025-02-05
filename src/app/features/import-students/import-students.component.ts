@@ -9,10 +9,8 @@ import { ImportDialogComponent } from './components/import-dialog.component';
 
 import {
   GENERAL_MESSAGES,
-  IMPORT_MESSAGES,
   VALIDATION_MESSAGES,
 } from '../../core/constants/messages';
-import { Console } from 'console';
 
 @Component({
   selector: 'app-import-students',
@@ -30,7 +28,7 @@ export class ImportStudentsComponent {
   fileError: string | null = null;
   csvErrors: string[] = [];
   readonly dialog = inject(MatDialog);
-  exampleFileUrl: string = 'assets/example_files/import_student_example.csv';
+  exampleFileUrl = 'assets/example_files/import_student_example.csv';
 
   @ViewChild('fileInput')
   inputFile!: ElementRef<HTMLInputElement>;
@@ -43,7 +41,7 @@ export class ImportStudentsComponent {
   private openDialog(text: string, isSuccess: boolean): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
-    let dialogConfig = {
+    const dialogConfig = {
       width: '450px', //450px
       height: 'auto',
       maxWidth: '90vw',

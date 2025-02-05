@@ -1,10 +1,15 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, Output, EventEmitter } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogActions,
   MatDialogContent,
-  MatDialogTitle,
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
@@ -19,12 +24,11 @@ import { Router } from '@angular/router';
   imports: [
     MatButtonModule,
     MatDialogActions,
-    MatDialogTitle,
     MatDialogContent,
     MatIcon,
     NgFor,
     NgClass,
-    NgIf
+    NgIf,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,7 +43,7 @@ export class ImportDialogComponent {
   closeDialog(): void {
     this.dialogRef.close();
   }
-  closeAndGetNewFile(){
-    this.dialogRef.close(true); 
+  closeAndGetNewFile() {
+    this.dialogRef.close(true);
   }
 }

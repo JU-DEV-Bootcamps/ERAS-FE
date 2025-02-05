@@ -1,74 +1,71 @@
-
 @use './../../../styles/utils/index.scss' as main-styles;
 
-.page{
+.page {
   height: 100%;
 }
 .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .row {
-    display: flex;
-    flex-direction: row;
-  }
-  
-  .grow {
-    flex-grow: 1;
-    width: 100%;
-    max-width: 25rem;
-  }
-  
-  .center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
-    .hint-container{
-        color: main-styles.get-color(neutral, 30);
-        text-align: center;
-        padding: 50px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
-        @media (min-width: 500px) {
-          padding-top: 0;
-        }
-    }
-  }
-  
-  .title {
-    display: none;
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.grow {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 25rem;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .hint-container {
+    color: main-styles.get-color(neutral, 30);
+    text-align: center;
+    padding: 50px 16px;
+
     @media (min-width: 500px) {
-      padding-top: 90px;
-      display: block;
-      font-size: main-styles.get-font-size(display, large);// 1.5em;
-      margin: 16px;
-      color: #144d4d;      
+      padding-top: 0;
     }
   }
-  
-  .subtitle {
-    font-size: 1.5em;
-    color: #117473;
+}
+
+.title {
+  display: none;
+  @media (min-width: 500px) {
+    padding-top: 90px;
+    display: block;
+    font-size: main-styles.get-font-size(display, large); // 1.5em;
+    margin: 16px;
+    color: #144d4d;
   }
-  
-  .custom-form-field {
-    width: 100%;
-    max-width: 20rem;
-  }
-  
-  
-  .errorMessage {
-    color: red;
-    font-size: 0.9em;
-    white-space: normal;
-    word-wrap: break-word;
-  }
-  
-  .button:not([disabled]) {
-    background: #19bfb9;
-  }
-  
+}
+
+.subtitle {
+  font-size: 1.5em;
+  color: #117473;
+}
+
+.custom-form-field {
+  width: 100%;
+  max-width: 20rem;
+}
+
+.errorMessage {
+  color: red;
+  font-size: 0.9em;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.button:not([disabled]) {
+  background: #19bfb9;
+}
