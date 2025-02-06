@@ -1,0 +1,144 @@
+@use './../../../../styles/utils/index.scss' as main-styles;
+
+.error-style {
+  color: red;
+  font-weight: semibold;
+}
+.success-style {
+  color: #144d4d;
+  font-weight: semibold;
+}
+.mdc-dialog__surface {
+  border-radius: 0 !important;
+  border: solid rgb(30, 255, 0) 1px;
+}
+mat-dialog-content {
+  padding: 12px !important;
+  max-height: 80vh;
+}
+.modal {
+  .closeButtonContainer {
+    display: flex;
+    justify-content: end;
+    mat-icon {
+      color: main-styles.get-color(neutral, 90);
+      &:hover {
+        color: main-styles.get-color(primary, 50);
+      }
+    }
+  }
+  .textContainer {
+    text-align: center;
+    padding-top: 0;
+
+    @media (min-width: 500px) {
+      padding: 24px;
+    }
+    .title {
+      font-size: main-styles.get-font-size(headline, small);
+      color: main-styles.get-color(neutral, 0);
+      padding: 0;
+
+      @media (min-width: 500px) {
+        font-size: main-styles.get-font-size(headline, large);
+      }
+    }
+    .subtitle {
+      color: main-styles.get-color(neutral, 25);
+      font-weight: 500;
+      font-size: main-styles.get-font-size(title, medium);
+      line-height: 20px;
+      margin: 16px;
+      padding: 0;
+
+      @media (min-width: 500px) {
+        font-size: main-styles.get-font-size(title, large);
+        line-height: 28px;
+        margin: 0;
+      }
+    }
+    .detailsContainer {
+      margin: 16px;
+      .title {
+        color: main-styles.get-color(error, 35);
+        font-style: normal;
+        font-weight: 500;
+        line-height: 140%;
+        letter-spacing: 0.15px;
+        font-size: main-styles.get-font-size(title, medium);
+        margin: 8px;
+        font-weight: 500;
+
+        @media (min-width: 500px) {
+          font-size: main-styles.get-font-size(title, large);
+        }
+      }
+      .subtitle {
+        color: main-styles.get-color(neutral, 20);
+        font-size: main-styles.get-font-size(label, large);
+        margin: 16px;
+        margin-bottom: 0px;
+      }
+      ul {
+        padding: 0;
+        margin-top: 0;
+      }
+      .details {
+        list-style: none;
+        p {
+          color: main-styles.get-color(neutral, 20);
+          font-weight: 400;
+          margin: 4px;
+          font-size: main-styles.get-font-size(label, medium);
+          @media (min-width: 500px) {
+            font-size: main-styles.get-font-size(title, small);
+          }
+        }
+      }
+      .success-icon {
+        color: main-styles.get-color(primary, 40);
+        height: auto;
+        width: auto;
+        font-size: 75px;
+      }
+      .detailsSuccess {
+        color: main-styles.get-color(neutral, 20);
+        font-family: Roboto;
+        font-size: main-styles.get-font-size(title, medium);
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+      }
+    }
+  }
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0px;
+    padding-top: 0;
+    padding-bottom: 0;
+    @media (min-width: 500px) {
+      margin: 16px;
+    }
+    button {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: main-styles.get-color(primary, 50);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      font-size: main-styles.get-font-size(body, large);
+      font-weight: 500;
+      line-height: 125%;
+      height: 40px;
+      width: 180px;
+      padding: 10px 16px;
+      @media (min-width: 500px) {
+        padding: 10px 16px;
+        width: 250px;
+      }
+    }
+  }
+}

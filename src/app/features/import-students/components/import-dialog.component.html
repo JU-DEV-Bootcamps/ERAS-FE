@@ -1,9 +1,43 @@
-@if (data.isSuccess) {
-  <h2 mat-dialog-title class="success-style">{{ data.title }}</h2>
-} @else {
-  <h2 mat-dialog-title class="error-style">{{ data.title }}</h2>
-}
-<mat-dialog-content> {{ data.message }} </mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button (click)="closeDialog()">Ok</button>
-</mat-dialog-actions>
+<mat-dialog-content class="modal">
+  <span class="closeButtonContainer">
+    <mat-icon class="closeModalButton" (click)="closeDialog()">close</mat-icon>
+  </span>
+  <mat-dialog-content class="textContainer">
+    <p
+      class="title"
+      [ngClass]="data.isSuccess ? 'success-style' : 'error-style'"
+    >
+      {{ data.title }}
+    </p>
+    <p
+      class="subtitle"
+      [ngClass]="data.isSuccess ? 'success-style' : 'error-style'"
+    >
+      {{ data.filename }}
+    </p>
+    <span class="detailsContainer">
+      @if (!data.isSuccess) {
+        <p class="title">{{ data.error.title }}</p>
+        <p *ngIf="data.error.message" class="subtitle">
+          {{ data.error.message }}
+        </p>
+        <ul>
+          <li *ngFor="let detail of data.error.details" class="details">
+            <p>{{ detail }}</p>
+          </li>
+        </ul>
+      } @else {
+        <mat-icon class="success-icon">done</mat-icon>
+        <p class="detailsSuccess">{{ data.success.details }}</p>
+      }
+    </span>
+  </mat-dialog-content>
+  <mat-dialog-actions class="buttonContainer">
+    <button
+      class="modalMainButton"
+      (click)="data.isSuccess ? closeDialog() : closeAndGetNewFile()"
+    >
+      {{ data.isSuccess ? 'Ok' : 'Import other file' }}
+    </button>
+  </mat-dialog-actions>
+</mat-dialog-content>

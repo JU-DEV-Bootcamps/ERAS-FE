@@ -12,7 +12,8 @@ export class ImportStudentService {
 
   constructor(private http: HttpClient) {}
 
-  postData(data: unknown): Observable<unknown> {
+  postData(data: unknown): Observable<any> {
+    // we should define a good interface for this situations
     return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
   }
 }

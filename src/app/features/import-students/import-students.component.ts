@@ -1,33 +1,79 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
 import { ImportStudentService } from '../../core/services/import-students.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ImportDialogComponent } from './components/import-dialog.component';
+
 import {
   GENERAL_MESSAGES,
-  IMPORT_MESSAGES,
   VALIDATION_MESSAGES,
 } from '../../core/constants/messages';
 
 @Component({
   selector: 'app-import-students',
-  imports: [MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
+  ],
   templateUrl: './import-students.component.html',
-  styleUrl: './import-students.component.css',
+  styleUrl: './import-students.component.scss',
 })
 export class ImportStudentsComponent {
   selectedFile: File | null = null;
   fileError: string | null = null;
   csvErrors: string[] = [];
   readonly dialog = inject(MatDialog);
+  exampleFileUrl = 'assets/example_files/import_student_example.csv';
+
+  @ViewChild('fileInput')
+  inputFile!: ElementRef<HTMLInputElement>;
 
   constructor(
     private csvCheckerService: CsvCheckerService,
     private importService: ImportStudentService
   ) {}
+
+  private openDialog(text: string, isSuccess: boolean): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+    const dialogConfig = {
+      width: '450px', //450px
+      height: 'auto',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        isSuccess: isSuccess,
+        title: isSuccess
+          ? GENERAL_MESSAGES.SUCCESS_IMPORT_TITLE
+          : GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
+        filename: this.selectedFile?.name,
+        success: {
+          details: text,
+        },
+        error: {
+          title: this.fileError != null ? this.fileError : text,
+          details: this.csvErrors,
+          message: text,
+        },
+      },
+    };
+
+    const dialogRef = this.dialog.open(ImportDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(otherFile => {
+      if (otherFile) {
+        this.importOtherFIle();
+      }
+    });
+  }
+
+  importOtherFIle() {
+    this.inputFile.nativeElement.click();
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -53,22 +99,22 @@ export class ImportStudentsComponent {
       this.selectedFile = null;
       return;
     }
-
     // Pre-scan Papaparse to check for errors
     await this.csvCheckerService.validateCSV(file);
     this.csvErrors = this.csvCheckerService.getErrors();
     if (this.csvErrors.length > 0) {
       this.fileError = VALIDATION_MESSAGES.CSV_SCAN_ERROR;
       this.csvErrors = this.processErrors(this.csvErrors);
+      this.openDialog(GENERAL_MESSAGES.DETAILS, false);
       return;
     }
-
     this.fileError = null;
+    this.importFile();
   }
 
   private processErrors(errors: string[]): string[] {
-    const maxErrorsToShow = 4;
-    const maxLength = 140;
+    const maxErrorsToShow = 3;
+    const maxLength = 100;
     const processedErrors = errors.slice(0, maxErrorsToShow).map(error => {
       if (error.length > maxLength) {
         return error.substring(0, maxLength) + '...';
@@ -98,27 +144,22 @@ export class ImportStudentsComponent {
         }
         return filteredRow;
       });
+
       this.importService.postData(jsonData).subscribe({
-        next: () => {
-          this.openDialog(IMPORT_MESSAGES.STUDENT_SUCCESS, true);
+        next: response => {
+          this.openDialog(response.message, true);
         },
-        error: () => {
-          this.openDialog(IMPORT_MESSAGES.STUDENT_ERROR, false);
+        error: error => {
+          if (error.status == 500) {
+            this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
+          } else {
+            this.openDialog(
+              GENERAL_MESSAGES.ERROR_UNKNOWN + error.error.message,
+              false
+            );
+          }
         },
       });
     }
-  }
-  private openDialog(text: string, isSuccess: boolean): void {
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur(); // Remove focus from the button - avoid console warning
-    this.dialog.open(ImportDialogComponent, {
-      data: {
-        title: isSuccess
-          ? GENERAL_MESSAGES.SUCCESS_TITLE
-          : GENERAL_MESSAGES.ERROR_TITLE,
-        message: text,
-        isSuccess: isSuccess,
-      },
-    });
   }
 }

@@ -6,17 +6,17 @@ import Papa from 'papaparse';
 })
 export class CsvCheckerService {
   expectedHeaders: string[] = [
-    'Nombre',
-    'Correo electronico',
-    'Identificación de SIS del usuario',
-    'Cursos inscritos:',
-    'Cursos con nota:',
-    'Entregas a tiempo en comparación con todas',
-    'Puntuación media',
-    'Cursos con una nota media por debajo de:',
-    'Diferencia de la puntuación pura',
-    'Diferencia de la puntuación estandarizada',
-    'Días desde el último acceso',
+    'Name',
+    'Email',
+    'SISId',
+    'EnrolledCourses',
+    'GradedCourses',
+    'TimelySubmissions',
+    'AverageScore',
+    'CoursesBelowAverage',
+    'RawScoreDifference',
+    'StandardScoreDifference',
+    'DaysSinceLastAccess',
   ];
   csvData: Record<string, unknown>[] = [];
   validationErrors: string[] = [];
@@ -94,8 +94,7 @@ export class CsvCheckerService {
   private validateRows(data: Record<string, unknown>[]): void {
     data.forEach((row, index) => {
       const rowErrors: string[] = [];
-      const emailField = 'Correo electronico';
-
+      const emailField = 'Email';
       // Check for empty fields
       Object.keys(row).forEach(field => {
         if (
@@ -124,14 +123,14 @@ export class CsvCheckerService {
     rowErrors: string[]
   ): void {
     const numericFields = [
-      'Cursos inscritos:',
-      'Cursos con nota:',
-      'Entregas a tiempo en comparación con todas',
-      'Puntuación media',
-      'Cursos con una nota media por debajo de:',
-      'Diferencia de la puntuación pura',
-      'Diferencia de la puntuación estandarizada',
-      'Días desde el último acceso',
+      'EnrolledCourses',
+      'GradedCourses',
+      'TimelySubmissions',
+      'AverageScore',
+      'CoursesBelowAverage',
+      'RawScoreDifference',
+      'StandardScoreDifference',
+      'DaysSinceLastAccess',
     ];
     numericFields.forEach(field => {
       if (!this.validateNumeric(row[field])) {
