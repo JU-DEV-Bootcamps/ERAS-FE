@@ -7,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
+import { CommonModule } from '@angular/common';
+
 import {
   KeycloakService,
   OtherAttrTokenParse,
@@ -16,6 +18,7 @@ import {
   selector: 'app-layout',
   imports: [
     RouterOutlet,
+    CommonModule,
     MatSidenavModule,
     MatButtonModule,
     MatRadioModule,
@@ -26,11 +29,12 @@ import {
     MatMenuModule,
   ],
   templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss',
+  styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
   keycloak = inject(KeycloakService);
   user?: { name: string; email: string };
+  isSettingsExpanded = false;
 
   ngOnInit(): void {
     if (this.keycloak.authenticated) {
@@ -65,5 +69,8 @@ export class LayoutComponent implements OnInit {
   }
   redirectImports() {
     this.router.navigate(['import-students']);
+  }
+  toggleSettings(expand: boolean) {
+    this.isSettingsExpanded = expand;
   }
 }
