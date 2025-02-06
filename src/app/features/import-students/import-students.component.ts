@@ -147,12 +147,7 @@ export class ImportStudentsComponent {
 
       this.importService.postData(jsonData).subscribe({
         next: response => {
-          console.log(response);
-          console.log(response);
-          console.log(response);
-          console.log(response);
-          console.log(response);
-          this.openDialog('cantidad de records añadidos', true);
+          this.openDialog(response.message, true);
         },
         error: error => {
           if (error.status == 500) {

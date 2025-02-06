@@ -1,11 +1,11 @@
-﻿;Nombre;Correo electronico;Identificación de SIS del usuario;Cursos inscritos:;Cursos con nota:;Entregas a tiempo en comparación con todas;Puntuación media;Cursos con una nota media por debajo de:;Diferencia de la puntuación pura;Diferencia de la puntuación estandarizada;Días desde el último acceso
-1;Nombre de estudiante 1;estudiante1@jala.university;STU-000;1;1;20;91,15;0;6,26;86,27;479
-2;Nombre de estudiante 2;estudiante2@jala.university;STU-111;1;1;16;97,63;0;12,74;92,75;396
-3;Nombre de estudiante 3;estudiante3@jala.university;STU-222;1;1;17;94,75;0;9,86;89,87;232
-4;Nombre de estudiante 4;estudiante4@jala.university;STU-333;1;1;19;88,14;0;3,25;83,26;487
-5;Nombre de estudiante 5;estudiante5@jala.university;STU-444;1;1;7;17,04;1;-67,85;12,16;518
-6;Nombre de estudiante 6;estudiante6@jala.university;STU-555;1;1;15;80,2;1;-4,69;75,32;419
-7;Nombre de estudiante 7;estudiante7@jala.university;STU-666;1;1;10;54,07;1;-30,82;49,19;473
-8;Nombre de estudiante 8;estudiante8@jala.university;STU-777;1;1;11;37,24;1;-47,65;32,36;494
-9;Nombre de estudiante 9;estudiante9@jala.university;STU-888;1;1;21;102,42;0;17,53;97,54;155
-10;Nombre de estudiante;estudiante10@jala.university;STU-998;1;1;19;69,67;1;-15,22;64,79;229
+,Name,Email,SISId,EnrolledCourses,GradedCourses,TimelySubmissions,AverageScore,CoursesBelowAverage,RawScoreDifference,StandardScoreDifference,DaysSinceLastAccess
+1,Nombre de estudiante 1,estudiante1@jala.university,STU-000,1,1,20,91.25,0,6.26,86.27,479
+2,Nombre de estudiante 2,estudiante2@jala.university,STU-111,1,1,16,91.25,0,6.26,86.27,396
+3,Nombre de estudiante 3,estudiante3@jala.university,STU-222,1,1,17,91.25,0,6.26,86.27,232
+4,Nombre de estudiante 4,estudiante4@jala.university,STU-333,1,1,19,91.25,0,6.26,86.27,487
+5,Nombre de estudiante 5,estudiante5@jala.university,STU-444,1,1,7,91.25,1,6.26,86.27,518
+6,Nombre de estudiante 6,estudiante6@jala.university,STU-555,1,1,15,91.25,1,6.26,86.27,419
+7,Nombre de estudiante 7,estudiante7@jala.university,STU-666,1,1,10,91.25,1,6.26,86.27,473
+8,Nombre de estudiante 8,estudiante8@jala.university,STU-777,1,1,11,91.25,1,6.26,86.27,494
+9,Nombre de estudiante 9,estudiante9@jala.university,STU-888,1,1,21,91.25,0,6.26,86.27,155
+10,Nombre de estudiante,estudiante10@jala.university,STU-998,1,1,19,91.25,1,6.26,86.27,229
