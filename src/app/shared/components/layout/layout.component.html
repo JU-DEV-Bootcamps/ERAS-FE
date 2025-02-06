@@ -1,5 +1,5 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav [mode]="'side'" class="custom-sidenav">
+  <mat-sidenav #sidenav [mode]="'over'" class="custom-sidenav">
     <div class="custom-sidenav-header">
       <p>ERAS</p>
     </div>
@@ -37,13 +37,31 @@
       <p>
         <button
           mat-button
-          (click)="redirectSettings()"
           class="custom-nav-button"
+          (click)="toggleSettings(!isSettingsExpanded)"
         >
           <mat-icon>settings</mat-icon>
-          Settings
+          <span class="label-settings">Settings</span>
+          <span class="icon-arrow">
+            <mat-icon *ngIf="!isSettingsExpanded">arrow_drop_down</mat-icon>
+            <mat-icon *ngIf="isSettingsExpanded">arrow_drop_up</mat-icon>
+          </span>
         </button>
       </p>
+
+      <div *ngIf="isSettingsExpanded" class="settings-submenu">
+        <p>
+          <button
+            mat-button
+            (click)="redirectSettings()"
+            class="custom-button-style"
+          >
+            <mat-icon>check_circle</mat-icon>
+            Cosmic Latte Status
+          </button>
+        </p>
+      </div>
+
       <p>
         <button
           mat-button

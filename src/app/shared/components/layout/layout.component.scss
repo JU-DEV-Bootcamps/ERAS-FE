@@ -114,6 +114,7 @@
 }
 
 button.mat-mdc-button.custom-nav-button {
+  display: inline-flex;
   color: ut.get-color('neutral', 100);
   padding: ut.get-size(padding, xxl);
   justify-content: flex-start;
@@ -137,6 +138,29 @@ mat-sidenav button.cdk-program-focused {
   border-radius: 10px;
 }
 
+p button.mat-mdc-button.custom-button-style {
+  color: ut.get-color('neutral', 100);
+  padding: ut.get-size(padding, xxl);
+  justify-content: flex-start;
+  margin-left: ut.get-size(margin, xl);
+  margin-right: ut.get-size(margin, md);
+  width: calc(100% - 24px);
+  border-radius: 10px;
+}
+
+p button.custom-button-style:hover {
+  background-color: ut.get-color('primary', 70);
+  border-radius: 10px;
+}
+
+mat-icon {
+  vertical-align: middle;
+}
+
+.label-settings {
+  line-height: 1.4;  
+  vertical-align: middle;  
+}
 
 @media (max-width: 1200px) {
   .container {
