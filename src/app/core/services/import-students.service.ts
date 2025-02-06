@@ -12,6 +12,7 @@ export class ImportStudentService {
 
   constructor(private http: HttpClient) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   postData(data: unknown): Observable<any> {
     // we should define a good interface for this situations
     return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);

@@ -1,7 +1,7 @@
 @use './../../../styles/utils/index.scss' as main-styles;
 
 .page {
-  height: 100%;
+  height: 80%;
 }
 .content {
   display: flex;
@@ -30,22 +30,7 @@
   .hint-container {
     color: main-styles.get-color(neutral, 30);
     text-align: center;
-    padding: 50px 16px;
-
-    @media (min-width: 500px) {
-      padding-top: 0;
-    }
-  }
-}
-
-.title {
-  display: none;
-  @media (min-width: 500px) {
-    padding-top: 90px;
-    display: block;
-    font-size: main-styles.get-font-size(display, large); // 1.5em;
-    margin: 16px;
-    color: #144d4d;
+    padding-inline: 16px;
   }
 }
 

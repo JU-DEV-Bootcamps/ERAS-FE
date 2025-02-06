@@ -3,31 +3,31 @@
 
 // Note: Font sizes for different applications
 $font-size: (
-  display:(
-    small:36px,
-    medium:45px,
-    large:57px
+  display: (
+    small: 36px,
+    medium: 45px,
+    large: 57px,
   ),
-  headline:(
-    small:24px,
-    medium:28px,
-    large:32px
+  headline: (
+    small: 24px,
+    medium: 28px,
+    large: 32px,
   ),
-  title:(
-    small:14px,
-    medium:16px,
-    large:22px
+  title: (
+    small: 14px,
+    medium: 16px,
+    large: 22px,
   ),
-  label:(
-    small:11px,
-    medium:12px,
-    large:14px
+  label: (
+    small: 11px,
+    medium: 12px,
+    large: 14px,
   ),
-  body:(
-    small:12px,
-    medium:14px,
-    large:16px
-  )
+  body: (
+    small: 12px,
+    medium: 14px,
+    large: 16px,
+  ),
 );
 
 @function get-font-size($group, $key) {
@@ -37,9 +37,15 @@ $font-size: (
 $font-weight: (
   bold: 700,
   medium: 400,
-  regular: 200
+  regular: 200,
 );
 
 @function get-font-weight($key) {
   @return map.get($font-weight, $key);
+}
+
+.page-title {
+  font-size: get-font-size(headline, medium);
+  font-weight: get-font-weight(bold);
+  text-align: center;
 }
