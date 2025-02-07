@@ -28,8 +28,6 @@ export class ImportStudentsComponent {
   fileError: string | null = null;
   csvErrors: string[] = [];
   readonly dialog = inject(MatDialog);
-  exampleFileUrl = 'assets/example_files/import_student_example.csv';
-
   @ViewChild('fileInput')
   inputFile!: ElementRef<HTMLInputElement>;
 
