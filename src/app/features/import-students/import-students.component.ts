@@ -29,7 +29,7 @@ export class ImportStudentsComponent {
   selectedFile: File | null = null;
   fileError: string | null = null;
   csvErrors: string[] = [];
-  isLoading: boolean = false;
+  isLoading = false;
 
   readonly dialog = inject(MatDialog);
   @ViewChild('fileInput')
