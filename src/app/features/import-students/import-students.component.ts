@@ -11,6 +11,7 @@ import {
   GENERAL_MESSAGES,
   VALIDATION_MESSAGES,
 } from '../../core/constants/messages';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-import-students',
@@ -19,6 +20,7 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './import-students.component.html',
   styleUrl: './import-students.component.scss',
@@ -27,6 +29,8 @@ export class ImportStudentsComponent {
   selectedFile: File | null = null;
   fileError: string | null = null;
   csvErrors: string[] = [];
+  isLoading: boolean = false;
+
   readonly dialog = inject(MatDialog);
   @ViewChild('fileInput')
   inputFile!: ElementRef<HTMLInputElement>;
@@ -131,6 +135,7 @@ export class ImportStudentsComponent {
 
   importFile(): void {
     if (this.selectedFile) {
+      this.isLoading = true;
       const data = this.csvCheckerService.getCSVData();
       const jsonData = data.map((row: Record<string, unknown>) => {
         const filteredRow: Record<string, unknown> = {};
@@ -145,9 +150,11 @@ export class ImportStudentsComponent {
 
       this.importService.postData(jsonData).subscribe({
         next: response => {
+          this.isLoading = false;
           this.openDialog(response.message, true);
         },
         error: error => {
+          this.isLoading = false;
           if (error.status == 500) {
             this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
           } else {
