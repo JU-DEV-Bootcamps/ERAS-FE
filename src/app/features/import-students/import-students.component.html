@@ -3,40 +3,44 @@
 </div>
 <div class="page content center">
   <div class="grow center">
-    <div class="hint-container">
-      <p>
-        Import a CSV file with the following characteristics. It must have
-        columns with name, email, SIS Id, enrolled courses, Graded Courses,
-        Timely Submissions, average score, Courses Below Average, Raw Score
-        Difference, Standard Score Difference, days since last access
-      </p>
-      <p>
-        For an example template download it
-        <a
-          href="assets/example_files/import_student_example.csv"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="See an example"
-          download="import_student_example.csv"
-          >here
-        </a>
-      </p>
-    </div>
-    <input
-      #fileInput
-      type="file"
-      (change)="onFileSelected($event)"
-      style="display: none"
-    />
-    <div style="padding: 1em">
-      <button
-        class="button"
-        mat-flat-button
-        [disabled]="false"
-        (click)="fileInput.click()"
-      >
-        Import File
-      </button>
-    </div>
+    @if (isLoading) {
+      <mat-spinner></mat-spinner>
+    } @else {
+      <div class="hint-container">
+        <p>
+          Import a CSV file with the following characteristics. It must have
+          columns with name, email, SIS Id, enrolled courses, Graded Courses,
+          Timely Submissions, average score, Courses Below Average, Raw Score
+          Difference, Standard Score Difference, days since last access
+        </p>
+        <p>
+          For an example template download it
+          <a
+            href="assets/example_files/import_student_example.csv"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="See an example"
+            download="import_student_example.csv"
+            >here
+          </a>
+        </p>
+      </div>
+      <input
+        #fileInput
+        type="file"
+        (change)="onFileSelected($event)"
+        style="display: none"
+      />
+      <div style="padding: 1em">
+        <button
+          class="button"
+          mat-flat-button
+          [disabled]="false"
+          (click)="fileInput.click()"
+        >
+          Import File
+        </button>
+      </div>
+    }
   </div>
 </div>
