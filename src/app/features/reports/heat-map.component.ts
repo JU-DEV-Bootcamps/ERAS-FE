@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
   standalone: true,
   imports: [NgApexchartsModule, MatSelectModule],
   templateUrl: './heat-map.component.html',
-  styleUrl: './heat-map.component.css',
+  styleUrls: ['./heat-map.component.css'],
 })
 export class HeatMapComponent {
   public chartOptions: ApexOptions;
@@ -63,6 +63,13 @@ export class HeatMapComponent {
       series: this.mockupAnswers[defaultSurvey]!.series,
       chart: {
         type: 'heatmap',
+        toolbar: {
+          show: true,
+          tools: {
+            download:
+              '<span class="material-icons" style="font-size: 40px; color: var(--primary-color);">download_for_offline</span>',
+          },
+        },
       },
       title: {
         text: this.mockupAnswers[defaultSurvey]!.questions.surveyKind,
