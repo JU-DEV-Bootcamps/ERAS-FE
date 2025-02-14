@@ -1,8 +1,8 @@
-<div>
+<div class="page-header">
   <h2 class="page-title">Reports</h2>
 </div>
 
-<div style="text-align: left">
+<div class="chart-container-wrapper">
   <mat-form-field>
     <mat-label id="sl-component" for="sl-component">Component:</mat-label>
     <mat-select (selectionChange)="handleChange($event.value)">
@@ -12,15 +12,18 @@
       <mat-option value="SOCIAL">Social</mat-option>
     </mat-select>
   </mat-form-field>
-  <apx-chart
-    [series]="chartOptions.series!"
-    [chart]="chartOptions.chart!"
-    [xaxis]="chartOptions.xaxis!"
-    [yaxis]="chartOptions.yaxis!"
-    [colors]="chartOptions.colors!"
-    [plotOptions]="chartOptions.plotOptions!"
-    [title]="chartOptions.title!"
-    [tooltip]="chartOptions.tooltip!"
-  >
-  </apx-chart>
+
+  <div class="chart-container">
+    <apx-chart
+      [series]="chartOptions.series!"
+      [chart]="chartOptions.chart!"
+      [xaxis]="chartOptions.xaxis!"
+      [yaxis]="chartOptions.yaxis!"
+      [colors]="chartOptions.colors!"
+      [plotOptions]="chartOptions.plotOptions!"
+      [title]="chartOptions.title!"
+      [tooltip]="chartOptions.tooltip!"
+    >
+    </apx-chart>
+  </div>
 </div>
