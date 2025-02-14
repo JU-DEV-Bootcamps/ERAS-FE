@@ -3,19 +3,19 @@
     <mat-icon class="closeModalButton" (click)="closeDialog()">close</mat-icon>
   </span>
   <mat-dialog-content class="textContainer">
-    <p
-      class="title"
-      [ngClass]="data.isSuccess ? 'success-style' : 'error-style'"
-    >
-      {{ data.title }}
-    </p>
-    <p
-      class="subtitle"
-      [ngClass]="data.isSuccess ? 'success-style' : 'error-style'"
-    ></p>
     <span class="detailsContainer">
       @if (!data.isSuccess) {
         <mat-icon class="failed-icon">error</mat-icon>
+        <p
+          class="title"
+          [ngClass]="'error-style'"
+        >
+          {{ data.title }}
+        </p>
+        <p
+          class="subtitle"
+          [ngClass]="'error-style'"
+        ></p>
         <ul>
           <li *ngFor="let detail of data.error.details" class="details">
             <p>{{ detail }}</p>
@@ -23,6 +23,16 @@
         </ul>
       } @else {
         <mat-icon class="success-icon">done</mat-icon>
+        <p
+          class="title"
+          [ngClass]="'success-style'"
+        >
+          {{ data.title }}
+        </p>
+        <p
+          class="subtitle"
+          [ngClass]="'success-style'"
+        ></p>
         <p class="detailsSuccess">{{ data.success.details }}</p>
       }
     </span>
