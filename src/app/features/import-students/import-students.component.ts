@@ -58,7 +58,7 @@ export class ImportStudentsComponent {
         },
         error: {
           title: this.fileError != null ? this.fileError : text,
-          details: this.csvErrors,
+          details: this.csvErrors.length > 0 ? this.csvErrors : [GENERAL_MESSAGES.ERROR_500],
           message: `${text} ${this.selectedFile?.name}`,
         },
       },
