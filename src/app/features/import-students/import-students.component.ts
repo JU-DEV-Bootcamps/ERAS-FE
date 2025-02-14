@@ -151,7 +151,7 @@ export class ImportStudentsComponent {
             this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
           } else {
             this.openDialog(
-              GENERAL_MESSAGES.ERROR_UNKNOWN + error.error.message,
+              GENERAL_MESSAGES.ERROR_UNKNOWN + error.message,
               false
             );
           }
