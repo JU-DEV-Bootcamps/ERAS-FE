@@ -49,6 +49,7 @@ jobs:
           cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
           sed -i "s|__API_URL__|${{ vars.API_URL }}|g" src/environments/environment.production.ts
           sed -i "s|__KEYCLOAK_URL__|${{ vars.KEYCLOAK_URL }}|g" src/environments/environment.production.ts
+          sed -i "s|__CLIENT_ID__|${{ vars.CLIENT_ID }}|g" src/environments/environment.production.ts
           sed -i "s|__WEB_URL__|${{ vars.WEB_URL }}|g" src/environments/environment.production.ts
       - name: Login to Docker Hub
         uses: docker/login-action@v3

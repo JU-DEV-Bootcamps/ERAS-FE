@@ -9,8 +9,8 @@ export const environment = {
   apiUrl: '__API_URL__',
   keycloak: {
     url: '__KEYCLOAK_URL__',
-    realm: 'ERAS',
-    clientId: 'public-client',
+    realm: 'jalasoft',
+    clientId: '__CLIENT_ID__',
     enable: true,
     authority: '__KEYCLOAK_URL__',
     redirectUri: '__WEB_URL__',
