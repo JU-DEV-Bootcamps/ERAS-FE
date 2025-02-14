@@ -5,13 +5,13 @@ import { MatInputModule } from '@angular/material/input';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ImportDialogComponent } from './components/import-dialog.component';
 
 import {
   GENERAL_MESSAGES,
   VALIDATION_MESSAGES,
 } from '../../core/constants/messages';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 
 @Component({
   selector: 'app-import-students',
@@ -43,8 +43,8 @@ export class ImportStudentsComponent {
   private openDialog(text: string, isSuccess: boolean): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
-    const dialogConfig = {
-      width: '450px', //450px
+    this.dialog.open(ModalComponent, {
+      width: '450px',
       height: 'auto',
       maxWidth: '90vw',
       maxHeight: '90vh',
@@ -53,23 +53,15 @@ export class ImportStudentsComponent {
         title: isSuccess
           ? GENERAL_MESSAGES.SUCCESS_IMPORT_TITLE
           : GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
-        filename: this.selectedFile?.name,
         success: {
           details: text,
         },
         error: {
           title: this.fileError != null ? this.fileError : text,
-          details: this.csvErrors,
-          message: text,
+          details: this.csvErrors.length > 0 ? this.csvErrors : [GENERAL_MESSAGES.ERROR_500],
+          message: `${text} ${this.selectedFile?.name}`,
         },
       },
-    };
-
-    const dialogRef = this.dialog.open(ImportDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(otherFile => {
-      if (otherFile) {
-        this.importOtherFIle();
-      }
     });
   }
 
@@ -159,7 +151,7 @@ export class ImportStudentsComponent {
             this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
           } else {
             this.openDialog(
-              GENERAL_MESSAGES.ERROR_UNKNOWN + error.error.message,
+              GENERAL_MESSAGES.ERROR_UNKNOWN + error.message,
               false
             );
           }

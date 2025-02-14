@@ -1,13 +1,5 @@
 @use './../../../../styles/utils/index.scss' as main-styles;
 
-.error-style {
-  color: red;
-  font-weight: semibold;
-}
-.success-style {
-  color: #144d4d;
-  font-weight: semibold;
-}
 .mdc-dialog__surface {
   border-radius: 0 !important;
   border: solid rgb(30, 255, 0) 1px;
@@ -59,19 +51,13 @@ mat-dialog-content {
     }
     .detailsContainer {
       margin: 16px;
-      .title {
+      .error-style {
         color: main-styles.get-color(error, 35);
-        font-style: normal;
-        font-weight: 500;
-        line-height: 140%;
-        letter-spacing: 0.15px;
-        font-size: main-styles.get-font-size(title, medium);
-        margin: 8px;
-        font-weight: 500;
-
-        @media (min-width: 500px) {
-          font-size: main-styles.get-font-size(title, large);
-        }
+        font-weight: semibold;
+      }
+      .success-style {
+        color: main-styles.get-color(primary, 35);
+        font-weight: semibold;
       }
       .subtitle {
         color: main-styles.get-color(neutral, 20);
@@ -101,6 +87,14 @@ mat-dialog-content {
         width: auto;
         font-size: 75px;
       }
+
+      .failed-icon {
+        color: main-styles.get-color(error, 35);
+        height: auto;
+        width: auto;
+        font-size: 75px;
+      }
+
       .detailsSuccess {
         color: main-styles.get-color(neutral, 20);
         font-family: Roboto;
@@ -111,6 +105,7 @@ mat-dialog-content {
       }
     }
   }
+
   .buttonContainer {
     display: flex;
     justify-content: center;

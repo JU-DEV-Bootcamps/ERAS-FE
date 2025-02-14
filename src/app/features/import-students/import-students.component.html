@@ -1,7 +1,7 @@
 <div>
   <h2 class="page-title">Import Students</h2>
 </div>
-<div class="page content center">
+<div class="page content">
   <div class="grow center">
     @if (isLoading) {
       <mat-spinner></mat-spinner>
@@ -31,7 +31,7 @@
         (change)="onFileSelected($event)"
         style="display: none"
       />
-      <div style="padding: 1em">
+      <div class="center" style="padding: 1em">
         <button
           class="button"
           mat-flat-button

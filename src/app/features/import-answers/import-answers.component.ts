@@ -12,13 +12,13 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AnswerDialogComponent } from './components/dialog/dialog.component';
 import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
 import { DatePipe } from '@angular/common';
 import {
   IMPORT_MESSAGES,
   GENERAL_MESSAGES,
 } from '../../core/constants/messages';
+import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 
 @Component({
   selector: 'app-import-answers',
@@ -53,16 +53,27 @@ export class ImportAnswersComponent {
     this.isLoading = false;
   }
 
-  openDialog(
-    titleMessage: string,
-    descriptionMessage: string,
-    isSuccess: boolean
-  ) {
-    this.dialog.open(AnswerDialogComponent, {
+  private openDialog(descriptionMessage: string, isSuccess: boolean): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+    this.dialog.open(ModalComponent, {
+      width: '450px',
+      height: 'auto',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
       data: {
-        title: titleMessage,
-        description: descriptionMessage,
         isSuccess: isSuccess,
+        title: isSuccess
+          ? GENERAL_MESSAGES.SUCCESS_TITLE
+          : GENERAL_MESSAGES.ERROR_TITLE,
+        success: {
+          details: descriptionMessage,
+        },
+        error: {
+          title: GENERAL_MESSAGES.ERROR_TITLE,
+          details: [descriptionMessage],
+          message: descriptionMessage,
+        },
       },
     });
   }
@@ -81,20 +92,12 @@ export class ImportAnswersComponent {
       .subscribe({
         next: () => {
           this.isLoading = false;
-          this.openDialog(
-            GENERAL_MESSAGES.SUCCESS_TITLE,
-            IMPORT_MESSAGES.ANSWERS_SUCCESS,
-            true
-          );
+          this.openDialog(IMPORT_MESSAGES.ANSWERS_SUCCESS, true);
           this.resetForm();
         },
         error: () => {
           this.isLoading = false;
-          this.openDialog(
-            GENERAL_MESSAGES.ERROR_TITLE,
-            IMPORT_MESSAGES.ANSWERS_ERROR,
-            false
-          );
+          this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
           this.resetForm();
         },
       });
