@@ -9,14 +9,14 @@
       @if (isLoading) {
         <mat-spinner></mat-spinner>
       } @else {
-        @if (healthCheckResponse.status === true) {
+        @if (healthCheckResponse.entries.cosmicLatteApi.status === 'Healthy') {
           <mat-icon class="check">check</mat-icon>
         } @else {
           <mat-icon class="close">close</mat-icon>
         }
         <h3 class="ligth">last test :</h3>
         <h3 class="ligth">
-          {{ healthCheckResponse.dateTime }}
+          {{ healthCheckResponse.entries.cosmicLatteApi.data.date }}
         </h3>
       }
     </div>
