@@ -22,8 +22,18 @@ export class CosmicLatteComponent implements OnInit {
   isLoading;
   constructor(private cosmicLatteService: CostmicLatteService) {
     this.healthCheckResponse = {
-      status: false,
-      dateTime: '',
+      status: 'Unhealthy', //Healthy
+      totalDuration: '',
+      entries: {
+        cosmicLatteApi: {
+          data: {
+            date: '',
+          },
+          duration: '',
+          status: 'Unhealthy',
+          tags: [],
+        },
+      },
     };
     this.isLoading = true;
   }

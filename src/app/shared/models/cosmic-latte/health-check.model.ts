@@ -1,4 +1,14 @@
 export interface HealthCheckResponse {
-  status: boolean;
-  dateTime: string;
+  status: string;
+  totalDuration: string;
+  entries: {
+    cosmicLatteApi: {
+      data: {
+        date: string;
+      };
+      duration: string;
+      status: string;
+      tags: [];
+    };
+  };
 }
