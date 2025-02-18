@@ -31,7 +31,6 @@ describe('ListImportedStudentComponent', () => {
   });
 
   it('should create', () => {
-    // mockService.getData.and.returnValue(of({ items: [], count: 0 }));
     expect(component).toBeTruthy();
   });
 });
