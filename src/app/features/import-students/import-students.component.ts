@@ -12,6 +12,7 @@ import {
 } from '../../core/constants/messages';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
+import { ListImportedStudentComponent } from '../list-imported-student/list-imported-student.component';
 
 @Component({
   selector: 'app-import-students',
@@ -21,6 +22,7 @@ import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialo
     MatInputModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    ListImportedStudentComponent,
   ],
   templateUrl: './import-students.component.html',
   styleUrl: './import-students.component.scss',
