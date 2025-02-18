@@ -1,9 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { TitleCasePipe } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-list-imported-student',
@@ -12,9 +13,10 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatTableModule,
     TitleCasePipe,
     MatPaginatorModule,
+    MatCardModule,
   ],
   templateUrl: './list-imported-student.component.html',
-  styleUrl: './list-imported-student.component.css',
+  styleUrl: './list-imported-student.component.scss',
 })
 export class ListImportedStudentComponent implements OnInit {
   columns = ['id', 'name', 'uuid', 'email'];
@@ -22,13 +24,22 @@ export class ListImportedStudentComponent implements OnInit {
   studentService = inject(ImportStudentService);
 
   data = new MatTableDataSource([]);
+  students = [];
 
   pageSize = 10;
   currentPage = 0;
   totalStudents = 0;
 
+  isMobile = false;
+
   ngOnInit(): void {
     this.loadStudents();
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize', [])
+  checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
   }
 
   loadStudents(): void {
@@ -39,6 +50,7 @@ export class ListImportedStudentComponent implements OnInit {
       })
       .subscribe(data => {
         this.data = data.items;
+        this.students = data.items;
         this.totalStudents = data.count;
       });
   }
