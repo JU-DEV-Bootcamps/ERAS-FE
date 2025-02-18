@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-login',
@@ -8,4 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {}
+export class LoginComponent {
+  keycloak = inject(Keycloak);
+  click() {
+    this.keycloak.login();
+  }
+}

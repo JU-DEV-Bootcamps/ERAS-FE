@@ -14,6 +14,6 @@ export const environment = {
     enable: true,
     authority: '__KEYCLOAK_URL__',
     redirectUri: '__WEB_URL__',
-    postLogoutRedirectUri: '__WEB_URL__/login',
+    postLogoutRedirectUri: '__WEB_URL__',
   },
 };
