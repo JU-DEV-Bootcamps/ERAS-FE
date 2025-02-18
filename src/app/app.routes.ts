@@ -6,10 +6,11 @@ import { HeatMapComponent } from './features/reports/heat-map.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
+import { LoginComponent } from './features/login/login.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'profile', pathMatch: 'full' },
-  //{ path: 'profile', component: ProfileComponent },
+  { path: 'login', component: LoginComponent },
   {
     path: '',
     component: LayoutComponent,
