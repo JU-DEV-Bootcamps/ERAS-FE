@@ -9,14 +9,14 @@ import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { LoginComponent } from './features/login/login.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'profile', pathMatch: 'full' },
+  //{ path: '', redirectTo: 'profile', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
     path: '',
     component: LayoutComponent,
     // canActivateChild: [authGuard],
     children: [
-      { path: 'profile', component: ProfileComponent },
+      { path: '', component: ProfileComponent },
       { path: 'cosmic-latte', component: CosmicLatteComponent },
       { path: 'heat-map', component: HeatMapComponent },
       { path: 'import-answers', component: ImportAnswersComponent },
