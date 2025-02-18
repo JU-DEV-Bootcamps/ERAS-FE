@@ -8,7 +8,11 @@ import {
 } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-interceptor';
 

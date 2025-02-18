@@ -1,5 +1,11 @@
 import { AuthGuardData, createAuthGuard } from 'keycloak-angular';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { inject } from '@angular/core';
 
 /**
@@ -21,7 +27,9 @@ const isAccessAllowed = async (
   }
 
   const hasRequiredRole = (role: string): boolean =>
-    Object.values(grantedRoles.resourceRoles).some((roles) => roles.includes(role));
+    Object.values(grantedRoles.resourceRoles).some(roles =>
+      roles.includes(role)
+    );
 
   if (authenticated && hasRequiredRole(requiredRole)) {
     return true;
@@ -31,4 +39,5 @@ const isAccessAllowed = async (
   return router.parseUrl('/forbidden');
 };
 
-export const canActivateAuthRole = createAuthGuard<CanActivateFn>(isAccessAllowed);
+export const canActivateAuthRole =
+  createAuthGuard<CanActivateFn>(isAccessAllowed);
