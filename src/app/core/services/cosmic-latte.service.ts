@@ -14,7 +14,7 @@ export class CostmicLatteService {
 
   healthCheck(): Observable<HealthCheckResponse> {
     return this.http
-      .options<HealthCheckResponse>(`${this.apiUrl}/cosmic-latte/status`)
+      .get<HealthCheckResponse>(`${this.apiUrl}/api/v1/health`)
       .pipe(
         catchError(() => {
           return throwError(() => new Error('Error on health check'));
@@ -31,12 +31,14 @@ export class CostmicLatteService {
       params = params.set('endDate', end);
     }
 
-    return this.http.get(`${this.apiUrl}/api/Evaluations?`, { params }).pipe(
-      catchError(error => {
-        return throwError(
-          () => new Error('Failed to fetch answers by survey', error)
-        );
-      })
-    );
+    return this.http
+      .get(`${this.apiUrl}/api/v1/CosmicLatte/polls?`, { params })
+      .pipe(
+        catchError(error => {
+          return throwError(
+            () => new Error('Failed to fetch answers by survey', error)
+          );
+        })
+      );
   }
 }
