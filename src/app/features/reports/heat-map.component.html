@@ -3,33 +3,40 @@
 </div>
 
 <div class="chart-container-wrapper">
-  <form [formGroup]="myForm">
-    <mat-form-field appearance="fill">
-      <mat-label for="sl-component">Component</mat-label>
-      <mat-select id="sl-component" formControlName="selectedSurveyKind">
-        @for (surveyKind of surveyKinds; track surveyKind) {
-          <mat-option [value]="surveyKind">{{
-            surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
-          }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+  <div class="form-container">
+    <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Component</mat-label>
+        <mat-select id="sl-component" formControlName="selectedSurveyKind">
+          @for (surveyKind of surveyKinds; track surveyKind) {
+            <mat-option [value]="surveyKind">{{
+              surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label for="sl-questions">Questions</mat-label>
-      <mat-select
-        id="sl-questions"
-        formControlName="selectedQuestions"
-        multiple
-      >
-        @for (question of questions; track question.description) {
-          <mat-option [value]="question.description">{{
-            question.description
-          }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </form>
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-questions">Questions</mat-label>
+        <mat-select
+          id="sl-questions"
+          formControlName="selectedQuestions"
+          multiple
+        >
+          @for (question of questions; track question.description) {
+            <mat-option [value]="question.description">{{
+              question.description
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-fab extended class="button" type="submit">
+        <mat-icon>cached</mat-icon>
+        Apply
+      </button>
+    </form>
+  </div>
 
   <div class="chart-container">
     <apx-chart

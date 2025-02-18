@@ -7,16 +7,26 @@ import {
   generateMockupQuestions,
   generateMockupAnswers,
 } from './services/data.generator';
-import { adaptAnswers, orderAnswers } from './services/data.adapter';
+import {
+  adaptAnswers,
+  filterAnswers,
+  orderAnswers,
+} from './services/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
-import { Conf, SurveyKind, MockUpAnswers } from './types/data.generator';
+import {
+  Conf,
+  SurveyKind,
+  MockUpAnswers,
+  Question,
+} from './types/data.generator';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-charts',
@@ -25,6 +35,7 @@ import { MatSelectModule } from '@angular/material/select';
     FormsModule,
     ReactiveFormsModule,
     NgApexchartsModule,
+    MatButtonModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
@@ -49,16 +60,10 @@ export class HeatMapComponent {
     FAMILIAR: null,
     SOCIAL: null,
   };
-  public form: Record<string, string> = {
-    variable: '',
-  };
 
-  //@ts-ignore
   public questions: Question[] = [] as Question[];
-  //@ts-ignore
-  public selectedQuestions: Question[] = [] as Question[];
-  //@ts-ignore
-  public selectedSurveyKind = this.defaultSurvey;
+  public selQuestions: string[] = [];
+  public selSurveyKind = this.defaultSurvey;
 
   constructor() {
     const baseConf: Conf = {
@@ -83,15 +88,13 @@ export class HeatMapComponent {
         series: orderedAnswers,
       };
     });
-    const selectedSurveyKind = this.selectedSurveyKind;
+    const selSurveyKind = this.selSurveyKind;
 
-    this.questions =
-      this.mockupAnswers[selectedSurveyKind]!.questions.questions;
+    this.questions = this.mockupAnswers[selSurveyKind]!.questions.questions;
     this.chartOptions = {
-      series: this.mockupAnswers[selectedSurveyKind]!.series.filter(
-        s =>
-          this.selectedQuestions.length === 0 ||
-          this.selectedQuestions.includes(s.name)
+      series: filterAnswers(
+        this.mockupAnswers[selSurveyKind]!.series,
+        this.selQuestions
       ),
       chart: {
         type: 'heatmap',
@@ -104,7 +107,7 @@ export class HeatMapComponent {
         },
       },
       title: {
-        text: selectedSurveyKind,
+        text: selSurveyKind,
       },
       xaxis: {
         categories: [''],
@@ -195,26 +198,14 @@ export class HeatMapComponent {
   }
 
   initForm() {
-    this.selectedQuestions = this.questions.map(q => q.description);
+    this.selQuestions = this.questions.map(q => q.description);
 
     const form = new FormGroup({
-      selectedQuestions: new FormControl(this.selectedQuestions, [
-          Validators.required,
-          this.arrayValidator
+      selQuestions: new FormControl(this.selQuestions, [
+        Validators.required,
+        this.selQuestionsValidator,
       ]),
-      selectedSurveyKind: new FormControl(
-        this.defaultSurvey,
-        Validators.required
-      ),
-    });
-
-    form.get('selectedQuestions')?.valueChanges.subscribe(value => {
-      this.selectedQuestions = value!;
-      this.updateChart();
-    });
-    form.get('selectedSurveyKind')?.valueChanges.subscribe(value => {
-      this.selectedSurveyKind = value ?? this.defaultSurvey;
-      this.updateChart();
+      selSurveyKind: new FormControl(this.defaultSurvey, Validators.required),
     });
 
     return form;
@@ -222,17 +213,14 @@ export class HeatMapComponent {
 
   updateChart() {
     if (this.myForm.valid) {
-      const selectedSurveyKind = this.myForm.get('selectedSurveyKind')?.value as SurveyKind;
-
       this.chartOptions = {
         ...this.chartOptions,
-        series: this.mockupAnswers[selectedSurveyKind]!.series.filter(
-          s =>
-            this.selectedQuestions.length === 0 ||
-            this.selectedQuestions.includes(s.name)
+        series: filterAnswers(
+          this.mockupAnswers[this.selSurveyKind]!.series,
+          this.selQuestions
         ),
         title: {
-          text: selectedSurveyKind,
+          text: this.selSurveyKind,
         },
       };
     } else {
@@ -240,7 +228,7 @@ export class HeatMapComponent {
     }
   }
 
-  arrayValidator(control: FormControl): Record<string, boolean> | null {
+  selQuestionsValidator(control: FormControl): Record<string, boolean> | null {
     const value = control.value;
 
     if (value.length === 0) {
@@ -248,5 +236,11 @@ export class HeatMapComponent {
     }
 
     return null;
+  }
+
+  onSubmit() {
+    this.selQuestions = this.myForm.get('selQuestions')?.value;
+    this.selSurveyKind = this.myForm.get('selSurveyKind')?.value;
+    this.updateChart();
   }
 }
