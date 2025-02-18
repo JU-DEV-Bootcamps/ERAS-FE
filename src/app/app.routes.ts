@@ -7,13 +7,15 @@ import { HeatMapComponent } from './features/reports/heat-map.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
+  { path: '', redirectTo: 'profile', pathMatch: 'full' },
+  //{ path: 'profile', component: ProfileComponent },
   {
     path: '',
     component: LayoutComponent,
+    // canActivateChild: [authGuard],
     children: [
       { path: 'profile', component: ProfileComponent },
       { path: 'cosmic-latte', component: CosmicLatteComponent },
