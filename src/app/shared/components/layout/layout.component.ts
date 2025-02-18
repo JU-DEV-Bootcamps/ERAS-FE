@@ -79,7 +79,7 @@ export class LayoutComponent {
     this.router.navigate(['cosmic-latte']);
   }
   redirectProfile() {
-    this.router.navigate(['profile']);
+    this.router.navigate(['']);
   }
   redirectImportAnswers() {
     this.router.navigate(['import-answers']);
