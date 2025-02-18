@@ -1,16 +1,8 @@
 import { inject } from '@angular/core';
-import { CanActivateChildFn, Router } from '@angular/router';
-import { KeycloakService } from '../../core/services/keycloak.service';
+import { CanActivateChildFn } from '@angular/router';
+import Keycloak from 'keycloak-js';
 
-export const authGuard: CanActivateChildFn = (childRoute, state) => {
-  const router = inject(Router);
-  const keycloak = inject(KeycloakService);
-  if (!keycloak.authenticated && state.url !== '/login') {
-    router.navigate(['login']);
-    return false;
-  }
-  if (state.url === '/login') {
-    router.navigate(['profile']);
-  }
-  return true;
+export const authGuard: CanActivateChildFn = () => {
+  const keycloak = inject(Keycloak);
+  return !!keycloak.authenticated; // Replace with actual logic to check if user is logged in
 };

@@ -1,14 +1,17 @@
 import { Component, inject } from '@angular/core';
-import { KeycloakAuthComponent } from '../../shared/components/keycloak-auth/keycloak-auth.component';
-import { KeycloakService } from '../../core/services/keycloak.service';
+import { MatButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-login',
-  imports: [KeycloakAuthComponent, MatIconModule],
+  imports: [MatIconModule, MatButton],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  keycloakService = inject(KeycloakService);
+  keycloak = inject(Keycloak);
+  click() {
+    this.keycloak.login();
+  }
 }
