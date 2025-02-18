@@ -8,14 +8,14 @@ import { ImportStudentsComponent } from './features/import-students/import-stude
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'profile', pathMatch: 'full' },
-  //{ path: 'profile', component: ProfileComponent },
+  //{ path: '', redirectTo: 'profile', pathMatch: 'full' },
+  { path: '', component: ProfileComponent },
   {
     path: '',
     component: LayoutComponent,
     // canActivateChild: [authGuard],
     children: [
-      { path: 'profile', component: ProfileComponent },
+      { path: '', component: ProfileComponent },
       { path: 'cosmic-latte', component: CosmicLatteComponent },
       { path: 'heat-map', component: HeatMapComponent },
       { path: 'import-answers', component: ImportAnswersComponent },
