@@ -7,20 +7,35 @@ import { ImportAnswersComponent } from './features/import-answers/import-answers
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { LoginComponent } from './features/login/login.component';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
-  //{ path: '', redirectTo: 'profile', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
     path: '',
     component: LayoutComponent,
-    // canActivateChild: [authGuard],
     children: [
       { path: '', component: ProfileComponent },
-      { path: 'cosmic-latte', component: CosmicLatteComponent },
-      { path: 'heat-map', component: HeatMapComponent },
-      { path: 'import-answers', component: ImportAnswersComponent },
-      { path: 'import-students', component: ImportStudentsComponent },
+      {
+        path: 'cosmic-latte',
+        component: CosmicLatteComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'heat-map',
+        component: HeatMapComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'import-answers',
+        component: ImportAnswersComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'import-students',
+        component: ImportStudentsComponent,
+        canActivate: [authGuard],
+      },
       //Example to use guard with role
       {
         path: 'forbidden',
