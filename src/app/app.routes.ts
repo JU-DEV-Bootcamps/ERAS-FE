@@ -6,7 +6,7 @@ import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.compo
 import { HeatMapComponent } from './features/reports/heat-map.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
-import { authGuard } from './shared/guards/auth.guard';
+import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -14,13 +14,19 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    canActivateChild: [authGuard],
     children: [
       { path: 'profile', component: ProfileComponent },
       { path: 'cosmic-latte', component: CosmicLatteComponent },
       { path: 'heat-map', component: HeatMapComponent },
       { path: 'import-answers', component: ImportAnswersComponent },
       { path: 'import-students', component: ImportStudentsComponent },
+      //Example to use guard with role
+      {
+        path: 'forbidden',
+        component: ProfileComponent,
+        canActivate: [canActivateAuthRole],
+        data: { role: 'admin' },
+      },
     ],
   },
 ];
