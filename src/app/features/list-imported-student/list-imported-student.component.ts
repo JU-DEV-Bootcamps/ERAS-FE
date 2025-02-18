@@ -49,7 +49,7 @@ export class ListImportedStudentComponent implements OnInit {
         pageSize: this.pageSize,
       })
       .subscribe(data => {
-        this.data = data.items;
+        this.data = new MatTableDataSource(data.items);
         this.students = data.items;
         this.totalStudents = data.count;
       });

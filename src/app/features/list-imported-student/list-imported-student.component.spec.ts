@@ -10,10 +10,9 @@ import { of } from 'rxjs';
 describe('ListImportedStudentComponent', () => {
   let component: ListImportedStudentComponent;
   let fixture: ComponentFixture<ListImportedStudentComponent>;
-  let mockService: jasmine.SpyObj<ImportStudentService>;
+  let mockService = jasmine.createSpyObj('ImportStudentService', ['getData']);
 
   beforeEach(async () => {
-    mockService = jasmine.createSpyObj('ImportStudentService', ['getData']);
     mockService.getData.and.returnValue(of({ items: [], count: 0 }));
 
     await TestBed.configureTestingModule({
@@ -25,14 +24,14 @@ describe('ListImportedStudentComponent', () => {
       ],
     }).compileComponents();
 
-    component = TestBed.inject(ListImportedStudentComponent);
-
     fixture = TestBed.createComponent(ListImportedStudentComponent);
     component = fixture.componentInstance;
+    mockService = TestBed.inject(ImportStudentService);
     fixture.detectChanges();
   });
 
   it('should create', () => {
+    // mockService.getData.and.returnValue(of({ items: [], count: 0 }));
     expect(component).toBeTruthy();
   });
 });

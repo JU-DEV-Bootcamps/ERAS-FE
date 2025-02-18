@@ -3,16 +3,15 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ImportStudentsComponent } from './import-students.component';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { VALIDATION_MESSAGES } from '../../core/constants/messages';
+import { of } from 'rxjs';
 
 describe('ImportStudentsComponent', () => {
   let component: ImportStudentsComponent;
   let fixture: ComponentFixture<ImportStudentsComponent>;
-  let mockService: jasmine.SpyObj<ImportStudentService>;
+  const mockService = jasmine.createSpyObj('ImportStudentService', ['getData']);
 
   beforeEach(async () => {
-    mockService = jasmine.createSpyObj('ImportStudentService', [
-      'importStudents',
-    ]);
+    mockService.getData.and.returnValue(of({ items: [], count: 0 }));
     await TestBed.configureTestingModule({
       imports: [ImportStudentsComponent],
       providers: [
