@@ -57,6 +57,25 @@ const adaptAnswers = (
 };
 
 /**
+ * Returns a collection of filtered anwers
+ *
+ * @param series - Collection of answers data to be filtered
+ * @param selected - string array with the description of selected answers
+ *
+ * @returns Collection of ordered answers
+ */
+const filterAnswers = (
+  series: ApexAxisChartSeries,
+  selectedQuestions: string[]
+) => {
+  return series.filter(
+    s =>
+      selectedQuestions.length === 0 ||
+      (s.name && selectedQuestions.includes(s.name))
+  );
+};
+
+/**
  * Returns a collection of ordered anwers with potentially the same amount of columns per question
  *
  * @param answers - Collection of unordered questions
@@ -96,4 +115,4 @@ const orderAnswers = (answers: ApexAxisChartSeries, fill?: boolean) => {
   return answers;
 };
 
-export { adaptAnswers, orderAnswers };
+export { adaptAnswers, filterAnswers, orderAnswers };

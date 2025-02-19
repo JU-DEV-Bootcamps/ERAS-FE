@@ -20,7 +20,7 @@ interface Answers {
 interface Question {
   isMultiple: boolean;
   possibleAnswers: PossibleAnswer[];
-  description?: string;
+  description: string;
 }
 interface Questions {
   surveyKind: SurveyKind;

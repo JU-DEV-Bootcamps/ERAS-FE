@@ -1,32 +1,69 @@
 import { Component } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 import {
   generateMockupQuestions,
   generateMockupAnswers,
 } from './services/data.generator';
-import { adaptAnswers, orderAnswers } from './services/data.adapter';
+import {
+  adaptAnswers,
+  filterAnswers,
+  orderAnswers,
+} from './services/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
-import { Conf, SurveyKind, MockUpAnswers } from './types/data.generator';
+import {
+  Conf,
+  SurveyKind,
+  MockUpAnswers,
+  Question,
+} from './types/data.generator';
 
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-charts',
   standalone: true,
-  imports: [NgApexchartsModule, MatSelectModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NgApexchartsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+  ],
   templateUrl: './heat-map.component.html',
   styleUrls: ['./heat-map.component.css'],
 })
 export class HeatMapComponent {
+  public myForm: FormGroup;
   public chartOptions: ApexOptions;
+  public surveyKinds: SurveyKind[] = [
+    'ACADEMIC',
+    'INDIVIDUAL',
+    'FAMILIAR',
+    'SOCIAL',
+  ];
+  private defaultSurvey = this.surveyKinds[0];
+  public surveyKind = this.defaultSurvey;
   public mockupAnswers: MockUpAnswers = {
     ACADEMIC: null,
     INDIVIDUAL: null,
     FAMILIAR: null,
     SOCIAL: null,
   };
+
+  public questions: Question[] = [] as Question[];
+  public selQuestions: string[] = [];
+  public selSurveyKind = this.defaultSurvey;
 
   constructor() {
     const baseConf: Conf = {
@@ -38,29 +75,27 @@ export class HeatMapComponent {
       questions: 10,
       cantStudents: 25,
     };
-    const surveyKinds: SurveyKind[] = [
-      'ACADEMIC',
-      'INDIVIDUAL',
-      'FAMILIAR',
-      'SOCIAL',
-    ];
-    const defaultSurvey = surveyKinds[0];
 
-    surveyKinds.forEach(surveyKind => {
+    this.surveyKinds.forEach(surveyKind => {
       const conf = { ...baseConf };
-      const questions = generateMockupQuestions(surveyKind, conf);
-      const rawAnswers = generateMockupAnswers(questions, conf);
-      const answers = adaptAnswers(questions, rawAnswers);
+      const mockupQuestions = generateMockupQuestions(surveyKind, conf);
+      const rawAnswers = generateMockupAnswers(mockupQuestions, conf);
+      const answers = adaptAnswers(mockupQuestions, rawAnswers);
       const orderedAnswers = orderAnswers(answers, true);
 
       this.mockupAnswers[surveyKind] = {
-        questions,
+        questions: mockupQuestions,
         series: orderedAnswers,
       };
     });
+    const selSurveyKind = this.selSurveyKind;
 
+    this.questions = this.mockupAnswers[selSurveyKind]!.questions.questions;
     this.chartOptions = {
-      series: this.mockupAnswers[defaultSurvey]!.series,
+      series: filterAnswers(
+        this.mockupAnswers[selSurveyKind]!.series,
+        this.selQuestions
+      ),
       chart: {
         type: 'heatmap',
         toolbar: {
@@ -72,7 +107,7 @@ export class HeatMapComponent {
         },
       },
       title: {
-        text: this.mockupAnswers[defaultSurvey]!.questions.surveyKind,
+        text: selSurveyKind,
       },
       xaxis: {
         categories: [''],
@@ -100,14 +135,14 @@ export class HeatMapComponent {
               {
                 from: 2,
                 to: 4,
-                color: '#90EE90',
+                color: '#3CB371',
                 foreColor: '#FFFFFF',
                 name: 'Low-Medium Risk',
               },
               {
                 from: 4,
                 to: 6,
-                color: '#E5E500',
+                color: '#F0D722',
                 foreColor: '#FFFFFF',
                 name: 'Medium Risk',
               },
@@ -158,15 +193,54 @@ export class HeatMapComponent {
         },
       },
     };
+
+    this.myForm = this.initForm();
   }
 
-  handleChange(surveyKind: SurveyKind): void {
-    this.chartOptions = {
-      ...this.chartOptions,
-      series: this.mockupAnswers[surveyKind]!.series,
-      title: {
-        text: this.mockupAnswers[surveyKind]!.questions.surveyKind,
-      },
-    };
+  initForm() {
+    this.selQuestions = this.questions.map(q => q.description);
+
+    const form = new FormGroup({
+      selQuestions: new FormControl(this.selQuestions, [
+        Validators.required,
+        this.selQuestionsValidator,
+      ]),
+      selSurveyKind: new FormControl(this.defaultSurvey, Validators.required),
+    });
+
+    return form;
+  }
+
+  updateChart() {
+    if (this.myForm.valid) {
+      this.chartOptions = {
+        ...this.chartOptions,
+        series: filterAnswers(
+          this.mockupAnswers[this.selSurveyKind]!.series,
+          this.selQuestions
+        ),
+        title: {
+          text: this.selSurveyKind,
+        },
+      };
+    } else {
+      console.log('Form is invalid. Please fill in all required fields.');
+    }
+  }
+
+  selQuestionsValidator(control: FormControl): Record<string, boolean> | null {
+    const value = control.value;
+
+    if (value.length === 0) {
+      return { invalidDomain: true };
+    }
+
+    return null;
+  }
+
+  onSubmit() {
+    this.selQuestions = this.myForm.get('selQuestions')?.value;
+    this.selSurveyKind = this.myForm.get('selSurveyKind')?.value;
+    this.updateChart();
   }
 }
