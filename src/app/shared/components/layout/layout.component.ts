@@ -40,6 +40,7 @@ export class LayoutComponent {
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   isSettingsExpanded = false;
+  isImportsExpanded = false;
 
   router = inject(Router);
   constructor() {
@@ -75,7 +76,7 @@ export class LayoutComponent {
     this.keycloak.logout();
   }
 
-  redirectSettings() {
+  redirectCLStatus() {
     this.router.navigate(['cosmic-latte']);
   }
   redirectProfile() {
@@ -87,10 +88,13 @@ export class LayoutComponent {
   redirectReports() {
     this.router.navigate(['heat-map']);
   }
-  redirectImports() {
+  redirectImportStudents() {
     this.router.navigate(['import-students']);
   }
   toggleSettings(expand: boolean) {
     this.isSettingsExpanded = expand;
+  }
+  toggleImports(expand: boolean) {
+    this.isImportsExpanded = expand;
   }
 }

@@ -17,16 +17,6 @@
       <p>
         <button
           mat-button
-          (click)="redirectImportAnswers()"
-          class="custom-nav-button"
-        >
-          <mat-icon>insert_chart_outlined</mat-icon>
-          Surveys
-        </button>
-      </p>
-      <p>
-        <button
-          mat-button
           (click)="redirectReports()"
           class="custom-nav-button"
         >
@@ -53,7 +43,7 @@
         <p>
           <button
             mat-button
-            (click)="redirectSettings()"
+            (click)="redirectCLStatus()"
             class="custom-button-style"
           >
             <mat-icon>check_circle</mat-icon>
@@ -61,17 +51,42 @@
           </button>
         </p>
       </div>
-
       <p>
         <button
           mat-button
-          (click)="redirectImports()"
           class="custom-nav-button"
+          (click)="toggleImports(!isImportsExpanded)"
         >
           <mat-icon>drive_folder_upload</mat-icon>
-          Imports
+          <span class="label-settings">Imports</span>
+          <span class="icon-arrow">
+            <mat-icon *ngIf="!isImportsExpanded">arrow_drop_down</mat-icon>
+            <mat-icon *ngIf="isImportsExpanded">arrow_drop_up</mat-icon>
+          </span>
         </button>
       </p>
+      <div *ngIf="isImportsExpanded" class="settings-submenu">
+        <p>
+          <button
+            mat-button
+            (click)="redirectImportAnswers()"
+            class="custom-button-style"
+          >
+            <mat-icon>insert_chart_outlined</mat-icon>
+            Add Surveys
+          </button>
+        </p>
+        <p>
+          <button
+            mat-button
+            (click)="redirectImportStudents()"
+            class="custom-button-style"
+          >
+            <mat-icon>person_add</mat-icon>
+            Add Students
+          </button>
+        </p>
+      </div>
     </div>
   </mat-sidenav>
 
