@@ -27,6 +27,42 @@
       <p>
         <button
           mat-button
+          (click)="toggleLists(!isListsExpanded)"
+          class="custom-nav-button"
+        >
+          <mat-icon>list</mat-icon>
+          Lists
+          <span class="icon-arrow">
+            <mat-icon *ngIf="!isListsExpanded">arrow_drop_down</mat-icon>
+            <mat-icon *ngIf="isListsExpanded">arrow_drop_up</mat-icon>
+          </span>
+        </button>
+      </p>
+
+      <!-- Submenu for Lists -->
+      <div *ngIf="isListsExpanded" class="settings-submenu">
+        <p>
+          <button mat-button class="custom-button-style">
+            <mat-icon>school</mat-icon>
+            Students
+          </button>
+        </p>
+        <p>
+          <button mat-button class="custom-button-style">
+            <mat-icon>group</mat-icon>
+            Cohorts
+          </button>
+        </p>
+        <p>
+          <button mat-button class="custom-button-style">
+            <mat-icon>poll</mat-icon>
+            Polls
+          </button>
+        </p>
+      </div>
+      <p>
+        <button
+          mat-button
           class="custom-nav-button"
           (click)="toggleSettings(!isSettingsExpanded)"
         >
