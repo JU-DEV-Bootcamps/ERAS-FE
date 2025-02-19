@@ -41,6 +41,7 @@ export class LayoutComponent {
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   isSettingsExpanded = false;
   isImportsExpanded = false;
+  isListsExpanded = false;
 
   router = inject(Router);
   constructor() {
@@ -96,5 +97,8 @@ export class LayoutComponent {
   }
   toggleImports(expand: boolean) {
     this.isImportsExpanded = expand;
+  }
+  toggleLists(expand: boolean) {
+    this.isListsExpanded = expand;
   }
 }
