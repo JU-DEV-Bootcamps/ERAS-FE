@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ListPollsByCohortComponent } from './list-polls-by-cohort.component';
+import { CohortService } from '../../core/services/cohort.service';
+import { of } from 'rxjs';
+
+
+const mockCohortService = {
+  getCohorts: () => of([]), 
+};
 
 describe('ListPollsByCohortComponent', () => {
   let component: ListPollsByCohortComponent;
@@ -9,6 +15,8 @@ describe('ListPollsByCohortComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ListPollsByCohortComponent],
+      declarations: [ListPollsByCohortComponent],
+      providers: [{ provide: CohortService, useValue: mockCohortService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ListPollsByCohortComponent);
