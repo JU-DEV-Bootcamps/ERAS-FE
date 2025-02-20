@@ -8,6 +8,7 @@ import { ImportStudentsComponent } from './features/import-students/import-stude
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { LoginComponent } from './features/login/login.component';
 import { authGuard } from './shared/guards/auth.guard';
+import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,6 +25,11 @@ export const routes: Routes = [
       {
         path: 'heat-map',
         component: HeatMapComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'heat-map-summary',
+        component: SummaryHeatmapComponent,
         canActivate: [authGuard],
       },
       {

@@ -44,7 +44,8 @@ const generateAnswer = (question: Question) => {
 const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
   const questions: Question[] = [];
 
-  for (let i = 0; i < conf.questions; i++) {
+  const questionsNumber = conf.questions - Math.floor(Math.random() * 5);
+  for (let i = 0; i < questionsNumber; i++) {
     const possibleAnswers = [];
     const cantPossibleAnswers =
       Math.floor(Math.random() * conf.max_answers) + conf.min_answers;
@@ -78,7 +79,8 @@ const generateMockupAnswers = (questions: Questions, conf: Conf): Answers[] => {
   for (let i = 0; i < conf.cantStudents; i++) {
     const studentAnswers = [];
 
-    for (let j = 0; j < conf.questions; j++) {
+    const questionsNumber = questions.questions.length;
+    for (let j = 0; j < questionsNumber; j++) {
       const question = questions.questions[j];
 
       let answerResult;
