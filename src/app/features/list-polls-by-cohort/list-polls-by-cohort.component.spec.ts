@@ -14,7 +14,6 @@ describe('ListPollsByCohortComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ListPollsByCohortComponent],
-      declarations: [ListPollsByCohortComponent],
       providers: [{ provide: CohortService, useValue: mockCohortService }],
     }).compileComponents();
 
