@@ -7,7 +7,7 @@
     <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="fill">
         <mat-label for="sl-component">Component</mat-label>
-        <mat-select id="sl-component" formControlName="selSurveyKinds" multiple>
+        <mat-select id="sl-component" formControlName="selectedSurveyKind">
           @for (surveyKind of surveyKinds; track surveyKind) {
             <mat-option [value]="surveyKind">{{
               surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
@@ -18,7 +18,11 @@
 
       <mat-form-field appearance="fill">
         <mat-label for="sl-questions">Questions</mat-label>
-        <mat-select id="sl-questions" formControlName="selQuestions" multiple>
+        <mat-select
+          id="sl-questions"
+          formControlName="selectedQuestions"
+          multiple
+        >
           @for (question of questions; track question.description) {
             <mat-option [value]="question.description">{{
               question.description
