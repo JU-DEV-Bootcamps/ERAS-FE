@@ -5,8 +5,6 @@ export const adaptComponent = (
   questions: Questions,
   rawSurveyAnswers: SurveyAnswers
 ) => {
-  //console.log(questions);
-  //console.log(rawSurveyAnswers);
   const variables = questions.questions.map(question => question.description);
 
   const variableObjects = variables.map(varName => ({
@@ -18,7 +16,6 @@ export const adaptComponent = (
   for (const rawSurveyAnswer of rawSurveyAnswers) {
     for (let i = 0; i < rawSurveyAnswer.answers.length; i++) {
       const answers = rawSurveyAnswer.answers;
-      //console.log(answers);
       variableObjects[i].totalSum += answers[i].value;
       variableObjects[i].count += 1;
     }
@@ -33,10 +30,10 @@ export const adaptComponent = (
     componentName: questions.surveyKind,
     variables: newVariableObjects,
   };
-  console.log(componentSummary);
   return componentSummary;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const adaptToHeatMap = (componentsSummary: any) => {
   const adaptedComponents: ApexAxisChartSeries = [];
   for (const componentSummary of componentsSummary) {
