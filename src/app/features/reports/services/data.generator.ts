@@ -1,9 +1,9 @@
 import {
   Answers,
-  SurveyKind,
+  ComponentName,
   Conf,
-  Question,
-  Questions,
+  Variable,
+  Variables,
 } from '../types/data.generator';
 
 /**
@@ -25,7 +25,7 @@ const generatePossibleAnswer = (conf: Conf, j: number) => {
  * @param question - Question with possible answer collection
  * @returns One of the possible answers
  */
-const generateAnswer = (question: Question) => {
+const generateAnswer = (question: Variable) => {
   const idxAnswer = Math.floor(Math.random() * question.possibleAnswers.length);
 
   return { ...question.possibleAnswers[idxAnswer] };
@@ -41,8 +41,8 @@ const generateAnswer = (question: Question) => {
  * @param conf - Object indicating generation configuration
  * @returns Collection of randomly generated questions and answer values
  */
-const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
-  const questions: Question[] = [];
+const generateMockupQuestions = (surveyKind: ComponentName, conf: Conf) => {
+  const questions: Variable[] = [];
 
   for (let i = 0; i < conf.questions; i++) {
     const possibleAnswers = [];
@@ -56,7 +56,6 @@ const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
     }
     questions.push({
       // 15% Chance to produce a multiple choice question
-      isMultiple: false, //Math.random() < 0.15,
       possibleAnswers,
       description: `Question - ${i}`,
     });
@@ -72,41 +71,38 @@ const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
  * @param conf - Object indicating generation configuration
  * @returns Collection of survey's answers
  */
-const generateMockupAnswers = (questions: Questions, conf: Conf): Answers[] => {
+const generateMockupAnswers = (questions: Variables, conf: Conf): Answers[] => {
   const answers: Answers[] = [];
 
   for (let i = 0; i < conf.cantStudents; i++) {
     const studentAnswers = [];
 
     for (let j = 0; j < conf.questions; j++) {
-      const question = questions.questions[j];
+      const question = questions.variables[j];
 
       let answerResult;
 
-      if (!question.isMultiple) {
-        answerResult = generateAnswer(question);
-      } else {
-        const cantSelectedAnswers =
-          Math.floor(Math.random() * conf.max_answers) + conf.min_answers;
-        const selectedAnswers = [];
+      const cantSelectedAnswers =
+        Math.floor(Math.random() * conf.max_answers) + conf.min_answers;
+      const selectedAnswers = [];
 
-        for (let k = 0; k < cantSelectedAnswers; k++) {
-          selectedAnswers.push(generateAnswer(question));
-        }
-        answerResult = {
-          description: selectedAnswers[0].description,
-          value: Math.floor(
-            selectedAnswers.reduce((acc, val) => acc + val.value, 0) /
-              (conf.multiple_answers_action === 'AVG'
-                ? selectedAnswers.length
-                : 1)
-          ),
-        };
+      for (let k = 0; k < cantSelectedAnswers; k++) {
+        selectedAnswers.push(generateAnswer(question));
       }
+      answerResult = {
+        description: selectedAnswers[0].description,
+        value: Math.floor(
+          selectedAnswers.reduce((acc, val) => acc + val.value, 0) /
+            (conf.multiple_answers_action === 'AVG'
+              ? selectedAnswers.length
+              : 1)
+        ),
+      };
+
       studentAnswers.push(answerResult);
     }
     answers.push({
-      surveyKind: questions.surveyKind,
+      componentName: questions.componentName,
       answers: [...studentAnswers],
     });
   }

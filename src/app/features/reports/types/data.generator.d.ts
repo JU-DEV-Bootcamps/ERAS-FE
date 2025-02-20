@@ -7,28 +7,27 @@ interface Conf {
   questions: number;
   cantStudents: number;
 }
-type SurveyKind = 'ACADEMIC' | 'INDIVIDUAL' | 'FAMILIAR' | 'SOCIAL';
+type ComponentName = 'ACADEMIC' | 'INDIVIDUAL' | 'FAMILIAR' | 'SOCIAL';
 interface PossibleAnswer {
   description: string;
   value: number;
 }
 type Answer = PossibleAnswer;
 interface Answers {
-  surveyKind: SurveyKind;
+  componentName: ComponentName;
   answers: Answer[];
 }
-interface Question {
-  isMultiple: boolean;
+interface Variable {
   possibleAnswers: PossibleAnswer[];
   description: string;
 }
-interface Questions {
-  surveyKind: SurveyKind;
-  questions: Question[];
+interface Variables {
+  componentName: SurveyKind;
+  variables: Variable[];
 }
 type MockUpAnswers = Record<
-  SurveyKind,
-  { questions: Questions; series: ApexAxisChartSeries } | null
+  ComponentName,
+  { variables: Variables; series: ApexAxisChartSeries } | null
 >;
 
 export type {
@@ -36,8 +35,8 @@ export type {
   PossibleAnswer,
   Answer,
   Answers,
-  Question,
-  Questions,
-  SurveyKind,
+  Variable,
+  Variables,
+  ComponentName,
   MockUpAnswers,
 };

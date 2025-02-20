@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { Coordinate, SurveyAnswers } from '../types/data.adapter';
-import { Questions } from '../types/data.generator';
+import { Variables } from '../types/data.generator';
 
 /**
  * Returns answers, adapted for Apexcharts
@@ -11,13 +11,13 @@ import { Questions } from '../types/data.generator';
  * @returns Collection of answers, adapted to be used on Apexcharts' chartOptions.series
  */
 const adaptAnswers = (
-  questions: Questions,
+  questions: Variables,
   rawSurveyAnswers: SurveyAnswers
 ) => {
   const adaptedAnswers: ApexAxisChartSeries = [];
 
-  for (let i = 0; i < questions.questions.length; i++) {
-    const question = questions.questions[i];
+  for (let i = 0; i < questions.variables.length; i++) {
+    const question = questions.variables[i];
 
     const adaptedAnswer: { name: string; data: Coordinate[] } = {
       name: question.description!,
