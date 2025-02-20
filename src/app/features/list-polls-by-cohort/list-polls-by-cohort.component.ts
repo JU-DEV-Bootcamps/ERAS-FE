@@ -46,7 +46,7 @@ interface Cohort {
     NgFor,
   ],
   templateUrl: './list-polls-by-cohort.component.html',
-  styleUrl: './list-polls-by-cohort.component.css',
+  styleUrl: './list-polls-by-cohort.component.scss',
 })
 export class ListPollsByCohortComponent implements OnInit {
   columns = ['id', 'name', 'uuid', 'version'];
