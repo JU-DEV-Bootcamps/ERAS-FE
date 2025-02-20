@@ -93,12 +93,12 @@ export class HeatMapComponent {
         series: orderedAnswers,
       };
     });
-    const selSurveyKind = this.selSurveyKind;
 
-    this.questions = this.mockupAnswers[selSurveyKind]!.questions.questions;
+    this.questions =
+      this.mockupAnswers[this.selSurveyKind]!.questions.questions;
     this.chartOptions = {
       series: filterAnswers(
-        this.mockupAnswers[selSurveyKind]!.series,
+        this.mockupAnswers[this.selSurveyKind]!.series,
         this.selQuestions
       ),
       chart: {
@@ -112,7 +112,7 @@ export class HeatMapComponent {
         },
       },
       title: {
-        text: selSurveyKind,
+        text: this.selSurveyKind,
       },
       xaxis: {
         categories: [''],
@@ -265,9 +265,5 @@ export class HeatMapComponent {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed', result);
     });
-  }
-
-  closeStudentsDetailsDialog() {
-    console.log('cerrando');
   }
 }
