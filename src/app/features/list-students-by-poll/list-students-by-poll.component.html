@@ -1,0 +1,75 @@
+<div class="page-header">
+  <h2 class="page-title">Students by polls</h2>
+</div>
+<form [formGroup]="pollFormGroup">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Polls by name</mat-label>
+      <mat-select id="sl-component" formControlName="pollUuid">
+        <mat-option *ngFor="let poll of pollsData" [value]="poll.uuid">
+          {{ poll.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-questions">Days</mat-label>
+      <mat-select id="sl-questions" formControlName="period">
+        <mat-option *ngFor="let period of periods" [value]="period">
+          @if (period === 0) {
+            All students
+          } @else {
+            {{ period }}
+          }
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</form>
+@if (!dataStudents) {
+  <mat-spinner></mat-spinner>
+} @else {
+  @if (isMobile) {
+    <div class="card-container">
+      @for (student of students; track $index) {
+        <mat-card class="" appearance="outlined">
+          <mat-card-content>
+            @for (column of columns; track $index) {
+              <div class="row-info">
+                <p class="field">{{ column | titlecase }}</p>
+                <p class="information">{{ student[column] }}</p>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  } @else {
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataStudents">
+        @for (column of columns; track $index) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>{{ column | titlecase }}</th>
+            <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+          </ng-container>
+        } @empty {
+          <li>There are no items.</li>
+        }
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+  }
+  <br />
+  <mat-paginator
+    [length]="totalStudents"
+    (page)="onPageChange($event)"
+    [pageSize]="pageSize"
+    [pageIndex]="currentPage"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+}

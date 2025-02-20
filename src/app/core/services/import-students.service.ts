@@ -23,4 +23,20 @@ export class ImportStudentService {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
     return this.http.get(`${this.apiUrl}/${this.endpoint}`, { params });
   }
+
+  getDataStudentsByPoll({
+    days = 30,
+    pollUuid = '',
+    page = 1,
+    pageSize = 10,
+  }): // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Observable<any> {
+    const params = new HttpParams()
+      .set('days', days)
+      .set('PageSize', pageSize)
+      .set('Page', page);
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/poll/${pollUuid}`, {
+      params,
+    });
+  }
 }

@@ -95,6 +95,9 @@ export class LayoutComponent {
   redirectListPollsByCohort() {
     this.router.navigate(['list-polls-by-cohort']);
   }
+  redirectListStudents() {
+    this.router.navigate(['list-students-by-poll']);
+  }
   toggleSettings(expand: boolean) {
     this.isSettingsExpanded = expand;
   }
