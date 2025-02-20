@@ -4,15 +4,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class PollsService {
-    private apiUrl = environment.apiUrl;
-    private endpoint = 'api/v1/Polls';
-    
-    constructor(private http: HttpClient) { }
+  private apiUrl = environment.apiUrl;
+  private endpoint = 'api/v1/Polls';
 
-    getPollsByCohortId(cohortId: number): Observable<any> {
-        return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
-    }    
+  constructor(private http: HttpClient) {}
+
+  getPollsByCohortId(cohortId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
+  }
 }

@@ -8,9 +8,8 @@ describe('ListPollsByCohortComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListPollsByCohortComponent]
-    })
-    .compileComponents();
+      imports: [ListPollsByCohortComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ListPollsByCohortComponent);
     component = fixture.componentInstance;
