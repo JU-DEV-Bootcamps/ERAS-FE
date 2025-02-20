@@ -19,7 +19,6 @@ import {
   SurveyKind,
   MockUpAnswers,
   Question,
-  QuestionsSeries,
 } from './types/data.generator';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -53,7 +52,7 @@ export class HeatMapComponent {
     'FAMILIAR',
     'SOCIAL',
   ];
-  private defaultSurvey = this.surveyKinds;
+  private defaultSurvey = this.surveyKinds[0];
   public surveyKind = this.defaultSurvey;
   public mockupAnswers: MockUpAnswers = {
     ACADEMIC: null,
@@ -61,10 +60,10 @@ export class HeatMapComponent {
     FAMILIAR: null,
     SOCIAL: null,
   };
-  public answers: QuestionsSeries | null = null;
+
   public questions: Question[] = [] as Question[];
   public selQuestions: string[] = [];
-  public selSurveyKinds = this.defaultSurvey;
+  public selSurveyKind = this.defaultSurvey;
 
   constructor() {
     const baseConf: Conf = {
@@ -89,15 +88,13 @@ export class HeatMapComponent {
         series: orderedAnswers,
       };
     });
+    const selSurveyKind = this.selSurveyKind;
 
-    this.questions = this.selSurveyKinds.reduce(
-      (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-      [] as Question[]
-    );
+    this.questions = this.mockupAnswers[selSurveyKind]!.questions.questions;
     this.chartOptions = {
-      series: this.getSeriesFromComponents(
-        this.mockupAnswers,
-        this.selSurveyKinds
+      series: filterAnswers(
+        this.mockupAnswers[selSurveyKind]!.series,
+        this.selQuestions
       ),
       chart: {
         type: 'heatmap',
@@ -110,10 +107,7 @@ export class HeatMapComponent {
         },
       },
       title: {
-        text: this.selSurveyKinds.reduce(
-          (acc, curr) => acc.concat(' ' + curr),
-          ''
-        ),
+        text: selSurveyKind,
       },
       xaxis: {
         categories: [''],
@@ -211,7 +205,7 @@ export class HeatMapComponent {
         Validators.required,
         this.selQuestionsValidator,
       ]),
-      selSurveyKinds: new FormControl(this.defaultSurvey, Validators.required),
+      selSurveyKind: new FormControl(this.defaultSurvey, Validators.required),
     });
 
     return form;
@@ -222,11 +216,11 @@ export class HeatMapComponent {
       this.chartOptions = {
         ...this.chartOptions,
         series: filterAnswers(
-          this.getSeriesFromComponents(this.mockupAnswers, this.selSurveyKinds),
+          this.mockupAnswers[this.selSurveyKind]!.series,
           this.selQuestions
         ),
         title: {
-          text: this.selSurveyKinds.join(' '),
+          text: this.selSurveyKind,
         },
       };
     } else {
@@ -245,33 +239,8 @@ export class HeatMapComponent {
   }
 
   onSubmit() {
-    this.selSurveyKinds = this.myForm.get('selSurveyKinds')?.value;
-
-    this.questions = this.selSurveyKinds.reduce(
-      (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-      [] as Question[]
-    );
     this.selQuestions = this.myForm.get('selQuestions')?.value;
+    this.selSurveyKind = this.myForm.get('selSurveyKind')?.value;
     this.updateChart();
-  }
-
-  getSeriesFromComponents(
-    mockupAnswers: MockUpAnswers,
-    selSurveyKinds: SurveyKind[]
-  ): ApexAxisChartSeries {
-    let series: ApexAxisChartSeries = [];
-
-    Object.entries(mockupAnswers).forEach(([k, v]) => {
-      if (v !== null && selSurveyKinds.includes(k as SurveyKind)) {
-        series = series.concat(v.series);
-      }
-    });
-
-    // Give same size to all rows
-    if (selSurveyKinds.length > 1) {
-      series = orderAnswers(series, true);
-    }
-
-    return series;
   }
 }

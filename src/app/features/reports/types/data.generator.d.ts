@@ -22,15 +22,14 @@ interface Question {
   possibleAnswers: PossibleAnswer[];
   description: string;
 }
-interface SurveyQuestions {
+interface Questions {
   surveyKind: SurveyKind;
   questions: Question[];
 }
-interface QuestionsSeries {
-  questions: Questions;
-  series: ApexAxisChartSeries;
-}
-type MockUpAnswers = Record<SurveyKind, QuestionsSeries | null>;
+type MockUpAnswers = Record<
+  SurveyKind,
+  { questions: Questions; series: ApexAxisChartSeries } | null
+>;
 
 export type {
   Conf,
@@ -38,8 +37,7 @@ export type {
   Answer,
   Answers,
   Question,
-  SurveyQuestions,
-  QuestionsSeries,
+  Questions,
   SurveyKind,
   MockUpAnswers,
 };
