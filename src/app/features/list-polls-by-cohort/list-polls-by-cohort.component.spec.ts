@@ -3,9 +3,8 @@ import { ListPollsByCohortComponent } from './list-polls-by-cohort.component';
 import { CohortService } from '../../core/services/cohort.service';
 import { of } from 'rxjs';
 
-
 const mockCohortService = {
-  getCohorts: () => of([]), 
+  getCohorts: () => of([]),
 };
 
 describe('ListPollsByCohortComponent', () => {

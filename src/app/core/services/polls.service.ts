@@ -12,6 +12,7 @@ export class PollsService {
 
   constructor(private http: HttpClient) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPollsByCohortId(cohortId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
   }
