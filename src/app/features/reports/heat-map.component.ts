@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -28,9 +28,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 
+import { MatDialog } from '@angular/material/dialog';
+import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
+import { Components } from '../heat-map/types/risk-students-detail.type';
+
 @Component({
   selector: 'app-charts',
-  standalone: true,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -64,6 +67,8 @@ export class HeatMapComponent {
   public questions: Question[] = [] as Question[];
   public selQuestions: string[] = [];
   public selSurveyKind = this.defaultSurvey;
+
+  readonly dialog = inject(MatDialog);
 
   constructor() {
     const baseConf: Conf = {
@@ -242,5 +247,27 @@ export class HeatMapComponent {
     this.selQuestions = this.myForm.get('selQuestions')?.value;
     this.selSurveyKind = this.myForm.get('selSurveyKind')?.value;
     this.updateChart();
+  }
+
+  openStudentsDetailsDialog() {
+    const component: Record<SurveyKind, string> = {
+      ACADEMIC: Components.ACADEMIC,
+      SOCIAL: Components.SOCIO_ECONOMIC,
+      INDIVIDUAL: Components.INDIVIDUAL,
+      FAMILIAR: Components.FAMILIAR,
+    };
+    const dialogRef = this.dialog.open(ModalRiskStudentsDetailComponent, {
+      data: {
+        component: component[this.selSurveyKind],
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+    });
+  }
+
+  closeStudentsDetailsDialog() {
+    console.log('cerrando');
   }
 }
