@@ -92,6 +92,9 @@ export class LayoutComponent {
   redirectImportStudents() {
     this.router.navigate(['import-students']);
   }
+  redirectListStudents() {
+    this.router.navigate(['list-students-by-poll']);
+  }
   toggleSettings(expand: boolean) {
     this.isSettingsExpanded = expand;
   }
