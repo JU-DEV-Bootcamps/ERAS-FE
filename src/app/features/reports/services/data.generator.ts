@@ -3,7 +3,7 @@ import {
   SurveyKind,
   Conf,
   Question,
-  Questions,
+  SurveyQuestions,
 } from '../types/data.generator';
 
 /**
@@ -58,7 +58,7 @@ const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
       // 15% Chance to produce a multiple choice question
       isMultiple: false, //Math.random() < 0.15,
       possibleAnswers,
-      description: `Question - ${i}`,
+      description: `${surveyKind} - ${i}`,
     });
   }
 
@@ -72,7 +72,10 @@ const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
  * @param conf - Object indicating generation configuration
  * @returns Collection of survey's answers
  */
-const generateMockupAnswers = (questions: Questions, conf: Conf): Answers[] => {
+const generateMockupAnswers = (
+  questions: SurveyQuestions,
+  conf: Conf
+): Answers[] => {
   const answers: Answers[] = [];
 
   for (let i = 0; i < conf.cantStudents; i++) {
