@@ -8,6 +8,8 @@ import { ImportStudentsComponent } from './features/import-students/import-stude
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { LoginComponent } from './features/login/login.component';
 import { authGuard } from './shared/guards/auth.guard';
+import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list-polls-by-cohort.component';
+import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -32,8 +34,18 @@ export const routes: Routes = [
         canActivate: [authGuard],
       },
       {
+        path: 'list-polls-by-cohort',
+        component: ListPollsByCohortComponent,
+        canActivate: [authGuard],
+      },
+      {
         path: 'import-students',
         component: ImportStudentsComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'list-students-by-poll',
+        component: ListStudentsByPollComponent,
         canActivate: [authGuard],
       },
       //Example to use guard with role
