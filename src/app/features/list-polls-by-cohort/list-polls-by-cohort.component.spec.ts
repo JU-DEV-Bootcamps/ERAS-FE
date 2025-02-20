@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ListPollsByCohortComponent } from './list-polls-by-cohort.component';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollsService } from '../../core/services/polls.service';
@@ -22,6 +23,7 @@ describe('ListPollsByCohortComponent', () => {
       imports: [ListPollsByCohortComponent],
       providers: [
         provideHttpClient(),
+        provideNoopAnimations(),
         { provide: CohortService, useValue: mockCohortService },
         { provide: PollsService, useValue: mockPollsService },
       ],
