@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ListStudentsByPollComponent } from './list-students-by-poll.component';
 
 describe('ListStudentsByPollComponent', () => {
@@ -8,7 +9,11 @@ describe('ListStudentsByPollComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListStudentsByPollComponent],
+      imports: [
+        ListStudentsByPollComponent,
+        HttpClientModule,
+        BrowserAnimationsModule,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ListStudentsByPollComponent);
