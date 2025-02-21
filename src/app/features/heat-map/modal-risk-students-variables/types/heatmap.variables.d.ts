@@ -14,3 +14,5 @@ interface ComponentData {
   componentName: string;
   variables: Variable[];
 }
+
+export { StudentData, Variable, ComponentData };

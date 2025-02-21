@@ -36,7 +36,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { ModalVariableComponent } from './components/modal-variable/modal-variable.component';
+import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
+import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
+import { Components } from '../heat-map/types/risk-students-detail.type';
+import {
+  ComponentData,
+  StudentData,
+} from '../heat-map/modal-risk-students-variables/types/heatmap.variables';
 
 @Component({
   selector: 'app-charts',
@@ -146,6 +152,7 @@ export class HeatMapComponent implements AfterViewInit {
 
   constructor(renderer: Renderer2) {
     this.renderer = renderer;
+
     const baseConf: Conf = {
       multiple_answers_action: 'AVG',
       min_answers: 1,
@@ -168,12 +175,12 @@ export class HeatMapComponent implements AfterViewInit {
         series: orderedAnswers,
       };
     });
-    const selSurveyKind = this.selSurveyKind;
 
-    this.questions = this.mockupAnswers[selSurveyKind]!.questions.questions;
+    this.questions =
+      this.mockupAnswers[this.selSurveyKind]!.questions.questions;
     this.chartOptions = {
       series: filterAnswers(
-        this.mockupAnswers[selSurveyKind]!.series,
+        this.mockupAnswers[this.selSurveyKind]!.series,
         this.selQuestions
       ),
       chart: {
@@ -193,7 +200,7 @@ export class HeatMapComponent implements AfterViewInit {
         },
       },
       title: {
-        text: selSurveyKind,
+        text: this.selSurveyKind,
       },
       xaxis: {
         categories: [''],
@@ -295,7 +302,7 @@ export class HeatMapComponent implements AfterViewInit {
   }
 
   openDialog(data: StudentData[]) {
-    this.dialog.open(ModalVariableComponent, {
+    this.dialog.open(ModalRiskStudentsVariablesComponent, {
       data: data,
     });
   }
@@ -383,5 +390,23 @@ export class HeatMapComponent implements AfterViewInit {
     this.selQuestions = this.myForm.get('selQuestions')?.value;
     this.selSurveyKind = this.myForm.get('selSurveyKind')?.value;
     this.updateChart();
+  }
+
+  openStudentsDetailsDialog() {
+    const component: Record<SurveyKind, string> = {
+      ACADEMIC: Components.ACADEMIC,
+      SOCIAL: Components.SOCIO_ECONOMIC,
+      INDIVIDUAL: Components.INDIVIDUAL,
+      FAMILIAR: Components.FAMILIAR,
+    };
+    const dialogRef = this.dialog.open(ModalRiskStudentsDetailComponent, {
+      data: {
+        component: component[this.selSurveyKind],
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+    });
   }
 }
