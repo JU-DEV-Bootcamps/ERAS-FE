@@ -10,6 +10,7 @@ import { LoginComponent } from './features/login/login.component';
 import { authGuard } from './shared/guards/auth.guard';
 import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list-polls-by-cohort.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
+import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { ListPollInstancesByLastDaysComponent } from './features/list-poll-instances-by-lastdays/list-poll-instances-by-lastdays.component';
 
 export const routes: Routes = [
@@ -27,6 +28,11 @@ export const routes: Routes = [
       {
         path: 'heat-map',
         component: HeatMapComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'heat-map-summary',
+        component: SummaryHeatmapComponent,
         canActivate: [authGuard],
       },
       {
