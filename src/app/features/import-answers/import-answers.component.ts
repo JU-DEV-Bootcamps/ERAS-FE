@@ -52,7 +52,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   providers: [provideNativeDateAdapter(), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportAnswersComponent {
+export class ImportAnswersComponent implements OnInit {
   form: FormGroup;
   isLoading: boolean;
 
