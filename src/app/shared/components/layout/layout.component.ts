@@ -95,6 +95,9 @@ export class LayoutComponent {
   redirectListPollsByCohort() {
     this.router.navigate(['list-polls-by-cohort']);
   }
+  redirectListPollsAnswered() {
+    this.router.navigate(['list-polls-by-lastDays']);
+  }
   redirectListStudents() {
     this.router.navigate(['list-students-by-poll']);
   }

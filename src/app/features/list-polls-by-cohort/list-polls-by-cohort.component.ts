@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollsService } from '../../core/services/polls.service';
+import { Router } from '@angular/router';
 
 interface Cohort {
   id: number;
@@ -68,6 +69,8 @@ export class ListPollsByCohortComponent implements OnInit {
     cohortId: new FormControl(''),
   });
 
+  router = inject(Router);
+
   loadCohortsList(): void {
     this.cohortService.getCohorts().subscribe(data => {
       this.cohortsData = data;
@@ -101,6 +104,11 @@ export class ListPollsByCohortComponent implements OnInit {
     this.currentPage = pageIndex;
     this.pageSize = pageSize;
     this.loadPolls();
+  }
+
+  redirectToPoll(uuid: string): void {
+    localStorage.setItem('pollUUID', uuid);
+    this.router.navigate(['/heat-map-summary']);
   }
 
   ngOnInit(): void {

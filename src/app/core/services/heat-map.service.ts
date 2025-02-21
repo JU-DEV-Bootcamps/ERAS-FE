@@ -5,6 +5,7 @@ import {
   ComponentValueType,
   RiskStudentDetailType,
 } from '../../features/heat-map/types/risk-students-detail.type';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -20,5 +21,9 @@ export class HeatMapService {
       `${this.apiUrl}/heatmap-details`,
       { params }
     );
+  }
+
+  getSummaryData(pollId: string): Observable<unknown> {
+    return this.http.get(`${this.apiUrl}/summary/polls/${pollId}`);
   }
 }
