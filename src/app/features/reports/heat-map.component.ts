@@ -1,4 +1,11 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  inject,
+  ElementRef,
+  Renderer2,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -21,16 +28,18 @@ import {
   Question,
 } from './types/data.generator';
 
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { ModalVariableComponent } from './components/modal-variable/modal-variable.component';
 
 @Component({
   selector: 'app-charts',
-  standalone: true,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -39,11 +48,16 @@ import { MatButtonModule } from '@angular/material/button';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatDialogModule,
   ],
   templateUrl: './heat-map.component.html',
-  styleUrls: ['./heat-map.component.css'],
+  styleUrl: './heat-map.component.scss',
 })
-export class HeatMapComponent {
+export class HeatMapComponent implements AfterViewInit {
+  readonly dialog = inject(MatDialog);
+  private renderer: Renderer2;
+  @ViewChild('chart') chartElement!: ElementRef;
+
   public myForm: FormGroup;
   public chartOptions: ApexOptions;
   public surveyKinds: SurveyKind[] = [
@@ -65,7 +79,73 @@ export class HeatMapComponent {
   public selQuestions: string[] = [];
   public selSurveyKind = this.defaultSurvey;
 
-  constructor() {
+  public dataArray: ComponentData[] = [
+    {
+      componentName: 'ACADEMIC',
+      variables: [
+        {
+          name: 'Question - 0',
+          students: [
+            {
+              name: 'Jorge',
+              riskLevel: '40',
+            },
+            {
+              name: 'Maria',
+              riskLevel: '30',
+            },
+          ],
+        },
+        {
+          name: 'Question - 1',
+          students: [
+            {
+              name: 'Carlos',
+              riskLevel: '20',
+            },
+            {
+              name: 'Ana',
+              riskLevel: '50',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      componentName: 'INDIVIDUAL',
+      variables: [
+        {
+          name: 'Question - 0',
+          students: [
+            {
+              name: 'Luis',
+              sumRiks: '35',
+            },
+            {
+              name: 'Sofia',
+              sumRiks: '45',
+            },
+          ],
+        },
+        {
+          name: 'Question - 1',
+          students: [
+            {
+              name: 'Pedro',
+              sumRiks: '25',
+            },
+            {
+              name: 'Lucia',
+              sumRiks: '55',
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  constructor(renderer: Renderer2) {
+    this.renderer = renderer;
     const baseConf: Conf = {
       multiple_answers_action: 'AVG',
       min_answers: 1,
@@ -105,12 +185,25 @@ export class HeatMapComponent {
               '<span class="material-icons" style="font-size: 40px; color: var(--primary-color);">download_for_offline</span>',
           },
         },
+        events: {
+          mounted: (chartContext, config) => {
+            console.log(config.config.series);
+            this.addCustomFunctionality();
+          },
+        },
       },
       title: {
         text: selSurveyKind,
       },
       xaxis: {
         categories: [''],
+      },
+      yaxis: {
+        labels: {
+          style: {
+            fontSize: '16px',
+          },
+        },
       },
       plotOptions: {
         heatmap: {
@@ -195,6 +288,54 @@ export class HeatMapComponent {
     };
 
     this.myForm = this.initForm();
+  }
+
+  ngAfterViewInit() {
+    this.addCustomFunctionality();
+  }
+
+  openDialog(data: StudentData[]) {
+    this.dialog.open(ModalVariableComponent, {
+      data: data,
+    });
+  }
+
+  addCustomFunctionality() {
+    const svgElement = this.chartElement.nativeElement.querySelector('svg');
+    if (svgElement) {
+      const yAxisTexts = svgElement.querySelectorAll(
+        '.apexcharts-yaxis-texts-g text'
+      );
+      yAxisTexts.forEach((text: SVGTextElement) => {
+        this.renderer.setStyle(text, 'cursor', 'pointer');
+        this.renderer.listen(text, 'click', () => {
+          const tspan = text.querySelector('tspan');
+          if (tspan) {
+            const questionName = tspan.textContent!.trim();
+            const questionData = this.findQuestionData(
+              'ACADEMIC',
+              questionName
+            );
+
+            if (questionData) {
+              this.openDialog(questionData.students);
+            }
+          }
+        });
+      });
+    }
+  }
+
+  findQuestionData(componentName: string, questionName: string) {
+    const component = this.dataArray.find(
+      comp => comp.componentName === componentName
+    );
+    if (component) {
+      return component.variables.find(question => {
+        return question.name === questionName;
+      });
+    }
+    return null;
   }
 
   initForm() {

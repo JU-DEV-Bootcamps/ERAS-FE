@@ -68,11 +68,16 @@ const filterAnswers = (
   series: ApexAxisChartSeries,
   selectedQuestions: string[]
 ) => {
-  return series.filter(
-    s =>
+  return series.filter(s => {
+    console.log(
+      selectedQuestions.length === 0 ||
+        (s.name && selectedQuestions.includes(s.name))
+    );
+    return (
       selectedQuestions.length === 0 ||
       (s.name && selectedQuestions.includes(s.name))
-  );
+    );
+  });
 };
 
 /**
