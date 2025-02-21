@@ -26,9 +26,10 @@ import { HeatMapService } from './services/heat-map.service';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 
+import { MatDialog } from '@angular/material/dialog';
+
 @Component({
   selector: 'app-charts',
-  standalone: true,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -167,6 +168,8 @@ export class HeatMapComponent implements OnInit {
 
   pollsData: Poll[] = [];
   selectedPoll = this.pollsData[0];
+
+  readonly dialog = inject(MatDialog);
 
   constructor() {
     this.myForm = this.initForm();

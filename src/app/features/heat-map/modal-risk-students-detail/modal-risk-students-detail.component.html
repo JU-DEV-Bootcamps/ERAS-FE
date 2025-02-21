@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Risk Students Detail</h2>
+<mat-dialog-content>
+  <div class="component-caption">
+    {{ component() }}
+  </div>
+  @for (student of riskStudentsDetail; track $index) {
+    <p>
+      {{ student.studentName }} (Risk Level:
+      <strong>{{ student.riskLevel }}</strong
+      >)
+    </p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>
