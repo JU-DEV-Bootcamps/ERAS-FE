@@ -42,7 +42,11 @@
       <!-- Submenu for Lists -->
       <div *ngIf="isListsExpanded" class="settings-submenu">
         <p>
-          <button mat-button class="custom-button-style">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirectListStudents()"
+          >
             <mat-icon>school</mat-icon>
             Students
           </button>
@@ -54,7 +58,11 @@
           </button>
         </p>
         <p>
-          <button mat-button class="custom-button-style">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirectListPollsByCohort()"
+          >
             <mat-icon>poll</mat-icon>
             Polls
           </button>
