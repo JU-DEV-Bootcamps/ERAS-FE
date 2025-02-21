@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { HeatmapService } from '../../../core/services/heatmap.service';
+import { HeatMapService } from '../../../core/services/heat-map.service';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -29,7 +29,7 @@ export class SummaryHeatmapComponent {
     variables: { varName: string; scoreAverage: number }[];
   }[] = [];
 
-  constructor(private heatmapService: HeatmapService) {
+  constructor(private heatmapService: HeatMapService) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.heatmapService.getSummaryData(this.pollId).subscribe((data: any) => {
       this.heatMapData = data.body;

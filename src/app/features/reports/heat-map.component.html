@@ -18,7 +18,7 @@
 
       <mat-form-field appearance="fill">
         <mat-label for="sl-questions">Questions</mat-label>
-        <mat-select id="sl-questions" formControlName="selQuestions" multiple>
+        <mat-select id="sl-questions" multiple formControlName="selQuestions">
           @for (question of questions; track question.description) {
             <mat-option [value]="question.description">{{
               question.description
@@ -26,6 +26,16 @@
           }
         </mat-select>
       </mat-form-field>
+
+      <button
+        mat-fab
+        extended
+        class="button"
+        (click)="openStudentsDetailsDialog()"
+      >
+        <mat-icon>visibility</mat-icon>
+        View Details
+      </button>
 
       <button mat-fab extended class="button" type="submit">
         <mat-icon>cached</mat-icon>

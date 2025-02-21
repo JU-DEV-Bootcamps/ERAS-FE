@@ -11,6 +11,7 @@ import { authGuard } from './shared/guards/auth.guard';
 import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list-polls-by-cohort.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
+import { ListPollInstancesByLastDaysComponent } from './features/list-poll-instances-by-lastdays/list-poll-instances-by-lastdays.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -52,6 +53,11 @@ export const routes: Routes = [
       {
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'list-polls-by-lastDays',
+        component: ListPollInstancesByLastDaysComponent,
         canActivate: [authGuard],
       },
       //Example to use guard with role

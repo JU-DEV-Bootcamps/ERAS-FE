@@ -1,0 +1,79 @@
+<div class="page-header">
+  <h2 class="page-title">Polls By Days</h2>
+</div>
+<div class="form-container">
+  <mat-form-field appearance="fill">
+    <mat-label for="sl-component">Last days</mat-label>
+    <mat-select
+      id="sl-component"
+      [formControl]="daysControl"
+      (selectionChange)="onSelectionChange($event)"
+    >
+      <mat-option *ngFor="let day of dropDays" [value]="day">
+        {{ day }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+@if (loading === true) {
+  <mat-spinner></mat-spinner>
+} @else {
+  @if (isMobile) {
+    <div class="card-container">
+      @for (pollInstance of pollInstances; track $index) {
+        <mat-card class="" appearance="outlined">
+          <mat-card-content>
+            @for (column of columns; track $index) {
+              <div class="row-info">
+                <p class="field">{{ column }}</p>
+                @if (column === 'createdAt' || column === 'modifiedAt') {
+                  <p class="information">
+                    {{ pollInstance['audit'][column] | timestampToDate }}
+                  </p>
+                } @else if (column === 'name' || column === 'email') {
+                  <p class="information">
+                    {{ pollInstance['student'][column] }}
+                  </p>
+                } @else if (column === 'finishedAt') {
+                  <p class="information">
+                    {{ pollInstance[column] | timestampToDate }}
+                  </p>
+                } @else {
+                  <p class="information">{{ pollInstance[column] }}</p>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  } @else {
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="data">
+        @for (column of columns; track $index) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>{{ columnsText[$index] }}</th>
+            <td mat-cell *matCellDef="let element">
+              @if (column === 'createdAt' || column === 'modifiedAt') {
+                {{ element['audit'][column] | timestampToDate }}
+              } @else if (column === 'name' || column === 'email') {
+                <p class="information">
+                  {{ element['student'][column] }}
+                </p>
+              } @else if (column === 'finishedAt') {
+                {{ element[column] | timestampToDate }}
+              } @else {
+                {{ element[column] }}
+              }
+            </td>
+          </ng-container>
+        } @empty {
+          <li>There are no items.</li>
+        }
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+  }
+}
