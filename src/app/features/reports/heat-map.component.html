@@ -44,6 +44,38 @@
     </form>
   </div>
 
+  <div class="filter-container">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon style="margin-right: 10px">tune</mat-icon>
+          Filter Options</mat-panel-title
+        >
+      </mat-expansion-panel-header>
+      <div class="filter-options">
+        <p class="toggle">
+          <mat-slide-toggle [(ngModel)]="isChecked"
+            >Filter by variable</mat-slide-toggle
+          >
+        </p>
+        <button
+          mat-raised-button
+          (click)="showStudentaData()"
+          color="primary"
+          [disabled]="!isChecked"
+        >
+          Apply filter
+        </button>
+      </div>
+      @if (isChecked) {
+        <mat-form-field class="input-text-variable" appearance="fill">
+          <mat-label>Student limit by variable</mat-label>
+          <input matInput type="number" />
+        </mat-form-field>
+      }
+    </mat-expansion-panel>
+  </div>
+
   <div class="chart-container" #chart>
     <apx-chart
       [series]="chartOptions.series!"

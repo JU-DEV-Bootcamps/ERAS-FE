@@ -5,7 +5,7 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { StudentData } from './types/heatmap.variables';
+import { StudentData } from '../types/risk-students-variables.type';
 @Component({
   selector: 'app-modal-risk-students-variables',
   imports: [MatDialogModule, MatButtonModule],

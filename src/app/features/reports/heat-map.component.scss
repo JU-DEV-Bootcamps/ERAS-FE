@@ -7,7 +7,7 @@
   text-align: center;
   text-decoration: none;
   color: #ffffff;
-  background-color: red !important;
+  background-color: red;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -40,13 +40,28 @@ button {
 .form-container {
   padding-inline: 1em;
 }
+.filter-container {
+  padding-inline: 1em;
+  width: 70%;
+  // max-width: calc(212px * 2 + 1em);
+  margin-top: 24px;
+  margin-bottom: 48px;
+}
 
 mat-form-field:not(:first-child),button:not(:first-child){
   margin-left: 1em;
 }
 
+.toggle{
+  margin-left: 1em;
+  display: inline-flex;
+}
 
-
+.filter-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 
 @media (max-width: 768px) {

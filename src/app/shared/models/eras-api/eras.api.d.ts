@@ -4,3 +4,5 @@ interface GetResponse<T> {
   message: string;
   validationErrors: string[] | null;
 }
+
+export { GetResponse };

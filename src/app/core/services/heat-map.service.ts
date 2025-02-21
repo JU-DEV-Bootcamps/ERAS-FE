@@ -5,6 +5,8 @@ import {
   ComponentValueType,
   RiskStudentDetailType,
 } from '../../features/heat-map/types/risk-students-detail.type';
+import { GetResponse } from '../../shared/models/eras-api/eras.api';
+import { ComponentData } from '../../features/heat-map/types/risk-students-variables.type';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +21,12 @@ export class HeatMapService {
     return this.http.get<RiskStudentDetailType[]>(
       `${this.apiUrl}/heatmap-details`,
       { params }
+    );
+  }
+
+  getStudentHeatMapVariables(componentName: string, pollUUID: string) {
+    return this.http.get<GetResponse<ComponentData>>(
+      `${this.apiUrl}/components/${componentName}/polls/${pollUUID}/variables`
     );
   }
 }

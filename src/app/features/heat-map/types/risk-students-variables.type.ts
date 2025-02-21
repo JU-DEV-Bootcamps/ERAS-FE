@@ -7,7 +7,7 @@ interface StudentData {
 
 interface Variable {
   name: string;
-  students: Student[];
+  students: StudentData[];
 }
 
 interface ComponentData {

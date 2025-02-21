@@ -4,12 +4,9 @@ import {
   ElementRef,
   Renderer2,
   ViewChild,
-  AfterViewInit,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-
 import { NgApexchartsModule } from 'ng-apexcharts';
-
 import {
   generateMockupQuestions,
   generateMockupAnswers,
@@ -36,13 +33,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { Components } from '../heat-map/types/risk-students-detail.type';
 import {
   ComponentData,
   StudentData,
-} from '../heat-map/modal-risk-students-variables/types/heatmap.variables';
+} from '../heat-map/types/risk-students-variables.type';
 
 @Component({
   selector: 'app-charts',
@@ -55,11 +54,13 @@ import {
     MatInputModule,
     MatSelectModule,
     MatDialogModule,
+    MatExpansionModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './heat-map.component.html',
-  styleUrl: './heat-map.component.scss',
+  styleUrls: ['./heat-map.component.scss'],
 })
-export class HeatMapComponent implements AfterViewInit {
+export class HeatMapComponent {
   readonly dialog = inject(MatDialog);
   private renderer: Renderer2;
   @ViewChild('chart') chartElement!: ElementRef;
@@ -85,6 +86,8 @@ export class HeatMapComponent implements AfterViewInit {
   public selQuestions: string[] = [];
   public selSurveyKind = this.defaultSurvey;
 
+  isChecked = false;
+
   public dataArray: ComponentData[] = [
     {
       componentName: 'ACADEMIC',
@@ -93,12 +96,16 @@ export class HeatMapComponent implements AfterViewInit {
           name: 'Question - 0',
           students: [
             {
+              uuid: '1',
+              answer: '4',
               name: 'Jorge',
-              riskLevel: '40',
+              riskLevel: 40,
             },
             {
+              uuid: '2',
+              answer: '3',
               name: 'Maria',
-              riskLevel: '30',
+              riskLevel: 30,
             },
           ],
         },
@@ -106,43 +113,16 @@ export class HeatMapComponent implements AfterViewInit {
           name: 'Question - 1',
           students: [
             {
+              uuid: '3',
+              answer: '2',
               name: 'Carlos',
-              riskLevel: '20',
+              riskLevel: 20,
             },
             {
+              uuid: '4',
+              answer: '1',
               name: 'Ana',
-              riskLevel: '50',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      componentName: 'INDIVIDUAL',
-      variables: [
-        {
-          name: 'Question - 0',
-          students: [
-            {
-              name: 'Luis',
-              sumRiks: '35',
-            },
-            {
-              name: 'Sofia',
-              sumRiks: '45',
-            },
-          ],
-        },
-        {
-          name: 'Question - 1',
-          students: [
-            {
-              name: 'Pedro',
-              sumRiks: '25',
-            },
-            {
-              name: 'Lucia',
-              sumRiks: '55',
+              riskLevel: 50,
             },
           ],
         },
@@ -192,12 +172,12 @@ export class HeatMapComponent implements AfterViewInit {
               '<span class="material-icons" style="font-size: 40px; color: var(--primary-color);">download_for_offline</span>',
           },
         },
-        events: {
-          mounted: (chartContext, config) => {
-            console.log(config.config.series);
-            this.addCustomFunctionality();
-          },
-        },
+        // events: {
+        //   mounted: (chartContext, config) => {
+        //     console.log(config.config.series);
+        //     this.addCustomFunctionality();
+        //   },
+        // },
       },
       title: {
         text: this.selSurveyKind,
@@ -297,54 +277,6 @@ export class HeatMapComponent implements AfterViewInit {
     this.myForm = this.initForm();
   }
 
-  ngAfterViewInit() {
-    this.addCustomFunctionality();
-  }
-
-  openDialog(data: StudentData[]) {
-    this.dialog.open(ModalRiskStudentsVariablesComponent, {
-      data: data,
-    });
-  }
-
-  addCustomFunctionality() {
-    const svgElement = this.chartElement.nativeElement.querySelector('svg');
-    if (svgElement) {
-      const yAxisTexts = svgElement.querySelectorAll(
-        '.apexcharts-yaxis-texts-g text'
-      );
-      yAxisTexts.forEach((text: SVGTextElement) => {
-        this.renderer.setStyle(text, 'cursor', 'pointer');
-        this.renderer.listen(text, 'click', () => {
-          const tspan = text.querySelector('tspan');
-          if (tspan) {
-            const questionName = tspan.textContent!.trim();
-            const questionData = this.findQuestionData(
-              'ACADEMIC',
-              questionName
-            );
-
-            if (questionData) {
-              this.openDialog(questionData.students);
-            }
-          }
-        });
-      });
-    }
-  }
-
-  findQuestionData(componentName: string, questionName: string) {
-    const component = this.dataArray.find(
-      comp => comp.componentName === componentName
-    );
-    if (component) {
-      return component.variables.find(question => {
-        return question.name === questionName;
-      });
-    }
-    return null;
-  }
-
   initForm() {
     this.selQuestions = this.questions.map(q => q.description);
 
@@ -408,5 +340,29 @@ export class HeatMapComponent implements AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed', result);
     });
+  }
+
+  //Show studenta data by variable
+
+  openDialog(data: StudentData[]) {
+    this.dialog.open(ModalRiskStudentsVariablesComponent, {
+      data: data,
+    });
+  }
+
+  showStudentaData() {
+    return;
+  }
+
+  findQuestionData(componentName: string, questionName: string) {
+    const component = this.dataArray.find(
+      comp => comp.componentName === componentName
+    );
+    if (component) {
+      return component.variables.find(question => {
+        return question.name === questionName;
+      });
+    }
+    return null;
   }
 }
