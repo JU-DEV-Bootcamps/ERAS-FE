@@ -61,7 +61,6 @@ export class ListPollInstancesByLastDaysComponent implements OnInit {
   @HostListener('window:resize', [])
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
-    console.log(this.isMobile);
   }
 
   loadPollInstances(days: string): void {
@@ -70,7 +69,7 @@ export class ListPollInstancesByLastDaysComponent implements OnInit {
       .subscribe(data => {
         this.loading = true;
         this.data = new MatTableDataSource(data.body);
-        this.pollInstances = data.items;
+        this.pollInstances = data.body;
         this.totalPollInstances = data.count;
         this.loading = false;
       });
