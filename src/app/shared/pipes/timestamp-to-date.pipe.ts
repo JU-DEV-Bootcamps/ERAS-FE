@@ -7,15 +7,12 @@ export class TimestampToDatePipe implements PipeTransform {
   transform(value: string | null): string {
     if (!value) return '';
 
-    // Convierte la cadena ISO a un objeto Date
     const date = new Date(value);
 
-    // Verifica si la fecha es válida
     if (isNaN(date.getTime())) {
-      return 'Invalid date'; // Maneja el caso de fecha inválida
+      return 'Invalid date';
     }
 
-    // Usa Intl.DateTimeFormat para formatear la fecha
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
