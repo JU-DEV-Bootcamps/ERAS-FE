@@ -142,7 +142,7 @@ export class HeatMapComponent implements OnInit {
         },
       },
     },
-  };;
+  };
   public surveyKinds: SurveyKind[] = [
     'ACADEMIC',
     'INDIVIDUAL',

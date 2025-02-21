@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { Coordinate, PollData, SurveyAnswers } from '../types/data.adapter';
-import { MockUpAnswers, SurveyKind, SurveyQuestions } from '../types/data.generator';
+import {
+  MockUpAnswers,
+  SurveyKind,
+  SurveyQuestions,
+} from '../types/data.generator';
 
 /**
  * Returns mockup answers, adapted for Apexcharts
@@ -78,6 +82,7 @@ const adaptAnswers = (pollData: PollData[]) => {
   };
 
   for (const component of pollData) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     const key: SurveyKind = spanishToEnglish[component.componentName];
 
@@ -90,7 +95,6 @@ const adaptAnswers = (pollData: PollData[]) => {
     };
   }
 
-  
   /* // Count users with same answers
   for (let j = 0; j < rawSurveyAnswers.length; j++) {
     const rawSurveyAnswer = rawSurveyAnswers[j];
