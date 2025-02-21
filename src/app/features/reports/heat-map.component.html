@@ -6,8 +6,23 @@
   <div class="form-container">
     <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Polls by name</mat-label>
+        <mat-select id="sl-component" formControlName="pollUuid">
+          @for (poll of pollsData; track $index) {
+            <mat-option [value]="poll.uuid">
+              {{ poll.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
         <mat-label for="sl-component">Component</mat-label>
-        <mat-select id="sl-component" formControlName="selSurveyKind">
+        <mat-select
+          id="sl-component"
+          formControlName="selectSurveyKinds"
+          multiple
+        >
           @for (surveyKind of surveyKinds; track surveyKind) {
             <mat-option [value]="surveyKind">{{
               surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
@@ -18,7 +33,11 @@
 
       <mat-form-field appearance="fill">
         <mat-label for="sl-questions">Questions</mat-label>
-        <mat-select id="sl-questions" multiple formControlName="selQuestions">
+        <mat-select
+          id="sl-questions"
+          formControlName="selectQuestions"
+          multiple
+        >
           @for (question of questions; track question.description) {
             <mat-option [value]="question.description">{{
               question.description
@@ -26,16 +45,6 @@
           }
         </mat-select>
       </mat-form-field>
-
-      <button
-        mat-fab
-        extended
-        class="button"
-        (click)="openStudentsDetailsDialog()"
-      >
-        <mat-icon>visibility</mat-icon>
-        View Details
-      </button>
 
       <button mat-fab extended class="button" type="submit">
         <mat-icon>cached</mat-icon>

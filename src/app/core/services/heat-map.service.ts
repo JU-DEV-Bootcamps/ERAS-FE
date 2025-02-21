@@ -7,6 +7,7 @@ import {
 } from '../../features/heat-map/types/risk-students-detail.type';
 import { GetResponse } from '../../shared/models/eras-api/eras.api';
 import { ComponentData } from '../../features/heat-map/types/risk-students-variables.type';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -28,5 +29,8 @@ export class HeatMapService {
     return this.http.get<GetResponse<ComponentData>>(
       `${this.apiUrl}/components/${componentName}/polls/${pollUUID}/variables`
     );
+  }
+  getSummaryData(pollId: string): Observable<unknown> {
+    return this.http.get(`${this.apiUrl}/summary/polls/${pollId}`);
   }
 }

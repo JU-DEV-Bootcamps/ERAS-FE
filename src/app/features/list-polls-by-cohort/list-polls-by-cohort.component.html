@@ -44,7 +44,7 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let poll">
-            <button mat-icon-button>
+            <button mat-icon-button (click)="redirectToPoll(poll.uuid)">
               <mat-icon>insert_chart_outlined</mat-icon>
             </button>
           </td>
