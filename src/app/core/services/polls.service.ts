@@ -6,13 +6,14 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class HeatmapService {
+export class PollsService {
   private apiUrl = environment.apiUrl;
-  private endpoint = `${this.apiUrl}/api/v1/Heatmap`;
+  private endpoint = 'api/v1/Polls';
 
   constructor(private http: HttpClient) {}
 
-  getSummaryData(pollId: string): Observable<unknown> {
-    return this.http.get(`${this.endpoint}/summary/polls/${pollId}`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getPollsByCohortId(cohortId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
   }
 }

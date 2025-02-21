@@ -1,0 +1,61 @@
+<div class="page-header">
+  <h2 class="page-title">Polls by Cohort</h2>
+</div>
+<form [formGroup]="cohortFormGroup">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Cohorts by name</mat-label>
+      <mat-select id="sl-component" formControlName="cohortId">
+        <mat-option *ngFor="let cohort of cohortsData" [value]="cohort.id">
+          {{ cohort.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</form>
+@if (!dataPolls) {
+  <mat-spinner></mat-spinner>
+} @else {
+  @if (isMobile) {
+    <div class="card-container">
+      @for (poll of polls; track $index) {
+        <mat-card class="" appearance="outlined">
+          <mat-card-content>
+            @for (column of columns; track $index) {
+              <div class="row-info">
+                <p class="field">{{ column | titlecase }}</p>
+                <p class="information">{{ poll[column] }}</p>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  } @else {
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataPolls">
+        @for (column of columns; track $index) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>{{ column | titlecase }}</th>
+            <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+          </ng-container>
+        }
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let poll">
+            <button mat-icon-button (click)="redirectToPoll(poll.uuid)">
+              <mat-icon>insert_chart_outlined</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns.concat(['actions'])"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: columns.concat(['actions'])"
+        ></tr>
+      </table>
+    </div>
+  }
+}

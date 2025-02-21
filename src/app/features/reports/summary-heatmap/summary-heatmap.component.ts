@@ -21,6 +21,8 @@ import { HeatmapService } from '../../../core/services/heatmap.service';
 })
 export class SummaryHeatmapComponent {
   public chartOptions: ApexOptions = {};
+  private heatMapData = null;
+  public pollId = localStorage.getItem('pollUUID') || 'notFound';
 
   public componentsSummary: {
     componentName: string;
@@ -28,11 +30,9 @@ export class SummaryHeatmapComponent {
   }[] = [];
 
   constructor(private heatmapService: HeatmapService) {
-    const pollId = 'd30f35c3-755e-4ae5-9349-022a68ee99a4';
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.heatmapService.getSummaryData(pollId).subscribe((data: any) => {
-      console.log(data.body);
+    this.heatmapService.getSummaryData(this.pollId).subscribe((data: any) => {
+      this.heatMapData = data.body;
       this.chartOptions = {
         series: data.body.series,
         chart: {
@@ -104,9 +104,6 @@ export class SummaryHeatmapComponent {
           },
         },
         tooltip: {
-          style: {
-            fontSize: '0.8rem', // Adjust the font size as needed
-          },
           y: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formatter: function (val: number, opts?: any): string {
@@ -129,8 +126,7 @@ export class SummaryHeatmapComponent {
                 if (grid[rowIdx][colIdx] === -1) {
                   return '';
                 }
-                const xValue = opts.w.globals.seriesX[rowIdx][colIdx];
-                return xValue + ' >';
+                return 'Average Risk Level:';
               },
             },
           },
