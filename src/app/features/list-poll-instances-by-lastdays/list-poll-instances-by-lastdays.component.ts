@@ -54,7 +54,7 @@ export class ListPollInstancesByLastDaysComponent implements OnInit {
   isMobile = false;
 
   ngOnInit(): void {
-    this.loadPollInstances(this.dropDays[3]);
+    this.loadPollInstances(this.dropDays[0]);
     this.checkScreenSize();
   }
 
