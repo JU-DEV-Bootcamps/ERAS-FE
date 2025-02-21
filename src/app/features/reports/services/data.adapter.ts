@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 
-import { Coordinate, SurveyAnswers } from '../types/data.adapter';
-import { Questions } from '../types/data.generator';
+import { Coordinate, PollData, SurveyAnswers } from '../types/data.adapter';
+import { MockUpAnswers, SurveyKind, SurveyQuestions } from '../types/data.generator';
 
 /**
- * Returns answers, adapted for Apexcharts
+ * Returns mockup answers, adapted for Apexcharts
  *
  * @param questions - Collection of survey's questions
  * @param rawSurveyAnswers - Survey answers without being processed
  * @returns Collection of answers, adapted to be used on Apexcharts' chartOptions.series
  */
-const adaptAnswers = (
-  questions: Questions,
+const adaptMockAnswers = (
+  questions: SurveyQuestions,
   rawSurveyAnswers: SurveyAnswers
 ) => {
   const adaptedAnswers: ApexAxisChartSeries = [];
@@ -52,6 +52,62 @@ const adaptAnswers = (
       }
     }
   }
+
+  return adaptedAnswers;
+};
+
+/**
+ * Returns real v1 answers, adapted for Apexcharts
+ *
+ * @param questions - Collection of survey's questions
+ * @param rawSurveyAnswers - Survey answers without being processed
+ * @returns Collection of answers, adapted to be used on Apexcharts' chartOptions.series
+ */
+const adaptAnswers = (pollData: PollData[]) => {
+  const spanishToEnglish = {
+    academico: 'ACADEMIC',
+    individual: 'INDIVIDUAL',
+    familiar: 'FAMILIAR',
+    socioeconomico: 'SOCIAL',
+  };
+  const adaptedAnswers: MockUpAnswers = {
+    ACADEMIC: null,
+    INDIVIDUAL: null,
+    FAMILIAR: null,
+    SOCIAL: null,
+  };
+
+  for (const component of pollData) {
+    //@ts-ignore
+    const key: SurveyKind = spanishToEnglish[component.componentName];
+
+    adaptedAnswers[key] = {
+      questions: {
+        surveyKind: key,
+        questions: component.variables.variables,
+      },
+      series: component.series,
+    };
+  }
+
+  
+  /* // Count users with same answers
+  for (let j = 0; j < rawSurveyAnswers.length; j++) {
+    const rawSurveyAnswer = rawSurveyAnswers[j];
+
+    for (let k = 0; k < rawSurveyAnswer.answers.length; k++) {
+      const answer = rawSurveyAnswer.answers[k];
+      const adaptedAnswer = adaptedAnswers[k];
+
+      const idx = adaptedAnswer.data.findIndex(adapted => {
+        return (adapted as Coordinate).x === answer.description;
+      });
+
+      if (idx > -1) {
+        (adaptedAnswer.data[idx] as Coordinate).y++;
+      }
+    }
+  } */
 
   return adaptedAnswers;
 };
@@ -115,4 +171,4 @@ const orderAnswers = (answers: ApexAxisChartSeries, fill?: boolean) => {
   return answers;
 };
 
-export { adaptAnswers, filterAnswers, orderAnswers };
+export { adaptAnswers, adaptMockAnswers, filterAnswers, orderAnswers };
