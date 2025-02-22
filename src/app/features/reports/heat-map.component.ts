@@ -16,6 +16,7 @@ import {
 } from './types/data.generator';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -47,6 +48,7 @@ import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
     MatDialogModule,
     MatExpansionModule,
     MatSlideToggleModule,
+    MatFormFieldModule,
   ],
   templateUrl: './heat-map.component.html',
   styleUrls: ['./heat-map.component.scss'],
@@ -179,7 +181,6 @@ export class HeatMapComponent implements OnInit {
   selectedPoll = this.pollsData[0];
 
   readonly dialog = inject(MatDialog);
-  public isChecked = false;
 
   constructor() {
     this.myForm = this.initForm();

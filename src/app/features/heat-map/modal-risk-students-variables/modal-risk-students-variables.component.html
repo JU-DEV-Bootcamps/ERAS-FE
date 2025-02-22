@@ -1,11 +1,33 @@
 <mat-dialog-content class="mat-typography">
-  <h2 mat-dialog-title>Install Angular</h2>
+  <h2 mat-dialog-title>Filter Studen by Variable</h2>
 
-  <ul>
-    @for (item of data; track $index) {
-      <li>{{ item.name }} - Risk: {{ item.riskLevel }}</li>
-    }
-  </ul>
+  <form [formGroup]="filterForm">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component-filter">Component</mat-label>
+      <mat-select id="sl-component-filter" formControlName="selectComponent">
+        <!-- @for (surveyKind of surveyKinds; track surveyKind) {
+          <mat-option [value]="surveyKind">{{
+            surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
+          }}</mat-option>
+        } -->
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-variable-filer">Questions</mat-label>
+      <mat-select id="sl-variable-filer" formControlName="selectVariables">
+        <!-- @for (question of questions; track question.description) {
+          <mat-option [value]="question.description">{{
+            question.description
+          }}</mat-option>
+        } -->
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="input-text-variable" appearance="fill">
+      <mat-label>Student limit by variable</mat-label>
+      <input matInput type="number" />
+    </mat-form-field>
+  </form>
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-button [mat-dialog-close]="true" cdkFocusInitial>

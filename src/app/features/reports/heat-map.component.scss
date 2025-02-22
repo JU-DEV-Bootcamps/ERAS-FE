@@ -1,22 +1,5 @@
 @use '../../../styles/utils/index.scss' as ut;
 
-.button-style {
-  padding: 10px 20px ;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  color: #ffffff;
-  background-color: red;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.button-style:hover {
-  background-color: ut.get-color(secondary, 30);
-}
 
 button {
   float: right;
@@ -42,8 +25,7 @@ button {
 }
 .filter-container {
   padding-inline: 1em;
-  width: 70%;
-  // max-width: calc(212px * 2 + 1em);
+  width: 100%;
   margin-top: 24px;
   margin-bottom: 48px;
 }
@@ -52,10 +34,6 @@ mat-form-field:not(:first-child),button:not(:first-child){
   margin-left: 1em;
 }
 
-.toggle{
-  margin-left: 1em;
-  display: inline-flex;
-}
 
 .filter-options {
   display: flex;
