@@ -27,13 +27,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
-import {
-  // ComponentData,
-  StudentData,
-} from '../heat-map/types/risk-students-variables.type';
 import { HeatMapService } from './services/heat-map.service';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
+import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
 
 @Component({
   selector: 'app-charts',
@@ -180,6 +177,9 @@ export class HeatMapComponent implements OnInit {
   pollsData: Poll[] = [];
   selectedPoll = this.pollsData[0];
 
+  public modalDataSudentVariable: DialogRiskVariableData =
+    {} as DialogRiskVariableData;
+
   readonly dialog = inject(MatDialog);
 
   constructor() {
@@ -203,6 +203,10 @@ export class HeatMapComponent implements OnInit {
       const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
       dataPoll.subscribe(data => {
+        this.modalDataSudentVariable = {
+          pollUUID: pollUUID,
+          data: data.body,
+        };
         this.mockupAnswers = adaptAnswers(data.body);
         this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
         this.questions = this.selectSurveyKinds.reduce(
@@ -316,25 +320,12 @@ export class HeatMapComponent implements OnInit {
 
   //Show studenta data by variable
 
-  openDialog(data: StudentData[]) {
+  openDialog() {
     this.dialog.open(ModalRiskStudentsVariablesComponent, {
-      data: data,
+      width: '48vw',
+      maxWidth: '100%',
+      minHeight: '400px',
+      data: this.modalDataSudentVariable,
     });
   }
-
-  showStudentaData() {
-    return;
-  }
-
-  // findQuestionData(componentName: string, questionName: string) {
-  // const component = this.dataArray.find(
-  //   comp => comp.componentName === componentName
-  // );
-  // if (component) {
-  //   return component.variables.find(question => {
-  //     return question.name === questionName;
-  //   });
-  // }
-  //   return null;
-  // }
 }

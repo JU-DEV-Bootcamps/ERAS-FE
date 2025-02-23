@@ -61,7 +61,9 @@
         >
       </mat-expansion-panel-header>
       <div class="filter-options">
-        <button mat-raised-button color="primary">Apply filter</button>
+        <button mat-raised-button (click)="openDialog()" color="primary">
+          Apply filter
+        </button>
       </div>
     </mat-expansion-panel>
   </div>

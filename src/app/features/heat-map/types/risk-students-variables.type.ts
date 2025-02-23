@@ -1,18 +1,29 @@
-interface StudentData {
-  uuid: string;
-  answer: string;
-  name: string;
-  riskLevel: number;
+interface Variable {
+  id: number;
+  description: string;
 }
 
-interface Variable {
-  name: string;
-  students: StudentData[];
+interface ComponentVariables {
+  variables: Variable[];
 }
 
 interface ComponentData {
   componentName: string;
+  variables: ComponentVariables;
+}
+interface MappedData {
+  name: string;
   variables: Variable[];
 }
+interface DialogRiskVariableData {
+  pollUUID: string;
+  data: unknown;
+}
 
-export { StudentData, Variable, ComponentData };
+export {
+  Variable,
+  ComponentVariables,
+  ComponentData,
+  DialogRiskVariableData,
+  MappedData,
+};
