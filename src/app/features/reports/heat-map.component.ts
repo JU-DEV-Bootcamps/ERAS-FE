@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
@@ -34,6 +34,7 @@ import { DialogRiskVariableData } from '../heat-map/types/risk-students-variable
 
 @Component({
   selector: 'app-charts',
+  encapsulation: ViewEncapsulation.None,
   imports: [
     FormsModule,
     ReactiveFormsModule,
