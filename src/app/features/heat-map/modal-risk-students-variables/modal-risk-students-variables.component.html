@@ -1,6 +1,6 @@
 <mat-dialog-content class="mat-typography modal-container">
   <div class="modal-header">
-    <h2 mat-dialog-title>Filter Studen by Variable</h2>
+    <h2 mat-dialog-title class="title-modal">Students Risk By Variable</h2>
     <button mat-icon-button mat-dialog-close class="close-button">
       <mat-icon>close</mat-icon>
     </button>
@@ -50,10 +50,11 @@
   @if (studentRisk && studentRisk.length > 0) {
     <mat-card class="student-card">
       <mat-card-header>
-        <mat-card-title>Student Results</mat-card-title>
+        <mat-card-title>{{ selectedVaribleDisplay }}</mat-card-title>
         <mat-card-subtitle
-          >{{ studentRisk.length }} students found</mat-card-subtitle
-        >
+          >Top {{ studentRisk.length }} risk
+          {{ studentRisk.length === 1 ? 'student' : 'students' }}
+        </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>

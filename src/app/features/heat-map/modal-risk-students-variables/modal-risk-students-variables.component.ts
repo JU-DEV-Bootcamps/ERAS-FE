@@ -52,7 +52,8 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
   public filteredVariables: Variable[] = [];
   private reportService = inject(ReportService);
   public studentRisk = [];
-  displayedColumns: string[] = ['name', 'answer', 'risk'];
+  public displayedColumns: string[] = ['name', 'answer', 'risk'];
+  public selectedVaribleDisplay = '';
   constructor(
     public dialogRef: MatDialogRef<ModalRiskStudentsVariablesComponent>
   ) {
@@ -83,6 +84,8 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
     if (this.filterForm.valid) {
       const selectedVariable =
         this.filterForm.get('selectVariables')?.value.variableId;
+      this.selectedVaribleDisplay =
+        this.filterForm.get('selectVariables')?.value.description;
       const pollInstanceUUID: string = this.data.pollUUID;
       const take: number | null = this.filterForm.get('selectNumber')?.value;
       this.reportService
@@ -95,13 +98,13 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
   }
   getRiskColor(riskLevel: number): string {
     const riskColors = new Map([
-      [1, '#4CAF50'], // Verde
-      [2, '#FFC107'], // Amber
-      [3, '#FF9800'], // Orange
-      [4, '#F44336'], // Red
-      [5, '#9C27B0'], // Purple
+      [1, '#008000'],
+      [2, '#3CB371'],
+      [3, '#F0D722'],
+      [4, '#FFA500'],
+      [5, '#FF0000'],
     ]);
-    return riskColors.get(riskLevel) || '#607D8B'; // Default grey
+    return riskColors.get(riskLevel) || '#FF0000';
   }
 
   private mapData(data: ComponentData[]): {

@@ -321,11 +321,13 @@ export class HeatMapComponent implements OnInit {
   //Show studenta data by variable
 
   openDialog() {
-    this.dialog.open(ModalRiskStudentsVariablesComponent, {
-      width: '48vw',
-      maxWidth: '100%',
-      minHeight: '400px',
+    const dialogConfig = {
+      width: 'auto',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '80vh',
       data: this.modalDataSudentVariable,
-    });
+    };
+    this.dialog.open(ModalRiskStudentsVariablesComponent, dialogConfig);
   }
 }

@@ -4,6 +4,9 @@
   width: 100%;
   padding: 12px 0;
 }
+.title-modal {
+  padding: 8px 0;
+}
 .modal-container {
   padding-bottom: 20px;
 }
@@ -11,7 +14,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   width: 100%;
+  flex-wrap: wrap;
 }
 .filter-button {
   margin-top: -20px;
@@ -30,7 +35,8 @@
 
 .name-column {
   max-width: 220px;
-  white-space: nowrap;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .answer-column {
@@ -41,19 +47,6 @@
   font-weight: 600;
   color: #3f51b5;
   font-size: 14px;
-}
-
-// .mat-cell {
-//   display: flex;
-//   flex: 1;
-//   align-items: stretch;
-//   padding: 16px 24px;
-// }
-
-.email-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .risk-column {
@@ -81,10 +74,19 @@
   background-color: #f8f9fa;
 }
 
-.no-results-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  color: #6c757d;
+@media screen and (max-width: 930px) {
+  .select-container {
+    justify-content: center;
+
+    & > * {
+      flex: 1 1 45%;
+      margin-bottom: 16px;
+    }
+  }
+}
+
+@media screen and (max-width: 492px) {
+  .name-column mat-icon {
+    display: none;
+  }
 }
