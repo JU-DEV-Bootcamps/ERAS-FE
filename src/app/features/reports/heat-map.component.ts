@@ -49,7 +49,7 @@ import { DialogRiskVariableData } from '../heat-map/types/risk-students-variable
     MatFormFieldModule,
   ],
   templateUrl: './heat-map.component.html',
-  styleUrls: ['./heat-map.component.scss'],
+  styleUrls: ['./heat-map.component.css'],
 })
 export class HeatMapComponent implements OnInit {
   public myForm: FormGroup;
@@ -322,13 +322,14 @@ export class HeatMapComponent implements OnInit {
   //Show studenta data by variable
 
   openDialog() {
-    const dialogConfig = {
+    // const dialogConfig = ;
+    this.dialog.open(ModalRiskStudentsVariablesComponent, {
       width: 'auto',
       maxWidth: '80vw',
       minHeight: '500px',
       maxHeight: '80vh',
+      panelClass: 'border-modalbox-dialog',
       data: this.modalDataSudentVariable,
-    };
-    this.dialog.open(ModalRiskStudentsVariablesComponent, dialogConfig);
+    });
   }
 }
