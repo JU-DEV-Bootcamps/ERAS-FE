@@ -1,5 +1,5 @@
 interface Variable {
-  id: number;
+  variableId: number;
   description: string;
 }
 

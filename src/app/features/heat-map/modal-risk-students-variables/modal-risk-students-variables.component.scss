@@ -4,6 +4,9 @@
   width: 100%;
   padding: 12px 0;
 }
+.modal-container {
+  padding-bottom: 20px;
+}
 .select-container {
   display: flex;
   justify-content: space-between;
@@ -12,4 +15,76 @@
 }
 .filter-button {
   margin-top: -20px;
+}
+
+.student-card {
+  margin-top: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
+.student-table {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.name-column {
+  max-width: 220px;
+  white-space: nowrap;
+}
+
+.answer-column {
+  width: 100%;
+}
+
+.mat-header-cell {
+  font-weight: 600;
+  color: #3f51b5;
+  font-size: 14px;
+}
+
+// .mat-cell {
+//   display: flex;
+//   flex: 1;
+//   align-items: stretch;
+//   padding: 16px 24px;
+// }
+
+.email-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.risk-column {
+  width: 100px;
+  max-width: 100px;
+  text-align: center;
+  justify-content: center;
+  flex: 0 0 100px;
+}
+
+.risk-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-results-card {
+  margin-top: 20px;
+  background-color: #f8f9fa;
+}
+
+.no-results-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: #6c757d;
 }
