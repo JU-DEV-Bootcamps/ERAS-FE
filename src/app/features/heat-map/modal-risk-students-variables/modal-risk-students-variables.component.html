@@ -1,7 +1,12 @@
 <mat-dialog-content class="mat-typography modal-container">
-  <h2 mat-dialog-title>Filter Studen by Variable</h2>
+  <div class="modal-header">
+    <h2 mat-dialog-title>Filter Studen by Variable</h2>
+    <button mat-icon-button mat-dialog-close class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-  <form [formGroup]="filterForm">
+  <form [formGroup]="filterForm" (ngSubmit)="showStudentList()">
     <div class="select-container">
       <mat-form-field appearance="fill">
         <mat-label for="sl-component-filter">Component</mat-label>
@@ -22,7 +27,7 @@
         <mat-label for="sl-variable-filer">Questions</mat-label>
         <mat-select id="sl-variable-filer" formControlName="selectVariables">
           @for (variable of filteredVariables; track variable) {
-            <mat-option [value]="variable.description">{{
+            <mat-option [value]="variable">{{
               variable.description
             }}</mat-option>
           }
@@ -32,12 +37,14 @@
         <mat-label>Student limit</mat-label>
         <input matInput type="number" />
       </mat-form-field>
+      <button
+        type="submit"
+        class="filter-button"
+        mat-raised-button
+        color="primary"
+      >
+        Show details
+      </button>
     </div>
   </form>
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-button [mat-dialog-close]="true" cdkFocusInitial>
-      Install
-    </button>
-  </mat-dialog-actions>
 </mat-dialog-content>
