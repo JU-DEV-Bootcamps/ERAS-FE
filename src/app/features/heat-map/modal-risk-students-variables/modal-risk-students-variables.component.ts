@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
 import {
   MatDialogModule,
   MatDialogRef,
@@ -33,7 +33,7 @@ import { ReportService } from '../../../core/services/report.service.ts.service'
     MatIconModule,
     MatCardModule,
     MatTableModule,
-    MatChipsModule,
+    MatMenuModule,
   ],
   templateUrl: './modal-risk-students-variables.component.html',
   styleUrl: './modal-risk-students-variables.component.scss',
@@ -52,7 +52,7 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
   public filteredVariables: Variable[] = [];
   private reportService = inject(ReportService);
   public studentRisk = [];
-  public displayedColumns: string[] = ['name', 'answer', 'risk'];
+  public displayedColumns: string[] = ['name', 'answer', 'risk', 'actions'];
   public selectedVaribleDisplay = '';
   constructor(
     public dialogRef: MatDialogRef<ModalRiskStudentsVariablesComponent>

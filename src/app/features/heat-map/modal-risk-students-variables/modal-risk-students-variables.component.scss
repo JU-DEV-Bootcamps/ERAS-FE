@@ -27,7 +27,18 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-radius: 12px;
 }
-
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.title-card-header {
+  width: 70%;
+  text-align: left;
+}
+.icon-card-header {
+  margin-left: auto;
+}
 .student-table {
   width: 100%;
   margin-top: 10px;
@@ -56,7 +67,13 @@
   justify-content: center;
   flex: 0 0 100px;
 }
-
+.actions-column {
+  width: 80px;
+  max-width: 80px;
+  text-align: center;
+  justify-content: center;
+  flex: 0 0 100px;
+}
 .risk-badge {
   width: 32px;
   height: 32px;
