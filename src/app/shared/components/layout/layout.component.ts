@@ -76,12 +76,14 @@ export class LayoutComponent {
   logout() {
     this.keycloak.logout();
   }
-
+  redirect(redirectTo: string) {
+    this.router.navigate([redirectTo]);
+  }
   redirectCLStatus() {
     this.router.navigate(['cosmic-latte']);
   }
   redirectProfile() {
-    this.router.navigate(['']);
+    this.router.navigate(['profile']);
   }
   redirectImportAnswers() {
     this.router.navigate(['import-answers']);

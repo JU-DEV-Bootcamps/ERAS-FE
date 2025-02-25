@@ -5,11 +5,7 @@
     </div>
     <div class="custom-sidenav-content">
       <p>
-        <button
-          mat-button
-          (click)="redirectProfile()"
-          class="custom-nav-button"
-        >
+        <button mat-button (click)="redirect('')" class="custom-nav-button">
           <mat-icon>home</mat-icon>
           Home
         </button>
@@ -64,7 +60,7 @@
             (click)="redirectListPollsByCohort()"
           >
             <mat-icon>poll</mat-icon>
-            Polls
+            Polls by Cohorts
           </button>
         </p>
         <p>
@@ -74,7 +70,7 @@
             (click)="redirectListPollsAnswered()"
           >
             <mat-icon>poll</mat-icon>
-            Polls By Days
+            Polls
           </button>
         </p>
       </div>

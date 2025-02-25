@@ -49,3 +49,9 @@ $font-weight: (
   font-weight: get-font-weight(bold);
   text-align: center;
 }
+
+.page-subtitle {
+    font-size: get-font-size(headline, medium);
+    font-weight: get-font-weight(medium);
+    text-align: left;
+  }
