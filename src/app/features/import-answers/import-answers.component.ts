@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
 import {
   ReactiveFormsModule,
@@ -21,7 +21,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   IMPORT_MESSAGES,
   GENERAL_MESSAGES,
@@ -30,6 +30,7 @@ import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialo
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
 
 @Component({
   selector: 'app-import-answers',
@@ -43,9 +44,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     ReactiveFormsModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    TitleCasePipe,
     MatSelectModule,
     FormsModule,
+    ImportAnswersPreviewComponent,
   ],
   templateUrl: './import-answers.component.html',
   styleUrl: './import-answers.component.css',
@@ -61,13 +62,7 @@ export class ImportAnswersComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   importedPollData: any = [];
   columns = ['#', 'name', 'email', 'cohort', 'actions'];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dataStudents: any = new MatTableDataSource([]);
   students = [];
-  pageSize = 10;
-  currentPage = 0;
-  totalStudents = 0;
 
   isMobile = false;
 
@@ -118,41 +113,28 @@ export class ImportAnswersComponent implements OnInit {
       },
     });
   }
-
-  mapDataCreatedPolls(data: PollInstance[]) {
-    // columns = ['index', 'name', 'email', 'cohort'];
-    const created = [];
-    for (let i = 0; data.length > i; i++) {
-      const name = data[i].components[0].variables[0].answer.student.name;
-      const email = data[i].components[0].variables[0].answer.student.email;
-      const cohort =
-        data[i].components[0].variables[0].answer.student.cohort.name;
-      const record: savedPollRecord = {
-        '#': i,
-        name: name,
-        email: email,
-        cohort: cohort,
-      };
-      created.push(record);
-    }
-    this.dataStudents = new MatTableDataSource(created);
-  }
-
   onSubmit() {
     if (this.form.invalid) return;
     const name = this.form.value.surveyName.trim();
-    const startDate = this.formatDate(new Date(this.form.value.start));
-    const endDate = this.formatDate(new Date(this.form.value.end));
+    const startDate = this.form.value.start
+      ? this.formatDate(new Date(this.form.value.start))
+      : null;
+    const endDate = this.form.value.end
+      ? this.formatDate(new Date(this.form.value.end))
+      : null;
     this.isLoading = true;
     this.cosmicLatteService
       .importAnswerBySurvey(name, startDate, endDate)
       .subscribe({
         next: (data: PollInstance[]) => {
-          this.mapDataCreatedPolls(data);
           this.importedPollData = data;
           this.isLoading = false;
-          this.openDialog(IMPORT_MESSAGES.ANSWERS_SUCCESS, true);
           this.resetForm();
+          if (data.length < 1) {
+            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY, true);
+          } else {
+            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_OK, true);
+          }
         },
         error: () => {
           this.isLoading = false;
@@ -180,28 +162,9 @@ export class ImportAnswersComponent implements OnInit {
     }
     return this.datePipe.transform(date, 'yyyy-MM-dd') || '';
   }
-
   resetForm() {
     this.form.reset();
     this.form.markAsPristine();
     this.form.markAsUntouched();
   }
-
-  onPageChange({
-    pageSize,
-    pageIndex,
-  }: {
-    pageIndex: number;
-    pageSize: number;
-  }): void {
-    this.currentPage = pageIndex;
-    this.pageSize = pageSize;
-  }
-}
-
-interface savedPollRecord {
-  '#': number;
-  name: string;
-  email: string;
-  cohort: string;
 }

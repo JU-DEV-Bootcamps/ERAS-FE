@@ -1,0 +1,77 @@
+<div class="container">
+  <div class="poll-card">
+    <p class="subtitle">Poll details to be imported</p>
+    <mat-card class="" appearance="outlined">
+      <mat-card-content>
+        <div class="row-info pollHeaderContainer">
+          <span class="">
+            <p>Name: {{ pollDetails.name | titlecase }}</p>
+            <p>Cosmic latte ID: {{ pollDetails.cosmicLatteId }}</p>
+            <p>Poll version: {{ pollDetails.version }}</p>
+          </span>
+          <span>
+            <span>
+              <p>Components</p>
+              <ul class="information">
+                @for (component of pollDetails.components; track $index) {
+                  <li>{{ $index + 1 }}. {{ component | titlecase }}</li>
+                }
+              </ul>
+            </span>
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="studentDetails">
+      <div>
+        <p>Students details</p>
+        <h1>PENDIENTE METER BOTON DE SELECCION, implementar comp manu</h1>
+        <div class="studentQuantities">
+          Students:
+          <p>{{ selectedStudents }}/{{ totalStudents }}</p>
+        </div>
+        @if (!dataStudents) {
+          <mat-spinner></mat-spinner>
+        } @else {
+          @if (isMobile) {
+            <h1>PENDIENTE responsive!</h1>
+            <div class="card-container">
+              @for (student of students; track $index) {
+                <mat-card class="" appearance="outlined">
+                  <mat-card-content>
+                    @for (column of columns; track $index) {
+                      <div class="row-info">
+                        <p class="field">{{ column | titlecase }}</p>
+                        <p class="information">{{ student[column] }}</p>
+                      </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          } @else {
+            <div class="mat-elevation-z8">
+              <table mat-table [dataSource]="dataStudents">
+                @for (column of columns; track $index) {
+                  <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ column | titlecase }}
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                      {{ element[column] }}
+                    </td>
+                  </ng-container>
+                } @empty {
+                  <li>There are no items.</li>
+                }
+                <tr mat-header-row *matHeaderRowDef="columns"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns"></tr>
+              </table>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+@use './../../../styles/utils/index.scss' as main-styles;
+.container{
+    padding: 0 18px;
+    margin-top: 60px;
+    .poll-card{
+        border-radius: 25px;
+        .subtitle{
+            color: main-styles.get-color(neutral, 0);
+            font-size: main-styles.get-font-size(headline, small);
+            font-weight: main-styles.get-font-weight(semi-bold);
+            text-align: center;
+        }
+        .pollHeaderContainer{
+            display: flex;
+            justify-content: space-evenly;
+            span{
+                width: 50%;
+                .subtitle-card{
+                    font-weight: main-styles.get-font-weight(bold);
+                }
+                ul{
+                    list-style: none;
+                }
+            }
+        }
+    }
+    .studentDetails{
+        margin-top: 40px;
+        padding-bottom: 40px;
+        .studentQuantities{
+            width: 100%;
+            display: flex;
+            justify-content: end;
+            p{
+                margin: 0;
+                color: main-styles.get-color(neutral, 25);
+
+            }
+        }
+    }
+}
