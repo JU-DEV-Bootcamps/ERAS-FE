@@ -15,8 +15,14 @@ export class HeatMapService {
 
   constructor(private http: HttpClient) {}
 
-  getStudentHeatMapDetails(component: ComponentValueType) {
-    const params = new HttpParams().set('component', component);
+  getStudentHeatMapDetails(
+    component: ComponentValueType,
+    limit?: number | null
+  ) {
+    const params = new HttpParams()
+      .set('component', component)
+      .set('limit', limit ?? 5);
+
     return this.http.get<RiskStudentDetailType[]>(
       `${this.apiUrl}/heatmap-details`,
       { params }

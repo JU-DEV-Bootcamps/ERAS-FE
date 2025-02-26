@@ -1,0 +1,138 @@
+<mat-dialog-content>
+  <div class="modal-header">
+    <div class="modal-header-title">
+      <h2 class="title-modal">{{ verbToActionTile }}</h2>
+      <h3 class="title-modal">{{ selectedPollName }}</h3>
+    </div>
+    <button mat-icon-button mat-dialog-close class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form
+    class="select-container"
+    [formGroup]="filterForm"
+    (ngSubmit)="showStudentList()"
+  >
+    <div class="select-container">
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component-filter">Component</mat-label>
+        <mat-select
+          id="sl-component-filter"
+          formControlName="selectComponent"
+          (selectionChange)="onComponentChange($event.value)"
+        >
+          @for (component of mappedData; track component) {
+            <mat-option [value]="component.name">{{
+              component.name
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-variable-filer">Questions</mat-label>
+        <mat-select id="sl-variable-filer" formControlName="selectVariables">
+          @for (variable of filteredVariables; track variable) {
+            <mat-option [value]="variable">{{
+              variable.description
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="input-text-variable" appearance="fill">
+        <mat-label>Student limit</mat-label>
+        <input formControlName="selectNumber" matInput type="number" />
+      </mat-form-field>
+      <button
+        type="submit"
+        class="filter-button"
+        mat-raised-button
+        color="primary"
+      >
+        Show details
+      </button>
+    </div>
+  </form>
+  @if (studentRisk && studentRisk.length > 0) {
+    <mat-card class="student-card">
+      <mat-card-header class="card-header">
+        <div class="title-card-header">
+          <mat-card-title>{{ selectedVaribleDisplay }}</mat-card-title>
+          <mat-card-subtitle
+            >Top {{ studentRisk.length }} risk
+            {{ studentRisk.length === 1 ? 'student' : 'students' }}
+          </mat-card-subtitle>
+        </div>
+        <div class="icon-card-header">
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            [disabled]="true"
+            aria-label="Export options"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item>Export</button>
+          </mat-menu>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-table [dataSource]="studentRisk" class="student-table">
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef class="name-column">
+              Name
+            </mat-header-cell>
+            <mat-cell *matCellDef="let item" class="name-column">
+              <mat-icon matListItemIcon>person</mat-icon>
+              {{ item.student.name }}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="answer">
+            <mat-header-cell *matHeaderCellDef class="answer-column">
+              Answer
+            </mat-header-cell>
+            <mat-cell *matCellDef="let item" class="answer-column">
+              {{ item.answer.answerText }}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="risk">
+            <mat-header-cell *matHeaderCellDef class="risk-column">
+              Risk Level
+            </mat-header-cell>
+            <mat-cell *matCellDef="let item" class="risk-column">
+              <div
+                class="risk-badge"
+                [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
+              >
+                {{ item.answer.riskLevel }}
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef class="actions-column">
+              Actions
+            </mat-header-cell>
+            <mat-cell *matCellDef="let item" class="actions-column">
+              <button
+                [disabled]="true"
+                mat-icon-button
+                aria-label="View details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+        </mat-table>
+      </mat-card-content>
+    </mat-card>
+  }
+</mat-dialog-content>

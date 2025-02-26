@@ -128,11 +128,12 @@ const filterAnswers = (
   series: ApexAxisChartSeries,
   selectedQuestions: string[]
 ) => {
-  return series.filter(
-    s =>
+  return series.filter(s => {
+    return (
       selectedQuestions.length === 0 ||
       (s.name && selectedQuestions.includes(s.name))
-  );
+    );
+  });
 };
 
 /**

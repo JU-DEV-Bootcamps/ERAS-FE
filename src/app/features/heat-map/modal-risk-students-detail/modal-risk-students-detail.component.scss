@@ -5,6 +5,7 @@
   border-radius: 12px;
   font-weight: 500;
 }
+
 .risk-badge {
   width: 32px;
   height: 32px;
@@ -21,4 +22,10 @@
   border-bottom: 1px solid transparent;
   border-top: 1px solid transparent;
   // cursor: pointer;
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
 }

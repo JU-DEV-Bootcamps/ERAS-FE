@@ -22,6 +22,10 @@ import {
 } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/heat-map';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { debounceTime, tap } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-modal-risk-students-detail',
@@ -32,6 +36,9 @@ import { RISK_COLORS, RiskColorType } from '../../../core/constants/heat-map';
     MatDialogActions,
     MatSelectModule,
     ReactiveFormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
     MatProgressBarModule,
     MatTableModule,
   ],
@@ -41,7 +48,7 @@ import { RISK_COLORS, RiskColorType } from '../../../core/constants/heat-map';
 export class ModalRiskStudentsDetailComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<ModalRiskStudentsDetailComponent>);
 
-  columns = ['studentId', 'studentName', 'riskLevel'];
+  columns = ['studentId', 'studentName', 'riskLevel', 'actions'];
 
   heatMapService = inject(HeatMapService);
 
@@ -71,26 +78,37 @@ export class ModalRiskStudentsDetailComponent implements OnInit {
       null,
       Validators.required
     ),
+    limit: new FormControl<number | null>(null, Validators.min(1)),
   });
 
   isLoading = false;
 
   ngOnInit(): void {
-    this.form.valueChanges.subscribe(formValue => {
-      this.findStudentsByComponent(formValue.component!);
-    });
+    this.form.valueChanges
+      .pipe(
+        tap(() => (this.isLoading = true)),
+        debounceTime(500)
+      )
+      .subscribe(formValue => {
+        this.findStudentsByComponent(formValue.component!, formValue.limit);
+      });
   }
 
   onNoClick(): void {
     this.dialogRef.close();
   }
 
-  findStudentsByComponent(component: ComponentValueType) {
+  findStudentsByComponent(
+    component: ComponentValueType,
+    limit?: number | null
+  ) {
     this.isLoading = true;
-    this.heatMapService.getStudentHeatMapDetails(component).subscribe(data => {
-      this.isLoading = false;
-      this.riskStudentsDetail = data;
-    });
+    this.heatMapService
+      .getStudentHeatMapDetails(component, limit)
+      .subscribe(data => {
+        this.isLoading = false;
+        this.riskStudentsDetail = data;
+      });
   }
 
   getColorRisk(riskLevel: RiskColorType) {
