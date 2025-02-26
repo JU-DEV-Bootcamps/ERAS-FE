@@ -1,5 +1,10 @@
-<h2 mat-dialog-title>Risk Students Detail</h2>
 <mat-dialog-content>
+  <div class="modal-header">
+    <h2 style="margin: 0px; font-size: 24px">Risk Students Detail</h2>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
   <form [formGroup]="form" class="form-container">
     <mat-form-field appearance="fill">
       <mat-label for="component">Component</mat-label>
@@ -10,17 +15,27 @@
           }}</mat-option>
         }
       </mat-select>
+      @if (formLimit?.errors?.['required']) {
+        <mat-error>This field is required</mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field appearance="fill" style="margin: 0px">
       <mat-label>Student limit</mat-label>
       <input formControlName="limit" matInput type="number" />
+      @if (formLimit?.errors?.['min']) {
+        <mat-error>Not a valid number</mat-error>
+      }
     </mat-form-field>
   </form>
 
   @if (!isLoading) {
     @if (riskStudentsDetail.length) {
-      <h4>Top Risk Students</h4>
+      <h4 style="padding: 0px; margin: 0px">Top Risk Students</h4>
+      <p style="padding: 0px 0px 20px 0px; margin: 0px">
+        {{ riskStudentsDetail.length }} students found
+      </p>
+
       <mat-table [dataSource]="riskStudentsDetail">
         <ng-container matColumnDef="studentId">
           <th mat-header-cell *matHeaderCellDef>Student ID</th>
@@ -61,12 +76,15 @@
         <tr mat-row *matRowDef="let row; columns: columns"></tr>
       </mat-table>
     } @else {
-      <p>No data</p>
+      <div style="text-align: center">
+        <h4>Not found Risk Students</h4>
+        <p>Choose a component</p>
+      </div>
     }
   } @else {
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   }
+  <mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" cdkFocusInitial>Ok</button>
+  </mat-dialog-actions>
 </mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button (click)="onNoClick()" cdkFocusInitial>Ok</button>
-</mat-dialog-actions>

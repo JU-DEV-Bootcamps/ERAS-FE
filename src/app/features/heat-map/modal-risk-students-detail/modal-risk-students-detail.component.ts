@@ -2,8 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import {
   MatDialogActions,
   MatDialogContent,
+  MatDialogModule,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import {
   Components,
@@ -24,14 +24,14 @@ import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/heat-map';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { debounceTime, tap } from 'rxjs';
+import { debounceTime, filter, tap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-modal-risk-students-detail',
   imports: [
     MatButtonModule,
-    MatDialogTitle,
+    MatDialogModule,
     MatDialogContent,
     MatDialogActions,
     MatSelectModule,
@@ -78,14 +78,31 @@ export class ModalRiskStudentsDetailComponent implements OnInit {
       null,
       Validators.required
     ),
-    limit: new FormControl<number | null>(null, Validators.min(1)),
+    limit: new FormControl<number | null>(null, [
+      Validators.pattern('^[1-9]*$'),
+      Validators.min(1),
+    ]),
   });
 
   isLoading = false;
 
+  get formLimit() {
+    return this.form.get('limit');
+  }
+
+  get formComponent() {
+    return this.form.get('component');
+  }
+
   ngOnInit(): void {
     this.form.valueChanges
       .pipe(
+        filter(() => {
+          const valid =
+            this.form.get('component')?.valid && this.form.get('limit')?.valid;
+
+          return valid ?? false;
+        }),
         tap(() => (this.isLoading = true)),
         debounceTime(500)
       )

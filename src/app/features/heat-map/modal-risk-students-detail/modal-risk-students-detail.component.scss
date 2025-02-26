@@ -15,7 +15,6 @@
   justify-content: center;
   color: white;
   font-weight: 500;
-  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mat-mdc-row .mat-mdc-cell {
@@ -28,4 +27,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: auto;
+  padding: 20px 0;
 }

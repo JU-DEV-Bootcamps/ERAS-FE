@@ -323,7 +323,10 @@ export class HeatMapComponent implements OnInit {
   }
   openStudentsDetailsDialog() {
     this.dialog.open(ModalRiskStudentsDetailComponent, {
-      width: 'auto',
+      width: 'clamp(320px, 40vw, 550px)',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
     });
   }
