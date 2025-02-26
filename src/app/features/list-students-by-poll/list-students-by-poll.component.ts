@@ -1,8 +1,8 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { NgFor, TitleCasePipe } from '@angular/common';
+import { NgFor } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import {
@@ -16,18 +16,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PollService } from '../../core/services/poll.service';
+import { TableComponent } from '../../shared/components/table/table.component';
+import { Poll } from './types/list-students-by-poll';
 
-interface Poll {
-  id: number;
-  name: string;
-  uuid: string;
-}
 @Component({
   selector: 'app-list-students-by-poll',
+  standalone: true,
   imports: [
     MatProgressSpinnerModule,
     MatTableModule,
-    TitleCasePipe,
     MatPaginatorModule,
     MatCardModule,
     FormsModule,
@@ -37,13 +34,13 @@ interface Poll {
     MatInputModule,
     MatSelectModule,
     NgFor,
+    TableComponent,
   ],
   templateUrl: './list-students-by-poll.component.html',
   styleUrl: './list-students-by-poll.component.scss',
 })
 export class ListStudentsByPollComponent implements OnInit {
   columns = ['id', 'name', 'uuid', 'email'];
-
   pollsData: Poll[] = [];
   selectedPoll = this.pollsData[0];
   periods = [5, 15, 30, 60, 90, 180, 360, 0];
@@ -54,12 +51,9 @@ export class ListStudentsByPollComponent implements OnInit {
 
   dataStudents = new MatTableDataSource([]);
   students = [];
-
   pageSize = 10;
   currentPage = 0;
   totalStudents = 0;
-
-  isMobile = false;
 
   pollFormGroup = new FormGroup({
     period: new FormControl(this.defaultPerioid),
@@ -68,7 +62,6 @@ export class ListStudentsByPollComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPollsList();
-    this.checkScreenSize();
     this.pollFormGroup.valueChanges.subscribe(formValue => {
       this.defaultPerioid = formValue.period!;
       this.selectedPoll = this.pollsData.filter(
@@ -76,11 +69,6 @@ export class ListStudentsByPollComponent implements OnInit {
       )[0];
       this.loadStudents();
     });
-  }
-
-  @HostListener('window:resize', [])
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
   }
 
   loadPollsList(): void {
