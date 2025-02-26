@@ -46,6 +46,16 @@
         </mat-select>
       </mat-form-field>
 
+      <button
+        mat-fab
+        extended
+        class="button"
+        (click)="openStudentsDetailsDialog()"
+      >
+        <mat-icon>visibility</mat-icon>
+        View Details
+      </button>
+
       <button mat-fab extended class="button" type="submit">
         <mat-icon>cached</mat-icon>
         Apply

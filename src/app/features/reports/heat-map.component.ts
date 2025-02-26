@@ -27,6 +27,7 @@ import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 
 import { MatDialog } from '@angular/material/dialog';
+import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 
 @Component({
   selector: 'app-charts',
@@ -302,5 +303,8 @@ export class HeatMapComponent implements OnInit {
     }
 
     return series;
+  }
+  openStudentsDetailsDialog() {
+    this.dialog.open(ModalRiskStudentsDetailComponent, {});
   }
 }
