@@ -52,8 +52,8 @@ button:not(:first-child) {
 
 .filter-options {
   display: flex;
-  align-items: center;
-  column-gap: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 @media (max-width: 768px) {
