@@ -54,6 +54,9 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
   public studentRisk = [];
   public displayedColumns: string[] = ['name', 'answer', 'risk', 'actions'];
   public selectedVaribleDisplay = '';
+  public selectedPollName: string;
+  public verbToActionTile = 'Get Top Risk Students By Variable';
+  private previousFormVariableId: number | null = null;
   constructor(
     public dialogRef: MatDialogRef<ModalRiskStudentsVariablesComponent>
   ) {
@@ -62,6 +65,7 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
       selectVariables: [[], Validators.required],
       selectNumber: [null, Validators.min(1)],
     });
+    this.selectedPollName = this.data.pollName;
   }
 
   ngOnInit(): void {
@@ -88,11 +92,15 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
         this.filterForm.get('selectVariables')?.value.description;
       const pollInstanceUUID: string = this.data.pollUUID;
       const take: number | null = this.filterForm.get('selectNumber')?.value;
+
+      if (selectedVariable === this.previousFormVariableId) return;
+
       this.reportService
         .getStudentsDetailByVariables(selectedVariable, pollInstanceUUID, take)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .subscribe((data: any) => {
           this.studentRisk = data.body;
+          this.previousFormVariableId = selectedVariable;
         });
     }
   }

@@ -206,6 +206,7 @@ export class HeatMapComponent implements OnInit {
       dataPoll.subscribe(data => {
         this.modalDataSudentVariable = {
           pollUUID: pollUUID,
+          pollName: this.selectedPoll.name,
           data: data.body,
         };
         this.mockupAnswers = adaptAnswers(data.body);
@@ -322,7 +323,6 @@ export class HeatMapComponent implements OnInit {
   //Show studenta data by variable
 
   openDialog() {
-    // const dialogConfig = ;
     this.dialog.open(ModalRiskStudentsVariablesComponent, {
       width: 'auto',
       maxWidth: '80vw',

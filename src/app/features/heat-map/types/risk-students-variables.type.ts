@@ -17,6 +17,7 @@ interface MappedData {
 }
 interface DialogRiskVariableData {
   pollUUID: string;
+  pollName: string;
   data: unknown;
 }
 
