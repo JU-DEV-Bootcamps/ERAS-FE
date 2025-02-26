@@ -25,8 +25,8 @@ export class CostmicLatteService {
 
   importAnswerBySurvey(
     name: string,
-    start?: string,
-    end?: string
+    start?: string | null,
+    end?: string | null
   ): Observable<PollInstance[]> {
     let params = new HttpParams().set('name', name);
     if (start && start.length > 0) {

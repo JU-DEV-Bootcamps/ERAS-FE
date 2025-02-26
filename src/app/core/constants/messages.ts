@@ -1,6 +1,8 @@
 export const IMPORT_MESSAGES = {
   ANSWERS_SUCCESS:
     'The survey’s answers were saved in the system successfully.',
+  ANSWERS_PREVIEW_EMPTY: 'No data found, try other parameters.',
+  ANSWERS_PREVIEW_OK: 'Information obtained successfully.',
   ANSWERS_ERROR:
     'There was an error with the import, please try again or check the values.',
   STUDENT_SUCCESS:
