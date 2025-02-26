@@ -1,6 +1,9 @@
-button {
+.button {
   float: right;
-  background-color: var(--mdc-filled-text-field-container-color, var(--mat-sys-surface-variant));
+  background-color: var(
+    --mdc-filled-text-field-container-color,
+    var(--mat-sys-surface-variant)
+  ) !important;
 }
 
 .page-header {
@@ -9,22 +12,49 @@ button {
 
 .chart-container {
   width: 100%;
-  height: auto;           
-  max-width: 100%;        
-  max-height: 100%;       
-  overflow-x: auto;       
-  white-space: nowrap;        
-  padding: 10px;        
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px;
 }
 
 .form-container {
   padding-inline: 1em;
 }
+.filter-container {
+  padding-inline: 1em;
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 48px;
+}
 
-mat-form-field:not(:first-child),button:not(:first-child){
+mat-form-field:not(:first-child),
+button:not(:first-child) {
   margin-left: 1em;
 }
 
+.apexcharts-canvas .apexcharts-heatmap-rect[val='-1'] {
+  display: none !important;
+}
+
+.mat-mdc-fab {
+  background-color: var(
+    --mdc-filled-text-field-container-color,
+    var(--mat-sys-surface-variant)
+  );
+}
+
+.cdk-overlay-pane {
+  background-color: white;
+}
+
+.filter-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 @media (max-width: 768px) {
   .chart-container-wrapper {
@@ -33,7 +63,7 @@ mat-form-field:not(:first-child),button:not(:first-child){
   }
 
   .chart-container {
-    width: 768px; 
+    width: 768px;
     height: 100%;
     max-width: none;
     max-height: none;

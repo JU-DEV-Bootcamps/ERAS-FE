@@ -1,6 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
   adaptAnswers,
@@ -16,20 +15,26 @@ import {
   QuestionsSeries,
 } from './types/data.generator';
 
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
 import { HeatMapService } from './services/heat-map.service';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
-
-import { MatDialog } from '@angular/material/dialog';
+import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
 
 @Component({
   selector: 'app-charts',
+  encapsulation: ViewEncapsulation.None,
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -38,6 +43,10 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatDialogModule,
+    MatExpansionModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
   ],
   templateUrl: './heat-map.component.html',
   styleUrls: ['./heat-map.component.css'],
@@ -169,6 +178,9 @@ export class HeatMapComponent implements OnInit {
   pollsData: Poll[] = [];
   selectedPoll = this.pollsData[0];
 
+  public modalDataSudentVariable: DialogRiskVariableData =
+    {} as DialogRiskVariableData;
+
   readonly dialog = inject(MatDialog);
 
   constructor() {
@@ -192,6 +204,11 @@ export class HeatMapComponent implements OnInit {
       const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
       dataPoll.subscribe(data => {
+        this.modalDataSudentVariable = {
+          pollUUID: pollUUID,
+          pollName: this.selectedPoll.name,
+          data: data.body,
+        };
         this.mockupAnswers = adaptAnswers(data.body);
         this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
         this.questions = this.selectSurveyKinds.reduce(
@@ -301,5 +318,18 @@ export class HeatMapComponent implements OnInit {
     }
 
     return series;
+  }
+
+  //Show studenta data by variable
+
+  openDialog() {
+    this.dialog.open(ModalRiskStudentsVariablesComponent, {
+      width: 'auto',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '80vh',
+      panelClass: 'border-modalbox-dialog',
+      data: this.modalDataSudentVariable,
+    });
   }
 }
