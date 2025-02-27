@@ -1,26 +1,67 @@
 <div>
   <h1 class="page-title">Home</h1>
   <h2 class="page-subtitle">Overview</h2>
-  <div class="card-summary" horizontal>
-    <mat-card-content>Students</mat-card-content>
-    <mat-card-content>Polls</mat-card-content>
-    <mat-card-content>Risk Students</mat-card-content>
+  <div class="horizontal-cards">
+    <mat-card>
+      <mat-icon>group</mat-icon>
+      <mat-card-title>Students</mat-card-title>
+      <mat-card-footer>24</mat-card-footer>
+    </mat-card>
+    <mat-card>
+      <mat-icon>file_copy</mat-icon>
+      <mat-card-title>Surveys</mat-card-title>
+      <mat-card-footer>3</mat-card-footer>
+    </mat-card>
   </div>
   <h2 class="page-subtitle">Recent Surveys</h2>
-  <a>View All Surveys</a>
-  <div class="card-summary">
-    <mat-card-content>Survey #10</mat-card-content>
-    <mat-card-content>Survey #9</mat-card-content>
-    <mat-card-content>Survey #8</mat-card-content>
-  </div>
-  <h2 class="page-subtitle">Recently Imported Students</h2>
-  <div>
-    <mat-card-content>CSV File: </mat-card-content>
-    <mat-card-content>Survey #9</mat-card-content>
-    <mat-card-content>Survey #8</mat-card-content>
-  </div>
+  <!-- Todo: Add URL PARAM to send last days -->
+  <a routerLink="/list-polls-by-lastDays">View all surveys</a>
+  <mat-card class="example-card" appearance="outlined">
+    <mat-card-header>
+      <!-- <div mat-card-avatar class="example-header-image"></div> -->
+      <mat-card-title>{{ latestSurveyTitle }}</mat-card-title>
+      <mat-card-subtitle>{{ version }}</mat-card-subtitle>
+    </mat-card-header>
+    <div
+      class="survey-summary"
+      style="display: flex; justify-content: space-around"
+    >
+      <ul>
+        <p>Published:</p>
+        <span>{{ published }}</span>
+        <p>Deadline:</p>
+        <span>{{ deadline }}</span>
+      </ul>
+      <mat-card>
+        <mat-card-title>Surveys Completed</mat-card-title>
+        <mat-card-footer>23/32</mat-card-footer>
+      </mat-card>
+      <mat-card>
+        <mat-card-title>Students at risk</mat-card-title>
+        <mat-card-footer>3</mat-card-footer>
+      </mat-card>
+    </div>
+    <div class="graphics" style="display: flex; width: 100%">
+      <mat-card>
+        <mat-card-title>Results Summary</mat-card-title>
+        <app-summary-survey></app-summary-survey>
+      </mat-card>
+      <mat-card>
+        <mat-card-title>Survey Average</mat-card-title>
+        <app-pie-chart></app-pie-chart>
+      </mat-card>
+    </div>
+    <mat-card-actions>
+      <button mat-stroked-button>View More</button>
+    </mat-card-actions>
+  </mat-card>
   <h2 class="page-subtitle">Connected Services</h2>
-  <div>
-    <mat-card-content>Cosmic Latte</mat-card-content>
-  </div>
+  <mat-card>
+    <mat-card-title>Cosmic Latte</mat-card-title>
+    <mat-icon>local_drink</mat-icon>
+    <mat-card-actions>
+      <button mat-stroked-button><mat-icon>check</mat-icon></button>
+      <button mat-stroked-button><mat-icon>settings</mat-icon></button>
+    </mat-card-actions>
+  </mat-card>
 </div>

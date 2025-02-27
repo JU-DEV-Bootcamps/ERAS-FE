@@ -1,0 +1,13 @@
+.example-card {
+  max-width: 80%;
+}
+
+.horizontal-cards {
+  display: flex;
+  width: 80%;
+  justify-content: space-evenly;
+}
+.example-header-image {
+  background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
+  background-size: cover;
+}
