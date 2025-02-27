@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   HostListener,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,7 +20,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
-import { DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import {
   IMPORT_MESSAGES,
   GENERAL_MESSAGES,
@@ -31,6 +30,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-import-answers',
@@ -46,6 +46,8 @@ import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-
     MatCardModule,
     MatSelectModule,
     FormsModule,
+    NgIf,
+    AsyncPipe,
     ImportAnswersPreviewComponent,
   ],
   templateUrl: './import-answers.component.html',
@@ -53,9 +55,11 @@ import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-
   providers: [provideNativeDateAdapter(), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportAnswersComponent implements OnInit {
+export class ImportAnswersComponent {
   form: FormGroup;
-  isLoading: boolean;
+
+  loadingSubject = new BehaviorSubject<boolean>(true);
+  isLoading$ = this.loadingSubject.asObservable();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pollsNames: any = [];
@@ -77,7 +81,8 @@ export class ImportAnswersComponent implements OnInit {
       start: '',
       end: '',
     });
-    this.isLoading = false;
+    this.getPollDetails();
+    this.checkScreenSize();
   }
 
   @HostListener('window:resize', [])
@@ -85,10 +90,6 @@ export class ImportAnswersComponent implements OnInit {
     this.isMobile = window.innerWidth < 768;
   }
 
-  ngOnInit(): void {
-    this.getPollDetails();
-    this.checkScreenSize();
-  }
   private openDialog(descriptionMessage: string, isSuccess: boolean): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
@@ -122,13 +123,14 @@ export class ImportAnswersComponent implements OnInit {
     const endDate = this.form.value.end
       ? this.formatDate(new Date(this.form.value.end))
       : null;
-    this.isLoading = true;
+
+    this.loadingSubject.next(true);
     this.cosmicLatteService
       .importAnswerBySurvey(name, startDate, endDate)
       .subscribe({
         next: (data: PollInstance[]) => {
           this.importedPollData = data;
-          this.isLoading = false;
+          this.loadingSubject.next(false);
           this.resetForm();
           if (data.length < 1) {
             this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY, true);
@@ -137,20 +139,34 @@ export class ImportAnswersComponent implements OnInit {
           }
         },
         error: () => {
-          this.isLoading = false;
+          this.loadingSubject.next(false);
           this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
           this.resetForm();
         },
       });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleSavePollState(event: any) {
+    if (event.state == 'pending') {
+      this.loadingSubject.next(true);
+    } else if (event.state == 'true') {
+      this.loadingSubject.next(false);
+      this.importedPollData = [];
+      this.openDialog('Polls saved successfully!', true);
+    } else {
+      this.loadingSubject.next(false);
+      this.openDialog('Error saving polls. Please try again.', false);
+    }
+  }
   getPollDetails() {
     this.cosmicLatteService.getPollNames().subscribe({
       next: data => {
         this.pollsNames = data;
+        this.loadingSubject.next(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.loadingSubject.next(false);
         this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
         this.resetForm();
       },
