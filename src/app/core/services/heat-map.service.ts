@@ -6,6 +6,7 @@ import {
   RiskStudentDetailType,
 } from '../../features/heat-map/types/risk-students-detail.type';
 import { Observable } from 'rxjs';
+import { DEFAULT_LIMIT } from '../constants/pagination';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class HeatMapService {
   ) {
     const params = new HttpParams()
       .set('component', component)
-      .set('limit', limit ?? 5);
+      .set('limit', limit ?? DEFAULT_LIMIT);
 
     return this.http.get<RiskStudentDetailType[]>(
       `${this.apiUrl}/heatmap-details`,
