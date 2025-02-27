@@ -28,9 +28,9 @@ describe('ImportAnswersPreviewComponent', () => {
       imports: [ImportAnswersPreviewComponent, BrowserAnimationsModule],
       providers: [
         { provide: CosmicLatteService, useValue: mockCosmicLatteService },
-        { provide: PollService, useValue: mockPollService }, // Agregar el servicio mockeado
+        { provide: PollService, useValue: mockPollService },
         provideNoopAnimations(),
-        provideHttpClient(), // Proveer HttpClient para evitar el error
+        provideHttpClient(),
       ],
     }).compileComponents();
 
