@@ -19,7 +19,7 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
+import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import {
   IMPORT_MESSAGES,
@@ -73,7 +73,7 @@ export class ImportAnswersComponent {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private cosmicLatteService: CostmicLatteService,
+    private cosmicLatteService: CosmicLatteService,
     private datePipe: DatePipe
   ) {
     this.form = this.fb.group({

@@ -9,7 +9,7 @@ import { PollInstance } from '../../core/services/Types/cosmicLattePollImportLis
 @Injectable({
   providedIn: 'root',
 })
-export class CostmicLatteService {
+export class CosmicLatteService {
   private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) {}
 

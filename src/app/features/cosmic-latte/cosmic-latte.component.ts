@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
+import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 
 @Component({
@@ -20,7 +20,7 @@ import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-che
 export class CosmicLatteComponent implements OnInit {
   healthCheckResponse: HealthCheckResponse;
   isLoading;
-  constructor(private cosmicLatteService: CostmicLatteService) {
+  constructor(private cosmicLatteService: CosmicLatteService) {
     this.healthCheckResponse = {
       status: 'Unhealthy', //Healthy
       totalDuration: '',
