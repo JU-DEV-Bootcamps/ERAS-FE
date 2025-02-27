@@ -30,6 +30,8 @@ import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-stud
 import { HeatMapService } from './services/heat-map.service';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
+
+import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
 
 @Component({
@@ -318,6 +320,15 @@ export class HeatMapComponent implements OnInit {
     }
 
     return series;
+  }
+  openStudentsDetailsDialog() {
+    this.dialog.open(ModalRiskStudentsDetailComponent, {
+      width: 'clamp(320px, 40vw, 550px)',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+    });
   }
 
   //Show studenta data by variable
