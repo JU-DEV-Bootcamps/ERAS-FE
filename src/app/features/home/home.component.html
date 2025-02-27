@@ -1,67 +1,95 @@
 <div>
   <h1 class="page-title">Home</h1>
   <h2 class="page-subtitle">Overview</h2>
-  <div class="horizontal-cards">
-    <mat-card>
+  <div class="section" style="height: 200px">
+    <mat-card class="link-card">
       <mat-icon>group</mat-icon>
       <mat-card-title>Students</mat-card-title>
-      <mat-card-footer>24</mat-card-footer>
+      <mat-card-footer>{{ students.count }}</mat-card-footer>
     </mat-card>
-    <mat-card>
+    <mat-card class="link-card">
       <mat-icon>file_copy</mat-icon>
       <mat-card-title>Surveys</mat-card-title>
-      <mat-card-footer>3</mat-card-footer>
+      <mat-card-footer>{{ surveys.count }}</mat-card-footer>
     </mat-card>
   </div>
   <h2 class="page-subtitle">Recent Surveys</h2>
   <!-- Todo: Add URL PARAM to send last days -->
-  <a routerLink="/list-polls-by-lastDays">View all surveys</a>
-  <mat-card class="example-card" appearance="outlined">
+  <a class="link" routerLink="/list-polls-by-lastDays">View all surveys</a>
+  <mat-card class="summary-section" appearance="outlined">
     <mat-card-header>
-      <!-- <div mat-card-avatar class="example-header-image"></div> -->
-      <mat-card-title>{{ latestSurveyTitle }}</mat-card-title>
-      <mat-card-subtitle>{{ version }}</mat-card-subtitle>
+      <mat-card-title>{{ lastPoll.title }}</mat-card-title>
+      <mat-card-subtitle
+        style="color: cadetblue; text-decoration: underline; cursor: pointer"
+        >{{ lastPoll.version }}</mat-card-subtitle
+      >
     </mat-card-header>
-    <div
-      class="survey-summary"
-      style="display: flex; justify-content: space-around"
-    >
+    <div class="entity-summary">
       <ul>
-        <p>Published:</p>
-        <span>{{ published }}</span>
-        <p>Deadline:</p>
-        <span>{{ deadline }}</span>
+        <li style="display: flex; align-items: center">
+          <p style="font-weight: bolder; margin-right: 10px">Published:</p>
+          <span>{{ lastPoll.publishedDate }}</span>
+        </li>
+        <li style="display: flex; align-items: center">
+          <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
+          <span>{{ lastPoll.deadlineDate }}</span>
+        </li>
       </ul>
-      <mat-card>
-        <mat-card-title>Surveys Completed</mat-card-title>
-        <mat-card-footer>23/32</mat-card-footer>
-      </mat-card>
-      <mat-card>
-        <mat-card-title>Students at risk</mat-card-title>
-        <mat-card-footer>3</mat-card-footer>
-      </mat-card>
+      <div style="display: flex; width: 90%">
+        <mat-card class="summary-card">
+          <mat-card-title>Surveys Completed</mat-card-title>
+          <mat-card-footer>{{ lastPoll.progress }}</mat-card-footer>
+        </mat-card>
+        <mat-card class="summary-card">
+          <mat-card-title>Students at risk</mat-card-title>
+          <mat-card-footer>{{ lastPoll.riskStudents }}</mat-card-footer>
+        </mat-card>
+      </div>
     </div>
-    <div class="graphics" style="display: flex; width: 100%">
-      <mat-card>
-        <mat-card-title>Results Summary</mat-card-title>
-        <app-summary-survey></app-summary-survey>
+    <div class="entity-summary">
+      <mat-card class="chart-card">
+        <mat-card-title style="text-align: center"
+          >Results Summary</mat-card-title
+        >
+        <app-summary-survey style="width: 90%"></app-summary-survey>
       </mat-card>
-      <mat-card>
-        <mat-card-title>Survey Average</mat-card-title>
-        <app-pie-chart></app-pie-chart>
+      <mat-card class="chart-card">
+        <mat-card-title style="text-align: center"
+          >Survey Average</mat-card-title
+        >
+        <div class="overlaped">
+          <p class="front-result">{{ lastPoll.average }}</p>
+          <app-pie-chart class="back-result"></app-pie-chart>
+        </div>
       </mat-card>
     </div>
     <mat-card-actions>
-      <button mat-stroked-button>View More</button>
+      <button mat-stroked-button (click)="redirectToLastSurvey()">
+        View More
+      </button>
     </mat-card-actions>
   </mat-card>
   <h2 class="page-subtitle">Connected Services</h2>
-  <mat-card>
-    <mat-card-title>Cosmic Latte</mat-card-title>
-    <mat-icon>local_drink</mat-icon>
-    <mat-card-actions>
-      <button mat-stroked-button><mat-icon>check</mat-icon></button>
-      <button mat-stroked-button><mat-icon>settings</mat-icon></button>
-    </mat-card-actions>
-  </mat-card>
+  <div class="section">
+    <mat-card class="link-card">
+      <mat-card-title>Cosmic Latte</mat-card-title>
+      <mat-icon
+        style="color: #9064b9; font-size: 64px; width: 100px; height: 80px"
+        >local_drink</mat-icon
+      >
+      <mat-card-actions
+        style="
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          margin-top: -15px;
+        "
+      >
+        <mat-icon>check</mat-icon>
+        <button mat-mini-fab aria-label="Service Settings">
+          <mat-icon>settings</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
 </div>

@@ -6,14 +6,14 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class PollsService {
+export class StudentService {
   private apiUrl = environment.apiUrl;
-  private endpoint = 'api/v1/Polls';
+  private endpoint = 'api/v1/Students';
 
   constructor(private http: HttpClient) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getPollsByCohortId(cohortId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
+  getStudentsCount(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }
 }

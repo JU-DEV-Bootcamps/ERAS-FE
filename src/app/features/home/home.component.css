@@ -1,13 +1,79 @@
-.example-card {
-  max-width: 80%;
+.section {
+  display: flex;
+  width: 100%;
 }
 
-.horizontal-cards {
-  display: flex;
-  width: 80%;
-  justify-content: space-evenly;
+.link:hover {
+  cursor: pointer;
+  color: #008581;
+  text-decoration: underline;
 }
-.example-header-image {
-  background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
+.summary-section {
+  margin-top: 20px;
+  display: flex;
+  width: 90%;
+}
+
+.link-card {
+  margin: 25px;
+  width: 150px;
+  height: 150px;
+  display: block;
+  justify-items: center;
+  align-content: center;
+  color: #008581;
+  background-color: #e5f4f2;
+  text-align: center;
+  cursor: pointer;
+}
+
+.summary-card {
+  margin: 5%;
+  width: 120px;
+  height: 120px;
+  display: block;
+  justify-items: center;
+  align-content: center;
+  color: #008581;
+  background-color: #e5f4f2;
+  text-align: center;
+}
+
+.chart-card {
   background-size: cover;
+  width: 47%;
+  height: 400px;
+  color: #008581;
+  margin-top: 15px;
+  background-color: #e5f4f2;
+}
+.entity-summary {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  color: #008581;
+  font-size: large;
+}
+
+.services-card {
+  max-width: 100%;
+  color: #008581;
+}
+
+.overlaped {
+  display: block;
+  align-items: center;
+  justify-content: center;
+}
+.front-result {
+  font-weight: bolder;
+  font-size: 64px;
+  margin: 0px;
+  height: 30px;
+  text-align: center;
+  color: #008581;
+}
+.back-result {
+  color: #008581;
 }

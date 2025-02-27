@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -12,8 +13,19 @@ export class PollService {
 
   constructor(private http: HttpClient) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getDataPollList(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}`);
+  }
+
+  getPollsByCohortId(cohortId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
+  }
+
+  getPollCount(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
+  }
+
+  getLastPoll(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/last`);
   }
 }
