@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 export class PollService {
   private apiUrl = environment.apiUrl;
   private endpoint = 'api/v1/Polls';
+  private cosmicLattePath = 'api/v1/CosmicLatte/polls';
 
   constructor(private http: HttpClient) {}
 
@@ -27,5 +28,8 @@ export class PollService {
 
   getLastPoll(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/last`);
+  }
+  savePollsCosmicLattePreview(data: any) {
+    return this.http.post(`${this.apiUrl}/${this.cosmicLattePath}`, data);
   }
 }

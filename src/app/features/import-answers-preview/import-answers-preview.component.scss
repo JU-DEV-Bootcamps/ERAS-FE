@@ -1,0 +1,86 @@
+@use './../../../styles/utils/index.scss' as main-styles;
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}
+.container {
+  padding: 0 18px;
+  margin-top: 60px;
+  .poll-card {
+    border-radius: 25px;
+    .subtitle {
+      color: main-styles.get-color(neutral, 0);
+      font-size: main-styles.get-font-size(headline, small);
+      font-weight: main-styles.get-font-weight(semi-bold);
+      text-align: center;
+    }
+    .pollHeaderContainer {
+      display: flex;
+      justify-content: space-evenly;
+      span {
+        width: 50%;
+        .subtitle-card {
+          font-weight: main-styles.get-font-weight(bold);
+        }
+        ul {
+          list-style: none;
+        }
+      }
+    }
+  }
+  .studentDetails {
+    margin-top: 40px;
+    padding-bottom: 40px;
+    .studentQuantities {
+      width: 100%;
+      display: flex;
+      justify-content: end;
+      p {
+        margin: 0;
+        color: main-styles.get-color(neutral, 25);
+      }
+    }
+    .buttonContainer {
+      margin-top: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+    }
+  }
+}
+.custom-slide-toggle {
+  transform: scale(0.85);
+}
+.subtitle {
+  margin: 0px;
+  font-weight: 700;
+  padding: 0px 10px;
+  margin: 10px 0px;
+}
+
+.card-container {
+  padding: 0px 10px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: grid;
+  gap: 10px;
+}
+
+.row-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field {
+  font-weight: 400;
+  margin: 5px 0px;
+}
+
+.information {
+  font-weight: 550;
+  margin: 5px 0px;
+}

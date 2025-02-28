@@ -1,49 +1,134 @@
-import { Component, inject, model, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
-  MAT_DIALOG_DATA,
   MatDialogActions,
   MatDialogContent,
+  MatDialogModule,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import {
+  Components,
   ComponentValueType,
   RiskStudentDetailType,
 } from '../types/risk-students-detail.type';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { RISK_COLORS, RiskColorType } from '../../../core/constants/heat-map';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { debounceTime, filter, tap } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-modal-risk-students-detail',
   imports: [
     MatButtonModule,
-    MatDialogTitle,
+    MatDialogModule,
     MatDialogContent,
     MatDialogActions,
-    MatChipsModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressBarModule,
+    MatTableModule,
   ],
   templateUrl: './modal-risk-students-detail.component.html',
   styleUrl: './modal-risk-students-detail.component.scss',
 })
 export class ModalRiskStudentsDetailComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<ModalRiskStudentsDetailComponent>);
-  readonly data = inject<{ component: ComponentValueType }>(MAT_DIALOG_DATA);
-  readonly component = model(this.data.component);
+
+  columns = ['studentId', 'studentName', 'riskLevel', 'actions'];
 
   heatMapService = inject(HeatMapService);
 
   riskStudentsDetail: RiskStudentDetailType[] = [];
 
+  components = [
+    {
+      name: 'Académico',
+      value: Components.ACADEMIC,
+    },
+    {
+      name: 'Individual',
+      value: Components.INDIVIDUAL,
+    },
+    {
+      name: 'Familiar',
+      value: Components.FAMILIAR,
+    },
+    {
+      name: 'Económico',
+      value: Components.SOCIO_ECONOMIC,
+    },
+  ];
+
+  form = new FormGroup({
+    component: new FormControl<ComponentValueType | null>(
+      null,
+      Validators.required
+    ),
+    limit: new FormControl<number | null>(null, [
+      Validators.pattern('^[1-9]*$'),
+      Validators.min(1),
+    ]),
+  });
+
+  isLoading = false;
+
+  get formLimit() {
+    return this.form.get('limit');
+  }
+
+  get formComponent() {
+    return this.form.get('component');
+  }
+
   ngOnInit(): void {
-    this.heatMapService
-      .getStudentHeatMapDetails(this.component())
-      .subscribe(data => {
-        this.riskStudentsDetail = data;
+    this.form.valueChanges
+      .pipe(
+        filter(() => {
+          const valid =
+            this.form.get('component')?.valid && this.form.get('limit')?.valid;
+
+          return valid ?? false;
+        }),
+        tap(() => (this.isLoading = true)),
+        debounceTime(500)
+      )
+      .subscribe(formValue => {
+        this.findStudentsByComponent(formValue.component!, formValue.limit);
       });
   }
 
   onNoClick(): void {
     this.dialogRef.close();
+  }
+
+  findStudentsByComponent(
+    component: ComponentValueType,
+    limit?: number | null
+  ) {
+    this.isLoading = true;
+    this.heatMapService
+      .getStudentHeatMapDetails(component, limit)
+      .subscribe(data => {
+        this.isLoading = false;
+        this.riskStudentsDetail = data;
+      });
+  }
+
+  getColorRisk(riskLevel: RiskColorType) {
+    return RISK_COLORS[riskLevel] || RISK_COLORS.default;
   }
 }
