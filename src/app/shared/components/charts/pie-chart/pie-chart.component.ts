@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { riskLevels } from '../constants';
 
 @Component({
   selector: 'app-pie-chart',
@@ -9,14 +10,17 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 })
 export class PieChartComponent {
   public chartOptions: ApexOptions = {};
-
+  series = input([12, 5, 3, 2, 1]);
+  categories = input(riskLevels.map(r => r.name));
+  colors = input(riskLevels.map(r => r.color));
   constructor() {
     this.chartOptions = {
-      series: [12, 5, 3, 2, 1],
+      series: this.series(),
       chart: {
         type: 'donut',
       },
-      labels: ['Critic', 'High', 'Medium', 'Low', 'No Risk'],
+      labels: this.categories(),
+      colors: this.colors(),
       responsive: [
         {
           breakpoint: 480,

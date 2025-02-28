@@ -11,6 +11,7 @@
 .summary-section {
   margin-top: 20px;
   display: flex;
+  flex-wrap: nowrap;
   width: 90%;
 }
 
@@ -22,30 +23,28 @@
   justify-items: center;
   align-content: center;
   color: #008581;
-  background-color: #e5f4f2;
+  background-color: #f4f0ef;
   text-align: center;
   cursor: pointer;
 }
 
 .summary-card {
   margin: 5%;
-  width: 120px;
-  height: 120px;
+  max-width: 120px;
+  max-height: 120px;
   display: block;
   justify-items: center;
-  align-content: center;
   color: #008581;
-  background-color: #e5f4f2;
+  background-color: #f4f0ef;
   text-align: center;
 }
 
 .chart-card {
   background-size: cover;
   width: 47%;
-  height: 400px;
   color: #008581;
   margin-top: 15px;
-  background-color: #e5f4f2;
+  background-color: #f4f0ef;
 }
 .entity-summary {
   display: flex;

@@ -7,22 +7,22 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import { AppComponent } from '../../shared/components/charts/summary-survey/summary-survey.component';
+import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../../shared/components/charts/pie-chart/pie-chart.component';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PollService } from '../../core/services/poll.service';
 import { StudentService } from '../../core/services/student.service';
 
 const studentsPlaceholder = {
   count: 23,
 };
-const surveysPLaceholder = {
+const pollsPLaceholder = {
   count: 3,
 };
-const lastSurveyPlaceholder = {
+const lastPollPlaceholder = {
   id: 1,
   title: 'Encuesta de Caracterizacion',
-  version: 'latest',
+  version: '#latest',
   progress: '23/32',
   publishedDate: '10/10/2024',
   deadlineDate: '01/03/2025',
@@ -36,8 +36,9 @@ const lastSurveyPlaceholder = {
     MatCardModule,
     MatButtonModule,
     MatIcon,
-    AppComponent,
+    BarChartComponent,
     PieChartComponent,
+    RouterLink,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
@@ -45,8 +46,8 @@ const lastSurveyPlaceholder = {
 })
 export class HomeComponent implements OnInit {
   students = studentsPlaceholder;
-  surveys = surveysPLaceholder;
-  lastPoll = lastSurveyPlaceholder;
+  polls = pollsPLaceholder;
+  lastPoll = lastPollPlaceholder;
 
   router = inject(Router);
   studentService = inject(StudentService);
@@ -59,7 +60,7 @@ export class HomeComponent implements OnInit {
 
   loadPollsSummary(): void {
     this.pollService.getPollCount().subscribe(count => {
-      this.surveys.count = count;
+      this.polls.count = count;
     });
     this.pollService.getLastPoll().subscribe(data => {
       this.lastPoll = data;
@@ -72,7 +73,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  redirectToLastSurvey() {
+  redirectToLastPoll() {
     this.router.navigate([`polls/${this.lastPoll.id}`]);
   }
 }
