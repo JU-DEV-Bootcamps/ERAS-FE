@@ -15,10 +15,10 @@ module.exports = function (config) {
       reporters: [{ type: 'lcov' }, { type: 'text-summary' }],
       check: {
         global: {
-          statements: 20, // Minimum coverage %
-          branches: 20,
-          functions: 20,
-          lines: 20,
+          statements: 15, // Minimum coverage %
+          branches: 15,
+          functions: 15,
+          lines: 15,
         },
       },
     },

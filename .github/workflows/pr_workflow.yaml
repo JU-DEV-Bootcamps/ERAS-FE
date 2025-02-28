@@ -36,16 +36,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Set variables
-        id: set-vars
-        run: |
-          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
-          SHORT_SHA=$(git rev-parse --short $GITHUB_SHA)
-          LAST_TAG=$(git describe --tags --abbrev=0)
-          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
-          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
-          echo "LAST_TAG=${LAST_TAG}" >> $GITHUB_ENV
       - name: Build Docker image
         run: |
           cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
-          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-dev .
+          docker build -t test-build-image .
