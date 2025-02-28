@@ -1,0 +1,69 @@
+<div>
+  <h2 class="page-title">Student Name</h2>
+  <h4 class="page-subtitle">email.student.com</h4>
+  <h4 class="page-ssid">SSID</h4>
+</div>
+
+<div class="container">
+  <div class="card">
+    <p>Enrolled Courses: -</p>
+    <p>Graded Courses: -</p>
+    <p>Timely Submissions: -</p>
+    <p>Average Score: -</p>
+    <p>Courses Below Average: -</p>
+    <p>Raw Score Difference: -</p>
+    <p>Standard Score Difference: -</p>
+    <p>Days Since Last Access: -</p>
+  </div>
+  <section class="main">
+    <div class="card">
+      <h3>Risk by Components</h3>
+      <p>Last update: 10/01/2025</p>
+      <div class="chart-container" #chart>
+        <apx-chart
+          [series]="chartOptions.series!"
+          [chart]="chartOptions.chart!"
+          [xaxis]="chartOptions.xaxis!"
+          [yaxis]="chartOptions.yaxis!"
+          [colors]="chartOptions.colors!"
+          [plotOptions]="chartOptions.plotOptions!"
+          [title]="chartOptions.title!"
+          [tooltip]="chartOptions.tooltip!"
+        >
+        </apx-chart>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="alternate-container">
+  <div class="card">
+    <h3>Students at risk by month</h3>
+    <p>Last update: 10/01/2025</p>
+    <div class="chart-container" #chart>
+      <apx-chart
+        [series]="risk_by_month_chart.series!"
+        [chart]="risk_by_month_chart.chart!"
+        [xaxis]="risk_by_month_chart.xaxis!"
+        [yaxis]="risk_by_month_chart.yaxis!"
+        [colors]="risk_by_month_chart.colors!"
+        [plotOptions]="risk_by_month_chart.plotOptions!"
+        [title]="risk_by_month_chart.title!"
+        [tooltip]="risk_by_month_chart.tooltip!"
+      >
+      </apx-chart>
+    </div>
+  </div>
+  <section class="main">
+    <div class="card">
+      <h3>Timely Submissions</h3>
+      <p>Last update: 10/01/2025</p>
+      <div class="chart"></div>
+    </div>
+    <div class="card">
+      <h3>Timely Submissions</h3>
+      <p>Last update: 10/01/2025</p>
+      <div class="chart"></div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,75 @@
+@use './../../../styles/utils/index.scss' as main-styles;
+
+.page-title {
+    text-align: left;
+    display: flex;
+    margin: 0px;
+    font-weight: main-styles.get-font-weight('medium');
+    font-size: main-styles.get-font-size('title', 'large');
+    padding: 0px 10px;
+    margin: 10px 0px;
+}
+
+.page-subtitle {
+    text-align: left;
+    display: flex;
+    margin: 0px;
+    font-weight: main-styles.get-font-weight('regular');
+    font-size: main-styles.get-font-size('title', 'medium');
+    padding: 0px 10px;
+    margin: 10px 0px;
+}
+
+.page-ssid {
+    text-align: left;
+    display: flex;
+    margin: 0px;
+    font-size: main-styles.get-font-size('label', 'small');
+    font-weight: main-styles.get-font-weight('regular');
+    padding: 0px 10px;
+    margin: 10px 0px;
+}
+
+.sidebar {
+    background: main-styles.get-color('neutral', 98);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 20px;
+}
+
+.alternate-container{
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.main {
+    display: grid;
+    gap: 20px;
+}
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.chart {
+    height: 200px;
+    background: #e0f7f9;
+    border-radius: 10px;
+}
+.cohort {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #e8dff5;
+    padding: 15px;
+    border-radius: 10px;
+}
+
