@@ -2,9 +2,6 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
   workflow_dispatch:
 jobs:
   test:
@@ -29,13 +26,7 @@ jobs:
       - name: Run tests
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage
-
-  package:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,21 +42,5 @@ jobs:
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
           echo "LAST_TAG=${LAST_TAG}" >> $GITHUB_ENV
-      - name: Replace environment variables
-        run: |
-          cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
-          sed -i "s|__API_URL__|${{ vars.API_URL }}|g" src/environments/environment.production.ts
-          sed -i "s|__KEYCLOAK_URL__|${{ vars.KEYCLOAK_URL }}|g" src/environments/environment.production.ts
-          sed -i "s|__CLIENT_ID__|${{ vars.CLIENT_ID }}|g" src/environments/environment.production.ts
-          sed -i "s|__WEB_URL__|${{ vars.WEB_URL }}|g" src/environments/environment.production.ts
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-dev
+      - name: Build Docker image
+        run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-dev .
