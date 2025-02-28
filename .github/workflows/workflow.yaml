@@ -27,7 +27,14 @@ jobs:
           chrome-version: 'latest'
 
       - name: Run tests
-        run: npm run test -- --watch=false --browsers=ChromeHeadless
+        run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+
   package:
     runs-on: ubuntu-latest
     steps:
