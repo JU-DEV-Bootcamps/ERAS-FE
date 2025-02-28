@@ -1,19 +1,19 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { TitleCasePipe } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
+import { TableComponent } from '../../shared/components/table/table.component';
 
 @Component({
   selector: 'app-list-imported-student',
   imports: [
     MatProgressSpinnerModule,
     MatTableModule,
-    TitleCasePipe,
     MatPaginatorModule,
     MatCardModule,
+    TableComponent,
   ],
   templateUrl: './list-imported-student.component.html',
   styleUrl: './list-imported-student.component.scss',
@@ -34,12 +34,6 @@ export class ListImportedStudentComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadStudents();
-    this.checkScreenSize();
-  }
-
-  @HostListener('window:resize', [])
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
   }
 
   loadStudents(): void {
