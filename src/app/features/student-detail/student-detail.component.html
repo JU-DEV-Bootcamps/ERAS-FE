@@ -1,24 +1,30 @@
-<div>
-  <h2 class="page-title">Student Name</h2>
-  <h4 class="page-subtitle">email.student.com</h4>
-  <h4 class="page-ssid">SSID</h4>
+<div class="student-header">
+  <div class="student-info">
+    <h2 class="page-title">Student Name</h2>
+    <h4 class="page-subtitle">email.student.com</h4>
+    <h4 class="page-ssid">SSID</h4>
+  </div>
+  <button mat-icon-button color="primary" (click)="printStudentInfo()">
+    <mat-icon>print</mat-icon>
+  </button>
 </div>
 
+
 <div class="container">
-  <div class="card">
-    <p>Enrolled Courses: -</p>
-    <p>Graded Courses: -</p>
-    <p>Timely Submissions: -</p>
-    <p>Average Score: -</p>
-    <p>Courses Below Average: -</p>
-    <p>Raw Score Difference: -</p>
-    <p>Standard Score Difference: -</p>
-    <p>Days Since Last Access: -</p>
-  </div>
+  <mat-card class="card-details">
+    <p>Enrolled Courses: {{studentDetails.entity.enrolledCourses}}</p>
+    <p>Graded Courses: {{studentDetails.entity.gradedCourses}}</p>
+    <p>Timely Submissions: {{studentDetails.entity.timeDeliveryRate}}</p>
+    <p>Average Score: {{studentDetails.entity.avgScore}}</p>
+    <p>Courses Below Average: {{studentDetails.entity.coursesUnderAvg}}</p>
+    <p>Raw Score Difference: {{studentDetails.entity.pureScoreDiff}}</p>
+    <p>Standard Score Difference: {{studentDetails.entity.standardScoreDiff}}</p>
+    <p>Days Since Last Access: {{studentDetails.entity.lastAccessDays}}</p>
+  </mat-card>
   <section class="main">
-    <div class="card">
-      <h3>Risk by Components</h3>
-      <p>Last update: 10/01/2025</p>
+    <mat-card class="card-risk-by-components">
+      <h3 class="title-risk-by-components">Risk by Components</h3>
+      <p class="date-risk-by-components">Last update: 10/01/2025</p>
       <div class="chart-container" #chart>
         <apx-chart
           [series]="chartOptions.series!"
@@ -32,12 +38,12 @@
         >
         </apx-chart>
       </div>
-    </div>
+    </mat-card>
   </section>
 </div>
 
 <div class="alternate-container">
-  <div class="card">
+  <mat-card class="card">
     <h3>Students at risk by month</h3>
     <p>Last update: 10/01/2025</p>
     <div class="chart-container" #chart>
@@ -53,17 +59,28 @@
       >
       </apx-chart>
     </div>
-  </div>
+  </mat-card>
   <section class="main">
-    <div class="card">
-      <h3>Timely Submissions</h3>
-      <p>Last update: 10/01/2025</p>
-      <div class="chart"></div>
-    </div>
-    <div class="card">
-      <h3>Timely Submissions</h3>
-      <p>Last update: 10/01/2025</p>
-      <div class="chart"></div>
-    </div>
+    <mat-card class="card">
+      <div class="cohort-card-data">
+        <p class="cohort-p-strong">Cohort Name</p>
+        <p class="cohort-p-light">2025-01-06</p>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="cohort-card-data">
+        <div class="cohort-poll-item">
+          <p class="cohort-p-light">Number of polls</p>
+          <p class="cohort-p-strong">10</p>
+        </div>
+        <div class="cohort-poll-item">
+          <p class="cohort-p-light">Polls with risks</p>
+          <p class="cohort-p-strong">5</p>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="card-actions">
+        <button mat-button>View Details</button>
+      </div>
+    </mat-card>
   </section>
 </div>

@@ -1,14 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ApexOptions } from 'ng-apexcharts';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatCardModule } from '@angular/material/card';
+import { StudentService } from '../../core/services/student.service';
+import { StudentDetails } from '../../shared/models/student/studentDetails.model';
 
 @Component({
   selector: 'app-student-detail',
-  imports: [NgApexchartsModule],
+  imports: [
+    NgApexchartsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatCardModule,
+  ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
 })
-export class StudentDetailComponent {
+export class StudentDetailComponent implements OnInit {
+  studentDetails: StudentDetails = {} as StudentDetails;
+  studentService = inject(StudentService);
+  
+
   public chartOptions: ApexOptions = {
     chart: {
       type: 'bar',
@@ -146,4 +162,19 @@ export class StudentDetailComponent {
       },
     },
   };
+
+  ngOnInit(): void {
+    this.getStudentDetails('26');
+  }
+
+  getStudentDetails(studentId:string) {
+    this.studentService.getStudentDetailsById(studentId).subscribe({
+      next: (data: StudentDetails) => {
+        this.studentDetails = data;
+      },
+      error: error => {},
+    });
+  }
+
+  printStudentInfo() {}
 }
