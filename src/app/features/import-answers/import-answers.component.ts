@@ -1,34 +1,54 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
 import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
   Validators,
+  FormsModule,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CostmicLatteService } from '../../core/services/cosmic-latte.service';
-import { DatePipe } from '@angular/common';
+import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
+import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import {
   IMPORT_MESSAGES,
   GENERAL_MESSAGES,
 } from '../../core/constants/messages';
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-import-answers',
   imports: [
     MatFormFieldModule,
+    MatTableModule,
+    MatPaginatorModule,
     MatInputModule,
     MatDatepickerModule,
     MatButtonModule,
     ReactiveFormsModule,
     MatProgressSpinnerModule,
+    MatCardModule,
+    MatSelectModule,
+    FormsModule,
+    NgIf,
+    AsyncPipe,
+    ImportAnswersPreviewComponent,
   ],
   templateUrl: './import-answers.component.html',
   styleUrl: './import-answers.component.css',
@@ -37,12 +57,23 @@ import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialo
 })
 export class ImportAnswersComponent {
   form: FormGroup;
-  isLoading: boolean;
+
+  loadingSubject = new BehaviorSubject<boolean>(true);
+  isLoading$ = this.loadingSubject.asObservable();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pollsNames: any = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  importedPollData: any = [];
+  columns = ['#', 'name', 'email', 'cohort', 'actions'];
+  students = [];
+
+  isMobile = false;
 
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private cosmicLatteService: CostmicLatteService,
+    private cosmicLatteService: CosmicLatteService,
     private datePipe: DatePipe
   ) {
     this.form = this.fb.group({
@@ -50,7 +81,13 @@ export class ImportAnswersComponent {
       start: '',
       end: '',
     });
-    this.isLoading = false;
+    this.getPollDetails();
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize', [])
+  checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
   }
 
   private openDialog(descriptionMessage: string, isSuccess: boolean): void {
@@ -77,39 +114,70 @@ export class ImportAnswersComponent {
       },
     });
   }
-
   onSubmit() {
     if (this.form.invalid) return;
-
     const name = this.form.value.surveyName.trim();
-    const startDate = this.formatDate(new Date(this.form.value.start));
-    const endDate = this.formatDate(new Date(this.form.value.end));
+    const startDate = this.form.value.start
+      ? this.formatDate(new Date(this.form.value.start))
+      : null;
+    const endDate = this.form.value.end
+      ? this.formatDate(new Date(this.form.value.end))
+      : null;
 
-    this.isLoading = true;
-
+    this.loadingSubject.next(true);
     this.cosmicLatteService
       .importAnswerBySurvey(name, startDate, endDate)
       .subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.openDialog(IMPORT_MESSAGES.ANSWERS_SUCCESS, true);
+        next: (data: PollInstance[]) => {
+          this.importedPollData = data;
+          this.loadingSubject.next(false);
           this.resetForm();
+          if (data.length < 1) {
+            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY, true);
+          } else {
+            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_OK, true);
+          }
         },
         error: () => {
-          this.isLoading = false;
+          this.loadingSubject.next(false);
           this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
           this.resetForm();
         },
       });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleSavePollState(event: any) {
+    if (event.state == 'pending') {
+      this.loadingSubject.next(true);
+    } else if (event.state == 'true') {
+      this.loadingSubject.next(false);
+      this.importedPollData = [];
+      this.openDialog('Polls saved successfully!', true);
+    } else {
+      this.loadingSubject.next(false);
+      this.openDialog('Error saving polls. Please try again.', false);
+    }
+  }
+  getPollDetails() {
+    this.cosmicLatteService.getPollNames().subscribe({
+      next: data => {
+        this.pollsNames = data;
+        this.loadingSubject.next(false);
+      },
+      error: () => {
+        this.loadingSubject.next(false);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
+        this.resetForm();
+      },
+    });
+  }
   formatDate(date: Date): string {
     if (isNaN(date.getTime())) {
       return '';
     }
     return this.datePipe.transform(date, 'yyyy-MM-dd') || '';
   }
-
   resetForm() {
     this.form.reset();
     this.form.markAsPristine();
