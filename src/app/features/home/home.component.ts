@@ -59,17 +59,15 @@ export class HomeComponent implements OnInit {
   }
 
   loadPollsSummary(): void {
-    this.pollService.getPollCount().subscribe(count => {
-      this.polls.count = count;
-    });
-    this.pollService.getLastPoll().subscribe(data => {
-      this.lastPoll = data;
+    this.pollService.getDataPollList().subscribe(data => {
+      this.polls.count = data.length;
+      this.lastPoll = data[0];
     });
   }
 
   loadStudentsSummary(): void {
-    this.studentService.getStudentsCount().subscribe(count => {
-      this.students.count = count;
+    this.studentService.getStudentsCount().subscribe(data => {
+      this.students.count = data;
     });
   }
 

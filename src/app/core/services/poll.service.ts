@@ -22,13 +22,6 @@ export class PollService {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
   }
 
-  getPollCount(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
-  }
-
-  getLastPoll(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/last`);
-  }
   savePollsCosmicLattePreview(data: any) {
     return this.http.post(`${this.apiUrl}/${this.cosmicLattePath}`, data);
   }
