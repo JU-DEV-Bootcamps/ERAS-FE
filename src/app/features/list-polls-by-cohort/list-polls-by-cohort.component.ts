@@ -19,7 +19,6 @@ import { PollsService } from '../../core/services/polls.service';
 import { Router } from '@angular/router';
 import { cohort } from '../../shared/models/cohort/cohort.model';
 
-
 @Component({
   selector: 'app-list-polls-by-cohort',
   imports: [
@@ -66,11 +65,13 @@ export class ListPollsByCohortComponent implements OnInit {
       next: (cohorts: cohort[]) => {
         this.cohortsData = cohorts;
         this.selectedCohort = cohorts[0];
-        this.cohortFormGroup.get('cohortId')?.setValue(this.selectedCohort.id.toString()); 
+        this.cohortFormGroup
+          .get('cohortId')
+          ?.setValue(this.selectedCohort.id.toString());
       },
-      error: (error) => {
-        
-      }
+      error: error => {
+        console.log(error);
+      },
     });
   }
 

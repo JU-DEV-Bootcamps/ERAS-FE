@@ -1,6 +1,6 @@
 export interface Audit {
-    createdBy: string;
-    modifiedBy: string;
-    createdAt: string;
-    modifiedAt: string;
+  createdBy: string;
+  modifiedBy: string;
+  createdAt: string;
+  modifiedAt: string;
 }

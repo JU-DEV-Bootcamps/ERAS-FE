@@ -9,17 +9,18 @@
   </button>
 </div>
 
-
 <div class="container">
   <mat-card class="card-details">
-    <p>Enrolled Courses: {{studentDetails.entity.enrolledCourses}}</p>
-    <p>Graded Courses: {{studentDetails.entity.gradedCourses}}</p>
-    <p>Timely Submissions: {{studentDetails.entity.timeDeliveryRate}}</p>
-    <p>Average Score: {{studentDetails.entity.avgScore}}</p>
-    <p>Courses Below Average: {{studentDetails.entity.coursesUnderAvg}}</p>
-    <p>Raw Score Difference: {{studentDetails.entity.pureScoreDiff}}</p>
-    <p>Standard Score Difference: {{studentDetails.entity.standardScoreDiff}}</p>
-    <p>Days Since Last Access: {{studentDetails.entity.lastAccessDays}}</p>
+    <p>Enrolled Courses: {{ studentDetails.entity.enrolledCourses }}</p>
+    <p>Graded Courses: {{ studentDetails.entity.gradedCourses }}</p>
+    <p>Timely Submissions: {{ studentDetails.entity.timeDeliveryRate }}</p>
+    <p>Average Score: {{ studentDetails.entity.avgScore }}</p>
+    <p>Courses Below Average: {{ studentDetails.entity.coursesUnderAvg }}</p>
+    <p>Raw Score Difference: {{ studentDetails.entity.pureScoreDiff }}</p>
+    <p>
+      Standard Score Difference: {{ studentDetails.entity.standardScoreDiff }}
+    </p>
+    <p>Days Since Last Access: {{ studentDetails.entity.lastAccessDays }}</p>
   </mat-card>
   <section class="main">
     <mat-card class="card-risk-by-components">

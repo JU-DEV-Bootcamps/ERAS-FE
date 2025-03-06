@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { StudentDetails } from '../../shared/models/student/studentDetails.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StudentService {
   private apiUrl = environment.apiUrl;
@@ -16,7 +16,6 @@ export class StudentService {
   getStudentDetailsById(studentId: string): Observable<StudentDetails> {
     const params = new HttpParams().set('studentId', studentId);
     const url = `${this.apiUrl}/${this.endpoint}/studentId?studentId=${studentId}`;
-    return this.http.get<StudentDetails>(url, {params});
+    return this.http.get<StudentDetails>(url, { params });
   }
-
 }

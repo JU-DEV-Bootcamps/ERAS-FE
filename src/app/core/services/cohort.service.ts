@@ -13,7 +13,6 @@ export class CohortService {
 
   constructor(private http: HttpClient) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getCohorts(): Observable<cohort[]> {
     return this.http.get<cohort[]>(`${this.apiUrl}/${this.endpoint}`);
   }

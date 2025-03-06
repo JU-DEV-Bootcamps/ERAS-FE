@@ -23,7 +23,6 @@ import { StudentDetails } from '../../shared/models/student/studentDetails.model
 export class StudentDetailComponent implements OnInit {
   studentDetails: StudentDetails = {} as StudentDetails;
   studentService = inject(StudentService);
-  
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -167,14 +166,18 @@ export class StudentDetailComponent implements OnInit {
     this.getStudentDetails('26');
   }
 
-  getStudentDetails(studentId:string) {
+  getStudentDetails(studentId: string) {
     this.studentService.getStudentDetailsById(studentId).subscribe({
       next: (data: StudentDetails) => {
         this.studentDetails = data;
       },
-      error: error => {},
+      error: error => {
+        console.log(error);
+      },
     });
   }
 
-  printStudentInfo() {}
+  printStudentInfo() {
+    console.log('To implement the PDF');
+  }
 }
