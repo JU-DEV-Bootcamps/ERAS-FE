@@ -4,7 +4,7 @@ export interface Audit {
   createdAt: string;
   modifiedAt: string;
 }
-interface Student {
+export interface Student {
   id: number;
   uuid: string | null;
   name: string;
@@ -13,12 +13,12 @@ interface Student {
   cohort: Cohort;
   audit: Audit | null;
 }
-interface Cohort {
+export interface Cohort {
   name: string;
   courseCode: string;
   audit: Audit | null;
 }
-interface Answer {
+export interface Answer {
   answer: string;
   score: number;
   pollInstanceId: number;
@@ -26,14 +26,14 @@ interface Answer {
   student: Student;
   audit: Audit | null;
 }
-interface Variable {
+export interface Variable {
   name: string;
   position: number;
   type: string;
   answer: Answer;
   audit: Audit | null;
 }
-interface Component {
+export interface Component {
   name: string;
   variables: Variable[];
   audit: Audit | null;
