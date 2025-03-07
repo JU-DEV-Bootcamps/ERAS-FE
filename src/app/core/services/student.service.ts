@@ -7,22 +7,16 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class PollService {
+export class StudentService {
   private apiUrl = environment.apiUrl;
-  private endpoint = 'api/v1/Polls';
-  private cosmicLattePath = 'api/v1/CosmicLatte/polls';
+  private endpoint = 'api/v1/Students';
 
   constructor(private http: HttpClient) {}
 
-  getAllPolls(): Observable<any> {
+  getAllStudents(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}`);
   }
-
-  getPollsByCohortId(cohortId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
-  }
-
-  savePollsCosmicLattePreview(data: any) {
-    return this.http.post(`${this.apiUrl}/${this.cosmicLattePath}`, data);
+  getAllStudentsCount(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }
 }
