@@ -14,6 +14,6 @@ export class EvaluationProcessService {
   constructor(private http: HttpClient) {}
 
   getEvalProcSummary(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}`);
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
   }
 }
