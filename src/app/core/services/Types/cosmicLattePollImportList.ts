@@ -46,5 +46,5 @@ export interface PollInstance {
   version: string;
   finishedAt: string;
   components: Component[];
-  audit: Audit;
+  audit: Audit | null;
 }

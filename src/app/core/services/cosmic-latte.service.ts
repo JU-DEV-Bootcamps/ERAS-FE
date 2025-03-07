@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
+import { pollNameResponse } from '../../shared/models/pollNameRespose';
 
 @Injectable({
   providedIn: 'root',
@@ -49,12 +50,14 @@ export class CosmicLatteService {
   }
 
   getPollNames() {
-    return this.http.get(`${this.apiUrl}/api/v1/CosmicLatte/polls/names`).pipe(
-      catchError(error => {
-        return throwError(
-          () => new Error('Failed to fetch polls details', error)
-        );
-      })
-    );
+    return this.http
+      .get<pollNameResponse[]>(`${this.apiUrl}/api/v1/CosmicLatte/polls/names`)
+      .pipe(
+        catchError(error => {
+          return throwError(
+            () => new Error('Failed to fetch polls details', error)
+          );
+        })
+      );
   }
 }
