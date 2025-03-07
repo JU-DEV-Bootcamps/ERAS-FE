@@ -8,9 +8,8 @@ describe('TableWithRedirectComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableWithRedirectComponent]
-    })
-    .compileComponents();
+      imports: [TableWithRedirectComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TableWithRedirectComponent);
     component = fixture.componentInstance;
