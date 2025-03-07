@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { riskLevels } from '../constants';
+import { RISK_COLORS, RISK_LABELS } from '../../../../core/constants/riskLevel';
+import { ChartBase } from '../abstract-chart';
 
 @Component({
   selector: 'app-pie-chart',
@@ -8,29 +9,28 @@ import { riskLevels } from '../constants';
   templateUrl: './pie-chart.component.html',
   styleUrl: './pie-chart.component.css',
 })
-export class PieChartComponent {
+export class PieChartComponent extends ChartBase {
   public chartOptions: ApexOptions = {};
-  series = input([12, 5, 3, 2, 1]);
-  categories = input(riskLevels.map(r => r.name));
-  colors = input(riskLevels.map(r => r.color));
+  seriesY = input([12, 5, 3, 2, 12, 6]);
+  colors = input(Object.values(RISK_COLORS));
+  categoriesX = input(Object.values(RISK_LABELS));
+
   constructor() {
+    super();
     this.chartOptions = {
-      series: this.series(),
+      series: this.seriesY(),
       chart: {
         type: 'donut',
       },
-      labels: this.categories(),
+      dataLabels: { enabled: false },
+      labels: this.categoriesX(),
       colors: this.colors(),
+      legend: { show: false },
       responsive: [
         {
           breakpoint: 480,
           options: {
-            chart: {
-              width: 200,
-            },
-            legend: {
-              position: 'bottom',
-            },
+            legend: { show: false },
           },
         },
       ],

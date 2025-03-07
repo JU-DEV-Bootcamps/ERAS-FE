@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -12,8 +13,10 @@ export class StudentService {
 
   constructor(private http: HttpClient) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getStudentsCount(): Observable<any> {
+  getAllStudents(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}`);
+  }
+  getAllStudentsCount(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }
 }

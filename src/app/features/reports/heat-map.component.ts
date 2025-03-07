@@ -223,7 +223,7 @@ export class HeatMapComponent implements OnInit {
   }
 
   loadPollsList(): void {
-    this.pollService.getDataPollList().subscribe(data => {
+    this.pollService.getAllPolls().subscribe(data => {
       this.pollsData = data;
       this.selectedPoll = data[0];
       this.myForm.get('pollUuid')?.setValue(data[0].uuid);

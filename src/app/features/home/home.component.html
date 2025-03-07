@@ -3,14 +3,24 @@
   <h2 class="page-subtitle">Overview</h2>
   <div class="section" style="height: 200px">
     <mat-card class="link-card" routerLink="/list-students-by-poll">
+      <mat-icon>account_balance</mat-icon>
+      <mat-card-title>Cohorts</mat-card-title>
+      <mat-card-footer>{{ cohortsCount }}</mat-card-footer>
+    </mat-card>
+    <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>group</mat-icon>
       <mat-card-title>Students</mat-card-title>
-      <mat-card-footer>{{ students.count }}</mat-card-footer>
+      <mat-card-footer>{{ studentsCount }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
       <mat-icon>file_copy</mat-icon>
       <mat-card-title>Polls</mat-card-title>
-      <mat-card-footer>{{ polls.count }}</mat-card-footer>
+      <mat-card-footer>{{ pollsCount }}</mat-card-footer>
+    </mat-card>
+    <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
+      <mat-icon>insert_chart</mat-icon>
+      <mat-card-title>Evaluations</mat-card-title>
+      <mat-card-footer>{{ pollsCount }}</mat-card-footer>
     </mat-card>
   </div>
   <h2 class="page-subtitle">Recent Polls</h2>
@@ -84,7 +94,11 @@
           margin-top: -15px;
         "
       >
-        <mat-icon>check</mat-icon>
+        @if (healthCheckStatus) {
+          <mat-icon class="check">check</mat-icon>
+        } @else {
+          <mat-icon class="close">close</mat-icon>
+        }
         <button mat-mini-fab aria-label="Service Settings">
           <mat-icon routerLink="/cosmic-latte">settings</mat-icon>
         </button>

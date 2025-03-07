@@ -10,8 +10,10 @@ import { MatIcon } from '@angular/material/icon';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../../shared/components/charts/pie-chart/pie-chart.component';
 import { Router, RouterLink } from '@angular/router';
-import { PollService } from '../../core/services/poll.service';
-import { StudentService } from '../../core/services/student.service';
+import { CohortService } from '../../core/services/cohort.service';
+import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
+import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
+import { EvaluationProcessService } from '../../core/services/evaluation-process.service';
 
 const studentsPlaceholder = {
   count: 23,
@@ -46,28 +48,46 @@ const lastPollPlaceholder = {
 })
 export class HomeComponent implements OnInit {
   students = studentsPlaceholder;
+  studentsCount: string | number = '?';
+  cohortsCount: string | number = '?';
+  pollsCount: string | number = '?';
+  pollsInstanceCount: string | number = '?';
+  evaluationsCount: string | number = '?';
   polls = pollsPLaceholder;
   lastPoll = lastPollPlaceholder;
+  healthCheckRes: HealthCheckResponse | null = null;
+  healthCheckStatus = false;
 
   router = inject(Router);
-  studentService = inject(StudentService);
-  pollService = inject(PollService);
+  cohortsService = inject(CohortService);
+  evalService = inject(EvaluationProcessService);
+  clService = inject(CosmicLatteService);
 
   ngOnInit(): void {
-    this.loadPollsSummary();
-    this.loadStudentsSummary();
+    this.loadEvalProcSummary();
+    this.loadCohortsSummary();
+    this.healthCheck();
   }
 
-  loadPollsSummary(): void {
-    this.pollService.getDataPollList().subscribe(data => {
-      this.polls.count = data.length;
-      this.lastPoll = data[0];
+  loadEvalProcSummary(): void {
+    this.evalService.getEvalProcSummary().subscribe(data => {
+      this.pollsCount = data.polls.count;
+      this.pollsInstanceCount = data.pollInstances.count;
     });
   }
 
-  loadStudentsSummary(): void {
-    this.studentService.getStudentsCount().subscribe(data => {
-      this.students.count = data;
+  loadCohortsSummary(): void {
+    this.cohortsService.getCohortsSummary().subscribe(data => {
+      this.cohortsCount = data.cohorts.count;
+      this.studentsCount = data.students.count;
+    });
+  }
+
+  healthCheck() {
+    this.clService.healthCheck().subscribe(response => {
+      this.healthCheckStatus =
+        response.entries.cosmicLatteApi.status === 'Healthy';
+      this.healthCheckRes = response;
     });
   }
 
