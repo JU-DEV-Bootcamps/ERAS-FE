@@ -13,7 +13,7 @@
       <p>
         <button
           mat-button
-          (click)="redirectReports()"
+          (click)="redirect('heat-map')"
           class="custom-nav-button"
         >
           <mat-icon>pie_chart_outline</mat-icon>
@@ -41,7 +41,7 @@
           <button
             mat-button
             class="custom-button-style"
-            (click)="redirectListStudents()"
+            (click)="redirect('list-students-by-poll')"
           >
             <mat-icon>school</mat-icon>
             Students
