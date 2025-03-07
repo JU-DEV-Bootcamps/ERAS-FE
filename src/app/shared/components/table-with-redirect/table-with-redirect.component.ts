@@ -30,6 +30,7 @@ export class TableWithRedirectComponent implements OnInit {
   @Input() uuidField = '';
   @Input() redirectPath = '';
   @Input() itemStorage = '';
+  @Input() icon = '';
 
   isMobile = false;
   totalItems = 0;
