@@ -79,30 +79,6 @@ export class LayoutComponent {
   redirect(redirectTo: string) {
     this.router.navigate([redirectTo]);
   }
-  redirectCLStatus() {
-    this.router.navigate(['cosmic-latte']);
-  }
-  redirectProfile() {
-    this.router.navigate(['profile']);
-  }
-  redirectImportAnswers() {
-    this.router.navigate(['import-answers']);
-  }
-  redirectReports() {
-    this.router.navigate(['heat-map']);
-  }
-  redirectImportStudents() {
-    this.router.navigate(['import-students']);
-  }
-  redirectListPollsByCohort() {
-    this.router.navigate(['list-polls-by-cohort']);
-  }
-  redirectListPollsAnswered() {
-    this.router.navigate(['list-polls-by-lastDays']);
-  }
-  redirectListStudents() {
-    this.router.navigate(['list-students-by-poll']);
-  }
   toggleSettings(expand: boolean) {
     this.isSettingsExpanded = expand;
   }

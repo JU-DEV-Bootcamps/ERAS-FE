@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
 
-export interface PolModel {
+export interface PollModel {
   name: string;
   version: string;
   uuid: UUID;
