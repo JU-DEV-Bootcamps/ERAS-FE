@@ -14,23 +14,8 @@ import { CohortService } from '../../core/services/cohort.service';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 import { EvaluationProcessService } from '../../core/services/evaluation-process.service';
-
-const studentsPlaceholder = {
-  count: 23,
-};
-const pollsPLaceholder = {
-  count: 3,
-};
-const lastPollPlaceholder = {
-  id: 1,
-  title: 'Encuesta de Caracterizacion',
-  version: '#latest',
-  progress: '23/32',
-  publishedDate: '10/10/2024',
-  deadlineDate: '01/03/2025',
-  average: 3.8,
-  riskStudents: 3,
-};
+import { CohortSummaryModel } from '../../core/models/CohortSummaryModel';
+import { PollModel } from '../../core/models/PollModel';
 
 @Component({
   selector: 'app-home',
@@ -47,14 +32,14 @@ const lastPollPlaceholder = {
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
-  students = studentsPlaceholder;
+  cohortsSummary: CohortSummaryModel[] = [];
   studentsCount: string | number = '?';
   cohortsCount: string | number = '?';
   pollsCount: string | number = '?';
   pollsInstanceCount: string | number = '?';
   evaluationsCount: string | number = '?';
-  polls = pollsPLaceholder;
-  lastPoll = lastPollPlaceholder;
+  evalSummary: PollModel[] = [];
+  lastPoll: PollModel | null = null;
   healthCheckRes: HealthCheckResponse | null = null;
   healthCheckStatus = false;
 
@@ -71,15 +56,18 @@ export class HomeComponent implements OnInit {
 
   loadEvalProcSummary(): void {
     this.evalService.getEvalProcSummary().subscribe(data => {
-      this.pollsCount = data.polls.count;
-      this.pollsInstanceCount = data.pollInstances.count;
+      this.pollsCount = data.length;
+      this.pollsInstanceCount = 0;
+      this.lastPoll = data[0];
+      this.evalSummary = data;
     });
   }
 
   loadCohortsSummary(): void {
     this.cohortsService.getCohortsSummary().subscribe(data => {
-      this.cohortsCount = data.cohorts.count;
-      this.studentsCount = data.students.count;
+      this.cohortsCount = new Set(data.map(d => d.cohortName)).size;
+      this.studentsCount = data.length;
+      this.cohortsSummary = data;
     });
   }
 
@@ -92,6 +80,6 @@ export class HomeComponent implements OnInit {
   }
 
   redirectToLastPoll() {
-    this.router.navigate([`polls/${this.lastPoll.id}`]);
+    this.router.navigate([`polls/${this.lastPoll?.id}`]);
   }
 }

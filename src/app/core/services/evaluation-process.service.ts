@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { PollModel } from '../models/PollModel';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,9 @@ export class EvaluationProcessService {
 
   constructor(private http: HttpClient) {}
 
-  getEvalProcSummary(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
+  getEvalProcSummary(): Observable<PollModel[]> {
+    return this.http.get<PollModel[]>(
+      `${this.apiUrl}/${this.endpoint}/summary`
+    );
   }
 }

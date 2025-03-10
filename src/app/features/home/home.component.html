@@ -28,30 +28,30 @@
   <p class="link" routerLink="/list-polls-by-lastDays">View all Polls</p>
   <mat-card class="summary-section" appearance="outlined">
     <mat-card-header>
-      <mat-card-title>{{ lastPoll.title }}</mat-card-title>
+      <mat-card-title>{{ lastPoll?.name }}</mat-card-title>
       <mat-card-subtitle style="color: cadetblue">{{
-        lastPoll.version
+        lastPoll?.version
       }}</mat-card-subtitle>
     </mat-card-header>
     <div class="entity-summary">
       <ul>
         <li style="display: flex; align-items: center">
           <p style="font-weight: bolder; margin-right: 10px">Published:</p>
-          <span>{{ lastPoll.publishedDate }}</span>
+          <span>{{ lastPoll?.publishedDate }}</span>
         </li>
         <li style="display: flex; align-items: center">
           <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
-          <span>{{ lastPoll.deadlineDate }}</span>
+          <span>{{ lastPoll?.deadlineDate }}</span>
         </li>
       </ul>
       <div style="display: flex; width: 90%">
         <mat-card class="summary-card">
           <mat-card-title>Poll Progress</mat-card-title>
-          <mat-card-footer>{{ lastPoll.progress }}</mat-card-footer>
+          <mat-card-footer>{{ lastPoll?.progress }}</mat-card-footer>
         </mat-card>
         <mat-card class="summary-card">
           <mat-card-title>Risk Students</mat-card-title>
-          <mat-card-footer>{{ lastPoll.riskStudents }}</mat-card-footer>
+          <mat-card-footer>{{ lastPoll?.riskStudents }}</mat-card-footer>
         </mat-card>
       </div>
     </div>
@@ -67,7 +67,7 @@
           >Poll Average</mat-card-title
         >
         <div class="overlaped">
-          <p class="front-result">{{ lastPoll.average }}</p>
+          <p class="front-result">{{ lastPoll?.average || 0 }}</p>
           <app-pie-chart class="back-result"></app-pie-chart>
         </div>
       </mat-card>
