@@ -18,6 +18,8 @@ export class CohortService {
     return this.http.get(`${this.apiUrl}/${this.endpoint}`);
   }
   getCohortsSummary(): Observable<CohortSummaryModel[]> {
-    return this.http.get<CohortSummaryModel[]>(`${this.apiUrl}/${this.endpoint}/summary`);
+    return this.http.get<CohortSummaryModel[]>(
+      `${this.apiUrl}/${this.endpoint}/summary`
+    );
   }
 }
