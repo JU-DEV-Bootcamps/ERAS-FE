@@ -1,0 +1,73 @@
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.modal-header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title-modal {
+  font-size: 24px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.subtitle-modal {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+
+.select-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  width: 800px;
+}
+
+.mat-form-field {
+  flex: 1 1 300px;
+}
+
+.table-title {
+  margin: 16px 0 4px;
+}
+
+.table-subtitle {
+  margin: 0 0 16px;
+}
+
+.risk-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-data {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 930px) {
+  .select-container {
+    justify-content: center;
+  }
+  .mat-form-field {
+    flex: 1 1 100%;
+  }
+}
