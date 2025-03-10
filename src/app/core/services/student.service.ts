@@ -9,7 +9,7 @@ import { Student } from '../../shared/models/student/student.model';
 })
 export class StudentService {
   private apiUrl = environment.apiUrl;
-  private endpoint = 'api/v1/students';
+  private endpoint = 'api/v1/Students';
 
   constructor(private http: HttpClient) {}
 
@@ -17,5 +17,11 @@ export class StudentService {
     const params = new HttpParams().set('studentId', studentId);
     const url = `${this.apiUrl}/${this.endpoint}/studentId?studentId=${studentId}`;
     return this.http.get<Student>(url, { params });
+  }
+  getAllStudents(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}`);
+  }
+  getAllStudentsCount(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }
 }

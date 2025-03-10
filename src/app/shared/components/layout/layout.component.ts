@@ -76,30 +76,8 @@ export class LayoutComponent {
   logout() {
     this.keycloak.logout();
   }
-
-  redirectCLStatus() {
-    this.router.navigate(['cosmic-latte']);
-  }
-  redirectProfile() {
-    this.router.navigate(['']);
-  }
-  redirectImportAnswers() {
-    this.router.navigate(['import-answers']);
-  }
-  redirectReports() {
-    this.router.navigate(['heat-map']);
-  }
-  redirectImportStudents() {
-    this.router.navigate(['import-students']);
-  }
-  redirectListPollsByCohort() {
-    this.router.navigate(['list-polls-by-cohort']);
-  }
-  redirectListPollsAnswered() {
-    this.router.navigate(['list-polls-by-lastDays']);
-  }
-  redirectListStudents() {
-    this.router.navigate(['list-students-by-poll']);
+  redirect(redirectTo: string) {
+    this.router.navigate([redirectTo]);
   }
   toggleSettings(expand: boolean) {
     this.isSettingsExpanded = expand;

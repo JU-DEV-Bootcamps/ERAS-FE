@@ -11,7 +11,7 @@ import { ApexOptions } from 'ng-apexcharts';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { StudentService } from '../../core/services/student.service';
-import { PollsService } from '../../core/services/polls.service';
+import { PollService } from '../../core/services/poll.service';
 import { Student } from '../../shared/models/student/student.model';
 import { StudentPoll } from '../../shared/models/polls/student-polls.model';
 import { ComponentsService } from '../../core/services/components.service';
@@ -40,7 +40,7 @@ register();
 export class StudentDetailComponent implements OnInit {
   studentDetails: Student = {} as Student;
   studentService = inject(StudentService);
-  pollsService = inject(PollsService);
+  pollsService = inject(PollService);
   componentService = inject(ComponentsService);
   answersService = inject(AnswersService);
 

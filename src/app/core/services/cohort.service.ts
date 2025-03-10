@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -15,5 +16,8 @@ export class CohortService {
 
   getCohorts(): Observable<cohort[]> {
     return this.http.get<cohort[]>(`${this.apiUrl}/${this.endpoint}`);
+  }
+  getCohortsSummary(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
   }
 }

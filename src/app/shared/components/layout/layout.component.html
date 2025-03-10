@@ -5,11 +5,7 @@
     </div>
     <div class="custom-sidenav-content">
       <p>
-        <button
-          mat-button
-          (click)="redirectProfile()"
-          class="custom-nav-button"
-        >
+        <button mat-button (click)="redirect('')" class="custom-nav-button">
           <mat-icon>home</mat-icon>
           Home
         </button>
@@ -17,7 +13,7 @@
       <p>
         <button
           mat-button
-          (click)="redirectReports()"
+          (click)="redirect('heat-map')"
           class="custom-nav-button"
         >
           <mat-icon>pie_chart_outline</mat-icon>
@@ -45,7 +41,7 @@
           <button
             mat-button
             class="custom-button-style"
-            (click)="redirectListStudents()"
+            (click)="redirect('list-students-by-poll')"
           >
             <mat-icon>school</mat-icon>
             Students
@@ -61,20 +57,20 @@
           <button
             mat-button
             class="custom-button-style"
-            (click)="redirectListPollsByCohort()"
+            (click)="redirect('list-polls-by-cohort')"
           >
             <mat-icon>poll</mat-icon>
-            Polls
+            Polls by Cohorts
           </button>
         </p>
         <p>
           <button
             mat-button
             class="custom-button-style"
-            (click)="redirectListPollsAnswered()"
+            (click)="redirect('list-students-by-poll')"
           >
             <mat-icon>poll</mat-icon>
-            Polls By Days
+            Polls
           </button>
         </p>
       </div>
@@ -97,7 +93,7 @@
         <p>
           <button
             mat-button
-            (click)="redirectCLStatus()"
+            (click)="redirect('cosmic-latte')"
             class="custom-button-style"
           >
             <mat-icon>check_circle</mat-icon>
@@ -123,17 +119,17 @@
         <p>
           <button
             mat-button
-            (click)="redirectImportAnswers()"
+            (click)="redirect('import-answers')"
             class="custom-button-style"
           >
             <mat-icon>insert_chart_outlined</mat-icon>
-            Add Surveys
+            Add Polls
           </button>
         </p>
         <p>
           <button
             mat-button
-            (click)="redirectImportStudents()"
+            (click)="redirect('import-students')"
             class="custom-button-style"
           >
             <mat-icon>person_add</mat-icon>
@@ -161,7 +157,7 @@
         </div>
       }
       <mat-menu #beforeMenu="matMenu" xPosition="before" class="avatar-menu">
-        <button mat-menu-item (click)="redirectProfile()" class="menu-button">
+        <button mat-menu-item (click)="redirect('profile')" class="menu-button">
           <mat-icon>person</mat-icon>Profile
         </button>
         <button mat-menu-item (click)="logout()" class="menu-button">

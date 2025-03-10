@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CohortService } from '../../core/services/cohort.service';
-import { PollsService } from '../../core/services/polls.service';
+import { PollService } from '../../core/services/poll.service';
 import { Router } from '@angular/router';
 import { cohort } from '../../shared/models/cohort/cohort.model';
 
@@ -50,7 +50,7 @@ export class ListPollsByCohortComponent implements OnInit {
   cohortService = inject(CohortService);
   selectedCohort = this.cohortsData[0];
 
-  pollsService = inject(PollsService);
+  pollsService = inject(PollService);
   dataPolls = new MatTableDataSource([]);
   polls = [];
 
