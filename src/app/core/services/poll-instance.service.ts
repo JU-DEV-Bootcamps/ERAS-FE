@@ -13,6 +13,7 @@ export class PollInstanceService {
 
   constructor(private http: HttpClient) {}
 
+  // Not used - neither implemented in BE
   getAllPollInstancesCount(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }

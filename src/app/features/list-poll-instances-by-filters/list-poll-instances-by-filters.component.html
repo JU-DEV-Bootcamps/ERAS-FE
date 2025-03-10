@@ -1,20 +1,39 @@
 <div class="page-header">
-  <h2 class="page-title">Polls By Days</h2>
+  <h2 class="page-title">Polls Responses</h2>
 </div>
-<div class="form-container">
-  <mat-form-field appearance="fill">
-    <mat-label for="sl-component">Last days</mat-label>
-    <mat-select
-      id="sl-component"
-      [formControl]="daysControl"
-      (selectionChange)="onSelectionChange($event)"
-    >
-      <mat-option *ngFor="let day of dropDays" [value]="day">
-        {{ day }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-</div>
+<form [formGroup]="filtersForm">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Cohorts by name</mat-label>
+      <mat-select
+        id="sl-component"
+        (selectionChange)="onSelectionChange($event)"
+        formControlName="cohortId"
+      >
+        <mat-option *ngFor="let cohort of cohortsData" [value]="cohort.id">
+          {{ cohort.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Last days</mat-label>
+      <mat-select
+        id="sl-component"
+        (selectionChange)="onSelectionChange($event)"
+        formControlName="dropDays"
+      >
+        <mat-option *ngFor="let day of dropDays" [value]="day">
+          {{ day }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-fab extended type="submit">
+      <mat-icon>insert_chart_outlined</mat-icon>
+      Generate HeatMap
+    </button>
+  </div>
+</form>
 @if (loading === true) {
   <mat-spinner></mat-spinner>
 } @else {
@@ -71,8 +90,20 @@
           <li>There are no items.</li>
         }
 
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Details</th>
+          <td mat-cell *matCellDef="let poll">
+            <button mat-icon-button (click)="actionMethod()">
+              <mat-icon>analytics</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns.concat(['actions'])"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: columns.concat(['actions'])"
+        ></tr>
       </table>
     </div>
   }

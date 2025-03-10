@@ -11,7 +11,7 @@ import { authGuard } from './shared/guards/auth.guard';
 import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list-polls-by-cohort.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
-import { ListPollInstancesByLastDaysComponent } from './features/list-poll-instances-by-lastdays/list-poll-instances-by-lastdays.component';
+import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
 import { HomeComponent } from './features/home/home.component';
 
 export const routes: Routes = [
@@ -52,8 +52,8 @@ export const routes: Routes = [
         component: ListStudentsByPollComponent,
       },
       {
-        path: 'list-polls-by-lastDays',
-        component: ListPollInstancesByLastDaysComponent,
+        path: 'list-polls-by-filters',
+        component: ListPollInstancesByFiltersComponent,
       },
       //Example to use guard with role
       {
