@@ -19,6 +19,8 @@ export class PollsService {
   }
 
   getPollsByStudentId(studentId: number): Observable<StudentPoll[]> {
-    return this.http.get<StudentPoll[]>(`${this.apiUrl}/${this.endpoint}/student/${studentId}`);
+    return this.http.get<StudentPoll[]>(
+      `${this.apiUrl}/${this.endpoint}/student/${studentId}`
+    );
   }
 }

@@ -17,7 +17,9 @@ export class ComponentsService {
     studentId: number,
     pollId: number
   ): Observable<ComponentAvg[]> {
-    const params = new HttpParams().set('studentId', studentId).set('pollId', pollId);
+    const params = new HttpParams()
+      .set('studentId', studentId)
+      .set('pollId', pollId);
     const url = `${this.apiUrl}/${this.endpoint}/getComponentsRiskAvgByStudent`;
     return this.http.get<ComponentAvg[]>(url, { params });
   }

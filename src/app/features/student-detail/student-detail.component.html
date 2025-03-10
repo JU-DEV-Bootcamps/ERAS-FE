@@ -62,8 +62,8 @@
     <swiper-container class="swiper" effect="cards" grab-cursor="true">
       <swiper-slide *ngFor="let poll of studentPolls">
         <h3 class="title-risk-by-components">Risk by Components</h3>
-        <p class="date-risk-by-components">Poll Name: {{poll.name}}</p>
-        <p class="date-risk-by-components">Last update: {{poll.version}}</p>
+        <p class="date-risk-by-components">Poll Name: {{ poll.name }}</p>
+        <p class="date-risk-by-components">Last update: {{ poll.version }}</p>
         <div class="chart-container" #chart>
           <apx-chart
             [series]="chartOptions.series!"
@@ -91,9 +91,6 @@
           </apx-chart>
         </div>
       </swiper-slide>
-      
     </swiper-container>
   </section>
 </div>
-
-

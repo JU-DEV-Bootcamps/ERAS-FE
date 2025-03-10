@@ -2,14 +2,14 @@ import { Audit } from '../audit.model';
 import { cohort } from '../cohort/cohort.model';
 
 export interface Entity {
-    uuid: string;
-    name: string;
-    email: string;
-    studentDetail: StudentDetail;
-    audit: Audit;
-    cohortId: number;
-    cohort: null | cohort;
-    id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  studentDetail: StudentDetail;
+  audit: Audit;
+  cohortId: number;
+  cohort: null | cohort;
+  id: number;
 }
 
 export interface StudentDetail {
