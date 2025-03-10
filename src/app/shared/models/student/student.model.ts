@@ -1,6 +1,18 @@
 import { Audit } from '../audit.model';
+import { cohort } from '../cohort/cohort.model';
 
 export interface Entity {
+    uuid: string;
+    name: string;
+    email: string;
+    studentDetail: StudentDetail;
+    audit: Audit;
+    cohortId: number;
+    cohort: null | cohort;
+    id: number;
+}
+
+export interface StudentDetail {
   studentId: number;
   enrolledCourses: number;
   gradedCourses: number;
@@ -10,10 +22,11 @@ export interface Entity {
   pureScoreDiff: number;
   standardScoreDiff: number;
   lastAccessDays: number;
-  audit: Audit;
+  audit: null;
+  id: number;
 }
 
-export interface StudentDetails {
+export interface Student {
   entity: Entity;
   message: string;
   success: boolean;

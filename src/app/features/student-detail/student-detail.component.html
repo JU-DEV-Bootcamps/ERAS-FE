@@ -1,8 +1,8 @@
 <div class="student-header">
   <div class="student-info">
-    <h2 class="page-title">Student Name</h2>
-    <h4 class="page-subtitle">email.student.com</h4>
-    <h4 class="page-ssid">SSID</h4>
+    <h2 class="page-title">{{ studentDetails.entity.name }}</h2>
+    <h4 class="page-subtitle">{{ studentDetails.entity.email }}</h4>
+    <h4 class="page-ssid">UUID: {{ studentDetails.entity.uuid }}</h4>
   </div>
   <button mat-icon-button color="primary" (click)="printStudentInfo()">
     <mat-icon>print</mat-icon>
@@ -11,20 +11,39 @@
 
 <div class="container">
   <mat-card class="card-details">
-    <p>Enrolled Courses: {{ studentDetails.entity.enrolledCourses }}</p>
-    <p>Graded Courses: {{ studentDetails.entity.gradedCourses }}</p>
-    <p>Timely Submissions: {{ studentDetails.entity.timeDeliveryRate }}</p>
-    <p>Average Score: {{ studentDetails.entity.avgScore }}</p>
-    <p>Courses Below Average: {{ studentDetails.entity.coursesUnderAvg }}</p>
-    <p>Raw Score Difference: {{ studentDetails.entity.pureScoreDiff }}</p>
     <p>
-      Standard Score Difference: {{ studentDetails.entity.standardScoreDiff }}
+      Enrolled Courses:
+      {{ studentDetails.entity.studentDetail.enrolledCourses }}
     </p>
-    <p>Days Since Last Access: {{ studentDetails.entity.lastAccessDays }}</p>
+    <p>
+      Graded Courses: {{ studentDetails.entity.studentDetail.gradedCourses }}
+    </p>
+    <p>
+      Timely Submissions:
+      {{ studentDetails.entity.studentDetail.timeDeliveryRate }}
+    </p>
+    <p>Average Score: {{ studentDetails.entity.studentDetail.avgScore }}</p>
+    <p>
+      Courses Below Average:
+      {{ studentDetails.entity.studentDetail.coursesUnderAvg }}
+    </p>
+    <p>
+      Raw Score Difference:
+      {{ studentDetails.entity.studentDetail.pureScoreDiff }}
+    </p>
+    <p>
+      Standard Score Difference:
+      {{ studentDetails.entity.studentDetail.standardScoreDiff }}
+    </p>
+    <p>
+      Days Since Last Access:
+      {{ studentDetails.entity.studentDetail.lastAccessDays }}
+    </p>
   </mat-card>
   <section class="main">
-    <mat-card class="card-risk-by-components">
+    <!-- <mat-card class="card-risk-by-components">
       <h3 class="title-risk-by-components">Risk by Components</h3>
+      <p class="date-risk-by-components">Poll Name:</p>
       <p class="date-risk-by-components">Last update: 10/01/2025</p>
       <div class="chart-container" #chart>
         <apx-chart
@@ -39,49 +58,42 @@
         >
         </apx-chart>
       </div>
-    </mat-card>
+    </mat-card> -->
+    <swiper-container class="swiper" effect="cards" grab-cursor="true">
+      <swiper-slide *ngFor="let poll of studentPolls">
+        <h3 class="title-risk-by-components">Risk by Components</h3>
+        <p class="date-risk-by-components">Poll Name: {{poll.name}}</p>
+        <p class="date-risk-by-components">Last update: {{poll.version}}</p>
+        <div class="chart-container" #chart>
+          <apx-chart
+            [series]="chartOptions.series!"
+            [chart]="chartOptions.chart!"
+            [plotOptions]="chartOptions.plotOptions!"
+          >
+          </apx-chart>
+        </div>
+      </swiper-slide>
+      <swiper-slide>
+        <h3 class="title-risk-by-components">Risk by Components</h3>
+        <p class="date-risk-by-components">Poll Name:</p>
+        <p class="date-risk-by-components">Last update: 10/01/2025</p>
+        <div class="chart-container" #chart>
+          <apx-chart
+            [series]="chartOptions.series!"
+            [chart]="chartOptions.chart!"
+            [xaxis]="chartOptions.xaxis!"
+            [yaxis]="chartOptions.yaxis!"
+            [colors]="chartOptions.colors!"
+            [plotOptions]="chartOptions.plotOptions!"
+            [title]="chartOptions.title!"
+            [tooltip]="chartOptions.tooltip!"
+          >
+          </apx-chart>
+        </div>
+      </swiper-slide>
+      
+    </swiper-container>
   </section>
 </div>
 
-<div class="alternate-container">
-  <mat-card class="card">
-    <h3>Students at risk by month</h3>
-    <p>Last update: 10/01/2025</p>
-    <div class="chart-container" #chart>
-      <apx-chart
-        [series]="risk_by_month_chart.series!"
-        [chart]="risk_by_month_chart.chart!"
-        [xaxis]="risk_by_month_chart.xaxis!"
-        [yaxis]="risk_by_month_chart.yaxis!"
-        [colors]="risk_by_month_chart.colors!"
-        [plotOptions]="risk_by_month_chart.plotOptions!"
-        [title]="risk_by_month_chart.title!"
-        [tooltip]="risk_by_month_chart.tooltip!"
-      >
-      </apx-chart>
-    </div>
-  </mat-card>
-  <section class="main">
-    <mat-card class="card">
-      <div class="cohort-card-data">
-        <p class="cohort-p-strong">Cohort Name</p>
-        <p class="cohort-p-light">2025-01-06</p>
-      </div>
-      <mat-divider></mat-divider>
-      <div class="cohort-card-data">
-        <div class="cohort-poll-item">
-          <p class="cohort-p-light">Number of polls</p>
-          <p class="cohort-p-strong">10</p>
-        </div>
-        <div class="cohort-poll-item">
-          <p class="cohort-p-light">Polls with risks</p>
-          <p class="cohort-p-strong">5</p>
-        </div>
-      </div>
-      <mat-divider></mat-divider>
-      <div class="card-actions">
-        <button mat-button>View Details</button>
-      </div>
-    </mat-card>
-  </section>
-</div>
+
