@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NgApexchartsModule } from 'ng-apexcharts';
@@ -7,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { StudentService } from '../../core/services/student.service';
 import { StudentDetails } from '../../shared/models/student/studentDetails.model';
+import { PdfExportService } from '../../core/services/pdf-export.service';
 
 @Component({
   selector: 'app-student-detail',
@@ -21,8 +28,10 @@ import { StudentDetails } from '../../shared/models/student/studentDetails.model
   styleUrl: './student-detail.component.scss',
 })
 export class StudentDetailComponent implements OnInit {
+  @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
   studentDetails: StudentDetails = {} as StudentDetails;
   studentService = inject(StudentService);
+  exportPrintService = inject(PdfExportService);
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -163,7 +172,7 @@ export class StudentDetailComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.getStudentDetails('26');
+    this.getStudentDetails('2');
   }
 
   getStudentDetails(studentId: string) {
@@ -178,6 +187,49 @@ export class StudentDetailComponent implements OnInit {
   }
 
   printStudentInfo() {
-    console.log('To implement the PDF');
+    const mainContainerElement = this.mainContainer.nativeElement;
+
+    const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
+    clonedElement.style.width = '1440px';
+    clonedElement.style.margin = 'auto';
+    clonedElement
+      .querySelector('#chart-student-detail')
+      ?.classList.add('print-chart');
+
+    const h1 = document.createElement('h1');
+    h1.textContent = 'Student Details';
+    h1.style.textAlign = 'center';
+    h1.style.fontSize = '2em';
+    h1.style.fontWeight = '500';
+    clonedElement.insertBefore(h1, clonedElement.firstChild);
+
+    clonedElement.style.fontSize = '1.2em';
+
+    const h2Elements = clonedElement.querySelectorAll('h2');
+    h2Elements.forEach(h2 => {
+      h2.style.fontSize = '1.6em';
+    });
+
+    const h3Elements = clonedElement.querySelectorAll('h3');
+    h3Elements.forEach(h3 => {
+      h3.style.fontSize = '1.4em';
+    });
+
+    const h4Elements = clonedElement.querySelectorAll('h4');
+    h4Elements.forEach(h4 => {
+      h4.style.fontSize = '1.2em';
+    });
+
+    const pElements = clonedElement.querySelectorAll('p');
+    pElements.forEach(p => {
+      p.style.fontSize = '1.2em';
+    });
+
+    const printButton = clonedElement.querySelector('#print-button');
+    printButton?.remove();
+
+    document.body.appendChild(clonedElement);
+    this.exportPrintService.generatePDF(clonedElement, `student-detail-2.pdf`);
+    document.body.removeChild(clonedElement);
   }
 }
