@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { StudentRiskAverage } from './Types/student.type';
 
 @Injectable({
   providedIn: 'root',
@@ -18,5 +19,17 @@ export class StudentService {
   }
   getAllStudentsCount(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
+  }
+
+  getAllAverageByCohortAndPoll({
+    cohortId,
+    pollId,
+  }: {
+    cohortId: number;
+    pollId: number;
+  }) {
+    return this.http.get<StudentRiskAverage[]>(
+      `${this.apiUrl}/${this.endpoint}/average/cohort/${cohortId}/poll/${pollId}`
+    );
   }
 }
