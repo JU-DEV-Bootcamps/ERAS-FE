@@ -56,7 +56,7 @@ export class PdfService {
           tempCanvas.height = section.height;
           tempCanvas.getContext('2d')!.putImageData(section, 0, 0);
 
-          const fragmentImgData = tempCanvas.toDataURL('image/png');
+          const fragmentImgData = tempCanvas.toDataURL('image/jpeg');
 
           const finalHeight = isLastPage
             ? imgHeight - currentHeight
@@ -64,7 +64,7 @@ export class PdfService {
 
           pdf.addImage(
             fragmentImgData,
-            'PNG',
+            'JPEG',
             marginLeft,
             yPosition,
             imgWidth,
