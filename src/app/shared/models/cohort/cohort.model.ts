@@ -1,6 +1,6 @@
 import { Audit } from '../audit.model';
 
-export interface cohort {
+export interface Cohort {
   name: string;
   courseCode: string;
   audit: Audit;

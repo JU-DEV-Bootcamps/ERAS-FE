@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { StudentDetailComponent } from './student-detail.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -27,8 +32,12 @@ describe('StudentDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: { get: () => '26' } },
+            params: of({ studentId: 26 }),
           },
+        },
+        {
+          provide: MockNgApexchartsComponent,
+          useValue: {},
         },
       ],
     }).compileComponents();
@@ -40,13 +49,10 @@ describe('StudentDetailComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-  it('should create', () => {
-    expect(component).toBeTruthy();
+
+  it('should call getStudentDetails on init', () => {
+    const spy = spyOn(component, 'getStudentDetails');
+    component.ngOnInit();
+    expect(spy).toHaveBeenCalled();
   });
 });

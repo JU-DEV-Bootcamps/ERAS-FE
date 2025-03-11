@@ -17,7 +17,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollService } from '../../core/services/poll.service';
 import { Router } from '@angular/router';
-import { cohort } from '../../shared/models/cohort/cohort.model';
+import { Cohort } from '../../shared/models/cohort/cohort.model';
 
 @Component({
   selector: 'app-list-polls-by-cohort',
@@ -46,7 +46,7 @@ export class ListPollsByCohortComponent implements OnInit {
   currentPage = 0;
   totalPolls = 0;
 
-  cohortsData: cohort[] = [];
+  cohortsData: Cohort[] = [];
   cohortService = inject(CohortService);
   selectedCohort = this.cohortsData[0];
 
@@ -62,7 +62,7 @@ export class ListPollsByCohortComponent implements OnInit {
 
   loadCohortsList(): void {
     this.cohortService.getCohorts().subscribe({
-      next: (cohorts: cohort[]) => {
+      next: (cohorts: Cohort[]) => {
         this.cohortsData = cohorts;
         this.selectedCohort = cohorts[0];
         this.cohortFormGroup

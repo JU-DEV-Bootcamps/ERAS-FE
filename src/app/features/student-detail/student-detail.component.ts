@@ -22,12 +22,12 @@ import { Answer } from '../../shared/models/answers/answer.model';
 import { Audit } from '../../shared/models/audit.model';
 import { Swiper } from 'swiper/types';
 import { register } from 'swiper/element/bundle';
-register();
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil, Subject } from 'rxjs';
 
+register();
 @Component({
   selector: 'app-student-detail',
   imports: [
@@ -109,7 +109,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.studentId = +params['studentId'];
-      console.log('Student ID:', this.studentId);
       this.getStudentDetails(this.studentId);
     });
   }
@@ -188,8 +187,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   onSlideChange(event: any) {
     const swiperInstance = event.target.swiper as Swiper;
     const activeIndex = swiperInstance.activeIndex;
-    console.log('Active index:', activeIndex);
-
     if (this.studentPolls[activeIndex]) {
       const pollId = this.studentPolls[activeIndex].id;
       this.selectedPoll = pollId;
