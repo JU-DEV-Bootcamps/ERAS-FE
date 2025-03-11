@@ -21,19 +21,27 @@ import { HeatMapService } from '../../../core/services/heat-map.service';
 import { CohortService } from '../../../core/services/cohort.service';
 import { RiskStudentDetailType } from '../types/risk-students-detail.type';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-modal-risk-students-cohort',
   imports: [
     MatDialogModule,
-    MatDialogContent,
-    MatDialogActions,
-    MatSelectModule,
-    ReactiveFormsModule,
     MatButtonModule,
-    MatProgressBarModule,
-    MatTableModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
     MatIconModule,
+    MatCardModule,
+    MatTableModule,
+    MatMenuModule,
+    MatDialogActions,
+    MatDialogContent,
+    MatProgressBarModule,
   ],
   templateUrl: './modal-risk-students-cohort.component.html',
   styleUrl: './modal-risk-students-cohort.component.scss',
@@ -66,13 +74,11 @@ export class ModalRiskStudentsCohortComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Retrieve available cohorts dynamically
     this.cohortService.getCohorts().subscribe({
       next: data => (this.cohorts = data),
       error: error => console.error('Error fetching cohorts', error),
     });
 
-    // When the form is valid, trigger the API call with a debounce
     this.form.valueChanges
       .pipe(
         filter(() => this.form.valid),

@@ -1,48 +1,9 @@
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 20px 0;
-}
-
-.modal-header-title {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.title-modal {
-  font-size: 24px;
-  font-weight: 400;
-  margin: 0;
-}
-
-.subtitle-modal {
-  font-size: 20px;
+.component-caption {
+  display: inline-flex;
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 12px;
   font-weight: 500;
-  margin: 0;
-}
-
-
-.select-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 16px;
-  width: 800px;
-}
-
-.mat-form-field {
-  flex: 1 1 300px;
-}
-
-.table-title {
-  margin: 16px 0 4px;
-}
-
-.table-subtitle {
-  margin: 0 0 16px;
 }
 
 .risk-badge {
@@ -54,20 +15,24 @@
   justify-content: center;
   color: white;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.no-data {
-  text-align: center;
-  margin-top: 16px;
+.mat-mdc-row .mat-mdc-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
 }
 
-/* Responsive adjustments */
-@media screen and (max-width: 930px) {
-  .select-container {
-    justify-content: center;
-  }
-  .mat-form-field {
-    flex: 1 1 100%;
-  }
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: auto;
+  padding: 20px 0;
 }
