@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { StudentPoll } from '../../shared/models/polls/student-polls.model';
 import {
   CreateEvaluationProcess,
   ReadEvaluationProcess,
@@ -19,6 +20,12 @@ export class EvaluationProcessService {
 
   getEvalProcSummary(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
+  }
+
+  getPollsByStudentId(studentId: number): Observable<StudentPoll[]> {
+    return this.http.get<StudentPoll[]>(
+      `${this.apiUrl}/${this.endpoint}/student/${studentId}`
+    );
   }
   createEvalProc(data: CreateEvaluationProcess): Observable<any> {
     console.log('creando proceso de evaluacion');
