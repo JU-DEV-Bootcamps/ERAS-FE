@@ -54,7 +54,6 @@
   height: 90%;
 }
 
-
 .custom-navbar {
   background-color: ut.get-color('neutral', 100);
   color: ut.get-color('neutral', 20);
@@ -69,7 +68,6 @@
 ::ng-deep #cdk-overlay-0 {
   background-color: ut.get-color('neutral', 100);
 }
-
 
 .custom-sidenav {
   border-radius: 0%;
@@ -158,8 +156,8 @@ mat-icon {
 }
 
 .label-settings {
-  line-height: 1.4;  
-  vertical-align: middle;  
+  line-height: 1.4;
+  vertical-align: middle;
 }
 
 @media (max-width: 1200px) {

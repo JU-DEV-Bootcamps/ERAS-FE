@@ -1,4 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { StudentService } from '../../../core/services/student.service';
 import { CohortService } from '../../../core/services/cohort.service';
 import { PollService } from '../../../core/services/poll.service';
@@ -16,6 +23,11 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { DecimalPipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { PdfService } from '../../../core/services/report/pdf.service';
+import { generateFileName } from '../../../core/utilities/file/file-name';
 
 @Component({
   selector: 'app-students-risk',
@@ -25,6 +37,9 @@ import { DecimalPipe } from '@angular/common';
     MatTableModule,
     MatProgressBarModule,
     DecimalPipe,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -33,6 +48,9 @@ export class StudentsRiskComponent implements OnInit {
   studentService = inject(StudentService);
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
+  pdfService = inject(PdfService);
+
+  @ViewChild('contentToExport') contentToExport!: ElementRef;
 
   selectForm = new FormGroup({
     cohortId: new FormControl<number | null>(null, [Validators.required]),
@@ -50,6 +68,8 @@ export class StudentsRiskComponent implements OnInit {
   students: StudentRiskAverage[] = [];
 
   load = false;
+
+  constructor(private renderer: Renderer2) {}
 
   ngOnInit() {
     this.getCohorts();
@@ -114,5 +134,29 @@ export class StudentsRiskComponent implements OnInit {
   getColorRisk(riskLevel: number) {
     const option = Math.floor(riskLevel) as RiskColorType;
     return RISK_COLORS[option] || RISK_COLORS.default;
+  }
+  cloneAndResizeElement(
+    originalElement: HTMLElement,
+    newWidth: string
+  ): HTMLElement {
+    const clonedElement = originalElement.cloneNode(true) as HTMLElement;
+    this.renderer.setStyle(clonedElement, 'width', newWidth);
+    this.renderer.setStyle(clonedElement, 'position', 'absolute');
+    this.renderer.setStyle(clonedElement, 'left', '-9999px');
+    return clonedElement;
+  }
+
+  downloadPDF() {
+    const fileName = generateFileName('cohort_report');
+    const clonedElement = this.cloneAndResizeElement(
+      this.contentToExport.nativeElement,
+      '800px'
+    );
+
+    document.body.appendChild(clonedElement);
+
+    this.pdfService.exportToPDF(clonedElement, fileName, () => {
+      document.body.removeChild(clonedElement);
+    });
   }
 }

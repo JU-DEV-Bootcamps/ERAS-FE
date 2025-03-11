@@ -29,8 +29,17 @@
     </mat-form-field>
   </div>
 </form>
+
 @defer (when load) {
-  <div class="table-container">
+  <ng-container>
+    <div class="action-section">
+      <button mat-icon-button matTooltip="Download pdf" (click)="downloadPDF()">
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+
+  <div class="table-container" #contentToExport>
     <div>
       <strong>Students Risk</strong>
       <table mat-table [dataSource]="students" class="mat-elevation-z8">
