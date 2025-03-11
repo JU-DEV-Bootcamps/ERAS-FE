@@ -50,6 +50,12 @@
       @for (pollInstance of pollInstances; track $index) {
         <mat-card class="" appearance="outlined">
           <mat-card-content>
+            <div class="button-container">
+              <button mat-icon-button (click)="goToDetails(pollInstance)">
+                <mat-icon>assignment</mat-icon>
+              </button>
+              <span>Details</span>
+            </div>
             @for (column of columns; track $index) {
               <div class="row-info">
                 <p class="field">{{ column }}</p>
