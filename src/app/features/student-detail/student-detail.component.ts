@@ -18,10 +18,11 @@ import { ComponentsService } from '../../core/services/components.service';
 import { AnswersService } from '../../core/services/answers.service';
 import { ComponentAvg } from '../../shared/models/components/component-avg.model';
 import { Answer } from '../../shared/models/answers/answer.model';
-
+import { Swiper } from 'swiper/types';
 import { register } from 'swiper/element/bundle';
-import { CommonModule } from '@angular/common';
 register();
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-student-detail',
@@ -32,6 +33,8 @@ register();
     MatDividerModule,
     MatCardModule,
     CommonModule,
+    MatTableModule,
+    MatCardModule,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
@@ -44,10 +47,17 @@ export class StudentDetailComponent implements OnInit {
   componentService = inject(ComponentsService);
   answersService = inject(AnswersService);
 
-  pollSelected = 0;
+  selectedPoll = 0;
   studentPolls: StudentPoll[] = [];
   studentAnswers: Answer[] = [];
   componentsAvg: ComponentAvg[] = [];
+
+  columns = ['variable', 'position', 'component', 'answer', 'score'];
+
+  isMobile = false;
+  pageSize = 10;
+  currentPage = 0;
+  totalPolls = 0;
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -59,38 +69,10 @@ export class StudentDetailComponent implements OnInit {
         horizontal: true,
       },
     },
-    series: [
-      {
-        data: [
-          {
-            x: 'Socioeconómico',
-            y: 10,
-            fillColor: '#E68787',
-          },
-          {
-            x: 'Individual',
-            y: 18,
-            fillColor: '#E8B079',
-          },
-          {
-            x: 'Academico',
-            y: 13,
-            fillColor: '#E5E880',
-          },
-          {
-            x: 'Familiar',
-            y: 13,
-            fillColor: '#DFF8E3',
-          },
-        ],
-      },
-    ],
   };
 
   ngOnInit(): void {
     this.getStudentDetails(26);
-    /* this.getComponentsAvg(26,1); */
-    /* this.getStudentAnswersByPoll(26,1); */
   }
 
   getStudentDetails(studentId: number) {
@@ -112,6 +94,10 @@ export class StudentDetailComponent implements OnInit {
         data.forEach((studentPoll: StudentPoll) => {
           this.getComponentsAvg(studentId, studentPoll.id);
         });
+        if (this.studentPolls.length > 0) {
+          this.selectedPoll = this.studentPolls[0].id;
+          this.getStudentAnswersByPoll(studentId, this.selectedPoll);
+        }
       },
       error: error => {
         console.log(error);
@@ -124,7 +110,8 @@ export class StudentDetailComponent implements OnInit {
       .getComponentsRiskByPollForStudent(studentId, pollId)
       .subscribe({
         next: (data: ComponentAvg[]) => {
-          this.componentsAvg = data;
+          this.componentsAvg = [...this.componentsAvg, ...data];
+          this.buildChartSeries();
         },
         error: error => {
           console.log(error);
@@ -135,7 +122,8 @@ export class StudentDetailComponent implements OnInit {
   getStudentAnswersByPoll(studentId: number, pollId: number) {
     this.answersService.getStudentAnswersByPoll(studentId, pollId).subscribe({
       next: (data: Answer[]) => {
-        console.log(data);
+        console.log('Loading Table');
+        this.studentAnswers = data;
       },
       error: error => {
         console.log(error);
@@ -143,7 +131,58 @@ export class StudentDetailComponent implements OnInit {
     });
   }
 
+  onSlideChange(event: any) {
+    const swiperInstance = event.target.swiper as Swiper;
+    const activeIndex = swiperInstance.activeIndex;
+    console.log('Active index:', activeIndex);
+    if (this.studentPolls[activeIndex]) {
+      this.selectedPoll = this.studentPolls[activeIndex].id;
+      this.getStudentAnswersByPoll(26, this.selectedPoll);
+    } else {
+      this.studentAnswers = [];
+    }
+  }
+
+  chartSeriesByPollId: { [pollId: number]: ApexAxisChartSeries } = {};
+
+  getColorByRisk(value: number): string {
+    if (value >= 0 && value <= 2) {
+      return '#4CAF50';
+    } else if (value > 2 && value <= 3) {
+      return '#E5E880';
+    } else if (value > 3 && value <= 4) {
+      return '#E8B079';
+    } else if (value > 4 && value <= 5) {
+      return '#E68787';
+    }
+    return '#CCC';
+  }
+
+  buildChartSeries() {
+    const groupedByPoll: { [pollId: number]: any[] } = {};
+
+    this.componentsAvg.forEach(item => {
+      if (!groupedByPoll[item.pollId]) {
+        groupedByPoll[item.pollId] = [];
+      }
+
+      groupedByPoll[item.pollId].push({
+        x: this.capitalize(item.name),
+        y: Number(item.componentAvg.toFixed(2)),
+        fillColor: this.getColorByRisk(item.componentAvg),
+      });
+    });
+
+    for (const pollId in groupedByPoll) {
+      this.chartSeriesByPollId[pollId] = [{ data: groupedByPoll[pollId] }];
+    }
+  }
+
   printStudentInfo() {
     console.log('To implement the PDF');
+  }
+
+  capitalize(text: string) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 }
