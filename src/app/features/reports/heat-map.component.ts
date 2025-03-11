@@ -33,6 +33,7 @@ import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
+import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
 
 @Component({
   selector: 'app-charts',
@@ -341,6 +342,16 @@ export class HeatMapComponent implements OnInit {
       maxHeight: '80vh',
       panelClass: 'border-modalbox-dialog',
       data: this.modalDataSudentVariable,
+    });
+  }
+
+  openStudentsByCohortDialog() {
+    this.dialog.open(ModalRiskStudentsCohortComponent, {
+      width: 'auto',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '80vh',
+      panelClass: 'border-modalbox-dialog',
     });
   }
 }
