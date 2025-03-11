@@ -3,7 +3,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import { PollInstanceService } from '../../core/services/poll-instance.service';
 import {
   FormControl,
   FormGroup,
@@ -14,10 +13,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NgFor } from '@angular/common';
 import { MatSelectChange } from '@angular/material/select';
-import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
-import { CohortService } from '../../core/services/cohort.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { CohortService } from '../../core/services/cohort.service';
+import { PollInstanceService } from '../../core/services/poll-instance.service';
+import { PollInstance } from '../../core/services/Types/pollInstance';
+import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -49,33 +50,32 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     'Modified At',
   ];
 
-  dropDays = ['1', '5', '15', '30', '60'];
+  dropDays = ['1', '5', '15', '30', '60', 'All'];
 
   pollInstanceService = inject(PollInstanceService);
   cohortService = inject(CohortService);
 
   loading = true;
-  data = new MatTableDataSource([]);
-  pollInstances = [];
+  data = new MatTableDataSource<PollInstance>([]);
+  pollInstances: PollInstance[] = [];
 
   cohortsData: Cohort[] = [];
-  selectedCohort = this.cohortsData[0];
+  selectedCohortId = 0;
   selectedDay = this.dropDays[3];
 
   filtersForm = new FormGroup({
-    cohortId: new FormControl(''),
+    cohortId: new FormControl(this.selectedCohortId),
     dropDays: new FormControl(this.selectedDay),
   });
 
   pageSize = 10;
   currentPage = 0;
-  totalPollInstances = 0;
 
   isMobile = false;
 
   ngOnInit(): void {
     this.loadCohortsList();
-    this.loadPollInstances('', this.selectedDay);
+    this.loadPollInstances(this.selectedCohortId, this.selectedDay);
     this.checkScreenSize();
   }
 
@@ -99,38 +99,33 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       };
       this.cohortsData = data;
       this.cohortsData.push(defaultOpt);
-      this.selectedCohort = data[0];
-      this.filtersForm.get('cohortId')?.setValue(data[0].id);
     });
   }
 
-  loadPollInstances(cohortId: string, days: string): void {
+  loadPollInstances(cohortId: number, days: string): void {
     this.pollInstanceService
-      .getPollInstancesByLastDays(parseInt(days))
+      .getPollInstancesByFilters(cohortId, parseInt(days))
       .subscribe(data => {
         this.loading = true;
-        this.data = new MatTableDataSource(data.body);
+        this.data = new MatTableDataSource<PollInstance>(data.body);
         this.pollInstances = data.body;
-        this.totalPollInstances = data.count;
         this.loading = false;
       });
   }
 
   onSelectionChange(event: MatSelectChange) {
     const controlName = event.source.ngControl.name;
-    const selectedValue = event.value;
+    let selectedValue = event.value;
     if (controlName === 'dropDays') {
-      console.log('Selected days:', selectedValue);
+      if (selectedValue == 'All') selectedValue = '0';
       this.selectedDay = selectedValue;
-      this.loadPollInstances('', selectedValue);
-      // Handle the change for dropDays
+      this.loadPollInstances(this.selectedCohortId, selectedValue);
     } else if (controlName === 'cohortId') {
       const select = this.cohortsData.find(
         cohort => cohort.id === selectedValue
       );
-      if (select) this.selectedCohort = select;
-      console.log('Selected cohort:', select);
-      // Handle the change for cohortId
+      if (select) this.selectedCohortId = select.id;
+      this.loadPollInstances(selectedValue, this.selectedDay);
     }
   }
 
