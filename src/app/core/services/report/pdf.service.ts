@@ -10,7 +10,7 @@ export class PdfService {
   exportToPDF(element: HTMLElement, name: string, callback?: () => void) {
     html2canvas(element, { scale: 2, useCORS: true })
       .then(canvas => {
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdf = new jsPDF('p', 'mm', 'letter');
 
         const marginTop = PDF_CONFIG.margin.top;
         const marginLeft = PDF_CONFIG.margin.left;

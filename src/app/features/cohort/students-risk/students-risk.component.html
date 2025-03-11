@@ -40,7 +40,9 @@
   </ng-container>
 
   <div class="table-container" #contentToExport>
-    <div>
+    <app-heat-map [pollId]="pollId"></app-heat-map>
+
+    <div id="table-container">
       <strong>Students Risk</strong>
       <table mat-table [dataSource]="students" class="mat-elevation-z8">
         <!-- Name Column -->
@@ -72,19 +74,7 @@
         <tr mat-row *matRowDef="let row; columns: columns"></tr>
       </table>
     </div>
-    <div>
-      <strong>Poll Questions</strong>
-      <table mat-table [dataSource]="pollVariables" class="mat-elevation-z8">
-        <!-- Name Column -->
-        <ng-container matColumnDef="variableName">
-          <th mat-header-cell *matHeaderCellDef>Question</th>
-          <td mat-cell *matCellDef="let element">{{ element.variableName }}</td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="variableColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: variableColumns"></tr>
-      </table>
-    </div>
+    <div></div>
   </div>
 } @loading {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>

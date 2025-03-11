@@ -3,7 +3,6 @@ import {
   ElementRef,
   inject,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { StudentService } from '../../../core/services/student.service';
@@ -28,6 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
+import { HeatMapComponent } from '../heat-map/heat-map.component';
 
 @Component({
   selector: 'app-students-risk',
@@ -40,6 +40,7 @@ import { generateFileName } from '../../../core/utilities/file/file-name';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    HeatMapComponent,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -69,8 +70,6 @@ export class StudentsRiskComponent implements OnInit {
 
   load = false;
 
-  constructor(private renderer: Renderer2) {}
-
   ngOnInit() {
     this.getCohorts();
     this.selectForm.controls['cohortId'].valueChanges.subscribe(value => {
@@ -83,6 +82,13 @@ export class StudentsRiskComponent implements OnInit {
         this.getPollVariables();
       }
     });
+  }
+
+  get pollId() {
+    const poll = this.polls.find(
+      poll => poll.id === this.selectForm.value.pollId
+    );
+    return `${poll?.uuid}`;
   }
 
   getStudentsByCohortAndPoll() {
@@ -111,6 +117,7 @@ export class StudentsRiskComponent implements OnInit {
 
   getPollsByCohortId(id: number) {
     this.pollsService.getPollsByCohortId(id).subscribe(data => {
+      console.log(data);
       this.polls = data;
     });
   }
@@ -135,28 +142,24 @@ export class StudentsRiskComponent implements OnInit {
     const option = Math.floor(riskLevel) as RiskColorType;
     return RISK_COLORS[option] || RISK_COLORS.default;
   }
-  cloneAndResizeElement(
-    originalElement: HTMLElement,
-    newWidth: string
-  ): HTMLElement {
-    const clonedElement = originalElement.cloneNode(true) as HTMLElement;
-    this.renderer.setStyle(clonedElement, 'width', newWidth);
-    this.renderer.setStyle(clonedElement, 'position', 'absolute');
-    this.renderer.setStyle(clonedElement, 'left', '-9999px');
-    return clonedElement;
-  }
 
   downloadPDF() {
     const fileName = generateFileName('cohort_report');
-    const clonedElement = this.cloneAndResizeElement(
-      this.contentToExport.nativeElement,
-      '800px'
-    );
+
+    const clonedElement = this.contentToExport.nativeElement.cloneNode(
+      true
+    ) as HTMLElement;
+
+    clonedElement.style.width = '100%';
+
+    clonedElement
+      .querySelector('#table-container')
+      ?.classList.add('list-container');
+
+    clonedElement.querySelector('#heatmap')?.classList.add('chart-container');
 
     document.body.appendChild(clonedElement);
-
-    this.pdfService.exportToPDF(clonedElement, fileName, () => {
-      document.body.removeChild(clonedElement);
-    });
+    this.pdfService.exportToPDF(clonedElement, fileName);
+    document.body.removeChild(clonedElement);
   }
 }
