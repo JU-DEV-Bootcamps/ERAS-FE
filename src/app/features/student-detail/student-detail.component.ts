@@ -24,6 +24,7 @@ import { register } from 'swiper/element/bundle';
 register();
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-student-detail',
@@ -78,6 +79,9 @@ export class StudentDetailComponent implements OnInit {
   studentPolls: StudentPoll[] = [];
   studentAnswers: Answer[] = [];
   componentsAvg: ComponentAvg[] = [];
+  studentId!: number;
+
+  constructor(private route: ActivatedRoute) {}
 
   columns = ['variable', 'position', 'component', 'answer', 'score'];
 
@@ -99,7 +103,11 @@ export class StudentDetailComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.getStudentDetails(26);
+    this.route.params.subscribe(params => {
+      this.studentId = +params['studentId'];
+      console.log('Student ID:', this.studentId);
+      this.getStudentDetails(this.studentId);
+    });
   }
 
   getStudentDetails(studentId: number) {
@@ -165,11 +173,8 @@ export class StudentDetailComponent implements OnInit {
 
     if (this.studentPolls[activeIndex]) {
       const pollId = this.studentPolls[activeIndex].id;
-
-      if (this.selectedPoll !== pollId) {
-        this.selectedPoll = pollId;
-        this.getStudentAnswersByPoll(26, this.selectedPoll);
-      }
+      this.selectedPoll = pollId;
+      this.getStudentAnswersByPoll(this.studentId, this.selectedPoll);
     } else {
       this.studentAnswers = [];
     }
@@ -184,7 +189,7 @@ export class StudentDetailComponent implements OnInit {
       return '#E5E880';
     } else if (value > 3 && value <= 4) {
       return '#E8B079';
-    } else if (value > 4 && value <= 5) {
+    } else if (value > 4) {
       return '#E68787';
     }
     return '#CCC';

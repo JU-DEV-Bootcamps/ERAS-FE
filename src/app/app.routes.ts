@@ -57,7 +57,7 @@ export const routes: Routes = [
         component: ListPollInstancesByLastDaysComponent,
       },
       {
-        path: 'student-details',
+        path: 'student-details/:studentId',
         component: StudentDetailComponent,
         canActivate: [authGuard],
       },
