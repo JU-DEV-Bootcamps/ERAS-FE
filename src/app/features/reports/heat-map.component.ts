@@ -347,10 +347,10 @@ export class HeatMapComponent implements OnInit {
 
   openStudentsByCohortDialog() {
     this.dialog.open(ModalRiskStudentsCohortComponent, {
-      width: 'auto',
+      width: 'clamp(320px, 40vw, 550px)',
       maxWidth: '80vw',
       minHeight: '500px',
-      maxHeight: '80vh',
+      maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
     });
   }
