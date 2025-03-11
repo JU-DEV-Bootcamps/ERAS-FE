@@ -40,17 +40,16 @@ import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
   styleUrl: './list-poll-instances-by-filters.component.scss',
 })
 export class ListPollInstancesByFiltersComponent implements OnInit {
-  columns = ['uuid', 'finishedAt', 'name', 'email', 'createdAt', 'modifiedAt'];
+  columns = ['uuid', 'finishedAt', 'name', 'email', 'modifiedAt'];
   columnsText = [
     'Uuid',
     'Finished At',
     'Student Name',
     'Student Email',
-    'Created At',
     'Modified At',
   ];
 
-  dropDays = ['1', '5', '15', '30', '60', 'All'];
+  dropDays = ['1', '5', '15', '30', '60', '+ 60'];
 
   pollInstanceService = inject(PollInstanceService);
   cohortService = inject(CohortService);
@@ -117,7 +116,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     const controlName = event.source.ngControl.name;
     let selectedValue = event.value;
     if (controlName === 'dropDays') {
-      if (selectedValue == 'All') selectedValue = '0';
+      if (selectedValue == '+ 60') selectedValue = '0';
       this.selectedDay = selectedValue;
       this.loadPollInstances(this.selectedCohortId, selectedValue);
     } else if (controlName === 'cohortId') {
@@ -137,6 +136,19 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   goToDetails(pollInstance: PollInstance): void {
     // TODO: redirect to student details page
     console.log('Student:', pollInstance.student);
+  }
+
+  getWidth(column: string): string {
+    switch (column) {
+      case 'modifiedAt':
+      case 'finishedAt':
+        return '15%';
+      case 'name':
+      case 'email':
+        return '20%';
+      default:
+        return '';
+    }
   }
 }
 
