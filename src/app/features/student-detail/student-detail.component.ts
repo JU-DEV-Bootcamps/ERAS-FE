@@ -3,6 +3,7 @@ import {
   inject,
   OnInit,
   CUSTOM_ELEMENTS_SCHEMA,
+  OnDestroy,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +26,7 @@ register();
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
+import { takeUntil, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-student-detail',
@@ -42,7 +44,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './student-detail.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class StudentDetailComponent implements OnInit {
+export class StudentDetailComponent implements OnInit, OnDestroy {
   studentDetails: Student = {
     entity: {
       uuid: '',
@@ -102,6 +104,8 @@ export class StudentDetailComponent implements OnInit {
     },
   };
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.studentId = +params['studentId'];
@@ -110,39 +114,51 @@ export class StudentDetailComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   getStudentDetails(studentId: number) {
-    this.studentService.getStudentDetailsById(studentId).subscribe({
-      next: (data: Student) => {
-        this.studentDetails = data;
-        this.getStudentPolls(studentId);
-      },
-      error: error => {
-        console.log(error);
-      },
-    });
+    this.studentService
+      .getStudentDetailsById(studentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Student) => {
+          this.studentDetails = data;
+          this.getStudentPolls(studentId);
+        },
+        error: error => {
+          console.log(error);
+        },
+      });
   }
 
   getStudentPolls(studentId: number) {
-    this.pollsService.getPollsByStudentId(studentId).subscribe({
-      next: (data: StudentPoll[]) => {
-        this.studentPolls = data;
-        data.forEach((studentPoll: StudentPoll) => {
-          this.getComponentsAvg(studentId, studentPoll.id);
-        });
-        if (this.studentPolls.length > 0) {
-          this.selectedPoll = this.studentPolls[0].id;
-          this.getStudentAnswersByPoll(studentId, this.selectedPoll);
-        }
-      },
-      error: error => {
-        console.log(error);
-      },
-    });
+    this.pollsService
+      .getPollsByStudentId(studentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: StudentPoll[]) => {
+          this.studentPolls = data;
+          data.forEach((studentPoll: StudentPoll) => {
+            this.getComponentsAvg(studentId, studentPoll.id);
+          });
+          if (this.studentPolls.length > 0) {
+            this.selectedPoll = this.studentPolls[0].id;
+            this.getStudentAnswersByPoll(studentId, this.selectedPoll);
+          }
+        },
+        error: error => {
+          console.log(error);
+        },
+      });
   }
 
   getComponentsAvg(studentId: number, pollId: number) {
     this.componentService
       .getComponentsRiskByPollForStudent(studentId, pollId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: ComponentAvg[]) => {
           this.componentsAvg = [...this.componentsAvg, ...data];
@@ -155,15 +171,18 @@ export class StudentDetailComponent implements OnInit {
   }
 
   getStudentAnswersByPoll(studentId: number, pollId: number) {
-    this.answersService.getStudentAnswersByPoll(studentId, pollId).subscribe({
-      next: (data: Answer[]) => {
-        console.log('Loading Table');
-        this.studentAnswers = data;
-      },
-      error: error => {
-        console.log(error);
-      },
-    });
+    this.answersService
+      .getStudentAnswersByPoll(studentId, pollId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Answer[]) => {
+          console.log('Loading Table');
+          this.studentAnswers = data;
+        },
+        error: error => {
+          console.log(error);
+        },
+      });
   }
 
   onSlideChange(event: any) {
