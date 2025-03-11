@@ -1,25 +1,27 @@
 import { RISK_COLORS } from '../../../core/constants/riskLevel';
 
 export abstract class ChartBase {
-  abstract seriesY: () => number[];
-  abstract colors: () => string[];
-  abstract categoriesX: () => string[];
-
-  protected loadDataFromInput() {
+  protected loadDataFromInput(
+    categoriesX: string[],
+    seriesY: number[],
+    colors: string[]
+  ) {
     if (
-      this.seriesY.length !== this.categoriesX.length ||
-      this.categoriesX.length !== this.colors.length
+      seriesY.length !== categoriesX.length ||
+      categoriesX.length !== colors.length
     ) {
       throw new Error(
-        `Data for chart should have ${this.colors.length} length by default. Otherwise replace colors and categories input.`
+        `Data for chart should have ${colors.length} length by default. Otherwise replace colors and categories input.`
       );
     }
-    return this.seriesY().map((yData, index) => {
+    const series = seriesY.map((yData, index) => {
       return {
         y: yData,
-        x: this.categoriesX()[index],
-        fillColor: this.colors()[index] || RISK_COLORS.default,
+        x: categoriesX[index],
+        fillColor: colors[index] || RISK_COLORS.default,
       };
     });
+    console.info('series', series);
+    return series;
   }
 }

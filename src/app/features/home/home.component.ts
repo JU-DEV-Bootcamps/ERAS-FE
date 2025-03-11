@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
@@ -14,9 +9,9 @@ import { CohortService } from '../../core/services/cohort.service';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { EvaluationProcessService } from '../../core/services/evaluation-process.service';
 import { PollModel } from '../../core/models/PollModel';
-import { CohortsSummaryModel, CohortSummaryModel } from '../../core/models/CohortSummaryModel';
-import { Observable } from 'rxjs';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { CohortsSummaryModel } from '../../core/models/CohortSummaryModel';
+import { DatePipe } from '@angular/common';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-home',
@@ -27,26 +22,54 @@ import { AsyncPipe, DatePipe } from '@angular/common';
     BarChartComponent,
     PieChartComponent,
     RouterLink,
-    AsyncPipe,
     DatePipe,
+    MatProgressSpinner,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
-  cohortsSummary$!: Observable<CohortsSummaryModel>;
-  evalProcSummary$!: Observable<PollModel[]>;
+  // Cohorts-Students-PollIntances-Answer-Variable Data
+  cohortsList: string[] = [];
+  cohortsSummary: CohortsSummaryModel | undefined;
+  summaryReqError: string | undefined;
+  // EvalProcess-Polls-PollIntances-Answer-Variable Data
+  evalProcSummary: PollModel[] | undefined;
   router = inject(Router);
   cohortsService = inject(CohortService);
   evalService = inject(EvaluationProcessService);
   clService = inject(CosmicLatteService);
   healthCheckStatus = false;
-
+  pollResults = [44, 55, 13, 43, 22, 113];
   async ngOnInit(): Promise<void> {
     this.healthCheck();
-    this.evalProcSummary$ = this.evalService.getEvalProcSummary();
-    this.cohortsSummary$ = this.cohortsService.getCohortsSummary();
+    this.loadEvalProcSummary();
+    this.loadCohortsSummary();
+  }
+
+  loadCohortsSummary() {
+    this.cohortsService.getCohortsSummary().subscribe({
+      next: summary => {
+        console.info(summary);
+        this.cohortsSummary = summary;
+        this.cohortsList = summary.summary.map(cohort => cohort.cohortName);
+      },
+      error: error => {
+        this.summaryReqError = error;
+      },
+    });
+  }
+
+  loadEvalProcSummary() {
+    this.evalService.getEvalProcSummary().subscribe({
+      next: summary => {
+        console.info(summary);
+        this.evalProcSummary = summary;
+      },
+      error: error => {
+        this.summaryReqError = error;
+      },
+    });
   }
 
   healthCheck() {

@@ -2,35 +2,42 @@
   <h1 class="page-title">Home</h1>
   <h2 class="page-subtitle">Overview</h2>
   <div class="section" style="height: 200px">
-    @if (cohortsSummary$ | async; as cohortsSummary) {
-      <mat-card class="link-card" routerLink="/list-students-by-poll">
-        <mat-icon>account_balance</mat-icon>
-        <mat-card-title>Cohorts</mat-card-title>
-        <mat-card-footer>{{ cohortsSummary.cohortCount }}</mat-card-footer>
-      </mat-card>
-      <mat-card class="link-card" routerLink="/list-students-by-poll">
-        <mat-icon>group</mat-icon>
-        <mat-card-title>Students</mat-card-title>
-        <mat-card-footer>{{ cohortsSummary.studentCount }}</mat-card-footer>
-      </mat-card>
-      <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
-        <mat-icon>file_copy</mat-icon>
-        <mat-card-title>Polls</mat-card-title>
-        <mat-card-footer>{{ cohortsSummary.studentCount }}</mat-card-footer>
-      </mat-card>
-    }
-    @if (evalProcSummary$ | async; as evalProcSummary) {
-      <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
-        <mat-icon>insert_chart</mat-icon>
-        <mat-card-title>Evaluations</mat-card-title>
-        <mat-card-footer>{{ 0 }}</mat-card-footer>
-      </mat-card>
+    <mat-card class="link-card" routerLink="/list-students-by-poll">
+      <mat-icon>account_balance</mat-icon>
+      <mat-card-title>Cohorts</mat-card-title>
+      <mat-card-footer>{{
+        cohortsSummary?.cohortCount || '?'
+      }}</mat-card-footer>
+    </mat-card>
+    <mat-card class="link-card" routerLink="/list-students-by-poll">
+      <mat-icon>group</mat-icon>
+      <mat-card-title>Students</mat-card-title>
+      <mat-card-footer>{{
+        cohortsSummary?.studentCount || '?'
+      }}</mat-card-footer>
+    </mat-card>
+    <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
+      <mat-icon>file_copy</mat-icon>
+      <mat-card-title>Polls</mat-card-title>
+      <mat-card-footer>{{
+        cohortsSummary?.studentCount || '?'
+      }}</mat-card-footer>
+    </mat-card>
+    <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
+      <mat-icon>insert_chart</mat-icon>
+      <mat-card-title>Evaluations</mat-card-title>
+      <mat-card-footer>{{ 0 }}</mat-card-footer>
+    </mat-card>
+    @if (summaryReqError) {
+      <span class="ErrorMessage"
+        >Could not load all summary details: {{ summaryReqError }}</span
+      >
     }
   </div>
   <h2 class="page-subtitle">Recent Polls</h2>
   <!-- Todo: Add URL PARAM to send last days -->
   <p class="link" routerLink="/list-polls-by-lastDays">View all Polls</p>
-  @if (evalProcSummary$ | async; as evalProcSummary) {
+  @if (evalProcSummary) {
     <mat-card class="summary-section" appearance="outlined">
       <mat-card-header>
         <mat-card-title>{{ evalProcSummary[0].name }}</mat-card-title>
@@ -69,7 +76,10 @@
           <mat-card-title style="text-align: center; font-weight: bold"
             >Results Summary</mat-card-title
           >
-          <app-bar-chart style="width: 90%"></app-bar-chart>
+          <app-bar-chart
+            [seriesY]="pollResults"
+            style="width: 90%"
+          ></app-bar-chart>
         </mat-card>
         <mat-card class="chart-card">
           <mat-card-title style="text-align: center; font-weight: bold"
@@ -77,7 +87,10 @@
           >
           <div class="overlaped">
             <p class="front-result">{{ evalProcSummary[0].average || 0 }}</p>
-            <app-pie-chart class="back-result"></app-pie-chart>
+            <app-pie-chart
+              [seriesY]="pollResults"
+              class="back-result"
+            ></app-pie-chart>
           </div>
         </mat-card>
       </div>
