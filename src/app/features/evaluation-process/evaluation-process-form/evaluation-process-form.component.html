@@ -1,0 +1,103 @@
+<mat-dialog-content class="modal">
+  <span class="closeButtonContainer">
+    <mat-icon class="closeModalButton" (click)="closeAndResetDialog()"
+      >close</mat-icon
+    >
+  </span>
+
+  <p class="modalTitle">{{ title }}</p>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <mat-form-field class="input" appearance="outline">
+        <mat-label>Enter a name</mat-label>
+        <input matInput formControlName="Name" placeholder="Enter a name" />
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('Name')?.hasError('minlength') && form.get('Name')?.touched
+          "
+        >
+          At least
+          {{ form.get('Name')?.errors?.['minlength'].requiredLength }}
+          characters are required.
+        </mat-error>
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('Name')?.hasError('maxlength') && form.get('Name')?.touched
+          "
+        >
+          A maximum of
+          {{ form.get('Name')?.errors?.['maxlength'].requiredLength }}
+          characters are allowed.
+        </mat-error>
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('Name')?.hasError('required') && form.get('Name')?.touched
+          "
+        >
+          This cannot be empty.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field class="input" appearance="outline">
+        @if (pollDataSelected !== null) {
+          <mat-label> {{ pollDataSelected.selectData }}</mat-label>
+        } @else {
+          <mat-label>Select a COSMIC LATTE poll by name</mat-label>
+        }
+        <mat-select
+          formControlName="PollId"
+          [value]="
+            pollDataSelected?.selectData?.replace('evaluationSets:', '') || ''
+          "
+        >
+          @for (poll of pollsNames; track poll) {
+            @if (poll.name === 'null') {
+              <mat-option [value]="poll.name"
+                >-- I prefer to choose later --</mat-option
+              >
+            } @else {
+              <mat-option [value]="poll.parent.replace('evaluationSets:', '')"
+                >{{ poll.name }} - Id:
+                {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
+              >
+            }
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field class="input">
+        <mat-label>Choose a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input
+            matStartDate
+            placeholder="Start date"
+            formControlName="StartDate"
+          />
+          <input matEndDate placeholder="End date" formControlName="EndDate" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+    </div>
+    <mat-dialog-actions class="buttonContainer">
+      <button
+        *ngIf="data.deleteFunction !== null"
+        type="button"
+        class="modalDeleteButton"
+        (click)="deleteEvaluation()"
+      >
+        Delete
+      </button>
+      <button class="modalMainButton" type="submit">{{ buttonText }}</button>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

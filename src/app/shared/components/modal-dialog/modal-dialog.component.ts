@@ -22,6 +22,8 @@ export interface DialogData {
     showMessage: boolean;
     details: string[];
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deleteConfirmFunction: any | null;
 }
 @Component({
   selector: 'app-modal',

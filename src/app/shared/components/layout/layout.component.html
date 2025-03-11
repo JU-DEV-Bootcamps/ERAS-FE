@@ -23,6 +23,16 @@
       <p>
         <button
           mat-button
+          (click)="redirect('evaluation-process')"
+          class="custom-nav-button"
+        >
+          <mat-icon>fact_check_outline</mat-icon>
+          Evaluation process
+        </button>
+      </p>
+      <p>
+        <button
+          mat-button
           (click)="toggleLists(!isListsExpanded)"
           class="custom-nav-button"
         >

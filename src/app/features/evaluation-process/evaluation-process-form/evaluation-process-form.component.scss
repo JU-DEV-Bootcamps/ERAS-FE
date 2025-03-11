@@ -1,0 +1,77 @@
+@use '../../../../styles/utils/index.scss' as main-styles;
+
+
+.modal{
+  padding-top:25px ;
+  padding-bottom:25px ;
+  
+    .modalTitle{
+        text-align: center;
+        font-size: main-styles.get-font-size(headline, small);
+        font-weight: main-styles.get-font-weight(semi-bold);
+        margin-bottom: 45px;
+    }
+    form{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content:space-between;
+        align-items: center;
+        gap: 30px;
+        .row{
+          text-align: center;
+          width: 90%;
+          .mat-mdc-form-field{
+            width: 100%;
+            text-align: center;
+          }
+        }
+    }
+    
+  .closeButtonContainer {
+    display: flex;
+    justify-content: end;
+    mat-icon {
+      color: main-styles.get-color(neutral, 90);
+      &:hover {
+        color: main-styles.get-color(primary, 50);
+      }
+    }
+  }
+  .buttonContainer {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    width: 100%;
+    margin: 0px;
+    padding-top: 0;
+    padding-bottom: 0;
+    @media (min-width: 500px) {
+      margin: 16px;
+    }
+    button {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: main-styles.get-color(primary, 50);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      font-size: main-styles.get-font-size(body, large);
+      font-weight: 500;
+      line-height: 125%;
+      height: 40px;
+      width: 150px;
+      padding: 10px 16px;
+      @media (min-width: 500px) {
+        padding: 10px 16px;
+        width: 200px;
+        width: 150px;
+      }
+    }
+    .modalDeleteButton{
+      background-color: main-styles.get-color(error, 70);
+
+    }
+  }
+}

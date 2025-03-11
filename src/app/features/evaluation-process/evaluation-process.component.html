@@ -1,0 +1,50 @@
+<div>
+  <h2 class="page-title">Evaluation process</h2>
+</div>
+
+<div>
+  <!-- 
+
+    @if(evaluationProcessList.length == 0){
+        <span class="noEvalsContainer">            
+            <p class="noEvalsTitle">There are no processes created yet</p>
+            <button
+              class="button"
+              mat-flat-button
+              type="button"
+              (click)="openModalNewEvaluationProcess()" >
+              Let's create a new one!
+            </button>
+        </span>
+    } @else {     
+      <span class="evalsContainer">
+        <button
+          class="button"
+          mat-flat-button
+          type="button"
+          (click)="openModalNewEvaluationProcess()"
+        >
+          Add new
+        </button>
+        <app-evaluation-process-list
+          class="evaluationList"
+        ></app-evaluation-process-list>
+      </span>       
+    }
+    
+    
+    -->
+  <span class="evalsContainer">
+    <button
+      class="button"
+      mat-flat-button
+      type="button"
+      (click)="openModalNewEvaluationProcess()"
+    >
+      Add new
+    </button>
+    <app-evaluation-process-list
+      class="evaluationList"
+    ></app-evaluation-process-list>
+  </span>
+</div>

@@ -3,6 +3,10 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {
+  CreateEvaluationProcess,
+  ReadEvaluationProcess,
+} from '../../shared/models/EvaluationProcess';
 
 @Injectable({
   providedIn: 'root',
@@ -15,5 +19,22 @@ export class EvaluationProcessService {
 
   getEvalProcSummary(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
+  }
+  createEvalProc(data: CreateEvaluationProcess): Observable<any> {
+    console.log('creando proceso de evaluacion');
+    console.log('creando proceso de evaluacion');
+    console.log('creando proceso de evaluacion');
+    console.log(data);
+    return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
+  }
+  getAllEvalProc(): Observable<ReadEvaluationProcess[]> {
+    return this.http.get<ReadEvaluationProcess[]>(
+      `${this.apiUrl}/${this.endpoint}`
+    );
+  }
+  deleteEvaluationProcess(id: string): Observable<ReadEvaluationProcess> {
+    return this.http.delete<ReadEvaluationProcess>(
+      `${this.apiUrl}/${this.endpoint}/${id}`
+    ); // check if it is param or path
   }
 }

@@ -1,0 +1,39 @@
+@use './../../../styles/utils/index.scss' as main-styles;
+
+.noEvalsContainer{
+    padding-top: 20vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5vh;
+    p{
+        font-size: 24px;
+        text-align: center;
+    }
+    .button{
+        margin: 10px;
+        background: main-styles.get-color(primary, 60);
+        color: white;
+        width: 200px;
+    }
+}
+.evalsContainer{
+    padding-top: 8vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0;
+    width: 100%;
+    .button{
+        background: main-styles.get-color(primary, 60);
+        color: white;
+        width: auto;
+        margin-bottom: -50px;
+    }
+    .evaluationList{
+        display: block;
+        width: 100%;
+    }
+}
