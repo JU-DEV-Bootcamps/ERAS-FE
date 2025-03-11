@@ -12,10 +12,11 @@ import { PieChartComponent } from '../../shared/components/charts/pie-chart/pie-
 import { Router, RouterLink } from '@angular/router';
 import { CohortService } from '../../core/services/cohort.service';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 import { EvaluationProcessService } from '../../core/services/evaluation-process.service';
-import { CohortSummaryModel } from '../../core/models/CohortSummaryModel';
 import { PollModel } from '../../core/models/PollModel';
+import { CohortsSummaryModel, CohortSummaryModel } from '../../core/models/CohortSummaryModel';
+import { Observable } from 'rxjs';
+import { AsyncPipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-home',
@@ -26,60 +27,36 @@ import { PollModel } from '../../core/models/PollModel';
     BarChartComponent,
     PieChartComponent,
     RouterLink,
+    AsyncPipe,
+    DatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
-  cohortsSummary: CohortSummaryModel[] = [];
-  studentsCount: string | number = '?';
-  cohortsCount: string | number = '?';
-  pollsCount: string | number = '?';
-  pollsInstanceCount: string | number = '?';
-  evaluationsCount: string | number = '?';
-  evalSummary: PollModel[] = [];
-  lastPoll: PollModel | null = null;
-  healthCheckRes: HealthCheckResponse | null = null;
-  healthCheckStatus = false;
-
+  cohortsSummary$!: Observable<CohortsSummaryModel>;
+  evalProcSummary$!: Observable<PollModel[]>;
   router = inject(Router);
   cohortsService = inject(CohortService);
   evalService = inject(EvaluationProcessService);
   clService = inject(CosmicLatteService);
+  healthCheckStatus = false;
 
-  ngOnInit(): void {
-    this.loadEvalProcSummary();
-    this.loadCohortsSummary();
+  async ngOnInit(): Promise<void> {
     this.healthCheck();
-  }
-
-  loadEvalProcSummary(): void {
-    this.evalService.getEvalProcSummary().subscribe(data => {
-      this.pollsCount = data.length;
-      this.pollsInstanceCount = 0;
-      this.lastPoll = data[0];
-      this.evalSummary = data;
-    });
-  }
-
-  loadCohortsSummary(): void {
-    this.cohortsService.getCohortsSummary().subscribe(data => {
-      this.cohortsCount = new Set(data.map(d => d.cohortName)).size;
-      this.studentsCount = data.length;
-      this.cohortsSummary = data;
-    });
+    this.evalProcSummary$ = this.evalService.getEvalProcSummary();
+    this.cohortsSummary$ = this.cohortsService.getCohortsSummary();
   }
 
   healthCheck() {
     this.clService.healthCheck().subscribe(response => {
       this.healthCheckStatus =
         response.entries.cosmicLatteApi.status === 'Healthy';
-      this.healthCheckRes = response;
     });
   }
 
   redirectToLastPoll() {
-    this.router.navigate([`polls/${this.lastPoll?.id}`]);
+    this.router.navigate([`list-polls-by-cohort`]);
   }
 }

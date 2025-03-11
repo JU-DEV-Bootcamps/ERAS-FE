@@ -26,7 +26,6 @@ export const appConfig: ApplicationConfig = {
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptors([keycloakHttpInterceptor]), withFetch()),
     provideAnimationsAsync(),
   ],

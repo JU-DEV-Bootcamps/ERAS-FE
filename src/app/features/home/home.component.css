@@ -76,9 +76,23 @@
 .back-result {
   color: #008581;
 }
-.check{
-    color: #07CB07;
+.check {
+  color: #07cb07;
 }
-.close{
-    color: #F13636;
+.close {
+  color: #f13636;
+}
+
+mat-card-actions {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: -15px;
+}
+
+.CL-Icon {
+  color: #9064b9;
+  font-size: 64px;
+  width: 100px;
+  height: 80px;
 }
