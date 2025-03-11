@@ -28,9 +28,9 @@
       </mat-select>
     </mat-form-field>
 
-    <button mat-fab extended type="submit">
-      <mat-icon>insert_chart_outlined</mat-icon>
-      Generate HeatMap
+    <button mat-fab extended type="submit" (click)="generateHeatMap()">
+      <mat-icon>dashboard</mat-icon>
+      HeatMap
     </button>
   </div>
 </form>
@@ -67,44 +67,53 @@
       }
     </div>
   } @else {
-    <div class="mat-elevation-z8">
-      <table mat-table [dataSource]="data">
-        @for (column of columns; track $index) {
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef>{{ columnsText[$index] }}</th>
-            <td mat-cell *matCellDef="let element">
-              @if (column === 'createdAt' || column === 'modifiedAt') {
-                {{ element['audit'][column] | timestampToDate }}
-              } @else if (column === 'name' || column === 'email') {
-                <p class="information">
-                  {{ element['student'][column] }}
-                </p>
-              } @else if (column === 'finishedAt') {
-                {{ element[column] | timestampToDate }}
-              } @else {
-                {{ element[column] }}
-              }
+    @if (pollInstances.length > 0) {
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="data">
+          @for (column of columns; track $index) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ columnsText[$index] }}
+              </th>
+              <td mat-cell *matCellDef="let element">
+                @if (column === 'createdAt' || column === 'modifiedAt') {
+                  {{ element['audit'][column] | timestampToDate }}
+                } @else if (column === 'name' || column === 'email') {
+                  <p class="information">
+                    {{ element['student'][column] }}
+                  </p>
+                } @else if (column === 'finishedAt') {
+                  {{ element[column] | timestampToDate }}
+                } @else {
+                  {{ element[column] }}
+                }
+              </td>
+            </ng-container>
+          }
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Details</th>
+            <td mat-cell *matCellDef="let poll">
+              <button mat-icon-button (click)="goToDetails(poll)">
+                <mat-icon>assignment</mat-icon>
+              </button>
             </td>
           </ng-container>
-        } @empty {
-          <li>There are no items.</li>
-        }
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Details</th>
-          <td mat-cell *matCellDef="let poll">
-            <button mat-icon-button (click)="actionMethod()">
-              <mat-icon>analytics</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columns.concat(['actions'])"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: columns.concat(['actions'])"
-        ></tr>
-      </table>
-    </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="columns.concat(['actions'])"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: columns.concat(['actions'])"
+          ></tr>
+        </table>
+      </div>
+    } @else {
+      <div class="no-data">
+        <p class="no-data-message">Poll instances not found.</p>
+      </div>
+    }
   }
 }

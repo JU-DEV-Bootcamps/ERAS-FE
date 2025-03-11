@@ -129,8 +129,14 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     }
   }
 
-  actionMethod() {
-    console.log('Button was clicked!');
+  generateHeatMap(): void {
+    // TODO: Create heatmap with filters
+    console.log('Generating Heat Map');
+  }
+
+  goToDetails(pollInstance: PollInstance): void {
+    // TODO: redirect to student details page
+    console.log('Student:', pollInstance.student);
   }
 }
 
