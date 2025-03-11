@@ -19,6 +19,7 @@ import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { PollInstance } from '../../core/services/Types/pollInstance';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -40,6 +41,8 @@ import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
   styleUrl: './list-poll-instances-by-filters.component.scss',
 })
 export class ListPollInstancesByFiltersComponent implements OnInit {
+  router = inject(Router);
+
   columns = ['uuid', 'finishedAt', 'name', 'email', 'modifiedAt'];
   columnsText = [
     'Uuid',
@@ -134,8 +137,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   }
 
   goToDetails(pollInstance: PollInstance): void {
-    // TODO: redirect to student details page
-    console.log('Student:', pollInstance.student);
+    window.open(`student-details/${pollInstance.student.id}`, '_blank');
   }
 
   getWidth(column: string): string {

@@ -11,6 +11,7 @@ import { authGuard } from './shared/guards/auth.guard';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
+import { StudentDetailComponent } from './features/student-detail/student-detail.component';
 import { HomeComponent } from './features/home/home.component';
 
 export const routes: Routes = [
@@ -49,6 +50,11 @@ export const routes: Routes = [
       {
         path: 'list-polls-by-filters',
         component: ListPollInstancesByFiltersComponent,
+      },
+      {
+        path: 'student-details/:studentId',
+        component: StudentDetailComponent,
+        canActivate: [authGuard],
       },
       //Example to use guard with role
       {
