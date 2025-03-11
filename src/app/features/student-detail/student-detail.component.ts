@@ -232,7 +232,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
     }
 
     for (const pollId in groupedByPoll) {
-      this.chartSeriesByPollId[pollId] = [{ data: groupedByPoll[pollId] }];
+      this.chartSeriesByPollId[pollId] = [{ name: 'Component Average',data: groupedByPoll[pollId] }];
     }
   }
 

@@ -20,7 +20,7 @@ export class ComponentsService {
     const params = new HttpParams()
       .set('studentId', studentId)
       .set('pollId', pollId);
-    const url = `${this.apiUrl}/${this.endpoint}/getComponentsRiskAvgByStudent`;
+    const url = `${this.apiUrl}/${this.endpoint}/RiskAvg`;
     return this.http.get<ComponentAvg[]>(url, { params });
   }
 }

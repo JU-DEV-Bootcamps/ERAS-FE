@@ -20,7 +20,7 @@ export class AnswersService {
     const params = new HttpParams()
       .set('studentId', studentId)
       .set('pollId', pollId);
-    const url = `${this.apiUrl}/${this.endpoint}/getStudentAnswersByPoll`;
+    const url = `${this.apiUrl}/${this.endpoint}/answers`;
     return this.http.get<Answer[]>(url, { params });
   }
 }
