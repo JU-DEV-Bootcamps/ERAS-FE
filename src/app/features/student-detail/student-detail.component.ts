@@ -18,6 +18,7 @@ import { ComponentsService } from '../../core/services/components.service';
 import { AnswersService } from '../../core/services/answers.service';
 import { ComponentAvg } from '../../shared/models/components/component-avg.model';
 import { Answer } from '../../shared/models/answers/answer.model';
+import { Audit } from '../../shared/models/audit.model';
 import { Swiper } from 'swiper/types';
 import { register } from 'swiper/element/bundle';
 register();
@@ -41,7 +42,33 @@ import { MatTableModule } from '@angular/material/table';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class StudentDetailComponent implements OnInit {
-  studentDetails: Student = {} as Student;
+  studentDetails: Student = {
+    entity: {
+      uuid: '',
+      name: '',
+      email: '',
+      studentDetail: {
+        studentId: 0,
+        enrolledCourses: 0,
+        gradedCourses: 0,
+        timeDeliveryRate: 0,
+        avgScore: 0,
+        coursesUnderAvg: 0,
+        pureScoreDiff: 0,
+        standardScoreDiff: 0,
+        lastAccessDays: 0,
+        audit: null,
+        id: 0,
+      },
+      audit: {} as Audit,
+      cohortId: 0,
+      cohort: null,
+      id: 0,
+    },
+    message: '',
+    success: false,
+  };
+
   studentService = inject(StudentService);
   pollsService = inject(PollService);
   componentService = inject(ComponentsService);
@@ -135,9 +162,14 @@ export class StudentDetailComponent implements OnInit {
     const swiperInstance = event.target.swiper as Swiper;
     const activeIndex = swiperInstance.activeIndex;
     console.log('Active index:', activeIndex);
+
     if (this.studentPolls[activeIndex]) {
-      this.selectedPoll = this.studentPolls[activeIndex].id;
-      this.getStudentAnswersByPoll(26, this.selectedPoll);
+      const pollId = this.studentPolls[activeIndex].id;
+
+      if (this.selectedPoll !== pollId) {
+        this.selectedPoll = pollId;
+        this.getStudentAnswersByPoll(26, this.selectedPoll);
+      }
     } else {
       this.studentAnswers = [];
     }
@@ -161,17 +193,19 @@ export class StudentDetailComponent implements OnInit {
   buildChartSeries() {
     const groupedByPoll: { [pollId: number]: any[] } = {};
 
-    this.componentsAvg.forEach(item => {
-      if (!groupedByPoll[item.pollId]) {
-        groupedByPoll[item.pollId] = [];
-      }
+    if (this.componentsAvg && this.componentsAvg.length > 0) {
+      this.componentsAvg.forEach(item => {
+        if (!groupedByPoll[item.pollId]) {
+          groupedByPoll[item.pollId] = [];
+        }
 
-      groupedByPoll[item.pollId].push({
-        x: this.capitalize(item.name),
-        y: Number(item.componentAvg.toFixed(2)),
-        fillColor: this.getColorByRisk(item.componentAvg),
+        groupedByPoll[item.pollId].push({
+          x: this.capitalize(item.name),
+          y: Number(item.componentAvg.toFixed(2)),
+          fillColor: this.getColorByRisk(item.componentAvg),
+        });
       });
-    });
+    }
 
     for (const pollId in groupedByPoll) {
       this.chartSeriesByPollId[pollId] = [{ data: groupedByPoll[pollId] }];
