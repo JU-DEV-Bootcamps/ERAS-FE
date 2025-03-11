@@ -8,7 +8,6 @@ import { ImportStudentsComponent } from './features/import-students/import-stude
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { LoginComponent } from './features/login/login.component';
 import { authGuard } from './shared/guards/auth.guard';
-import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list-polls-by-cohort.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
@@ -38,10 +37,6 @@ export const routes: Routes = [
       {
         path: 'import-answers',
         component: ImportAnswersComponent,
-      },
-      {
-        path: 'list-polls-by-cohort',
-        component: ListPollsByCohortComponent,
       },
       {
         path: 'import-students',
