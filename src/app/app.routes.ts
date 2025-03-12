@@ -8,10 +8,9 @@ import { ImportStudentsComponent } from './features/import-students/import-stude
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { LoginComponent } from './features/login/login.component';
 import { authGuard } from './shared/guards/auth.guard';
-import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list-polls-by-cohort.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
-import { ListPollInstancesByLastDaysComponent } from './features/list-poll-instances-by-lastdays/list-poll-instances-by-lastdays.component';
+import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
 import { StudentDetailComponent } from './features/student-detail/student-detail.component';
 import { HomeComponent } from './features/home/home.component';
 import { CohortComponent } from './features/cohort/cohort/cohort.component';
@@ -42,10 +41,6 @@ export const routes: Routes = [
         component: ImportAnswersComponent,
       },
       {
-        path: 'list-polls-by-cohort',
-        component: ListPollsByCohortComponent,
-      },
-      {
         path: 'import-students',
         component: ImportStudentsComponent,
       },
@@ -58,8 +53,8 @@ export const routes: Routes = [
         component: ListStudentsByPollComponent,
       },
       {
-        path: 'list-polls-by-lastDays',
-        component: ListPollInstancesByLastDaysComponent,
+        path: 'list-polls-by-filters',
+        component: ListPollInstancesByFiltersComponent,
       },
       {
         path: 'student-details/:studentId',

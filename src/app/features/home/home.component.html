@@ -60,7 +60,10 @@
         <mat-card-title style="text-align: center; font-weight: bold"
           >Results Summary</mat-card-title
         >
-        <app-bar-chart style="width: 90%"></app-bar-chart>
+        <app-bar-chart
+          [seriesY]="[1, 2, 3, 4, 5, 6]"
+          style="width: 90%"
+        ></app-bar-chart>
       </mat-card>
       <mat-card class="chart-card">
         <mat-card-title style="text-align: center; font-weight: bold"
