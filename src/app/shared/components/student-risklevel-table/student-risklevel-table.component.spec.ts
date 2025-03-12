@@ -8,9 +8,8 @@ describe('StudentRisklevelTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StudentRisklevelTableComponent]
-    })
-    .compileComponents();
+      imports: [StudentRisklevelTableComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(StudentRisklevelTableComponent);
     component = fixture.componentInstance;

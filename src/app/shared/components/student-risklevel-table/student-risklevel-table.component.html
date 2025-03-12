@@ -24,10 +24,7 @@
         Risk Level
       </mat-header-cell>
       <mat-cell *matCellDef="let item" class="risk-column">
-        <div
-          class="risk-badge"
-          [style.backgroundColor]="(item.answer.riskLevel)"
-        >
+        <div class="risk-badge" [style.backgroundColor]="item.answer.riskLevel">
           {{ item.answer.riskLevel }}
         </div>
       </mat-cell>

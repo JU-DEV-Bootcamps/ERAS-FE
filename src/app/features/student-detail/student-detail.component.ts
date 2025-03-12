@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   inject,

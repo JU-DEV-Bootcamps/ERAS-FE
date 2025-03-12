@@ -11,7 +11,6 @@ import { EvaluationProcessService } from '../../core/services/evaluation-process
 import { PollModel } from '../../core/models/PollModel';
 import { CohortsSummaryModel } from '../../core/models/CohortSummaryModel';
 import { DatePipe } from '@angular/common';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-home',
