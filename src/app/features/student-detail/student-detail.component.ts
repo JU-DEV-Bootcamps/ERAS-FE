@@ -184,6 +184,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSlideChange(event: any) {
     const swiperInstance = event.target.swiper as Swiper;
     const activeIndex = swiperInstance.activeIndex;
@@ -196,7 +197,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  chartSeriesByPollId: { [pollId: number]: ApexAxisChartSeries } = {};
+  chartSeriesByPollId: Record<number, ApexAxisChartSeries> = {};
 
   getColorByRisk(value: number): string {
     if (value >= 0 && value <= 2) {
@@ -212,6 +213,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   }
 
   buildChartSeries() {
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style, @typescript-eslint/no-explicit-any
     const groupedByPoll: { [pollId: number]: any[] } = {};
 
     if (this.componentsAvg && this.componentsAvg.length > 0) {
