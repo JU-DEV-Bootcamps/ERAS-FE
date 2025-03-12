@@ -40,7 +40,7 @@
   </ng-container>
 
   <div class="table-container" #contentToExport>
-    <div>
+    <div class="chart-container">
       <apx-chart
         id="heatmap"
         [series]="chartOptions.series!"
@@ -50,7 +50,6 @@
         [colors]="chartOptions.colors!"
         [plotOptions]="chartOptions.plotOptions!"
         [title]="chartOptions.title!"
-        [tooltip]="chartOptions.tooltip!"
       >
       </apx-chart>
     </div>

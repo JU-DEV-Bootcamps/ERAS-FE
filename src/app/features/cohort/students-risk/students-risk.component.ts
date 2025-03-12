@@ -167,13 +167,7 @@ export class StudentsRiskComponent implements OnInit {
       true
     ) as HTMLElement;
 
-    clonedElement.style.width = '100%';
-
-    clonedElement
-      .querySelector('#table-container')
-      ?.classList.add('list-container');
-
-    clonedElement.querySelector('#heatmap')?.classList.add('chart-container');
+    clonedElement.style.width = '800px';
 
     document.body.appendChild(clonedElement);
     this.pdfService.exportToPDF(clonedElement, fileName);
