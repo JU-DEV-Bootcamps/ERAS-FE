@@ -1,4 +1,4 @@
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { Component, HostListener, Inject, inject } from '@angular/core';
 import {
   FormBuilder,
@@ -40,6 +40,7 @@ import { ModalComponent } from '../../../shared/components/modal-dialog/modal-di
     MatFormFieldModule,
     MatInputModule,
     NgIf,
+    NgClass,
   ],
   templateUrl: './evaluation-process-form.component.html',
   providers: [provideNativeDateAdapter(), DatePipe],
@@ -70,9 +71,15 @@ export class EvaluationProcessFormComponent {
           Validators.maxLength(280),
         ],
       ],
-      PollId: [data?.evaluation?.PollId ?? ''],
-      StartDate: data?.evaluation?.StartDate ?? '',
-      EndDate: data?.evaluation?.EndDate ?? '',
+      PollName: [
+        {
+          value: data?.evaluation?.PollName ?? '',
+          disabled: !!data?.evaluation,
+        },
+        Validators.required,
+      ],
+      StartDate: [data?.evaluation?.StartDate ?? '', Validators.required],
+      EndDate: [data?.evaluation?.EndDate ?? '', Validators.required],
     });
     if (data) {
       this.title = this.data.title ?? 'New evaluation process';
@@ -117,7 +124,7 @@ export class EvaluationProcessFormComponent {
   }
   deleteEvaluation() {
     if (this.data.deleteFunction) {
-      this.data.deleteFunction(this.data.evaluation.PollId);
+      this.data.deleteFunction(this.data.evaluation.PollName);
     }
   }
   openDialog(descriptionMessage: string, isSuccess: boolean): void {
@@ -156,7 +163,7 @@ export class EvaluationProcessFormComponent {
         Name: this.form.value.Name,
         StartDate: this.form.value.StartDate,
         EndDate: this.form.value.EndDate,
-        PollId: this.form.value.PollId,
+        PollName: this.form.value.PollName,
       };
       this.evaluationProcessService.createEvalProc(newProcess).subscribe({
         next: (data: CreateEvaluationProcess) => {

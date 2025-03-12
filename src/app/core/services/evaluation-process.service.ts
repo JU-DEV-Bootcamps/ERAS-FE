@@ -14,7 +14,7 @@ import {
 })
 export class EvaluationProcessService {
   private apiUrl = environment.apiUrl;
-  private endpoint = 'api/v1/EvaluationProcess';
+  private endpoint = 'api/v1/Evaluation';
 
   constructor(private http: HttpClient) {}
 

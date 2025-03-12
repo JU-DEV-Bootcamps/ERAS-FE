@@ -8,7 +8,7 @@
   <p class="modalTitle">{{ title }}</p>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="row">
-      <mat-form-field class="input" appearance="outline">
+      <mat-form-field class="input">
         <mat-label>Enter a name</mat-label>
         <input matInput formControlName="Name" placeholder="Enter a name" />
         <mat-error
@@ -42,14 +42,14 @@
       </mat-form-field>
     </div>
     <div class="row">
-      <mat-form-field class="input" appearance="outline">
+      <mat-form-field class="input">
         @if (pollDataSelected !== null) {
           <mat-label> {{ pollDataSelected.selectData }}</mat-label>
         } @else {
           <mat-label>Select a COSMIC LATTE poll by name</mat-label>
         }
         <mat-select
-          formControlName="PollId"
+          formControlName="PollName"
           [value]="
             pollDataSelected?.selectData?.replace('evaluationSets:', '') || ''
           "
@@ -67,6 +67,16 @@
             }
           }
         </mat-select>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('PollName')?.hasError('required') &&
+            form.get('PollName')?.touched
+          "
+        >
+          You have to choose an option.
+        </mat-error>
       </mat-form-field>
     </div>
 
@@ -86,18 +96,46 @@
           [for]="picker"
         ></mat-datepicker-toggle>
         <mat-date-range-picker #picker></mat-date-range-picker>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            (form.get('StartDate')?.hasError('required') &&
+              form.get('StartDate')?.touched) ||
+            (form.get('EndDate')?.hasError('required') &&
+              form.get('EndDate')?.touched)
+          "
+        >
+          This cannot be empty.
+        </mat-error>
       </mat-form-field>
     </div>
     <mat-dialog-actions class="buttonContainer">
       <button
-        *ngIf="data.deleteFunction !== null"
+        *ngIf="data.deleteFunction"
         type="button"
         class="modalDeleteButton"
         (click)="deleteEvaluation()"
       >
         Delete
       </button>
-      <button class="modalMainButton" type="submit">{{ buttonText }}</button>
+
+      <button
+        type="button"
+        class="modalCancelButton"
+        (click)="closeAndResetDialog()"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="modalMainButton"
+        type="submit"
+        [ngClass]="{ disabledButton: form.invalid && !pollDataSelected }"
+        [disabled]="form.invalid && !pollDataSelected"
+      >
+        {{ buttonText }}
+      </button>
     </mat-dialog-actions>
   </form>
 </mat-dialog-content>

@@ -21,7 +21,6 @@ export class EvaluationProcessComponent {
     this.dialog.open(EvaluationProcessFormComponent, {
       width: '450px',
       maxWidth: '90vw',
-      height: 'auto',
       data: {},
     });
   }
