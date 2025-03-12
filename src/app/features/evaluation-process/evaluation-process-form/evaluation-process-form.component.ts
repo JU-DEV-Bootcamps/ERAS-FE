@@ -24,7 +24,10 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { PollName } from '../../../shared/models/cosmic-latte/PollName';
 import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
-import { CreateEvaluationProcess } from '../../../shared/models/EvaluationProcess';
+import {
+  CreateEvaluationProcess,
+  ReadEvaluationProcess,
+} from '../../../shared/models/EvaluationProcess';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 
 @Component({
@@ -57,6 +60,8 @@ export class EvaluationProcessFormComponent {
       buttonText?: string;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       deleteFunction?: any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updateFunction?: any;
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
     private dialog: MatDialog,
@@ -64,7 +69,7 @@ export class EvaluationProcessFormComponent {
   ) {
     this.form = this.fb.group({
       Name: [
-        data?.evaluation?.Name ?? '',
+        data?.evaluation?.name ?? '',
         [
           Validators.required,
           Validators.minLength(2),
@@ -73,13 +78,13 @@ export class EvaluationProcessFormComponent {
       ],
       PollName: [
         {
-          value: data?.evaluation?.PollName ?? '',
+          value: data?.evaluation?.pollName ?? '',
           disabled: !!data?.evaluation,
         },
         Validators.required,
       ],
-      StartDate: [data?.evaluation?.StartDate ?? '', Validators.required],
-      EndDate: [data?.evaluation?.EndDate ?? '', Validators.required],
+      StartDate: [data?.evaluation?.startDate ?? '', Validators.required],
+      EndDate: [data?.evaluation?.endDate ?? '', Validators.required],
     });
     if (data) {
       this.title = this.data.title ?? 'New evaluation process';
@@ -124,7 +129,8 @@ export class EvaluationProcessFormComponent {
   }
   deleteEvaluation() {
     if (this.data.deleteFunction) {
-      this.data.deleteFunction(this.data.evaluation.PollName);
+      this.data.deleteFunction(this.data.evaluation.id);
+      this.closeAndResetDialog();
     }
   }
   openDialog(descriptionMessage: string, isSuccess: boolean): void {
@@ -159,27 +165,62 @@ export class EvaluationProcessFormComponent {
   }
   onSubmit() {
     if (this.form.valid) {
-      const newProcess: CreateEvaluationProcess = {
-        Name: this.form.value.Name,
-        StartDate: this.form.value.StartDate,
-        EndDate: this.form.value.EndDate,
-        PollName: this.form.value.PollName,
-      };
-      this.evaluationProcessService.createEvalProc(newProcess).subscribe({
-        next: (data: CreateEvaluationProcess) => {
-          console.log('RESPUESTA DE CREACION DE PROCESO DE EVAL');
-          console.log(data);
-          this.closeAndResetDialog();
-          this.openDialog('Sucess: Process created!', true);
-        },
-        error: err => {
-          this.openDialog(
-            'Error: An error occurred while trying to create the new evaluation process : ' +
-              err.message,
-            false
-          );
-        },
-      });
+      if (!this.data.evaluation) {
+        let newProcess: CreateEvaluationProcess = {
+          Name: this.form.value.Name,
+          StartDate: this.form.value.StartDate,
+          EndDate: this.form.value.EndDate,
+          PollName: this.form.value.PollName,
+        };
+        if (this.form.value.PollName === 'null') {
+          delete newProcess.PollName;
+        }
+        this.evaluationProcessService.createEvalProc(newProcess).subscribe({
+          next: () => {
+            this.closeAndResetDialog();
+            this.openDialog('Sucess: Process created!', true);
+            this.data.updateFunction();
+          },
+          error: err => {
+            this.openDialog(
+              'Error: An error occurred while trying to create the new evaluation process : ' +
+                err.message,
+              false
+            );
+          },
+        });
+      } else {
+        const updateEval: ReadEvaluationProcess = {
+          Id: this.data.evaluation.id,
+          Name: this.form.value.Name,
+          StartDate: this.form.value.StartDate,
+          EndDate: this.form.value.EndDate,
+          PollName: this.form.value.PollName,
+
+          PollId: 0,
+          EvaluationPollId: 0,
+        };
+        console.log('ENVIANDO------------');
+        console.log(updateEval);
+        console.log('ENVIANDO------------');
+
+        this.evaluationProcessService
+          .updateEvaluationProcess(updateEval)
+          .subscribe({
+            next: () => {
+              this.closeAndResetDialog();
+              this.openDialog('Sucess: Process updated!', true);
+              this.data.updateFunction();
+            },
+            error: err => {
+              this.openDialog(
+                'Error: An error occurred while trying to update the new evaluation process : ' +
+                  err.message,
+                false
+              );
+            },
+          });
+      }
     }
   }
 

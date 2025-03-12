@@ -10,6 +10,8 @@ import { MatCardModule } from '@angular/material/card';
 import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
+import { ReadEvaluationProcess } from '../../../shared/models/EvaluationProcess';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
@@ -25,6 +27,8 @@ import { MatIcon } from '@angular/material/icon';
     TitleCasePipe,
     MatChipsModule,
     NgClass,
+    DatePipe,
+    MatButtonModule,
     MatIcon,
   ],
   providers: [DatePipe],
@@ -34,13 +38,14 @@ import { MatIcon } from '@angular/material/icon';
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationProcessService);
-  columns: string[] = ['Id', 'Name', 'pollName', 'start', 'end', 'status'];
+  columns: string[] = ['id', 'name', 'poll', 'start', 'end', 'status'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluationProcessList: any = [];
   pageSize = 10;
   currentPage = 0;
   totalEvaluations = 0;
   isMobile = false;
+  isLoading = false;
   totalItems = 0;
 
   constructor(private datePipe: DatePipe) {}
@@ -52,166 +57,9 @@ export class EvaluationProcessListComponent implements OnInit {
   }
   ngOnInit(): void {
     this.getEvaluationProcess();
-
     this.isMobile = window.innerWidth < 600;
-
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    const evaluationProcessListMock = [
-      {
-        Id: 'asdas',
-        Name: 'current',
-        StartDate: new Date(
-          'Sat Mar 01 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: 'Encuesta desde CLLLLL',
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'pasada',
-        StartDate: new Date(
-          'Sat Mar 01 2024 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2024 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: 'Encuesta desde CLLLLL',
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'A futuro',
-        StartDate: new Date(
-          'Sat Mar 28 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: 'Encuesta desde CLLLLL',
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'Incompleta',
-        StartDate: new Date(
-          'Sat Mar 28 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: null,
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'current',
-        StartDate: new Date(
-          'Sat Mar 01 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: 'Encuesta desde CLLLLL',
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'pasada',
-        StartDate: new Date(
-          'Sat Mar 01 2024 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2024 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: 'Encuesta desde CLLLLL',
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'A futuro',
-        StartDate: new Date(
-          'Sat Mar 28 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: 'Encuesta desde CLLLLL',
-        status: null,
-      },
-      {
-        Id: 'asdas',
-        Name: 'Incompleta',
-        StartDate: new Date(
-          'Sat Mar 28 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        EndDate: new Date(
-          'Sat Mar 29 2025 00:00:00 GMT-0300 (hora estándar de Argentina)'
-        ),
-        PollId: '$eutyasd-ID-CL-POLL-afser',
-        EvaluationPollId: 1,
-        pollName: null,
-        status: null,
-      },
-    ];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    evaluationProcessListMock.forEach((evaluation: any) => {
-      evaluation.start = this.formatDate(evaluation.StartDate);
-      evaluation.end = this.formatDate(evaluation.EndDate);
-      evaluation.status = this.getStatusForEvaluationProcess(evaluation);
-    });
-    this.evaluationProcessList = evaluationProcessListMock;
-    this.totalItems = this.evaluationProcessList.length;
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
-    // DELETE IT!
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getStatusForEvaluationProcess(evaluation: any): string {
-    if (evaluation.pollName == null) {
-      return 'Incomplete';
-    }
-    const now = Date.now();
-    const startTime = new Date(evaluation.StartDate).getTime();
-    const endTime = new Date(evaluation.EndDate).getTime();
-
-    if (now < startTime) {
-      return 'Not started yet';
-    } else if (now >= startTime && now < endTime) {
-      return 'In progress';
-    } else {
-      return 'Finished';
-    }
-  }
   getClassName(value: string): string {
     return value ? value.replace(/\s+/g, '_') : '';
   }
@@ -227,6 +75,16 @@ export class EvaluationProcessListComponent implements OnInit {
       next: () => {
         this.openAlertDialog('Evaluation deleted! ', true);
         this.getEvaluationProcess();
+
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
+        // keep working here, there is an extra modal
       },
       error: err => {
         this.openAlertDialog(
@@ -249,13 +107,12 @@ export class EvaluationProcessListComponent implements OnInit {
     this.getEvaluationProcess();
   }
   getEvaluationProcess() {
-    /*
+    this.isLoading = true;
     this.evaluationProcessService.getAllEvalProc().subscribe({
       next: (data: ReadEvaluationProcess[]) => {
-        console.log('GET ALL EVALUTAION PROCESS FOR LIST');
-        console.log(data);
-        this.transformDate();
-        this.evaluationProcessList = data;
+        this.evaluationProcessList = this.normalizeData(data);
+        this.totalItems = this.evaluationProcessList.length;
+        this.isLoading = false;
       },
       error: err => {
         this.openAlertDialog(
@@ -263,9 +120,20 @@ export class EvaluationProcessListComponent implements OnInit {
             err.message,
           false
         );
+        this.isLoading = false;
       },
     });
-    */
+  }
+  openModalNewEvaluationProcess(): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+    this.dialog.open(EvaluationProcessFormComponent, {
+      width: '450px',
+      maxWidth: '90vw',
+      data: {
+        updateFunction: this.getEvaluationProcess.bind(this),
+      },
+    });
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   openModalDetails(data: any): void {
@@ -280,6 +148,7 @@ export class EvaluationProcessListComponent implements OnInit {
         title: 'Edit evaluation',
         buttonText: 'Update!',
         deleteFunction: this.deleteEvaluationConfirmation.bind(this),
+        updateFunction: this.getEvaluationProcess.bind(this),
       },
     });
   }
@@ -313,17 +182,46 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
-  transformDate() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.evaluationProcessList.forEach((evaluation: any) => {
-      evaluation.StartDate = this.formatDate(evaluation.StartDate);
-      evaluation.EndDate = this.formatDate(evaluation.EndDate);
-    });
+  normalizeData(data: ReadEvaluationProcess[]): ReadEvaluationProcess[] {
+    const statusTransformed = this.transformStatus(data);
+    return this.adaptDataToColumNames(statusTransformed);
   }
-  formatDate(date: Date): string {
-    if (isNaN(date.getTime())) {
-      return '';
+  adaptDataToColumNames(
+    data: ReadEvaluationProcess[]
+  ): ReadEvaluationProcess[] {
+    data.forEach((evaluation: any) => {
+      evaluation.start = evaluation.startDate;
+      evaluation.end = evaluation.endDate;
+      evaluation.poll = evaluation.pollName
+        ? evaluation.pollName
+        : 'Not selected yet';
+    });
+    return data;
+  }
+  transformStatus(data: ReadEvaluationProcess[]): ReadEvaluationProcess[] {
+    data.forEach((evaluation: any) => {
+      evaluation.status = this.getStatusForEvaluationProcess(evaluation);
+    });
+    return data;
+  }
+  getStatusForEvaluationProcess(evaluation: any): string {
+    if (
+      evaluation.pollName == null ||
+      evaluation.pollName == 'null' ||
+      evaluation.pollName == ''
+    ) {
+      return 'Incomplete';
     }
-    return this.datePipe.transform(date, 'yyyy-MM-dd') || '';
+    const now = Date.now();
+    const startTime = new Date(evaluation.startDate).getTime();
+    const endTime = new Date(evaluation.endDate).getTime();
+
+    if (now < startTime) {
+      return 'Not started yet';
+    } else if (now >= startTime && now < endTime) {
+      return 'In progress';
+    } else {
+      return 'Finished';
+    }
   }
 }

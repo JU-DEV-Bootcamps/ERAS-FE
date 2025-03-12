@@ -1,5 +1,23 @@
 @use './../../../../styles/utils/index.scss' as main-styles;
 
+.spinerContainer{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.floatingButtonContainer{
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  margin-bottom: -75px;
+  .addNewButton{
+   margin: 10px;
+   background: main-styles.get-color(primary, 60);
+   color: white;
+   width: 110px;
+ }
+}
 .subtitle{    
     font-size: 28px;
     text-align: center;
@@ -62,7 +80,7 @@
 }
 .subtitle {
     margin: 0px;
-    padding: 20px 10px;
+    padding: 20px 10px 10px 10px;
     margin: 10px 0px;
   }
   mat-form-field:not(:first-child),button:not(:first-child){

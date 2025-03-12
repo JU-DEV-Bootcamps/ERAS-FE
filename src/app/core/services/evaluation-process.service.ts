@@ -28,9 +28,6 @@ export class EvaluationProcessService {
     );
   }
   createEvalProc(data: CreateEvaluationProcess): Observable<any> {
-    console.log('creando proceso de evaluacion');
-    console.log('creando proceso de evaluacion');
-    console.log('creando proceso de evaluacion');
     console.log(data);
     return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
   }
@@ -39,9 +36,13 @@ export class EvaluationProcessService {
       `${this.apiUrl}/${this.endpoint}`
     );
   }
+  updateEvaluationProcess(evaluation :ReadEvaluationProcess): Observable<ReadEvaluationProcess>{
+    return this.http.put<ReadEvaluationProcess>(
+      `${this.apiUrl}/${this.endpoint}/${evaluation.Id}`, evaluation );
+  }
   deleteEvaluationProcess(id: string): Observable<ReadEvaluationProcess> {
     return this.http.delete<ReadEvaluationProcess>(
       `${this.apiUrl}/${this.endpoint}/${id}`
-    ); // check if it is param or path
+    );
   }
 }
