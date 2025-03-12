@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { RISK_COLORS, RISK_LABELS } from '../../../../core/constants/riskLevel';
 import { ChartBase } from '../abstract-chart';
@@ -9,7 +9,7 @@ import { ChartBase } from '../abstract-chart';
   templateUrl: './pie-chart.component.html',
   styleUrl: './pie-chart.component.css',
 })
-export class PieChartComponent extends ChartBase {
+export class PieChartComponent extends ChartBase implements OnInit {
   public chartOptions: ApexOptions = {};
   seriesY = input([12, 5, 3, 2, 12, 6]);
   colors = input(Object.values(RISK_COLORS));
@@ -17,6 +17,8 @@ export class PieChartComponent extends ChartBase {
 
   constructor() {
     super();
+  }
+  ngOnInit(): void {
     this.chartOptions = {
       series: this.seriesY(),
       chart: {
