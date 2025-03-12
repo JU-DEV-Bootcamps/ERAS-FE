@@ -55,20 +55,26 @@
         grab-cursor="true"
         (swiperslidechange)="onSlideChange($event)"
       >
-        <swiper-slide *ngFor="let poll of studentPolls">
-          <h3 class="title">Risk by Components</h3>
-          <p class="date-risk-by-components">Poll Name: {{ poll.name }}</p>
-          <p class="date-risk-by-components">Last update: {{ poll.version }}</p>
-          <div class="chart-container" #chart>
-            <apx-chart
-              *ngIf="chartSeriesByPollId[selectedPoll]"
-              [series]="chartSeriesByPollId[selectedPoll]"
-              [chart]="chartOptions.chart!"
-              [plotOptions]="chartOptions.plotOptions!"
-            >
-            </apx-chart>
-          </div>
-        </swiper-slide>
+        @for (poll of studentPolls; track $index) {
+          <swiper-slide>
+            <h3 class="title">Risk by Components</h3>
+            <p class="date-risk-by-components">Poll Name: {{ poll.name }}</p>
+            <p class="date-risk-by-components">
+              Last update: {{ poll.version }}
+            </p>
+            <div class="chart-container" #chart>
+              @if (chartSeriesByPollId[selectedPoll]) {
+                <apx-chart
+                  [series]="chartSeriesByPollId[selectedPoll]"
+                  [chart]="chartOptions.chart!"
+                  [plotOptions]="chartOptions.plotOptions!"
+                >
+                </apx-chart>
+              }
+            </div>
+          </swiper-slide>
+        }
+
         <swiper-slide>
           <h3 class="title">Risk by Components</h3>
           <p class="date-risk-by-components">Poll Name:</p>

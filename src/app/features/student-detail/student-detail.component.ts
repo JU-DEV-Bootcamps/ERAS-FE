@@ -25,7 +25,7 @@ import { Answer } from '../../shared/models/answers/answer.model';
 import { Audit } from '../../shared/models/audit.model';
 import { Swiper } from 'swiper/types';
 import { register } from 'swiper/element/bundle';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil, Subject } from 'rxjs';
@@ -43,8 +43,6 @@ register();
     CommonModule,
     MatTableModule,
     MatCardModule,
-    NgFor,
-    NgIf,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
