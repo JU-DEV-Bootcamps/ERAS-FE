@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CohortsSummaryModel } from '../models/CohortSummaryModel';
+import { Cohort } from '../../shared/models/cohort/cohort.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +15,8 @@ export class CohortService {
 
   constructor(private http: HttpClient) {}
 
-  getCohorts(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}`);
+  getCohorts(): Observable<Cohort[]> {
+    return this.http.get<Cohort[]>(`${this.apiUrl}/${this.endpoint}`);
   }
   getCohortsSummary(): Observable<CohortsSummaryModel> {
     return this.http.get<CohortsSummaryModel>(

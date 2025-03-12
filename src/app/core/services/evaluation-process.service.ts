@@ -3,6 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PollModel } from '../models/PollModel';
+import { StudentPoll } from '../../shared/models/polls/student-polls.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,12 @@ export class EvaluationProcessService {
   getEvalProcSummary(): Observable<PollModel[]> {
     return this.http.get<PollModel[]>(
       `${this.apiUrl}/${this.endpoint}/summary`
+    );
+  }
+
+  getPollsByStudentId(studentId: number): Observable<StudentPoll[]> {
+    return this.http.get<StudentPoll[]>(
+      `${this.apiUrl}/${this.endpoint}/student/${studentId}`
     );
   }
 }

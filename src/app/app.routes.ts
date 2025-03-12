@@ -12,6 +12,7 @@ import { ListPollsByCohortComponent } from './features/list-polls-by-cohort/list
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { ListPollInstancesByLastDaysComponent } from './features/list-poll-instances-by-lastdays/list-poll-instances-by-lastdays.component';
+import { StudentDetailComponent } from './features/student-detail/student-detail.component';
 import { HomeComponent } from './features/home/home.component';
 
 export const routes: Routes = [
@@ -54,6 +55,11 @@ export const routes: Routes = [
       {
         path: 'list-polls-by-lastDays',
         component: ListPollInstancesByLastDaysComponent,
+      },
+      {
+        path: 'student-details/:studentId',
+        component: StudentDetailComponent,
+        canActivate: [authGuard],
       },
       //Example to use guard with role
       {

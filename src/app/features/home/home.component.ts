@@ -23,7 +23,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     PieChartComponent,
     RouterLink,
     DatePipe,
-    MatProgressSpinner,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',

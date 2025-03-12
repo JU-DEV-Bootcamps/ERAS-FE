@@ -17,18 +17,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollService } from '../../core/services/poll.service';
 import { Router } from '@angular/router';
-
-interface Cohort {
-  id: number;
-  name: string;
-  courseCode: string;
-  audit: {
-    createdBy: string;
-    modifiedBy: string;
-    createdAt: string;
-    modifiedAt: string;
-  };
-}
+import { Cohort } from '../../shared/models/cohort/cohort.model';
 
 @Component({
   selector: 'app-list-polls-by-cohort',
@@ -72,10 +61,17 @@ export class ListPollsByCohortComponent implements OnInit {
   router = inject(Router);
 
   loadCohortsList(): void {
-    this.cohortService.getCohorts().subscribe(data => {
-      this.cohortsData = data;
-      this.selectedCohort = data[0];
-      this.cohortFormGroup.get('cohortId')?.setValue(data[0].id);
+    this.cohortService.getCohorts().subscribe({
+      next: (cohorts: Cohort[]) => {
+        this.cohortsData = cohorts;
+        this.selectedCohort = cohorts[0];
+        this.cohortFormGroup
+          .get('cohortId')
+          ?.setValue(this.selectedCohort.id.toString());
+      },
+      error: error => {
+        console.log(error);
+      },
     });
   }
 

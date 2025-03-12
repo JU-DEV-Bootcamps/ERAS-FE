@@ -33,4 +33,12 @@ export class HeatMapService {
   getSummaryData(pollId: string): Observable<unknown> {
     return this.http.get(`${this.apiUrl}/summary/polls/${pollId}`);
   }
+
+  getStudentHeatMapDetailsByCohort(cohortId: string, limit?: number | null) {
+    const params = new HttpParams().set('limit', limit ?? DEFAULT_LIMIT);
+    return this.http.get<RiskStudentDetailType[]>(
+      `${this.apiUrl}/cohort/${cohortId}/top-risk`,
+      { params }
+    );
+  }
 }
