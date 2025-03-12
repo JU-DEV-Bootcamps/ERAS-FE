@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PollVariable } from './Types/poll.type';
+import { StudentPoll } from '../../shared/models/polls/student-polls.model';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,12 @@ export class PollService {
   getByCohortAndPoll(cohortId: number, pollId: number) {
     return this.http.get<PollVariable[]>(
       `${this.apiUrl}/${this.endpoint}/${pollId}/cohort/${cohortId}`
+    );
+  }
+
+  getPollsByStudentId(studentId: number): Observable<StudentPoll[]> {
+    return this.http.get<StudentPoll[]>(
+      `${this.apiUrl}/${this.endpoint}/student/${studentId}`
     );
   }
 }
