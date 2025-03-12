@@ -40,7 +40,20 @@
   </ng-container>
 
   <div class="table-container" #contentToExport>
-    <app-heat-map [pollId]="pollId"></app-heat-map>
+    <div>
+      <apx-chart
+        id="heatmap"
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [colors]="chartOptions.colors!"
+        [plotOptions]="chartOptions.plotOptions!"
+        [title]="chartOptions.title!"
+        [tooltip]="chartOptions.tooltip!"
+      >
+      </apx-chart>
+    </div>
 
     <div id="table-container">
       <strong>Students Risk</strong>

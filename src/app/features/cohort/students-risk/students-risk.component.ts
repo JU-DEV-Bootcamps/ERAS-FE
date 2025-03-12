@@ -27,7 +27,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
-import { HeatMapComponent } from '../heat-map/heat-map.component';
+import { HeatMapService } from '../../../core/services/heat-map.service';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { ChartOptions } from '../util/heat-map-config';
 
 @Component({
   selector: 'app-students-risk',
@@ -40,7 +42,7 @@ import { HeatMapComponent } from '../heat-map/heat-map.component';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    HeatMapComponent,
+    NgApexchartsModule,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -50,8 +52,11 @@ export class StudentsRiskComponent implements OnInit {
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
   pdfService = inject(PdfService);
+  heatmapService = inject(HeatMapService);
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
+
+  chartOptions: ApexOptions = {};
 
   selectForm = new FormGroup({
     cohortId: new FormControl<number | null>(null, [Validators.required]),
@@ -80,6 +85,7 @@ export class StudentsRiskComponent implements OnInit {
       if (value.cohortId && value.pollId) {
         this.getStudentsByCohortAndPoll();
         this.getPollVariables();
+        this.getHeatMap();
       }
     });
   }
@@ -140,6 +146,18 @@ export class StudentsRiskComponent implements OnInit {
   getColorRisk(riskLevel: number) {
     const option = Math.floor(riskLevel) as RiskColorType;
     return RISK_COLORS[option] || RISK_COLORS.default;
+  }
+
+  getHeatMap() {
+    this.heatmapService
+      .getSummaryData(this.pollId)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .subscribe((data: any) => {
+        this.chartOptions = {
+          ...ChartOptions,
+          series: data.body.series,
+        };
+      });
   }
 
   downloadPDF() {
