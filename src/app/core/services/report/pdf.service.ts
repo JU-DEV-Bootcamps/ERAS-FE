@@ -24,31 +24,23 @@ export class PdfService {
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         const usableHeight = pageHeight - marginTop - marginBottom;
-        const overlapHeight = 10;
 
-        const yPosition = marginTop;
         let currentHeight = 0;
-        let isLastPage = false;
 
         while (currentHeight < imgHeight) {
           if (currentHeight > 0) pdf.addPage();
 
-          if (imgHeight - currentHeight <= usableHeight) {
-            isLastPage = true;
-          }
-
-          const sectionStart = currentHeight * (canvas.width / imgWidth);
-          const sectionHeight = isLastPage
-            ? (imgHeight - currentHeight) * (canvas.width / imgWidth)
-            : (usableHeight + overlapHeight) * (canvas.width / imgWidth);
-
+          const sectionHeight = Math.min(
+            usableHeight,
+            imgHeight - currentHeight
+          );
           const section = canvas
             .getContext('2d')!
             .getImageData(
               0,
-              Math.max(0, sectionStart),
+              currentHeight * (canvas.width / imgWidth),
               canvas.width,
-              Math.min(canvas.height - sectionStart, sectionHeight)
+              sectionHeight * (canvas.width / imgWidth)
             );
 
           const tempCanvas = document.createElement('canvas');
@@ -58,22 +50,16 @@ export class PdfService {
 
           const fragmentImgData = tempCanvas.toDataURL('image/jpeg');
 
-          const finalHeight = isLastPage
-            ? imgHeight - currentHeight
-            : usableHeight + overlapHeight;
-
           pdf.addImage(
             fragmentImgData,
             'JPEG',
             marginLeft,
-            yPosition,
+            marginTop,
             imgWidth,
-            finalHeight
+            sectionHeight
           );
 
-          currentHeight += isLastPage
-            ? imgHeight - currentHeight
-            : usableHeight;
+          currentHeight += sectionHeight;
         }
 
         pdf.save(`${name}.pdf`);
