@@ -86,6 +86,8 @@
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   </ng-template>
   <mat-dialog-actions>
-    <button mat-raised-button (click)="onNoClick()" cdkFocusInitial>Ok</button>
+    <button mat-raised-button (click)="closeDialog()" cdkFocusInitial>
+      Ok
+    </button>
   </mat-dialog-actions>
 </mat-dialog-content>

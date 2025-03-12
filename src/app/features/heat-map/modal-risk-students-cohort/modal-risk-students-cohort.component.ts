@@ -69,10 +69,6 @@ export class ModalRiskStudentsCohortComponent implements OnInit {
     return this.form.get('limit');
   }
 
-  get formComponent() {
-    return this.form.get('component');
-  }
-
   ngOnInit(): void {
     this.cohortService.getCohorts().subscribe({
       next: data => (this.cohorts = data),
@@ -90,7 +86,7 @@ export class ModalRiskStudentsCohortComponent implements OnInit {
       });
   }
 
-  onNoClick(): void {
+  closeDialog(): void {
     this.dialogRef.close();
   }
 
