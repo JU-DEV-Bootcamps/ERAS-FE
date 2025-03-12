@@ -13,6 +13,7 @@ import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summ
 import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
 import { StudentDetailComponent } from './features/student-detail/student-detail.component';
 import { HomeComponent } from './features/home/home.component';
+import { CohortComponent } from './features/cohort/cohort/cohort.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -42,6 +43,10 @@ export const routes: Routes = [
       {
         path: 'import-students',
         component: ImportStudentsComponent,
+      },
+      {
+        path: 'cohort',
+        component: CohortComponent,
       },
       {
         path: 'list-students-by-poll',
