@@ -117,7 +117,6 @@ export class StudentsRiskComponent implements OnInit {
 
   getPollsByCohortId(id: number) {
     this.pollsService.getPollsByCohortId(id).subscribe(data => {
-      console.log(data);
       this.polls = data;
     });
   }

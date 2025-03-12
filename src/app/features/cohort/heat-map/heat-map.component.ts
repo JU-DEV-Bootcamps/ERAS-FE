@@ -27,7 +27,6 @@ export class HeatMapComponent implements OnInit, OnChanges {
       .getSummaryData(this.pollId()!)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .subscribe((data: any) => {
-        console.log(data);
         this.chartOptions = {
           ...ChartOptions,
           series: data.body.series,
