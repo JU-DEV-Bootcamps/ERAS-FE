@@ -291,12 +291,12 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
     const thElements = clonedElement.querySelectorAll('th');
     thElements.forEach(th => {
-      th.style.fontSize = '1.2em';
+      th.style.fontSize = '1.3em';
     });
 
     const tdElements = clonedElement.querySelectorAll('td');
     tdElements.forEach(td => {
-      td.style.fontSize = '1.2em';
+      td.style.fontSize = '1.3em';
     });
 
     const tspanElements = clonedElement.querySelectorAll('tspan');
