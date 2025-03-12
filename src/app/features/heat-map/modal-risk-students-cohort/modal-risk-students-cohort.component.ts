@@ -26,6 +26,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 
+interface Cohort {
+  id: number;
+  name: string;
+  courseCode: string;
+  audit: {
+    createdBy: string;
+    modifiedBy: string;
+    createdAt: string;
+    modifiedAt: string;
+  };
+}
+
 @Component({
   selector: 'app-modal-risk-students-cohort',
   imports: [
@@ -52,7 +64,7 @@ export class ModalRiskStudentsCohortComponent implements OnInit {
   cohortService = inject(CohortService);
 
   riskStudentsDetail: RiskStudentDetailType[] = [];
-  cohorts: { id: string; name: string }[] = [];
+  cohorts: Cohort[] = [];
 
   columns = ['studentId', 'studentName', 'riskLevel', 'actions'];
 

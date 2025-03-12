@@ -47,7 +47,19 @@ describe('ModalRiskStudentsCohortComponent', () => {
     component = fixture.componentInstance;
 
     cohortServiceSpy.getCohorts.and.returnValue(
-      of([{ id: '1', name: 'Test Cohort' }])
+      of([
+        {
+          id: 1,
+          name: 'Test Cohort',
+          courseCode: 'CS101',
+          audit: {
+            createdBy: 'tester',
+            modifiedBy: 'tester',
+            createdAt: '2025-03-12T00:00:00Z',
+            modifiedAt: '2025-03-12T00:00:00Z',
+          },
+        },
+      ])
     );
     heatMapServiceSpy.getStudentHeatMapDetailsByCohort.and.returnValue(of([]));
 
