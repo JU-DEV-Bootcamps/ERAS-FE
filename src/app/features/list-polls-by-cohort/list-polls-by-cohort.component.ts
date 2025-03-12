@@ -70,7 +70,7 @@ export class ListPollsByCohortComponent implements OnInit {
           ?.setValue(this.selectedCohort.id.toString());
       },
       error: error => {
-        console.log(error);
+        console.error(error);
       },
     });
   }
