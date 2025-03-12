@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ListPollsByCohortComponent } from './list-polls-by-cohort.component';
 import { CohortService } from '../../core/services/cohort.service';
-import { PollsService } from '../../core/services/polls.service';
+import { PollService } from '../../core/services/poll.service';
 import { of } from 'rxjs';
 
 const mockCohortService = {
@@ -25,7 +25,7 @@ describe('ListPollsByCohortComponent', () => {
         provideHttpClient(),
         provideNoopAnimations(),
         { provide: CohortService, useValue: mockCohortService },
-        { provide: PollsService, useValue: mockPollsService },
+        { provide: PollService, useValue: mockPollsService },
       ],
     }).compileComponents();
 

@@ -3,21 +3,24 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Cohort } from '../../shared/models/cohort/cohort.model';
+import { StudentPoll } from '../../shared/models/polls/student-polls.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CohortService {
+export class EvaluationProcessService {
   private apiUrl = environment.apiUrl;
-  private endpoint = 'api/v1/Cohorts';
+  private endpoint = 'api/v1/EvaluationProcess';
 
   constructor(private http: HttpClient) {}
 
-  getCohorts(): Observable<Cohort[]> {
-    return this.http.get<Cohort[]>(`${this.apiUrl}/${this.endpoint}`);
-  }
-  getCohortsSummary(): Observable<any> {
+  getEvalProcSummary(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
+  }
+
+  getPollsByStudentId(studentId: number): Observable<StudentPoll[]> {
+    return this.http.get<StudentPoll[]>(
+      `${this.apiUrl}/${this.endpoint}/student/${studentId}`
+    );
   }
 }

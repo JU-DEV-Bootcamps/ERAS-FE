@@ -72,7 +72,7 @@ export class ListStudentsByPollComponent implements OnInit {
   }
 
   loadPollsList(): void {
-    this.pollService.getDataPollList().subscribe(data => {
+    this.pollService.getAllPolls().subscribe(data => {
       this.pollsData = data;
       this.selectedPoll = data[0];
       this.pollFormGroup.get('pollUuid')?.setValue(data[0].uuid);

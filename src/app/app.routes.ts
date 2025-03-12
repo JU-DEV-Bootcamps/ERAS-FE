@@ -13,56 +13,51 @@ import { ListStudentsByPollComponent } from './features/list-students-by-poll/li
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { ListPollInstancesByLastDaysComponent } from './features/list-poll-instances-by-lastdays/list-poll-instances-by-lastdays.component';
 import { StudentDetailComponent } from './features/student-detail/student-detail.component';
+import { HomeComponent } from './features/home/home.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [authGuard],
     children: [
-      { path: '', component: ProfileComponent },
+      { path: '', component: HomeComponent },
+      { path: 'profile', component: ProfileComponent },
       {
         path: 'cosmic-latte',
         component: CosmicLatteComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'heat-map',
         component: HeatMapComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'heat-map-summary',
         component: SummaryHeatmapComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'import-answers',
         component: ImportAnswersComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'list-polls-by-cohort',
         component: ListPollsByCohortComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'import-students',
         component: ImportStudentsComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'list-polls-by-lastDays',
         component: ListPollInstancesByLastDaysComponent,
-        canActivate: [authGuard],
       },
       {
-        path: 'student-details',
+        path: 'student-details/:studentId',
         component: StudentDetailComponent,
         canActivate: [authGuard],
       },

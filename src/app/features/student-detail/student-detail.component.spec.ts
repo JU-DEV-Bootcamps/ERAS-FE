@@ -1,6 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { StudentDetailComponent } from './student-detail.component';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-ng-apexcharts',
+  template: '',
+  standalone: true,
+})
+export class MockNgApexchartsComponent {}
 
 describe('StudentDetailComponent', () => {
   let component: StudentDetailComponent;
@@ -8,15 +17,32 @@ describe('StudentDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StudentDetailComponent],
+      imports: [StudentDetailComponent, MockNgApexchartsComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({ studentId: 26 }),
+          },
+        },
+        {
+          provide: MockNgApexchartsComponent,
+          useValue: {},
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StudentDetailComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should call getStudentDetails on init', () => {
+    const spy = spyOn(component, 'getStudentDetails');
+    component.ngOnInit();
+    expect(spy).toHaveBeenCalled();
   });
 });
