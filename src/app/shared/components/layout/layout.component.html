@@ -48,7 +48,11 @@
           </button>
         </p>
         <p>
-          <button mat-button class="custom-button-style">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('cohort')"
+          >
             <mat-icon>group</mat-icon>
             Cohorts
           </button>
@@ -57,20 +61,10 @@
           <button
             mat-button
             class="custom-button-style"
-            (click)="redirect('list-polls-by-cohort')"
+            (click)="redirect('list-polls-by-filters')"
           >
             <mat-icon>poll</mat-icon>
-            Polls by Cohorts
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('list-students-by-poll')"
-          >
-            <mat-icon>poll</mat-icon>
-            Polls
+            Polls Responses
           </button>
         </p>
       </div>

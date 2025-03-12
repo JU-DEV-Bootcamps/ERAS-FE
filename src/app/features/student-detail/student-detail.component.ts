@@ -204,8 +204,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-  chartSeriesByPollId: { [pollId: number]: ApexAxisChartSeries } = {};
+  chartSeriesByPollId: Record<number, ApexAxisChartSeries> = {};
 
   getColorByRisk(value: number): string {
     if (value >= 0 && value <= 2) {

@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { StudentRiskAverage } from './Types/student.type';
 import { Student } from '../../shared/models/student/student.model';
 
 @Injectable({
@@ -25,5 +27,17 @@ export class StudentService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getAllStudentsCount(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
+  }
+
+  getAllAverageByCohortAndPoll({
+    cohortId,
+    pollId,
+  }: {
+    cohortId: number;
+    pollId: number;
+  }) {
+    return this.http.get<StudentRiskAverage[]>(
+      `${this.apiUrl}/${this.endpoint}/average/cohort/${cohortId}/poll/${pollId}`
+    );
   }
 }
