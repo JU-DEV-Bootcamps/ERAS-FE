@@ -74,7 +74,7 @@ describe('ModalRiskStudentsCohortComponent', () => {
   });
 
   it('should close the dialog when onNoClick is called', () => {
-    component.onNoClick();
+    component.closeDialog();
     expect(dialogRefSpy.close).toHaveBeenCalled();
   });
 });
