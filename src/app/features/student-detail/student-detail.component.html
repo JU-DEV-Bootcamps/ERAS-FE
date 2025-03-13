@@ -1,121 +1,135 @@
-<div class="student-header">
-  <div class="student-info">
-    <h2 class="page-title">{{ studentDetails.entity.name }}</h2>
-    <h4 class="page-subtitle">{{ studentDetails.entity.email }}</h4>
-    <h4 class="page-ssid">UUID: {{ studentDetails.entity.uuid }}</h4>
-  </div>
-  <button mat-icon-button color="primary" (click)="printStudentInfo()">
-    <mat-icon>print</mat-icon>
-  </button>
-</div>
-
-<div class="container">
-  <mat-card class="card-details">
-    <h3 class="title">Student Details</h3>
-    <p>
-      Enrolled Courses:
-      {{ studentDetails.entity.studentDetail.enrolledCourses }}
-    </p>
-    <p>
-      Graded Courses: {{ studentDetails.entity.studentDetail.gradedCourses }}
-    </p>
-    <p>
-      Timely Submissions:
-      {{ studentDetails.entity.studentDetail.timeDeliveryRate }}
-    </p>
-    <p>Average Score: {{ studentDetails.entity.studentDetail.avgScore }}</p>
-    <p>
-      Courses Below Average:
-      {{ studentDetails.entity.studentDetail.coursesUnderAvg }}
-    </p>
-    <p>
-      Raw Score Difference:
-      {{ studentDetails.entity.studentDetail.pureScoreDiff }}
-    </p>
-    <p>
-      Standard Score Difference:
-      {{ studentDetails.entity.studentDetail.standardScoreDiff }}
-    </p>
-    <p>
-      Days Since Last Access:
-      {{ studentDetails.entity.studentDetail.lastAccessDays }}
-    </p>
-  </mat-card>
-  <section class="main">
-    <swiper-container
-      class="swiper"
-      effect="cards"
-      grab-cursor="true"
-      (swiperslidechange)="onSlideChange($event)"
+<div #mainContainer>
+  <div class="student-header">
+    <div class="student-info">
+      <h2 class="page-title">{{ studentDetails.entity.name }}</h2>
+      <h4 class="page-subtitle">{{ studentDetails.entity.email }}</h4>
+      <h4 class="page-ssid">UUID: {{ studentDetails.entity.uuid }}</h4>
+    </div>
+    <button
+      id="print-button"
+      mat-icon-button
+      color="primary"
+      (click)="printStudentInfo()"
     >
-      <swiper-slide *ngFor="let poll of studentPolls">
-        <h3 class="title">Risk by Components</h3>
-        <p class="date-risk-by-components">Poll Name: {{ poll.name }}</p>
-        <p class="date-risk-by-components">Last update: {{ poll.version }}</p>
-        <div class="chart-container" #chart>
-          <apx-chart
-            *ngIf="chartSeriesByPollId[selectedPoll]"
-            [series]="chartSeriesByPollId[selectedPoll]"
-            [chart]="chartOptions.chart!"
-            [plotOptions]="chartOptions.plotOptions!"
-          >
-          </apx-chart>
-        </div>
-      </swiper-slide>
-      <swiper-slide>
-        <h3 class="title">Risk by Components</h3>
-        <p class="date-risk-by-components">Poll Name:</p>
-        <p class="date-risk-by-components">Last update: 10/01/2025</p>
-        <div class="chart-container" #chart>
-          <apx-chart
-            [series]="chartOptions.series!"
-            [chart]="chartOptions.chart!"
-            [plotOptions]="chartOptions.plotOptions!"
-          >
-          </apx-chart>
-        </div>
-      </swiper-slide>
-    </swiper-container>
-  </section>
-</div>
+      <mat-icon>print</mat-icon>
+    </button>
+  </div>
 
-@if (!studentAnswers) {
-  <mat-spinner></mat-spinner>
-} @else {
-  @if (isMobile) {
-    <div class="card-container">
-      @for (answer of studentAnswers; track $index) {
-        <mat-card class="" appearance="outlined">
-          <mat-card-content>
-            @for (column of columns; track $index) {
-              <div class="row-info">
-                <p class="field">{{ column | titlecase }}</p>
-                <p class="information">{{ answer.component }}</p>
-              </div>
-            }
-          </mat-card-content>
-        </mat-card>
-      }
-    </div>
-  } @else {
-    <div class="table-container">
-      <h3 class="title">Student Answers</h3>
-      <mat-table
-        mat-table
-        [dataSource]="studentAnswers"
-        [displayedColumns]="columns"
+  <div class="container">
+    <mat-card class="card-details">
+      <h3 class="title">Student Details</h3>
+      <p>
+        Enrolled Courses:
+        {{ studentDetails.entity.studentDetail.enrolledCourses }}
+      </p>
+      <p>
+        Graded Courses: {{ studentDetails.entity.studentDetail.gradedCourses }}
+      </p>
+      <p>
+        Timely Submissions:
+        {{ studentDetails.entity.studentDetail.timeDeliveryRate }}
+      </p>
+      <p>Average Score: {{ studentDetails.entity.studentDetail.avgScore }}</p>
+      <p>
+        Courses Below Average:
+        {{ studentDetails.entity.studentDetail.coursesUnderAvg }}
+      </p>
+      <p>
+        Raw Score Difference:
+        {{ studentDetails.entity.studentDetail.pureScoreDiff }}
+      </p>
+      <p>
+        Standard Score Difference:
+        {{ studentDetails.entity.studentDetail.standardScoreDiff }}
+      </p>
+      <p>
+        Days Since Last Access:
+        {{ studentDetails.entity.studentDetail.lastAccessDays }}
+      </p>
+    </mat-card>
+    <section class="main" id="chart-student-detail">
+      <swiper-container
+        id="swiper-container"
+        class="swiper"
+        effect="cards"
+        grab-cursor="true"
+        (swiperslidechange)="onSlideChange($event)"
       >
-        @for (column of columns; track $index) {
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef class="custom-header-cell">
-              {{ column | titlecase }}
-            </th>
-            <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-          </ng-container>
+        @for (poll of studentPolls; track $index) {
+          <swiper-slide>
+            <h3 class="title">Risk by Components</h3>
+            <p class="date-risk-by-components">Poll Name: {{ poll.name }}</p>
+            <p class="date-risk-by-components">
+              Last update: {{ poll.version }}
+            </p>
+            <div class="chart-container" #chart>
+              @if (chartSeriesByPollId[selectedPoll]) {
+                <apx-chart
+                  [series]="chartSeriesByPollId[selectedPoll]"
+                  [chart]="chartOptions.chart!"
+                  [plotOptions]="chartOptions.plotOptions!"
+                >
+                </apx-chart>
+              }
+            </div>
+          </swiper-slide>
         }
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns"></tr>
-      </mat-table>
-    </div>
+
+        <swiper-slide>
+          <h3 class="title">Risk by Components</h3>
+          <p class="date-risk-by-components">Poll Name:</p>
+          <p class="date-risk-by-components">Last update: 10/01/2025</p>
+          <div class="chart-container" #chart>
+            <apx-chart
+              [series]="chartOptions.series!"
+              [chart]="chartOptions.chart!"
+              [plotOptions]="chartOptions.plotOptions!"
+            >
+            </apx-chart>
+          </div>
+        </swiper-slide>
+      </swiper-container>
+    </section>
+  </div>
+
+  @if (!studentAnswers) {
+    <mat-spinner></mat-spinner>
+  } @else {
+    @if (isMobile) {
+      <div class="card-container">
+        @for (answer of studentAnswers; track $index) {
+          <mat-card class="" appearance="outlined">
+            <mat-card-content>
+              @for (column of columns; track $index) {
+                <div class="row-info">
+                  <p class="field">{{ column | titlecase }}</p>
+                  <p class="information">{{ answer.component }}</p>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    } @else {
+      <div class="table-container">
+        <h3 class="title">Student Answers</h3>
+        <mat-table
+          mat-table
+          [dataSource]="studentAnswers"
+          [displayedColumns]="columns"
+        >
+          @for (column of columns; track $index) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="custom-header-cell">
+                {{ column | titlecase }}
+              </th>
+              <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </mat-table>
+      </div>
+    }
   }
-}
+</div>

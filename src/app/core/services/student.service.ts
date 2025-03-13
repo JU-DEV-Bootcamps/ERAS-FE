@@ -20,9 +20,11 @@ export class StudentService {
     const url = `${this.apiUrl}/${this.endpoint}/studentId?studentId=${studentId}`;
     return this.http.get<Student>(url, { params });
   }
+
   getAllStudents(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}`);
   }
+
   getAllStudentsCount(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }

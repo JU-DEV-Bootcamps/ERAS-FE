@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StudentDetailComponent } from './student-detail.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-ng-apexcharts',
@@ -15,15 +15,17 @@ export class MockNgApexchartsComponent {}
 describe('StudentDetailComponent', () => {
   let component: StudentDetailComponent;
   let fixture: ComponentFixture<StudentDetailComponent>;
+  let httpClientSpy: jasmine.SpyObj<HttpClient>;
+
+  beforeEach(() => {
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        StudentDetailComponent,
-        MockNgApexchartsComponent,
-      ],
+      imports: [StudentDetailComponent, MockNgApexchartsComponent],
       providers: [
+        { provide: HttpClient, useValue: httpClientSpy },
         {
           provide: ActivatedRoute,
           useValue: {
