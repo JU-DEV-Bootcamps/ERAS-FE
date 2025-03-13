@@ -43,7 +43,6 @@ import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-student
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
 import { RiskStudentsTableComponent } from '../../shared/components/risk-students-table/risk-students-table.component';
 import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
-//import { Swiper } from 'swiper/types';
 import { register } from 'swiper/element/bundle';
 import { PdfService } from '../../core/services/report/pdf.service';
 import { RISK_COLORS } from '../../core/constants/riskLevel';
