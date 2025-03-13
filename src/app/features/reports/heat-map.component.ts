@@ -279,30 +279,6 @@ export class HeatMapComponent implements OnInit {
     return null;
   }
 
-  onSubmit() {
-    const pollUUID = this.myForm.get('pollUuid')?.value;
-    const dataPoll = this.heatMapService.getDataPoll(pollUUID);
-
-    dataPoll.subscribe(data => {
-      this.mockupAnswers = adaptAnswers(data.body);
-      this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
-      this.questions = this.selectSurveyKinds.reduce(
-        (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-        [] as Question[]
-      );
-      this.updateChart();
-    });
-
-    this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
-
-    this.questions = this.selectSurveyKinds.reduce(
-      (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-      [] as Question[]
-    );
-    this.selectQuestions = this.myForm.get('selectQuestions')?.value;
-    this.updateChart();
-  }
-
   getSeriesFromComponents(
     mockupAnswers: MockUpAnswers,
     selectSurveyKinds: SurveyKind[]
