@@ -1,16 +1,16 @@
 @use './../../../styles/utils/index.scss' as main-styles;
 
 .student-header {
-    display: flex;
-    justify-content: space-between; 
-    align-items: center; 
-    width: 100%;
-    padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
 }
 
 .student-info {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .page-title {
@@ -227,4 +227,10 @@ swiper-slide:nth-child(1n) {
 
 mat-table {
   background-color: white;
+}
+
+// print classes
+.print-chart {
+  width: 800px;
+  margin-left: 80px;
 }

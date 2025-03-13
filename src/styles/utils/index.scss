@@ -21,6 +21,13 @@ mat-icon {
   font-family: 'Material Icons', sans-serif;
 }
 
+// Override Material Design Components
+
+// Select backgroud color
+.mat-mdc-option.mdc-list-item {
+  background-color: white !important;
+}
+
 html {
   height: 100%;
   color-scheme: dark-light;

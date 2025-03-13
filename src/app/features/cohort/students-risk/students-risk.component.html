@@ -1,0 +1,95 @@
+<form [formGroup]="selectForm">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Cohort</mat-label>
+      <mat-select required id="sl-component" formControlName="cohortId">
+        @for (cohort of cohorts; track $index) {
+          <mat-option [value]="cohort.id">
+            {{ cohort.name }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (selectForm.get('cohortId')?.errors) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-poll">Poll</mat-label>
+      <mat-select required id="sl-poll" formControlName="pollId">
+        @for (poll of polls; track $index) {
+          <mat-option [value]="poll.id">
+            {{ poll.name }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (selectForm.get('pollId')?.errors) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+  </div>
+</form>
+
+@defer (when load) {
+  <ng-container>
+    <div class="action-section">
+      <button mat-icon-button matTooltip="Download pdf" (click)="downloadPDF()">
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+
+  <div class="table-container" #contentToExport>
+    <div class="chart-container">
+      <apx-chart
+        id="heatmap"
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [colors]="chartOptions.colors!"
+        [plotOptions]="chartOptions.plotOptions!"
+        [title]="chartOptions.title!"
+      >
+      </apx-chart>
+    </div>
+
+    <div id="table-container">
+      <strong>Students Risk</strong>
+      <table mat-table [dataSource]="students" class="mat-elevation-z8">
+        <!-- Name Column -->
+        <ng-container matColumnDef="studentName">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.studentName }}</td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="avgRiskLevel">
+          <th mat-header-cell *matHeaderCellDef>Average Risk</th>
+          <td mat-cell *matCellDef="let element">
+            <div
+              class="risk-badge"
+              [style.backgroundColor]="getColorRisk(element.avgRiskLevel)"
+            >
+              {{ element.avgRiskLevel | number: '1.2-2' }}
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+    <div></div>
+  </div>
+} @loading {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @placeholder {
+  <p>Select a cohort and poll</p>
+}

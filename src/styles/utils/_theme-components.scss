@@ -3,4 +3,17 @@
 // Customize the entire app. Change :root to your selector if you want to scope the styles.
 :root {
   @include mat.paginator-overrides(());
+  @include mat.sidenav-overrides(
+    (
+      container-background-color: white,
+      content-background-color: white,
+      scrim-color: white,
+    )
+  );
+
+  @include mat.table-overrides(
+    (
+      background-color: white,
+    )
+  );
 }
