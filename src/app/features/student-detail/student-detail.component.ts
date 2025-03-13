@@ -217,7 +217,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   }
 
   buildChartSeries() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style, @typescript-eslint/no-explicit-any
     const groupedByPoll: { [pollId: number]: any[] } = {};
 

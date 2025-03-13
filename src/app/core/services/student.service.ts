@@ -20,16 +20,12 @@ export class StudentService {
     const url = `${this.apiUrl}/${this.endpoint}/studentId?studentId=${studentId}`;
     return this.http.get<Student>(url, { params });
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
   getAllStudents(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}`);
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getAllStudentsCount(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}/count`);
   }
-
   getAllAverageByCohortAndPoll({
     cohortId,
     pollId,

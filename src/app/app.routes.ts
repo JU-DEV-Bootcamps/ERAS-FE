@@ -13,8 +13,8 @@ import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summ
 import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
 import { StudentDetailComponent } from './features/student-detail/student-detail.component';
 import { HomeComponent } from './features/home/home.component';
-import { EvaluationProcessComponent } from './features/evaluation-process/evaluation-process.component';
 import { CohortComponent } from './features/cohort/cohort/cohort.component';
+import { EvaluationProcessListComponent } from './features/evaluation-process/evaluation-process-list/evaluation-process-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -39,7 +39,7 @@ export const routes: Routes = [
       },
       {
         path: 'evaluation-process',
-        component: EvaluationProcessComponent,
+        component: EvaluationProcessListComponent,
       },
       {
         path: 'import-answers',

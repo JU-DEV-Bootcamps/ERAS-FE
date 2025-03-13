@@ -1,5 +1,5 @@
 import { DatePipe, NgClass, NgIf } from '@angular/common';
-import { Component, HostListener, Inject, inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -53,7 +53,6 @@ export class EvaluationProcessFormComponent {
   form: FormGroup;
   title;
   buttonText;
-  isMobile = false;
   prefereToChooseLater: PollName = {
     parent: 'null',
     name: 'null',
@@ -117,10 +116,6 @@ export class EvaluationProcessFormComponent {
       }
     }
     this.getPollDetails();
-  }
-  @HostListener('window:resize', [])
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
   }
   closeAndResetDialog() {
     this.dialogRef.close();
