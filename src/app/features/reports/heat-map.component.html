@@ -1,6 +1,51 @@
-<div #mainContainer>
-  <div class="page-header">
-    <h2 class="page-title">Reports</h2>
+<div class="page-header">
+  <h2 class="page-title">Reports</h2>
+</div>
+
+<div class="chart-container-wrapper">
+  <div class="form-container">
+    <form [formGroup]="myForm">
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Polls by name</mat-label>
+        <mat-select id="sl-component" formControlName="pollUuid">
+          @for (poll of pollsData; track $index) {
+            <mat-option [value]="poll.uuid">
+              {{ poll.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Component</mat-label>
+        <mat-select
+          id="sl-component"
+          formControlName="selectSurveyKinds"
+          multiple
+        >
+          @for (surveyKind of surveyKinds; track surveyKind) {
+            <mat-option [value]="surveyKind">{{
+              surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-questions">Questions</mat-label>
+        <mat-select
+          id="sl-questions"
+          formControlName="selectQuestions"
+          multiple
+        >
+          @for (question of questions; track question.description) {
+            <mat-option [value]="question.description">{{
+              question.description
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </form>
   </div>
 
   <div class="chart-container-wrapper">

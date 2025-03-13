@@ -9,7 +9,9 @@
         <p class="title" [ngClass]="'error-style'">
           {{ data.title }}
         </p>
-        <p class="subtitle" [ngClass]="'error-style'"></p>
+        <p class="subtitle" [ngClass]="'error-style'">
+          {{ data.error.message }}
+        </p>
         <ul>
           <li *ngFor="let detail of data.error.details" class="details">
             <p>{{ detail }}</p>
@@ -25,7 +27,19 @@
       }
     </span>
   </mat-dialog-content>
-  <mat-dialog-actions class="buttonContainer">
-    <button class="modalMainButton" (click)="closeDialog()">Ok</button>
+  <mat-dialog-actions
+    class="buttonContainer"
+    [ngClass]="{ deleteContainer: data.deleteConfirmFunction }"
+  >
+    @if (data.deleteConfirmFunction) {
+      <button class="modalMainButton" type="button" (click)="closeDialog()">
+        Cancel
+      </button>
+      <button class="modalDeleteButton" type="button" (click)="delete()">
+        Delete
+      </button>
+    } @else {
+      <button class="modalMainButton" (click)="closeDialog()">Ok</button>
+    }
   </mat-dialog-actions>
 </mat-dialog-content>

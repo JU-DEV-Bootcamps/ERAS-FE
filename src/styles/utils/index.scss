@@ -22,10 +22,29 @@ mat-icon {
 }
 
 // Override Material Design Components
+mat-icon {
+  font-family: 'Material Icons', sans-serif;
+}
+
+button[mat-fab],button[mat-flat-button] {
+  background-color: var(
+    --mdc-filled-text-field-container-color,
+    var(--mat-sys-surface-variant)
+  );
+}
 
 // Select backgroud color
-.mat-mdc-option.mdc-list-item {
+.cdk-overlay-pane {
   background-color: white !important;
+}
+
+// Rewrite apexcharts styles
+.apexcharts-canvas .apexcharts-heatmap-rect[val='-1'], .apexcharts-canvas .apexcharts-heatmap-rect[val='-1'] + .apexcharts-data-labels {
+  display: none !important;
+}
+
+line.apexcharts-gridline {
+  display: none !important;
 }
 
 html {
@@ -62,4 +81,10 @@ body {
 
 .border-modalbox-dialog {
   border-radius: 28px;
+}
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    white-space: normal;
+    word-wrap: break-word;
 }

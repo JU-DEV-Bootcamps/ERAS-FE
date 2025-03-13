@@ -136,4 +136,22 @@ mat-dialog-content {
       }
     }
   }
+  .deleteContainer{
+    display: flex;
+    justify-content: space-around;
+    .modalMainButton{
+      width: 100px;
+      background-color: main-styles.get-color(neutral, 70);
+      &:hover{
+        background-color: main-styles.get-color(neutral, 50);
+      }
+    }
+    .modalDeleteButton{
+      width: 100px;
+      background-color: main-styles.get-color(error, 50);
+      &:hover{
+        background-color: main-styles.get-color(error, 30);
+      }
+    }
+  }
 }

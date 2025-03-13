@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
+import { PollName } from '../../shared/models/cosmic-latte/PollName';
 
 @Injectable({
   providedIn: 'root',
@@ -35,26 +36,21 @@ export class CosmicLatteService {
     if (end && end.length > 0) {
       params = params.set('endDate', end);
     }
+    return this.http.get<PollInstance[]>(
+      `${this.apiUrl}/api/v1/CosmicLatte/polls?`,
+      { params }
+    );
+  }
+
+  getPollNames(): Observable<PollName[]> {
     return this.http
-      .get<
-        PollInstance[]
-      >(`${this.apiUrl}/api/v1/CosmicLatte/polls?`, { params })
+      .get<PollName[]>(`${this.apiUrl}/api/v1/CosmicLatte/polls/names`)
       .pipe(
         catchError(error => {
           return throwError(
-            () => new Error('Failed to fetch answers by survey', error)
+            () => new Error('Failed to fetch polls details', error)
           );
         })
       );
-  }
-
-  getPollNames() {
-    return this.http.get(`${this.apiUrl}/api/v1/CosmicLatte/polls/names`).pipe(
-      catchError(error => {
-        return throwError(
-          () => new Error('Failed to fetch polls details', error)
-        );
-      })
-    );
   }
 }

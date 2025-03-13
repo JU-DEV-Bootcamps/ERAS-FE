@@ -5,9 +5,7 @@
   @include mat.paginator-overrides(());
   @include mat.sidenav-overrides(
     (
-      container-background-color: white,
       content-background-color: white,
-      scrim-color: white,
     )
   );
 

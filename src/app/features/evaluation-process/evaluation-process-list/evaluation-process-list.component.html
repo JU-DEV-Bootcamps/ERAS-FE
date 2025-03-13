@@ -1,0 +1,143 @@
+<span>
+  <span
+    class="floatingButtonContainer"
+    *ngIf="evaluationProcessList.length !== 0"
+  >
+    <button
+      type="button"
+      class="addNewButton"
+      mat-flat-button
+      (click)="openModalNewEvaluationProcess()"
+    >
+      Add new
+    </button>
+  </span>
+  <p class="subtitle">Evaluation list</p>
+  @if (isLoading) {
+    <span class="spinerContainer">
+      <mat-spinner></mat-spinner>
+    </span>
+  } @else {
+    @if (evaluationProcessList.length === 0) {
+      <span class="noEvalsContainer">
+        <p class="noEvalsTitle">There are no processes created yet</p>
+        <button
+          class="button"
+          mat-flat-button
+          type="button"
+          (click)="openModalNewEvaluationProcess()"
+        >
+          Let's create a new one!
+        </button>
+      </span>
+    } @else {
+      <div class="mat-elevation-z8">
+        <ng-container *ngIf="isMobile; else tableView">
+          <div class="card-container">
+            <mat-card
+              *ngFor="let element of evaluationProcessList"
+              class="card"
+              appearance="outlined"
+            >
+              <mat-card-content class="rowContainers">
+                <div class="row-info" *ngFor="let column of columns">
+                  @if (column === 'status') {
+                    <div
+                      (click)="openModalDetails(element)"
+                      (keyup.enter)="openModalDetails(element)"
+                      tabindex="0"
+                      [ngClass]="{ statusRow: column === 'status' }"
+                    >
+                      <span
+                        class="badgeStatus"
+                        [ngClass]="getClassName(element[column])"
+                      >
+                        {{ element[column] }}
+                      </span>
+                      <mat-icon>more_vert</mat-icon>
+                    </div>
+                  } @else {
+                    <p class="field">{{ column | titlecase }}</p>
+                    @if (column === 'period') {
+                      <p class="information">
+                        {{ element['start'] | date: 'MMM/d/yy' }}
+                        to {{ element['end'] | date: 'MMM/d/yy' }}
+                      </p>
+                    } @else {
+                      <p class="information">{{ element[column] }}</p>
+                    }
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </ng-container>
+
+        <ng-template #tableView>
+          <table mat-table [dataSource]="evaluationProcessList">
+            <ng-container
+              *ngFor="let column of columns"
+              [matColumnDef]="column"
+            >
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [class.rightAlign]="column === 'status'"
+              >
+                {{ column | titlecase }}
+              </th>
+              @if (column === 'status') {
+                <td mat-cell *matCellDef="let element">
+                  <div
+                    class="statusActionContainer"
+                    (click)="openModalDetails(element)"
+                    (keyup.enter)="openModalDetails(element)"
+                    tabindex="0"
+                  >
+                    <span
+                      class="badgeStatus"
+                      [ngClass]="getClassName(element[column])"
+                    >
+                      {{ element[column] }}
+                    </span>
+                    <mat-icon>more_vert</mat-icon>
+                  </div>
+                </td>
+              } @else {
+                @if (column === 'period') {
+                  <td mat-cell *matCellDef="let element">
+                    {{ element['start'] | date: 'MMM/d/yy' }}
+                    to {{ element['end'] | date: 'MMM/d/yy' }}
+                  </td>
+                } @else {
+                  <td
+                    mat-cell
+                    *matCellDef="let element"
+                    [ngClass]="{ pollCell: column === 'poll' }"
+                    [matTooltip]="element[column]"
+                  >
+                    {{ element[column] }}
+                  </td>
+                }
+              }
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </ng-template>
+      </div>
+
+      <mat-paginator
+        [length]="totalEvaluations"
+        (page)="onPageChange($event)"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    }
+  }
+</span>
