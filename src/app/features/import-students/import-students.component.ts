@@ -139,6 +139,10 @@ export class ImportStudentsComponent {
         for (const key in row) {
           // Filter irrelevant index column
           if (key !== '') {
+            const value = row[key];
+            if (typeof value === 'string' && value.includes(',')) {
+              row[key] = value.replace(',', '.'); // Correct format decimal numbers
+            }
             filteredRow[key] = row[key];
           }
         }
