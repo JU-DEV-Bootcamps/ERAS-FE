@@ -41,6 +41,7 @@
             >Results Summary</mat-card-title
           >
           <app-bar-chart
+            *ngIf="studentName.length > 0 && studentRiskDetail.length > 0"
             [seriesY]="studentRiskDetail"
             [categoriesX]="studentName"
             style="width: 90%"
@@ -53,6 +54,7 @@
           <div class="overlaped">
             <p class="front-result">{{ lastPoll.average }}</p>
             <app-pie-chart
+              *ngIf="studentName.length > 0 && studentRiskDetail.length > 0"
               [seriesY]="studentRiskDetail"
               [categoriesX]="studentName"
               class="back-result"

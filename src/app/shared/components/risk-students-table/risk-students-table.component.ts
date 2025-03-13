@@ -91,6 +91,9 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
       }
       this.loadCohorts();
     }
+    if (changes['studentName'] || changes['studentRiskDetail']) {
+      this.updateChartData();
+    }
   }
 
   private loadStudentRisk(): void {
@@ -149,7 +152,12 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
         Math.round(student.pollinstancesAverage)
       )
     );
-    console.log(this.studentName);
-    console.log(this.studentRiskDetail);
+  }
+
+  private updateChartData(): void {
+    if (this.studentName.length > 0 && this.studentRiskDetail.length > 0) {
+      this.createDataChar();
+    }
+    this.createDataChar();
   }
 }
