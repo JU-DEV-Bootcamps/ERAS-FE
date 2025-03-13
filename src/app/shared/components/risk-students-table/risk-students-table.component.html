@@ -41,7 +41,8 @@
             >Results Summary</mat-card-title
           >
           <app-bar-chart
-            [seriesY]="[1, 2, 3, 4, 5, 6]"
+            [seriesY]="studentRiskDetail"
+            [categoriesX]="studentName"
             style="width: 90%"
           ></app-bar-chart>
         </mat-card>
@@ -51,7 +52,11 @@
           >
           <div class="overlaped">
             <p class="front-result">{{ lastPoll.average }}</p>
-            <app-pie-chart class="back-result"></app-pie-chart>
+            <app-pie-chart
+              [seriesY]="studentRiskDetail"
+              [categoriesX]="studentName"
+              class="back-result"
+            ></app-pie-chart>
           </div>
         </mat-card>
       </div>

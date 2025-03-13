@@ -74,19 +74,21 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
   public studentDataResponse: StudentDataResponse[] = [];
   public displayedColumns: string[] = ['name', 'risk'];
   public lastPoll = lastPollPlaceholder;
+  public studentName: string[] = [];
+  public studentRiskDetail: number[] = [];
 
   ngOnInit(): void {
-    this.loadStudentRisk();
+    if (this.isValidData()) {
+      this.loadStudentRisk();
+    }
     this.loadCohorts();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (
-      changes['pollUUID'] ||
-      changes['variableId'] ||
-      changes['variableIds']
-    ) {
-      this.loadStudentRisk();
+    if (changes['pollUUID'] || changes['variableIds']) {
+      if (this.isValidData()) {
+        this.loadStudentRisk();
+      }
       this.loadCohorts();
     }
   }
@@ -106,10 +108,10 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
   }
 
   private loadCohorts(): void {
-    console.error('xxxx');
     this.cohortService.getCohortsSummary().subscribe({
       next: data => {
-        this.studentDataResponse = data.body || [];
+        this.studentDataResponse = Array.isArray(data) ? data : [data];
+        this.createDataChar();
       },
       error: err => {
         console.error('Error fetching student risk data:', err);
@@ -127,5 +129,27 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
       [5, '#FF0000'],
     ]);
     return riskColors.get(riskLevel) || '#FF0000';
+  }
+
+  private isValidData(): boolean {
+    return (
+      !!this.pollUUID &&
+      Array.isArray(this.variableIds) &&
+      this.variableIds.length > 0
+    );
+  }
+
+  private createDataChar(): void {
+    this.studentName = this.studentDataResponse.flatMap(studentData =>
+      studentData.summary.map(student => student.studentName)
+    );
+
+    this.studentRiskDetail = this.studentDataResponse.flatMap(studentData =>
+      studentData.summary.map(student =>
+        Math.round(student.pollinstancesAverage)
+      )
+    );
+    console.log(this.studentName);
+    console.log(this.studentRiskDetail);
   }
 }

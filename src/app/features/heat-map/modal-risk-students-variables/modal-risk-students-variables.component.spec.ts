@@ -4,7 +4,7 @@ import { ModalRiskStudentsVariablesComponent } from './modal-risk-students-varia
 import { ReportService } from '../../../core/services/report.service.ts.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { of } from 'rxjs';
+// import { of } from 'rxjs';
 
 describe('ModalRiskStudentsVariablesComponent', () => {
   let component: ModalRiskStudentsVariablesComponent;
@@ -54,9 +54,6 @@ describe('ModalRiskStudentsVariablesComponent', () => {
       validationErrors: null,
       body: [{ student: 'test-student', answer: { riskLevel: 3 } }],
     };
-    reportService.getStudentsDetailByVariables.and.returnValue(
-      of(mockResponse)
-    );
 
     component.filterForm.setValue({
       selectComponent: 'test-component',
