@@ -42,21 +42,6 @@ button:not(:first-child) {
   margin-left: 1em;
 }
 
-.apexcharts-canvas .apexcharts-heatmap-rect[val='-1'] {
-  display: none !important;
-}
-
-.mat-mdc-fab {
-  background-color: var(
-    --mdc-filled-text-field-container-color,
-    var(--mat-sys-surface-variant)
-  );
-}
-
-.cdk-overlay-pane {
-  background-color: white;
-}
-
 .filter-options {
   display: flex;
   flex-wrap: wrap;

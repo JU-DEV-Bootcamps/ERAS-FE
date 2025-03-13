@@ -16,6 +16,7 @@ import {
 } from './services/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   SurveyKind,
   MockUpAnswers,
@@ -43,9 +44,10 @@ import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-student
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
 import { RiskStudentsTableComponent } from '../../shared/components/risk-students-table/risk-students-table.component';
 import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
-//import { Swiper } from 'swiper/types';
+
 import { register } from 'swiper/element/bundle';
 import { PdfService } from '../../core/services/report/pdf.service';
+import { RISK_COLORS } from '../../core/constants/riskLevel';
 
 register();
 @Component({
@@ -100,43 +102,43 @@ export class HeatMapComponent implements OnInit {
             {
               from: -1,
               to: 0,
-              color: '#FFFFFF',
-              foreColor: '#FFFFFF',
+              color: RISK_COLORS[0],
+              foreColor: RISK_COLORS[0],
               name: 'No answer',
             },
             {
               from: 0,
               to: 2,
-              color: '#008000',
-              foreColor: '#FFFFFF',
+              color: RISK_COLORS[1],
+              foreColor: RISK_COLORS[0],
               name: 'Low Risk',
             },
             {
               from: 2,
               to: 4,
-              color: '#3CB371',
-              foreColor: '#FFFFFF',
+              color: RISK_COLORS[2],
+              foreColor: RISK_COLORS[0],
               name: 'Low-Medium Risk',
             },
             {
               from: 4,
               to: 6,
-              color: '#F0D722',
-              foreColor: '#FFFFFF',
+              color: RISK_COLORS[3],
+              foreColor: RISK_COLORS[0],
               name: 'Medium Risk',
             },
             {
               from: 6,
               to: 8,
-              color: '#FFA500',
-              foreColor: '#FFFFFF',
+              color: RISK_COLORS[4],
+              foreColor: RISK_COLORS[0],
               name: 'Medium-High Risk',
             },
             {
               from: 8,
               to: 100,
-              color: '#FF0000',
-              foreColor: '#FFFFFF',
+              color: RISK_COLORS['default'],
+              foreColor: RISK_COLORS[0],
               name: 'High Risk',
             },
           ],
@@ -214,31 +216,34 @@ export class HeatMapComponent implements OnInit {
         .get('selectQuestions')
         ?.setValue(this.questions.map(q => q.description));
     }, 750);
-    this.myForm.valueChanges.subscribe(formValue => {
-      this.selectedPoll = this.pollsData.filter(
-        poll => poll.uuid == formValue.pollUuid
-      )[0];
-      this.selectQuestions = formValue.selectQuestions;
+    this.myForm.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(formValue => {
+        this.selectedPoll = this.pollsData.filter(
+          poll => poll.uuid == formValue.pollUuid
+        )[0];
+        this.selectQuestions = formValue.selectQuestions;
 
-      const pollUUID = formValue.pollUuid;
-      const dataPoll = this.heatMapService.getDataPoll(pollUUID);
+        const pollUUID = formValue.pollUuid;
+        const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
-      dataPoll.subscribe(data => {
-        this.modalDataSudentVariable = {
-          pollUUID: pollUUID,
-          pollName: this.selectedPoll.name,
-          data: data.body,
-        };
-        this.mockupAnswers = adaptAnswers(data.body);
-        this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
-        this.questions = this.selectSurveyKinds.reduce(
-          (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-          [] as Question[]
-        );
-        this.variableIds = this.questions.map(q => q.variableId);
-        this.updateChart();
+        dataPoll.subscribe(data => {
+          this.modalDataSudentVariable = {
+            pollUUID: pollUUID,
+            pollName: this.selectedPoll.name,
+            data: data.body,
+          };
+          this.mockupAnswers = adaptAnswers(data.body);
+          this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
+          this.questions = this.selectSurveyKinds.reduce(
+            (sks, sk) =>
+              sks.concat(this.mockupAnswers[sk]!.questions.questions),
+            [] as Question[]
+          );
+          this.variableIds = this.questions.map(q => q.variableId);
+          this.updateChart();
+        });
       });
-    });
   }
 
   loadPollsList(): void {
@@ -295,30 +300,6 @@ export class HeatMapComponent implements OnInit {
     }
 
     return null;
-  }
-
-  onSubmit() {
-    const pollUUID = this.myForm.get('pollUuid')?.value;
-    const dataPoll = this.heatMapService.getDataPoll(pollUUID);
-
-    dataPoll.subscribe(data => {
-      this.mockupAnswers = adaptAnswers(data.body);
-      this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
-      this.questions = this.selectSurveyKinds.reduce(
-        (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-        [] as Question[]
-      );
-      this.updateChart();
-    });
-
-    this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
-
-    this.questions = this.selectSurveyKinds.reduce(
-      (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-      [] as Question[]
-    );
-    this.selectQuestions = this.myForm.get('selectQuestions')?.value;
-    this.updateChart();
   }
 
   getSeriesFromComponents(

@@ -2,10 +2,9 @@
   <div class="page-header">
     <h2 class="page-title">Reports</h2>
   </div>
-
   <div class="chart-container-wrapper">
     <div class="form-container">
-      <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="myForm">
         <mat-form-field appearance="fill">
           <mat-label for="sl-component">Polls by name</mat-label>
           <mat-select id="sl-component" formControlName="pollUuid">
@@ -46,11 +45,6 @@
             }
           </mat-select>
         </mat-form-field>
-
-        <button mat-fab extended type="submit">
-          <mat-icon>cached</mat-icon>
-          Apply
-        </button>
         <button
           id="print-button"
           mat-icon-button
@@ -67,8 +61,8 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon style="margin-right: 10px">tune</mat-icon>
-            Student Details Options
-          </mat-panel-title>
+            Student Details Options</mat-panel-title
+          >
         </mat-expansion-panel-header>
         <div class="filter-options">
           <button mat-raised-button (click)="openDialog()" color="primary">
@@ -93,6 +87,7 @@
         </div>
       </mat-expansion-panel>
     </div>
+
     <div class="filter-container">
       <app-risk-students-table
         [pollUUID]="selectedPoll.uuid"
