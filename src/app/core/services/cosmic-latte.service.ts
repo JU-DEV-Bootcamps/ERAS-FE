@@ -42,9 +42,7 @@ export class CosmicLatteService {
       >(`${this.apiUrl}/api/v1/CosmicLatte/polls?`, { params })
       .pipe(
         catchError(error => {
-          return throwError(
-            () => new Error('Failed to fetch answers by survey', error)
-          );
+          return throwError(() => new Error(`${error.message}`));
         })
       );
   }
