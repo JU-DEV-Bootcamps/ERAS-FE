@@ -4,7 +4,7 @@
 
 <div class="chart-container-wrapper">
   <div class="form-container">
-    <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="myForm">
       <mat-form-field appearance="fill">
         <mat-label for="sl-component">Polls by name</mat-label>
         <mat-select id="sl-component" formControlName="pollUuid">
@@ -45,11 +45,6 @@
           }
         </mat-select>
       </mat-form-field>
-
-      <button mat-fab extended type="submit">
-        <mat-icon>cached</mat-icon>
-        Apply
-      </button>
     </form>
   </div>
 

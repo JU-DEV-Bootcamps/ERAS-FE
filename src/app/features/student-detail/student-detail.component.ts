@@ -190,7 +190,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
         },
       });
   }
-
   onSlideChange(event: any) {
     const swiperInstance = event.target.swiper as Swiper;
     const activeIndex = swiperInstance.activeIndex;
