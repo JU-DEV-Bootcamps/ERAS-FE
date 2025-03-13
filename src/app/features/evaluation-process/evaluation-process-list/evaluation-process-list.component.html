@@ -44,6 +44,8 @@
                   @if (column === 'status') {
                     <div
                       (click)="openModalDetails(element)"
+                      (keyup.enter)="openModalDetails(element)"
+                      tabindex="0"
                       [ngClass]="{ statusRow: column === 'status' }"
                     >
                       <span
@@ -89,6 +91,8 @@
                   <div
                     class="statusActionContainer"
                     (click)="openModalDetails(element)"
+                    (keyup.enter)="openModalDetails(element)"
+                    tabindex="0"
                   >
                     <span
                       class="badgeStatus"
