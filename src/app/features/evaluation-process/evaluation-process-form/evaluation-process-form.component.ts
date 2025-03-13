@@ -169,7 +169,6 @@ export class EvaluationProcessFormComponent {
         if (this.form.value.pollName === 'null') {
           delete newProcess.pollName;
         }
-        console.log(newProcess);
         this.evaluationProcessService.createEvalProc(newProcess).subscribe({
           next: () => {
             this.closeAndResetDialog();
