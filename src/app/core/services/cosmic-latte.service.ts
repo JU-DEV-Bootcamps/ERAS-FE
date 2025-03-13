@@ -36,15 +36,10 @@ export class CosmicLatteService {
     if (end && end.length > 0) {
       params = params.set('endDate', end);
     }
-    return this.http
-      .get<
-        PollInstance[]
-      >(`${this.apiUrl}/api/v1/CosmicLatte/polls?`, { params })
-      .pipe(
-        catchError(error => {
-          return throwError(() => new Error(`${error.message}`));
-        })
-      );
+    return this.http.get<PollInstance[]>(
+      `${this.apiUrl}/api/v1/CosmicLatte/polls?`,
+      { params }
+    );
   }
 
   getPollNames(): Observable<PollName[]> {

@@ -90,7 +90,11 @@ export class ImportAnswersComponent {
     this.isMobile = window.innerWidth < 768;
   }
 
-  private openDialog(descriptionMessage: string, isSuccess: boolean, extraMessage? :string): void {
+  private openDialog(
+    descriptionMessage: string,
+    isSuccess: boolean,
+    extraMessage?: string
+  ): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
@@ -140,7 +144,11 @@ export class ImportAnswersComponent {
         },
         error: err => {
           this.loadingSubject.next(false);
-          this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err);
+          this.openDialog(
+            IMPORT_MESSAGES.ANSWERS_ERROR,
+            false,
+            err?.error?.message
+          );
           this.resetForm();
         },
       });
