@@ -1,6 +1,7 @@
 .section {
   display: flex;
   width: 100%;
+  gap: 20px;
 }
 
 .link:hover {
@@ -10,19 +11,17 @@
 }
 
 .link-card {
-  margin: 25px;
   width: 150px;
   height: 150px;
   display: block;
   justify-items: center;
   align-content: center;
   color: #008581;
-  background-color: #f4f0ef;
   text-align: center;
   cursor: pointer;
 }
 .link-card:hover {
-  background-color: #b0fffa;
+  background-color: #f4f0ef;
 }
 
 .clickable:hover {
