@@ -1,6 +1,7 @@
 .section {
   display: flex;
   width: 100%;
+  gap: 25px;
 }
 
 .link:hover {
@@ -10,7 +11,6 @@
 }
 
 .link-card {
-  margin: 25px;
   width: 150px;
   height: 150px;
   display: block;
@@ -70,6 +70,9 @@
   margin-left: 20px;
 }
 @media screen and (max-width: 500px) {
+  .section {
+    flex-wrap: wrap;
+  }
   .eval-summary {
     display: block;
   }

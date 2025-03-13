@@ -4,8 +4,8 @@
   @if (summaryReqError) {
     <span class="error-message">Could not load all summary details.</span>
   }
-  <div class="section" style="height: 200px">
-    <mat-card class="link-card" routerLink="/list-students-by-poll">
+  <div class="section">
+    <mat-card class="link-card" routerLink="/cohort">
       <mat-icon>account_balance</mat-icon>
       <mat-card-title>Cohorts</mat-card-title>
       <mat-card-footer>{{
@@ -19,9 +19,9 @@
         cohortsSummary?.studentCount || '?'
       }}</mat-card-footer>
     </mat-card>
-    <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
+    <mat-card class="link-card" routerLink="/list-polls-by-filters">
       <mat-icon>file_copy</mat-icon>
-      <mat-card-title>Polls</mat-card-title>
+      <mat-card-title>Polls Answered</mat-card-title>
       <mat-card-footer>{{
         cohortsSummary?.studentCount || '?'
       }}</mat-card-footer>
