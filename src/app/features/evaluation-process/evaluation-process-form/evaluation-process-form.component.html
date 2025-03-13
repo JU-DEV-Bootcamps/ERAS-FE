@@ -10,31 +10,31 @@
     <div class="row">
       <mat-form-field class="input">
         <mat-label>Enter a name</mat-label>
-        <input matInput formControlName="Name" placeholder="Enter a name" />
+        <input matInput formControlName="name" placeholder="Enter a name" />
         <mat-error
           class="errorFormHint"
           *ngIf="
-            form.get('Name')?.hasError('minlength') && form.get('Name')?.touched
+            form.get('name')?.hasError('minlength') && form.get('name')?.touched
           "
         >
           At least
-          {{ form.get('Name')?.errors?.['minlength'].requiredLength }}
+          {{ form.get('name')?.errors?.['minlength'].requiredLength }}
           characters are required.
         </mat-error>
         <mat-error
           class="errorFormHint"
           *ngIf="
-            form.get('Name')?.hasError('maxlength') && form.get('Name')?.touched
+            form.get('name')?.hasError('maxlength') && form.get('name')?.touched
           "
         >
           A maximum of
-          {{ form.get('Name')?.errors?.['maxlength'].requiredLength }}
+          {{ form.get('name')?.errors?.['maxlength'].requiredLength }}
           characters are allowed.
         </mat-error>
         <mat-error
           class="errorFormHint"
           *ngIf="
-            form.get('Name')?.hasError('required') && form.get('Name')?.touched
+            form.get('name')?.hasError('required') && form.get('name')?.touched
           "
         >
           This cannot be empty.
@@ -49,10 +49,8 @@
           <mat-label>Select a COSMIC LATTE poll by name</mat-label>
         }
         <mat-select
-          formControlName="PollName"
-          [value]="
-            pollDataSelected?.selectData?.replace('evaluationSets:', '') || ''
-          "
+          formControlName="pollName"
+          [value]="pollDataSelected?.selectData || ''"
         >
           @for (poll of pollsNames; track poll) {
             @if (poll.name === 'null') {
@@ -60,7 +58,7 @@
                 >-- I prefer to choose later --</mat-option
               >
             } @else {
-              <mat-option [value]="poll.parent.replace('evaluationSets:', '')"
+              <mat-option [value]="poll.name"
                 >{{ poll.name }} - Id:
                 {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
               >
@@ -71,8 +69,8 @@
         <mat-error
           class="errorFormHint"
           *ngIf="
-            form.get('PollName')?.hasError('required') &&
-            form.get('PollName')?.touched
+            form.get('pollName')?.hasError('required') &&
+            form.get('pollName')?.touched
           "
         >
           You have to choose an option.
@@ -87,9 +85,9 @@
           <input
             matStartDate
             placeholder="Start date"
-            formControlName="StartDate"
+            formControlName="startDate"
           />
-          <input matEndDate placeholder="End date" formControlName="EndDate" />
+          <input matEndDate placeholder="End date" formControlName="endDate" />
         </mat-date-range-input>
         <mat-datepicker-toggle
           matIconSuffix
@@ -100,10 +98,10 @@
         <mat-error
           class="errorFormHint"
           *ngIf="
-            (form.get('StartDate')?.hasError('required') &&
-              form.get('StartDate')?.touched) ||
-            (form.get('EndDate')?.hasError('required') &&
-              form.get('EndDate')?.touched)
+            (form.get('startDate')?.hasError('required') &&
+              form.get('startDate')?.touched) ||
+            (form.get('endDate')?.hasError('required') &&
+              form.get('endDate')?.touched)
           "
         >
           This cannot be empty.

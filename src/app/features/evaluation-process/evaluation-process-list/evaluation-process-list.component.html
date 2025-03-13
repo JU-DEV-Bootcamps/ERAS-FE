@@ -1,5 +1,8 @@
 <span>
-  <span class="floatingButtonContainer">
+  <span
+    class="floatingButtonContainer"
+    *ngIf="evaluationProcessList.length !== 0"
+  >
     <button
       type="button"
       class="addNewButton"
@@ -15,7 +18,7 @@
       <mat-spinner></mat-spinner>
     </span>
   } @else {
-    @if (evaluationProcessList.length == 0) {
+    @if (evaluationProcessList.length === 0) {
       <span class="noEvalsContainer">
         <p class="noEvalsTitle">There are no processes created yet</p>
         <button
@@ -43,17 +46,24 @@
                       (click)="openModalDetails(element)"
                       [ngClass]="{ statusRow: column === 'status' }"
                     >
-                      <mat-icon>more_vert</mat-icon>
                       <span
                         class="badgeStatus"
                         [ngClass]="getClassName(element[column])"
                       >
                         {{ element[column] }}
                       </span>
+                      <mat-icon>more_vert</mat-icon>
                     </div>
                   } @else {
                     <p class="field">{{ column | titlecase }}</p>
-                    <p class="information">{{ element[column] }}</p>
+                    @if (column === 'period') {
+                      <p class="information">
+                        {{ element['start'] | date: 'MMM/d/yy' }}
+                        to {{ element['end'] | date: 'MMM/d/yy' }}
+                      </p>
+                    } @else {
+                      <p class="information">{{ element[column] }}</p>
+                    }
                   }
                 </div>
               </mat-card-content>
@@ -90,14 +100,21 @@
                   </div>
                 </td>
               } @else {
-                @if (column === 'start' || column === 'end') {
+                @if (column === 'period') {
                   <td mat-cell *matCellDef="let element">
-                    {{ element[column] | date: 'MMMM d, yyyy' }}
+                    {{ element['start'] | date: 'MMM/d/yy' }}
+                    to {{ element['end'] | date: 'MMM/d/yy' }}
+                  </td>
+                } @else {
+                  <td
+                    mat-cell
+                    *matCellDef="let element"
+                    [ngClass]="{ pollCell: column === 'poll' }"
+                    [matTooltip]="element[column]"
+                  >
+                    {{ element[column] }}
                   </td>
                 }
-                <td mat-cell *matCellDef="let element">
-                  {{ element[column] }}
-                </td>
               }
             </ng-container>
 

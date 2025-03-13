@@ -51,6 +51,22 @@ import { ModalComponent } from '../../../shared/components/modal-dialog/modal-di
 })
 export class EvaluationProcessFormComponent {
   form: FormGroup;
+  title;
+  buttonText;
+  isMobile = false;
+  prefereToChooseLater: PollName = {
+    parent: 'null',
+    name: 'null',
+    status: 'null',
+  };
+  pollsNames: PollName[] = [this.prefereToChooseLater];
+  cosmicLatteService = inject(CosmicLatteService);
+  evaluationProcessService = inject(EvaluationProcessService);
+  loadingSubject = new BehaviorSubject<boolean>(true);
+  isLoading$ = this.loadingSubject.asObservable();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pollDataSelected: any = null;
+
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
@@ -68,7 +84,7 @@ export class EvaluationProcessFormComponent {
     private fb: FormBuilder
   ) {
     this.form = this.fb.group({
-      Name: [
+      name: [
         data?.evaluation?.name ?? '',
         [
           Validators.required,
@@ -76,49 +92,32 @@ export class EvaluationProcessFormComponent {
           Validators.maxLength(280),
         ],
       ],
-      PollName: [
+      pollName: [
         {
           value: data?.evaluation?.pollName ?? '',
-          disabled: !!data?.evaluation,
+          disabled: !!data?.evaluation?.pollName,
         },
         Validators.required,
       ],
-      StartDate: [data?.evaluation?.startDate ?? '', Validators.required],
-      EndDate: [data?.evaluation?.endDate ?? '', Validators.required],
+      startDate: [data?.evaluation?.startDate ?? '', Validators.required],
+      endDate: [data?.evaluation?.endDate ?? '', Validators.required],
     });
     if (data) {
       this.title = this.data.title ?? 'New evaluation process';
       this.buttonText = this.data.buttonText ?? 'Create';
-
       if (data.evaluation != null) {
         this.pollDataSelected = {
-          parent: data.evaluation.EvaluationPollId ?? '',
-          name: data.evaluation.Name ?? '',
+          parent: data.evaluation.evaluationPollId ?? '',
+          name: data.evaluation.name ?? '',
           status: data.evaluation.status ?? '',
-          selectData: data.evaluation.Name
-            ? `${data.evaluation.Name} - Id: ${data.evaluation.PollId}`
+          selectData: data.evaluation.pollName
+            ? `${data.evaluation.pollName}`
             : '',
         };
       }
     }
     this.getPollDetails();
   }
-  title;
-  buttonText;
-  isMobile = false;
-  prefereToChooseLater: PollName = {
-    parent: 'null',
-    name: 'null',
-    status: 'null',
-  };
-  pollsNames: PollName[] = [this.prefereToChooseLater];
-  cosmicLatteService = inject(CosmicLatteService);
-  evaluationProcessService = inject(EvaluationProcessService);
-  loadingSubject = new BehaviorSubject<boolean>(true);
-  isLoading$ = this.loadingSubject.asObservable();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pollDataSelected: any = null;
-
   @HostListener('window:resize', [])
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
@@ -166,15 +165,16 @@ export class EvaluationProcessFormComponent {
   onSubmit() {
     if (this.form.valid) {
       if (!this.data.evaluation) {
-        let newProcess: CreateEvaluationProcess = {
-          Name: this.form.value.Name,
-          StartDate: this.form.value.StartDate,
-          EndDate: this.form.value.EndDate,
-          PollName: this.form.value.PollName,
+        const newProcess: CreateEvaluationProcess = {
+          name: this.form.value.name,
+          startDate: this.form.value.startDate,
+          endDate: this.form.value.endDate,
+          pollName: this.form.value.pollName,
         };
-        if (this.form.value.PollName === 'null') {
-          delete newProcess.PollName;
+        if (this.form.value.pollName === 'null') {
+          delete newProcess.pollName;
         }
+        console.log(newProcess);
         this.evaluationProcessService.createEvalProc(newProcess).subscribe({
           next: () => {
             this.closeAndResetDialog();
@@ -191,19 +191,15 @@ export class EvaluationProcessFormComponent {
         });
       } else {
         const updateEval: ReadEvaluationProcess = {
-          Id: this.data.evaluation.id,
-          Name: this.form.value.Name,
-          StartDate: this.form.value.StartDate,
-          EndDate: this.form.value.EndDate,
-          PollName: this.form.value.PollName,
-
-          PollId: 0,
-          EvaluationPollId: 0,
+          id: this.data.evaluation.id,
+          name: this.form.value.name,
+          startDate: this.form.value.startDate,
+          endDate: this.form.value.endDate,
+          pollName: this.form.value.pollName,
         };
-        console.log('ENVIANDO------------');
-        console.log(updateEval);
-        console.log('ENVIANDO------------');
-
+        if (this.form.value.pollName === 'null') {
+          delete updateEval.pollName;
+        }
         this.evaluationProcessService
           .updateEvaluationProcess(updateEval)
           .subscribe({

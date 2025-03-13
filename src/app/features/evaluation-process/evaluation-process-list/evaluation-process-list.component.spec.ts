@@ -5,13 +5,17 @@ import { provideHttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
+import { of } from 'rxjs';
 
 describe('EvaluationProcessListComponent', () => {
   let component: EvaluationProcessListComponent;
   let fixture: ComponentFixture<EvaluationProcessListComponent>;
   const mockEvaluationService = jasmine.createSpyObj(
     'EvaluationProcessService',
-    ['createEvalProc']
+    ['createEvalProc', 'getAllEvalProc']
+  );
+  mockEvaluationService.getAllEvalProc.and.returnValue(
+    of({ items: [], count: 0 })
   );
 
   beforeEach(async () => {

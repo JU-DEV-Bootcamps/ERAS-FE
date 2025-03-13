@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { EvaluationProcessListComponent } from './evaluation-process-list/evaluation-process-list.component';
 

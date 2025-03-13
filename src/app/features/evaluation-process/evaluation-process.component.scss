@@ -1,27 +1,14 @@
 @use './../../../styles/utils/index.scss' as main-styles;
-/*
-.noEvalsContainer{
-    padding-top: 20vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    gap: 5vh;
-    p{
-        font-size: 24px;
-        text-align: center;
-    }
-}
-*/
-.evalsContainer{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 0;
-    padding-top: 30px;
-    .evaluationList{
-        display: block;
-        width: 100%;
-    }
+
+.evalsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0;
+  padding-top: 30px;
+  .evaluationList {
+    display: block;
+    width: 100%;
+  }
 }

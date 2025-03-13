@@ -10,9 +10,13 @@ import { MatCardModule } from '@angular/material/card';
 import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
-import { ReadEvaluationProcess } from '../../../shared/models/EvaluationProcess';
+import {
+  PagedReadEvaluationProcess,
+  ReadEvaluationProcess,
+} from '../../../shared/models/EvaluationProcess';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -30,6 +34,7 @@ import { MatIcon } from '@angular/material/icon';
     DatePipe,
     MatButtonModule,
     MatIcon,
+    MatTooltipModule,
   ],
   providers: [DatePipe],
   templateUrl: './evaluation-process-list.component.html',
@@ -38,15 +43,14 @@ import { MatIcon } from '@angular/material/icon';
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationProcessService);
-  columns: string[] = ['id', 'name', 'poll', 'start', 'end', 'status'];
+  columns: string[] = ['id', 'name', 'poll', 'period', 'status'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluationProcessList: any = [];
-  pageSize = 10;
+  pageSize = 5;
   currentPage = 0;
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
-  totalItems = 0;
 
   constructor(private datePipe: DatePipe) {}
 
@@ -75,20 +79,10 @@ export class EvaluationProcessListComponent implements OnInit {
       next: () => {
         this.openAlertDialog('Evaluation deleted! ', true);
         this.getEvaluationProcess();
-
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
-        // keep working here, there is an extra modal
       },
       error: err => {
         this.openAlertDialog(
-          'Error: An error occurred while trying to create the new evaluation process : ' +
+          'Error: An error occurred while trying to delete the new evaluation process : ' +
             err.message,
           false
         );
@@ -108,21 +102,26 @@ export class EvaluationProcessListComponent implements OnInit {
   }
   getEvaluationProcess() {
     this.isLoading = true;
-    this.evaluationProcessService.getAllEvalProc().subscribe({
-      next: (data: ReadEvaluationProcess[]) => {
-        this.evaluationProcessList = this.normalizeData(data);
-        this.totalItems = this.evaluationProcessList.length;
-        this.isLoading = false;
-      },
-      error: err => {
-        this.openAlertDialog(
-          'Error: An error occurred while trying to create the new evaluation process : ' +
-            err.message,
-          false
-        );
-        this.isLoading = false;
-      },
-    });
+    this.evaluationProcessService
+      .getAllEvalProc({
+        page: this.currentPage,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (data: PagedReadEvaluationProcess) => {
+          this.evaluationProcessList = this.normalizeData(data.items);
+          this.totalEvaluations = data.count;
+          this.isLoading = false;
+        },
+        error: err => {
+          this.openAlertDialog(
+            'Error: An error occurred while trying to access information : ' +
+              err.message,
+            false
+          );
+          this.isLoading = false;
+        },
+      });
   }
   openModalNewEvaluationProcess(): void {
     const buttonElement = document.activeElement as HTMLElement;
@@ -189,6 +188,7 @@ export class EvaluationProcessListComponent implements OnInit {
   adaptDataToColumNames(
     data: ReadEvaluationProcess[]
   ): ReadEvaluationProcess[] {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     data.forEach((evaluation: any) => {
       evaluation.start = evaluation.startDate;
       evaluation.end = evaluation.endDate;
@@ -199,19 +199,21 @@ export class EvaluationProcessListComponent implements OnInit {
     return data;
   }
   transformStatus(data: ReadEvaluationProcess[]): ReadEvaluationProcess[] {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     data.forEach((evaluation: any) => {
       evaluation.status = this.getStatusForEvaluationProcess(evaluation);
     });
     return data;
   }
-  getStatusForEvaluationProcess(evaluation: any): string {
+  getStatusForEvaluationProcess(evaluation: ReadEvaluationProcess): string {
     if (
       evaluation.pollName == null ||
-      evaluation.pollName == 'null' ||
-      evaluation.pollName == ''
+      evaluation.pollName == '' ||
+      evaluation.status == 'Incompleted'
     ) {
       return 'Incomplete';
     }
+
     const now = Date.now();
     const startTime = new Date(evaluation.startDate).getTime();
     const endTime = new Date(evaluation.endDate).getTime();

@@ -1,15 +1,20 @@
 export interface CreateEvaluationProcess {
-  Name: string;
-  StartDate: Date;
-  EndDate: Date;
-  PollName?: string;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  pollName?: string;
 }
 export interface ReadEvaluationProcess {
-  Id: number;
-  Name: string;
-  StartDate: Date;
-  EndDate: Date;
-  PollId: number;
-  EvaluationPollId: number;
-  PollName: string | null;
+  id: number;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  pollId?: number;
+  evaluationPollId?: number;
+  pollName?: string | null;
+  status?: string;
+}
+export interface PagedReadEvaluationProcess {
+  count: number;
+  items: ReadEvaluationProcess[];
 }

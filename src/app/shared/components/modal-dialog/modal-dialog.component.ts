@@ -44,6 +44,10 @@ export class ModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {}
 
+  delete() {
+    this.data.deleteConfirmFunction();
+    this.dialogRef.close();
+  }
   closeDialog(): void {
     this.dialogRef.close();
   }
