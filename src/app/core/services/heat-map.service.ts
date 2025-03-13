@@ -34,6 +34,11 @@ export class HeatMapService {
     return this.http.get(`${this.apiUrl}/summary/polls/${pollId}`);
   }
 
+  getSummaryDataByCohortAndDays(cohortId: string, days: string) {
+    const params = new HttpParams().set('cohortId', cohortId).set('days', days);
+    return this.http.get(`${this.apiUrl}/summary/filter`, { params });
+  }
+
   getStudentHeatMapDetailsByCohort(cohortId: string, limit?: number | null) {
     const params = new HttpParams().set('limit', limit ?? DEFAULT_LIMIT);
     return this.http.get<RiskStudentDetailType[]>(
