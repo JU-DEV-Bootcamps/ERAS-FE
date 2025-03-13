@@ -1,0 +1,139 @@
+<mat-dialog-content class="modal">
+  <span class="closeButtonContainer">
+    <mat-icon class="closeModalButton" (click)="closeAndResetDialog()"
+      >close</mat-icon
+    >
+  </span>
+
+  <p class="modalTitle">{{ title }}</p>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <mat-form-field class="input">
+        <mat-label>Enter a name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter a name" />
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('name')?.hasError('minlength') && form.get('name')?.touched
+          "
+        >
+          At least
+          {{ form.get('name')?.errors?.['minlength'].requiredLength }}
+          characters are required.
+        </mat-error>
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('name')?.hasError('maxlength') && form.get('name')?.touched
+          "
+        >
+          A maximum of
+          {{ form.get('name')?.errors?.['maxlength'].requiredLength }}
+          characters are allowed.
+        </mat-error>
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('name')?.hasError('required') && form.get('name')?.touched
+          "
+        >
+          This cannot be empty.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field class="input">
+        @if (pollDataSelected !== null) {
+          <mat-label> {{ pollDataSelected.selectData }}</mat-label>
+        } @else {
+          <mat-label>Select a COSMIC LATTE poll by name</mat-label>
+        }
+        <mat-select
+          formControlName="pollName"
+          [value]="pollDataSelected?.selectData || ''"
+        >
+          @for (poll of pollsNames; track poll) {
+            @if (poll.name === 'null') {
+              <mat-option [value]="poll.name"
+                >-- I prefer to choose later --</mat-option
+              >
+            } @else {
+              <mat-option [value]="poll.name"
+                >{{ poll.name }} - Id:
+                {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
+              >
+            }
+          }
+        </mat-select>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('pollName')?.hasError('required') &&
+            form.get('pollName')?.touched
+          "
+        >
+          You have to choose an option.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field class="input">
+        <mat-label>Choose a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input
+            matStartDate
+            placeholder="Start date"
+            formControlName="startDate"
+          />
+          <input matEndDate placeholder="End date" formControlName="endDate" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            (form.get('startDate')?.hasError('required') &&
+              form.get('startDate')?.touched) ||
+            (form.get('endDate')?.hasError('required') &&
+              form.get('endDate')?.touched)
+          "
+        >
+          This cannot be empty.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <mat-dialog-actions class="buttonContainer">
+      <button
+        *ngIf="data.deleteFunction"
+        type="button"
+        class="modalDeleteButton"
+        (click)="deleteEvaluation()"
+      >
+        Delete
+      </button>
+
+      <button
+        type="button"
+        class="modalCancelButton"
+        (click)="closeAndResetDialog()"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="modalMainButton"
+        type="submit"
+        [ngClass]="{ disabledButton: form.invalid && !pollDataSelected }"
+        [disabled]="form.invalid && !pollDataSelected"
+      >
+        {{ buttonText }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

@@ -188,7 +188,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
         },
       });
   }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSlideChange(event: any) {
     const swiperInstance = event.target.swiper as Swiper;
