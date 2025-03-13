@@ -25,7 +25,6 @@ export class SummaryHeatmapComponent implements OnInit {
   private readonly heatmapService = inject(HeatMapService);
   public chartOptions: ApexOptions = {};
   private heatMapData = null;
-  public pollId = localStorage.getItem('pollUUID') || 'notFound';
   private route = inject(ActivatedRoute);
   private cohortId = '';
   private days = '';
