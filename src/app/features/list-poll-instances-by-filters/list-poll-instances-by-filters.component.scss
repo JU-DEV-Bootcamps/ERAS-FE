@@ -1,3 +1,5 @@
+@use '../../../styles/utils/theme-colors' as theme-colors;
+
 .form-container {
   display: flex;
   gap: 1em;
@@ -22,7 +24,10 @@
   justify-content: flex-end;
   flex-grow: 1;
 }
-
+.button-extended {
+  background-color: theme-colors.get-color('primary', 70);
+  color: #fff;
+}
 .card-container {
   padding: 0px 10px;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

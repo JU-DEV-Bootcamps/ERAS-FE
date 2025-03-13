@@ -29,6 +29,11 @@ button:not(:first-child) {
   margin-left: 1em;
 }
 
+.spinner-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
 @media (max-width: 768px) {
   .chart-container-wrapper {
     height: calc(100vh - 100px);
