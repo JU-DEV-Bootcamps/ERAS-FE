@@ -61,7 +61,7 @@ describe('Cohort Service test', () => {
     service.getCohorts().subscribe(data => {
       expect(data).toEqual(mockCohortData);
       expect(data.length).toBe(2);
-      expect(data.length).toBeGreaterThan(100);
+      expect(data.length).toBeGreaterThan(1);
       expect(data[0].id).toBeDefined();
       expect(data[0].id).toBeInstanceOf(Number);
 
