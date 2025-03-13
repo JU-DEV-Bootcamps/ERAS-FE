@@ -1,6 +1,9 @@
 <div>
   <h1 class="page-title">Home</h1>
   <h2 class="page-subtitle">Overview</h2>
+  @if (summaryReqError) {
+    <span class="error-message">Could not load all summary details.</span>
+  }
   <div class="section" style="height: 200px">
     <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>account_balance</mat-icon>
@@ -26,87 +29,90 @@
     <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
       <mat-icon>insert_chart</mat-icon>
       <mat-card-title>Evaluations</mat-card-title>
-      <mat-card-footer>{{ 0 }}</mat-card-footer>
+      <mat-card-footer>{{ evalProcSummary?.length }}</mat-card-footer>
     </mat-card>
-    @if (summaryReqError) {
-      <span class="error-message"
-        >Could not load all summary details: {{ summaryReqError }}</span
-      >
-    }
   </div>
-  <h2 class="page-subtitle">Recent Polls</h2>
+
+  <h2 class="page-subtitle">Evaluation Processes</h2>
   <!-- Todo: Add URL PARAM to send last days -->
-  <p class="link" routerLink="/list-polls-by-cohort">View all Polls</p>
-  @if (evalProcSummary) {
-    <mat-card class="summary-section" appearance="outlined">
+  <p class="link" routerLink="/list-polls-by-cohort">View all Evaluations</p>
+  @if (lastEvalProc) {
+    <mat-card appearance="outlined">
       <mat-card-header>
-        <mat-card-title>{{ evalProcSummary[0].name }}</mat-card-title>
-        <mat-card-subtitle style="color: cadetblue">{{
-          evalProcSummary[0].version
-        }}</mat-card-subtitle>
+        <mat-card-title>{{ lastEvalProc.name }}</mat-card-title>
+        <mat-card-subtitle
+          matTooltip="Evaluation process ID"
+          style="color: cadetblue; margin-left: 5px"
+          >#{{ lastEvalProc.id }}</mat-card-subtitle
+        >
       </mat-card-header>
-      <div class="entity-summary">
+      <div class="eval-summary">
         <ul>
           <li class="date-info">
             <p style="font-weight: bolder; margin-right: 10px">Published:</p>
-            <span>{{ evalProcSummary[0].audit?.createdAt | date }}</span>
+            <span>{{ lastEvalProc.startDate | date }}</span>
           </li>
           <li class="date-info">
             <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
-            <span>{{ evalProcSummary[0].audit?.modifiedAt | date }}</span>
+            <span>{{ lastEvalProc.endDate | date }}</span>
           </li>
         </ul>
-        <div style="display: flex; width: 90%">
-          <mat-card class="summary-card">
-            <mat-card-title>Poll Progress</mat-card-title>
+        <div style="display: flex; width: 90%; justify-content: center">
+          <mat-card class="eval-card">
+            <mat-card-title>Polls Answered</mat-card-title>
             <mat-card-footer>{{
-              evalProcSummary[0].progress || '23/32'
+              lastEvalProc.pollInstances.length
             }}</mat-card-footer>
           </mat-card>
-          <mat-card
-            (click)="openStudentsByCohortDialog()"
-            class="summary-card clickable"
-          >
-            <mat-card-title>Risk Students</mat-card-title>
-            <mat-card-footer>{{
-              evalProcSummary[0].riskStudents?.length || '5/32'
-            }}</mat-card-footer>
-          </mat-card>
+          @if (riskStudentsDetail) {
+            <mat-card
+              (click)="openStudentsByCohortDialog()"
+              class="eval-card clickable"
+            >
+              <mat-card-title>High Risk Students</mat-card-title>
+              <mat-card-footer>{{ riskStudentCount }}</mat-card-footer>
+            </mat-card>
+          }
         </div>
       </div>
-      <div class="entity-summary">
-        <mat-card class="chart-card">
-          <mat-card-title style="text-align: center; font-weight: bold"
-            >Results Summary</mat-card-title
-          >
-          <app-bar-chart
+      <mat-card class="poll-summary" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ mainEPPoll?.name }}</mat-card-title>
+          <mat-card-subtitle matTooltip="Version: {{ mainEPPoll?.version }}">
+            #{{ mainEPPoll?.id }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <div class="poll-details">
+          <p>ID: {{ mainEPPoll?.uuid }}</p>
+          <p>Version: {{ mainEPPoll?.version }}</p>
+          <p>Creation Date: {{ mainEPPoll?.audit?.createdAt | date }}</p>
+          <p style="font-size: larger; font-weight: bold">
+            Risk Average: {{ riskPollAverage | number: '1.0-2' }}
+          </p>
+        </div>
+        <app-bar-chart
+          [seriesY]="pollResults"
+          style="width: 90%"
+        ></app-bar-chart>
+        <!-- <app-pie-chart
             [seriesY]="pollResults"
-            style="width: 90%"
-          ></app-bar-chart>
-        </mat-card>
-        <mat-card class="chart-card">
-          <mat-card-title style="text-align: center; font-weight: bold"
-            >Poll Average</mat-card-title
-          >
-          <div class="overlaped">
-            <p class="front-result">{{ evalProcSummary[0].average || 0 }}</p>
-            <app-pie-chart
-              [seriesY]="pollResults"
-              class="back-result"
-            ></app-pie-chart>
-          </div>
-        </mat-card>
-      </div>
-      <mat-card-actions>
-        <button mat-stroked-button (click)="redirectToLastPoll()">
-          View More
-        </button>
-      </mat-card-actions>
+            class="back-result"
+        ></app-pie-chart> -->
+        <mat-card-actions>
+          <button mat-stroked-button (click)="redirectToLastPoll()">
+            View More
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </mat-card>
+  } @else {
+    <span style="font-weight: bolder"
+      >No evaluation process with polls answered yet.</span
+    >
   }
   <h2 class="page-subtitle">Connected Services</h2>
   <div class="section">
-    <mat-card class="link-card" routerLink="/cosmic-latte">
+    <mat-card class="services-card">
       <mat-card-title>Cosmic Latte</mat-card-title>
       <mat-icon class="cl-icon">local_drink</mat-icon>
       <mat-card-actions>

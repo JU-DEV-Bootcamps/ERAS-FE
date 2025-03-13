@@ -38,4 +38,8 @@ export class StudentRisklevelTableComponent {
     const rl = (parseInt(riskLevel ?? '0') + 1) as RiskColorType;
     return RISK_COLORS[rl] || RISK_COLORS.default;
   }
+
+  hasHighRisk(riskLevel: string | null) {
+    return parseInt(riskLevel ?? '0') >= 3 ? RISK_COLORS.default : '';
+  }
 }

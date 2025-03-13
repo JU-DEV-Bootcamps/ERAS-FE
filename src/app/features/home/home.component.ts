@@ -8,11 +8,15 @@ import { Router, RouterLink } from '@angular/router';
 import { CohortService } from '../../core/services/cohort.service';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { EvaluationProcessService } from '../../core/services/evaluation-process.service';
-import { PollModel } from '../../core/models/PollModel';
-import { CohortsSummaryModel } from '../../core/models/CohortSummaryModel';
-import { DatePipe } from '@angular/common';
+import {
+  CohortsSummaryModel,
+  EvaluationModel,
+} from '../../core/models/SummaryModel';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
+import { PollModel } from '../../core/models/PollModel';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-home',
@@ -21,9 +25,11 @@ import { StudentRisklevelTableComponent } from '../../shared/components/student-
     MatButtonModule,
     MatIcon,
     BarChartComponent,
-    PieChartComponent,
+    //PieChartComponent,
     RouterLink,
     DatePipe,
+    DecimalPipe,
+    MatTooltip,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
@@ -34,7 +40,12 @@ export class HomeComponent implements OnInit {
   cohortsSummary: CohortsSummaryModel | undefined;
   summaryReqError: string | undefined;
   // EvalProcess-Polls-PollIntances-Answer-Variable Data
-  evalProcSummary: PollModel[] | undefined;
+  evalProcSummary: EvaluationModel[] | undefined;
+  lastEvalProc: EvaluationModel | undefined;
+  mainEPPoll: PollModel | undefined;
+  riskStudentCount = 0;
+  riskPollAverage = 0;
+  //Services
   router = inject(Router);
   cohortsService = inject(CohortService);
   evalService = inject(EvaluationProcessService);
@@ -47,7 +58,7 @@ export class HomeComponent implements OnInit {
   }[] = [];
 
   healthCheckStatus = false;
-  pollResults = [44, 55, 13, 43, 22, 113];
+  pollResults = [6, 5, 1, 4, 2, 6];
   async ngOnInit(): Promise<void> {
     this.healthCheck();
     this.loadEvalProcSummary();
@@ -68,6 +79,14 @@ export class HomeComponent implements OnInit {
               riskLevel: csummary.pollinstancesAverage,
             };
           });
+        this.riskStudentCount = this.riskStudentsDetail.filter(
+          s => s.riskLevel >= 3
+        ).length;
+        this.riskPollAverage =
+          this.riskStudentsDetail.reduce(
+            (acc, curr) => acc + curr.riskLevel,
+            0
+          ) / this.riskStudentsDetail.length;
       },
       error: error => {
         this.summaryReqError = error;
@@ -78,7 +97,12 @@ export class HomeComponent implements OnInit {
   loadEvalProcSummary() {
     this.evalService.getEvalProcSummary().subscribe({
       next: summary => {
-        this.evalProcSummary = summary;
+        this.evalProcSummary = summary.entities;
+        this.lastEvalProc = summary.entities.find(
+          ev => ev.pollInstances.length > 0
+        );
+        this.mainEPPoll = this.lastEvalProc?.polls[0];
+        console.warn(this.lastEvalProc);
       },
       error: error => {
         this.summaryReqError = error;
@@ -99,8 +123,8 @@ export class HomeComponent implements OnInit {
 
   openStudentsByCohortDialog() {
     this.dialog.open(StudentRisklevelTableComponent, {
-      width: 'clamp(320px, 40vw, 550px)',
-      maxWidth: '80vw',
+      width: 'clamp(520px, 50vw, 650px)',
+      maxWidth: '90vw',
       minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',

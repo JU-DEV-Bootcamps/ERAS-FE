@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CohortsSummaryModel } from '../models/CohortSummaryModel';
+import { CohortsSummaryModel } from '../models/SummaryModel';
 import { Cohort } from '../../shared/models/cohort/cohort.model';
 
 @Injectable({

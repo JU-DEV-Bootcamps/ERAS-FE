@@ -20,7 +20,11 @@
 
       <ng-container matColumnDef="studentName">
         <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let element">
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [style.Color]="hasHighRisk(element.riskLevel)"
+        >
           {{ element.studentName }}
         </td>
       </ng-container>
