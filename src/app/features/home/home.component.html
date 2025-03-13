@@ -29,14 +29,14 @@
       <mat-card-footer>{{ 0 }}</mat-card-footer>
     </mat-card>
     @if (summaryReqError) {
-      <span class="ErrorMessage"
+      <span class="error-message"
         >Could not load all summary details: {{ summaryReqError }}</span
       >
     }
   </div>
   <h2 class="page-subtitle">Recent Polls</h2>
   <!-- Todo: Add URL PARAM to send last days -->
-  <p class="link" routerLink="/list-polls-by-lastDays">View all Polls</p>
+  <p class="link" routerLink="/list-polls-by-cohort">View all Polls</p>
   @if (evalProcSummary) {
     <mat-card class="summary-section" appearance="outlined">
       <mat-card-header>
@@ -47,11 +47,11 @@
       </mat-card-header>
       <div class="entity-summary">
         <ul>
-          <li style="display: flex; align-items: center">
+          <li class="date-info">
             <p style="font-weight: bolder; margin-right: 10px">Published:</p>
             <span>{{ evalProcSummary[0].audit?.createdAt | date }}</span>
           </li>
-          <li style="display: flex; align-items: center">
+          <li class="date-info">
             <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
             <span>{{ evalProcSummary[0].audit?.modifiedAt | date }}</span>
           </li>
@@ -63,7 +63,10 @@
               evalProcSummary[0].progress || '23/32'
             }}</mat-card-footer>
           </mat-card>
-          <mat-card class="summary-card">
+          <mat-card
+            (click)="openStudentsByCohortDialog()"
+            class="summary-card clickable"
+          >
             <mat-card-title>Risk Students</mat-card-title>
             <mat-card-footer>{{
               evalProcSummary[0].riskStudents?.length || '5/32'
@@ -105,7 +108,7 @@
   <div class="section">
     <mat-card class="link-card" routerLink="/cosmic-latte">
       <mat-card-title>Cosmic Latte</mat-card-title>
-      <mat-icon class="CL-Icon">local_drink</mat-icon>
+      <mat-icon class="cl-icon">local_drink</mat-icon>
       <mat-card-actions>
         @if (healthCheckStatus) {
           <mat-icon class="check">check</mat-icon>

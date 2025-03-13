@@ -8,6 +8,11 @@
   color: #008581;
   text-decoration: underline;
 }
+
+.link-card:hover {
+  background-color: #b0fffa;
+}
+
 .summary-section {
   margin-top: 20px;
   display: flex;
@@ -28,6 +33,11 @@
   cursor: pointer;
 }
 
+.clickable:hover {
+  cursor: pointer;
+  background-color: #b0fffa;
+}
+
 .summary-card {
   margin: 5%;
   max-width: 120px;
@@ -44,6 +54,8 @@
   width: 47%;
   color: #008581;
   margin-top: 15px;
+  margin-bottom: 15px;
+  height: 300px;
   background-color: #f4f0ef;
 }
 .entity-summary {
@@ -69,6 +81,7 @@
   font-weight: bolder;
   font-size: 64px;
   margin: 0px;
+  margin-bottom: -15px;
   height: 30px;
   text-align: center;
   color: #008581;
@@ -90,9 +103,25 @@ mat-card-actions {
   margin-top: -15px;
 }
 
-.CL-Icon {
+.cl-icon {
   color: #9064b9;
   font-size: 64px;
   width: 100px;
   height: 80px;
+}
+
+.date-info {
+  display: flex;
+  align-items: center;
+}
+.date-info span {
+  white-space: nowrap;
+}
+@media screen and (max-width: 500px) {
+  .date-info {
+    display: block;
+  }
+}
+.chart {
+  height: 300px;
 }

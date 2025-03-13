@@ -11,6 +11,8 @@ import { EvaluationProcessService } from '../../core/services/evaluation-process
 import { PollModel } from '../../core/models/PollModel';
 import { CohortsSummaryModel } from '../../core/models/CohortSummaryModel';
 import { DatePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
 
 @Component({
   selector: 'app-home',
@@ -37,6 +39,13 @@ export class HomeComponent implements OnInit {
   cohortsService = inject(CohortService);
   evalService = inject(EvaluationProcessService);
   clService = inject(CosmicLatteService);
+  readonly dialog = inject(MatDialog);
+  riskStudentsDetail: {
+    studentId: string;
+    studentName: string;
+    riskLevel: number;
+  }[] = [];
+
   healthCheckStatus = false;
   pollResults = [44, 55, 13, 43, 22, 113];
   async ngOnInit(): Promise<void> {
@@ -48,9 +57,17 @@ export class HomeComponent implements OnInit {
   loadCohortsSummary() {
     this.cohortsService.getCohortsSummary().subscribe({
       next: summary => {
-        console.info(summary);
         this.cohortsSummary = summary;
         this.cohortsList = summary.summary.map(cohort => cohort.cohortName);
+        this.riskStudentsDetail = summary.summary
+          .sort((a, b) => b.pollinstancesAverage - a.pollinstancesAverage)
+          .map(csummary => {
+            return {
+              studentId: csummary.studentUuid,
+              studentName: csummary.studentName,
+              riskLevel: csummary.pollinstancesAverage,
+            };
+          });
       },
       error: error => {
         this.summaryReqError = error;
@@ -61,7 +78,6 @@ export class HomeComponent implements OnInit {
   loadEvalProcSummary() {
     this.evalService.getEvalProcSummary().subscribe({
       next: summary => {
-        console.info(summary);
         this.evalProcSummary = summary;
       },
       error: error => {
@@ -78,6 +94,17 @@ export class HomeComponent implements OnInit {
   }
 
   redirectToLastPoll() {
-    this.router.navigate([`list-polls-by-cohort`]);
+    this.router.navigate([`list-students-by-poll`]);
+  }
+
+  openStudentsByCohortDialog() {
+    this.dialog.open(StudentRisklevelTableComponent, {
+      width: 'clamp(320px, 40vw, 550px)',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data: this.riskStudentsDetail,
+    });
   }
 }
