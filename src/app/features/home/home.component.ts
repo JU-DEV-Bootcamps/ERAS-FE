@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
-import { PieChartComponent } from '../../shared/components/charts/pie-chart/pie-chart.component';
+//import { PieChartComponent } from '../../shared/components/charts/pie-chart/pie-chart.component';
 import { Router, RouterLink } from '@angular/router';
 import { CohortService } from '../../core/services/cohort.service';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
