@@ -26,8 +26,7 @@
               }
             ],
             "styles": ["src/styles/utils/index.scss"],
-            "scripts": ["node_modules/apexcharts/dist/apexcharts.min.js"],
-            "server": "src/main.server.ts"
+            "scripts": ["node_modules/apexcharts/dist/apexcharts.min.js"]
           },
           "configurations": {
             "production": {
