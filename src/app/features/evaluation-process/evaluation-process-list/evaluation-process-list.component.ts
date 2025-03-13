@@ -63,7 +63,6 @@ export class EvaluationProcessListComponent implements OnInit {
     this.getEvaluationProcess();
     this.isMobile = window.innerWidth < 600;
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getClassName(value: string): string {
     return value ? value.replace(/\s+/g, '_') : '';
   }

@@ -1,107 +1,127 @@
 <div>
   <h1 class="page-title">Home</h1>
   <h2 class="page-subtitle">Overview</h2>
+  @if (summaryReqError) {
+    <span class="error-message">Could not load all summary details.</span>
+  }
   <div class="section" style="height: 200px">
     <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>account_balance</mat-icon>
       <mat-card-title>Cohorts</mat-card-title>
-      <mat-card-footer>{{ cohortsCount }}</mat-card-footer>
+      <mat-card-footer>{{
+        cohortsSummary?.cohortCount || '?'
+      }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>group</mat-icon>
       <mat-card-title>Students</mat-card-title>
-      <mat-card-footer>{{ studentsCount }}</mat-card-footer>
+      <mat-card-footer>{{
+        cohortsSummary?.studentCount || '?'
+      }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
       <mat-icon>file_copy</mat-icon>
       <mat-card-title>Polls</mat-card-title>
-      <mat-card-footer>{{ pollsCount }}</mat-card-footer>
+      <mat-card-footer>{{
+        cohortsSummary?.studentCount || '?'
+      }}</mat-card-footer>
     </mat-card>
-    <mat-card class="link-card" routerLink="/list-polls-by-lastDays">
+    <mat-card class="link-card" routerLink="/evaluation-process">
       <mat-icon>insert_chart</mat-icon>
       <mat-card-title>Evaluations</mat-card-title>
-      <mat-card-footer>{{ pollsCount }}</mat-card-footer>
+      <mat-card-footer>{{ evalProcSummary?.length }}</mat-card-footer>
     </mat-card>
   </div>
-  <h2 class="page-subtitle">Recent Polls</h2>
+
+  <h2 class="page-subtitle">Evaluation Processes</h2>
   <!-- Todo: Add URL PARAM to send last days -->
-  <p class="link" routerLink="/list-polls-by-lastDays">View all Polls</p>
-  <mat-card class="summary-section" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>{{ lastPoll.title }}</mat-card-title>
-      <mat-card-subtitle style="color: cadetblue">{{
-        lastPoll.version
-      }}</mat-card-subtitle>
-    </mat-card-header>
-    <div class="entity-summary">
-      <ul>
-        <li style="display: flex; align-items: center">
-          <p style="font-weight: bolder; margin-right: 10px">Published:</p>
-          <span>{{ lastPoll.publishedDate }}</span>
-        </li>
-        <li style="display: flex; align-items: center">
-          <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
-          <span>{{ lastPoll.deadlineDate }}</span>
-        </li>
-      </ul>
-      <div style="display: flex; width: 90%">
-        <mat-card class="summary-card">
-          <mat-card-title>Poll Progress</mat-card-title>
-          <mat-card-footer>{{ lastPoll.progress }}</mat-card-footer>
-        </mat-card>
-        <mat-card class="summary-card">
-          <mat-card-title>Risk Students</mat-card-title>
-          <mat-card-footer>{{ lastPoll.riskStudents }}</mat-card-footer>
-        </mat-card>
-      </div>
-    </div>
-    <div class="entity-summary">
-      <mat-card class="chart-card">
-        <mat-card-title style="text-align: center; font-weight: bold"
-          >Results Summary</mat-card-title
+  <p class="link" routerLink="/list-polls-by-cohort">View all Evaluations</p>
+  @if (lastEvalProc) {
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>{{ lastEvalProc.name }}</mat-card-title>
+        <mat-card-subtitle
+          matTooltip="Evaluation process ID"
+          style="color: cadetblue; margin-left: 5px"
+          >#{{ lastEvalProc.id }}</mat-card-subtitle
         >
+      </mat-card-header>
+      <div class="eval-summary">
+        <ul>
+          <li class="date-info">
+            <p style="font-weight: bolder; margin-right: 10px">Published:</p>
+            <span>{{ lastEvalProc.startDate | date }}</span>
+          </li>
+          <li class="date-info">
+            <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
+            <span>{{ lastEvalProc.endDate | date }}</span>
+          </li>
+        </ul>
+        <div style="display: flex; width: 90%; justify-content: center">
+          <mat-card class="eval-card">
+            <mat-card-title>Polls Answered</mat-card-title>
+            <mat-card-footer>{{
+              lastEvalProc.pollInstances.length
+            }}</mat-card-footer>
+          </mat-card>
+          @if (riskStudentsDetail) {
+            <mat-card
+              (click)="openStudentsByCohortDialog()"
+              class="eval-card clickable"
+            >
+              <mat-card-title>High Risk Students</mat-card-title>
+              <mat-card-footer>{{ riskStudentCount }}</mat-card-footer>
+            </mat-card>
+          }
+        </div>
+      </div>
+      <mat-card class="poll-summary" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ mainEPPoll?.name }}</mat-card-title>
+          <mat-card-subtitle matTooltip="Version: {{ mainEPPoll?.version }}">
+            #{{ mainEPPoll?.id }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <div class="poll-details">
+          <p>ID: {{ mainEPPoll?.uuid }}</p>
+          <p>Version: {{ mainEPPoll?.version }}</p>
+          <p>Creation Date: {{ mainEPPoll?.audit?.createdAt | date }}</p>
+          <p style="font-size: larger; font-weight: bold">
+            Risk Average: {{ riskPollAverage | number: '1.0-2' }}
+          </p>
+        </div>
         <app-bar-chart
-          [seriesY]="[1, 2, 3, 4, 5, 6]"
+          [seriesY]="pollResults"
           style="width: 90%"
         ></app-bar-chart>
+        <!-- <app-pie-chart
+            [seriesY]="pollResults"
+            class="back-result"
+        ></app-pie-chart> -->
+        <mat-card-actions>
+          <button mat-stroked-button (click)="redirectToLastPoll()">
+            View More
+          </button>
+        </mat-card-actions>
       </mat-card>
-      <mat-card class="chart-card">
-        <mat-card-title style="text-align: center; font-weight: bold"
-          >Poll Average</mat-card-title
-        >
-        <div class="overlaped">
-          <p class="front-result">{{ lastPoll.average }}</p>
-          <app-pie-chart class="back-result"></app-pie-chart>
-        </div>
-      </mat-card>
-    </div>
-    <mat-card-actions>
-      <button mat-stroked-button (click)="redirectToLastPoll()">
-        View More
-      </button>
-    </mat-card-actions>
-  </mat-card>
+    </mat-card>
+  } @else {
+    <span style="font-weight: bolder"
+      >No evaluation process with polls answered yet.</span
+    >
+  }
   <h2 class="page-subtitle">Connected Services</h2>
   <div class="section">
-    <mat-card class="link-card" routerLink="/cosmic-latte">
+    <mat-card class="services-card">
       <mat-card-title>Cosmic Latte</mat-card-title>
-      <mat-icon
-        style="color: #9064b9; font-size: 64px; width: 100px; height: 80px"
-        >local_drink</mat-icon
-      >
-      <mat-card-actions
-        style="
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          margin-top: -15px;
-        "
-      >
+      <mat-icon class="cl-icon">local_drink</mat-icon>
+      <mat-card-actions>
         @if (healthCheckStatus) {
           <mat-icon class="check">check</mat-icon>
         } @else {
           <mat-icon class="close">close</mat-icon>
         }
+        <p>{{ healthCheckStatus ? 'OK' : 'NOK' }}</p>
         <button mat-mini-fab aria-label="Service Settings">
           <mat-icon routerLink="/cosmic-latte">settings</mat-icon>
         </button>

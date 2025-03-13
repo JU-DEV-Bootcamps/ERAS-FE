@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StudentPoll } from '../../shared/models/polls/student-polls.model';
+import { EvaluationSummaryModel } from '../models/SummaryModel';
 import {
   CreateEvaluationProcess,
   PagedReadEvaluationProcess,
@@ -19,15 +18,12 @@ export class EvaluationProcessService {
 
   constructor(private http: HttpClient) {}
 
-  getEvalProcSummary(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/summary`);
-  }
-
-  getPollsByStudentId(studentId: number): Observable<StudentPoll[]> {
-    return this.http.get<StudentPoll[]>(
-      `${this.apiUrl}/${this.endpoint}/student/${studentId}`
+  getEvalProcSummary(): Observable<EvaluationSummaryModel> {
+    return this.http.get<EvaluationSummaryModel>(
+      `${this.apiUrl}/${this.endpoint}/summary`
     );
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createEvalProc(data: CreateEvaluationProcess): Observable<any> {
     return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
   }
