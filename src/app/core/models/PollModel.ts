@@ -1,5 +1,4 @@
 import { UUID } from 'crypto';
-import { StudentModel } from './StudentModel';
 
 export interface PollModel {
   name: string;
@@ -13,10 +12,4 @@ export interface PollModel {
   };
   components: [];
   id: number;
-  //TODO: move to Evaluation process interface
-  average?: number;
-  publishedDate?: Date;
-  deadlineDate?: Date;
-  progress?: string;
-  riskStudents?: StudentModel[];
 }

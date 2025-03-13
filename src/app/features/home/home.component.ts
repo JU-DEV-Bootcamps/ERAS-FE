@@ -15,8 +15,8 @@ import {
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
-import { PollModel } from '../../core/models/PollModel';
 import { MatTooltip } from '@angular/material/tooltip';
+import { PollModel } from '../../core/models/PollModel';
 
 @Component({
   selector: 'app-home',

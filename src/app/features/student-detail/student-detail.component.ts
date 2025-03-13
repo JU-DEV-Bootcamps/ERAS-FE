@@ -6,6 +6,8 @@ import {
   OnInit,
   CUSTOM_ELEMENTS_SCHEMA,
   OnDestroy,
+  ElementRef,
+  ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +16,7 @@ import { ApexOptions } from 'ng-apexcharts';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { StudentService } from '../../core/services/student.service';
+
 import { PollService } from '../../core/services/poll.service';
 import { Student } from '../../shared/models/student/student.model';
 import { StudentPoll } from '../../shared/models/polls/student-polls.model';
@@ -28,6 +31,7 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil, Subject } from 'rxjs';
+import { PdfService } from '../../core/services/report/pdf.service';
 
 register();
 @Component({
@@ -47,6 +51,8 @@ register();
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class StudentDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
+  private readonly exportPrintService = inject(PdfService);
   studentDetails: Student = {
     entity: {
       uuid: '',
@@ -130,7 +136,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
           this.getStudentPolls(studentId);
         },
         error: error => {
-          console.log(error);
+          console.error(error);
         },
       });
   }
@@ -151,7 +157,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
           }
         },
         error: error => {
-          console.log(error);
+          console.error(error);
         },
       });
   }
@@ -166,7 +172,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
           this.buildChartSeries();
         },
         error: error => {
-          console.log(error);
+          console.error(error);
         },
       });
   }
@@ -177,11 +183,10 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Answer[]) => {
-          console.log('Loading Table');
           this.studentAnswers = data;
         },
         error: error => {
-          console.log(error);
+          console.error(error);
         },
       });
   }
@@ -198,7 +203,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  chartSeriesByPollId: { [pollId: number]: ApexAxisChartSeries } = {};
+  chartSeriesByPollId: Record<number, ApexAxisChartSeries> = {};
 
   getColorByRisk(value: number): string {
     if (value >= 0 && value <= 2) {
@@ -238,7 +243,70 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   }
 
   printStudentInfo() {
-    console.log('To implement the PDF');
+    const mainContainerElement = this.mainContainer.nativeElement;
+
+    const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
+    clonedElement.style.width = '1440px';
+    clonedElement.style.margin = 'auto';
+    clonedElement
+      .querySelector('#chart-student-detail')
+      ?.classList.add('print-chart');
+
+    const swiperContainer = clonedElement.querySelector('#swiper-container');
+    if (swiperContainer) {
+      swiperContainer.removeAttribute('effect');
+    }
+
+    const h1 = document.createElement('h1');
+    h1.textContent = 'Student Details';
+    h1.style.textAlign = 'center';
+    h1.style.fontSize = '2em';
+    h1.style.fontWeight = '500';
+    clonedElement.insertBefore(h1, clonedElement.firstChild);
+
+    clonedElement.style.fontSize = '1.2em';
+
+    const h2Elements = clonedElement.querySelectorAll('h2');
+    h2Elements.forEach(h2 => {
+      h2.style.fontSize = '1.6em';
+    });
+
+    const h3Elements = clonedElement.querySelectorAll('h3');
+    h3Elements.forEach(h3 => {
+      h3.style.fontSize = '1.4em';
+    });
+
+    const h4Elements = clonedElement.querySelectorAll('h4');
+    h4Elements.forEach(h4 => {
+      h4.style.fontSize = '1.2em';
+    });
+
+    const pElements = clonedElement.querySelectorAll('p');
+    pElements.forEach(p => {
+      p.style.fontSize = '1.2em';
+    });
+
+    const thElements = clonedElement.querySelectorAll('th');
+    thElements.forEach(th => {
+      th.style.fontSize = '1.3em';
+    });
+
+    const tdElements = clonedElement.querySelectorAll('td');
+    tdElements.forEach(td => {
+      td.style.fontSize = '1.3em';
+    });
+
+    const tspanElements = clonedElement.querySelectorAll('tspan');
+    tspanElements.forEach(tspan => {
+      tspan.style.fontSize = '1.6em';
+    });
+
+    const printButton = clonedElement.querySelector('#print-button');
+    printButton?.remove();
+
+    document.body.appendChild(clonedElement);
+    this.exportPrintService.exportToPDF(clonedElement, `student-detail-2.pdf`);
+    document.body.removeChild(clonedElement);
   }
 
   capitalize(text: string) {
