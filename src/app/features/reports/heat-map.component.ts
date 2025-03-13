@@ -8,6 +8,7 @@ import {
 } from './services/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   SurveyKind,
   MockUpAnswers,
@@ -197,30 +198,33 @@ export class HeatMapComponent implements OnInit {
         .get('selectQuestions')
         ?.setValue(this.questions.map(q => q.description));
     }, 750);
-    this.myForm.valueChanges.subscribe(formValue => {
-      this.selectedPoll = this.pollsData.filter(
-        poll => poll.uuid == formValue.pollUuid
-      )[0];
-      this.selectQuestions = formValue.selectQuestions;
+    this.myForm.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(formValue => {
+        this.selectedPoll = this.pollsData.filter(
+          poll => poll.uuid == formValue.pollUuid
+        )[0];
+        this.selectQuestions = formValue.selectQuestions;
 
-      const pollUUID = formValue.pollUuid;
-      const dataPoll = this.heatMapService.getDataPoll(pollUUID);
+        const pollUUID = formValue.pollUuid;
+        const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
-      dataPoll.subscribe(data => {
-        this.modalDataSudentVariable = {
-          pollUUID: pollUUID,
-          pollName: this.selectedPoll.name,
-          data: data.body,
-        };
-        this.mockupAnswers = adaptAnswers(data.body);
-        this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
-        this.questions = this.selectSurveyKinds.reduce(
-          (sks, sk) => sks.concat(this.mockupAnswers[sk]!.questions.questions),
-          [] as Question[]
-        );
-        this.updateChart();
+        dataPoll.subscribe(data => {
+          this.modalDataSudentVariable = {
+            pollUUID: pollUUID,
+            pollName: this.selectedPoll.name,
+            data: data.body,
+          };
+          this.mockupAnswers = adaptAnswers(data.body);
+          this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
+          this.questions = this.selectSurveyKinds.reduce(
+            (sks, sk) =>
+              sks.concat(this.mockupAnswers[sk]!.questions.questions),
+            [] as Question[]
+          );
+          this.updateChart();
+        });
       });
-    });
   }
 
   loadPollsList(): void {
