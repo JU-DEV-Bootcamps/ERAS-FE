@@ -161,6 +161,7 @@ export class ImportAnswersComponent {
     } else if (event.state == 'true') {
       this.loadingSubject.next(false);
       this.importedPollData = [];
+      this.resetForm();
       this.openDialog('Polls saved successfully!', true);
     } else {
       this.loadingSubject.next(false);
