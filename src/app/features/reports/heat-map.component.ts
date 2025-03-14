@@ -172,8 +172,9 @@ export class HeatMapComponent implements OnInit {
         const xValue = w.globals.labels[dataPointIndex];
         const seriesName = w.config.series[seriesIndex].name;
 
-        return `<div class="apexcharts-tooltip-y"><b>(${yValue})</b> ${seriesName}</div>
-                <div class="apexcharts-tooltip-x"><b>Answer:</b> ${xValue}</div>`;
+        return `<div class="apexcharts-tooltip-y" style="font-size: 12px; margin: 4px"><b>(${yValue})</b> ${seriesName}</div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="apexcharts-tooltip-x" style="font-size: 12px; margin: 4px"><b>Answer:</b> ${xValue}</div>`;
       },
     },
   };
