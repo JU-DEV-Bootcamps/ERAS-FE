@@ -88,7 +88,13 @@ export class HeatMapComponent implements OnInit {
       text: '',
     },
     xaxis: {
-      categories: [''],
+      type: 'category',
+      labels: {
+        show: false,
+      },
+      tooltip: {
+        enabled: false,
+      },
     },
     plotOptions: {
       heatmap: {
@@ -162,6 +168,22 @@ export class HeatMapComponent implements OnInit {
             return seriesName;
           },
         },
+      },
+      x: {
+        show: true,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formatter: function (val: any): string {
+          return `Answer: ${val}`;
+        },
+      },
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const yValue = series[seriesIndex][dataPointIndex];
+        const xValue = w.globals.labels[dataPointIndex];
+        const seriesName = w.config.series[seriesIndex].name;
+
+        return `<div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>(${yValue})</b> ${seriesName}</div>
+                <div style="border-top: 1px solid #ccc;"></div>
+                <div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Answer:</b> ${xValue}</div>`;
       },
     },
   };

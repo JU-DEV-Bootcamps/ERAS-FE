@@ -64,7 +64,16 @@ export class SummaryHeatmapComponent implements OnInit {
             text: 'Heat Map - All Components',
           },
           xaxis: {
-            categories: [''],
+            type: 'category',
+            labels: {
+              show: false,
+            },
+            tooltip: {
+              enabled: false,
+            },
+          },
+          dataLabels: {
+            enabled: false,
           },
           plotOptions: {
             heatmap: {
@@ -119,6 +128,9 @@ export class SummaryHeatmapComponent implements OnInit {
             },
           },
           tooltip: {
+            x: {
+              show: true,
+            },
             y: {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               formatter: function (val: number, opts?: any): string {
@@ -132,18 +144,18 @@ export class SummaryHeatmapComponent implements OnInit {
                 return val.toString();
               },
               title: {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                formatter: function (seriesName: string, opts?: any): string {
-                  const rowIdx = opts.seriesIndex;
-                  const colIdx = opts.dataPointIndex;
-                  const grid = opts.series;
-
-                  if (grid[rowIdx][colIdx] === -1) {
-                    return '';
-                  }
+                formatter: function (): string {
                   return 'Average Risk Level:';
                 },
               },
+            },
+            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+              const yValue = series[seriesIndex][dataPointIndex];
+              const xValue = w.globals.labels[dataPointIndex];
+
+              return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px">${xValue}</div>
+              <div style="border-top: 1px solid #ccc;"></div>
+              <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">Average Risk Level: <b>${yValue}</b></div>`;
             },
           },
         };
