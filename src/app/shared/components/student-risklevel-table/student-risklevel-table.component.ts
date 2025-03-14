@@ -9,6 +9,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatIcon } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-modal-risk-students-cohort',
@@ -26,8 +27,9 @@ export class StudentRisklevelTableComponent {
   readonly dialogRef = inject(MatDialogRef<StudentRisklevelTableComponent>);
 
   riskStudentsDetail = inject(MAT_DIALOG_DATA);
+  router = inject(Router);
 
-  columns = ['studentId', 'studentName', 'riskLevel', 'actions'];
+  columns = ['studentId', 'studentName', 'riskLevel'];
 
   closeDialog(): void {
     console.info(this.riskStudentsDetail);
@@ -41,5 +43,11 @@ export class StudentRisklevelTableComponent {
 
   hasHighRisk(riskLevel: string | null) {
     return parseInt(riskLevel ?? '0') >= 3 ? RISK_COLORS.default : '';
+  }
+
+  redirectToStudentDetail(studentId: string) {
+    //TODO: retrieve student id from back
+    console.info("retrieve student " + studentId);
+    //window.open(`student-details/${studentId}`, '_blank');
   }
 }

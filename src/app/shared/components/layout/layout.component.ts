@@ -9,12 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import Keycloak from 'keycloak-js';
-import {
-  KEYCLOAK_EVENT_SIGNAL,
-  KeycloakEventType,
-  typeEventArgs,
-  ReadyArgs,
-} from 'keycloak-angular';
+import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, typeEventArgs, ReadyArgs } from 'keycloak-angular';
 
 @Component({
   selector: 'app-layout',
@@ -42,6 +37,7 @@ export class LayoutComponent {
   isSettingsExpanded = false;
   isImportsExpanded = false;
   isListsExpanded = false;
+  isReportsExpanded = false;
 
   router = inject(Router);
   constructor() {
@@ -87,5 +83,8 @@ export class LayoutComponent {
   }
   toggleLists(expand: boolean) {
     this.isListsExpanded = expand;
+  }
+  toggleReports(expand: boolean) {
+    this.isReportsExpanded = expand;
   }
 }
