@@ -14,6 +14,7 @@ import { ListPollInstancesByFiltersComponent } from './features/list-poll-instan
 import { StudentDetailComponent } from './features/student-detail/student-detail.component';
 import { HomeComponent } from './features/home/home.component';
 import { CohortComponent } from './features/cohort/cohort/cohort.component';
+import { EvaluationProcessListComponent } from './features/evaluation-process/evaluation-process-list/evaluation-process-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -35,6 +36,10 @@ export const routes: Routes = [
       {
         path: 'heat-map-summary',
         component: SummaryHeatmapComponent,
+      },
+      {
+        path: 'evaluation-process',
+        component: EvaluationProcessListComponent,
       },
       {
         path: 'import-answers',

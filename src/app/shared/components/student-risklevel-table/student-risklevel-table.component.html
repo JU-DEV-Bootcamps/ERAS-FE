@@ -1,0 +1,63 @@
+<mat-dialog-content>
+  <div class="modal-header">
+    <h2 style="margin: 5px; font-size: 24px">Students Poll Results</h2>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon (click)="closeDialog()">close</mat-icon>
+    </button>
+  </div>
+  @if (riskStudentsDetail.length) {
+    <p style="padding: 0px 0px 20px 0px; margin: 0px">
+      {{ riskStudentsDetail.length }} students found
+    </p>
+
+    <mat-table [dataSource]="riskStudentsDetail">
+      <ng-container matColumnDef="studentId">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.studentId }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="studentName">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [style.Color]="hasHighRisk(element.riskLevel)"
+        >
+          {{ element.studentName }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="riskLevel">
+        <th mat-header-cell *matHeaderCellDef>Risk Average</th>
+        <td mat-cell *matCellDef="let element">
+          <div
+            class="risk-badge"
+            [style.backgroundColor]="getColorRisk(element.riskLevel)"
+          >
+            {{ element.riskLevel | number: '1.0-2' }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <button [disabled]="true" mat-icon-button aria-label="View details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </mat-table>
+  } @else {
+    <div style="text-align: center">
+      <h4>No Risk Students Found</h4>
+    </div>
+  }
+  <ng-template #loadingTemplate>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </ng-template>
+</mat-dialog-content>

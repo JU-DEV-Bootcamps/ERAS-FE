@@ -30,24 +30,16 @@ height: auto;
   margin-bottom: 48px;
 }
 
+.filter-container-risk {
+  padding-inline: 1em;
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 100px;
+}
+
 mat-form-field:not(:first-child),
 button:not(:first-child) {
   margin-left: 1em;
-}
-
-.apexcharts-canvas .apexcharts-heatmap-rect[val='-1'] {
-  display: none !important;
-}
-
-.mat-mdc-fab {
-  background-color: var(
-    --mdc-filled-text-field-container-color,
-    var(--mat-sys-surface-variant)
-  );
-}
-
-.cdk-overlay-pane {
-  background-color: white;
 }
 
 .filter-options {
@@ -68,4 +60,9 @@ button:not(:first-child) {
     max-width: none;
     max-height: none;
   }
+}
+
+#print-button {
+  float: right;
+  margin-left: 10px;
 }

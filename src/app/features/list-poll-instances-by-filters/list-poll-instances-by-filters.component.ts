@@ -19,6 +19,7 @@ import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { PollInstance } from '../../core/services/Types/pollInstance';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -40,6 +41,7 @@ import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
   styleUrl: './list-poll-instances-by-filters.component.scss',
 })
 export class ListPollInstancesByFiltersComponent implements OnInit {
+  private readonly router = inject(Router);
   columns = ['uuid', 'finishedAt', 'name', 'email', 'modifiedAt'];
   columnsText = [
     'Uuid',
@@ -129,8 +131,15 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   }
 
   generateHeatMap(): void {
-    // TODO: Create heatmap with filters
-    console.log('Generating Heat Map');
+    const url = this.router
+      .createUrlTree(['/heat-map-summary'], {
+        queryParams: {
+          cohortId: this.selectedCohortId,
+          days: this.selectedDay,
+        },
+      })
+      .toString();
+    window.open(url, '_blank');
   }
 
   goToDetails(pollInstance: PollInstance): void {

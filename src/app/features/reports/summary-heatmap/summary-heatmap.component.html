@@ -1,8 +1,8 @@
 <div class="page-header">
   <h2 class="page-title">Summary Reports</h2>
 </div>
-@if (pollId !== 'notFound') {
-  <div class="chart-container-wrapper">
+<div class="chart-container-wrapper">
+  @if (!isLoading) {
     <div class="chart-container">
       <apx-chart
         [series]="chartOptions.series!"
@@ -16,9 +16,9 @@
       >
       </apx-chart>
     </div>
-  </div>
-} @else {
-  <div>
-    <p>There was a problem with the Heatmap data...</p>
-  </div>
-}
+  } @else {
+    <div class="spinner-container">
+      <mat-spinner style="margin: 0 auto"></mat-spinner>
+    </div>
+  }
+</div>

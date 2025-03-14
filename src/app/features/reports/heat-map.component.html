@@ -1,101 +1,110 @@
-<div class="page-header">
-  <h2 class="page-title">Reports</h2>
-</div>
-
-<div class="chart-container-wrapper">
-  <div class="form-container">
-    <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-component">Polls by name</mat-label>
-        <mat-select id="sl-component" formControlName="pollUuid">
-          @for (poll of pollsData; track $index) {
-            <mat-option [value]="poll.uuid">
-              {{ poll.name }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-component">Component</mat-label>
-        <mat-select
-          id="sl-component"
-          formControlName="selectSurveyKinds"
-          multiple
-        >
-          @for (surveyKind of surveyKinds; track surveyKind) {
-            <mat-option [value]="surveyKind">{{
-              surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
-            }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-questions">Questions</mat-label>
-        <mat-select
-          id="sl-questions"
-          formControlName="selectQuestions"
-          multiple
-        >
-          @for (question of questions; track question.description) {
-            <mat-option [value]="question.description">{{
-              question.description
-            }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <button mat-fab extended type="submit">
-        <mat-icon>cached</mat-icon>
-        Apply
-      </button>
-    </form>
+<div #mainContainer>
+  <div class="page-header">
+    <h2 class="page-title">Reports</h2>
   </div>
 
-  <div class="filter-container">
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon style="margin-right: 10px">tune</mat-icon>
-          Student Details Options</mat-panel-title
-        >
-      </mat-expansion-panel-header>
-      <div class="filter-options">
-        <button mat-raised-button (click)="openDialog()" color="primary">
-          Students by variable
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          style="margin: 0"
-          (click)="openStudentsDetailsDialog()"
-        >
-          Students by component
-        </button>
-        <button
-          mat-raised-button
-          color="primary"
-          style="margin: 0"
-          (click)="openStudentsByCohortDialog()"
-        >
-          Students by cohort
-        </button>
-      </div>
-    </mat-expansion-panel>
-  </div>
+  <div class="chart-container-wrapper">
+    <div class="form-container">
+      <form [formGroup]="myForm">
+        <mat-form-field appearance="fill">
+          <mat-label for="sl-component">Polls by name</mat-label>
+          <mat-select id="sl-component" formControlName="pollUuid">
+            @for (poll of pollsData; track $index) {
+              <mat-option [value]="poll.uuid">
+                {{ poll.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
 
-  <div class="chart-container" #chart>
-    <apx-chart
-      [series]="chartOptions.series!"
-      [chart]="chartOptions.chart!"
-      [xaxis]="chartOptions.xaxis!"
-      [yaxis]="chartOptions.yaxis!"
-      [colors]="chartOptions.colors!"
-      [plotOptions]="chartOptions.plotOptions!"
-      [title]="chartOptions.title!"
-      [tooltip]="chartOptions.tooltip!"
-    >
-    </apx-chart>
+        <mat-form-field appearance="fill">
+          <mat-label for="sl-component">Component</mat-label>
+          <mat-select
+            id="sl-component"
+            formControlName="selectSurveyKinds"
+            multiple
+          >
+            @for (surveyKind of surveyKinds; track surveyKind) {
+              <mat-option [value]="surveyKind">{{
+                surveyKind[0] + surveyKind.slice(1).toLocaleLowerCase()
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label for="sl-questions">Questions</mat-label>
+          <mat-select
+            id="sl-questions"
+            formControlName="selectQuestions"
+            multiple
+          >
+            @for (question of questions; track question.description) {
+              <mat-option [value]="question.description">{{
+                question.description
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          id="print-button"
+          mat-icon-button
+          color="primary"
+          (click)="printReportInfo()"
+        >
+          <mat-icon>print</mat-icon>
+        </button>
+      </form>
+    </div>
+
+    <div class="filter-container">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon style="margin-right: 10px">tune</mat-icon>
+            Student Details Options
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="filter-options">
+          <button mat-raised-button (click)="openDialog()" color="primary">
+            Students by variable
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            style="margin: 0"
+            (click)="openStudentsDetailsDialog()"
+          >
+            Students by component
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            style="margin: 0"
+            (click)="openStudentsByCohortDialog()"
+          >
+            Students by cohort
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </div>
+    <div class="filter-container">
+      <app-risk-students-table
+        [pollUUID]="selectedPoll.uuid"
+        [variableIds]="variableIds"
+      ></app-risk-students-table>
+    </div>
+    <div class="chart-container" #chart>
+      <apx-chart
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [colors]="chartOptions.colors!"
+        [plotOptions]="chartOptions.plotOptions!"
+        [title]="chartOptions.title!"
+        [tooltip]="chartOptions.tooltip!"
+      >
+      </apx-chart>
+    </div>
   </div>
 </div>
