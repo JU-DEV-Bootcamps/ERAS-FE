@@ -16,7 +16,7 @@ $palettes: (
     40: #006a66,
     50: #008581,
     60: #00a29c,
-    70: #19BFB9,
+    70: #19bfb9,
     80: #49dbd4,
     90: #6cf7f1,
     95: #b0fffa,
@@ -76,7 +76,7 @@ $palettes: (
     70: #aeaaaa,
     80: #c9c5c5,
     90: #e6e1e1,
-    95: #f4f0ef,
+    95: white,
     98: #fdf8f8,
     99: #fffbff,
     100: #ffffff,
@@ -122,7 +122,7 @@ $palettes: (
 $_rest: (
   secondary: map.get($palettes, secondary),
   neutral: map.get($palettes, neutral),
-  neutral-variant: map.get($palettes,  neutral-variant),
+  neutral-variant: map.get($palettes, neutral-variant),
   error: map.get($palettes, error),
 );
 
@@ -130,7 +130,6 @@ $_rest: (
 @function get-color($palette, $key) {
   @return map.get(map.get($palettes, $palette), $key);
 }
-
 
 $primary-palette: map.merge(map.get($palettes, primary), $_rest);
 $tertiary-palette: map.merge(map.get($palettes, tertiary), $_rest);
