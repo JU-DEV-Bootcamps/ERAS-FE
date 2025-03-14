@@ -37,6 +37,9 @@ export class ImportStudentsComponent {
   @ViewChild('fileInput')
   inputFile!: ElementRef<HTMLInputElement>;
 
+  @ViewChild(ListImportedStudentComponent)
+  listImportedStudentComponent!: ListImportedStudentComponent;
+
   constructor(
     private csvCheckerService: CsvCheckerService,
     private importService: ImportStudentService
@@ -153,6 +156,8 @@ export class ImportStudentsComponent {
         next: response => {
           this.isLoading = false;
           this.openDialog(response.message, true);
+
+          this.listImportedStudentComponent.loadStudents();
         },
         error: error => {
           this.isLoading = false;
