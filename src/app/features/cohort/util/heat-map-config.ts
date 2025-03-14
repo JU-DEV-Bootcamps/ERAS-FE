@@ -94,5 +94,13 @@ export const ChartOptions: ApexOptions = {
         },
       },
     },
+    custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+      const yValue = series[seriesIndex][dataPointIndex];
+      const xValue = w.globals.labels[dataPointIndex];
+
+      return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px">${xValue}</div>
+      <div style="border-top: 1px solid #ccc;"></div>
+      <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">Average Risk Level: <b>${yValue}</b></div>`;
+    },
   },
 };
