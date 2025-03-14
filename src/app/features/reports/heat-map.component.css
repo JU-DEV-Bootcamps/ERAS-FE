@@ -30,6 +30,13 @@ height: auto;
   margin-bottom: 48px;
 }
 
+.filter-container-risk {
+  padding-inline: 1em;
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 100px;
+}
+
 mat-form-field:not(:first-child),
 button:not(:first-child) {
   margin-left: 1em;
@@ -53,4 +60,9 @@ button:not(:first-child) {
     max-width: none;
     max-height: none;
   }
+}
+
+#print-button {
+  float: right;
+  margin-left: 10px;
 }

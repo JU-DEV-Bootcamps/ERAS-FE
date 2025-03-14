@@ -1,4 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
@@ -34,9 +41,13 @@ import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
+import { RiskStudentsTableComponent } from '../../shared/components/risk-students-table/risk-students-table.component';
 import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
-
+import { register } from 'swiper/element/bundle';
+import { PdfService } from '../../core/services/report/pdf.service';
 import { RISK_COLORS } from '../../core/constants/riskLevel';
+
+register();
 @Component({
   selector: 'app-charts',
   imports: [
@@ -51,11 +62,15 @@ import { RISK_COLORS } from '../../core/constants/riskLevel';
     MatExpansionModule,
     MatSlideToggleModule,
     MatFormFieldModule,
+    RiskStudentsTableComponent,
   ],
   templateUrl: './heat-map.component.html',
   styleUrls: ['./heat-map.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HeatMapComponent implements OnInit {
+  @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
+  private readonly exportPrintService = inject(PdfService);
   public myForm: FormGroup;
   public chartOptions: ApexOptions = {
     series: [],
@@ -175,7 +190,7 @@ export class HeatMapComponent implements OnInit {
   public selectQuestions: string[] = [];
   public selectSurveyKinds = this.defaultSurvey;
   public pollList = [];
-
+  public variableIds: number[] = [];
   private heatMapService = inject(HeatMapService);
   private pollService = inject(PollService);
 
@@ -222,6 +237,7 @@ export class HeatMapComponent implements OnInit {
               sks.concat(this.mockupAnswers[sk]!.questions.questions),
             [] as Question[]
           );
+          this.variableIds = this.questions.map(q => q.variableId);
           this.updateChart();
         });
       });
@@ -333,5 +349,78 @@ export class HeatMapComponent implements OnInit {
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
     });
+  }
+
+  printReportInfo() {
+    const mainContainerElement = this.mainContainer.nativeElement;
+
+    const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
+    clonedElement.style.width = '1440px';
+    clonedElement.style.margin = 'auto';
+
+    const swiperContainer = clonedElement.querySelector('#swiper-container');
+    if (swiperContainer) {
+      swiperContainer.removeAttribute('effect');
+    }
+
+    clonedElement.style.fontSize = '1.2em';
+
+    const h2Elements = clonedElement.querySelectorAll('h2');
+    h2Elements.forEach(h2 => {
+      h2.style.fontSize = '1.6em';
+    });
+
+    const h3Elements = clonedElement.querySelectorAll('h3');
+    h3Elements.forEach(h3 => {
+      h3.style.fontSize = '1.4em';
+    });
+
+    const h4Elements = clonedElement.querySelectorAll('h4');
+    h4Elements.forEach(h4 => {
+      h4.style.fontSize = '1.2em';
+    });
+
+    const pElements = clonedElement.querySelectorAll('p');
+    pElements.forEach(p => {
+      p.style.fontSize = '1.2em';
+    });
+
+    const printButton = clonedElement.querySelector('#print-button');
+    printButton?.remove();
+
+    const formContainer = clonedElement.querySelector('.form-container');
+    formContainer?.remove();
+
+    const filterContainer = clonedElement.querySelector('.filter-container');
+    filterContainer?.remove();
+
+    const titleCard = clonedElement.querySelector('.title-card');
+    titleCard?.remove();
+
+    const containerCardList = clonedElement.querySelector(
+      '.container-card-list'
+    ) as HTMLElement;
+    if (containerCardList) {
+      containerCardList.style.display = 'flex';
+      containerCardList.style.justifyContent = 'center';
+      containerCardList.style.alignItems = 'center';
+      containerCardList.style.width = '100%';
+    }
+
+    const chartContainer = clonedElement.querySelector(
+      '.chart-container'
+    ) as HTMLElement;
+    if (chartContainer) {
+      chartContainer.style.display = 'flex';
+      chartContainer.style.justifyContent = 'center';
+      chartContainer.style.alignItems = 'center';
+      chartContainer.style.width = '100%';
+      chartContainer.style.margin = '0 auto';
+      chartContainer.style.maxWidth = 'none';
+    }
+
+    document.body.appendChild(clonedElement);
+    this.exportPrintService.exportToPDF(clonedElement, `report-detail.pdf`);
+    document.body.removeChild(clonedElement);
   }
 }

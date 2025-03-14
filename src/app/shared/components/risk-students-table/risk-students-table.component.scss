@@ -1,0 +1,116 @@
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 0;
+}
+.student-card {
+  margin-top: 20px;
+  border-radius: 12px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+.student-table {
+  width: 100%;
+  max-width: 800px; 
+  margin: 10px auto;
+  overflow-x: auto;
+}
+
+.section {
+  display: flex;
+  width: 100%;
+}
+
+.risk-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.link:hover {
+  cursor: pointer;
+  color: #008581;
+  text-decoration: underline;
+}
+.summary-section {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 90%;
+}
+
+.link-card {
+  margin: 25px;
+  width: 150px;
+  height: 150px;
+  display: block;
+  justify-items: center;
+  align-content: center;
+  color: #008581;
+  background-color: #f4f0ef;
+  text-align: center;
+  cursor: pointer;
+}
+
+.summary-card {
+  margin: 5%;
+  max-width: 120px;
+  max-height: 120px;
+  display: block;
+  justify-items: center;
+  color: #008581;
+  background-color: #f4f0ef;
+  text-align: center;
+}
+
+.chart-card {
+  background-size: cover;
+  width: 47%;
+  color: #008581;
+  margin-top: 15px;
+  background-color: #f4f0ef;
+}
+.entity-summary {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  color: #008581;
+  font-size: large;
+}
+
+.services-card {
+  max-width: 100%;
+  color: #008581;
+}
+
+.overlaped {
+  display: block;
+  align-items: center;
+  justify-content: center;
+}
+.front-result {
+  font-weight: bolder;
+  font-size: 34px;
+  margin: 0px;
+  height: 30px;
+  text-align: center;
+  color: #008581;
+}
+.back-result {
+  color: #008581;
+}
+.check{
+    color: #07CB07;
+}
+.close{
+    color: #F13636;
+}
