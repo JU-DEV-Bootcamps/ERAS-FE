@@ -2,7 +2,11 @@
 
 // Customize the entire app. Change :root to your selector if you want to scope the styles.
 :root {
-  @include mat.paginator-overrides(());
+  @include mat.paginator-overrides(
+    (
+      container-background-color: white,
+    )
+  );
   @include mat.sidenav-overrides(
     (
       content-background-color: white,
@@ -12,6 +16,18 @@
   @include mat.table-overrides(
     (
       background-color: white,
+    )
+  );
+
+  @include mat.expansion-overrides(
+    (
+      container-background-color: white,
+    )
+  );
+
+  @include mat.dialog-overrides(
+    (
+      container-color: white,
     )
   );
 }
