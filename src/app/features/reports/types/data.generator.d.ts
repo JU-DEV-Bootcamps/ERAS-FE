@@ -21,6 +21,7 @@ interface Question {
   isMultiple: boolean;
   possibleAnswers: PossibleAnswer[];
   description: string;
+  variableId: number;
 }
 interface SurveyQuestions {
   surveyKind: SurveyKind;

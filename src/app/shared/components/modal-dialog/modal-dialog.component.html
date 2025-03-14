@@ -9,7 +9,9 @@
         <p class="title" [ngClass]="'error-style'">
           {{ data.title }}
         </p>
-        <p class="subtitle" [ngClass]="'error-style'"></p>
+        <p class="subtitle" [ngClass]="'error-style'">
+          {{ data.error.message }}
+        </p>
         <ul>
           <li *ngFor="let detail of data.error.details" class="details">
             <p>{{ detail }}</p>

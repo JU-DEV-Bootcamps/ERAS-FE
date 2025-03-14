@@ -90,7 +90,11 @@ export class ImportAnswersComponent {
     this.isMobile = window.innerWidth < 768;
   }
 
-  private openDialog(descriptionMessage: string, isSuccess: boolean): void {
+  private openDialog(
+    descriptionMessage: string,
+    isSuccess: boolean,
+    extraMessage?: string
+  ): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
@@ -109,7 +113,7 @@ export class ImportAnswersComponent {
         error: {
           title: GENERAL_MESSAGES.ERROR_TITLE,
           details: [descriptionMessage],
-          message: descriptionMessage,
+          message: extraMessage,
         },
       },
     });
@@ -138,9 +142,13 @@ export class ImportAnswersComponent {
             this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_OK, true);
           }
         },
-        error: () => {
+        error: err => {
           this.loadingSubject.next(false);
-          this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
+          this.openDialog(
+            IMPORT_MESSAGES.ANSWERS_ERROR,
+            false,
+            err?.error?.message
+          );
           this.resetForm();
         },
       });
@@ -153,6 +161,7 @@ export class ImportAnswersComponent {
     } else if (event.state == 'true') {
       this.loadingSubject.next(false);
       this.importedPollData = [];
+      this.resetForm();
       this.openDialog('Polls saved successfully!', true);
     } else {
       this.loadingSubject.next(false);
@@ -165,9 +174,9 @@ export class ImportAnswersComponent {
         this.pollsNames = data;
         this.loadingSubject.next(false);
       },
-      error: () => {
+      error: err => {
         this.loadingSubject.next(false);
-        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err.message);
         this.resetForm();
       },
     });
