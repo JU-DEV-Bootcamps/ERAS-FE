@@ -1,12 +1,12 @@
 <div>
-  <h2 class="page-title">Import survey responses</h2>
+  <h2 class="page-title">Import Polls</h2>
 </div>
 
 <div class="container-form-answer">
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="row">
       <mat-form-field class="input" appearance="outline">
-        <mat-label>Select a survey by name</mat-label>
+        <mat-label>Select a survey from Cosmic Latte</mat-label>
         <mat-select formControlName="surveyName">
           @for (poll of pollsNames; track poll) {
             <mat-option [value]="poll.name"
