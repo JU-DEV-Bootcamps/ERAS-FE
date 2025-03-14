@@ -42,6 +42,12 @@ button:not(:first-child) {
   margin-left: 1em;
 }
 
+::ng-deep .custom-snackbar {
+  position: fixed !important;
+  top: 60px !important;
+  right: 60px !important;
+  left: auto !important;
+}
 .filter-options {
   display: flex;
   flex-wrap: wrap;
