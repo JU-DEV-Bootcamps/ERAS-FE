@@ -17,6 +17,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -53,6 +54,7 @@ export class EvaluationProcessListComponent implements OnInit {
   isLoading = false;
 
   constructor(private datePipe: DatePipe) {}
+  router = inject(Router);
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -130,6 +132,16 @@ export class EvaluationProcessListComponent implements OnInit {
       maxWidth: '90vw',
       data: {
         updateFunction: this.getEvaluationProcess.bind(this),
+      },
+    });
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  goToImport(data: any) {
+    this.router.navigate(['import-answers'], {
+      state: {
+        pollName: data.pollName,
+        endDate: data.endDate,
+        startDate: data.startDate,
       },
     });
   }

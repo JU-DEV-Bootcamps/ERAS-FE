@@ -90,19 +90,34 @@
               </th>
               @if (column === 'status') {
                 <td mat-cell *matCellDef="let element">
-                  <div
-                    class="statusActionContainer"
-                    (click)="openModalDetails(element)"
-                    (keyup.enter)="openModalDetails(element)"
-                    tabindex="0"
-                  >
+                  <div class="statusActionContainer">
+                    <mat-icon
+                      *ngIf="
+                        element[column] !== 'Incomplete' &&
+                        element[column] !== 'Not started yet'
+                      "
+                      class="goToImport"
+                      (click)="goToImport(element)"
+                      [matTooltip]="'Go to import'"
+                      (keyup.enter)="goToImport(element)"
+                      tabindex="0"
+                      >download</mat-icon
+                    >
                     <span
                       class="badgeStatus"
                       [ngClass]="getClassName(element[column])"
+                      (click)="openModalDetails(element)"
+                      (keyup.enter)="openModalDetails(element)"
+                      tabindex="0"
                     >
                       {{ element[column] }}
                     </span>
-                    <mat-icon>more_vert</mat-icon>
+                    <mat-icon
+                      (click)="openModalDetails(element)"
+                      (keyup.enter)="openModalDetails(element)"
+                      tabindex="0"
+                      >more_vert</mat-icon
+                    >
                   </div>
                 </td>
               } @else {
