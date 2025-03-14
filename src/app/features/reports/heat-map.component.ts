@@ -27,7 +27,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -100,42 +100,36 @@ export class HeatMapComponent implements OnInit {
               from: -1,
               to: 0,
               color: RISK_COLORS[0],
-              foreColor: RISK_COLORS[0],
               name: 'No answer',
             },
             {
               from: 0,
               to: 2,
               color: RISK_COLORS[1],
-              foreColor: RISK_COLORS[0],
               name: 'Low Risk',
             },
             {
               from: 2,
               to: 4,
               color: RISK_COLORS[2],
-              foreColor: RISK_COLORS[0],
               name: 'Low-Medium Risk',
             },
             {
               from: 4,
               to: 6,
               color: RISK_COLORS[3],
-              foreColor: RISK_COLORS[0],
               name: 'Medium Risk',
             },
             {
               from: 6,
               to: 8,
               color: RISK_COLORS[4],
-              foreColor: RISK_COLORS[0],
               name: 'Medium-High Risk',
             },
             {
               from: 8,
               to: 100,
               color: RISK_COLORS['default'],
-              foreColor: RISK_COLORS[0],
               name: 'High Risk',
             },
           ],
@@ -193,6 +187,7 @@ export class HeatMapComponent implements OnInit {
   public variableIds: number[] = [];
   private heatMapService = inject(HeatMapService);
   private pollService = inject(PollService);
+  public isGeneratingPDF = false;
 
   pollsData: Poll[] = [];
   selectedPoll = this.pollsData[0];
@@ -202,7 +197,7 @@ export class HeatMapComponent implements OnInit {
 
   readonly dialog = inject(MatDialog);
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
     this.myForm = this.initForm();
   }
 
@@ -352,75 +347,83 @@ export class HeatMapComponent implements OnInit {
   }
 
   printReportInfo() {
-    const mainContainerElement = this.mainContainer.nativeElement;
-
-    const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
-    clonedElement.style.width = '1440px';
-    clonedElement.style.margin = 'auto';
-
-    const swiperContainer = clonedElement.querySelector('#swiper-container');
-    if (swiperContainer) {
-      swiperContainer.removeAttribute('effect');
-    }
-
-    clonedElement.style.fontSize = '1.2em';
-
-    const h2Elements = clonedElement.querySelectorAll('h2');
-    h2Elements.forEach(h2 => {
-      h2.style.fontSize = '1.6em';
+    if (this.isGeneratingPDF) return;
+    this.isGeneratingPDF = true;
+    const snackBarRef = this.snackBar.open('Generating PDF...', 'Close', {
+      duration: 10000,
+      panelClass: ['custom-snackbar'],
     });
 
-    const h3Elements = clonedElement.querySelectorAll('h3');
-    h3Elements.forEach(h3 => {
-      h3.style.fontSize = '1.4em';
-    });
+    setTimeout(() => {
+      const mainContainerElement = this.mainContainer.nativeElement;
+      const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
+      clonedElement.style.width = '1440px';
+      clonedElement.style.margin = 'auto';
 
-    const h4Elements = clonedElement.querySelectorAll('h4');
-    h4Elements.forEach(h4 => {
-      h4.style.fontSize = '1.2em';
-    });
+      const swiperContainer = clonedElement.querySelector('#swiper-container');
+      if (swiperContainer) {
+        swiperContainer.removeAttribute('effect');
+      }
 
-    const pElements = clonedElement.querySelectorAll('p');
-    pElements.forEach(p => {
-      p.style.fontSize = '1.2em';
-    });
+      clonedElement.style.fontSize = '1.2em';
 
-    const printButton = clonedElement.querySelector('#print-button');
-    printButton?.remove();
+      const h2Elements = clonedElement.querySelectorAll('h2');
+      h2Elements.forEach(h2 => (h2.style.fontSize = '1.6em'));
 
-    const formContainer = clonedElement.querySelector('.form-container');
-    formContainer?.remove();
+      const h3Elements = clonedElement.querySelectorAll('h3');
+      h3Elements.forEach(h3 => (h3.style.fontSize = '1.4em'));
 
-    const filterContainer = clonedElement.querySelector('.filter-container');
-    filterContainer?.remove();
+      const h4Elements = clonedElement.querySelectorAll('h4');
+      h4Elements.forEach(h4 => (h4.style.fontSize = '1.2em'));
 
-    const titleCard = clonedElement.querySelector('.title-card');
-    titleCard?.remove();
+      const pElements = clonedElement.querySelectorAll('p');
+      pElements.forEach(p => (p.style.fontSize = '1.2em'));
 
-    const containerCardList = clonedElement.querySelector(
-      '.container-card-list'
-    ) as HTMLElement;
-    if (containerCardList) {
-      containerCardList.style.display = 'flex';
-      containerCardList.style.justifyContent = 'center';
-      containerCardList.style.alignItems = 'center';
-      containerCardList.style.width = '100%';
-    }
+      clonedElement.querySelector('#print-button')?.remove();
+      clonedElement.querySelector('.form-container')?.remove();
+      clonedElement.querySelector('.filter-container')?.remove();
+      clonedElement.querySelector('.title-card')?.remove();
 
-    const chartContainer = clonedElement.querySelector(
-      '.chart-container'
-    ) as HTMLElement;
-    if (chartContainer) {
-      chartContainer.style.display = 'flex';
-      chartContainer.style.justifyContent = 'center';
-      chartContainer.style.alignItems = 'center';
-      chartContainer.style.width = '100%';
-      chartContainer.style.margin = '0 auto';
-      chartContainer.style.maxWidth = 'none';
-    }
+      const containerCardList = clonedElement.querySelector(
+        '.container-card-list'
+      ) as HTMLElement;
+      if (containerCardList) {
+        Object.assign(containerCardList.style, {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+        });
+      }
 
-    document.body.appendChild(clonedElement);
-    this.exportPrintService.exportToPDF(clonedElement, `report-detail.pdf`);
-    document.body.removeChild(clonedElement);
+      const chartContainer = clonedElement.querySelector(
+        '.chart-container'
+      ) as HTMLElement;
+      if (chartContainer) {
+        Object.assign(chartContainer.style, {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          margin: '0 auto',
+          maxWidth: 'none',
+        });
+      }
+
+      document.body.appendChild(clonedElement);
+
+      this.exportPrintService.exportToPDF(clonedElement, `report-detail.pdf`);
+
+      setTimeout(() => {
+        snackBarRef.dismiss();
+
+        this.snackBar.open('PDF generated successfully', 'OK', {
+          duration: 3000,
+          panelClass: ['custom-snackbar'],
+        });
+        this.isGeneratingPDF = false;
+        document.body.removeChild(clonedElement);
+      }, 2000);
+    }, 10000);
   }
 }
