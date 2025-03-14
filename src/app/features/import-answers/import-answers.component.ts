@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   HostListener,
+  OnInit,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -31,6 +32,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-import-answers',
@@ -67,6 +69,7 @@ export class ImportAnswersComponent {
   importedPollData: any = [];
   columns = ['#', 'name', 'email', 'cohort', 'actions'];
   students = [];
+  preselectedPollState;
 
   isMobile = false;
 
@@ -74,17 +77,32 @@ export class ImportAnswersComponent {
     private fb: FormBuilder,
     private dialog: MatDialog,
     private cosmicLatteService: CosmicLatteService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private router: Router
   ) {
+    const state = history.state as {
+      pollName?: string;
+      endDate?: string;
+      startDate?: string;
+    };
+    if (state?.pollName) {
+      this.preselectedPollState = {
+        surveyName: state.pollName,
+        start: state.startDate,
+        end: state.endDate,
+      };
+    }
     this.form = this.fb.group({
-      surveyName: ['', [Validators.pattern(/^(?!\s*$).+/)]],
-      start: '',
-      end: '',
+      surveyName: [
+        this.preselectedPollState?.surveyName ?? '',
+        [Validators.pattern(/^(?!\s*$).+/)],
+      ],
+      start: this.preselectedPollState?.start ?? '',
+      end: this.preselectedPollState?.end ?? '',
     });
     this.getPollDetails();
     this.checkScreenSize();
   }
-
   @HostListener('window:resize', [])
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
