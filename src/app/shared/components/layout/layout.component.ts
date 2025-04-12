@@ -9,7 +9,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import Keycloak from 'keycloak-js';
-import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, typeEventArgs, ReadyArgs } from 'keycloak-angular';
+import {
+  KEYCLOAK_EVENT_SIGNAL,
+  KeycloakEventType,
+  typeEventArgs,
+  ReadyArgs,
+} from 'keycloak-angular';
 
 @Component({
   selector: 'app-layout',

@@ -1,6 +1,5 @@
 @use '../../../../styles/utils/index.scss' as main-styles;
 
-
 .modal {
   padding-top: 25px;
   padding-bottom: 25px;
@@ -27,6 +26,12 @@
         text-align: center;
       }
     }
+  }
+
+
+  ::ng-deep ng-country-select mat-form-field {
+    display: block;
+    width: 100%;
   }
 
   .closeButtonContainer {
@@ -63,7 +68,7 @@
       height: 40px;
       width: 80px;
       padding: 10px 16px;
-      &:hover{
+      &:hover {
         background-color: main-styles.get-color(primary, 30);
       }
       @media (min-width: 500px) {
@@ -72,20 +77,20 @@
         width: 100px;
       }
     }
-    .modalCancelButton{
+    .modalCancelButton {
       width: 100px;
       background-color: main-styles.get-color(neutral, 70);
-      &:hover{
+      &:hover {
         background-color: main-styles.get-color(neutral, 50);
       }
     }
     .modalDeleteButton {
       background-color: main-styles.get-color(error, 70);
-      &:hover{
+      &:hover {
         background-color: main-styles.get-color(error, 50);
       }
     }
-    .disabledButton{
+    .disabledButton {
       opacity: 0.5;
       pointer-events: none;
     }

@@ -47,7 +47,7 @@ export class StudentRisklevelTableComponent {
 
   redirectToStudentDetail(studentId: string) {
     //TODO: retrieve student id from back
-    console.info("retrieve student " + studentId);
+    console.info('retrieve student ' + studentId);
     //window.open(`student-details/${studentId}`, '_blank');
   }
 }
