@@ -29,6 +29,8 @@ import {
   ReadEvaluationProcess,
 } from '../../../shared/models/EvaluationProcess';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
+import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
+import { countries } from '../../../core/constants/countries';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -44,6 +46,7 @@ import { ModalComponent } from '../../../shared/components/modal-dialog/modal-di
     MatInputModule,
     NgIf,
     NgClass,
+    CountrySelectComponent,
   ],
   templateUrl: './evaluation-process-form.component.html',
   providers: [provideNativeDateAdapter(), DatePipe],
@@ -53,6 +56,7 @@ export class EvaluationProcessFormComponent {
   form: FormGroup;
   title;
   buttonText;
+  selectedCountry?: string;
   prefereToChooseLater: PollName = {
     parent: 'null',
     name: 'null',
@@ -98,9 +102,15 @@ export class EvaluationProcessFormComponent {
         },
         Validators.required,
       ],
+      country: [
+        {
+          value: data?.evaluation?.country ?? '',
+        },
+      ],
       startDate: [data?.evaluation?.startDate ?? '', Validators.required],
       endDate: [data?.evaluation?.endDate ?? '', Validators.required],
     });
+
     if (data) {
       this.title = this.data.title ?? 'New evaluation process';
       this.buttonText = this.data.buttonText ?? 'Create';
@@ -112,11 +122,25 @@ export class EvaluationProcessFormComponent {
           selectData: data.evaluation.pollName
             ? `${data.evaluation.pollName}`
             : '',
+          country: data.evaluation.country,
         };
+        const countryAlpha3 = this.data.evaluation.country;
+
+        const fullCountry = countries.find(c => c.alpha3 === countryAlpha3);
+
+        if (fullCountry) {
+          this.form.get('country')?.setValue(fullCountry);
+        }
       }
     }
+
     this.getPollDetails();
   }
+
+  public onCountrySelected(country: Country): void {
+    this.selectedCountry = country.alpha3;
+  }
+
   closeAndResetDialog() {
     this.dialogRef.close();
     this.resetForm();
@@ -157,6 +181,7 @@ export class EvaluationProcessFormComponent {
     this.form.markAsPristine();
     this.form.markAsUntouched();
   }
+
   onSubmit() {
     if (this.form.valid) {
       if (!this.data.evaluation) {
@@ -165,6 +190,7 @@ export class EvaluationProcessFormComponent {
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
           pollName: this.form.value.pollName,
+          country: this.selectedCountry,
         };
         if (this.form.value.pollName === 'null') {
           delete newProcess.pollName;
@@ -190,10 +216,15 @@ export class EvaluationProcessFormComponent {
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
           pollName: this.form.value.pollName,
+          country: this.selectedCountry,
         };
+
+        console.log('Ciudad: ' + this.form.value.country);
+
         if (this.form.value.pollName === 'null') {
           delete updateEval.pollName;
         }
+
         this.evaluationProcessService
           .updateEvaluationProcess(updateEval)
           .subscribe({
