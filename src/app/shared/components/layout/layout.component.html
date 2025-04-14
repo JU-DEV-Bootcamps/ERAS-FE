@@ -11,7 +11,21 @@
         </button>
       </p>
       <p>
-        <button mat-button (click)="toggleReports(!isReportsExpanded)" class="custom-nav-button">
+        <button
+          mat-button
+          class="custom-nav-button"
+          (click)="redirect('student-option')"
+        >
+          <mat-icon>person_search</mat-icon>
+          Student Monitoring
+        </button>
+      </p>
+      <p>
+        <button
+          mat-button
+          (click)="toggleReports(!isReportsExpanded)"
+          class="custom-nav-button"
+        >
           <mat-icon>pie_chart_outline</mat-icon>
           Reports
           <span class="icon-arrow">
@@ -20,23 +34,36 @@
           </span>
         </button>
       </p>
+
       <!-- Submenu for Reports -->
       <div *ngIf="isReportsExpanded" class="settings-submenu">
         <p>
-          <button mat-button class="custom-button-style" (click)="redirect('heat-map')">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('heat-map')"
+          >
             <mat-icon>description</mat-icon>
             Poll Heatmap
           </button>
         </p>
         <p>
-          <button mat-button class="custom-button-style" (click)="redirect('cohort')">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('cohort')"
+          >
             <mat-icon>find_in_page</mat-icon>
             Cohort Heatmap
           </button>
         </p>
       </div>
       <p>
-        <button mat-button (click)="toggleLists(!isListsExpanded)" class="custom-nav-button">
+        <button
+          mat-button
+          (click)="toggleLists(!isListsExpanded)"
+          class="custom-nav-button"
+        >
           <mat-icon>list</mat-icon>
           Lists
           <span class="icon-arrow">
@@ -48,26 +75,42 @@
       <!-- Submenu for Lists -->
       <div *ngIf="isListsExpanded" class="settings-submenu">
         <p>
-          <button mat-button (click)="redirect('evaluation-process')" class="custom-button-style">
+          <button
+            mat-button
+            (click)="redirect('evaluation-process')"
+            class="custom-button-style"
+          >
             <mat-icon>fact_check_outline</mat-icon>
             Evaluation Processes
           </button>
         </p>
         <p>
-          <button mat-button class="custom-button-style" (click)="redirect('list-students-by-poll')">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('list-students-by-poll')"
+          >
             <mat-icon>school</mat-icon>
             Students by Polls
           </button>
         </p>
         <p>
-          <button mat-button class="custom-button-style" (click)="redirect('list-polls-by-filters')">
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('list-polls-by-filters')"
+          >
             <mat-icon>poll</mat-icon>
             Polls Answered
           </button>
         </p>
       </div>
       <p>
-        <button mat-button class="custom-nav-button" (click)="toggleSettings(!isSettingsExpanded)">
+        <button
+          mat-button
+          class="custom-nav-button"
+          (click)="toggleSettings(!isSettingsExpanded)"
+        >
           <mat-icon>settings</mat-icon>
           <span class="label-settings">Settings</span>
           <span class="icon-arrow">
@@ -79,14 +122,22 @@
 
       <div *ngIf="isSettingsExpanded" class="settings-submenu">
         <p>
-          <button mat-button (click)="redirect('cosmic-latte')" class="custom-button-style">
+          <button
+            mat-button
+            (click)="redirect('cosmic-latte')"
+            class="custom-button-style"
+          >
             <mat-icon>check_circle</mat-icon>
             Cosmic Latte
           </button>
         </p>
       </div>
       <p>
-        <button mat-button class="custom-nav-button" (click)="toggleImports(!isImportsExpanded)">
+        <button
+          mat-button
+          class="custom-nav-button"
+          (click)="toggleImports(!isImportsExpanded)"
+        >
           <mat-icon>drive_folder_upload</mat-icon>
           <span class="label-settings">Imports</span>
           <span class="icon-arrow">
@@ -97,13 +148,21 @@
       </p>
       <div *ngIf="isImportsExpanded" class="settings-submenu">
         <p>
-          <button mat-button (click)="redirect('import-answers')" class="custom-button-style">
+          <button
+            mat-button
+            (click)="redirect('import-answers')"
+            class="custom-button-style"
+          >
             <mat-icon>insert_chart_outlined</mat-icon>
             Import Polls
           </button>
         </p>
         <p>
-          <button mat-button (click)="redirect('import-students')" class="custom-button-style">
+          <button
+            mat-button
+            (click)="redirect('import-students')"
+            class="custom-button-style"
+          >
             <mat-icon>person_add</mat-icon>
             Import Students
           </button>
@@ -132,7 +191,9 @@
         <button mat-menu-item (click)="redirect('profile')" class="menu-button">
           <mat-icon>person</mat-icon>Profile
         </button>
-        <button mat-menu-item (click)="logout()" class="menu-button"><mat-icon>logout</mat-icon>Logout</button>
+        <button mat-menu-item (click)="logout()" class="menu-button">
+          <mat-icon>logout</mat-icon>Logout
+        </button>
       </mat-menu>
     </mat-toolbar>
     <div class="container">
