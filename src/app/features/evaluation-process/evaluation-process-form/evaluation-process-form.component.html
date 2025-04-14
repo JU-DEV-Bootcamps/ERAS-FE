@@ -41,6 +41,15 @@
         </mat-error>
       </mat-form-field>
     </div>
+
+    <div class="row">
+      <ng-country-select
+        [lang]="'en'"
+        formControlName="country"
+        (countrySelected)="onCountrySelected($event)"
+      />
+    </div>
+
     <div class="row">
       <mat-form-field class="input">
         @if (pollDataSelected !== null) {

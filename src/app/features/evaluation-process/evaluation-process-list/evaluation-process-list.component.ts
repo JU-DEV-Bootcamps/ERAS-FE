@@ -44,7 +44,7 @@ import { Router } from '@angular/router';
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationProcessService);
-  columns: string[] = ['id', 'name', 'poll', 'period', 'status'];
+  columns: string[] = ['id', 'name', 'country', 'poll', 'period', 'status'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluationProcessList: any = [];
   pageSize = 5;
@@ -140,6 +140,7 @@ export class EvaluationProcessListComponent implements OnInit {
     this.router.navigate(['import-answers'], {
       state: {
         pollName: data.pollName,
+        country: data.country,
         endDate: data.endDate,
         startDate: data.startDate,
       },

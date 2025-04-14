@@ -3,6 +3,7 @@ export interface CreateEvaluationProcess {
   startDate: Date;
   endDate: Date;
   pollName?: string;
+  country?: string;
 }
 export interface ReadEvaluationProcess {
   id: number;
@@ -12,6 +13,7 @@ export interface ReadEvaluationProcess {
   pollId?: number;
   evaluationPollId?: number;
   pollName?: string | null;
+  country?: string | null;
   status?: string;
 }
 export interface PagedReadEvaluationProcess {
