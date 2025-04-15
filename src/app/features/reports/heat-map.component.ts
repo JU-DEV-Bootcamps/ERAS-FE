@@ -171,14 +171,18 @@ export class HeatMapComponent implements OnInit {
       },
       x: {
         show: true,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: function (val: any): string {
-          return `Answer: ${val}`;
+        formatter: function (val, opts) {
+          const seriesIndex = opts.seriesIndex;
+          const dataPointIndex = opts.dataPointIndex;
+          const xValue =
+            opts.w.config.series[seriesIndex].data[dataPointIndex].x;
+
+          return `Answer: ${xValue}`;
         },
       },
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const yValue = series[seriesIndex][dataPointIndex];
-        const xValue = w.globals.labels[dataPointIndex];
+        const xValue = w.config.series[seriesIndex].data[dataPointIndex].x;
         const seriesName = w.config.series[seriesIndex].name;
 
         return `<div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>(${yValue})</b> ${seriesName}</div>
