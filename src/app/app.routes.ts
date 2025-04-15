@@ -15,6 +15,7 @@ import { StudentDetailComponent } from './features/student-detail/student-detail
 import { HomeComponent } from './features/home/home.component';
 import { CohortComponent } from './features/cohort/cohort/cohort.component';
 import { EvaluationProcessListComponent } from './features/evaluation-process/evaluation-process-list/evaluation-process-list.component';
+import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -28,6 +29,10 @@ export const routes: Routes = [
       {
         path: 'cosmic-latte',
         component: CosmicLatteComponent,
+      },
+      {
+        path: 'student-option',
+        component: StudentDetailOptionComponent,
       },
       {
         path: 'heat-map',

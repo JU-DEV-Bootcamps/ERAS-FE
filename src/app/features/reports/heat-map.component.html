@@ -58,37 +58,6 @@
     </div>
 
     <div class="filter-container">
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon style="margin-right: 10px">tune</mat-icon>
-            Student Details Options
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div class="filter-options">
-          <button mat-raised-button (click)="openDialog()" color="primary">
-            Students by variable
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            style="margin: 0"
-            (click)="openStudentsDetailsDialog()"
-          >
-            Students by component
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            style="margin: 0"
-            (click)="openStudentsByCohortDialog()"
-          >
-            Students by cohort
-          </button>
-        </div>
-      </mat-expansion-panel>
-    </div>
-    <div class="filter-container">
       <app-risk-students-table
         [pollUUID]="selectedPoll.uuid"
         [variableIds]="variableIds"

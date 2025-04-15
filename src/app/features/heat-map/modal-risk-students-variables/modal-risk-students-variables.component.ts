@@ -119,7 +119,7 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
     name: string;
     variables: { variableId: number; description: string }[];
   }[] {
-    return data.map(component => ({
+    return data?.map(component => ({
       name:
         this.componentNameMap[component.componentName] ||
         component.componentName,
