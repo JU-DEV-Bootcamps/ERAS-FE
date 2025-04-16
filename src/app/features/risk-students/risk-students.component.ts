@@ -25,7 +25,7 @@ import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
   styleUrl: './risk-students.component.css',
 })
 export class RiskStudentsComponent implements OnInit {
-  public variableIds: number[] = [];
+  public variableIds: number[] = [1];
   public form: FormGroup;
 
   private pollService = inject(PollService);
@@ -52,6 +52,8 @@ export class RiskStudentsComponent implements OnInit {
 
   loadPollsList(): void {
     this.pollService.getAllPolls().subscribe(data => {
+      this.pollsData = data;
+      console.log(data);
       this.form.get('pollUuid')?.setValue(data[0].uuid);
     });
   }
