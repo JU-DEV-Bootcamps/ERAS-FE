@@ -42,6 +42,7 @@ import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-student
 import { register } from 'swiper/element/bundle';
 import { PdfService } from '../../core/services/report/pdf.service';
 import { RISK_COLORS } from '../../core/constants/riskLevel';
+import { PollData } from './types/data.adapter';
 
 register();
 @Component({
@@ -238,13 +239,13 @@ export class HeatMapComponent implements OnInit {
         const pollUUID = formValue.pollUuid;
         const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
-        dataPoll.subscribe(data => {
+        dataPoll.subscribe((data: PollData[]) => {
           this.modalDataSudentVariable = {
             pollUUID: pollUUID,
             pollName: this.selectedPoll.name,
-            data: data.body,
+            data: data,
           };
-          this.mockupAnswers = adaptAnswers(data.body);
+          this.mockupAnswers = adaptAnswers(data);
           this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
           this.questions = this.selectSurveyKinds.reduce(
             (sks, sk) =>
