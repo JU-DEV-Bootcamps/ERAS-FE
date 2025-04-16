@@ -23,6 +23,16 @@
       <p>
         <button
           mat-button
+          class="custom-nav-button"
+          (click)="redirect('risk-students')"
+        >
+          <mat-icon>people</mat-icon>
+          Risk Students
+        </button>
+      </p>
+      <p>
+        <button
+          mat-button
           (click)="toggleReports(!isReportsExpanded)"
           class="custom-nav-button"
         >
