@@ -94,7 +94,7 @@ export const ChartOptions: ApexOptions = {
         },
       },
     },
-    custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+    custom: function ({ seriesIndex, dataPointIndex, w }) {
       const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
       const xValue = dataPoint.x;
       const yValue = dataPoint.y;
