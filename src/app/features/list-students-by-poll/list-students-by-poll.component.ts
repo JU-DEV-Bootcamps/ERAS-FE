@@ -5,10 +5,6 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { NgFor } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -23,8 +19,6 @@ import { TableComponent } from '../../shared/components/table/table.component';
     MatTableModule,
     MatPaginatorModule,
     MatCardModule,
-    FormsModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
     MatInputModule,
