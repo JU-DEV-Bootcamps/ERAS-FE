@@ -40,14 +40,9 @@ import { Poll } from './types/list-students-by-poll';
   styleUrl: './list-students-by-poll.component.scss',
 })
 export class ListStudentsByPollComponent implements OnInit {
-  columns = ['id', 'name', 'uuid', 'email'];
-  pollsData: Poll[] = [];
-  selectedPoll = this.pollsData[0];
-  periods = [5, 15, 30, 60, 90, 180, 360, 0];
-  defaultPerioid = this.periods[0];
+  columns = ['id', 'name', 'email', 'isImported'];
 
   studentService = inject(ImportStudentService);
-  pollService = inject(PollService);
 
   dataStudents = new MatTableDataSource([]);
   students = [];
@@ -55,36 +50,13 @@ export class ListStudentsByPollComponent implements OnInit {
   currentPage = 0;
   totalStudents = 0;
 
-  pollFormGroup = new FormGroup({
-    period: new FormControl(this.defaultPerioid),
-    pollUuid: new FormControl(''),
-  });
-
   ngOnInit(): void {
-    this.loadPollsList();
-    this.pollFormGroup.valueChanges.subscribe(formValue => {
-      this.defaultPerioid = formValue.period!;
-      this.selectedPoll = this.pollsData.filter(
-        poll => poll.uuid == formValue.pollUuid
-      )[0];
-      this.loadStudents();
-    });
-  }
-
-  loadPollsList(): void {
-    this.pollService.getAllPolls().subscribe(data => {
-      this.pollsData = data;
-      this.selectedPoll = data[0];
-      this.pollFormGroup.get('pollUuid')?.setValue(data[0].uuid);
-      this.loadStudents();
-    });
+    this.loadStudents();
   }
 
   loadStudents(): void {
     this.studentService
-      .getDataStudentsByPoll({
-        days: this.defaultPerioid,
-        pollUuid: this.selectedPoll.uuid,
+      .getData({
         page: this.currentPage,
         pageSize: this.pageSize,
       })
