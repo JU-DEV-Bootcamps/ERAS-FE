@@ -6,8 +6,6 @@ import { NgFor } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import {
-  FormControl,
-  FormGroup,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -15,9 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { PollService } from '../../core/services/poll.service';
 import { TableComponent } from '../../shared/components/table/table.component';
-import { Poll } from './types/list-students-by-poll';
 
 @Component({
   selector: 'app-list-students-by-poll',
