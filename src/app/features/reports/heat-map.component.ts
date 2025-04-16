@@ -37,7 +37,6 @@ import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
-import { RiskStudentsTableComponent } from '../../shared/components/risk-students-table/risk-students-table.component';
 import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
 import { register } from 'swiper/element/bundle';
 import { PdfService } from '../../core/services/report/pdf.service';
@@ -58,7 +57,6 @@ register();
     MatExpansionModule,
     MatSlideToggleModule,
     MatFormFieldModule,
-    RiskStudentsTableComponent,
   ],
   templateUrl: './heat-map.component.html',
   styleUrls: ['./heat-map.component.css'],
@@ -67,7 +65,7 @@ register();
 export class HeatMapComponent implements OnInit {
   @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
   private readonly exportPrintService = inject(PdfService);
-  public myForm: FormGroup;
+  public form: FormGroup;
   public chartOptions: ApexOptions = {
     series: [],
     chart: {
@@ -206,7 +204,6 @@ export class HeatMapComponent implements OnInit {
   public selectQuestions: string[] = [];
   public selectSurveyKinds = this.defaultSurvey;
   public pollList = [];
-  public variableIds: number[] = [];
   private heatMapService = inject(HeatMapService);
   private pollService = inject(PollService);
   public isGeneratingPDF = false;
@@ -220,14 +217,14 @@ export class HeatMapComponent implements OnInit {
   readonly dialog = inject(MatDialog);
 
   constructor(private snackBar: MatSnackBar) {
-    this.myForm = this.initForm();
+    this.form = this.initForm();
   }
 
   ngOnInit(): void {
     let isFirstFetch = true;
 
     this.loadPollsList();
-    this.myForm.valueChanges
+    this.form.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(formValue => {
         this.selectedPoll = this.pollsData.filter(
@@ -245,16 +242,16 @@ export class HeatMapComponent implements OnInit {
             data: data.body,
           };
           this.mockupAnswers = adaptAnswers(data.body);
-          this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
+          this.selectSurveyKinds = this.form.get('selectSurveyKinds')?.value;
           this.questions = this.selectSurveyKinds.reduce(
             (sks, sk) =>
               sks.concat(this.mockupAnswers[sk]!.questions.questions),
             [] as Question[]
           );
 
-          if (isFirstFetch || pollUUID !== this.myForm.get('pollUuid')?.value) {
+          if (isFirstFetch || pollUUID !== this.form.get('pollUuid')?.value) {
             isFirstFetch = false;
-            this.myForm
+            this.form
               .get('selectQuestions')
               ?.setValue(this.questions.map(q => q.description));
           }
@@ -267,7 +264,7 @@ export class HeatMapComponent implements OnInit {
     this.pollService.getAllPolls().subscribe(data => {
       this.pollsData = data;
       this.selectedPoll = data[0];
-      this.myForm.get('pollUuid')?.setValue(data[0].uuid);
+      this.form.get('pollUuid')?.setValue(data[0].uuid);
     });
   }
 
@@ -288,7 +285,7 @@ export class HeatMapComponent implements OnInit {
   }
 
   updateChart() {
-    if (this.myForm.valid) {
+    if (this.form.valid) {
       this.chartOptions = {
         ...this.chartOptions,
         series: filterAnswers(

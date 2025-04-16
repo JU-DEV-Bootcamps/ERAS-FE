@@ -1,1 +1,27 @@
-<p>risk-students works!</p>
+<div #mainContainer>
+  <div class="page-header">
+    <h2 class="page-title">Risk Students</h2>
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="form">
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Polls by name</mat-label>
+        <mat-select id="sl-component" formControlName="pollUuid">
+          @for (poll of pollsData; track $index) {
+            <mat-option [value]="poll.uuid">
+              {{ poll.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <div class="filter-container">
+    <app-risk-students-table
+      [pollUUID]="selectedPoll.uuid"
+      [variableIds]="variableIds"
+    ></app-risk-students-table>
+  </div>
+</div>

@@ -5,7 +5,7 @@
 
   <div class="chart-container-wrapper">
     <div class="form-container">
-      <form [formGroup]="myForm">
+      <form [formGroup]="form">
         <mat-form-field appearance="fill">
           <mat-label for="sl-component">Polls by name</mat-label>
           <mat-select id="sl-component" formControlName="pollUuid">
@@ -57,12 +57,6 @@
       </form>
     </div>
 
-    <div class="filter-container">
-      <app-risk-students-table
-        [pollUUID]="selectedPoll.uuid"
-        [variableIds]="variableIds"
-      ></app-risk-students-table>
-    </div>
     <div class="chart-container" #chart>
       <apx-chart
         [series]="chartOptions.series!"
