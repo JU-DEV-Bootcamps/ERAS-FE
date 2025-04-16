@@ -23,8 +23,7 @@ export class EvaluationProcessService {
       `${this.apiUrl}/${this.endpoint}/summary`
     );
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createEvalProc(data: CreateEvaluationProcess): Observable<any> {
+  createEvalProc(data: CreateEvaluationProcess): Observable<unknown> {
     return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
   }
   getAllEvalProc({

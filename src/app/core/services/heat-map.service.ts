@@ -13,7 +13,7 @@ import { DEFAULT_LIMIT } from '../constants/pagination';
 })
 export class HeatMapService {
   private apiUrl = `${environment.apiUrl}/api/v1/HeatMap`;
-  private cache = new Map<string, unknown>();
+  private pollQuestions = new Map<string, unknown>();
 
   constructor(private http: HttpClient) {}
 
@@ -48,16 +48,15 @@ export class HeatMapService {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getDataPoll(pollUUID: string): Observable<any> {
+  getDataPoll(pollUUID: string): Observable<unknown> {
     const endpoint = 'components/polls';
 
-    if (this.cache.has(pollUUID)) {
-      return of(this.cache.get(pollUUID));
+    if (this.pollQuestions.has(pollUUID)) {
+      return of(this.pollQuestions.get(pollUUID));
     } else {
       return this.http.get(`${this.apiUrl}/${endpoint}/${pollUUID}`).pipe(
         map(response => {
-          this.cache.set(pollUUID, response);
+          this.pollQuestions.set(pollUUID, response);
           return response;
         })
       );
