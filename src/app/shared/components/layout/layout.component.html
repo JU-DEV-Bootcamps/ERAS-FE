@@ -13,6 +13,16 @@
       <p>
         <button
           mat-button
+          class="custom-nav-button"
+          (click)="redirect('student-option')"
+        >
+          <mat-icon>person_search</mat-icon>
+          Student Monitoring
+        </button>
+      </p>
+      <p>
+        <button
+          mat-button
           (click)="toggleReports(!isReportsExpanded)"
           class="custom-nav-button"
         >
@@ -24,6 +34,7 @@
           </span>
         </button>
       </p>
+
       <!-- Submenu for Reports -->
       <div *ngIf="isReportsExpanded" class="settings-submenu">
         <p>
@@ -44,6 +55,16 @@
           >
             <mat-icon>find_in_page</mat-icon>
             Cohort Heatmap
+          </button>
+        </p>
+        <p>
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('list-polls-by-filters')"
+          >
+            <mat-icon>poll</mat-icon>
+            Polls Answered
           </button>
         </p>
       </div>
@@ -80,17 +101,7 @@
             (click)="redirect('list-students-by-poll')"
           >
             <mat-icon>school</mat-icon>
-            Students by Polls
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('list-polls-by-filters')"
-          >
-            <mat-icon>poll</mat-icon>
-            Polls Answered
+            Students List
           </button>
         </p>
       </div>
