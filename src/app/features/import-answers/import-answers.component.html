@@ -7,9 +7,9 @@
     <div class="row">
       <mat-form-field class="input" appearance="outline">
         <mat-label>Select a survey from Cosmic Latte</mat-label>
-        <mat-select formControlName="surveyName">
+        <mat-select formControlName="surveyParentId">
           @for (poll of pollsNames; track poll) {
-            <mat-option [value]="poll.name"
+            <mat-option [value]="poll.parent"
               >{{ poll.name }} - Id:
               {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
             >
@@ -41,7 +41,7 @@
         class="button"
         mat-flat-button
         type="submit"
-        [disabled]="form.invalid || !form.get('surveyName')?.value"
+        [disabled]="form.invalid || !form.get('surveyParentId')?.value"
       >
         Import Answers
       </button>
