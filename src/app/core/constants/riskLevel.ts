@@ -1,4 +1,4 @@
-export const RISK_COLORS = {
+export const RISK_COLORS: Record<number | 'default', string> = {
   0: '#939090',
   1: '#008000',
   2: '#3CB371',
@@ -7,7 +7,7 @@ export const RISK_COLORS = {
   default: '#FF0000',
 };
 
-export const RISK_LABELS = {
+export const RISK_LABELS: Record<number, string> = {
   0: 'No Answer',
   1: 'Low Risk',
   2: 'Low-Medium Risk',

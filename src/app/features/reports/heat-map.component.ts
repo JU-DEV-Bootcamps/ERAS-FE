@@ -299,8 +299,6 @@ export class HeatMapComponent implements OnInit {
           text: this.selectSurveyKinds.join(' '),
         },
       };
-    } else {
-      console.log('Form is invalid. Please fill in all required fields.');
     }
   }
 
