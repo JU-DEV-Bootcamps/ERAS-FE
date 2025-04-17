@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
-import { HeatMapComponent } from './features/reports/heat-map.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
@@ -16,6 +15,8 @@ import { HomeComponent } from './features/home/home.component';
 import { CohortComponent } from './features/cohort/cohort/cohort.component';
 import { EvaluationProcessListComponent } from './features/evaluation-process/evaluation-process-list/evaluation-process-list.component';
 import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
+// import { HeatMapComponent } from './features/reports/heat-map.component';
+import { HeatMapComponent } from './features/reports/heat-map/heat-map.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
