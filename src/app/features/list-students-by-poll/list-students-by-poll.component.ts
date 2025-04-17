@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ImportStudentService } from '../../core/services/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { NgFor } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,7 +22,6 @@ import { TableComponent } from '../../shared/components/table/table.component';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    NgFor,
     TableComponent,
   ],
   templateUrl: './list-students-by-poll.component.html',
