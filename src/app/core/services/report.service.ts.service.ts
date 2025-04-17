@@ -42,7 +42,7 @@ export class ReportService {
     });
   }
 
-  getTopPoolReport(
+  getTopPollReport(
     pollInstanceUUID: string,
     take: number | null,
     variableIds: number[]
