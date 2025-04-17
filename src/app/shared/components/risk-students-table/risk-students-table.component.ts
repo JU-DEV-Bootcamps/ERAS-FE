@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { ReportService } from '../../../core/services/report.service.ts.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -57,6 +58,7 @@ const lastPollPlaceholder = {
     MatCardModule,
     MatIconModule,
     MatExpansionModule,
+    MatProgressSpinnerModule,
     BarChartComponent,
     PieChartComponent,
   ],

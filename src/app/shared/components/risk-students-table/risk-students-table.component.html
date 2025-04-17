@@ -1,99 +1,107 @@
-<mat-expansion-panel>
-  <mat-expansion-panel-header>
-    <mat-panel-title class="title-card">
-      <mat-icon style="margin-right: 10px">list</mat-icon>
-      Students And Their Average Risk Level
-    </mat-panel-title>
-  </mat-expansion-panel-header>
-  <mat-card-content class="container-card-list">
-    <mat-card class="summary-section" appearance="outlined">
-      <mat-card-header>
-        <mat-card-title>{{ lastPoll.title }}</mat-card-title>
-        <mat-card-subtitle style="color: cadetblue">{{
-          lastPoll.version
-        }}</mat-card-subtitle>
-      </mat-card-header>
-      <div class="entity-summary">
-        <ul>
-          <li style="display: flex; align-items: center">
-            <p style="font-weight: bolder; margin-right: 10px">Published:</p>
-            <span>{{ lastPoll.publishedDate }}</span>
-          </li>
-          <li style="display: flex; align-items: center">
-            <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
-            <span>{{ lastPoll.deadlineDate }}</span>
-          </li>
-        </ul>
-        <div style="display: flex; width: 90%">
-          <mat-card class="summary-card">
-            <mat-card-title>Poll Progress</mat-card-title>
-            <mat-card-footer>{{ lastPoll.progress }}</mat-card-footer>
+<div #mainContainer>
+  <div>
+    <mat-card-content class="container-card-list">
+      <mat-card class="summary-section" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ lastPoll.title }}</mat-card-title>
+          <mat-card-subtitle style="color: cadetblue">{{
+            lastPoll.version
+          }}</mat-card-subtitle>
+        </mat-card-header>
+        <div class="entity-summary">
+          <ul>
+            <li style="display: flex; align-items: center">
+              <p style="font-weight: bolder; margin-right: 10px">Published:</p>
+              <span>{{ lastPoll.publishedDate }}</span>
+            </li>
+            <li style="display: flex; align-items: center">
+              <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
+              <span>{{ lastPoll.deadlineDate }}</span>
+            </li>
+          </ul>
+          <div style="display: flex; width: 90%">
+            <mat-card class="summary-card">
+              <mat-card-title>Poll Progress</mat-card-title>
+              <mat-card-footer>{{ lastPoll.progress }}</mat-card-footer>
+            </mat-card>
+            <mat-card class="summary-card">
+              <mat-card-title>Risk Students</mat-card-title>
+              <mat-card-footer>{{ lastPoll.riskStudents }}</mat-card-footer>
+            </mat-card>
+          </div>
+        </div>
+        <div class="entity-summary">
+          <mat-card class="chart-card">
+            <mat-card-title style="text-align: center; font-weight: bold"
+              >Results Summary</mat-card-title
+            >
+            @if (studentName.length > 0 && studentRiskDetail.length > 0) {
+              <app-bar-chart
+                [seriesY]="studentRiskDetail"
+                [categoriesX]="studentName"
+                style="width: 90%"
+              ></app-bar-chart>
+            } @else {
+              <span class="spinner-container">
+                <mat-spinner></mat-spinner>
+              </span>
+            }
           </mat-card>
-          <mat-card class="summary-card">
-            <mat-card-title>Risk Students</mat-card-title>
-            <mat-card-footer>{{ lastPoll.riskStudents }}</mat-card-footer>
+          <mat-card class="chart-card">
+            <mat-card-title style="text-align: center; font-weight: bold"
+              >Poll Average</mat-card-title
+            >
+            <div class="overlaped">
+              <p class="front-result">{{ lastPoll.average }}</p>
+              @if (studentName.length > 0 && studentRiskDetail.length > 0) {
+                <app-pie-chart
+                  [seriesY]="studentRiskDetail"
+                  [categoriesX]="studentName"
+                  class="back-result"
+                ></app-pie-chart>
+              } @else {
+                <span class="spinner-container">
+                  <mat-spinner></mat-spinner>
+                </span>
+              }
+            </div>
           </mat-card>
         </div>
-      </div>
-      <div class="entity-summary">
-        <mat-card class="chart-card">
-          <mat-card-title style="text-align: center; font-weight: bold"
-            >Results Summary</mat-card-title
-          >
-          <app-bar-chart
-            *ngIf="studentName.length > 0 && studentRiskDetail.length > 0"
-            [seriesY]="studentRiskDetail"
-            [categoriesX]="studentName"
-            style="width: 90%"
-          ></app-bar-chart>
-        </mat-card>
-        <mat-card class="chart-card">
-          <mat-card-title style="text-align: center; font-weight: bold"
-            >Poll Average</mat-card-title
-          >
-          <div class="overlaped">
-            <p class="front-result">{{ lastPoll.average }}</p>
-            <app-pie-chart
-              *ngIf="studentName.length > 0 && studentRiskDetail.length > 0"
-              [seriesY]="studentRiskDetail"
-              [categoriesX]="studentName"
-              class="back-result"
-            ></app-pie-chart>
-          </div>
-        </mat-card>
-      </div>
-      <br />
-      <mat-card-header>
-        <mat-card-title>Students List by Risk Average</mat-card-title>
-      </mat-card-header>
-      <div class="table-container">
-        <mat-table [dataSource]="studentRisk" class="student-table">
-          <ng-container matColumnDef="name">
-            <mat-header-cell *matHeaderCellDef class="name-column">
-              Name
-            </mat-header-cell>
-            <mat-cell *matCellDef="let item" class="name-column">
-              <mat-icon matListItemIcon>person</mat-icon>
-              {{ item.student.name }}
-            </mat-cell>
-          </ng-container>
-          <ng-container matColumnDef="risk">
-            <mat-header-cell *matHeaderCellDef class="risk-column">
-              Risk Level
-            </mat-header-cell>
-            <mat-cell *matCellDef="let item" class="risk-column">
-              <div
-                class="risk-badge"
-                [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
-              >
-                {{ item.answer.riskLevel }}
-              </div>
-            </mat-cell>
-          </ng-container>
-          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-        </mat-table>
-      </div>
-    </mat-card>
-  </mat-card-content>
-</mat-expansion-panel>
+        <br />
+        <mat-card-header>
+          <mat-card-title>Students List by Risk Average</mat-card-title>
+        </mat-card-header>
+        <div class="table-container">
+          <mat-table [dataSource]="studentRisk" class="student-table">
+            <ng-container matColumnDef="name">
+              <mat-header-cell *matHeaderCellDef class="name-column">
+                Name
+              </mat-header-cell>
+              <mat-cell *matCellDef="let item" class="name-column">
+                <mat-icon matListItemIcon>person</mat-icon>
+                {{ item.student.name }}
+              </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="risk">
+              <mat-header-cell *matHeaderCellDef class="risk-column">
+                Risk Level
+              </mat-header-cell>
+              <mat-cell *matCellDef="let item" class="risk-column">
+                <div
+                  class="risk-badge"
+                  [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
+                >
+                  {{ item.answer.riskLevel }}
+                </div>
+              </mat-cell>
+            </ng-container>
+            <mat-header-row
+              *matHeaderRowDef="displayedColumns"
+            ></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+          </mat-table>
+        </div>
+      </mat-card>
+    </mat-card-content>
+  </div>
+</div>
