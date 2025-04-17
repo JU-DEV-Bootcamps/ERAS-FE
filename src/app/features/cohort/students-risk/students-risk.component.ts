@@ -27,9 +27,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ChartOptions } from '../util/heat-map-config';
+import { ReportService } from '../../../core/services/report.service.ts.service';
+import { PollAvgComponent, PollAvgReport } from '../../../core/models/SummaryModel';
+import { GetQueryResponse } from '../../../core/models/CommonModels';
 
 @Component({
   selector: 'app-students-risk',
@@ -52,7 +54,8 @@ export class StudentsRiskComponent implements OnInit {
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
   pdfService = inject(PdfService);
-  heatmapService = inject(HeatMapService);
+  //heatmapService = inject(HeatMapService);
+  reportService = inject(ReportService);
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
@@ -85,7 +88,7 @@ export class StudentsRiskComponent implements OnInit {
       if (value.cohortId && value.pollId) {
         this.getStudentsByCohortAndPoll();
         this.getPollVariables();
-        this.getHeatMap();
+        this.getHeatMap(value.cohortId);
       }
     });
   }
@@ -148,14 +151,13 @@ export class StudentsRiskComponent implements OnInit {
     return RISK_COLORS[option] || RISK_COLORS.default;
   }
 
-  getHeatMap() {
-    this.heatmapService
-      .getSummaryData(this.pollId)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .subscribe((data: any) => {
+  getHeatMap(cohortId: number) {
+    this.reportService
+      .getAvgPoolReport(this.pollId, cohortId)
+      .subscribe((data: GetQueryResponse<PollAvgReport>) => {
         this.chartOptions = {
           ...ChartOptions,
-          series: data.body.series,
+          series: this.reportService.getHMSeriesFromReport(data.body),
         };
       });
   }

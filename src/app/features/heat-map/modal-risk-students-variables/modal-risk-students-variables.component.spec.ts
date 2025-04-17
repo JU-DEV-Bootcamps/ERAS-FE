@@ -54,7 +54,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
       validationErrors: null,
       body: [{ student: 'test-student', answer: { riskLevel: 3 } }],
     };
-    reportService.getStudentsDetailByVariables.and.returnValue(
+    reportService.getTopStudentReport.and.returnValue(
       of(mockResponse)
     );
 
@@ -66,7 +66,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
 
     component.showStudentList();
 
-    expect(reportService.getStudentsDetailByVariables).toHaveBeenCalledWith(
+    expect(reportService.getTopStudentReport).toHaveBeenCalledWith(
       1,
       'test-uuid',
       10
