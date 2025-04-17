@@ -4,11 +4,11 @@
 <form [formGroup]="filtersForm">
   <div class="form-container">
     <mat-form-field appearance="fill">
-      <mat-label for="sl-component">Cohorts by name</mat-label>
+      <mat-label for="sl-component">Cohorts</mat-label>
       <mat-select
         id="sl-component"
-        (selectionChange)="onSelectionChange($event)"
-        formControlName="cohortId"
+        (selectionChange)="onSelectionChange()"
+        formControlName="selectedCohort"
       >
         <mat-option *ngFor="let cohort of cohortsData" [value]="cohort.id">
           {{ cohort.name }}
@@ -16,14 +16,14 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="fill">
-      <mat-label for="sl-component">Last days</mat-label>
+      <mat-label for="sl-component">Poll</mat-label>
       <mat-select
         id="sl-component"
-        (selectionChange)="onSelectionChange($event)"
-        formControlName="dropDays"
+        (selectionChange)="onSelectionChange()"
+        formControlName="selectedPoll"
       >
-        <mat-option *ngFor="let day of dropDays" [value]="day">
-          {{ day }}
+        <mat-option *ngFor="let poll of polls" [value]="poll.uuid">
+          {{ poll.name }}
         </mat-option>
       </mat-select>
     </mat-form-field>

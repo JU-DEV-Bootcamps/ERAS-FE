@@ -8,11 +8,11 @@ import {
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NgFor } from '@angular/common';
-import { MatSelectChange } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CohortService } from '../../core/services/cohort.service';
@@ -20,6 +20,9 @@ import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { PollInstance } from '../../core/services/Types/pollInstance';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
 import { Router } from '@angular/router';
+import { PollService } from '../../core/services/poll.service';
+import { Poll } from '../../core/services/Types/poll.type';
+import { Cohort } from '../../core/services/Types/cohort.type';
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -51,8 +54,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     'Modified At',
   ];
 
-  dropDays = ['1', '5', '15', '30', '60', '+ 60'];
-
+  pollService = inject(PollService);
   pollInstanceService = inject(PollInstanceService);
   cohortService = inject(CohortService);
 
@@ -61,12 +63,13 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   pollInstances: PollInstance[] = [];
 
   cohortsData: Cohort[] = [];
+  polls: Poll[] = [];
   selectedCohortId = 0;
-  selectedDay = this.dropDays[3];
+  selectedPollUuid = '';
 
   filtersForm = new FormGroup({
-    cohortId: new FormControl(this.selectedCohortId),
-    dropDays: new FormControl(this.selectedDay),
+    selectedCohort: new FormControl<number | null>(null, [Validators.required]),
+    selectedPoll: new FormControl<string | null>(null, [Validators.required]),
   });
 
   pageSize = 10;
@@ -76,7 +79,18 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCohortsList();
-    this.loadPollInstances(this.selectedCohortId, this.selectedDay);
+    this.filtersForm.controls['selectedCohort'].valueChanges.subscribe(
+      value => {
+        if (value) {
+          this.getPollsByCohortId(value);
+          this.selectedCohortId = value;
+        }
+      }
+    );
+    this.filtersForm.controls['selectedPoll'].valueChanges.subscribe(value => {
+      if (value) this.selectedPollUuid = value;
+    });
+    this.loadPollInstances(this.selectedCohortId);
     this.checkScreenSize();
   }
 
@@ -103,9 +117,15 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     });
   }
 
-  loadPollInstances(cohortId: number, days: string): void {
+  getPollsByCohortId(id: number) {
+    this.pollService.getPollsByCohortId(id).subscribe(data => {
+      this.polls = data;
+    });
+  }
+
+  loadPollInstances(cohortId: number): void {
     this.pollInstanceService
-      .getPollInstancesByFilters(cohortId, parseInt(days))
+      .getPollInstancesByFilters(cohortId, 0)
       .subscribe(data => {
         this.loading = true;
         this.data = new MatTableDataSource<PollInstance>(data.body);
@@ -114,19 +134,13 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       });
   }
 
-  onSelectionChange(event: MatSelectChange) {
-    const controlName = event.source.ngControl.name;
-    let selectedValue = event.value;
-    if (controlName === 'dropDays') {
-      if (selectedValue == '+ 60') selectedValue = '0';
-      this.selectedDay = selectedValue;
-      this.loadPollInstances(this.selectedCohortId, selectedValue);
-    } else if (controlName === 'cohortId') {
-      const select = this.cohortsData.find(
-        cohort => cohort.id === selectedValue
-      );
-      if (select) this.selectedCohortId = select.id;
-      this.loadPollInstances(selectedValue, this.selectedDay);
+  onSelectionChange() {
+    if (this.filtersForm.invalid) return;
+    if (
+      this.filtersForm.value.selectedCohort &&
+      this.filtersForm.value.selectedPoll
+    ) {
+      this.loadPollInstances(this.filtersForm.value.selectedCohort);
     }
   }
 
@@ -134,8 +148,8 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     const url = this.router
       .createUrlTree(['/heat-map-summary'], {
         queryParams: {
-          cohortId: this.selectedCohortId,
-          days: this.selectedDay,
+          cohortId: this.filtersForm.value.selectedCohort,
+          pollUuid: this.filtersForm.value.selectedPoll,
         },
       })
       .toString();
@@ -158,16 +172,4 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
         return '';
     }
   }
-}
-
-interface Cohort {
-  id: number;
-  name: string;
-  courseCode: string;
-  audit: {
-    createdBy: string;
-    modifiedBy: string;
-    createdAt: string;
-    modifiedAt: string;
-  };
 }

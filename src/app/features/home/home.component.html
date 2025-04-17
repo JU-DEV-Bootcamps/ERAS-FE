@@ -9,21 +9,21 @@
       <mat-icon>account_balance</mat-icon>
       <mat-card-title>Cohorts</mat-card-title>
       <mat-card-footer>{{
-        cohortsSummary?.cohortCount || '?'
+        cohortsSummary?.cohortCount || '0'
       }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>group</mat-icon>
       <mat-card-title>Students</mat-card-title>
       <mat-card-footer>{{
-        cohortsSummary?.studentCount || '?'
+        cohortsSummary?.studentCount || '0'
       }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/list-polls-by-filters">
       <mat-icon>file_copy</mat-icon>
       <mat-card-title>Polls Answered</mat-card-title>
       <mat-card-footer>{{
-        cohortsSummary?.studentCount || '?'
+        cohortsSummary?.studentCount || '0'
       }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/evaluation-process">

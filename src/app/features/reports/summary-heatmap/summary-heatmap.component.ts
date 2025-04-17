@@ -5,8 +5,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { ActivatedRoute } from '@angular/router';
+import { ReportService } from '../../../core/services/report.service.ts.service';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -22,12 +22,12 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './summary-heatmap.component.css',
 })
 export class SummaryHeatmapComponent implements OnInit {
-  private readonly heatmapService = inject(HeatMapService);
+  private readonly reportService = inject(ReportService);
   public chartOptions: ApexOptions = {};
-  private heatMapData = null;
+  //  private heatMapData: PollAvgReport;
+  private pollUuid = '';
   private route = inject(ActivatedRoute);
   private cohortId = '';
-  private days = '';
 
   isLoading = true;
 
@@ -39,17 +39,16 @@ export class SummaryHeatmapComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.cohortId = params['cohortId'] || '0';
-      this.days = params['days'] || '0';
+      this.pollUuid = params['pollUuid'] || '0';
     });
 
-    this.heatmapService
-      .getSummaryDataByCohortAndDays(this.cohortId, this.days)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .subscribe((data: any) => {
-        this.heatMapData = data.body;
+    this.reportService
+      .getAvgPoolReport(this.pollUuid, parseInt(this.cohortId))
+      .subscribe(data => {
+        //this.heatMapData = data.body;
         this.isLoading = false;
         this.chartOptions = {
-          series: data.body.series,
+          series: this.reportService.getHMSeriesFromReport(data.body),
           chart: {
             type: 'heatmap',
             toolbar: {

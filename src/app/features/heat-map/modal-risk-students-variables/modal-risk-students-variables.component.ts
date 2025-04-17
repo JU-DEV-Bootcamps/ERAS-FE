@@ -96,7 +96,7 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
       if (selectedVariable === this.previousFormVariableId) return;
 
       this.reportService
-        .getStudentsDetailByVariables(selectedVariable, pollInstanceUUID, take)
+        .getTopStudentReport(selectedVariable, pollInstanceUUID, take)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .subscribe((data: any) => {
           this.studentRisk = data.body;
