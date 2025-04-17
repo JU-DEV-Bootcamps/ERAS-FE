@@ -15,7 +15,11 @@ import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { HeatMapService } from '../../core/services/heat-map.service';
-import { MockUpAnswers, Question, SurveyKind } from '../reports/types/data.generator';
+import {
+  MockUpAnswers,
+  Question,
+  SurveyKind,
+} from '../reports/types/data.generator';
 import { adaptAnswers } from '../reports/util/data.adapter';
 @Component({
   selector: 'app-risk-students',
@@ -30,7 +34,7 @@ import { adaptAnswers } from '../reports/util/data.adapter';
   styleUrl: './risk-students.component.css',
 })
 export class RiskStudentsComponent implements OnInit {
-  public variableIds: number[] = [1,2,3,4]; // meter ids de preguntas, actualizar con el form, traer el cohort
+  public variableIds: number[] = [1, 2, 3, 4]; // meter ids de preguntas, actualizar con el form, traer el cohort
   public questions: Question[] = [] as Question[];
   public form: FormGroup;
   public mockupAnswers: MockUpAnswers = {
@@ -75,7 +79,7 @@ export class RiskStudentsComponent implements OnInit {
 
     this.loadPollsList();
     this.form.valueChanges
-      .pipe(debounceTime(400), distinctUntilChanged())
+      .pipe(debounceTime(500), distinctUntilChanged())
       .subscribe(formValue => {
         this.selectedPoll = this.pollsData.filter(
           poll => poll.uuid == formValue.pollUuid
@@ -86,19 +90,28 @@ export class RiskStudentsComponent implements OnInit {
         const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
         dataPoll.subscribe(data => {
+          const tempQuestions: Question[] = [];
+          const tempVariableIds: number[] = [];
+
           this.mockupAnswers = adaptAnswers(data.body);
           this.selectSurveyKinds = this.form.get('selectSurveyKinds')?.value;
-          this.questions = this.selectSurveyKinds.reduce(
-            (sks, sk) =>
-              sks.concat(this.mockupAnswers[sk]!.questions.questions),
-            [] as Question[]
-          );
+          this.surveyKinds.forEach(surveyKind => {
+            const questions =
+              this.mockupAnswers[surveyKind]!.questions.questions;
 
-          //chequear si la pregunta fue seleccionada
-          // si lo fue agregar a variableIds
-          // (this.form.get('selectQuestions')?.value
-          this.variableIds = this.questions.filter(q => q.variableId).map(q => q.variableId);
-          console.log(this.form.get('selectQuestions')?.value)
+            questions.forEach(question => {
+              if (
+                isFirstFetch ||
+                this.selectQuestions.includes(question.description)
+              ) {
+                tempQuestions.push(question);
+                tempVariableIds.push(question.variableId);
+              }
+            });
+          });
+          this.questions = tempQuestions;
+          this.variableIds = tempVariableIds;
+
           if (isFirstFetch || pollUUID !== this.form.get('pollUuid')?.value) {
             isFirstFetch = false;
             this.form
@@ -108,6 +121,7 @@ export class RiskStudentsComponent implements OnInit {
         });
       });
   }
+
 
   loadPollsList(): void {
     this.pollService.getAllPolls().subscribe(data => {
