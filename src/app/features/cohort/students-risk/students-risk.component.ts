@@ -30,7 +30,7 @@ import { generateFileName } from '../../../core/utilities/file/file-name';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ChartOptions } from '../util/heat-map-config';
 import { ReportService } from '../../../core/services/report.service.ts.service';
-import { PollAvgComponent, PollAvgReport } from '../../../core/models/SummaryModel';
+import { PollAvgReport } from '../../../core/models/SummaryModel';
 import { GetQueryResponse } from '../../../core/models/CommonModels';
 
 @Component({
@@ -54,7 +54,6 @@ export class StudentsRiskComponent implements OnInit {
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
   pdfService = inject(PdfService);
-  //heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;

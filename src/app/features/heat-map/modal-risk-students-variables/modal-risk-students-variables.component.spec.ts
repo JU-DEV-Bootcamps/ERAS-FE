@@ -54,9 +54,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
       validationErrors: null,
       body: [{ student: 'test-student', answer: { riskLevel: 3 } }],
     };
-    reportService.getTopStudentReport.and.returnValue(
-      of(mockResponse)
-    );
+    reportService.getTopStudentReport.and.returnValue(of(mockResponse));
 
     component.filterForm.setValue({
       selectComponent: 'test-component',
