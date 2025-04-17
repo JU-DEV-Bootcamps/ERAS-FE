@@ -59,7 +59,7 @@
                   [categoriesX]="studentName"
                   class="back-result"
                 ></app-pie-chart>
-              }@else {
+              } @else {
                 <span class="spinner-container">
                   <mat-spinner></mat-spinner>
                 </span>
@@ -95,10 +95,13 @@
                 </div>
               </mat-cell>
             </ng-container>
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-header-row
+              *matHeaderRowDef="displayedColumns"
+            ></mat-header-row>
             <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
           </mat-table>
         </div>
       </mat-card>
     </mat-card-content>
   </div>
+</div>

@@ -17,7 +17,6 @@ import { BarChartComponent } from '../charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../charts/pie-chart/pie-chart.component';
 import { CohortService } from '../../../core/services/cohort.service';
 
-
 interface StudentRisk {
   name: string;
   answer: string;
