@@ -93,7 +93,7 @@ export class RiskStudentsComponent implements OnInit {
           const tempQuestions: Question[] = [];
           const tempVariableIds: number[] = [];
 
-          this.mockupAnswers = adaptAnswers(data.body);
+          this.mockupAnswers = adaptAnswers(data);
           this.selectSurveyKinds = this.form.get('selectSurveyKinds')?.value;
           this.surveyKinds.forEach(surveyKind => {
             const questions =

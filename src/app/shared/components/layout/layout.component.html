@@ -67,6 +67,16 @@
             Cohort Heatmap
           </button>
         </p>
+        <p>
+          <button
+            mat-button
+            class="custom-button-style"
+            (click)="redirect('list-polls-by-filters')"
+          >
+            <mat-icon>poll</mat-icon>
+            Polls Answered
+          </button>
+        </p>
       </div>
       <p>
         <button
@@ -101,17 +111,7 @@
             (click)="redirect('list-students-by-poll')"
           >
             <mat-icon>school</mat-icon>
-            Students by Polls
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('list-polls-by-filters')"
-          >
-            <mat-icon>poll</mat-icon>
-            Polls Answered
+            Students List
           </button>
         </p>
       </div>
