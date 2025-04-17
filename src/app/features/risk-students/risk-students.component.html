@@ -15,6 +15,20 @@
           }
         </mat-select>
       </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-questions">Questions</mat-label>
+        <mat-select
+          id="sl-questions"
+          formControlName="selectQuestions"
+          multiple
+        >
+          @for (question of questions; track question.description) {
+            <mat-option [value]="question.description">{{
+              question.description
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     </form>
   </div>
 

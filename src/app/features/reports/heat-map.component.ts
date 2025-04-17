@@ -225,7 +225,7 @@ export class HeatMapComponent implements OnInit {
 
     this.loadPollsList();
     this.form.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
+      .pipe(debounceTime(400), distinctUntilChanged())
       .subscribe(formValue => {
         this.selectedPoll = this.pollsData.filter(
           poll => poll.uuid == formValue.pollUuid
