@@ -98,10 +98,16 @@ export const ChartOptions: ApexOptions = {
       const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
       const xValue = dataPoint.x;
       const yValue = dataPoint.y;
+      const zValue = dataPoint.z;
+      const formattedZValue = zValue
+        .replace(/%/g, '%<br>')
+        .replace(/\n\s+/g, '');
 
       return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px">${xValue}</div>
       <div style="border-top: 1px solid #ccc;"></div>
-      <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">Average Risk Level: <b>${yValue}</b></div>`;
+      <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">Average Risk Level: <b>${yValue}</b></div>
+      <div style="border-top: 1px solid #ccc;"></div>
+      <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>${formattedZValue}</b></div>`;
     },
   },
 };
