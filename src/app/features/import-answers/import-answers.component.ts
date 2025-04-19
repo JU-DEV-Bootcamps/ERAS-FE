@@ -80,20 +80,20 @@ export class ImportAnswersComponent {
     private router: Router
   ) {
     const state = history.state as {
-      parentId?: string;
+      pollName?: string;
       endDate?: string;
       startDate?: string;
     };
-    if (state?.parentId) {
+    if (state?.pollName) {
       this.preselectedPollState = {
-        surveyParentId: state.parentId,
+        surveyName: state.pollName,
         start: state.startDate,
         end: state.endDate,
       };
     }
     this.form = this.fb.group({
-      surveyParentId: [
-        this.preselectedPollState?.surveyParentId ?? '',
+      surveyName: [
+        this.preselectedPollState?.surveyName ?? '',
         [Validators.pattern(/^(?!\s*$).+/)],
       ],
       start: this.preselectedPollState?.start ?? '',
@@ -137,9 +137,7 @@ export class ImportAnswersComponent {
   }
   onSubmit() {
     if (this.form.invalid) return;
-    console.log(this.form.value);
-    const parentId = this.form.value.surveyParentId.trim().split(':')[1];
-    const name = parentId;
+    const name = this.form.value.surveyName.trim();
     const startDate = this.form.value.start
       ? this.formatDate(new Date(this.form.value.start))
       : null;
