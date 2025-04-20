@@ -1,31 +1,6 @@
 <div class="page-header">
-  <h2 class="page-title">Students by Polls</h2>
+  <h2 class="page-title">Students List</h2>
 </div>
-<form [formGroup]="pollFormGroup">
-  <div class="form-container">
-    <mat-form-field appearance="fill">
-      <mat-label for="sl-component">Polls by name</mat-label>
-      <mat-select id="sl-component" formControlName="pollUuid">
-        <mat-option *ngFor="let poll of pollsData" [value]="poll.uuid">
-          {{ poll.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label for="sl-questions">Days</mat-label>
-      <mat-select id="sl-questions" formControlName="period">
-        <mat-option *ngFor="let period of periods" [value]="period">
-          @if (period === 0) {
-            All students
-          } @else {
-            {{ period }}
-          }
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-</form>
 @if (!dataStudents) {
   <mat-spinner></mat-spinner>
 } @else {
