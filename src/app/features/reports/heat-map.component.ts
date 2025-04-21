@@ -30,11 +30,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
 import { HeatMapService } from '../../core/services/heat-map.service';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
-
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
 import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
@@ -341,17 +339,6 @@ export class HeatMapComponent implements OnInit {
       minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
-    });
-  }
-
-  openDialog() {
-    this.dialog.open(ModalRiskStudentsVariablesComponent, {
-      width: 'auto',
-      maxWidth: '80vw',
-      minHeight: '500px',
-      maxHeight: '80vh',
-      panelClass: 'border-modalbox-dialog',
-      data: this.modalDataSudentVariable,
     });
   }
 
