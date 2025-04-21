@@ -31,7 +31,7 @@ interface QuestionsSeries {
   questions: SurveyQuestions;
   series: ApexAxisChartSeries;
 }
-type MockUpAnswers = Record<SurveyKind, QuestionSeries | null>;
+type MockUpAnswers = Record<SurveyKind, QuestionsSeries | null>;
 
 export type {
   Conf,

@@ -219,8 +219,6 @@ export class EvaluationProcessFormComponent {
           country: this.selectedCountry,
         };
 
-        console.log('Ciudad: ' + this.form.value.country);
-
         if (this.form.value.pollName === 'null') {
           delete updateEval.pollName;
         }
