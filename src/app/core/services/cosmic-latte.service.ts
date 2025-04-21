@@ -25,11 +25,11 @@ export class CosmicLatteService {
   }
 
   importAnswerBySurvey(
-    name: string,
+    evaluationSetName: string,
     start?: string | null,
     end?: string | null
   ): Observable<PollInstance[]> {
-    let params = new HttpParams().set('name', name);
+    let params = new HttpParams().set('EvaluationSetName', evaluationSetName);
     if (start && start.length > 0) {
       params = params.set('startDate', start);
     }
