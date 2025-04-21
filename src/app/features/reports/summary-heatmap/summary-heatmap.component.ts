@@ -149,9 +149,11 @@ export class SummaryHeatmapComponent implements OnInit {
                 },
               },
             },
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-              const yValue = series[seriesIndex][dataPointIndex];
-              const xValue = w.globals.labels[dataPointIndex];
+            custom: function ({ seriesIndex, dataPointIndex, w }) {
+              const dataPoint =
+                w.config.series[seriesIndex].data[dataPointIndex];
+              const xValue = dataPoint.x;
+              const yValue = dataPoint.y;
 
               return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px">${xValue}</div>
               <div style="border-top: 1px solid #ccc;"></div>
