@@ -91,26 +91,19 @@ export class HeatMapComponent implements OnInit {
     });
 
     this.selectForm.controls.pollUuid.valueChanges.subscribe(value => {
-      // const pollUuid = this.selectForm.value.pollUuid;
-      // const components = this.selectForm.value.component;
       if (value) {
         this.toggleEnable();
-        // console.log('components', components);
-        //        this.getQuestions(pollUuid!, components!);
       }
     });
 
     this.selectForm.controls.component.valueChanges.subscribe(value => {
       const pollUuid = this.selectForm.value.pollUuid;
-      // const components = this.selectForm.value.component;
       if (value && pollUuid) {
         this.getQuestions(pollUuid, value);
       }
     });
 
     this.selectForm.valueChanges.subscribe(value => {
-      //TODO: add request for heat-map
-      console.log(value);
       if (value.pollUuid && value.question) {
         this.generateHeatMap(value.pollUuid!, value.question!);
       }
@@ -171,7 +164,6 @@ export class HeatMapComponent implements OnInit {
     this.heatmapService
       .generateHeatmap(pollInstanceUuid, variablesIds)
       .subscribe(data => {
-        console.log('data', data);
         const serie = data.map(d => ({
           data: d.data.sort((a, b) => a.y - b.y),
           name: d.name,

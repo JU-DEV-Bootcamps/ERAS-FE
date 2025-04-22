@@ -105,14 +105,21 @@ export const chartOptions: ApexOptions = {
         return `Answer: ${val}`;
       },
     },
-    custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-      const yValue = series[seriesIndex][dataPointIndex];
-      const xValue = w.globals.labels[dataPointIndex];
+    custom: function ({ seriesIndex, dataPointIndex, w }) {
+      const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
       const seriesName = w.config.series[seriesIndex].name;
 
-      return `<div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>(${yValue})</b> ${seriesName}</div>
-                <div style="border-top: 1px solid #ccc;"></div>
-                <div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Answer:</b> ${xValue}</div>`;
+      const xValue = dataPoint.x;
+      const yValue = dataPoint.y;
+      const zValue = dataPoint.count;
+
+      const valueName = `<div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>(Avg: ${yValue})</b> ${seriesName}</div>`;
+      const answer = `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Answer:</b> ${xValue}</div>`;
+      const responses = `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Responses:</b> ${zValue}</div>`;
+
+      const divider = `<div style="border-top: 1px solid #ccc;"></div>`;
+
+      return `${valueName}${divider}${answer}${responses}`;
     },
   },
 };
