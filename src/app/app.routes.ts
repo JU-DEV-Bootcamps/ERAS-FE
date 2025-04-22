@@ -15,7 +15,6 @@ import { HomeComponent } from './features/home/home.component';
 import { CohortComponent } from './features/cohort/cohort/cohort.component';
 import { EvaluationProcessListComponent } from './features/evaluation-process/evaluation-process-list/evaluation-process-list.component';
 import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
-// import { HeatMapComponent } from './features/reports/heat-map.component';
 import { HeatMapComponent } from './features/reports/heat-map/heat-map.component';
 import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
 
