@@ -9,7 +9,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Poll } from '../../../core/services/Types/poll.type';
 import { MatSelectModule } from '@angular/material/select';
 import { PollService } from '../../../core/services/poll.service';
-import { StudentService } from '../../../core/services/student.service';
 import { CohortService } from '../../../core/services/cohort.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { Cohort } from '../../../core/services/Types/cohort.type';
@@ -35,7 +34,6 @@ import { chartOptions } from '../constants/heat-map';
   styleUrl: './heat-map.component.css',
 })
 export class HeatMapComponent implements OnInit {
-  studentService = inject(StudentService);
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
   variableService = inject(VariableService);
