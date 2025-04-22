@@ -8,11 +8,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import {
-  adaptAnswers,
-  filterAnswers,
-  orderAnswers,
-} from './services/data.adapter';
+import { adaptAnswers, filterAnswers, orderAnswers } from './util/data.adapter';
 
 import { ApexOptions } from 'ng-apexcharts';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -34,18 +30,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ModalRiskStudentsVariablesComponent } from '../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
-import { HeatMapService } from './services/heat-map.service';
+import { HeatMapService } from '../../core/services/heat-map.service';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
-
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
-import { RiskStudentsTableComponent } from '../../shared/components/risk-students-table/risk-students-table.component';
 import { ModalRiskStudentsCohortComponent } from '../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
 import { register } from 'swiper/element/bundle';
 import { PdfService } from '../../core/services/report/pdf.service';
 import { RISK_COLORS } from '../../core/constants/riskLevel';
+import { PollData } from './types/data.adapter';
 
 register();
 @Component({
@@ -62,7 +56,6 @@ register();
     MatExpansionModule,
     MatSlideToggleModule,
     MatFormFieldModule,
-    RiskStudentsTableComponent,
   ],
   templateUrl: './heat-map.component.html',
   styleUrls: ['./heat-map.component.css'],
@@ -71,7 +64,7 @@ register();
 export class HeatMapComponent implements OnInit {
   @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
   private readonly exportPrintService = inject(PdfService);
-  public myForm: FormGroup;
+  public form: FormGroup;
   public chartOptions: ApexOptions = {
     series: [],
     chart: {
@@ -171,14 +164,18 @@ export class HeatMapComponent implements OnInit {
       },
       x: {
         show: true,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: function (val: any): string {
-          return `Answer: ${val}`;
+        formatter: function (val, opts) {
+          const seriesIndex = opts.seriesIndex;
+          const dataPointIndex = opts.dataPointIndex;
+          const xValue =
+            opts.w.config.series[seriesIndex].data[dataPointIndex].x;
+
+          return `Answer: ${xValue}`;
         },
       },
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const yValue = series[seriesIndex][dataPointIndex];
-        const xValue = w.globals.labels[dataPointIndex];
+        const xValue = w.config.series[seriesIndex].data[dataPointIndex].x;
         const seriesName = w.config.series[seriesIndex].name;
 
         return `<div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>(${yValue})</b> ${seriesName}</div>
@@ -206,7 +203,6 @@ export class HeatMapComponent implements OnInit {
   public selectQuestions: string[] = [];
   public selectSurveyKinds = this.defaultSurvey;
   public pollList = [];
-  public variableIds: number[] = [];
   private heatMapService = inject(HeatMapService);
   private pollService = inject(PollService);
   public isGeneratingPDF = false;
@@ -220,18 +216,15 @@ export class HeatMapComponent implements OnInit {
   readonly dialog = inject(MatDialog);
 
   constructor(private snackBar: MatSnackBar) {
-    this.myForm = this.initForm();
+    this.form = this.initForm();
   }
 
   ngOnInit(): void {
+    let isFirstFetch = true;
+
     this.loadPollsList();
-    setTimeout(() => {
-      this.myForm
-        .get('selectQuestions')
-        ?.setValue(this.questions.map(q => q.description));
-    }, 750);
-    this.myForm.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
+    this.form.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged())
       .subscribe(formValue => {
         this.selectedPoll = this.pollsData.filter(
           poll => poll.uuid == formValue.pollUuid
@@ -241,20 +234,26 @@ export class HeatMapComponent implements OnInit {
         const pollUUID = formValue.pollUuid;
         const dataPoll = this.heatMapService.getDataPoll(pollUUID);
 
-        dataPoll.subscribe(data => {
+        dataPoll.subscribe((data: PollData[]) => {
           this.modalDataSudentVariable = {
             pollUUID: pollUUID,
             pollName: this.selectedPoll.name,
-            data: data.body,
+            data: data,
           };
-          this.mockupAnswers = adaptAnswers(data.body);
-          this.selectSurveyKinds = this.myForm.get('selectSurveyKinds')?.value;
+          this.mockupAnswers = adaptAnswers(data);
+          this.selectSurveyKinds = this.form.get('selectSurveyKinds')?.value;
           this.questions = this.selectSurveyKinds.reduce(
             (sks, sk) =>
               sks.concat(this.mockupAnswers[sk]!.questions.questions),
             [] as Question[]
           );
-          this.variableIds = this.questions.map(q => q.variableId);
+
+          if (isFirstFetch || pollUUID !== this.form.get('pollUuid')?.value) {
+            isFirstFetch = false;
+            this.form
+              .get('selectQuestions')
+              ?.setValue(this.questions.map(q => q.description));
+          }
           this.updateChart();
         });
       });
@@ -264,7 +263,7 @@ export class HeatMapComponent implements OnInit {
     this.pollService.getAllPolls().subscribe(data => {
       this.pollsData = data;
       this.selectedPoll = data[0];
-      this.myForm.get('pollUuid')?.setValue(data[0].uuid);
+      this.form.get('pollUuid')?.setValue(data[0].uuid);
     });
   }
 
@@ -285,7 +284,7 @@ export class HeatMapComponent implements OnInit {
   }
 
   updateChart() {
-    if (this.myForm.valid) {
+    if (this.form.valid) {
       const series = filterAnswers(
         this.getSeriesFromComponents(
           this.mockupAnswers,
@@ -293,10 +292,6 @@ export class HeatMapComponent implements OnInit {
         ),
         this.selectQuestions
       );
-      console.log('mockupAnswers', this.mockupAnswers);
-      console.log('selectSurvey', this.selectSurveyKinds);
-      console.log('selectQuestions', this.selectQuestions);
-      console.log('series', series);
 
       this.chartOptions = {
         ...this.chartOptions,
@@ -305,8 +300,6 @@ export class HeatMapComponent implements OnInit {
           text: this.selectSurveyKinds.join(' '),
         },
       };
-    } else {
-      console.log('Form is invalid. Please fill in all required fields.');
     }
   }
 
@@ -348,19 +341,6 @@ export class HeatMapComponent implements OnInit {
       minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
-    });
-  }
-
-  //Show studenta data by variable
-
-  openDialog() {
-    this.dialog.open(ModalRiskStudentsVariablesComponent, {
-      width: 'auto',
-      maxWidth: '80vw',
-      minHeight: '500px',
-      maxHeight: '80vh',
-      panelClass: 'border-modalbox-dialog',
-      data: this.modalDataSudentVariable,
     });
   }
 

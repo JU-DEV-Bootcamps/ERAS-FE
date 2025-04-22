@@ -5,14 +5,16 @@ import {
   ComponentValueType,
   RiskStudentDetailType,
 } from '../../features/heat-map/types/risk-students-detail.type';
-import { Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
+import { PollData } from '../../features/reports/types/data.adapter';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HeatMapService {
   private apiUrl = `${environment.apiUrl}/api/v1/HeatMap`;
+  private pollQuestions = new Map<string, PollData[]>();
 
   constructor(private http: HttpClient) {}
 
@@ -59,5 +61,24 @@ export class HeatMapService {
       pollInstanceUuid,
       variablesIds,
     });
+  }
+
+  getDataPoll(pollUUID: string): Observable<PollData[]> {
+    const endpoint = 'components/polls';
+
+    if (this.pollQuestions.has(pollUUID)) {
+      const pollData = this.pollQuestions.get(pollUUID)!;
+
+      return of(pollData);
+    } else {
+      return this.http
+        .get<{ body: PollData[] }>(`${this.apiUrl}/${endpoint}/${pollUUID}`)
+        .pipe(
+          map((response: { body: PollData[] }) => {
+            this.pollQuestions.set(pollUUID, response.body);
+            return response.body;
+          })
+        );
+    }
   }
 }

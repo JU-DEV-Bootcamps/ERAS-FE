@@ -1,6 +1,6 @@
 import { Component, input, OnInit } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { RISK_COLORS, RISK_LABELS } from '../../../../core/constants/riskLevel';
+import { RISK_LABELS } from '../../../../core/constants/riskLevel';
 import { ChartBase } from '../abstract-chart';
 
 @Component({
@@ -11,8 +11,8 @@ import { ChartBase } from '../abstract-chart';
 })
 export class BarChartComponent extends ChartBase implements OnInit {
   public chartOptions: ApexOptions = {};
-  seriesY = input([12, 5, 3, 2, 12, 6]);
-  colors = input(Object.values(RISK_COLORS));
+  seriesY = input([1]);
+  colors = input([]);
   categoriesX = input(Object.values(RISK_LABELS));
   constructor() {
     super();
@@ -21,7 +21,7 @@ export class BarChartComponent extends ChartBase implements OnInit {
     this.chartOptions = {
       chart: {
         type: 'bar',
-        height: 200,
+        height: 500,
       },
       plotOptions: {
         bar: {

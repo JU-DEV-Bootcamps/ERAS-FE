@@ -60,6 +60,7 @@ const generateMockupQuestions = (surveyKind: SurveyKind, conf: Conf) => {
       isMultiple: false, //Math.random() < 0.15,
       possibleAnswers,
       description: `${surveyKind} - ${i}`,
+      variableId: 0,
     });
   }
 

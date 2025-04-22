@@ -103,7 +103,7 @@
   color: ut.get-color('neutral', 100);
   display: flex;
   flex-direction: column;
-  height: calc(100% - 56px);
+  min-height: calc(100% - 56px);
 }
 
 .custom-sidenav-content p {

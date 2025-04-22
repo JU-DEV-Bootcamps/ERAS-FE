@@ -17,6 +17,7 @@ import { EvaluationProcessListComponent } from './features/evaluation-process/ev
 import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
 // import { HeatMapComponent } from './features/reports/heat-map.component';
 import { HeatMapComponent } from './features/reports/heat-map/heat-map.component';
+import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -70,6 +71,11 @@ export const routes: Routes = [
       {
         path: 'student-details/:studentId',
         component: StudentDetailComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'risk-students',
+        component: RiskStudentsComponent,
         canActivate: [authGuard],
       },
       //Example to use guard with role
