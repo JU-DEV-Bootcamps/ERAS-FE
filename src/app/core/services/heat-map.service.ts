@@ -46,4 +46,18 @@ export class HeatMapService {
       { params }
     );
   }
+  generateHeatmap(pollInstanceUuid: string, variablesIds: number[]) {
+    return this.http.post<
+      {
+        name: string;
+        data: {
+          x: string;
+          y: number;
+        }[];
+      }[]
+    >(`${this.apiUrl}/generate`, {
+      pollInstanceUuid,
+      variablesIds,
+    });
+  }
 }

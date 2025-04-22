@@ -12,7 +12,6 @@ import { PollService } from '../../../core/services/poll.service';
 import { StudentService } from '../../../core/services/student.service';
 import { CohortService } from '../../../core/services/cohort.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
-import { HeatMapService } from '../services/heat-map.service';
 import { Cohort } from '../../../core/services/Types/cohort.type';
 import {
   Components,
@@ -20,10 +19,18 @@ import {
 } from '../../heat-map/types/risk-students-detail.type';
 import { VariableService } from '../../../core/services/variable/variable.service';
 import { Variable } from '../../../core/services/variable/interface/variable.interface';
+import { HeatMapService } from '../../../core/services/heat-map.service';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import { chartOptions } from '../constants/heat-map';
 
 @Component({
   selector: 'app-heat-map',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    NgApexchartsModule,
+  ],
   templateUrl: './heat-map.component.html',
   styleUrl: './heat-map.component.css',
 })
@@ -72,6 +79,8 @@ export class HeatMapComponent implements OnInit {
     ]),
   });
 
+  chartOption = { ...chartOptions };
+
   ngOnInit() {
     this.getCohorts();
     this.selectForm.controls.cohortId.valueChanges.subscribe(value => {
@@ -82,17 +91,28 @@ export class HeatMapComponent implements OnInit {
     });
 
     this.selectForm.controls.pollUuid.valueChanges.subscribe(value => {
+      // const pollUuid = this.selectForm.value.pollUuid;
+      // const components = this.selectForm.value.component;
       if (value) {
         this.toggleEnable();
+        // console.log('components', components);
+        //        this.getQuestions(pollUuid!, components!);
+      }
+    });
+
+    this.selectForm.controls.component.valueChanges.subscribe(value => {
+      const pollUuid = this.selectForm.value.pollUuid;
+      // const components = this.selectForm.value.component;
+      if (value && pollUuid) {
+        this.getQuestions(pollUuid, value);
       }
     });
 
     this.selectForm.valueChanges.subscribe(value => {
       //TODO: add request for heat-map
       console.log(value);
-      if (value.pollUuid && value.component) {
-        this.getQuestions(value.pollUuid, value.component);
-        // this.getHeatMap();
+      if (value.pollUuid && value.question) {
+        this.generateHeatMap(value.pollUuid!, value.question!);
       }
     });
   }
@@ -115,6 +135,7 @@ export class HeatMapComponent implements OnInit {
     }
     if (componentField?.valid) {
       questionField?.enable({ emitEvent: false });
+      this.getQuestions(pollField!.value!, componentField!.value!);
     } else {
       questionField?.disable({ emitEvent: false });
     }
@@ -142,6 +163,20 @@ export class HeatMapComponent implements OnInit {
         this.selectForm
           .get('question')!
           .setValue(variableIds, { emitEvent: false });
+        this.generateHeatMap(this.selectForm.value.pollUuid!, variableIds);
+      });
+  }
+
+  generateHeatMap(pollInstanceUuid: string, variablesIds: number[]) {
+    this.heatmapService
+      .generateHeatmap(pollInstanceUuid, variablesIds)
+      .subscribe(data => {
+        console.log('data', data);
+        const serie = data.map(d => ({
+          data: d.data.sort((a, b) => a.y - b.y),
+          name: d.name,
+        }));
+        this.chartOption.series = serie;
       });
   }
 }
