@@ -5,13 +5,13 @@ import { CohortService } from '../../core/services/cohort.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
-import { MatSelectChange } from '@angular/material/select';
+import { PollInstance } from '../../core/services/Types/pollInstance';
 
 describe('ListPollInstancesByFiltersComponent', () => {
   let component: ListPollInstancesByFiltersComponent;
   let fixture: ComponentFixture<ListPollInstancesByFiltersComponent>;
   const mockPollInstanceService = jasmine.createSpyObj('PollInstanceService', [
-    'getPollInstancesByFilters',
+    'getPollsByCohortId',
   ]);
   const mockCohortService = jasmine.createSpyObj('CohortService', [
     'getCohorts',
@@ -48,20 +48,16 @@ describe('ListPollInstancesByFiltersComponent', () => {
   });
 
   it('should load poll instances on init', () => {
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalled();
+    expect(mockPollInstanceService.getPollsByCohortId).toHaveBeenCalled();
     expect(component.pollInstances.length).toBe(0);
   });
 
-  it('should update poll instances on selection change for dropDays', () => {
-    component.onSelectionChange({
-      source: { ngControl: { name: 'dropDays' } },
-      value: '15',
-    } as MatSelectChange);
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(0, 15);
+  it('should update poll instances on selection change for polls', () => {
+    component.onSelectionChange();
+    expect(mockPollInstanceService.getPollsByCohortId).toHaveBeenCalledWith(
+      0,
+      15
+    );
   });
 
   it('should update poll instances on selection change for cohortId', () => {
@@ -74,23 +70,11 @@ describe('ListPollInstancesByFiltersComponent', () => {
         audit: { createdBy: '', modifiedBy: '', createdAt: '', modifiedAt: '' },
       },
     ];
-    component.onSelectionChange({
-      source: { ngControl: { name: 'cohortId' } },
-      value: 1,
-    } as MatSelectChange);
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(1, 30);
-  });
-
-  it('should handle + 60 days correctly in onSelectionChange', () => {
-    component.onSelectionChange({
-      source: { ngControl: { name: 'dropDays' } },
-      value: '+ 60',
-    } as MatSelectChange);
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(0, 0);
+    component.onSelectionChange();
+    expect(mockPollInstanceService.getPollsByCohortId).toHaveBeenCalledWith(
+      1,
+      30
+    );
   });
 
   it('should return correct width for columns in getWidth', () => {
@@ -103,8 +87,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
 
   it('should open new window with correct URL on goToDetails', () => {
     spyOn(window, 'open');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pollInstance = { student: { id: 1 } } as any;
+    const pollInstance = { student: { id: 1 } } as PollInstance;
     component.goToDetails(pollInstance);
     expect(window.open).toHaveBeenCalledWith('student-details/1', '_blank');
   });

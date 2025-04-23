@@ -13,7 +13,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
 
   beforeEach(async () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getStudentsDetailByVariables',
+      'getTopStudentReport',
     ]);
 
     await TestBed.configureTestingModule({

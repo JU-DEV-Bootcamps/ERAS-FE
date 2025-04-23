@@ -43,6 +43,7 @@ export interface PollAvgReport {
 
 export interface PollAvgComponent {
   description: string;
+  averageRisk: number;
   questions: PollAvgQuestion[];
 }
 

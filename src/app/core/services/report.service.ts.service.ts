@@ -74,7 +74,7 @@ export class ReportService {
   getHMSeriesFromReport(body: PollAvgReport) {
     const series = body.components.map(component => {
       return {
-        name: component.description,
+        name: component.description + ' = ' + component.averageRisk.toFixed(2),
         data: component.questions.map(question => {
           return {
             x: question.question,
