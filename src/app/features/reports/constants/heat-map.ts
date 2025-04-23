@@ -1,7 +1,7 @@
 import { ApexOptions } from 'ng-apexcharts';
 import { RISK_COLORS } from '../../../core/constants/riskLevel';
 
-export const chartOptions: ApexOptions = {
+export const ChartOptionsColorsCount: ApexOptions = {
   series: [],
   chart: {
     type: 'heatmap',
