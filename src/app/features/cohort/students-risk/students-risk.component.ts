@@ -29,7 +29,7 @@ import { PdfService } from '../../../core/services/report/pdf.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { ChartOptions } from '../util/heat-map-config';
+import { GetChartOptions } from '../util/heat-map-config';
 
 @Component({
   selector: 'app-students-risk',
@@ -150,10 +150,17 @@ export class StudentsRiskComponent implements OnInit {
 
   getHeatMap() {
     this.heatmapService.getSummaryData(this.pollId).subscribe(data => {
-      this.chartOptions = {
-        ...ChartOptions,
-        series: data.body.series,
-      };
+      this.chartOptions = GetChartOptions(
+        data.body.series,
+        (
+          event: Event,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          chartContext: any,
+          config: { seriesIndex: number; dataPointIndex: number }
+        ) => {
+          console.info(config.seriesIndex, config.dataPointIndex);
+        }
+      );
     });
   }
 

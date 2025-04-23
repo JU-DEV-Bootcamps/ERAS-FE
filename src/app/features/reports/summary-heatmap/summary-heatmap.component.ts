@@ -7,7 +7,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ActivatedRoute } from '@angular/router';
 import { HeatMapService } from '../../../core/services/heat-map.service';
-import { ChartOptions } from '../../cohort/util/heat-map-config';
+import { GetChartOptions } from '../../cohort/util/heat-map-config';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -24,6 +25,7 @@ import { ChartOptions } from '../../cohort/util/heat-map-config';
 })
 export class SummaryHeatmapComponent implements OnInit {
   private readonly heatmapService = inject(HeatMapService);
+  private readonly dialog = inject(MatDialog);
   public chartOptions: ApexOptions = {};
   private pollUuid = '';
   private route = inject(ActivatedRoute);
@@ -44,10 +46,31 @@ export class SummaryHeatmapComponent implements OnInit {
 
     this.heatmapService.getSummaryData(this.pollUuid).subscribe(data => {
       this.isLoading = false;
-      this.chartOptions = {
-        ...ChartOptions,
-        series: data.body.series,
-      };
+      this.chartOptions = GetChartOptions(
+        data.body.series,
+        (
+          event: Event,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          chartContext: any,
+          config: { seriesIndex: number; dataPointIndex: number }
+        ) => {
+          this.openDetailsModal(config.seriesIndex, config.dataPointIndex);
+        }
+      );
     });
+  }
+
+  openDetailsModal(seriesIndex: number, dataPointIndex: number): void {
+    //   const selectedData =
+    //     this.chartOptions.series![seriesIndex].data[dataPointIndex];
+    //   this.dialog.open(HeatmapDetailsModalComponent, {
+    //     data: {
+    //       seriesIndex,
+    //       dataPointIndex,
+    //       selectedData,
+    //     },
+    //   });
+    // }
+    console.info(seriesIndex, dataPointIndex);
   }
 }
