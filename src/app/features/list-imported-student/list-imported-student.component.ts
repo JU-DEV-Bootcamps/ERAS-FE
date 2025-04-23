@@ -5,6 +5,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { TableComponent } from '../../shared/components/table/table.component';
+import { Student } from '../../core/services/Types/pollInstance';
 
 @Component({
   selector: 'app-list-imported-student',
@@ -19,12 +20,12 @@ import { TableComponent } from '../../shared/components/table/table.component';
   styleUrl: './list-imported-student.component.scss',
 })
 export class ListImportedStudentComponent implements OnInit {
-  columns = ['id', 'name', 'uuid', 'email'];
+  columns: (keyof Student)[] = ['id', 'name', 'uuid', 'email'];
 
   studentService = inject(ImportStudentService);
 
-  data = new MatTableDataSource([]);
-  students = [];
+  data = new MatTableDataSource<Student>([]);
+  students: Student[] = [];
 
   pageSize = 10;
   currentPage = 0;
@@ -43,7 +44,7 @@ export class ListImportedStudentComponent implements OnInit {
         pageSize: this.pageSize,
       })
       .subscribe(data => {
-        this.data = new MatTableDataSource(data.items);
+        this.data = new MatTableDataSource<Student>(data.items);
         this.students = data.items;
         this.totalStudents = data.count;
       });
