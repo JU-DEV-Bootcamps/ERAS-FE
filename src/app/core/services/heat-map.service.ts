@@ -8,6 +8,7 @@ import {
 import { map, Observable, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
 import { PollData } from '../../features/reports/types/data.adapter';
+import { HeatMapData } from './Types/heatmap.type';
 
 @Injectable({
   providedIn: 'root',
@@ -49,15 +50,7 @@ export class HeatMapService {
     );
   }
   generateHeatmap(pollInstanceUuid: string, variablesIds: number[]) {
-    return this.http.post<
-      {
-        name: string;
-        data: {
-          x: string;
-          y: number;
-        }[];
-      }[]
-    >(`${this.apiUrl}/generate`, {
+    return this.http.post<HeatMapData[]>(`${this.apiUrl}/generate`, {
       pollInstanceUuid,
       variablesIds,
     });

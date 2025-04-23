@@ -21,6 +21,7 @@ import { Variable } from '../../../core/services/variable/interface/variable.int
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { chartOptions } from '../constants/heat-map';
+import { fillDefaultData } from './util/heat-map.util';
 
 @Component({
   selector: 'app-heat-map',
@@ -162,10 +163,13 @@ export class HeatMapComponent implements OnInit {
     this.heatmapService
       .generateHeatmap(pollInstanceUuid, variablesIds)
       .subscribe(data => {
-        const serie = data.map(d => ({
+        const heatmap = fillDefaultData([...data]);
+
+        const serie = heatmap.map(d => ({
           data: d.data.sort((a, b) => a.y - b.y),
           name: d.name,
         }));
+
         this.chartOption.series = serie;
       });
   }
