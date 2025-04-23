@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -22,6 +28,9 @@ import { HeatMapService } from '../../../core/services/heat-map.service';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { chartOptions } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-heat-map',
@@ -30,6 +39,8 @@ import { fillDefaultData } from './util/heat-map.util';
     MatFormFieldModule,
     MatSelectModule,
     NgApexchartsModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './heat-map.component.html',
   styleUrl: './heat-map.component.css',
@@ -79,6 +90,12 @@ export class HeatMapComponent implements OnInit {
   });
 
   chartOption = { ...chartOptions };
+
+  public isGeneratingPDF = false;
+
+  @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
+
+  constructor(private snackBar: MatSnackBar) {}
 
   ngOnInit() {
     this.getCohorts();
@@ -172,5 +189,86 @@ export class HeatMapComponent implements OnInit {
 
         this.chartOption.series = serie;
       });
+  }
+
+  printReportInfo() {
+    if (this.isGeneratingPDF) return;
+    this.isGeneratingPDF = true;
+    const snackBarRef = this.snackBar.open('Generating PDF...', 'Close', {
+      duration: 10000,
+      panelClass: ['custom-snackbar'],
+    });
+
+    setTimeout(() => {
+      const mainContainerElement = this.mainContainer.nativeElement;
+      const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
+      clonedElement.style.width = '1440px';
+      clonedElement.style.margin = 'auto';
+
+      const swiperContainer = clonedElement.querySelector('#swiper-container');
+      if (swiperContainer) {
+        swiperContainer.removeAttribute('effect');
+      }
+
+      clonedElement.style.fontSize = '1.2em';
+
+      const h2Elements = clonedElement.querySelectorAll('h2');
+      h2Elements.forEach(h2 => (h2.style.fontSize = '1.6em'));
+
+      const h3Elements = clonedElement.querySelectorAll('h3');
+      h3Elements.forEach(h3 => (h3.style.fontSize = '1.4em'));
+
+      const h4Elements = clonedElement.querySelectorAll('h4');
+      h4Elements.forEach(h4 => (h4.style.fontSize = '1.2em'));
+
+      const pElements = clonedElement.querySelectorAll('p');
+      pElements.forEach(p => (p.style.fontSize = '1.2em'));
+
+      clonedElement.querySelector('#print-button')?.remove();
+      clonedElement.querySelector('.form-container')?.remove();
+      clonedElement.querySelector('.filter-container')?.remove();
+      clonedElement.querySelector('.title-card')?.remove();
+
+      const containerCardList = clonedElement.querySelector(
+        '.container-card-list'
+      ) as HTMLElement;
+      if (containerCardList) {
+        Object.assign(containerCardList.style, {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+        });
+      }
+
+      const chartContainer = clonedElement.querySelector(
+        '.chart-container'
+      ) as HTMLElement;
+      if (chartContainer) {
+        Object.assign(chartContainer.style, {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          margin: '0 auto',
+          maxWidth: 'none',
+        });
+      }
+
+      document.body.appendChild(clonedElement);
+
+      this.pdfService.exportToPDF(clonedElement, `report-detail.pdf`);
+
+      setTimeout(() => {
+        snackBarRef.dismiss();
+
+        this.snackBar.open('PDF generated successfully', 'OK', {
+          duration: 3000,
+          panelClass: ['custom-snackbar'],
+        });
+        this.isGeneratingPDF = false;
+        document.body.removeChild(clonedElement);
+      }, 2000);
+    }, 10000);
   }
 }

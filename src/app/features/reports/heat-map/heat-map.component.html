@@ -49,11 +49,20 @@
         }
       </mat-select>
     </mat-form-field>
+    <button
+      id="print-button"
+      mat-icon-button
+      color="primary"
+      [disabled]="isGeneratingPDF"
+      (click)="printReportInfo()"
+    >
+      <mat-icon>print</mat-icon>
+    </button>
   </div>
 </form>
 
 @if (chartOption.series?.length) {
-  <div>
+  <div class="chart-container" #mainContainer>
     <apx-chart
       [series]="chartOption.series!"
       [chart]="chartOption.chart!"
