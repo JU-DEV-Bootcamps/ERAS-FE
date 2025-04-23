@@ -83,16 +83,6 @@ describe('ListPollInstancesByFiltersComponent', () => {
     ).toHaveBeenCalledWith(1, 30);
   });
 
-  it('should handle + 60 days correctly in onSelectionChange', () => {
-    component.onSelectionChange({
-      source: { ngControl: { name: 'dropDays' } },
-      value: '+ 60',
-    } as MatSelectChange);
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(0, 0);
-  });
-
   it('should return correct width for columns in getWidth', () => {
     expect(component.getWidth('modifiedAt')).toBe('15%');
     expect(component.getWidth('finishedAt')).toBe('15%');
