@@ -285,15 +285,17 @@ export class HeatMapComponent implements OnInit {
 
   updateChart() {
     if (this.form.valid) {
+      const series = filterAnswers(
+        this.getSeriesFromComponents(
+          this.mockupAnswers,
+          this.selectSurveyKinds
+        ),
+        this.selectQuestions
+      );
+
       this.chartOptions = {
         ...this.chartOptions,
-        series: filterAnswers(
-          this.getSeriesFromComponents(
-            this.mockupAnswers,
-            this.selectSurveyKinds
-          ),
-          this.selectQuestions
-        ),
+        series: series,
         title: {
           text: this.selectSurveyKinds.join(' '),
         },

@@ -8,6 +8,9 @@ import {
 import { map, Observable, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
 import { PollData } from '../../features/reports/types/data.adapter';
+import { HeatMapData } from './Types/heatmap.type';
+import { GetResponse } from '../../shared/models/eras-api/eras.api';
+import { HeatmapSummaryModel } from '../models/HeatmapSummaryModel';
 
 @Injectable({
   providedIn: 'root',
@@ -32,8 +35,10 @@ export class HeatMapService {
     );
   }
 
-  getSummaryData(pollId: string): Observable<unknown> {
-    return this.http.get(`${this.apiUrl}/summary/polls/${pollId}`);
+  getSummaryData(pollId: string): Observable<GetResponse<HeatmapSummaryModel>> {
+    return this.http.get<GetResponse<HeatmapSummaryModel>>(
+      `${this.apiUrl}/summary/polls/${pollId}`
+    );
   }
 
   getSummaryDataByCohortAndDays(cohortId: string, days: string) {
@@ -47,6 +52,12 @@ export class HeatMapService {
       `${this.apiUrl}/cohort/${cohortId}/top-risk`,
       { params }
     );
+  }
+  generateHeatmap(pollInstanceUuid: string, variablesIds: number[]) {
+    return this.http.post<HeatMapData[]>(`${this.apiUrl}/generate`, {
+      pollInstanceUuid,
+      variablesIds,
+    });
   }
 
   getDataPoll(pollUUID: string): Observable<PollData[]> {
