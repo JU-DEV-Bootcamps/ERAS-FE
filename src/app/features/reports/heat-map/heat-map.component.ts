@@ -26,7 +26,7 @@ import { VariableService } from '../../../core/services/variable/variable.servic
 import { Variable } from '../../../core/services/variable/interface/variable.interface';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { chartOptions } from '../constants/heat-map';
+import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -89,7 +89,7 @@ export class HeatMapComponent implements OnInit {
     ]),
   });
 
-  chartOption = { ...chartOptions };
+  chartOption = { ...ChartOptionsColorsCount };
 
   public isGeneratingPDF = false;
 
