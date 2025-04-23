@@ -149,15 +149,12 @@ export class StudentsRiskComponent implements OnInit {
   }
 
   getHeatMap() {
-    this.heatmapService
-      .getSummaryData(this.pollId)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .subscribe((data: any) => {
-        this.chartOptions = {
-          ...ChartOptions,
-          series: data.body.series,
-        };
-      });
+    this.heatmapService.getSummaryData(this.pollId).subscribe(data => {
+      this.chartOptions = {
+        ...ChartOptions,
+        series: data.body.series,
+      };
+    });
   }
 
   downloadPDF() {

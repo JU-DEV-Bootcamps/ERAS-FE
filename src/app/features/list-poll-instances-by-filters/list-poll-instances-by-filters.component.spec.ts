@@ -5,7 +5,7 @@ import { CohortService } from '../../core/services/cohort.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
-import { MatSelectChange } from '@angular/material/select';
+import { PollService } from '../../core/services/poll.service';
 
 describe('ListPollInstancesByFiltersComponent', () => {
   let component: ListPollInstancesByFiltersComponent;
@@ -16,18 +16,23 @@ describe('ListPollInstancesByFiltersComponent', () => {
   const mockCohortService = jasmine.createSpyObj('CohortService', [
     'getCohorts',
   ]);
+  const mockPollService = jasmine.createSpyObj('PollService', [
+    'getPollsByCohortId',
+  ]);
 
   beforeEach(async () => {
     mockPollInstanceService.getPollInstancesByFilters.and.returnValue(
       of({ body: [] })
     );
     mockCohortService.getCohorts.and.returnValue(of([]));
+    mockPollService.getPollsByCohortId.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [ListPollInstancesByFiltersComponent],
       providers: [
         { provide: PollInstanceService, useValue: mockPollInstanceService },
         { provide: CohortService, useValue: mockCohortService },
+        { provide: PollService, useValue: mockPollService },
         provideNoopAnimations(),
         provideHttpClientTesting(),
       ],
@@ -54,33 +59,21 @@ describe('ListPollInstancesByFiltersComponent', () => {
     expect(component.pollInstances.length).toBe(0);
   });
 
-  it('should update poll instances on selection change for dropDays', () => {
-    component.onSelectionChange({
-      source: { ngControl: { name: 'dropDays' } },
-      value: '15',
-    } as MatSelectChange);
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(0, 15);
+  it('should update polls on selection change for cohortId', () => {
+    mockPollService.getPollsByCohortId.calls.reset();
+    component.filtersForm.controls['selectedCohort'].setValue(1);
+    expect(mockPollService.getPollsByCohortId).toHaveBeenCalledWith(1);
+    expect(component.selectedCohortId).toBe(1);
   });
 
-  it('should update poll instances on selection change for cohortId', () => {
+  it('should update poll instances on selection change', () => {
     mockPollInstanceService.getPollInstancesByFilters.calls.reset();
-    component.cohortsData = [
-      {
-        id: 1,
-        name: 'Test Cohort',
-        courseCode: '',
-        audit: { createdBy: '', modifiedBy: '', createdAt: '', modifiedAt: '' },
-      },
-    ];
-    component.onSelectionChange({
-      source: { ngControl: { name: 'cohortId' } },
-      value: 1,
-    } as MatSelectChange);
+    component.filtersForm.controls['selectedCohort'].setValue(1);
+    component.filtersForm.controls['selectedPoll'].setValue('test-uuid');
+    component.onSelectionChange();
     expect(
       mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(1, 30);
+    ).toHaveBeenCalledWith(1, 0);
   });
 
   it('should return correct width for columns in getWidth', () => {
@@ -97,5 +90,16 @@ describe('ListPollInstancesByFiltersComponent', () => {
     const pollInstance = { student: { id: 1 } } as any;
     component.goToDetails(pollInstance);
     expect(window.open).toHaveBeenCalledWith('student-details/1', '_blank');
+  });
+
+  it('should open heat map summary with correct query params', () => {
+    spyOn(window, 'open');
+    component.filtersForm.controls['selectedCohort'].setValue(1);
+    component.filtersForm.controls['selectedPoll'].setValue('test-uuid');
+    component.generateHeatMap();
+    expect(window.open).toHaveBeenCalledWith(
+      '/heat-map-summary?cohortId=1&pollUuid=test-uuid',
+      '_blank'
+    );
   });
 });
