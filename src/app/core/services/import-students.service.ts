@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { StudentImport } from './Types/student.type';
+import { ServerResponse } from './Types/server.type';
+import { PagedResult } from './Types/page.type';
+import { Student } from './Types/pollInstance';
 
 @Injectable({
   providedIn: 'root',
@@ -12,16 +16,18 @@ export class ImportStudentService {
 
   constructor(private http: HttpClient) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  postData(data: unknown): Observable<any> {
-    // we should define a good interface for this situations
-    return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
+  postData(data: StudentImport[]): Observable<ServerResponse> {
+    return this.http.post(
+      `${this.apiUrl}/${this.endpoint}`,
+      data
+    ) as Observable<ServerResponse>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getData({ page = 1, pageSize = 10 }): Observable<any> {
+  getData({ page = 1, pageSize = 10 }): Observable<PagedResult<Student>> {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
-    return this.http.get(`${this.apiUrl}/${this.endpoint}`, { params });
+    return this.http.get(`${this.apiUrl}/${this.endpoint}`, {
+      params,
+    }) as Observable<PagedResult<Student>>;
   }
 
   getDataStudentsByPoll({
@@ -29,14 +35,13 @@ export class ImportStudentService {
     pollUuid = '',
     page = 1,
     pageSize = 10,
-  }): // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Observable<any> {
+  }): Observable<ServerResponse> {
     const params = new HttpParams()
       .set('days', days)
       .set('PageSize', pageSize)
       .set('Page', page);
     return this.http.get(`${this.apiUrl}/${this.endpoint}/poll/${pollUuid}`, {
       params,
-    });
+    }) as Observable<ServerResponse>;
   }
 }
