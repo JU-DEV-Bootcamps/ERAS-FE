@@ -1,16 +1,9 @@
 import { ApexOptions } from 'ng-apexcharts';
 
 export function GetChartOptions(
+  title: string,
   series: ApexAxisChartSeries,
-  dataPointSelection?: (
-    event: Event,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    chartContext: any,
-    config: {
-      seriesIndex: number;
-      dataPointIndex: number;
-    }
-  ) => void
+  dataPointSelection?: (x: number, y: number) => void
 ): ApexOptions {
   return {
     series: series,
@@ -20,11 +13,20 @@ export function GetChartOptions(
         show: false,
       },
       events: {
-        dataPointSelection: dataPointSelection, // Use the passed function
+        dataPointSelection: (
+          event: Event,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          chartContext: any,
+          config: { seriesIndex: number; dataPointIndex: number }
+        ) => {
+          if (dataPointSelection) {
+            dataPointSelection(config.dataPointIndex, config.seriesIndex);
+          }
+        },
       },
     },
     title: {
-      text: 'Heat Map - All Components',
+      text: title,
     },
     xaxis: {
       type: 'category',

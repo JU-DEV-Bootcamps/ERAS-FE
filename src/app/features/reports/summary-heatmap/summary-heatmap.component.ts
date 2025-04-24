@@ -47,20 +47,16 @@ export class SummaryHeatmapComponent implements OnInit {
     this.heatmapService.getSummaryData(this.pollUuid).subscribe(data => {
       this.isLoading = false;
       this.chartOptions = GetChartOptions(
+        `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
         data.body.series,
-        (
-          event: Event,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          chartContext: any,
-          config: { seriesIndex: number; dataPointIndex: number }
-        ) => {
-          this.openDetailsModal(config.seriesIndex, config.dataPointIndex);
+        (x, y) => {
+          this.openDetailsModal(x, y, data.body.series);
         }
       );
     });
   }
 
-  openDetailsModal(seriesIndex: number, dataPointIndex: number): void {
+  openDetailsModal(x: number, y: number, values: ApexAxisChartSeries): void {
     //   const selectedData =
     //     this.chartOptions.series![seriesIndex].data[dataPointIndex];
     //   this.dialog.open(HeatmapDetailsModalComponent, {
@@ -71,6 +67,7 @@ export class SummaryHeatmapComponent implements OnInit {
     //     },
     //   });
     // }
-    console.info(seriesIndex, dataPointIndex);
+    console.info('x', x, 'y', y);
+    console.info('Selected Data', values[y].data[x]);
   }
 }

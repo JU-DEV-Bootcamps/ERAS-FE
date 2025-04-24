@@ -151,14 +151,11 @@ export class StudentsRiskComponent implements OnInit {
   getHeatMap() {
     this.heatmapService.getSummaryData(this.pollId).subscribe(data => {
       this.chartOptions = GetChartOptions(
+        `Risk Heatmap - ${this.selectForm.value.cohortId}-${this.pollId}`,
         data.body.series,
-        (
-          event: Event,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          chartContext: any,
-          config: { seriesIndex: number; dataPointIndex: number }
-        ) => {
-          console.info(config.seriesIndex, config.dataPointIndex);
+        (x: number, y: number) => {
+          console.info('x', x, 'y', y);
+          console.info('Selected Data', data.body.series[y].data[x]);
         }
       );
     });
