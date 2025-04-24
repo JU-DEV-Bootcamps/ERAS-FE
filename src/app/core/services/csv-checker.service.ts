@@ -18,7 +18,7 @@ export class CsvCheckerService {
     'StandardScoreDifference',
     'DaysSinceLastAccess',
   ];
-  csvData: Record<string, unknown>[] = [];
+  csvData: Record<string, string>[] = [];
   validationErrors: string[] = [];
 
   /**
@@ -39,7 +39,7 @@ export class CsvCheckerService {
     return this.validationErrors;
   }
 
-  getCSVData(): Record<string, unknown>[] {
+  getCSVData(): Record<string, string>[] {
     return this.csvData;
   }
 
@@ -49,13 +49,13 @@ export class CsvCheckerService {
    */
   private async parseCSV(
     csv: File
-  ): Promise<{ data: Record<string, unknown>[]; fields: string[] }> {
+  ): Promise<{ data: Record<string, string>[]; fields: string[] }> {
     return new Promise((resolve, reject) => {
       Papa.parse(csv, {
         header: true,
         skipEmptyLines: true,
         complete: result => {
-          const data = result.data as Record<string, unknown>[];
+          const data = result.data as Record<string, string>[];
           const fields = result.meta.fields || [];
           resolve({ data, fields });
         },
@@ -67,7 +67,7 @@ export class CsvCheckerService {
   }
 
   private validateData(
-    data: Record<string, unknown>[],
+    data: Record<string, string>[],
     headers: string[]
   ): string[] {
     this.validationErrors = [];

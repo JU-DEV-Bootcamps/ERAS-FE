@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TableComponent } from '../../shared/components/table/table.component';
+import { Student } from '../../core/services/Types/pollInstance';
 
 @Component({
   selector: 'app-list-students-by-poll',
@@ -28,12 +29,17 @@ import { TableComponent } from '../../shared/components/table/table.component';
   styleUrl: './list-students-by-poll.component.scss',
 })
 export class ListStudentsByPollComponent implements OnInit {
-  columns = ['id', 'name', 'email', 'isImported'];
+  columns: (keyof Student)[] = [
+    'id',
+    'name',
+    'email',
+    'isImported',
+  ] as unknown as (keyof Student)[];
 
   studentService = inject(ImportStudentService);
 
-  dataStudents = new MatTableDataSource([]);
-  students = [];
+  dataStudents = new MatTableDataSource<Student>([]);
+  students: Student[] = [];
   pageSize = 10;
   currentPage = 0;
   totalStudents = 0;

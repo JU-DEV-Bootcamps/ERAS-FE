@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PollVariable } from './Types/poll.type';
+import { Poll, PollVariable } from './Types/poll.type';
 import { StudentPoll } from '../../shared/models/polls/student-polls.model';
 
 @Injectable({
@@ -16,14 +15,19 @@ export class PollService {
 
   constructor(private http: HttpClient) {}
 
-  getAllPolls(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}`);
+  getAllPolls(): Observable<Poll[]> {
+    return this.http.get(`${this.apiUrl}/${this.endpoint}`) as Observable<
+      Poll[]
+    >;
   }
 
-  getPollsByCohortId(cohortId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`);
+  getPollsByCohortId(cohortId: number): Observable<Poll[]> {
+    return this.http.get(
+      `${this.apiUrl}/${this.endpoint}/cohort/${cohortId}`
+    ) as Observable<Poll[]>;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   savePollsCosmicLattePreview(data: any) {
     return this.http.post(`${this.apiUrl}/${this.cosmicLattePath}`, data);
   }

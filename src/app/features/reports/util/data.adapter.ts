@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
-
 import { Coordinate, PollData, SurveyAnswers } from '../types/data.adapter';
 import {
   MockUpAnswers,
@@ -20,18 +18,14 @@ const adaptMockAnswers = (
 ) => {
   const adaptedAnswers: ApexAxisChartSeries = [];
 
-  for (let i = 0; i < questions.questions.length; i++) {
-    const question = questions.questions[i];
-
+  for (const question of questions.questions) {
     const adaptedAnswer: { name: string; data: Coordinate[] } = {
       name: question.description!,
       data: [],
     };
 
     // Init answers
-    for (let j = 0; j < question.possibleAnswers.length; j++) {
-      const possibleAnswer = question.possibleAnswers[j];
-
+    for (const possibleAnswer of question.possibleAnswers) {
       adaptedAnswer.data.push({
         x: possibleAnswer.description,
         y: 0,
@@ -40,9 +34,7 @@ const adaptMockAnswers = (
     adaptedAnswers.push(adaptedAnswer);
   }
   // Count users with same answers
-  for (let j = 0; j < rawSurveyAnswers.length; j++) {
-    const rawSurveyAnswer = rawSurveyAnswers[j];
-
+  for (const rawSurveyAnswer of rawSurveyAnswers) {
     for (let k = 0; k < rawSurveyAnswer.answers.length; k++) {
       const answer = rawSurveyAnswer.answers[k];
       const adaptedAnswer = adaptedAnswers[k];
