@@ -124,7 +124,7 @@ export class EvaluationProcessFormComponent {
             : '',
           country: data.evaluation.country,
         };
-        const countryAlpha3 = this.data.evaluation.country;
+        const countryAlpha3 = this.data.evaluation.country.toLowerCase();
 
         const fullCountry = countries.find(c => c.alpha3 === countryAlpha3);
 
