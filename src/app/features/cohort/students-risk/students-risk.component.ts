@@ -30,6 +30,8 @@ import { generateFileName } from '../../../core/utilities/file/file-name';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { GetChartOptions } from '../util/heat-map-config';
+import { ModalRiskStudentsVariablesComponent } from '../../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-students-risk',
@@ -53,6 +55,7 @@ export class StudentsRiskComponent implements OnInit {
   pollsService = inject(PollService);
   pdfService = inject(PdfService);
   heatmapService = inject(HeatMapService);
+  private readonly dialog = inject(MatDialog);
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
@@ -154,8 +157,7 @@ export class StudentsRiskComponent implements OnInit {
         `Risk Heatmap - ${this.selectForm.value.cohortId}-${this.pollId}`,
         data.body.series,
         (x: number, y: number) => {
-          console.info('x', x, 'y', y);
-          console.info('Selected Data', data.body.series[y].data[x]);
+          this.openDetailsModal(x, y, data.body.series);
         }
       );
     });
@@ -173,5 +175,24 @@ export class StudentsRiskComponent implements OnInit {
     document.body.appendChild(clonedElement);
     this.pdfService.exportToPDF(clonedElement, fileName);
     document.body.removeChild(clonedElement);
+  }
+
+  openDetailsModal(x: number, y: number, values: ApexAxisChartSeries): void {
+    this.dialog.open(ModalRiskStudentsVariablesComponent, {
+      width: 'auto',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '80vh',
+      panelClass: 'border-modalbox-dialog',
+      data: {
+        pollUuid: this.selectForm.value.pollId,
+        cohortId: this.selectForm.value.cohortId,
+        x,
+        y,
+        z: values,
+      },
+    });
+    console.info('x', x, 'y', y);
+    console.info('Selected Data', values[y].data[x]);
   }
 }

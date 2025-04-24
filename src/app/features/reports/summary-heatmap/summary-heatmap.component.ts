@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { GetChartOptions } from '../../cohort/util/heat-map-config';
 import { MatDialog } from '@angular/material/dialog';
+import { ModalRiskStudentsVariablesComponent } from '../../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -57,16 +58,20 @@ export class SummaryHeatmapComponent implements OnInit {
   }
 
   openDetailsModal(x: number, y: number, values: ApexAxisChartSeries): void {
-    //   const selectedData =
-    //     this.chartOptions.series![seriesIndex].data[dataPointIndex];
-    //   this.dialog.open(HeatmapDetailsModalComponent, {
-    //     data: {
-    //       seriesIndex,
-    //       dataPointIndex,
-    //       selectedData,
-    //     },
-    //   });
-    // }
+    this.dialog.open(ModalRiskStudentsVariablesComponent, {
+      width: 'auto',
+      maxWidth: '80vw',
+      minHeight: '500px',
+      maxHeight: '80vh',
+      panelClass: 'border-modalbox-dialog',
+      data: {
+        pollUuid: this.pollUuid,
+        cohortId: this.cohortId,
+        x,
+        y,
+        z: values,
+      },
+    });
     console.info('x', x, 'y', y);
     console.info('Selected Data', values[y].data[x]);
   }

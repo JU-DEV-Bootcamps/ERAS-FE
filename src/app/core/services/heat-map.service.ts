@@ -1,25 +1,24 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import {
   ComponentValueType,
   RiskStudentDetailType,
 } from '../../features/heat-map/types/risk-students-detail.type';
-import { map, Observable, of } from 'rxjs';
+import { map, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
 import { PollData } from '../../features/reports/types/data.adapter';
 import { HeatMapData } from './Types/heatmap.type';
 import { GetResponse } from '../../shared/models/eras-api/eras.api';
 import { HeatmapSummaryModel } from '../models/HeatmapSummaryModel';
+import { BaseApiService } from './apiServices/base-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class HeatMapService {
-  private apiUrl = `${environment.apiUrl}/api/v1/HeatMap`;
+export class HeatMapService extends BaseApiService {
+  protected apiUrl = `${environment.apiUrl}/api/v1/HeatMap`;
   private pollQuestions = new Map<string, PollData[]>();
-
-  constructor(private http: HttpClient) {}
 
   getStudentHeatMapDetails(
     component: ComponentValueType,
@@ -29,38 +28,35 @@ export class HeatMapService {
       .set('component', component)
       .set('limit', limit ?? DEFAULT_LIMIT);
 
-    return this.http.get<RiskStudentDetailType[]>(
-      `${this.apiUrl}/heatmap-details`,
-      { params }
-    );
+    return this.get<RiskStudentDetailType[]>('heatmap-details', params);
   }
 
-  getSummaryData(pollId: string): Observable<GetResponse<HeatmapSummaryModel>> {
-    return this.http.get<GetResponse<HeatmapSummaryModel>>(
-      `${this.apiUrl}/summary/polls/${pollId}`
+  getSummaryData(pollId: string) {
+    return this.get<GetResponse<HeatmapSummaryModel>>(
+      `summary/polls/${pollId}`
     );
   }
 
   getSummaryDataByCohortAndDays(cohortId: string, days: string) {
     const params = new HttpParams().set('cohortId', cohortId).set('days', days);
-    return this.http.get(`${this.apiUrl}/summary/filter`, { params });
+    return this.get('summary/filter', params);
   }
 
   getStudentHeatMapDetailsByCohort(cohortId: string, limit?: number | null) {
     const params = new HttpParams().set('limit', limit ?? DEFAULT_LIMIT);
-    return this.http.get<RiskStudentDetailType[]>(
-      `${this.apiUrl}/cohort/${cohortId}/top-risk`,
-      { params }
+    return this.get<RiskStudentDetailType[]>(
+      `cohort/${cohortId}/top-risk`,
+      params
     );
   }
   generateHeatmap(pollInstanceUuid: string, variablesIds: number[]) {
-    return this.http.post<HeatMapData[]>(`${this.apiUrl}/generate`, {
-      pollInstanceUuid,
-      variablesIds,
-    });
+    return this.post<
+      { pollInstanceUuid: string; variablesIds: number[] },
+      HeatMapData[]
+    >('generate', { pollInstanceUuid, variablesIds });
   }
 
-  getDataPoll(pollUUID: string): Observable<PollData[]> {
+  getDataPoll(pollUUID: string) {
     const endpoint = 'components/polls';
 
     if (this.pollQuestions.has(pollUUID)) {
@@ -69,7 +65,7 @@ export class HeatMapService {
       return of(pollData);
     } else {
       return this.http
-        .get<{ body: PollData[] }>(`${this.apiUrl}/${endpoint}/${pollUUID}`)
+        .get<{ body: PollData[] }>(`${endpoint}/${pollUUID}`)
         .pipe(
           map((response: { body: PollData[] }) => {
             this.pollQuestions.set(pollUUID, response.body);
