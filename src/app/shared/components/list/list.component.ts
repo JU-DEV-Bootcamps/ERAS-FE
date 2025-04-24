@@ -1,11 +1,11 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { TableComponent } from '../table/table.component';
 import { defaultOptions } from './constants/list';
-import { EventEmitter } from 'stream';
+import { EventLoad } from '../../events/load';
 
 @Component({
   selector: 'app-list',
@@ -20,17 +20,14 @@ import { EventEmitter } from 'stream';
   styleUrl: './list.component.css',
 })
 export class ListComponent<T extends object> implements OnInit {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() callLoad = new EventEmitter<any>();
+  @Output() loadCalled = new EventEmitter<EventLoad>();
 
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
-  items: T[] = [];
-  totalItems = 0;
-  data = new MatTableDataSource<T>([]);
+  @Input() items: T[] = [];
+  @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: (keyof T)[] = [];
-  //columns: (keyof T)[] = ['id', 'name', 'uuid', 'email'];
 
   ngOnInit(): void {
     this.load();
@@ -49,21 +46,9 @@ export class ListComponent<T extends object> implements OnInit {
   }
 
   load(): void {
-    this.callLoad.emit([
-      {
-        page: this.currentPage,
-        pageSize: this.pageSize,
-      },
-    ]);
-    /* this.studentService
-      .getData({
-        page: this.currentPage,
-        pageSize: this.pageSize,
-      })
-      .subscribe(data => {
-        this.data = new MatTableDataSource<Student>(data.items);
-        this.students = data.items;
-        this.totalItems = data.count;
-      }); */
+    this.loadCalled.emit({
+      pageIndex: this.currentPage,
+      pageSize: this.pageSize,
+    });
   }
 }

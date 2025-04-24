@@ -5,7 +5,7 @@
   <app-table [columns]="columns" [dataSource]="items"></app-table>
   <br />
   <mat-paginator
-    [length]="totalItems"
+    [length]="items.length"
     (page)="onPageChange($event)"
     [pageSize]="pageSize"
     [pageIndex]="currentPage"
