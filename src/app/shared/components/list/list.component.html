@@ -1,0 +1,17 @@
+<p>list works!</p>
+@if (!data) {
+  <mat-spinner></mat-spinner>
+} @else {
+  <app-table [columns]="columns" [dataSource]="items"></app-table>
+  <br />
+  <mat-paginator
+    [length]="totalItems"
+    (page)="onPageChange($event)"
+    [pageSize]="pageSize"
+    [pageIndex]="currentPage"
+    [pageSizeOptions]="pageSizeOptions"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+}
