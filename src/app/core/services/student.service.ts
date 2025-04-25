@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StudentRiskAverage } from './Types/student.type';
-import { Student } from '../../shared/models/student/student.model';
+import { StudentResponse } from '../models/student-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,10 +15,10 @@ export class StudentService {
 
   constructor(private http: HttpClient) {}
 
-  getStudentDetailsById(studentId: number): Observable<Student> {
+  getStudentDetailsById(studentId: number): Observable<StudentResponse> {
     const params = new HttpParams().set('studentId', studentId);
     const url = `${this.apiUrl}/${this.endpoint}/studentId?studentId=${studentId}`;
-    return this.http.get<Student>(url, { params });
+    return this.http.get<StudentResponse>(url, { params });
   }
   getAllStudents(): Observable<any> {
     return this.http.get(`${this.apiUrl}/${this.endpoint}`);

@@ -1,8 +1,6 @@
-interface GetResponse<T> {
+export interface GetResponse<T> {
   body: T;
   success: boolean;
   message: string;
   validationErrors: string[] | null;
 }
-
-export { GetResponse };

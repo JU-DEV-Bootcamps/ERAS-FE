@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { GetResponse } from '../../shared/models/eras-api/eras.api';
 import { environment } from '../../../environments/environment';
+import { GetResponse } from '../models/get-response.model';
 
 interface StudentRisk {
   name: string;

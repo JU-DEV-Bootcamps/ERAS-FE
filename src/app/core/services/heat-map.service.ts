@@ -9,8 +9,8 @@ import { map, Observable, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
 import { PollData } from '../../features/reports/types/data.adapter';
 import { HeatMapData } from './Types/heatmap.type';
-import { GetResponse } from '../../shared/models/eras-api/eras.api';
 import { HeatmapSummaryModel } from '../models/heatmap-summary.model';
+import { GetResponse } from '../models/get-response.model';
 
 @Injectable({
   providedIn: 'root',

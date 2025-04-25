@@ -20,9 +20,9 @@ import { CohortModel } from '../../core/models/cohort.model';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { PollService } from '../../core/services/poll.service';
-import { Poll } from '../../core/services/Types/poll.type';
 import { PollInstance } from '../../core/services/Types/pollInstance';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
+import { PollModel } from '../../core/models/poll.model';
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -63,7 +63,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   pollInstances: PollInstance[] = [];
 
   cohortsData: CohortModel[] = [];
-  polls: Poll[] = [];
+  polls: PollModel[] = [];
   selectedCohortId = 0;
   selectedPollUuid = '';
 

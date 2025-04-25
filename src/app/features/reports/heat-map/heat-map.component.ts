@@ -18,11 +18,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../core/models/cohort.model';
+import { PollModel } from '../../../core/models/poll.model';
 import { CohortService } from '../../../core/services/cohort.service';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
-import { Poll } from '../../../core/services/Types/poll.type';
 import { Variable } from '../../../core/services/variable/interface/variable.interface';
 import { VariableService } from '../../../core/services/variable/variable.service';
 import {
@@ -53,7 +53,7 @@ export class HeatMapComponent implements OnInit {
   heatmapService = inject(HeatMapService);
 
   cohorts: CohortModel[] = [];
-  polls: Poll[] = [];
+  polls: PollModel[] = [];
   questions: Variable[] = [];
 
   components = [

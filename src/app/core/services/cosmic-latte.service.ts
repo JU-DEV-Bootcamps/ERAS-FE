@@ -3,9 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
 import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
-import { PollName } from '../../shared/models/cosmic-latte/PollName';
+import { PollName } from '../models/poll-request.model';
+import { HealthCheckResponse } from '../models/cosmic-latte-request.model';
 
 @Injectable({
   providedIn: 'root',

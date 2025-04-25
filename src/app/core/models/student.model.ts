@@ -1,13 +1,13 @@
 import { BaseModel } from './common/base.model';
-import { UUID } from 'crypto';
 import { StudentDetailModel } from './student-detail.model';
+import { CohortModel } from './cohort.model';
 
 export interface StudentModel extends BaseModel {
-  uuid: UUID;
+  uuid: string;
   name: string;
   email: string;
   isImported: boolean;
   studentDetail: StudentDetailModel;
   cohortId: number;
-  // public Cohort? Cohort { get; set; } = default!;
+  cohort?: CohortModel;
 }

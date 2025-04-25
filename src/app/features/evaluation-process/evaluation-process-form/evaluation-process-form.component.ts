@@ -22,13 +22,13 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { PollName } from '../../../shared/models/cosmic-latte/PollName';
 import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
 import { countries } from '../../../core/constants/countries';
 import { CreateEvaluationModel } from '../../../core/models/evaluation-request.model';
 import { EvaluationModel } from '../../../core/models/evaluation.model';
+import { PollName } from '../../../core/models/poll-request.model';
 
 @Component({
   selector: 'app-evaluation-process-form',

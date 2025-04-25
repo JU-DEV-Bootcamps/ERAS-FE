@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PollVariable } from './Types/poll.type';
 import { PollModel } from '../models/poll.model';
+import { PollVariableModel } from '../models/poll-variable.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +29,7 @@ export class PollService {
   }
 
   getByCohortAndPoll(cohortId: number, pollId: number) {
-    return this.http.get<PollVariable[]>(
+    return this.http.get<PollVariableModel[]>(
       `${this.apiUrl}/${this.endpoint}/${pollId}/cohort/${cohortId}`
     );
   }

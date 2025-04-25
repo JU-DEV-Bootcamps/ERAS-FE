@@ -28,9 +28,8 @@ import { AnswersService } from '../../core/services/answers.service';
 import { ComponentsService } from '../../core/services/components.service';
 import { PollService } from '../../core/services/poll.service';
 import { PdfService } from '../../core/services/report/pdf.service';
-import { Answer } from '../../shared/models/answers/answer.model';
-import { Audit } from '../../shared/models/audit.model';
-import { Student } from '../../shared/models/student/student.model';
+import { AnswerResponse } from '../../core/models/answer-request.model';
+import { StudentResponse } from '../../core/models/student-request.model';
 
 register();
 @Component({
@@ -52,7 +51,7 @@ register();
 export class StudentDetailComponent implements OnInit, OnDestroy {
   @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
   private readonly exportPrintService = inject(PdfService);
-  studentDetails: Student = {
+  studentDetails: StudentResponse = {
     entity: {
       uuid: '',
       name: '',
@@ -67,13 +66,11 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
         pureScoreDiff: 0,
         standardScoreDiff: 0,
         lastAccessDays: 0,
-        audit: null,
         id: 0,
       },
-      audit: {} as Audit,
       cohortId: 0,
-      cohort: null,
       id: 0,
+      isImported: false,
     },
     message: '',
     success: false,
@@ -86,7 +83,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   selectedPoll = 0;
   studentPolls: PollModel[] = [];
-  studentAnswers: Answer[] = [];
+  studentAnswers: AnswerResponse[] = [];
   componentsAvg: ComponentsAvgModel[] = [];
   studentId!: number;
 
@@ -130,7 +127,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       .getStudentDetailsById(studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: Student) => {
+        next: (data: StudentResponse) => {
           this.studentDetails = data;
           this.getStudentPolls(studentId);
         },
@@ -181,7 +178,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       .getStudentAnswersByPoll(studentId, pollId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: Answer[]) => {
+        next: (data: AnswerResponse[]) => {
           this.studentAnswers = data;
         },
         error: error => {
