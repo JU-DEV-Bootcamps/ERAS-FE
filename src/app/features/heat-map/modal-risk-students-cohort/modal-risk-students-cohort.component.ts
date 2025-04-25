@@ -1,42 +1,31 @@
 import { Component, inject, OnInit } from '@angular/core';
 import {
-  MatDialogActions,
-  MatDialogContent,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { debounceTime, filter, tap } from 'rxjs';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { HeatMapService } from '../../../core/services/heat-map.service';
-import { CohortService } from '../../../core/services/cohort.service';
-import { RiskStudentDetailType } from '../types/risk-students-detail.type';
-import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import {
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-
-interface Cohort {
-  id: number;
-  name: string;
-  courseCode: string;
-  audit: {
-    createdBy: string;
-    modifiedBy: string;
-    createdAt: string;
-    modifiedAt: string;
-  };
-}
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { debounceTime, filter, tap } from 'rxjs';
+import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
+import { CohortModel } from '../../../core/models/cohort.model';
+import { CohortService } from '../../../core/services/cohort.service';
+import { HeatMapService } from '../../../core/services/heat-map.service';
+import { RiskStudentDetailType } from '../types/risk-students-detail.type';
 
 @Component({
   selector: 'app-modal-risk-students-cohort',
@@ -64,7 +53,7 @@ export class ModalRiskStudentsCohortComponent implements OnInit {
   cohortService = inject(CohortService);
 
   riskStudentsDetail: RiskStudentDetailType[] = [];
-  cohorts: Cohort[] = [];
+  cohorts: CohortModel[] = [];
 
   columns = ['studentId', 'studentName', 'riskLevel', 'actions'];
 

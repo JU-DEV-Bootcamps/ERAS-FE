@@ -1,5 +1,5 @@
+import { CohortModel } from '../../../core/models/cohort.model';
 import { Audit } from '../audit.model';
-import { Cohort } from '../cohort/cohort.model';
 
 export interface Entity {
   uuid: string;
@@ -8,7 +8,7 @@ export interface Entity {
   studentDetail: StudentDetail;
   audit: Audit;
   cohortId: number;
-  cohort: null | Cohort;
+  cohort: null | CohortModel;
   id: number;
 }
 

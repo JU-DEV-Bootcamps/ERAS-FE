@@ -11,12 +11,12 @@ import { EvaluationProcessService } from '../../core/services/evaluation-process
 import {
   CohortsSummaryModel,
   EvaluationModel,
-} from '../../core/models/SummaryModel';
+} from '../../core/models/summary.model';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
 import { MatTooltip } from '@angular/material/tooltip';
-import { PollModel } from '../../core/models/PollModel';
+import { PollModel } from '../../core/models/poll.model';
 
 @Component({
   selector: 'app-home',

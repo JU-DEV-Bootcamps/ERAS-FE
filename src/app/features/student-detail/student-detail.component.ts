@@ -2,36 +2,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
-  inject,
-  OnInit,
   CUSTOM_ELEMENTS_SCHEMA,
-  OnDestroy,
   ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import { ApexOptions } from 'ng-apexcharts';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { StudentService } from '../../core/services/student.service';
 
-import { PollService } from '../../core/services/poll.service';
-import { Student } from '../../shared/models/student/student.model';
-import { StudentPoll } from '../../shared/models/polls/student-polls.model';
-import { ComponentsService } from '../../core/services/components.service';
-import { AnswersService } from '../../core/services/answers.service';
-import { ComponentAvg } from '../../shared/models/components/component-avg.model';
-import { Answer } from '../../shared/models/answers/answer.model';
-import { Audit } from '../../shared/models/audit.model';
-import { Swiper } from 'swiper/types';
-import { register } from 'swiper/element/bundle';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { takeUntil, Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { register } from 'swiper/element/bundle';
+import { Swiper } from 'swiper/types';
+import { ComponentsAvgModel } from '../../core/models/components-avg.model';
+import { PollModel } from '../../core/models/poll.model';
+import { AnswersService } from '../../core/services/answers.service';
+import { ComponentsService } from '../../core/services/components.service';
+import { PollService } from '../../core/services/poll.service';
 import { PdfService } from '../../core/services/report/pdf.service';
+import { Answer } from '../../shared/models/answers/answer.model';
+import { Audit } from '../../shared/models/audit.model';
+import { Student } from '../../shared/models/student/student.model';
 
 register();
 @Component({
@@ -86,9 +85,9 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   answersService = inject(AnswersService);
 
   selectedPoll = 0;
-  studentPolls: StudentPoll[] = [];
+  studentPolls: PollModel[] = [];
   studentAnswers: Answer[] = [];
-  componentsAvg: ComponentAvg[] = [];
+  componentsAvg: ComponentsAvgModel[] = [];
   studentId!: number;
 
   constructor(private route: ActivatedRoute) {}
@@ -146,9 +145,9 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       .getPollsByStudentId(studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: StudentPoll[]) => {
+        next: (data: PollModel[]) => {
           this.studentPolls = data;
-          data.forEach((studentPoll: StudentPoll) => {
+          data.forEach(studentPoll => {
             this.getComponentsAvg(studentId, studentPoll.id);
           });
           if (this.studentPolls.length > 0) {
@@ -167,7 +166,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       .getComponentsRiskByPollForStudent(studentId, pollId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: ComponentAvg[]) => {
+        next: (data: ComponentsAvgModel[]) => {
           this.componentsAvg = [...this.componentsAvg, ...data];
           this.buildChartSeries();
         },

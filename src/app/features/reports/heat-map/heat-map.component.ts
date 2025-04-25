@@ -11,26 +11,26 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { Poll } from '../../../core/services/Types/poll.type';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { PollService } from '../../../core/services/poll.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import { CohortModel } from '../../../core/models/cohort.model';
 import { CohortService } from '../../../core/services/cohort.service';
+import { HeatMapService } from '../../../core/services/heat-map.service';
+import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
-import { Cohort } from '../../../core/services/Types/cohort.type';
+import { Poll } from '../../../core/services/Types/poll.type';
+import { Variable } from '../../../core/services/variable/interface/variable.interface';
+import { VariableService } from '../../../core/services/variable/variable.service';
 import {
   Components,
   ComponentValueType,
 } from '../../heat-map/types/risk-students-detail.type';
-import { VariableService } from '../../../core/services/variable/variable.service';
-import { Variable } from '../../../core/services/variable/interface/variable.interface';
-import { HeatMapService } from '../../../core/services/heat-map.service';
-import { NgApexchartsModule } from 'ng-apexcharts';
 import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-heat-map',
@@ -52,7 +52,7 @@ export class HeatMapComponent implements OnInit {
   pdfService = inject(PdfService);
   heatmapService = inject(HeatMapService);
 
-  cohorts: Cohort[] = [];
+  cohorts: CohortModel[] = [];
   polls: Poll[] = [];
   questions: Variable[] = [];
 

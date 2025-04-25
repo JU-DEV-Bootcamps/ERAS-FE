@@ -1,8 +1,5 @@
+import { NgFor } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatCardModule } from '@angular/material/card';
 import {
   FormControl,
   FormGroup,
@@ -10,19 +7,22 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { NgFor } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { CohortModel } from '../../core/models/cohort.model';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
-import { PollInstance } from '../../core/services/Types/pollInstance';
-import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
-import { Router } from '@angular/router';
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../../core/services/Types/poll.type';
-import { Cohort } from '../../core/services/Types/cohort.type';
+import { PollInstance } from '../../core/services/Types/pollInstance';
+import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -62,7 +62,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   data = new MatTableDataSource<PollInstance>([]);
   pollInstances: PollInstance[] = [];
 
-  cohortsData: Cohort[] = [];
+  cohortsData: CohortModel[] = [];
   polls: Poll[] = [];
   selectedCohortId = 0;
   selectedPollUuid = '';
@@ -101,14 +101,14 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
 
   loadCohortsList(): void {
     this.cohortService.getCohorts().subscribe(data => {
-      const defaultOpt: Cohort = {
+      const defaultOpt: CohortModel = {
         name: 'All Cohorts',
         courseCode: '',
         audit: {
           createdBy: '',
           modifiedBy: '',
-          createdAt: '',
-          modifiedAt: '',
+          createdAt: new Date(),
+          modifiedAt: new Date(),
         },
         id: 0,
       };

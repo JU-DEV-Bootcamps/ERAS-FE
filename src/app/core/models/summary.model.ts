@@ -1,7 +1,7 @@
 import { UUID } from 'crypto';
 import { Audit } from '../../shared/models/audit.model';
-import { PollModel } from './PollModel';
-import { PoollInstanceModel } from './PollInstanceModel';
+import { PollModel } from './poll.model';
+import { PollInstanceModel } from './poll-instance.model';
 
 export interface CohortsSummaryModel {
   cohortCount: number;
@@ -32,7 +32,7 @@ export interface EvaluationModel {
   pollId: 0;
   evaluationPollId: number;
   polls: PollModel[];
-  pollInstances: PoollInstanceModel[];
+  pollInstances: PollInstanceModel[];
   audit: Audit;
   id: number;
 }
