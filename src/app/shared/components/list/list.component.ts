@@ -28,9 +28,6 @@ export class ListComponent<T extends object> implements OnInit {
   @Input() items: T[] = [];
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns = [] as (keyof T)[];
-  @Input() enableActionColumn = true;
-
-  /* actionColumns: ActionColumn[] = ['Update', 'Remove']; */
 
   ngOnInit(): void {
     this.load();

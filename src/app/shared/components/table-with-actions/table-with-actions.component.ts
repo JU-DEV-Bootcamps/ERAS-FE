@@ -5,6 +5,8 @@ import {
   Input,
   OnInit,
   OnChanges,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +16,8 @@ import { CommonModule } from '@angular/common';
 import { ActionButtonComponent } from '../action-button/action-button.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { ActionButton } from '../list/types/action';
+import { EventRemove, EventUpdate } from '../../events/load';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -35,15 +39,19 @@ import { MatTableModule } from '@angular/material/table';
 export class TableWithActionsComponent<T extends object>
   implements OnInit, OnChanges
 {
+  @Output() updateCalled = new EventEmitter<EventUpdate>();
+  @Output() removeCalled = new EventEmitter<EventRemove>();
   @Input() items: T[] = [];
   @Input() columns: (keyof T)[] = [] as (keyof T)[];
   @Input() isUpdateEnabled = false;
   @Input() isRemoveEnabled = false;
-  @Input() updateData = {
+  @Input() updateData: ActionButton = {
     type: 'update',
+    label: 'Update',
   };
-  @Input() removeData = {
+  @Input() removeData: ActionButton = {
     type: 'remove',
+    label: 'Remove',
   };
   dataSource: T[] = [];
 
@@ -91,7 +99,21 @@ export class TableWithActionsComponent<T extends object>
       return newItem;
     }) as unknown as T[];
     this.totalItems = this.items.length;
+  }
 
-    console.log(this.dataSource);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleUpdate(data: any) {
+    console.log(data);
+    this.updateCalled.emit({
+      data,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleRemove(data: any) {
+    console.log(data);
+    this.updateCalled.emit({
+      data,
+    });
   }
 }

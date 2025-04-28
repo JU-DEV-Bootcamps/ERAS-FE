@@ -1,3 +1,7 @@
-<button mat-button color="primary" (click)="onButtonClick($event)">
-  Action
-</button>
+@if (!data || !data.label) {
+  -
+} @else {
+  <button mat-button color="primary" (click)="onButtonClick()">
+    {{ data.label }}
+  </button>
+}
