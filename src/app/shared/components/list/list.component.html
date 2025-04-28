@@ -1,8 +1,14 @@
-<p>list works!</p>
 @if (!data) {
   <mat-spinner></mat-spinner>
 } @else {
-  <app-table [columns]="columns" [dataSource]="items"></app-table>
+  <app-table-with-actions
+    [columns]="columns"
+    [items]="items"
+    [isUpdateEnabled]="true"
+    [isRemoveEnabled]="true"
+    (onUpdate)="handleUpdate($event)"
+    (onRemove)="handleRemove($event)"
+  ></app-table-with-actions>
   <br />
   <mat-paginator
     [length]="items.length"
