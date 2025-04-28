@@ -26,11 +26,11 @@ import { HeatMapService } from '../../../core/services/heat-map.service';
 import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { StudentService } from '../../../core/services/student.service';
-import { StudentRiskAverage } from '../../../core/services/Types/student.type';
 import { generateFileName } from '../../../core/utilities/file/file-name';
 import { ChartOptions } from '../util/heat-map-config';
 import { PollVariableModel } from '../../../core/models/poll-variable.model';
 import { PollModel } from '../../../core/models/poll.model';
+import { StudentRiskAverage } from '../../../core/services/interfaces/student.interface';
 
 @Component({
   selector: 'app-students-risk',

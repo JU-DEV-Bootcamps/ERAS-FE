@@ -8,9 +8,9 @@ import {
 import { map, Observable, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
 import { PollData } from '../../features/reports/types/data.adapter';
-import { HeatMapData } from './Types/heatmap.type';
 import { HeatmapSummaryModel } from '../models/heatmap-summary.model';
-import { GetResponse } from '../models/get-response.model';
+import { ApiResponse } from '../models/api-response.model';
+import { HeatMapData } from '../models/heatmap-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,8 +35,8 @@ export class HeatMapService {
     );
   }
 
-  getSummaryData(pollId: string): Observable<GetResponse<HeatmapSummaryModel>> {
-    return this.http.get<GetResponse<HeatmapSummaryModel>>(
+  getSummaryData(pollId: string): Observable<ApiResponse<HeatmapSummaryModel>> {
+    return this.http.get<ApiResponse<HeatmapSummaryModel>>(
       `${this.apiUrl}/summary/polls/${pollId}`
     );
   }

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { GetResponse } from '../models/get-response.model';
+import { ApiResponse } from '../models/api-response.model';
 
 interface StudentRisk {
   name: string;
@@ -35,7 +35,7 @@ export class ReportService {
       params = params.set('take', take);
     }
 
-    return this.http.get<GetResponse<unknown>>(
+    return this.http.get<ApiResponse<unknown>>(
       `${this.apiUrl}/higherrisk/byVariable`,
       { params }
     );

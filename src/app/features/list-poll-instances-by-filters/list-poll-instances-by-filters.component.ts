@@ -20,9 +20,15 @@ import { CohortModel } from '../../core/models/cohort.model';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { PollService } from '../../core/services/poll.service';
-import { PollInstance } from '../../core/services/Types/pollInstance';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
 import { PollModel } from '../../core/models/poll.model';
+import { PollInstanceModel } from '../../core/models/poll-instance.model';
+
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+interface DynamicPollInstance extends PollInstanceModel {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -59,8 +65,8 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   cohortService = inject(CohortService);
 
   loading = true;
-  data = new MatTableDataSource<PollInstance>([]);
-  pollInstances: PollInstance[] = [];
+  data = new MatTableDataSource<PollInstanceModel>([]);
+  pollInstances: DynamicPollInstance[] = [];
 
   cohortsData: CohortModel[] = [];
   polls: PollModel[] = [];
@@ -128,7 +134,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       .getPollInstancesByFilters(cohortId, 0)
       .subscribe(data => {
         this.loading = true;
-        this.data = new MatTableDataSource<PollInstance>(
+        this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
         );
         this.pollInstances = data.body;
@@ -158,7 +164,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  goToDetails(pollInstance: PollInstance): void {
+  goToDetails(pollInstance: PollInstanceModel): void {
     window.open(`student-details/${pollInstance.student.id}`, '_blank');
   }
 

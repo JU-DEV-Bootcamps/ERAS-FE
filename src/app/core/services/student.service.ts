@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StudentRiskAverage } from './Types/student.type';
 import { StudentResponse } from '../models/student-request.model';
+import { StudentRiskAverage } from './interfaces/student.interface';
 
 @Injectable({
   providedIn: 'root',

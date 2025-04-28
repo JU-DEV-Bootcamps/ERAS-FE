@@ -1,4 +1,4 @@
-import { HeatMapData } from '../../../../core/services/Types/heatmap.type';
+import { HeatMapData } from '../../../../core/models/heatmap-data.model';
 
 //NOTE: function to fill deafult data
 export const fillDefaultData = (data: HeatMapData[]) => {
