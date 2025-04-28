@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { GetResponse } from '../../shared/models/eras-api/eras.api';
 import { environment } from '../../../environments/environment';
+import { GetQueryResponse, PollAvgReport } from '../models/SummaryModel';
 
 interface StudentRisk {
   name: string;
@@ -58,5 +59,37 @@ export class ReportService {
       `${this.apiUrl}/higherrisk/byPoll`,
       { params }
     );
+  }
+
+  getAvgPoolReport(pollInstanceUUID: string, cohortId: number | null) {
+    let params = new HttpParams().set('PollInstanceUuid', pollInstanceUUID);
+    if (cohortId != null) params = params.set('cohortId', cohortId);
+    console.info('getAvgPoolReport', params);
+    return this.http.get<GetQueryResponse<PollAvgReport>>(
+      `${this.apiUrl}/polls/avg`,
+      { params }
+    );
+  }
+
+  getHMSeriesFromAvgReport(body: PollAvgReport) {
+    const series = body.components.map(component => {
+      return {
+        name: component.description + ' = ' + component.averageRisk.toFixed(2),
+        data: component.questions.map(question => {
+          return {
+            x: question.question,
+            y: question.averageRisk,
+            details: question.answersDetails,
+            z: question.answersDetails
+              .map(
+                ans =>
+                  `${ans.answerText} = ${ans.answerPercentage}% \n By: ${ans.studentsEmails.join(', ')}`
+              )
+              .join(';\n'),
+          };
+        }),
+      };
+    });
+    return series;
   }
 }

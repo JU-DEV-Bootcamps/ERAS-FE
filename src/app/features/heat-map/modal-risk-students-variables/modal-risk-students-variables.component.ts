@@ -21,6 +21,13 @@ import {
   Variable,
 } from '../types/risk-students-variables.type';
 import { ReportService } from '../../../core/services/report.service.ts.service';
+
+interface SelectedHMData {
+  cohortId: string;
+  pollUuid: string;
+  selectedVariableDetails: { x: string; y: string; z: string };
+}
+
 @Component({
   selector: 'app-modal-risk-students-variables',
   imports: [
@@ -57,6 +64,10 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
   public selectedPollName: string;
   public verbToActionTile = 'Get Top Risk Students By Variable';
   private previousFormVariableId: number | null = null;
+  title = '';
+  questionSelected = '';
+  answerDetails = '';
+  answerRiskAverage = '';
   constructor(
     public dialogRef: MatDialogRef<ModalRiskStudentsVariablesComponent>
   ) {
@@ -69,6 +80,7 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.mapSelectedHMData(this.data as unknown as SelectedHMData);
     this.mappedData = this.mapData(this.data.data as ComponentData[]);
   }
 
@@ -128,5 +140,13 @@ export class ModalRiskStudentsVariablesComponent implements OnInit {
         description: variable.description,
       })),
     }));
+  }
+
+  private mapSelectedHMData(data: SelectedHMData): void {
+    console.info('mapSelectedHMData', data);
+    this.title = `Risk Heatmap - Cohort=${data.cohortId}: Poll=${data.pollUuid}`;
+    this.questionSelected = data.selectedVariableDetails.x;
+    this.answerDetails = data.selectedVariableDetails.z;
+    this.answerRiskAverage = data.selectedVariableDetails.y;
   }
 }

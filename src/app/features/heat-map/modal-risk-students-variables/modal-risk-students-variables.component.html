@@ -1,8 +1,11 @@
 <mat-dialog-content>
   <div class="modal-header">
     <div class="modal-header-title">
-      <h2 class="title-modal">{{ verbToActionTile }}</h2>
-      <h3 class="title-modal">{{ selectedPollName }}</h3>
+      <h2 class="title-modal">{{ verbToActionTile }}: {{ title }}</h2>
+      <h3 class="title-modal">Selected Variable: {{ questionSelected }}</h3>
+      <h4>Answers Details</h4>
+      <p>{{ answerDetails }}</p>
+      <p>Risk Average of that question: {{ answerRiskAverage }}</p>
     </div>
     <button mat-icon-button mat-dialog-close class="close-button">
       <mat-icon>close</mat-icon>

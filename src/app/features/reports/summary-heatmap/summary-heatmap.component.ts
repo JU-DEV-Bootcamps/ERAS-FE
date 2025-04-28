@@ -6,10 +6,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ActivatedRoute } from '@angular/router';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { GetChartOptions } from '../../cohort/util/heat-map-config';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalRiskStudentsVariablesComponent } from '../../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
+import { ReportService } from '../../../core/services/report.service.ts.service';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -25,7 +25,7 @@ import { ModalRiskStudentsVariablesComponent } from '../../heat-map/modal-risk-s
   styleUrl: './summary-heatmap.component.css',
 })
 export class SummaryHeatmapComponent implements OnInit {
-  private readonly heatmapService = inject(HeatMapService);
+  private readonly reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
   public chartOptions: ApexOptions = {};
   private pollUuid = '';
@@ -34,24 +34,22 @@ export class SummaryHeatmapComponent implements OnInit {
 
   isLoading = true;
 
-  public componentsSummary: {
-    componentName: string;
-    variables: { varName: string; scoreAverage: number }[];
-  }[] = [];
-
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.cohortId = params['cohortId'] || '0';
       this.pollUuid = params['pollUuid'] || '0';
     });
 
-    this.heatmapService.getSummaryData(this.pollUuid).subscribe(data => {
+    this.reportService.getAvgPoolReport(this.pollUuid, 0).subscribe(res => {
       this.isLoading = false;
+      const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+        res.body
+      );
       this.chartOptions = GetChartOptions(
         `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
-        data.body.series,
+        reportSeries,
         (x, y) => {
-          this.openDetailsModal(x, y, data.body.series);
+          this.openDetailsModal(x, y, reportSeries);
         }
       );
     });
@@ -67,9 +65,8 @@ export class SummaryHeatmapComponent implements OnInit {
       data: {
         pollUuid: this.pollUuid,
         cohortId: this.cohortId,
-        x,
-        y,
-        z: values,
+        variableName: values[y].data[x],
+        selectedVariableDetails: values[y].data[x],
       },
     });
     console.info('x', x, 'y', y);

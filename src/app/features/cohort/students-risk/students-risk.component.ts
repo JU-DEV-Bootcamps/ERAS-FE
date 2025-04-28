@@ -154,7 +154,7 @@ export class StudentsRiskComponent implements OnInit {
   getHeatMap() {
     this.heatmapService.getSummaryData(this.pollId).subscribe(data => {
       this.chartOptions = GetChartOptions(
-        `Risk Heatmap - ${this.selectForm.value.cohortId}-${this.pollId}`,
+        `Risk HegetHMSeriesFromReportm.value.cohortId}-${this.pollId}`,
         data.body.series,
         (x: number, y: number) => {
           this.openDetailsModal(x, y, data.body.series);

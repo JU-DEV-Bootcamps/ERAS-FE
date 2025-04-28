@@ -36,3 +36,33 @@ export interface EvaluationModel {
   audit: Audit;
   id: number;
 }
+
+export interface PollAvgReport {
+  pollCount: number;
+  components: PollAvgComponent[];
+}
+
+export interface PollAvgComponent {
+  description: string;
+  averageRisk: number;
+  questions: PollAvgQuestion[];
+}
+
+export interface PollAvgQuestion {
+  question: string;
+  averageAnswer: string;
+  averageRisk: number;
+  answersDetails: AnswerDetail[];
+}
+
+export interface AnswerDetail {
+  answerText: string;
+  answerPercentage: number;
+  studentsEmails: string[];
+}
+
+export interface GetQueryResponse<T> {
+  status: string;
+  message?: string;
+  body: T;
+}
