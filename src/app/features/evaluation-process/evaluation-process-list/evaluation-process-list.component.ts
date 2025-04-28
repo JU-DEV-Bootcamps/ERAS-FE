@@ -200,6 +200,7 @@ export class EvaluationProcessListComponent implements OnInit {
     data.forEach((evaluation: any) => {
       evaluation.start = evaluation.startDate;
       evaluation.end = evaluation.endDate;
+      evaluation.country = evaluation.country.toUpperCase();
       evaluation.poll = evaluation.pollName
         ? evaluation.pollName
         : 'Not selected yet';

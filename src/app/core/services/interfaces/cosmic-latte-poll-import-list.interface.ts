@@ -6,7 +6,7 @@ export interface Audit {
   createdAt: string;
   modifiedAt: string;
 }
-interface Student {
+export interface Student {
   id: number;
   uuid: string | null;
   name: string;

@@ -5,6 +5,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { TableComponent } from '../../shared/components/table/table.component';
+import { StudentModel } from '../../core/models/student.model';
 
 @Component({
   selector: 'app-list-imported-student',
@@ -19,12 +20,12 @@ import { TableComponent } from '../../shared/components/table/table.component';
   styleUrl: './list-imported-student.component.scss',
 })
 export class ListImportedStudentComponent implements OnInit {
-  columns = ['id', 'name', 'uuid', 'email'];
+  columns: (keyof StudentModel)[] = ['id', 'name', 'uuid', 'email'];
 
   studentService = inject(ImportStudentService);
 
-  data = new MatTableDataSource([]);
-  students = [];
+  data = new MatTableDataSource<StudentModel>([]);
+  students: StudentModel[] = [];
 
   pageSize = 10;
   currentPage = 0;
@@ -43,7 +44,7 @@ export class ListImportedStudentComponent implements OnInit {
         pageSize: this.pageSize,
       })
       .subscribe(data => {
-        this.data = new MatTableDataSource(data.items);
+        this.data = new MatTableDataSource<StudentModel>(data.items);
         this.students = data.items;
         this.totalStudents = data.count;
       });

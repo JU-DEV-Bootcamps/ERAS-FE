@@ -32,6 +32,7 @@ import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
+import { PollName } from '../../core/models/poll-request.model';
 
 @Component({
   selector: 'app-import-answers',
@@ -62,10 +63,8 @@ export class ImportAnswersComponent {
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pollsNames: any = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  importedPollData: any = [];
+  pollsNames: PollName[] = [];
+  importedPollData: PollInstance[] = [];
   columns = ['#', 'name', 'email', 'cohort', 'actions'];
   students = [];
   preselectedPollState;
@@ -171,8 +170,7 @@ export class ImportAnswersComponent {
       });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleSavePollState(event: any) {
+  handleSavePollState(event: { state: string }) {
     if (event.state == 'pending') {
       this.loadingSubject.next(true);
     } else if (event.state == 'true') {

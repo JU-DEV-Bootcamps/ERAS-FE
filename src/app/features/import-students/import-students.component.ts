@@ -13,6 +13,11 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ListImportedStudentComponent } from '../list-imported-student/list-imported-student.component';
+import { ServerResponse } from '../../core/services/interfaces/server.type';
+import {
+  isStudentImportKey,
+  StudentImport,
+} from '../../core/services/interfaces/student.interface';
 
 @Component({
   selector: 'app-import-students',
@@ -136,24 +141,30 @@ export class ImportStudentsComponent {
   importFile(): void {
     if (this.selectedFile) {
       this.isLoading = true;
+
       const data = this.csvCheckerService.getCSVData();
-      const jsonData = data.map((row: Record<string, unknown>) => {
-        const filteredRow: Record<string, unknown> = {};
-        for (const key in row) {
-          // Filter irrelevant index column
-          if (key !== '') {
-            const value = row[key];
-            if (typeof value === 'string' && value.includes(',')) {
-              row[key] = value.replace(',', '.'); // Correct format decimal numbers
+      const jsonData = data.map(
+        (row: Record<string, string>): StudentImport => {
+          const filteredRow = {} as StudentImport;
+
+          for (const key in row) {
+            // Filter irrelevant index column
+            if (key !== '' && isStudentImportKey(key)) {
+              const value = row[key];
+
+              // Correct format decimal numbers
+              if (typeof value === 'string' && value.includes(',')) {
+                row[key] = value.replace(',', '.');
+              }
+              filteredRow[key] = row[key];
             }
-            filteredRow[key] = row[key];
           }
+          return filteredRow;
         }
-        return filteredRow;
-      });
+      );
 
       this.importService.postData(jsonData).subscribe({
-        next: response => {
+        next: (response: ServerResponse) => {
           this.isLoading = false;
           this.openDialog(response.message, true);
 

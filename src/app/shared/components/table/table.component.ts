@@ -22,9 +22,9 @@ import { CommonModule } from '@angular/common';
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
 })
-export class TableComponent implements OnInit {
-  @Input() columns: string[] = [];
-  @Input() dataSource: Record<string, unknown>[] = [];
+export class TableComponent<T extends object> implements OnInit {
+  @Input() dataSource: T[] = [];
+  @Input() columns: (keyof T)[] = [];
   isMobile = false;
   totalItems = 0;
 
