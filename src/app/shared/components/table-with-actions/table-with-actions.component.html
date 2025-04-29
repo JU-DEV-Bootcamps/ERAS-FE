@@ -32,7 +32,8 @@
         <th mat-header-cell *matHeaderCellDef>Update</th>
         <td mat-cell *matCellDef="let item of items">
           <app-action-button
-            [data]="updateData"
+            [data]="item"
+            [actionButton]="updateActionButton"
             (actionCalled)="handleUpdate($event)"
           ></app-action-button>
         </td>
@@ -42,7 +43,8 @@
         <th mat-header-cell *matHeaderCellDef>Remove</th>
         <td mat-cell *matCellDef="let item of items">
           <app-action-button
-            [data]="removeData"
+            [data]="item"
+            [actionButton]="removeActionButton"
             (actionCalled)="handleRemove($event)"
           ></app-action-button>
         </td>

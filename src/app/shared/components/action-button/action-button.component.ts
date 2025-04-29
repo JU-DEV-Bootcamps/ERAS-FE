@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActionButton } from '../list/types/action';
+import { EventAction } from '../../events/load';
 
 @Component({
   selector: 'app-action-button',
@@ -8,15 +9,14 @@ import { ActionButton } from '../list/types/action';
   styleUrl: './action-button.component.css',
 })
 export class ActionButtonComponent {
-  @Input() data: ActionButton = {
+  @Input() actionButton: ActionButton = {
     type: 'none',
     label: '',
   };
-  @Output() actionCalled = new EventEmitter<unknown>();
+  @Input() data: unknown = {};
+  @Output() actionCalled = new EventEmitter<EventAction>();
 
-  onButtonClick() {
-    console.log("onButtonClick");
-
-    this.actionCalled.emit(this.data);
+  onButtonClick(event: Event) {
+    this.actionCalled.emit({ event, data: this.data });
   }
 }

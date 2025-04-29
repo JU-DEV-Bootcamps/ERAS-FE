@@ -4,7 +4,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { defaultOptions } from './constants/list';
-import { EventLoad } from '../../events/load';
+import { EventLoad, EventRemove, EventUpdate } from '../../events/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
 
 @Component({
@@ -20,14 +20,15 @@ import { TableWithActionsComponent } from '../table-with-actions/table-with-acti
   styleUrl: './list.component.css',
 })
 export class ListComponent<T extends object> implements OnInit {
-  @Output() loadCalled = new EventEmitter<EventLoad>();
-
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
   @Input() items: T[] = [];
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns = [] as (keyof T)[];
+  @Output() loadCalled = new EventEmitter<EventLoad>();
+  @Output() updateCalled = new EventEmitter<EventUpdate>();
+  @Output() removeCalled = new EventEmitter<EventRemove>();
 
   ngOnInit(): void {
     this.load();
@@ -52,13 +53,11 @@ export class ListComponent<T extends object> implements OnInit {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleUpdate(event: Event) {
-    console.log("Update called")
+  handleUpdate(event: EventUpdate) {
+    this.updateCalled.emit(event);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleRemove(event: Event) {
-    console.log("Remove called")
+  handleRemove(event: EventRemove) {
+    this.removeCalled.emit(event);
   }
 }

@@ -45,11 +45,11 @@ export class TableWithActionsComponent<T extends object>
   @Input() columns: (keyof T)[] = [] as (keyof T)[];
   @Input() isUpdateEnabled = false;
   @Input() isRemoveEnabled = false;
-  @Input() updateData: ActionButton = {
+  @Input() updateActionButton: ActionButton = {
     type: 'update',
     label: 'Update',
   };
-  @Input() removeData: ActionButton = {
+  @Input() removeActionButton: ActionButton = {
     type: 'remove',
     label: 'Remove',
   };
@@ -101,19 +101,11 @@ export class TableWithActionsComponent<T extends object>
     this.totalItems = this.items.length;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleUpdate(data: any) {
-    console.log(data);
-    this.updateCalled.emit({
-      data,
-    });
+  handleUpdate(event: EventUpdate) {
+    this.updateCalled.emit(event);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleRemove(data: any) {
-    console.log(data);
-    this.updateCalled.emit({
-      data,
-    });
+  handleRemove(event: EventRemove) {
+    this.removeCalled.emit(event);
   }
 }

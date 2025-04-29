@@ -6,8 +6,8 @@
     [items]="items"
     [isUpdateEnabled]="true"
     [isRemoveEnabled]="true"
-    (onUpdate)="handleUpdate($event)"
-    (onRemove)="handleRemove($event)"
+    (updateCalled)="handleUpdate($event)"
+    (removeCalled)="handleRemove($event)"
   ></app-table-with-actions>
   <br />
   <mat-paginator

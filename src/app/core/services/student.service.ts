@@ -37,4 +37,10 @@ export class StudentService {
       `${this.apiUrl}/${this.endpoint}/average/cohort/${cohortId}/poll/${pollId}`
     );
   }
+
+  remove(id: number) {
+    return this.http.delete<StudentRiskAverage[]> (
+      `${this.apiUrl}/${this.endpoint}/${id}`
+    );
+  }
 }

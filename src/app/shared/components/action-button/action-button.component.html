@@ -1,7 +1,7 @@
-@if (!data || !data.label) {
+@if (!data || !actionButton || !actionButton.label) {
   -
 } @else {
-  <button mat-button color="primary" (click)="onButtonClick()">
-    {{ data.label }}
+  <button mat-button color="primary" (click)="onButtonClick($event)">
+    {{ actionButton.label }}
   </button>
 }
