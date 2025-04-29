@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { GetResponse } from '../../shared/models/eras-api/eras.api';
 import { environment } from '../../../environments/environment';
-import { GetQueryResponse, PollAvgReport } from '../models/SummaryModel';
+import { ApiResponse } from '../models/api-response.model';
+import { GetQueryResponse, PollAvgReport } from '../models/summary.model';
 
 interface StudentRisk {
   name: string;
@@ -24,22 +24,21 @@ export class ReportService {
   private apiUrl = `${environment.apiUrl}/api/Reports`;
 
   getStudentsDetailByVariables(
-    variableId: number,
+    variableIds: number[],
     pollInstanceUUID: string,
     take: number | null
   ) {
     let params = new HttpParams()
-      .set('variableId', variableId)
+      .set('variableIds', variableIds.join(','))
       .set('pollInstanceUuid', pollInstanceUUID);
 
     if (take !== undefined && take !== null) {
       params = params.set('take', take);
     }
 
-    return this.http.get<GetResponse<unknown>>(
-      `${this.apiUrl}/higherrisk/byVariable`,
-      { params }
-    );
+    return this.http.get<ApiResponse<unknown>>(`${this.apiUrl}/polls/top`, {
+      params,
+    });
   }
 
   getStudentsDetailByPool(

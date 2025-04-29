@@ -1,10 +1,12 @@
+import { BaseModel } from '../../models/common/base.model';
+
 export interface Audit {
   createdBy: string;
   modifiedBy: string;
   createdAt: string;
   modifiedAt: string;
 }
-interface Student {
+export interface Student {
   id: number;
   uuid: string | null;
   name: string;
@@ -38,13 +40,12 @@ interface Component {
   variables: Variable[];
   audit: Audit | null;
 }
-export interface PollInstance {
-  id: number;
+
+export interface PollInstance extends BaseModel {
   idCosmicLatte: string;
   uuid: string;
   name: string;
   version: string;
   finishedAt: string;
   components: Component[];
-  audit: Audit;
 }

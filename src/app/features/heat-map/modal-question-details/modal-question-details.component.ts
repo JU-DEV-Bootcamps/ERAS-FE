@@ -1,0 +1,100 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { ReportService } from '../../../core/services/report.service.ts.service';
+import {
+  AnswerDetail,
+  PollAvgQuestion,
+} from '../../../core/models/summary.model';
+import { getRiskColor } from '../../../core/constants/riskLevel';
+import { VariableService } from '../../../core/services/variable/variable.service';
+
+export interface SelectedHMData {
+  cohortId: string;
+  pollUuid: string;
+  componentName: string;
+  question: PollAvgQuestion;
+}
+
+@Component({
+  selector: 'app-modal-risk-students-variables',
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    MatCardModule,
+    MatTableModule,
+    MatMenuModule,
+  ],
+  templateUrl: './modal-question-details.component.html',
+  styleUrl: './modal-question-details.component.css',
+})
+export class ModalQuestionDetailsComponent implements OnInit {
+  public inputQuestion: SelectedHMData = inject(MAT_DIALOG_DATA);
+  public variableId = 0;
+  private reportService = inject(ReportService);
+  private VariableService = inject(VariableService);
+
+  public studentsRisk = [];
+  public studentTableColumns: string[] = ['name', 'answer', 'risk', 'actions'];
+  constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
+
+  ngOnInit(): void {
+    this.loadComponentsAndVariables();
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
+  }
+
+  loadComponentsAndVariables(): void {
+    const pollInstanceUUID: string = this.inputQuestion.pollUuid;
+    this.VariableService.getVariablesByPollUuid(pollInstanceUUID, [
+      this.inputQuestion.componentName,
+    ]).subscribe(res => {
+      const variable = res[1];
+      this.variableId = variable.id;
+      this.loadStudentList();
+    });
+  }
+
+  loadStudentList(): void {
+    const pollInstanceUUID: string = this.inputQuestion.pollUuid;
+    if (this.variableId === 0) return;
+    this.reportService
+      .getStudentsDetailByVariables(
+        [this.variableId],
+        pollInstanceUUID,
+        this.variableId
+      )
+      .subscribe(data => {
+        console.info('getStudentsDetailByVariables', data);
+        //this.studentsRisk = data.body;
+      });
+  }
+
+  getRiskColor(riskLevel: number): string {
+    return getRiskColor(riskLevel);
+  }
+
+  openStudentDetails(studentId: number): void {
+    window.open(`student-details/${studentId}`, '_blank');
+  }
+}

@@ -19,7 +19,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PollService } from '../../core/services/poll.service';
 import { BehaviorSubject, first, map } from 'rxjs';
@@ -27,6 +26,7 @@ import {
   MatSlideToggle,
   MatSlideToggleChange,
 } from '@angular/material/slide-toggle';
+import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -62,18 +62,18 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     components: [],
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  studentsMobileVersion: any = [];
+  studentsMobileVersion: StudentPreview[] = [];
   totalStudents = 0;
-  columns = ['#', 'name', 'email', 'cohort', 'save'];
+  columns: (keyof StudentPreview)[] = ['#', 'name', 'email', 'cohort', 'save'];
 
   pollService = inject(PollService);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() importedPollData: any[] = [];
+  @Input() importedPollData: PollInstance[] = [];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Output() saveCompleted = new EventEmitter<any>();
+  @Output() saveCompleted = new EventEmitter<{
+    state: string;
+    data: unknown;
+  }>();
 
   studentListToExcludeSubject = new BehaviorSubject<string[]>([]);
   studentListToExclude$ = this.studentListToExcludeSubject.asObservable();

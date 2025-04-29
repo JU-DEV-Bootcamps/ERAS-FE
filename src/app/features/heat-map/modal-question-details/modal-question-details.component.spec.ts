@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { ModalRiskStudentsVariablesComponent } from './modal-risk-students-variables.component';
+import { ModalQuestionDetailsComponent } from './modal-question-details.component';
 import { ReportService } from '../../../core/services/report.service.ts.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 
-describe('ModalRiskStudentsVariablesComponent', () => {
-  let component: ModalRiskStudentsVariablesComponent;
-  let fixture: ComponentFixture<ModalRiskStudentsVariablesComponent>;
+describe('ModalQuestionDetailsComponent', () => {
+  let component: ModalQuestionDetailsComponent;
+  let fixture: ComponentFixture<ModalQuestionDetailsComponent>;
   let reportService: jasmine.SpyObj<ReportService>;
 
   beforeEach(async () => {
@@ -19,7 +19,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ReactiveFormsModule,
-        ModalRiskStudentsVariablesComponent,
+        ModalQuestionDetailsComponent,
         NoopAnimationsModule,
       ],
       providers: [
@@ -32,7 +32,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ModalRiskStudentsVariablesComponent);
+    fixture = TestBed.createComponent(ModalQuestionDetailsComponent);
     component = fixture.componentInstance;
     reportService = TestBed.inject(
       ReportService
@@ -64,7 +64,7 @@ describe('ModalRiskStudentsVariablesComponent', () => {
       selectNumber: 10,
     });
 
-    component.showStudentList();
+    component.loadStudentList();
 
     expect(reportService.getStudentsDetailByVariables).toHaveBeenCalledWith(
       1,

@@ -1,4 +1,4 @@
-export interface Answer {
+export interface AnswerResponse {
   variable: string;
   position: number;
   component: string;

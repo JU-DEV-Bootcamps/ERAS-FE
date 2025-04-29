@@ -1,23 +1,21 @@
+import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTable, MatTableModule } from '@angular/material/table';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
-import { MatDialog } from '@angular/material/dialog';
-import { GENERAL_MESSAGES } from '../../../core/constants/messages';
-import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
-import { MatCardModule } from '@angular/material/card';
-import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
-import { MatChipsModule } from '@angular/material/chips';
-import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
-import {
-  PagedReadEvaluationProcess,
-  ReadEvaluationProcess,
-} from '../../../shared/models/EvaluationProcess';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { GENERAL_MESSAGES } from '../../../core/constants/messages';
+import { PagedReadEvaluationProcess } from '../../../core/models/evaluation-request.model';
+import { EvaluationModel } from '../../../core/models/evaluation.model';
+import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
+import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
+import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -193,31 +191,30 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
-  normalizeData(data: ReadEvaluationProcess[]): ReadEvaluationProcess[] {
+  normalizeData(data: EvaluationModel[]): EvaluationModel[] {
     const statusTransformed = this.transformStatus(data);
     return this.adaptDataToColumNames(statusTransformed);
   }
-  adaptDataToColumNames(
-    data: ReadEvaluationProcess[]
-  ): ReadEvaluationProcess[] {
+  adaptDataToColumNames(data: EvaluationModel[]): EvaluationModel[] {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     data.forEach((evaluation: any) => {
       evaluation.start = evaluation.startDate;
       evaluation.end = evaluation.endDate;
+      evaluation.country = evaluation.country.toUpperCase();
       evaluation.poll = evaluation.pollName
         ? evaluation.pollName
         : 'Not selected yet';
     });
     return data;
   }
-  transformStatus(data: ReadEvaluationProcess[]): ReadEvaluationProcess[] {
+  transformStatus(data: EvaluationModel[]): EvaluationModel[] {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     data.forEach((evaluation: any) => {
       evaluation.status = this.getStatusForEvaluationProcess(evaluation);
     });
     return data;
   }
-  getStatusForEvaluationProcess(evaluation: ReadEvaluationProcess): string {
+  getStatusForEvaluationProcess(evaluation: EvaluationModel): string {
     if (
       evaluation.pollName == null ||
       evaluation.pollName == '' ||

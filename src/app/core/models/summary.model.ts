@@ -1,7 +1,7 @@
 import { UUID } from 'crypto';
-import { Audit } from '../../shared/models/audit.model';
-import { PollModel } from './PollModel';
-import { PoollInstanceModel } from './PollInstanceModel';
+import { PollModel } from './poll.model';
+import { PollInstanceModel } from './poll-instance.model';
+import { BaseModel } from './common/base.model';
 
 export interface CohortsSummaryModel {
   cohortCount: number;
@@ -23,7 +23,8 @@ export interface EvaluationSummaryModel {
   success: boolean;
   message: string;
 }
-export interface EvaluationModel {
+
+export interface EvaluationModel extends BaseModel {
   name: string;
   status: string;
   startDate: Date;
@@ -32,9 +33,7 @@ export interface EvaluationModel {
   pollId: 0;
   evaluationPollId: number;
   polls: PollModel[];
-  pollInstances: PoollInstanceModel[];
-  audit: Audit;
-  id: number;
+  pollInstances: PollInstanceModel[];
 }
 
 export interface PollAvgReport {

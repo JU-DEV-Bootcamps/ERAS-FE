@@ -1,8 +1,5 @@
+import { NgFor } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatCardModule } from '@angular/material/card';
 import {
   FormControl,
   FormGroup,
@@ -10,19 +7,28 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { NgFor } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { CohortModel } from '../../core/models/cohort.model';
 import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
-import { PollInstance } from '../../core/services/Types/pollInstance';
-import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
-import { Router } from '@angular/router';
 import { PollService } from '../../core/services/poll.service';
-import { Poll } from '../../core/services/Types/poll.type';
-import { Cohort } from '../../core/services/Types/cohort.type';
+import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
+import { PollModel } from '../../core/models/poll.model';
+import { PollInstanceModel } from '../../core/models/poll-instance.model';
+
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+interface DynamicPollInstance extends PollInstanceModel {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',
@@ -58,12 +64,12 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   pollInstanceService = inject(PollInstanceService);
   cohortService = inject(CohortService);
 
-  loading = false;
-  data = new MatTableDataSource<PollInstance>([]);
-  pollInstances: PollInstance[] = [];
+  loading = true;
+  data = new MatTableDataSource<PollInstanceModel>([]);
+  pollInstances: DynamicPollInstance[] = [];
 
-  cohortsData: Cohort[] = [];
-  polls: Poll[] = [];
+  cohortsData: CohortModel[] = [];
+  polls: PollModel[] = [];
   selectedCohortId = 0;
   selectedPollUuid = '';
 
@@ -101,14 +107,14 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
 
   loadCohortsList(): void {
     this.cohortService.getCohorts().subscribe(data => {
-      const defaultOpt: Cohort = {
+      const defaultOpt: CohortModel = {
         name: 'All Cohorts',
         courseCode: '',
         audit: {
           createdBy: '',
           modifiedBy: '',
-          createdAt: '',
-          modifiedAt: '',
+          createdAt: new Date(),
+          modifiedAt: new Date(),
         },
         id: 0,
       };
@@ -128,7 +134,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       .getPollInstancesByFilters(cohortId, 0)
       .subscribe(data => {
         this.loading = true;
-        this.data = new MatTableDataSource<PollInstance>(
+        this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
         );
         this.pollInstances = data.body;
@@ -159,7 +165,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  goToDetails(pollInstance: PollInstance): void {
+  goToDetails(pollInstance: PollInstanceModel): void {
     window.open(`student-details/${pollInstance.student.id}`, '_blank');
   }
 

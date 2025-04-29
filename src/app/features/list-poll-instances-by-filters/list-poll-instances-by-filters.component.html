@@ -63,7 +63,7 @@
                 <p class="field">{{ column }}</p>
                 @if (column === 'createdAt' || column === 'modifiedAt') {
                   <p class="information">
-                    {{ pollInstance['audit'][column] | timestampToDate }}
+                    {{ pollInstance['audit']![column] | timestampToDate }}
                   </p>
                 } @else if (column === 'name' || column === 'email') {
                   <p class="information">

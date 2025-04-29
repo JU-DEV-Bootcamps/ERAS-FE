@@ -8,8 +8,12 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ActivatedRoute } from '@angular/router';
 import { GetChartOptions } from '../../cohort/util/heat-map-config';
 import { MatDialog } from '@angular/material/dialog';
-import { ModalRiskStudentsVariablesComponent } from '../../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
+import {
+  ModalQuestionDetailsComponent,
+  SelectedHMData,
+} from '../../heat-map/modal-question-details/modal-question-details.component';
 import { ReportService } from '../../../core/services/report.service.ts.service';
+import { PollAvgQuestion } from '../../../core/models/summary.model';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -49,27 +53,21 @@ export class SummaryHeatmapComponent implements OnInit {
         `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
         reportSeries,
         (x, y) => {
-          this.openDetailsModal(x, y, reportSeries);
+          const compReport = res.body.components[y];
+          const selectedQuestion = compReport.questions[x];
+          this.openDetailsModal(selectedQuestion, compReport.description);
         }
       );
     });
   }
 
-  openDetailsModal(x: number, y: number, values: ApexAxisChartSeries): void {
-    this.dialog.open(ModalRiskStudentsVariablesComponent, {
-      width: 'auto',
-      maxWidth: '80vw',
-      minHeight: '500px',
-      maxHeight: '80vh',
-      panelClass: 'border-modalbox-dialog',
-      data: {
-        pollUuid: this.pollUuid,
-        cohortId: this.cohortId,
-        variableName: values[y].data[x],
-        selectedVariableDetails: values[y].data[x],
-      },
-    });
-    console.info('x', x, 'y', y);
-    console.info('Selected Data', values[y].data[x]);
+  openDetailsModal(question: PollAvgQuestion, componentName: string): void {
+    const data: SelectedHMData = {
+      cohortId: this.cohortId,
+      pollUuid: this.pollUuid,
+      componentName,
+      question,
+    };
+    this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 }

@@ -8,10 +8,10 @@ import {
 import { map, of } from 'rxjs';
 import { DEFAULT_LIMIT } from '../constants/pagination';
 import { PollData } from '../../features/reports/types/data.adapter';
-import { HeatMapData } from './Types/heatmap.type';
-import { GetResponse } from '../../shared/models/eras-api/eras.api';
-import { HeatmapSummaryModel } from '../models/HeatmapSummaryModel';
+import { HeatmapSummaryModel } from '../models/heatmap-summary.model';
+import { HeatMapData } from '../models/heatmap-data.model';
 import { BaseApiService } from './apiServices/base-api.service';
+import { GetQueryResponse } from '../models/summary.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +32,7 @@ export class HeatMapService extends BaseApiService {
   }
 
   getSummaryData(pollId: string) {
-    return this.get<GetResponse<HeatmapSummaryModel>>(
+    return this.get<GetQueryResponse<HeatmapSummaryModel>>(
       `summary/polls/${pollId}`
     );
   }

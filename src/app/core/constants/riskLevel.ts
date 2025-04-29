@@ -17,3 +17,9 @@ export const RISK_LABELS: Record<number, string> = {
 };
 
 export type RiskColorType = keyof typeof RISK_COLORS;
+
+export const getRiskColor = (riskLevel: number) =>
+  RISK_COLORS[Math.round(riskLevel)];
+
+export const getRiskLabel = (riskLevel: number) =>
+  RISK_LABELS[Math.round(riskLevel)] || RISK_LABELS[0];

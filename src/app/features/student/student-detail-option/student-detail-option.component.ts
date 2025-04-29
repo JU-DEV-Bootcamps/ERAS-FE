@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ModalRiskStudentsDetailComponent } from '../../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
-import { ModalRiskStudentsVariablesComponent } from '../../heat-map/modal-risk-students-variables/modal-risk-students-variables.component';
+import { ModalQuestionDetailsComponent } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { DialogRiskVariableData } from '../../heat-map/types/risk-students-variables.type';
 import { ModalRiskStudentsCohortComponent } from '../../heat-map/modal-risk-students-cohort/modal-risk-students-cohort.component';
 
@@ -48,7 +48,7 @@ export class StudentDetailOptionComponent {
   }
 
   openDialog() {
-    this.dialog.open(ModalRiskStudentsVariablesComponent, {
+    this.dialog.open(ModalQuestionDetailsComponent, {
       width: 'auto',
       maxWidth: '80vw',
       minHeight: '500px',
