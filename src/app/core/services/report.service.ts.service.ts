@@ -83,9 +83,9 @@ export class ReportService {
             z: question.answersDetails
               .map(
                 ans =>
-                  `${ans.answerText} = ${ans.answerPercentage}% \n By: ${ans.studentsEmails.join(', ')}`
+                  `${ans.answerPercentage}% = ${ans.answerText}: ${ans.studentsEmails.join(', ')}`
               )
-              .join(';\n'),
+              .join('; </br>'),
           };
         }),
       };

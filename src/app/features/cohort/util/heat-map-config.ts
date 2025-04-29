@@ -116,15 +116,13 @@ export function GetChartOptions(
         const xValue = dataPoint.x;
         const yValue = dataPoint.y;
         const zValue = dataPoint.z;
-        const formattedZValue = zValue
-          .replace(/%/g, '%<br>')
-          .replace(/\n\s+/g, '');
+        const formattedZValue = zValue;
 
-        return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px">${xValue}</div>
+        return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Question: </b>${xValue}</div>
         <div style="border-top: 1px solid #ccc;"></div>
-        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">Average Risk Level: <b>${yValue}</b></div>
-        <div style="border-top: 1px solid #ccc;"></div>
-        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>${formattedZValue}</b></div>`;
+        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>Average Risk Level: </b>${yValue}</div>
+        <div style="border-top: 1px solid #ccc;"><b>Answers:</b></div>
+        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">${formattedZValue}</div>`;
       },
     },
   };
