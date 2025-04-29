@@ -4,12 +4,11 @@ import { ImportAnswersComponent } from './import-answers.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-import {
-  PollInstance,
-  Audit,
-} from '../../core/services/Types/cosmicLattePollImportList';
+
 import { PollService } from '../../core/services/poll.service';
 import { provideHttpClient } from '@angular/common/http';
+import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
+import { AuditModel } from '../../core/models/common/audit.model';
 
 describe('ImportAnswersComponent', () => {
   let component: ImportAnswersComponent;
@@ -48,11 +47,11 @@ describe('ImportAnswersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  const audit: Audit = {
+  const audit: AuditModel = {
     createdBy: 'string',
     modifiedBy: 'string',
-    createdAt: 'string',
-    modifiedAt: 'string',
+    createdAt: new Date(),
+    modifiedAt: new Date(),
   };
   const poll: PollInstance[] = [
     {

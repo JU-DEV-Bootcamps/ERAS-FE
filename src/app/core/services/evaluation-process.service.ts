@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { EvaluationSummaryModel } from '../models/SummaryModel';
+import { EvaluationSummaryModel } from '../models/summary.model';
 import {
-  CreateEvaluationProcess,
+  CreateEvaluationModel,
   PagedReadEvaluationProcess,
-  ReadEvaluationProcess,
-} from '../../shared/models/EvaluationProcess';
+} from '../models/evaluation-request.model';
+import { EvaluationModel } from '../models/evaluation.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +23,7 @@ export class EvaluationProcessService {
       `${this.apiUrl}/${this.endpoint}/summary`
     );
   }
-  createEvalProc(data: CreateEvaluationProcess): Observable<unknown> {
+  createEvalProc(data: CreateEvaluationModel): Observable<unknown> {
     return this.http.post(`${this.apiUrl}/${this.endpoint}`, data);
   }
   getAllEvalProc({
@@ -37,15 +37,15 @@ export class EvaluationProcessService {
     );
   }
   updateEvaluationProcess(
-    evaluation: ReadEvaluationProcess
-  ): Observable<ReadEvaluationProcess> {
-    return this.http.put<ReadEvaluationProcess>(
+    evaluation: EvaluationModel
+  ): Observable<EvaluationModel> {
+    return this.http.put<EvaluationModel>(
       `${this.apiUrl}/${this.endpoint}/${evaluation.id}`,
       evaluation
     );
   }
-  deleteEvaluationProcess(id: string): Observable<ReadEvaluationProcess> {
-    return this.http.delete<ReadEvaluationProcess>(
+  deleteEvaluationProcess(id: string): Observable<EvaluationModel> {
+    return this.http.delete<EvaluationModel>(
       `${this.apiUrl}/${this.endpoint}/${id}`
     );
   }

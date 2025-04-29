@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Answer } from '../../shared/models/answers/answer.model';
 import { Observable } from 'rxjs';
+import { AnswerResponse } from '../models/answer-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,11 +16,11 @@ export class AnswersService {
   getStudentAnswersByPoll(
     studentId: number,
     pollId: number
-  ): Observable<Answer[]> {
+  ): Observable<AnswerResponse[]> {
     const params = new HttpParams()
       .set('studentId', studentId)
       .set('pollId', pollId);
     const url = `${this.apiUrl}/${this.endpoint}/answers`;
-    return this.http.get<Answer[]>(url, { params });
+    return this.http.get<AnswerResponse[]>(url, { params });
   }
 }

@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'timestampToDate',
 })
 export class TimestampToDatePipe implements PipeTransform {
-  transform(value: string | null): string {
+  transform(value: Date | null): string {
     if (!value) return '';
 
     const date = new Date(value);

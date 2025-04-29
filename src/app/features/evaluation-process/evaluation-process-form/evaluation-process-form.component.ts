@@ -22,15 +22,13 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { PollName } from '../../../shared/models/cosmic-latte/PollName';
 import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
-import {
-  CreateEvaluationProcess,
-  ReadEvaluationProcess,
-} from '../../../shared/models/EvaluationProcess';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
 import { countries } from '../../../core/constants/countries';
+import { CreateEvaluationModel } from '../../../core/models/evaluation-request.model';
+import { EvaluationModel } from '../../../core/models/evaluation.model';
+import { PollName } from '../../../core/models/poll-request.model';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -56,7 +54,7 @@ export class EvaluationProcessFormComponent {
   form: FormGroup;
   title;
   buttonText;
-  selectedCountry?: string;
+  selectedCountry = '';
   prefereToChooseLater: PollName = {
     parent: 'null',
     name: 'null',
@@ -185,7 +183,7 @@ export class EvaluationProcessFormComponent {
   onSubmit() {
     if (this.form.valid) {
       if (!this.data.evaluation) {
-        const newProcess: CreateEvaluationProcess = {
+        const newProcess: CreateEvaluationModel = {
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
@@ -210,18 +208,18 @@ export class EvaluationProcessFormComponent {
           },
         });
       } else {
-        const updateEval: ReadEvaluationProcess = {
+        const updateEval: EvaluationModel = {
           id: this.data.evaluation.id,
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          pollName: this.form.value.pollName,
+          ...(this.form.value.pollName !== 'null'
+            ? {
+                pollName: this.form.value.pollName,
+              }
+            : {}),
           country: this.selectedCountry,
-        };
-
-        if (this.form.value.pollName === 'null') {
-          delete updateEval.pollName;
-        }
+        } as EvaluationModel;
 
         this.evaluationProcessService
           .updateEvaluationProcess(updateEval)
