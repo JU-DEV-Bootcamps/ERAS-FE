@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActionButton } from '../list/types/action';
 import { EventAction } from '../../events/load';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-action-button',
-  imports: [],
+  imports: [MatButton],
   templateUrl: './action-button.component.html',
   styleUrl: './action-button.component.css',
 })

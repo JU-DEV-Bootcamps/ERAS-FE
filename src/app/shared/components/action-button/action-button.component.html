@@ -1,7 +1,7 @@
 @if (!data || !actionButton || !actionButton.label) {
-  -
+  <br />
 } @else {
   <button mat-button color="primary" (click)="onButtonClick($event)">
-    {{ actionButton.label }}
+    <ng-content></ng-content>
   </button>
 }

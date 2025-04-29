@@ -35,7 +35,9 @@
             [data]="item"
             [actionButton]="updateActionButton"
             (actionCalled)="handleUpdate($event)"
-          ></app-action-button>
+          >
+            <mat-icon>edit</mat-icon>
+          </app-action-button>
         </td>
       </ng-container>
 
@@ -46,7 +48,9 @@
             [data]="item"
             [actionButton]="removeActionButton"
             (actionCalled)="handleRemove($event)"
-          ></app-action-button>
+          >
+            <mat-icon>delete</mat-icon>
+          </app-action-button>
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="columns.concat(actionColumns)"></tr>

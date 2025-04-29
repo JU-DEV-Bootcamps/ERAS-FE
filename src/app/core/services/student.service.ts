@@ -38,9 +38,13 @@ export class StudentService {
     );
   }
 
+  update(data: Student) {
+    console.log('update');
+    console.log(data);
+    return this.http.patch<Student>(`${this.apiUrl}/${this.endpoint}`, data);
+  }
+
   remove(id: number) {
-    return this.http.delete<StudentRiskAverage[]> (
-      `${this.apiUrl}/${this.endpoint}/${id}`
-    );
+    return this.http.delete<Student>(`${this.apiUrl}/${this.endpoint}/${id}`);
   }
 }
