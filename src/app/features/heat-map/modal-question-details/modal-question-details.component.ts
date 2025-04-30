@@ -18,7 +18,10 @@ import {
   PollAvgQuestion,
   PollTopReport,
 } from '../../../core/models/summary.model';
-import { getRiskColor } from '../../../core/constants/riskLevel';
+import {
+  getRiskColor,
+  getRiskTextColor,
+} from '../../../core/constants/riskLevel';
 import { VariableService } from '../../../core/services/variable/variable.service';
 
 export interface SelectedHMData {
@@ -66,9 +69,13 @@ export class ModalQuestionDetailsComponent implements OnInit {
   loadComponentsAndVariables(): void {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
     this.VariableService.getVariablesByPollUuid(pollInstanceUUID, [
-      this.inputQuestion.componentName,
+      this.inputQuestion.componentName.toLowerCase(),
     ]).subscribe(res => {
-      const variable = res[1];
+      const variable = res.find(
+        variable => variable.name == this.inputQuestion.question.question
+      );
+      console.error(this.inputQuestion.question.question, 'not found');
+      if (!variable) return;
       this.variableId = variable.id;
       this.loadStudentList();
     });
@@ -78,15 +85,18 @@ export class ModalQuestionDetailsComponent implements OnInit {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
     if (this.variableId === 0) return;
     this.reportService
-      .getTopPollReport([this.variableId], pollInstanceUUID, this.variableId)
+      .getTopPollReport([this.variableId], pollInstanceUUID)
       .subscribe(data => {
-        console.info('getStudentsDetailByVariables', data);
         this.studentsRisk = data.body;
       });
   }
 
   getRiskColor(riskLevel: number): string {
     return getRiskColor(riskLevel);
+  }
+
+  getTextRiskColor(riskLevel: number): string {
+    return getRiskTextColor(riskLevel);
   }
 
   openStudentDetails(studentId: number): void {

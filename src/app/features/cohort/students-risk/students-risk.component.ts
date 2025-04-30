@@ -141,7 +141,6 @@ export class StudentsRiskComponent implements OnInit {
     this.reportService
       .getAvgPoolReport(this.selectedPoll.uuid, this.selectedCohort?.id || 0)
       .subscribe(res => {
-        console.info('getJeatmap');
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );

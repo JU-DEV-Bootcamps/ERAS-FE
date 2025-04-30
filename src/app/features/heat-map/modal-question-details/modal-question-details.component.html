@@ -4,7 +4,7 @@
       <h2 class="title-modal">Question Details</h2>
       <h3>{{ inputQuestion.componentName }}</h3>
       <h4>{{ inputQuestion.question.question }}</h4>
-      <p>Most answered question: {{ inputQuestion.question.averageAnswer }}</p>
+      <p>Most answered option: {{ inputQuestion.question.averageAnswer }}</p>
       <div style="display: flex; align-items: center; gap: 3px">
         <h4>Average Answer Risk:</h4>
         <div
@@ -12,6 +12,7 @@
           [style.backgroundColor]="
             getRiskColor(inputQuestion.question.averageRisk)
           "
+          [style.color]="getTextRiskColor(inputQuestion.question.averageRisk)"
         >
           {{ inputQuestion.question.averageRisk }}
         </div>
@@ -73,6 +74,7 @@
               <div
                 class="risk-badge"
                 [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
+                [style.color]="getTextRiskColor(item.answer.riskLevel)"
               >
                 {{ item.answer.riskLevel }}
               </div>

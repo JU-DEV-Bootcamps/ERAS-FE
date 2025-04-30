@@ -30,7 +30,7 @@ export class ReportService {
   getTopPollReport(
     variableIds: number[],
     pollInstanceUUID: string,
-    take: number | null
+    take?: number
   ) {
     let params = new HttpParams()
       .set('variableIds', variableIds.join(','))
@@ -70,7 +70,6 @@ export class ReportService {
   getAvgPoolReport(pollInstanceUUID: string, cohortId: number | null) {
     let params = new HttpParams().set('PollInstanceUuid', pollInstanceUUID);
     if (cohortId != null) params = params.set('cohortId', cohortId);
-    console.info('getAvgPoolReport', params);
     return this.http.get<GetQueryResponse<PollAvgReport>>(
       `${this.apiUrl}/polls/avg`,
       { params }
@@ -80,7 +79,7 @@ export class ReportService {
   getHMSeriesFromAvgReport(body: PollAvgReport) {
     const series = body.components.map(component => {
       return {
-        name: component.description + ' = ' + component.averageRisk.toFixed(2),
+        name: `${component.description}\n RISK AVG: ${component.averageRisk.toFixed(2)}`,
         data: component.questions.map(question => {
           return {
             x: question.question,

@@ -1,4 +1,5 @@
 import { ApexOptions } from 'ng-apexcharts';
+import { RISK_COLORS, RISK_LABELS, RISK_TEXT_COLORS } from '../../../core/constants/riskLevel';
 
 export function GetChartOptions(
   title: string,
@@ -46,44 +47,44 @@ export function GetChartOptions(
             {
               from: -1,
               to: 0,
-              color: '#FFFFFF',
-              foreColor: '#FFFFFF',
-              name: 'No answer',
+              color: RISK_COLORS[0], //'#FFFFFF',
+              foreColor: RISK_TEXT_COLORS[0],
+              name: RISK_LABELS[0], //No Answer
             },
             {
               from: 0,
               to: 1,
-              color: '#008000',
-              foreColor: '#FFFFFF',
-              name: 'Low Risk',
+              color: RISK_COLORS[1], //'#008000',
+              foreColor: RISK_TEXT_COLORS[1],
+              name: RISK_LABELS[1], //'Low Risk',
             },
             {
               from: 1,
               to: 2,
-              color: '#3CB371',
-              foreColor: '#FFFFFF',
-              name: 'Low-Medium Risk',
+              color: RISK_COLORS[2], //'#3CB371',
+              foreColor: RISK_TEXT_COLORS[2],
+              name: RISK_LABELS[2], //'Low-Medium Risk',
             },
             {
               from: 2,
               to: 3,
-              color: '#F0D722',
-              foreColor: '#FFFFFF',
-              name: 'Medium Risk',
+              color: RISK_COLORS[3], //'#F0D722',
+              foreColor: RISK_TEXT_COLORS[3],
+              name: RISK_LABELS[3], //'Medium Risk',
             },
             {
               from: 3,
               to: 4,
-              color: '#FFA500',
-              foreColor: '#FFFFFF',
-              name: 'Medium-High Risk',
+              color: RISK_COLORS[4], //'#FFA500',
+              foreColor: RISK_TEXT_COLORS[4],
+              name: RISK_LABELS[4], //'Medium-High Risk',
             },
             {
               from: 4,
               to: 10,
-              color: '#FF0000',
-              foreColor: '#FFFFFF',
-              name: 'High Risk',
+              color: RISK_COLORS[5], //'#FF0000',
+              foreColor: RISK_TEXT_COLORS[5],
+              name: RISK_LABELS[5], //'High Risk',
             },
           ],
         },
