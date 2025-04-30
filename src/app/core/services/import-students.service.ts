@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { StudentImport } from './Types/student.type';
-import { ServerResponse } from './Types/server.type';
-import { PagedResult } from './Types/page.type';
-import { Student } from './Types/pollInstance';
+import { ServerResponse } from './interfaces/server.type';
+import { PagedResult } from './interfaces/page.type';
+import { StudentModel } from '../models/student.model';
+import { StudentImport } from './interfaces/student.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -23,11 +23,11 @@ export class ImportStudentService {
     ) as Observable<ServerResponse>;
   }
 
-  getData({ page = 1, pageSize = 10 }): Observable<PagedResult<Student>> {
+  getData({ page = 1, pageSize = 10 }): Observable<PagedResult<StudentModel>> {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
     return this.http.get(`${this.apiUrl}/${this.endpoint}`, {
       params,
-    }) as Observable<PagedResult<Student>>;
+    }) as Observable<PagedResult<StudentModel>>;
   }
 
   getDataStudentsByPoll({

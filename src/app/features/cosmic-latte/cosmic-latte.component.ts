@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-import { HealthCheckResponse } from '../../shared/models/cosmic-latte/health-check.model';
+import { HealthCheckResponse } from '../../core/models/cosmic-latte-request.model';
 
 @Component({
   selector: 'app-cosmic-latte',

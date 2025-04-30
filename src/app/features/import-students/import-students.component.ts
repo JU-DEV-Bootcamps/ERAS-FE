@@ -13,11 +13,11 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ListImportedStudentComponent } from '../list-imported-student/list-imported-student.component';
+import { ServerResponse } from '../../core/services/interfaces/server.type';
 import {
   isStudentImportKey,
   StudentImport,
-} from '../../core/services/Types/student.type';
-import { ServerResponse } from '../../core/services/Types/server.type';
+} from '../../core/services/interfaces/student.interface';
 
 @Component({
   selector: 'app-import-students',

@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -5,31 +6,31 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { StudentService } from '../../../core/services/student.service';
-import { CohortService } from '../../../core/services/cohort.service';
-import { PollService } from '../../../core/services/poll.service';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { Cohort } from '../../../core/services/Types/cohort.type';
-import { Poll, PollVariable } from '../../../core/services/Types/poll.type';
-import { StudentRiskAverage } from '../../../core/services/Types/student.type';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
-import { DecimalPipe } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PdfService } from '../../../core/services/report/pdf.service';
-import { generateFileName } from '../../../core/utilities/file/file-name';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
+import { CohortModel } from '../../../core/models/cohort.model';
+import { CohortService } from '../../../core/services/cohort.service';
+import { HeatMapService } from '../../../core/services/heat-map.service';
+import { PollService } from '../../../core/services/poll.service';
+import { PdfService } from '../../../core/services/report/pdf.service';
+import { StudentService } from '../../../core/services/student.service';
+import { generateFileName } from '../../../core/utilities/file/file-name';
 import { ChartOptions } from '../util/heat-map-config';
+import { PollVariableModel } from '../../../core/models/poll-variable.model';
+import { PollModel } from '../../../core/models/poll.model';
+import { StudentRiskAverage } from '../../../core/services/interfaces/student.interface';
 
 @Component({
   selector: 'app-students-risk',
@@ -66,10 +67,10 @@ export class StudentsRiskComponent implements OnInit {
   columns = ['studentName', 'email', 'avgRiskLevel'];
   variableColumns = ['variableName'];
 
-  cohorts: Cohort[] = [];
-  polls: Poll[] = [];
+  cohorts: CohortModel[] = [];
+  polls: PollModel[] = [];
 
-  pollVariables: PollVariable[] = [];
+  pollVariables: PollVariableModel[] = [];
 
   students: StudentRiskAverage[] = [];
 
