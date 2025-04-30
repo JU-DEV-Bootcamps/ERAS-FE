@@ -5,6 +5,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   inject,
+  Input,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -18,7 +19,6 @@ import { StudentService } from '../../core/services/student.service';
 
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
@@ -85,9 +85,8 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   studentPolls: PollModel[] = [];
   studentAnswers: AnswerResponse[] = [];
   componentsAvg: ComponentsAvgModel[] = [];
-  studentId!: number;
 
-  constructor(private route: ActivatedRoute) {}
+  @Input({ required: true }) studentId!: number;
 
   columns = ['variable', 'position', 'component', 'answer', 'score'];
 
@@ -111,10 +110,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.studentId = +params['studentId'];
-      this.getStudentDetails(this.studentId);
-    });
+    this.getStudentDetails(this.studentId);
   }
 
   ngOnDestroy(): void {

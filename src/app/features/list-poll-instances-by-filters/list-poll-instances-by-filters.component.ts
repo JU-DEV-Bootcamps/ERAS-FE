@@ -23,6 +23,8 @@ import { PollService } from '../../core/services/poll.service';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
 import { PollModel } from '../../core/models/poll.model';
 import { PollInstanceModel } from '../../core/models/poll-instance.model';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
 
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 interface DynamicPollInstance extends PollInstanceModel {
@@ -51,6 +53,8 @@ interface DynamicPollInstance extends PollInstanceModel {
 })
 export class ListPollInstancesByFiltersComponent implements OnInit {
   private readonly router = inject(Router);
+  readonly dialog = inject(MatDialog);
+
   columns = ['uuid', 'finishedAt', 'name', 'email', 'modifiedAt'];
   columnsText = [
     'Uuid',
@@ -165,7 +169,14 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   }
 
   goToDetails(pollInstance: PollInstanceModel): void {
-    window.open(`student-details/${pollInstance.student.id}`, '_blank');
+    this.dialog.open(ModalStudentDetailComponent, {
+      width: 'clamp(520px, 50vw, 980px)',
+      maxWidth: '90vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data: { studentId: pollInstance.student.id },
+    });
   }
 
   getWidth(column: string): string {

@@ -18,7 +18,7 @@
   text-align: left;
   display: flex;
   margin: 0px;
-  font-weight: main-styles.get-font-weight('medium');
+  font-weight: main-styles.get-font-weight('large');
   font-size: main-styles.get-font-size('title', 'large');
   padding: 0px 10px;
   margin: 10px 0px;
@@ -176,7 +176,7 @@
 
 .swiper {
   min-height: 240px;
-  width: 870px;
+  width: clamp(320px, 50vw, 970px);
 }
 
 swiper-slide {
@@ -203,7 +203,7 @@ swiper-slide:nth-child(1n) {
 }
 
 .card-container {
-  padding: 0px 10px;
+  // padding: 0px 10px;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   display: grid;
   gap: 10px;
