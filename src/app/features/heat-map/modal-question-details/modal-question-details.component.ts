@@ -1,5 +1,4 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,8 +15,8 @@ import {
 } from '@angular/material/dialog';
 import { ReportService } from '../../../core/services/report.service.ts.service';
 import {
-  AnswerDetail,
   PollAvgQuestion,
+  PollTopReport,
 } from '../../../core/models/summary.model';
 import { getRiskColor } from '../../../core/constants/riskLevel';
 import { VariableService } from '../../../core/services/variable/variable.service';
@@ -52,7 +51,7 @@ export class ModalQuestionDetailsComponent implements OnInit {
   private reportService = inject(ReportService);
   private VariableService = inject(VariableService);
 
-  public studentsRisk = [];
+  public studentsRisk: PollTopReport = [];
   public studentTableColumns: string[] = ['name', 'answer', 'risk', 'actions'];
   constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
 
@@ -79,14 +78,10 @@ export class ModalQuestionDetailsComponent implements OnInit {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
     if (this.variableId === 0) return;
     this.reportService
-      .getStudentsDetailByVariables(
-        [this.variableId],
-        pollInstanceUUID,
-        this.variableId
-      )
+      .getTopPollReport([this.variableId], pollInstanceUUID, this.variableId)
       .subscribe(data => {
         console.info('getStudentsDetailByVariables', data);
-        //this.studentsRisk = data.body;
+        this.studentsRisk = data.body;
       });
   }
 

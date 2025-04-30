@@ -2,7 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { GetQueryResponse, PollAvgReport } from '../models/summary.model';
+import {
+  GetQueryResponse,
+  PollAvgReport,
+  PollTopReport,
+} from '../models/summary.model';
 
 interface StudentRisk {
   name: string;
@@ -23,7 +27,7 @@ export class ReportService {
   private readonly http: HttpClient = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/Reports`;
 
-  getStudentsDetailByVariables(
+  getTopPollReport(
     variableIds: number[],
     pollInstanceUUID: string,
     take: number | null
@@ -36,9 +40,12 @@ export class ReportService {
       params = params.set('take', take);
     }
 
-    return this.http.get<ApiResponse<unknown>>(`${this.apiUrl}/polls/top`, {
-      params,
-    });
+    return this.http.get<ApiResponse<PollTopReport>>(
+      `${this.apiUrl}/polls/top`,
+      {
+        params,
+      }
+    );
   }
 
   getStudentsDetailByPool(

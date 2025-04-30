@@ -52,7 +52,7 @@
             </mat-header-cell>
             <mat-cell *matCellDef="let item" class="name-column">
               <mat-icon matListItemIcon>person</mat-icon>
-              {{ item.studentsEmails }}
+              {{ item.student.name }}
             </mat-cell>
           </ng-container>
 
@@ -61,7 +61,7 @@
               Answer
             </mat-header-cell>
             <mat-cell *matCellDef="let item" class="answer-column">
-              {{ item.answerText }}
+              {{ item.answer.answerText }}
             </mat-cell>
           </ng-container>
 
@@ -74,7 +74,7 @@
                 class="risk-badge"
                 [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
               >
-                {{ item.answerPercentage }}
+                {{ item.answer.riskLevel }}
               </div>
             </mat-cell>
           </ng-container>
@@ -87,7 +87,7 @@
               <button
                 mat-icon-button
                 aria-label="View details"
-                (click)="openStudentDetails(1)"
+                (click)="openStudentDetails(item.student.id)"
               >
                 <mat-icon>visibility</mat-icon>
               </button>

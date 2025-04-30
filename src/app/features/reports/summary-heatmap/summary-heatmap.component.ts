@@ -44,21 +44,23 @@ export class SummaryHeatmapComponent implements OnInit {
       this.pollUuid = params['pollUuid'] || '0';
     });
 
-    this.reportService.getAvgPoolReport(this.pollUuid, 0).subscribe(res => {
-      this.isLoading = false;
-      const reportSeries = this.reportService.getHMSeriesFromAvgReport(
-        res.body
-      );
-      this.chartOptions = GetChartOptions(
-        `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
-        reportSeries,
-        (x, y) => {
-          const compReport = res.body.components[y];
-          const selectedQuestion = compReport.questions[x];
-          this.openDetailsModal(selectedQuestion, compReport.description);
-        }
-      );
-    });
+    this.reportService
+      .getAvgPoolReport(this.pollUuid, parseInt(this.cohortId))
+      .subscribe(res => {
+        this.isLoading = false;
+        const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+          res.body
+        );
+        this.chartOptions = GetChartOptions(
+          `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
+          reportSeries,
+          (x, y) => {
+            const compReport = res.body.components[y];
+            const selectedQuestion = compReport.questions[x];
+            this.openDetailsModal(selectedQuestion, compReport.description);
+          }
+        );
+      });
   }
 
   openDetailsModal(question: PollAvgQuestion, componentName: string): void {
