@@ -1,5 +1,9 @@
 import { ApexOptions } from 'ng-apexcharts';
-import { RISK_COLORS, RISK_LABELS, RISK_TEXT_COLORS } from '../../../core/constants/riskLevel';
+import {
+  RISK_COLORS,
+  RISK_LABELS,
+  RISK_TEXT_COLORS,
+} from '../../../core/constants/riskLevel';
 
 export function GetChartOptions(
   title: string,
