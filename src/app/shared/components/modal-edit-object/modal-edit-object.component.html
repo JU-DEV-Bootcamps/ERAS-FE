@@ -8,7 +8,7 @@
           matInput
           [(ngModel)]="objectCopy[key]"
           [name]="key.toString()"
-          readonly="readOnlyColumns.includes(key)"
+          [readonly]="isReadOnly(key)"
         />
       </mat-form-field>
     </div>

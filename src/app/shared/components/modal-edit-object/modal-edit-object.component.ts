@@ -9,6 +9,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
+import { readOnlyColumns } from '../list/constants/list';
 
 @Component({
   selector: 'app-edit-object-modal',
@@ -43,5 +44,9 @@ export class EditObjectModalComponent<T extends object> {
 
   objectKeys(obj: T): (keyof T)[] {
     return Object.keys(obj) as (keyof T)[];
+  }
+
+  isReadOnly(key: keyof T) {
+    return readOnlyColumns.includes(key.toString());
   }
 }

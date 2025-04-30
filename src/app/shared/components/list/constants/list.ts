@@ -3,3 +3,5 @@ export const defaultOptions = {
   currentPage: 0,
   pageSizeOptions: [5, 10, 25, 100],
 };
+
+export const readOnlyColumns = ['id', 'uuid'];

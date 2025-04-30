@@ -3,7 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { defaultOptions } from './constants/list';
+import { defaultOptions, readOnlyColumns } from './constants/list';
 import { EventLoad, EventRemove, EventUpdate } from '../../events/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
 import { Column } from './types/columns';
@@ -24,7 +24,7 @@ export class ListComponent<T extends object> implements OnInit {
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
-  readOnlyColumns = ['id', 'uuid'];
+
   @Input() items: T[] = [];
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
@@ -84,25 +84,27 @@ export class ListComponent<T extends object> implements OnInit {
         return column.key;
       })
       .filter(key => {
-        return !this.readOnlyColumns.includes(key.toString());
+        return !readOnlyColumns.includes(key.toString());
       });
-    const itemToUpdate = this.getItemWithId(data, newItems);
+    const itemToUpdate = this.getItemById(data, newItems);
 
+    console.log(itemToUpdate)
     if (itemToUpdate) {
       columnsToUpdate.forEach(column => {
         itemToUpdate[column] = dataEdited[column];
       });
       this.items = newItems;
+      console.log(this.items)
     }
   }
 
-  getItemWithId(item: T, collection: T[]) {
+  getItemById(item: T, collection: T[]) {
     const keys = Object.keys(item);
 
     let idKey: keyof T | null = null;
 
     keys.forEach(key => {
-      if (this.readOnlyColumns.includes(key)) {
+      if (readOnlyColumns.includes(key)) {
         idKey = key as keyof T;
       }
     });
