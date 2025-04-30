@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { ActionButton } from '../list/types/action';
 import { EventRemove, EventUpdate } from '../../events/load';
+import { Column } from '../list/types/columns';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -42,7 +43,7 @@ export class TableWithActionsComponent<T extends object>
   @Output() updateCalled = new EventEmitter<EventUpdate>();
   @Output() removeCalled = new EventEmitter<EventRemove>();
   @Input() items: T[] = [];
-  @Input() columns: (keyof T)[] = [] as (keyof T)[];
+  @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() isUpdateEnabled = false;
   @Input() isRemoveEnabled = false;
   @Input() updateActionButton: ActionButton = {
@@ -88,9 +89,13 @@ export class TableWithActionsComponent<T extends object>
       return;
     }
 
+    const keys = this.columns.map(column => {
+      return column.key;
+    });
+
     this.dataSource = this.items.map(item => {
       const newItem = Object.keys(item)
-        .filter(key => this.columns.includes(key as keyof T))
+        .filter(key => keys.includes(key as keyof T))
         .reduce((newItem: Partial<T>, key) => {
           newItem[key as keyof T] = item[key as keyof T];
           return newItem;
@@ -107,5 +112,13 @@ export class TableWithActionsComponent<T extends object>
 
   handleRemove(event: EventRemove) {
     this.removeCalled.emit(event);
+  }
+
+  getColumnKeys() {
+    return this.columns
+      .map(column => {
+        return column.key;
+      })
+      .concat(this.actionColumns);
   }
 }

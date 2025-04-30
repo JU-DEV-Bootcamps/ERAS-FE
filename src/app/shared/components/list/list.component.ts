@@ -6,6 +6,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { defaultOptions } from './constants/list';
 import { EventLoad, EventRemove, EventUpdate } from '../../events/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
+import { Column } from './types/columns';
 
 @Component({
   selector: 'app-list',
@@ -23,9 +24,12 @@ export class ListComponent<T extends object> implements OnInit {
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
+  readOnlyColumns = ['id', 'uuid'];
   @Input() items: T[] = [];
   @Input() data = new MatTableDataSource<T>([]);
-  @Input() columns = [] as (keyof T)[];
+  @Input() columns: Column<T>[] = [] as Column<T>[];
+  @Input() isUpdateEnabled = false;
+  @Input() isRemoveEnabled = false;
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() updateCalled = new EventEmitter<EventUpdate>();
   @Output() removeCalled = new EventEmitter<EventRemove>();
@@ -54,10 +58,63 @@ export class ListComponent<T extends object> implements OnInit {
   }
 
   handleUpdate(event: EventUpdate) {
-    this.updateCalled.emit(event);
+    if (this.isUpdateEnabled) {
+      this.updateCalled.emit(event);
+    }
   }
 
   handleRemove(event: EventRemove) {
-    this.removeCalled.emit(event);
+    if (this.isRemoveEnabled) {
+      this.removeCalled.emit(event);
+    }
+  }
+
+  removeRow(event: EventRemove) {
+    const target = event.event.target as HTMLButtonElement;
+    const domRow = target.closest('tr')!;
+
+    domRow.remove();
+  }
+
+  updateRow(event: EventUpdate, dataEdited: T) {
+    const newItems = [...this.items];
+    const data = event.data as T;
+    const columnsToUpdate = this.columns
+      .map(column => {
+        return column.key;
+      })
+      .filter(key => {
+        return !this.readOnlyColumns.includes(key.toString());
+      });
+    const itemToUpdate = this.getItemWithId(data, newItems);
+
+    if (itemToUpdate) {
+      columnsToUpdate.forEach(column => {
+        itemToUpdate[column] = dataEdited[column];
+      });
+      this.items = newItems;
+    }
+  }
+
+  getItemWithId(item: T, collection: T[]) {
+    const keys = Object.keys(item);
+
+    let idKey: keyof T | null = null;
+
+    keys.forEach(key => {
+      if (this.readOnlyColumns.includes(key)) {
+        idKey = key as keyof T;
+      }
+    });
+
+    if (idKey === null) {
+      return null;
+    }
+
+    const itemWithId = collection.find(it => {
+      return it[idKey as keyof T] === item[idKey as keyof T];
+    });
+
+    return itemWithId;
   }
 }

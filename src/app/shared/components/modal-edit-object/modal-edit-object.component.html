@@ -4,7 +4,12 @@
     <div *ngFor="let key of objectKeys(objectCopy)">
       <mat-form-field appearance="fill" class="w-full my-2">
         <mat-label>{{ key }}</mat-label>
-        <input matInput [(ngModel)]="objectCopy[key]" [name]="key.toString()" />
+        <input
+          matInput
+          [(ngModel)]="objectCopy[key]"
+          [name]="key.toString()"
+          readonly="readOnlyColumns.includes(key)"
+        />
       </mat-form-field>
     </div>
   </form>
