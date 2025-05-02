@@ -5,7 +5,7 @@ export const RISK_COLORS: Record<number | 'default', string> = {
   3: '#F0D722',
   4: '#FFA500',
   5: '#FF0000',
-  default: '#00000',
+  default: '#FF0000',
 };
 
 export const RISK_TEXT_COLORS: Record<number | 'default', string> = {
