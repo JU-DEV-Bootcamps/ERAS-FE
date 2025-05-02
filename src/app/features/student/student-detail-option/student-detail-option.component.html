@@ -29,7 +29,7 @@
         mat-raised-button
         color="primary"
         [disabled]="!pollSeleccionadoId"
-        (click)="seleccionarPoll()"
+        (click)="selectPoll()"
       >
         Continuar
       </button>
@@ -69,7 +69,7 @@
         <button
           mat-stroked-button
           color="accent"
-          (click)="interactuarConCohort(cohort)"
+          (click)="selectCohort(cohort)"
         >
           See Details
         </button>

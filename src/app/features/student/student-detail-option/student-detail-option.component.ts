@@ -107,7 +107,7 @@ export class StudentDetailOptionComponent implements OnInit {
       .subscribe(pollsList => (this.polls = pollsList));
   }
 
-  seleccionarPoll(): void {
+  selectPoll(): void {
     const poll = this.polls.find(p => p.id === this.pollSeleccionadoId);
     if (poll) {
       this.pollSeleccionado = poll;
@@ -167,7 +167,7 @@ export class StudentDetailOptionComponent implements OnInit {
     }
   }
 
-  interactuarConCohort(cohort: CohortComponents): void {
+  selectCohort(cohort: CohortComponents): void {
     this.cohortSeleccionado = cohort;
     console.log('Interacción con:', this.cohortSeleccionado);
     this.selectedComponents = Object.entries(
