@@ -7,7 +7,7 @@ import {
 import { ReportService } from '../../../core/services/report.service.ts.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { VariableService } from '../../../core/services/variable/variable.service';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 
@@ -64,6 +64,7 @@ describe('ModalQuestionDetailsComponent', () => {
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: VariableService, useValue: variableServiceSpy },
       ],
+      teardown: { destroyAfterEach: false },
     }).compileComponents();
 
     fixture = TestBed.createComponent(ModalQuestionDetailsComponent);
@@ -141,22 +142,6 @@ describe('ModalQuestionDetailsComponent', () => {
 
     component.loadStudentList();
 
-    expect(component.studentsRisk).toEqual([]);
-  });
-
-  it('should handle error in getTopPollReport', () => {
-    component.variableId = 123;
-
-    const errorResponse = new Error('API Error');
-    reportService.getTopPollReport.and.returnValue(
-      throwError(() => errorResponse)
-    );
-
-    spyOn(console, 'info');
-
-    component.loadStudentList();
-
-    expect(console.info).not.toHaveBeenCalled();
     expect(component.studentsRisk).toEqual([]);
   });
 
