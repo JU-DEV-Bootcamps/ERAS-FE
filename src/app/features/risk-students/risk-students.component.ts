@@ -34,7 +34,7 @@ import { adaptAnswers } from '../reports/util/data.adapter';
   styleUrl: './risk-students.component.css',
 })
 export class RiskStudentsComponent implements OnInit {
-  public variableIds: number[] = [1, 2, 3, 4]; // meter ids de preguntas, actualizar con el form, traer el cohort
+  public variableIds: number[] = [1, 2, 3, 4];
   public questions: Question[] = [] as Question[];
   public form: FormGroup;
   public mockupAnswers: MockUpAnswers = {

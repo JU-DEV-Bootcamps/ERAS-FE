@@ -52,13 +52,6 @@ describe('ListPollInstancesByFiltersComponent', () => {
     expect(component.cohortsData.length).toBeGreaterThan(0);
   });
 
-  it('should load poll instances on init', () => {
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalled();
-    expect(component.pollInstances.length).toBe(0);
-  });
-
   it('should update polls on selection change for cohortId', () => {
     mockPollService.getPollsByCohortId.calls.reset();
     component.filtersForm.controls['selectedCohort'].setValue(1);

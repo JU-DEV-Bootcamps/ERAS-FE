@@ -137,6 +137,12 @@
           ></tr>
         </table>
       </div>
+    } @else if (pollInstances.length === 0 && !loading) {
+      <div class="no-data">
+        <p class="no-data-message">
+          Select a Cohort and Poll to list Polls Answered.
+        </p>
+      </div>
     } @else {
       <div class="no-data">
         <p class="no-data-message">Poll instances not found.</p>

@@ -22,15 +22,20 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { CohortModel } from '../../../core/models/cohort.model';
 import { CohortService } from '../../../core/services/cohort.service';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { StudentService } from '../../../core/services/student.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
-import { ChartOptions } from '../util/heat-map-config';
-import { PollVariableModel } from '../../../core/models/poll-variable.model';
 import { PollModel } from '../../../core/models/poll.model';
 import { StudentRiskAverage } from '../../../core/services/interfaces/student.interface';
+import { MatDialog } from '@angular/material/dialog';
+import { GetChartOptions } from '../util/heat-map-config';
+import { ReportService } from '../../../core/services/report.service.ts.service';
+import {
+  ModalQuestionDetailsComponent,
+  SelectedHMData,
+} from '../../heat-map/modal-question-details/modal-question-details.component';
+import { PollAvgQuestion } from '../../../core/models/summary.model';
 
 @Component({
   selector: 'app-students-risk',
@@ -53,7 +58,8 @@ export class StudentsRiskComponent implements OnInit {
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
   pdfService = inject(PdfService);
-  heatmapService = inject(HeatMapService);
+  reportService = inject(ReportService);
+  private readonly dialog = inject(MatDialog);
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
@@ -68,34 +74,30 @@ export class StudentsRiskComponent implements OnInit {
   variableColumns = ['variableName'];
 
   cohorts: CohortModel[] = [];
+  selectedCohort?: CohortModel;
+  selectedPoll?: PollModel;
   polls: PollModel[] = [];
-
-  pollVariables: PollVariableModel[] = [];
 
   students: StudentRiskAverage[] = [];
 
   load = false;
 
   ngOnInit() {
-    this.getCohorts();
-    this.selectForm.controls['cohortId'].valueChanges.subscribe(value => {
-      if (value) this.getPollsByCohortId(value);
+    this.getPolls();
+    this.selectForm.controls['pollId'].valueChanges.subscribe(value => {
+      if (value) {
+        this.selectedPoll = this.polls.find(p => p.id == value);
+        this.getCohortsByPoll(value);
+      }
     });
 
     this.selectForm.valueChanges.subscribe(value => {
-      if (value.cohortId && value.pollId) {
+      if (value.cohortId !== null && value.pollId) {
+        this.selectedCohort = this.cohorts.find(c => c.id == value);
         this.getStudentsByCohortAndPoll();
-        this.getPollVariables();
         this.getHeatMap();
       }
     });
-  }
-
-  get pollId() {
-    const poll = this.polls.find(
-      poll => poll.id === this.selectForm.value.pollId
-    );
-    return `${poll?.uuid}`;
   }
 
   getStudentsByCohortAndPoll() {
@@ -116,32 +118,17 @@ export class StudentsRiskComponent implements OnInit {
     }
   }
 
-  getCohorts() {
-    this.cohortService.getCohorts().subscribe(data => {
-      this.cohorts = data;
-    });
-  }
-
-  getPollsByCohortId(id: number) {
-    this.pollsService.getPollsByCohortId(id).subscribe(data => {
+  getPolls() {
+    this.pollsService.getAllPolls().subscribe(data => {
       this.polls = data;
     });
   }
 
-  getPollVariables() {
-    if (this.selectForm.invalid) {
-      return;
-    }
-    if (this.selectForm.value.cohortId && this.selectForm.value.pollId) {
-      this.pollsService
-        .getByCohortAndPoll(
-          this.selectForm.value.cohortId,
-          this.selectForm.value.pollId
-        )
-        .subscribe(res => {
-          this.pollVariables = res;
-        });
-    }
+  getCohortsByPoll(id: number) {
+    this.cohortService.getCohorts().subscribe(data => {
+      console.warn('API Call needs to filter by poll Id:', id);
+      this.cohorts = data;
+    });
   }
 
   getColorRisk(riskLevel: number) {
@@ -150,12 +137,23 @@ export class StudentsRiskComponent implements OnInit {
   }
 
   getHeatMap() {
-    this.heatmapService.getSummaryData(this.pollId).subscribe(data => {
-      this.chartOptions = {
-        ...ChartOptions,
-        series: data.body.series,
-      };
-    });
+    if (!this.selectedPoll) return;
+    this.reportService
+      .getAvgPoolReport(this.selectedPoll.uuid, this.selectedCohort?.id || 0)
+      .subscribe(res => {
+        const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+          res.body
+        );
+        this.chartOptions = GetChartOptions(
+          `Risk Heatmap - ${this.selectedPoll?.name}-${this.selectedCohort?.name || 'All Cohorts'}`,
+          reportSeries,
+          (x, y) => {
+            const compReport = res.body.components[y];
+            const selectedQuestion = compReport.questions[x];
+            this.openDetailsModal(selectedQuestion, compReport.description);
+          }
+        );
+      });
   }
 
   downloadPDF() {
@@ -170,5 +168,16 @@ export class StudentsRiskComponent implements OnInit {
     document.body.appendChild(clonedElement);
     this.pdfService.exportToPDF(clonedElement, fileName);
     document.body.removeChild(clonedElement);
+  }
+
+  openDetailsModal(question: PollAvgQuestion, componentName: string): void {
+    if (!this.selectedPoll) return;
+    const data: SelectedHMData = {
+      cohortId: this.selectedCohort?.id.toString() || '0',
+      pollUuid: this.selectedPoll?.uuid,
+      componentName,
+      question,
+    };
+    this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 }

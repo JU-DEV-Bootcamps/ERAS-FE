@@ -139,7 +139,6 @@ export class StudentDetailOptionComponent implements OnInit {
     const avg = cohort.componentsAvg;
 
     if (typeof avg !== 'object' || avg === null) return [];
-
     return Object.keys(avg);
   }
 

@@ -100,7 +100,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     this.filtersForm.controls['selectedPoll'].valueChanges.subscribe(value => {
       if (value) this.selectedPollUuid = value;
     });
-    this.loadPollInstances(this.selectedCohortId);
+    //this.loadPollInstances(this.selectedCohortId);
     this.checkScreenSize();
   }
 
@@ -152,6 +152,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       this.filtersForm.value.selectedCohort &&
       this.filtersForm.value.selectedPoll
     ) {
+      this.loading = true;
       this.loadPollInstances(this.filtersForm.value.selectedCohort);
     }
   }
