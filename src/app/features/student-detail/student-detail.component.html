@@ -74,25 +74,11 @@
             </div>
           </swiper-slide>
         }
-
-        <swiper-slide>
-          <h3 class="title">Risk by Components</h3>
-          <p class="date-risk-by-components">Poll Name:</p>
-          <p class="date-risk-by-components">Last update: 10/01/2025</p>
-          <div class="chart-container" #chart>
-            <apx-chart
-              [series]="chartOptions.series!"
-              [chart]="chartOptions.chart!"
-              [plotOptions]="chartOptions.plotOptions!"
-            >
-            </apx-chart>
-          </div>
-        </swiper-slide>
       </swiper-container>
     </section>
   </div>
 
-  @if (!studentAnswers) {
+  @if (!studentAnswers.length) {
     <mat-spinner></mat-spinner>
   } @else {
     @if (isMobile) {
