@@ -115,10 +115,11 @@ export class TableWithActionsComponent<T extends object>
   }
 
   getColumnKeys() {
-    return this.columns
-      .map(column => {
-        return column.key;
-      })
-      .concat(this.actionColumns);
+    return this.columns.map(column => {
+      return column.key;
+    });
+  }
+  getAllColumns() {
+    return this.getColumnKeys().concat(this.actionColumns);
   }
 }

@@ -13,8 +13,6 @@ export class StudentService {
   constructor(private http: HttpClient) {}
 
   update(data: StudentModel) {
-    console.log('update');
-    console.log(data);
     return this.http.patch<StudentModel>(
       `${this.apiUrl}/${this.endpoint}`,
       data

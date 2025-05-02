@@ -88,13 +88,11 @@ export class ListComponent<T extends object> implements OnInit {
       });
     const itemToUpdate = this.getItemById(data, newItems);
 
-    console.log(itemToUpdate)
     if (itemToUpdate) {
       columnsToUpdate.forEach(column => {
         itemToUpdate[column] = dataEdited[column];
       });
       this.items = newItems;
-      console.log(this.items)
     }
   }
 

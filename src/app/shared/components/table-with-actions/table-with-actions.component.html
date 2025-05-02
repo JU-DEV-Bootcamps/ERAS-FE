@@ -5,13 +5,33 @@
     <div class="card-container">
       <mat-card *ngFor="let item of items" class="card" appearance="outlined">
         <mat-card-content>
-          <div class="row-info" *ngFor="let column of columns">
-            <p class="field">{{ column.label | titlecase }}</p>
-            <p class="information">
-              {{ item[column.key] }}
-            </p>
+          <div class="row-info" *ngFor="let column of getColumnKeys()">
+            <span>
+              <b class="field">{{ column.toString() | titlecase }}</b
+              >:
+            </span>
+            <span class="information">
+              {{ item[column] }}
+            </span>
           </div>
         </mat-card-content>
+        <mat-card-actions *ngIf="isRemoveEnabled || isUpdateEnabled">
+          <app-action-button
+            [data]="item"
+            [actionButton]="updateActionButton"
+            (actionCalled)="handleUpdate($event)"
+          >
+            <mat-icon>edit</mat-icon>
+          </app-action-button>
+
+          <app-action-button
+            [data]="item"
+            [actionButton]="removeActionButton"
+            (actionCalled)="handleRemove($event)"
+          >
+            <mat-icon>delete</mat-icon>
+          </app-action-button>
+        </mat-card-actions>
       </mat-card>
     </div>
   </ng-container>
@@ -53,8 +73,8 @@
           </app-action-button>
         </td>
       </ng-container>
-      <tr mat-header-row *matHeaderRowDef="getColumnKeys()"></tr>
-      <tr mat-row *matRowDef="let row; columns: getColumnKeys()"></tr>
+      <tr mat-header-row *matHeaderRowDef="getAllColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: getAllColumns()"></tr>
     </table>
   </ng-template>
 </div>
