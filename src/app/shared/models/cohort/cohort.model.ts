@@ -6,3 +6,9 @@ export interface Cohort {
   audit: Audit;
   id: number;
 }
+
+export interface CohortStudentsRiskByPollResponse {
+  studentId: number;
+  studentName: string;
+  riskSum: number;
+}
