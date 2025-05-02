@@ -55,8 +55,8 @@ describe('ModalRiskStudentsCohortComponent', () => {
           audit: {
             createdBy: 'tester',
             modifiedBy: 'tester',
-            createdAt: '2025-03-12T00:00:00Z',
-            modifiedAt: '2025-03-12T00:00:00Z',
+            createdAt: new Date('2025-03-12T00:00:00Z'),
+            modifiedAt: new Date('2025-03-12T00:00:00Z'),
           },
         },
       ])

@@ -1,38 +1,38 @@
+import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   HostListener,
 } from '@angular/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { provideNativeDateAdapter } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { PollInstance } from '../../core/services/Types/cosmicLattePollImportList';
 import {
-  ReactiveFormsModule,
   FormBuilder,
   FormGroup,
-  Validators,
   FormsModule,
+  ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
-import {
-  IMPORT_MESSAGES,
-  GENERAL_MESSAGES,
-} from '../../core/constants/messages';
-import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
-import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
-import { BehaviorSubject } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { PollName } from '../../shared/models/cosmic-latte/PollName';
+import { BehaviorSubject } from 'rxjs';
+import {
+  GENERAL_MESSAGES,
+  IMPORT_MESSAGES,
+} from '../../core/constants/messages';
+import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
+import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
+import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
+import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
+import { PollName } from '../../core/models/poll-request.model';
 
 @Component({
   selector: 'app-import-answers',

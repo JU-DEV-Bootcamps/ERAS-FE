@@ -1,10 +1,8 @@
-import { Audit } from '../audit.model';
+import { BaseModel } from './common/base.model';
 
-export interface Cohort {
+export interface CohortModel extends BaseModel {
   name: string;
   courseCode: string;
-  audit: Audit;
-  id: number;
 }
 
 export interface CohortStudentsRiskByPollResponse {
