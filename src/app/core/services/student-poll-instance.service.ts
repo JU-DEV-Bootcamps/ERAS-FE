@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Student } from './Types/pollInstance';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { StudentModel } from '../models/student.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,13 +12,18 @@ export class StudentService {
 
   constructor(private http: HttpClient) {}
 
-  update(data: Student) {
+  update(data: StudentModel) {
     console.log('update');
     console.log(data);
-    return this.http.patch<Student>(`${this.apiUrl}/${this.endpoint}`, data);
+    return this.http.patch<StudentModel>(
+      `${this.apiUrl}/${this.endpoint}`,
+      data
+    );
   }
 
   remove(id: number) {
-    return this.http.delete<Student>(`${this.apiUrl}/${this.endpoint}/${id}`);
+    return this.http.delete<StudentModel>(
+      `${this.apiUrl}/${this.endpoint}/${id}`
+    );
   }
 }
