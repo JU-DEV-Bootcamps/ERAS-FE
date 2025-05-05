@@ -3,9 +3,9 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CohortStudentsRiskByPollResponse } from '../models/cohort.model';
-import { CohortComponents } from '../../shared/models/cohort/cohort-components.model';
 import { CohortsSummaryModel } from '../models/summary.model';
 import { CohortModel } from '../models/cohort.model';
+import { CohortComponents } from '../models/cohort-components.model';
 
 @Injectable({
   providedIn: 'root',
