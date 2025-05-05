@@ -20,6 +20,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../core/models/cohort.model';
 import { PollModel } from '../../../core/models/poll.model';
 import { CohortService } from '../../../core/services/cohort.service';
+import { HeatMapService } from '../../../core/services/heat-map.service';
 import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/report/pdf.service';
 import { Variable } from '../../../core/services/variable/interface/variable.interface';
@@ -30,7 +31,6 @@ import {
 } from '../../heat-map/types/risk-students-detail.type';
 import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
-import { HeatMapService } from '../../../core/services/apiServices/heat-map.service';
 
 @Component({
   selector: 'app-heat-map',

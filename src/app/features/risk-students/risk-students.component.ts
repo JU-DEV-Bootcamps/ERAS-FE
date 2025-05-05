@@ -14,13 +14,13 @@ import { RiskStudentsTableComponent } from '../../shared/components/risk-student
 import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { HeatMapService } from '../../core/services/heat-map.service';
 import {
   MockUpAnswers,
   Question,
   SurveyKind,
 } from '../reports/types/data.generator';
 import { adaptAnswers } from '../reports/util/data.adapter';
+import { HeatMapService } from '../../core/services/apiServices/heat-map.service';
 @Component({
   selector: 'app-risk-students',
   imports: [

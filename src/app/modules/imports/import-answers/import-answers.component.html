@@ -1,0 +1,58 @@
+<div>
+  <h2 class="page-title">Import Polls</h2>
+</div>
+
+<div class="container-form-answer">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <mat-form-field class="input" appearance="outline">
+        <mat-label>Select a survey from Cosmic Latte</mat-label>
+        <mat-select formControlName="surveyName">
+          @for (poll of pollsNames; track poll) {
+            <mat-option [value]="poll.name"
+              >{{ poll.name }} - Id:
+              {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
+            >
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field class="input">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input
+            matStartDate
+            placeholder="Start date"
+            formControlName="start"
+          />
+          <input matEndDate placeholder="End date" formControlName="end" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+        <mat-hint>Not required</mat-hint>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <button
+        class="button"
+        mat-flat-button
+        type="submit"
+        [disabled]="form.invalid || !form.get('surveyName')?.value"
+      >
+        Import Answers
+      </button>
+    </div>
+  </form>
+</div>
+
+<app-import-answers-preview
+  [importedPollData]="importedPollData"
+  (saveCompleted)="handleSavePollState($event)"
+></app-import-answers-preview>
+<div *ngIf="isLoading$ | async" class="spinner-container">
+  <mat-spinner></mat-spinner>
+</div>

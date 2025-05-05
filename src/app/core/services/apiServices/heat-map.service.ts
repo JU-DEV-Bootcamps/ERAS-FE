@@ -1,23 +1,22 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { BaseApiService } from './base-api.service';
+import { PollData } from '../../../features/reports/types/data.adapter';
 import {
   ComponentValueType,
   RiskStudentDetailType,
-} from '../../features/heat-map/types/risk-students-detail.type';
+} from '../../../features/heat-map/types/risk-students-detail.type';
+import { DEFAULT_LIMIT } from '../../constants/pagination';
+import { GetQueryResponse } from '../../models/summary.model';
+import { HeatmapSummaryModel } from '../../models/heatmap-summary.model';
+import { HeatMapData } from '../../models/heatmap-data.model';
 import { map, of } from 'rxjs';
-import { DEFAULT_LIMIT } from '../constants/pagination';
-import { PollData } from '../../features/reports/types/data.adapter';
-import { HeatmapSummaryModel } from '../models/heatmap-summary.model';
-import { HeatMapData } from '../models/heatmap-data.model';
-import { BaseApiService } from './apiServices/base-api.service';
-import { GetQueryResponse } from '../models/summary.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HeatMapService extends BaseApiService {
-  protected apiUrl = `${environment.apiUrl}/api/v1/HeatMap`;
+  protected resource = 'api/v1/HeatMap';
   private pollQuestions = new Map<string, PollData[]>();
 
   getStudentHeatMapDetails(

@@ -24,11 +24,11 @@ import { AnswerResponse } from '../../core/models/answer-request.model';
 import { ComponentsAvgModel } from '../../core/models/components-avg.model';
 import { PollModel } from '../../core/models/poll.model';
 import { StudentResponse } from '../../core/models/student-request.model';
-import { AnswersService } from '../../core/services/answers.service';
 import { ComponentsService } from '../../core/services/components.service';
 import { PollService } from '../../core/services/poll.service';
 import { PdfService } from '../../core/services/report/pdf.service';
 import { StudentService } from '../../core/services/student.service';
+import { AnswersService } from '../../core/services/apiServices/answers.service';
 
 register();
 @Component({

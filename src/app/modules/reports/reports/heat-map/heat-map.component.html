@@ -1,0 +1,83 @@
+<p class="page-title">Heatmap</p>
+<form [formGroup]="selectForm">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Cohort</mat-label>
+      <mat-select required id="sl-component" formControlName="cohortId">
+        @for (cohort of cohorts; track $index) {
+          <mat-option [value]="cohort.id">
+            {{ cohort.name }}
+          </mat-option>
+        }
+      </mat-select>
+
+      @if (selectForm.get('cohortId')?.errors) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-poll">Poll</mat-label>
+      <mat-select required id="sl-poll" formControlName="pollUuid">
+        @for (poll of polls; track $index) {
+          <mat-option [value]="poll.uuid">
+            {{ poll.name }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (selectForm.get('pollUuid')?.errors) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label for="component">Component</mat-label>
+      <mat-select id="component" formControlName="component" multiple>
+        @for (component of components; track $index) {
+          <mat-option [value]="component.value">{{
+            component.name
+          }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label for="question">Questions</mat-label>
+      <mat-select id="question" formControlName="question" multiple>
+        @for (question of questions; track $index) {
+          <mat-option [value]="question.id">{{ question.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button
+      id="print-button"
+      mat-icon-button
+      color="primary"
+      [disabled]="isGeneratingPDF"
+      (click)="printReportInfo()"
+    >
+      <mat-icon>print</mat-icon>
+    </button>
+  </div>
+</form>
+
+@if (chartOption.series?.length) {
+  <div class="chart-container" #mainContainer>
+    <apx-chart
+      [series]="chartOption.series!"
+      [chart]="chartOption.chart!"
+      [xaxis]="chartOption.xaxis!"
+      [yaxis]="chartOption.yaxis!"
+      [colors]="chartOption.colors!"
+      [plotOptions]="chartOption.plotOptions!"
+      [title]="chartOption.title!"
+      [tooltip]="chartOption.tooltip!"
+    >
+    </apx-chart>
+  </div>
+} @else {
+  <div style="text-align: center">
+    <h4>No data found</h4>
+    <p>Please select options in all fields to display the heatmap.</p>
+  </div>
+}

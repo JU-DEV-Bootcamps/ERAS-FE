@@ -1,0 +1,38 @@
+.component-caption {
+  display: inline-flex;
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.risk-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+}
+
+.mat-mdc-row .mat-mdc-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  // cursor: pointer;
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: auto;
+  padding: 20px 0;
+}

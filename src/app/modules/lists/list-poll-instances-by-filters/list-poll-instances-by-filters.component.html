@@ -1,0 +1,152 @@
+<div class="page-header">
+  <h2 class="page-title">Polls Answered</h2>
+</div>
+<form [formGroup]="filtersForm">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Cohorts</mat-label>
+      <mat-select
+        id="sl-component"
+        (selectionChange)="onSelectionChange()"
+        formControlName="selectedCohort"
+      >
+        <mat-option *ngFor="let cohort of cohortsData" [value]="cohort.id">
+          {{ cohort.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-component">Poll</mat-label>
+      <mat-select
+        id="sl-component"
+        (selectionChange)="onSelectionChange()"
+        formControlName="selectedPoll"
+      >
+        <mat-option *ngFor="let poll of polls" [value]="poll.uuid">
+          {{ poll.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="button-container">
+      <button
+        mat-fab
+        class="button-extended"
+        extended
+        aria-label="Generate HeatMap"
+        disabled="{{ pollInstances.length === 0 }}"
+        type="submit"
+        (click)="generateHeatMap()"
+      >
+        <mat-icon>dashboard</mat-icon>
+        Heatmap
+      </button>
+    </div>
+  </div>
+</form>
+@if (loading === true) {
+  <mat-spinner></mat-spinner>
+} @else {
+  @if (isMobile) {
+    <div class="card-container">
+      @for (pollInstance of pollInstances; track $index) {
+        <mat-card class="" appearance="outlined">
+          <mat-card-content>
+            <div class="button-container">
+              <button mat-icon-button (click)="goToDetails(pollInstance)">
+                <mat-icon>assignment</mat-icon>
+              </button>
+              <span>Details</span>
+            </div>
+            @for (column of columns; track $index) {
+              <div class="row-info">
+                <p class="field">{{ column }}</p>
+                @if (column === 'createdAt' || column === 'modifiedAt') {
+                  <p class="information">
+                    {{ pollInstance['audit']![column] | timestampToDate }}
+                  </p>
+                } @else if (column === 'name' || column === 'email') {
+                  <p class="information">
+                    {{ pollInstance['student'][column] }}
+                  </p>
+                } @else if (column === 'finishedAt') {
+                  <p class="information">
+                    {{ pollInstance[column] | timestampToDate }}
+                  </p>
+                } @else {
+                  <p class="information">{{ pollInstance[column] }}</p>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  } @else {
+    @if (pollInstances.length > 0) {
+      <div class="mat-elevation-z8">
+        <table mat-table [dataSource]="data">
+          @for (column of columns; track $index) {
+            <ng-container [matColumnDef]="column">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [style.width]="getWidth(column)"
+                class="table-header"
+              >
+                {{ columnsText[$index] }}
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [style.width]="getWidth(column)"
+              >
+                @if (column === 'createdAt' || column === 'modifiedAt') {
+                  {{ element['audit'][column] | timestampToDate }}
+                } @else if (column === 'name' || column === 'email') {
+                  <p class="information">
+                    {{ element['student'][column] }}
+                  </p>
+                } @else if (column === 'finishedAt') {
+                  {{ element[column] | timestampToDate }}
+                } @else {
+                  {{ element[column] }}
+                }
+              </td>
+            </ng-container>
+          }
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="table-header">
+              Actions
+            </th>
+            <td mat-cell *matCellDef="let pollInstance">
+              <button mat-icon-button (click)="goToDetails(pollInstance)">
+                <mat-icon>assignment</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="columns.concat(['actions'])"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: columns.concat(['actions'])"
+          ></tr>
+        </table>
+      </div>
+    } @else if (pollInstances.length === 0 && !loading) {
+      <div class="no-data">
+        <p class="no-data-message">
+          Select a Cohort and Poll to list Polls Answered.
+        </p>
+      </div>
+    } @else {
+      <div class="no-data">
+        <p class="no-data-message">Poll instances not found.</p>
+      </div>
+    }
+  }
+}

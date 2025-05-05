@@ -1,0 +1,24 @@
+<div class="page-header">
+  <h2 class="page-title">Summary Reports</h2>
+</div>
+<div class="chart-container-wrapper">
+  @if (!isLoading) {
+    <div class="chart-container">
+      <apx-chart
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [colors]="chartOptions.colors!"
+        [plotOptions]="chartOptions.plotOptions!"
+        [title]="chartOptions.title!"
+        [tooltip]="chartOptions.tooltip!"
+      >
+      </apx-chart>
+    </div>
+  } @else {
+    <div class="spinner-container">
+      <mat-spinner style="margin: 0 auto"></mat-spinner>
+    </div>
+  }
+</div>

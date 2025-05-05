@@ -1,17 +1,20 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export abstract class BaseApiService {
-  protected abstract apiUrl: string; // Each service must define its own `apiUrl`
-
+  protected apiUrl = environment.apiUrl;
+  protected abstract resource: string;
   constructor(protected http: HttpClient) {}
 
-  get<T>(endpoint: string, params?: HttpParams): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { params });
+  get<T>(endpoint?: string, params?: HttpParams): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}/${this.resource}/${endpoint}`, {
+      params,
+    });
   }
 
   post<T, R = T>(

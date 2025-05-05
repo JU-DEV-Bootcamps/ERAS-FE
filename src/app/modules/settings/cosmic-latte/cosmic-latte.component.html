@@ -1,0 +1,29 @@
+<div>
+  <h2 class="page-title">Cosmic Latte</h2>
+</div>
+
+<div class="content">
+  <div class="row grow">
+    <div class="col center">
+      <h3 class="title-status">Service Status</h3>
+      @if (isLoading) {
+        <mat-spinner></mat-spinner>
+      } @else {
+        @if (healthCheckResponse.entries.cosmicLatteApi.status === 'Healthy') {
+          <mat-icon class="check">check</mat-icon>
+        } @else {
+          <mat-icon class="close">close</mat-icon>
+        }
+        <h3 class="ligth">last test :</h3>
+        <h3 class="ligth">
+          {{ healthCheckResponse.entries.cosmicLatteApi.data.date }}
+        </h3>
+      }
+    </div>
+  </div>
+  <div class="row">
+    <button class="button" mat-flat-button (click)="testConnection()">
+      Test Connection
+    </button>
+  </div>
+</div>
