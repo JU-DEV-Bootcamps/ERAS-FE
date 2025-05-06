@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-empty-data',
+  selector: 'app-empty-data-message',
   imports: [],
   templateUrl: './empty-data.component.html',
   styleUrl: './empty-data.component.css',

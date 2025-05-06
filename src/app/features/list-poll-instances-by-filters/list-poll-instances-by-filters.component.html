@@ -49,10 +49,10 @@
   <mat-spinner></mat-spinner>
 } @else {
   @if (!pollInstances.length) {
-    <app-empty-data
+    <app-empty-data-message
       title="No data loaded."
       description="Select a Cohort and Poll to list Polls Answered."
-    ></app-empty-data>
+    ></app-empty-data-message>
   } @else {
     @if (isMobile) {
       <div class="card-container">
