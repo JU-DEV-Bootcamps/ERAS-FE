@@ -68,7 +68,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   pollInstanceService = inject(PollInstanceService);
   cohortService = inject(CohortService);
 
-  loading = true;
+  loading = false;
   data = new MatTableDataSource<PollInstanceModel>([]);
   pollInstances: DynamicPollInstance[] = [];
 
@@ -134,10 +134,10 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   }
 
   loadPollInstances(cohortId: number): void {
+    this.loading = true;
     this.pollInstanceService
       .getPollInstancesByFilters(cohortId, 0)
       .subscribe(data => {
-        this.loading = true;
         this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
         );
