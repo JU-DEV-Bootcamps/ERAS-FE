@@ -22,7 +22,7 @@ import {
   getRiskColor,
   getRiskTextColor,
 } from '../../../core/constants/riskLevel';
-import { VariableService } from '../../../core/services/variable/variable.service';
+import { VariableService } from '../../../core/services/api/variable.service';
 
 export interface SelectedHMData {
   cohortId: string;

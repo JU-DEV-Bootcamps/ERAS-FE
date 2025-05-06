@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ImportStudentsComponent } from './import-students.component';
-import { ImportStudentService } from '../../core/services/import-students.service';
+import { ImportStudentService } from '../../core/services/api/import-students.service';
 import { VALIDATION_MESSAGES } from '../../core/constants/messages';
 import { of } from 'rxjs';
 

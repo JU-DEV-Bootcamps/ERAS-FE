@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ImportStudentService } from '../../core/services/import-students.service';
+import { ImportStudentService } from '../../core/services/api/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';

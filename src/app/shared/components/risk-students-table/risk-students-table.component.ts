@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { BarChartComponent } from '../charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../charts/pie-chart/pie-chart.component';
-import { CohortService } from '../../../core/services/cohort.service';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 interface StudentRisk {
   name: string;

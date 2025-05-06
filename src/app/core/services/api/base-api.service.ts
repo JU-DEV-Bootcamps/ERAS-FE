@@ -11,14 +11,14 @@ export abstract class BaseApiService {
   protected abstract resource: string;
   constructor(protected http: HttpClient) {}
 
-  get<T>(endpoint?: string, params?: HttpParams): Observable<T> {
+  get<T>(endpoint: string | number, params?: HttpParams): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}/${this.resource}/${endpoint}`, {
       params,
     });
   }
 
   post<T, R = T>(
-    endpoint: string,
+    endpoint: string | number,
     body: T,
     headers?: HttpHeaders
   ): Observable<R> {
@@ -26,14 +26,14 @@ export abstract class BaseApiService {
   }
 
   put<T, R = T>(
-    endpoint: string,
+    endpoint: string | number,
     body: T,
     headers?: HttpHeaders
   ): Observable<R> {
     return this.http.put<R>(`${this.apiUrl}/${endpoint}`, body, { headers });
   }
 
-  delete<T>(endpoint: string, params?: HttpParams): Observable<T> {
+  delete<T>(endpoint: string | number, params?: HttpParams): Observable<T> {
     return this.http.delete<T>(`${this.apiUrl}/${endpoint}`, { params });
   }
 }

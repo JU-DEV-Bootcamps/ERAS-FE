@@ -11,7 +11,6 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { CosmicLatteService } from '../../../core/services/cosmic-latte.service';
 import { BehaviorSubject } from 'rxjs';
 import { GENERAL_MESSAGES } from '../../../core/constants/messages';
 import { MatIcon } from '@angular/material/icon';
@@ -22,13 +21,14 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
+import { EvaluationProcessService } from '../../../core/services/api/evaluation-process.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
 import { countries } from '../../../core/constants/countries';
 import { CreateEvaluationModel } from '../../../core/models/evaluation-request.model';
 import { EvaluationModel } from '../../../core/models/evaluation.model';
 import { PollName } from '../../../core/models/poll-request.model';
+import { CosmicLatteService } from '../../../core/services/api/cosmic-latte.service';
 
 @Component({
   selector: 'app-evaluation-process-form',

@@ -21,10 +21,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { CohortModel } from '../../../core/models/cohort.model';
-import { CohortService } from '../../../core/services/cohort.service';
 import { PollService } from '../../../core/services/poll.service';
-import { PdfService } from '../../../core/services/report/pdf.service';
-import { StudentService } from '../../../core/services/student.service';
+import { PdfService } from '../../../core/services/export/pdf.service';
+import { StudentService } from '../../../core/services/api/student.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
 import { PollModel } from '../../../core/models/poll.model';
 import { StudentRiskAverage } from '../../../core/services/interfaces/student.interface';
@@ -36,6 +35,7 @@ import {
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 @Component({
   selector: 'app-students-risk',
@@ -107,10 +107,10 @@ export class StudentsRiskComponent implements OnInit {
     if (this.selectForm.value.cohortId && this.selectForm.value.pollId) {
       this.load = false;
       this.studentService
-        .getAllAverageByCohortAndPoll({
-          cohortId: this.selectForm.value.cohortId,
-          pollId: this.selectForm.value.pollId,
-        })
+        .getAllAverageByCohortAndPoll(
+          this.selectForm.value.cohortId,
+          this.selectForm.value.pollId
+        )
         .subscribe(res => {
           this.students = res;
           this.load = true;

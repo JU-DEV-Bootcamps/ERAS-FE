@@ -20,7 +20,7 @@ import {
   SurveyKind,
 } from '../reports/types/data.generator';
 import { adaptAnswers } from '../reports/util/data.adapter';
-import { HeatMapService } from '../../core/services/apiServices/heat-map.service';
+import { HeatMapService } from '../../core/services/api/heat-map.service';
 @Component({
   selector: 'app-risk-students',
   imports: [

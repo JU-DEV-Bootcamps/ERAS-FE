@@ -19,18 +19,18 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../core/models/cohort.model';
 import { PollModel } from '../../../core/models/poll.model';
-import { CohortService } from '../../../core/services/cohort.service';
 import { PollService } from '../../../core/services/poll.service';
-import { PdfService } from '../../../core/services/report/pdf.service';
-import { Variable } from '../../../core/services/variable/interface/variable.interface';
-import { VariableService } from '../../../core/services/variable/variable.service';
+import { PdfService } from '../../../core/services/export/pdf.service';
+import { Variable } from '../../../core/services/interfaces/variable.interface';
+import { VariableService } from '../../../core/services/api/variable.service';
 import {
   Components,
   ComponentValueType,
 } from '../../heat-map/types/risk-students-detail.type';
 import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
-import { HeatMapService } from '../../../core/services/apiServices/heat-map.service';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 @Component({
   selector: 'app-heat-map',

@@ -4,7 +4,7 @@ import { EvaluationProcessListComponent } from './evaluation-process-list.compon
 import { provideHttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
+import { EvaluationProcessService } from '../../../core/services/api/evaluation-process.service';
 import { of } from 'rxjs';
 
 describe('EvaluationProcessListComponent', () => {

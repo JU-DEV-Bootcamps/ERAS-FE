@@ -17,7 +17,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { CohortModel } from '../../core/models/cohort.model';
-import { CohortService } from '../../core/services/cohort.service';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { PollService } from '../../core/services/poll.service';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
@@ -25,6 +24,7 @@ import { PollModel } from '../../core/models/poll.model';
 import { PollInstanceModel } from '../../core/models/poll-instance.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
+import { CohortService } from '../../core/services/api/cohort.service';
 
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 interface DynamicPollInstance extends PollInstanceModel {

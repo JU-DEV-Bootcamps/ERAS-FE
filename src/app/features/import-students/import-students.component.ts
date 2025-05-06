@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
-import { ImportStudentService } from '../../core/services/import-students.service';
+import { ImportStudentService } from '../../core/services/api/import-students.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import {

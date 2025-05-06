@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 import { GENERAL_MESSAGES } from '../../../core/constants/messages';
 import { PagedReadEvaluationProcess } from '../../../core/models/evaluation-request.model';
 import { EvaluationModel } from '../../../core/models/evaluation.model';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
+import { EvaluationProcessService } from '../../../core/services/api/evaluation-process.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
 

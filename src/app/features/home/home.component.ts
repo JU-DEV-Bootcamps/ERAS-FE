@@ -3,11 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
-//import { PieChartComponent } from '../../shared/components/charts/pie-chart/pie-chart.component';
 import { Router, RouterLink } from '@angular/router';
-import { CohortService } from '../../core/services/cohort.service';
-import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-import { EvaluationProcessService } from '../../core/services/evaluation-process.service';
+import { EvaluationProcessService } from '../../core/services/api/evaluation-process.service';
 import {
   CohortsSummaryModel,
   EvaluationModel,
@@ -17,6 +14,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
 import { MatTooltip } from '@angular/material/tooltip';
 import { PollModel } from '../../core/models/poll.model';
+import { CohortService } from '../../core/services/api/cohort.service';
+import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 
 @Component({
   selector: 'app-home',

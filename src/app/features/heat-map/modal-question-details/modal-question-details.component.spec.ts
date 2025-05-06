@@ -8,7 +8,7 @@ import { ReportService } from '../../../core/services/report.service.ts.service'
 import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
-import { VariableService } from '../../../core/services/variable/variable.service';
+import { VariableService } from '../../../core/services/api/variable.service';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 
 describe('ModalQuestionDetailsComponent', () => {

@@ -18,13 +18,13 @@ import { MatRadioModule } from '@angular/material/radio';
 import { PollService } from '../../../core/services/poll.service';
 import { Poll } from '../../list-students-by-poll/types/list-students-by-poll';
 import { CohortComponents } from '../../../shared/models/cohort/cohort-components.model';
-import { CohortService } from '../../../core/services/cohort.service';
 import { ApexOptions } from 'ng-apexcharts';
 import { CohortStudentsRiskByPollResponse } from '../../../core/models/cohort.model';
 import { toSentenceCase } from '../../../core/utilities/string-utils';
 import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
-import { HeatMapService } from '../../../core/services/apiServices/heat-map.service';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 @Component({
   selector: 'app-student-detail-option',
