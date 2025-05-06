@@ -12,7 +12,7 @@
       Add new
     </button>
   </span>
-  <p class="subtitle">Evaluation Processes</p>
+  <p class="page-title">Evaluation Processes</p>
   @if (isLoading) {
     <span class="spinerContainer">
       <mat-spinner></mat-spinner>
@@ -20,7 +20,9 @@
   } @else {
     @if (evaluationProcessList.length === 0) {
       <span class="noEvalsContainer">
-        <p class="noEvalsTitle">There are no processes created yet</p>
+        <app-empty-data-message
+          description="There are no process created yet."
+        ></app-empty-data-message>
         <button
           class="button"
           mat-flat-button

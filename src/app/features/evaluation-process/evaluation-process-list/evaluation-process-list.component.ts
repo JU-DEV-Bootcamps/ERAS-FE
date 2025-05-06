@@ -16,6 +16,7 @@ import { EvaluationModel } from '../../../core/models/evaluation.model';
 import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
+import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -34,6 +35,7 @@ import { EvaluationProcessFormComponent } from '../evaluation-process-form/evalu
     MatButtonModule,
     MatIcon,
     MatTooltipModule,
+    EmptyDataComponent,
   ],
   providers: [DatePipe],
   templateUrl: './evaluation-process-list.component.html',
