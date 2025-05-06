@@ -1,0 +1,20 @@
+.empty-data {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--mat-sys-body-medium);
+}
+
+.description {
+  font-weight: 400;
+  font-size: var(--mat-sys-body-small);
+}
+
+p {
+  margin: 0px;
+}
