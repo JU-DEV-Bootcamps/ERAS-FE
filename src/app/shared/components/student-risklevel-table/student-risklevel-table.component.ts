@@ -32,7 +32,6 @@ export class StudentRisklevelTableComponent {
   columns = ['studentId', 'studentName', 'riskLevel'];
 
   closeDialog(): void {
-    console.info(this.riskStudentsDetail);
     this.dialogRef.close();
   }
 

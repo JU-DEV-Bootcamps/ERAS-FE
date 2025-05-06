@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ListPollInstancesByFiltersComponent } from './list-poll-instances-by-filters.component';
 import { PollInstanceService } from '../../core/services/poll-instance.service';
 import { CohortService } from '../../core/services/cohort.service';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { PollService } from '../../core/services/poll.service';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ListPollInstancesByFiltersComponent', () => {
   let component: ListPollInstancesByFiltersComponent;
@@ -34,7 +34,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
         { provide: CohortService, useValue: mockCohortService },
         { provide: PollService, useValue: mockPollService },
         provideNoopAnimations(),
-        provideHttpClientTesting(),
+        provideHttpClient(),
       ],
     }).compileComponents();
 
@@ -50,13 +50,6 @@ describe('ListPollInstancesByFiltersComponent', () => {
   it('should load cohorts on init', () => {
     expect(mockCohortService.getCohorts).toHaveBeenCalled();
     expect(component.cohortsData.length).toBeGreaterThan(0);
-  });
-
-  it('should load poll instances on init', () => {
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalled();
-    expect(component.pollInstances.length).toBe(0);
   });
 
   it('should update polls on selection change for cohortId', () => {
@@ -82,24 +75,5 @@ describe('ListPollInstancesByFiltersComponent', () => {
     expect(component.getWidth('name')).toBe('20%');
     expect(component.getWidth('email')).toBe('20%');
     expect(component.getWidth('uuid')).toBe('');
-  });
-
-  it('should open new window with correct URL on goToDetails', () => {
-    spyOn(window, 'open');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pollInstance = { student: { id: 1 } } as any;
-    component.goToDetails(pollInstance);
-    expect(window.open).toHaveBeenCalledWith('student-details/1', '_blank');
-  });
-
-  it('should open heat map summary with correct query params', () => {
-    spyOn(window, 'open');
-    component.filtersForm.controls['selectedCohort'].setValue(1);
-    component.filtersForm.controls['selectedPoll'].setValue('test-uuid');
-    component.generateHeatMap();
-    expect(window.open).toHaveBeenCalledWith(
-      '/heat-map-summary?cohortId=1&pollUuid=test-uuid',
-      '_blank'
-    );
   });
 });

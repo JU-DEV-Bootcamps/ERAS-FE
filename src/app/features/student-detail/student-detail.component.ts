@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { CommonModule } from '@angular/common';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   inject,
+  Input,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -13,23 +15,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { StudentService } from '../../core/services/student.service';
-
-import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute } from '@angular/router';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Subject, takeUntil } from 'rxjs';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
+import { AnswerResponse } from '../../core/models/answer-request.model';
 import { ComponentsAvgModel } from '../../core/models/components-avg.model';
 import { PollModel } from '../../core/models/poll.model';
+import { StudentResponse } from '../../core/models/student-request.model';
 import { AnswersService } from '../../core/services/answers.service';
 import { ComponentsService } from '../../core/services/components.service';
 import { PollService } from '../../core/services/poll.service';
 import { PdfService } from '../../core/services/report/pdf.service';
-import { AnswerResponse } from '../../core/models/answer-request.model';
-import { StudentResponse } from '../../core/models/student-request.model';
+import { StudentService } from '../../core/services/student.service';
 
 register();
 @Component({
@@ -85,9 +84,8 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   studentPolls: PollModel[] = [];
   studentAnswers: AnswerResponse[] = [];
   componentsAvg: ComponentsAvgModel[] = [];
-  studentId!: number;
 
-  constructor(private route: ActivatedRoute) {}
+  @Input({ required: true }) studentId!: number;
 
   columns = ['variable', 'position', 'component', 'answer', 'score'];
 
@@ -111,10 +109,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      this.studentId = +params['studentId'];
-      this.getStudentDetails(this.studentId);
-    });
+    this.getStudentDetails(this.studentId);
   }
 
   ngOnDestroy(): void {

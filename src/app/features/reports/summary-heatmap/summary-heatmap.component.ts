@@ -6,8 +6,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ActivatedRoute } from '@angular/router';
-import { HeatMapService } from '../../../core/services/heat-map.service';
-import { ChartOptions } from '../../cohort/util/heat-map-config';
+import { GetChartOptions } from '../../cohort/util/heat-map-config';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  ModalQuestionDetailsComponent,
+  SelectedHMData,
+} from '../../heat-map/modal-question-details/modal-question-details.component';
+import { ReportService } from '../../../core/services/report.service.ts.service';
+import { PollAvgQuestion } from '../../../core/models/summary.model';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -23,7 +29,8 @@ import { ChartOptions } from '../../cohort/util/heat-map-config';
   styleUrl: './summary-heatmap.component.css',
 })
 export class SummaryHeatmapComponent implements OnInit {
-  private readonly heatmapService = inject(HeatMapService);
+  private readonly reportService = inject(ReportService);
+  private readonly dialog = inject(MatDialog);
   public chartOptions: ApexOptions = {};
   private pollUuid = '';
   private route = inject(ActivatedRoute);
@@ -31,23 +38,38 @@ export class SummaryHeatmapComponent implements OnInit {
 
   isLoading = true;
 
-  public componentsSummary: {
-    componentName: string;
-    variables: { varName: string; scoreAverage: number }[];
-  }[] = [];
-
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.cohortId = params['cohortId'] || '0';
       this.pollUuid = params['pollUuid'] || '0';
     });
 
-    this.heatmapService.getSummaryData(this.pollUuid).subscribe(data => {
-      this.isLoading = false;
-      this.chartOptions = {
-        ...ChartOptions,
-        series: data.body.series,
-      };
-    });
+    this.reportService
+      .getAvgPoolReport(this.pollUuid, parseInt(this.cohortId))
+      .subscribe(res => {
+        this.isLoading = false;
+        const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+          res.body
+        );
+        this.chartOptions = GetChartOptions(
+          `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
+          reportSeries,
+          (x, y) => {
+            const compReport = res.body.components[y];
+            const selectedQuestion = compReport.questions[x];
+            this.openDetailsModal(selectedQuestion, compReport.description);
+          }
+        );
+      });
+  }
+
+  openDetailsModal(question: PollAvgQuestion, componentName: string): void {
+    const data: SelectedHMData = {
+      cohortId: this.cohortId,
+      pollUuid: this.pollUuid,
+      componentName,
+      question,
+    };
+    this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 }

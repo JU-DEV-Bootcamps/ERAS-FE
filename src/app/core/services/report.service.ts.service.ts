@@ -2,6 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
+import {
+  GetQueryResponse,
+  PollAvgReport,
+  PollTopReport,
+} from '../models/summary.model';
 
 interface StudentRisk {
   name: string;
@@ -22,22 +27,24 @@ export class ReportService {
   private readonly http: HttpClient = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/Reports`;
 
-  getStudentsDetailByVariables(
-    variableId: number,
+  getTopPollReport(
+    variableIds: number[],
     pollInstanceUUID: string,
-    take: number | null
+    take?: number
   ) {
     let params = new HttpParams()
-      .set('variableId', variableId)
+      .set('variableIds', variableIds.join(','))
       .set('pollInstanceUuid', pollInstanceUUID);
 
     if (take !== undefined && take !== null) {
       params = params.set('take', take);
     }
 
-    return this.http.get<ApiResponse<unknown>>(
-      `${this.apiUrl}/higherrisk/byVariable`,
-      { params }
+    return this.http.get<ApiResponse<PollTopReport>>(
+      `${this.apiUrl}/polls/top`,
+      {
+        params,
+      }
     );
   }
 
@@ -58,5 +65,36 @@ export class ReportService {
       `${this.apiUrl}/higherrisk/byPoll`,
       { params }
     );
+  }
+
+  getAvgPoolReport(pollInstanceUUID: string, cohortId: number | null) {
+    let params = new HttpParams().set('PollInstanceUuid', pollInstanceUUID);
+    if (cohortId != null) params = params.set('cohortId', cohortId);
+    return this.http.get<GetQueryResponse<PollAvgReport>>(
+      `${this.apiUrl}/polls/avg`,
+      { params }
+    );
+  }
+
+  getHMSeriesFromAvgReport(body: PollAvgReport) {
+    const series = body.components.map(component => {
+      return {
+        name: `${component.description}\n RISK AVG: ${component.averageRisk.toFixed(2)}`,
+        data: component.questions.map(question => {
+          return {
+            x: question.question,
+            y: question.averageRisk,
+            details: question.answersDetails,
+            z: question.answersDetails
+              .map(
+                ans =>
+                  `${ans.answerPercentage}% = ${ans.answerText}: ${ans.studentsEmails.join(', ')}`
+              )
+              .join('; </br>'),
+          };
+        }),
+      };
+    });
+    return series;
   }
 }

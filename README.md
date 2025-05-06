@@ -17,18 +17,25 @@
 
 The given Angular project structure is designed to promote scalability, maintainability, and separation of concerns, ensuring a clean and organized codebase as the application grows.
 
+All file naming is kebab case i.e. (some-thing-else.interface.ts)
 ```plaintext
 src/
 ├── app/
 │   ├── core/
-│   │   ├── models/
+│   │   ├── models/ Based on domain entities. Only one file per entity
 │   │   ├── services/
+│   │   │   ├──-interfaces: Only for special cases, only one file per entity
 │   │   └── utilities/
 │   │
-│   ├── features/
+│   ├── modules/ #Reflects on the actual application menu
+│   │   ├── reports/
+│   │   │   ├── components/
+│   │   │   └── pages/
+│   │   └── student-monitoring/
+│   │
+│   ├── features/ #Only specific features that are no part of a defined module yet
 │   │   ├── feature-one/
 │   │   │   ├── components/
-│   │   │   ├── services/
 │   │   │   └── pages/
 │   │   └── feature-two/
 │   │

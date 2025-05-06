@@ -26,7 +26,8 @@ mat-icon {
   font-family: 'Material Icons', sans-serif;
 }
 
-button[mat-fab],button[mat-flat-button] {
+button[mat-fab],
+button[mat-flat-button] {
   background-color: var(
     --mdc-filled-text-field-container-color,
     var(--mat-sys-surface-variant)
@@ -39,7 +40,10 @@ button[mat-fab],button[mat-flat-button] {
 }
 
 // Rewrite apexcharts styles
-.apexcharts-canvas .apexcharts-heatmap-rect[val='-1'], .apexcharts-canvas .apexcharts-heatmap-rect[val='-1'] + .apexcharts-data-labels {
+.apexcharts-canvas .apexcharts-heatmap-rect[val='-1'],
+.apexcharts-canvas
+  .apexcharts-heatmap-rect[val='-1']
+  + .apexcharts-data-labels {
   display: none !important;
 }
 
@@ -83,8 +87,12 @@ body {
   border-radius: 28px;
 }
 .error-message {
-    color: red;
-    font-size: 0.9em;
-    white-space: normal;
-    word-wrap: break-word;
+  color: red;
+  font-size: 0.9em;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+mat-form-field {
+  margin-left: 0px !important;
 }

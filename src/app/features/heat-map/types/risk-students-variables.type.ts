@@ -8,6 +8,8 @@ interface ComponentVariables {
 }
 
 interface ComponentData {
+  cohortId?: number;
+  pollUuid?: string;
   componentName: string;
   variables: ComponentVariables;
 }
