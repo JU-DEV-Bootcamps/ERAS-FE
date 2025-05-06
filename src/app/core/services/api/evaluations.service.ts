@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { EvaluationSummaryModel } from '../../models/summary.model';
 import {
   CreateEvaluationModel,
@@ -12,28 +11,23 @@ import { HttpParams } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
-export class EvaluationProcessService extends BaseApiService {
-  protected resource = 'api/v1/Evaluation';
+export class EvaluationsService extends BaseApiService {
+  protected resource = 'Evaluations';
 
-  getEvalProcSummary(): Observable<EvaluationSummaryModel> {
-    return this.http.get<EvaluationSummaryModel>(`/summary`);
+  getEvalProcSummary() {
+    return this.http.get<EvaluationSummaryModel>(`summary`);
   }
-  createEvalProc(data: CreateEvaluationModel): Observable<unknown> {
+  createEvalProc(data: CreateEvaluationModel) {
     return this.http.post('', data);
   }
-  getAllEvalProc({
-    page = 1,
-    pageSize = 10,
-  }): Observable<PagedReadEvaluationProcess> {
+  getAllEvalProc({ page = 1, pageSize = 10 }) {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
     return this.get<PagedReadEvaluationProcess>('', params);
   }
-  updateEvaluationProcess(
-    evaluation: EvaluationModel
-  ): Observable<EvaluationModel> {
-    return this.put(evaluation.id, evaluation);
+  updateEvaluationProcess(evaluation: EvaluationModel) {
+    return this.put<EvaluationModel>(evaluation.id, evaluation);
   }
-  deleteEvaluationProcess(id: string): Observable<EvaluationModel> {
+  deleteEvaluationProcess(id: string) {
     return this.delete<EvaluationModel>(id);
   }
 }

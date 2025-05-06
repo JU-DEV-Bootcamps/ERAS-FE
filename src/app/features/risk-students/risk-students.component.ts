@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
 import { RiskStudentsTableComponent } from '../../shared/components/risk-students-table/risk-students-table.component';
-import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import {
@@ -21,6 +20,7 @@ import {
 } from '../reports/types/data.generator';
 import { adaptAnswers } from '../reports/util/data.adapter';
 import { HeatMapService } from '../../core/services/api/heat-map.service';
+import { PollService } from '../../core/services/api/poll.service';
 @Component({
   selector: 'app-risk-students',
   imports: [

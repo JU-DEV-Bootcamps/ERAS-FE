@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { BaseApiService } from './base-api.service';
@@ -11,9 +11,9 @@ import { PollName } from '../../models/poll-request.model';
   providedIn: 'root',
 })
 export class CosmicLatteService extends BaseApiService {
-  protected resource = 'api/v1/CosmicLatte';
+  protected resource = 'CosmicLatte';
 
-  healthCheck(): Observable<HealthCheckResponse> {
+  healthCheck() {
     return this.http
       .get<HealthCheckResponse>(`${this.apiUrl}/api/v1/health`)
       .pipe(
@@ -27,7 +27,7 @@ export class CosmicLatteService extends BaseApiService {
     evaluationSetName: string,
     start?: string | null,
     end?: string | null
-  ): Observable<PollInstance[]> {
+  ) {
     let params = new HttpParams().set('EvaluationSetName', evaluationSetName);
     if (start && start.length > 0) {
       params = params.set('startDate', start);
@@ -38,7 +38,7 @@ export class CosmicLatteService extends BaseApiService {
     return this.get<PollInstance[]>('polls', params);
   }
 
-  getPollNames(): Observable<PollName[]> {
+  getPollNames() {
     return this.get<PollName[]>('polls/names').pipe(
       catchError(error => {
         return throwError(
@@ -46,5 +46,9 @@ export class CosmicLatteService extends BaseApiService {
         );
       })
     );
+  }
+
+  savePollsCosmicLattePreview(data: PollInstance[]) {
+    return this.post<PollInstance[]>('polls', data);
   }
 }

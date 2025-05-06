@@ -3,7 +3,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
-import { ImportStudentService } from '../../core/services/api/import-students.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import {
@@ -18,6 +17,7 @@ import {
   isStudentImportKey,
   StudentImport,
 } from '../../core/services/interfaces/student.interface';
+import { StudentService } from '../../core/services/api/student.service';
 
 @Component({
   selector: 'app-import-students',
@@ -47,7 +47,7 @@ export class ImportStudentsComponent {
 
   constructor(
     private csvCheckerService: CsvCheckerService,
-    private importService: ImportStudentService
+    private studentService: StudentService
   ) {}
 
   private openDialog(text: string, isSuccess: boolean): void {
@@ -163,7 +163,7 @@ export class ImportStudentsComponent {
         }
       );
 
-      this.importService.postData(jsonData).subscribe({
+      this.studentService.postData(jsonData).subscribe({
         next: (response: ServerResponse) => {
           this.isLoading = false;
           this.openDialog(response.message, true);

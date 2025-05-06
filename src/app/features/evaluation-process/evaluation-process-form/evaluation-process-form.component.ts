@@ -21,7 +21,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { EvaluationProcessService } from '../../../core/services/api/evaluation-process.service';
+import { EvaluationsService } from '../../../core/services/api/evaluations.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
 import { countries } from '../../../core/constants/countries';
@@ -62,7 +62,7 @@ export class EvaluationProcessFormComponent {
   };
   pollsNames: PollName[] = [this.prefereToChooseLater];
   cosmicLatteService = inject(CosmicLatteService);
-  evaluationProcessService = inject(EvaluationProcessService);
+  evaluationProcessService = inject(EvaluationsService);
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

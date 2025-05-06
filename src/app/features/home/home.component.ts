@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
 import { Router, RouterLink } from '@angular/router';
-import { EvaluationProcessService } from '../../core/services/api/evaluation-process.service';
+import { EvaluationsService } from '../../core/services/api/evaluations.service';
 import {
   CohortsSummaryModel,
   EvaluationModel,
@@ -47,7 +47,7 @@ export class HomeComponent implements OnInit {
   //Services
   router = inject(Router);
   cohortsService = inject(CohortService);
-  evalService = inject(EvaluationProcessService);
+  evalService = inject(EvaluationsService);
   clService = inject(CosmicLatteService);
   readonly dialog = inject(MatDialog);
   riskStudentsDetail: {

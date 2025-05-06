@@ -20,13 +20,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { PollService } from '../../core/services/poll.service';
 import { BehaviorSubject, first, map } from 'rxjs';
 import {
   MatSlideToggle,
   MatSlideToggleChange,
 } from '@angular/material/slide-toggle';
 import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
+import { PollService } from '../../core/services/api/poll.service';
+import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -66,7 +67,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   totalStudents = 0;
   columns: (keyof StudentPreview)[] = ['#', 'name', 'email', 'cohort', 'save'];
 
-  pollService = inject(PollService);
+  clService = inject(CosmicLatteService);
 
   @Input() importedPollData: PollInstance[] = [];
 
@@ -100,7 +101,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
 
   savePolls() {
     this.previewIsHiddenSubject.next(true);
-    let pollsToSave;
+    let pollsToSave: PollInstance[];
     this.studentListToExclude$.pipe(first()).subscribe(excluded => {
       pollsToSave = this.importedPollData.filter(
         poll =>
@@ -108,17 +109,17 @@ export class ImportAnswersPreviewComponent implements OnChanges {
             poll.components?.[0].variables?.[0].answer?.student?.email
           )
       );
-    });
-    this.saveCompleted.emit({ state: 'pending', data: null });
-    this.pollService.savePollsCosmicLattePreview(pollsToSave).subscribe({
-      next: data => {
-        this.saveCompleted.emit({ state: 'true', data: data });
-        this.resetAllDataPolls();
-      },
-      error: error => {
-        this.previewIsHiddenSubject.next(false);
-        this.saveCompleted.emit({ state: 'false', data: error });
-      },
+      this.saveCompleted.emit({ state: 'pending', data: null });
+      this.clService.savePollsCosmicLattePreview(pollsToSave).subscribe({
+        next: data => {
+          this.saveCompleted.emit({ state: 'true', data: data });
+          this.resetAllDataPolls();
+        },
+        error: error => {
+          this.previewIsHiddenSubject.next(false);
+          this.saveCompleted.emit({ state: 'false', data: error });
+        },
+      });
     });
   }
   resetAllDataPolls() {

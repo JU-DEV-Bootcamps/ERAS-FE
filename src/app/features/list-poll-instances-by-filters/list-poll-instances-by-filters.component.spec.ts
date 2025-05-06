@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ListPollInstancesByFiltersComponent } from './list-poll-instances-by-filters.component';
-import { PollInstanceService } from '../../core/services/poll-instance.service';
+import { PollInstanceService } from '../../core/services/api/poll-instance.service';
 import { CohortService } from '../../core/services/cohort.service';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';

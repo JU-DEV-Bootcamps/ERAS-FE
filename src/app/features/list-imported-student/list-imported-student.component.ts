@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ImportStudentService } from '../../core/services/api/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { TableComponent } from '../../shared/components/table/table.component';
 import { StudentModel } from '../../core/models/student.model';
+import { StudentService } from '../../core/services/api/student.service';
 
 @Component({
   selector: 'app-list-imported-student',
@@ -22,7 +22,7 @@ import { StudentModel } from '../../core/models/student.model';
 export class ListImportedStudentComponent implements OnInit {
   columns: (keyof StudentModel)[] = ['id', 'name', 'uuid', 'email'];
 
-  studentService = inject(ImportStudentService);
+  studentService = inject(StudentService);
 
   data = new MatTableDataSource<StudentModel>([]);
   students: StudentModel[] = [];

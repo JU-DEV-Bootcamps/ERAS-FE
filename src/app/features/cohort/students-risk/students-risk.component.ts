@@ -21,7 +21,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { CohortModel } from '../../../core/models/cohort.model';
-import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/export/pdf.service';
 import { StudentService } from '../../../core/services/api/student.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
@@ -29,13 +28,14 @@ import { PollModel } from '../../../core/models/poll.model';
 import { StudentRiskAverage } from '../../../core/services/interfaces/student.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { GetChartOptions } from '../util/heat-map-config';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { CohortService } from '../../../core/services/api/cohort.service';
+import { PollService } from '../../../core/services/api/poll.service';
+import { ReportService } from '../../../core/services/api/report.service';
 
 @Component({
   selector: 'app-students-risk',

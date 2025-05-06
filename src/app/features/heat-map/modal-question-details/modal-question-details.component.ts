@@ -13,7 +13,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import {
   PollAvgQuestion,
   PollTopReport,
@@ -23,6 +22,7 @@ import {
   getRiskTextColor,
 } from '../../../core/constants/riskLevel';
 import { VariableService } from '../../../core/services/api/variable.service';
+import { ReportService } from '../../../core/services/api/report.service';
 
 export interface SelectedHMData {
   cohortId: string;

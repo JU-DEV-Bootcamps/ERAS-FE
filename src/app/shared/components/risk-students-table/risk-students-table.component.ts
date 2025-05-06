@@ -10,12 +10,13 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { BarChartComponent } from '../charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../charts/pie-chart/pie-chart.component';
 import { CohortService } from '../../../core/services/api/cohort.service';
+import { ReportService } from '../../../core/services/api/report.service';
+import { PollTopReport } from '../../../core/models/summary.model';
 
 interface StudentRisk {
   name: string;
@@ -72,7 +73,7 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
   @Input() pollUUID!: string;
   @Input() variableIds!: number[];
 
-  public studentRisk: StudentRisk[] = [];
+  public studentRisk: PollTopReport = [];
   public studentDataResponse: StudentDataResponse[] = [];
   public displayedColumns: string[] = ['name', 'risk'];
   public lastPoll = lastPollPlaceholder;
@@ -100,7 +101,7 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
 
   private loadStudentRisk(): void {
     this.reportService
-      .getStudentsDetailByPool(this.pollUUID, null, this.variableIds)
+      .getTopPollReport(this.variableIds, this.pollUUID)
       .subscribe({
         next: data => {
           this.studentRisk = data.body || [];

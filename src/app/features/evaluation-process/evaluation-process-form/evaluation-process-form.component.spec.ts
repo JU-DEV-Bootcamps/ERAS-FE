@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EvaluationProcessFormComponent } from './evaluation-process-form.component';
 import { of } from 'rxjs';
 import { CosmicLatteService } from '../../../core/services/cosmic-latte.service';
-import { EvaluationProcessService } from '../../../core/services/api/evaluation-process.service';
+import { EvaluationsService } from '../../../core/services/api/evaluations.service';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -26,7 +26,7 @@ describe('EvaluationProcessFormComponent', () => {
       imports: [EvaluationProcessFormComponent],
       providers: [
         { provide: CosmicLatteService, useValue: mockCosmicLatteService },
-        { provide: EvaluationProcessService, useValue: mockEvaluationService },
+        { provide: EvaluationsService, useValue: mockEvaluationService },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         {
           provide: MatDialogRef,

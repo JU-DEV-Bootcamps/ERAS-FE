@@ -1,5 +1,4 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ImportStudentService } from '../../core/services/api/import-students.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -10,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TableComponent } from '../../shared/components/table/table.component';
 import { StudentModel } from '../../core/models/student.model';
+import { StudentService } from '../../core/services/api/student.service';
 
 @Component({
   selector: 'app-list-students-by-poll',
@@ -36,7 +36,7 @@ export class ListStudentsByPollComponent implements OnInit {
     'isImported',
   ] as unknown as (keyof StudentModel)[];
 
-  studentService = inject(ImportStudentService);
+  studentService = inject(StudentService);
 
   dataStudents = new MatTableDataSource<StudentModel>([]);
   students: StudentModel[] = [];

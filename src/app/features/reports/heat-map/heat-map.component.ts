@@ -19,7 +19,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../core/models/cohort.model';
 import { PollModel } from '../../../core/models/poll.model';
-import { PollService } from '../../../core/services/poll.service';
 import { PdfService } from '../../../core/services/export/pdf.service';
 import { Variable } from '../../../core/services/interfaces/variable.interface';
 import { VariableService } from '../../../core/services/api/variable.service';
@@ -31,6 +30,7 @@ import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
 import { HeatMapService } from '../../../core/services/api/heat-map.service';
 import { CohortService } from '../../../core/services/api/cohort.service';
+import { PollService } from '../../../core/services/api/poll.service';
 
 @Component({
   selector: 'app-heat-map',

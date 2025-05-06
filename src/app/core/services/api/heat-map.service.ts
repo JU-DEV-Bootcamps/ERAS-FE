@@ -16,8 +16,30 @@ import { map, of } from 'rxjs';
   providedIn: 'root',
 })
 export class HeatMapService extends BaseApiService {
-  protected resource = 'api/v1/HeatMap';
+  protected resource = 'HeatMap';
   private pollQuestions = new Map<string, PollData[]>();
+
+  getDataPoll(pollUUID: string) {
+    const endpoint = 'polls';
+
+    if (this.pollQuestions.has(pollUUID)) {
+      const pollData = this.pollQuestions.get(pollUUID)!;
+      return of(pollData);
+    } else {
+      return this.get<{ body: PollData[] }>(`${endpoint}/${pollUUID}`).pipe(
+        map((response: { body: PollData[] }) => {
+          this.pollQuestions.set(pollUUID, response.body);
+          return response.body;
+        })
+      );
+    }
+  }
+
+  getSummaryData(pollId: string) {
+    return this.get<GetQueryResponse<HeatmapSummaryModel>>(
+      `polls/${pollId}/summary`
+    );
+  }
 
   getStudentHeatMapDetails(
     component: ComponentValueType,
@@ -27,50 +49,22 @@ export class HeatMapService extends BaseApiService {
       .set('component', component)
       .set('limit', limit ?? DEFAULT_LIMIT);
 
-    return this.get<RiskStudentDetailType[]>('heatmap-details', params);
-  }
-
-  getSummaryData(pollId: string) {
-    return this.get<GetQueryResponse<HeatmapSummaryModel>>(
-      `summary/polls/${pollId}`
-    );
+    return this.get<RiskStudentDetailType[]>('details', params);
   }
 
   getSummaryDataByCohortAndDays(cohortId: string, days: string) {
-    const params = new HttpParams().set('cohortId', cohortId).set('days', days);
-    return this.get('summary/filter', params);
+    const params = new HttpParams().set('days', days);
+    return this.get(`cohorts/${cohortId}/summary`, params);
   }
 
   getStudentHeatMapDetailsByCohort(cohortId: string, limit?: number | null) {
     const params = new HttpParams().set('limit', limit ?? DEFAULT_LIMIT);
-    return this.get<RiskStudentDetailType[]>(
-      `cohort/${cohortId}/top-risk`,
-      params
-    );
+    return this.get<RiskStudentDetailType[]>(`cohorts/${cohortId}/top`, params);
   }
   generateHeatmap(pollInstanceUuid: string, variablesIds: number[]) {
     return this.post<
       { pollInstanceUuid: string; variablesIds: number[] },
       HeatMapData[]
-    >('generate', { pollInstanceUuid, variablesIds });
-  }
-
-  getDataPoll(pollUUID: string) {
-    const endpoint = 'components/polls';
-
-    if (this.pollQuestions.has(pollUUID)) {
-      const pollData = this.pollQuestions.get(pollUUID)!;
-
-      return of(pollData);
-    } else {
-      return this.http
-        .get<{ body: PollData[] }>(`${endpoint}/${pollUUID}`)
-        .pipe(
-          map((response: { body: PollData[] }) => {
-            this.pollQuestions.set(pollUUID, response.body);
-            return response.body;
-          })
-        );
-    }
+    >('', { pollInstanceUuid, variablesIds });
   }
 }
