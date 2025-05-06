@@ -36,6 +36,7 @@ import {
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
+import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
 
 @Component({
   selector: 'app-students-risk',
@@ -49,6 +50,7 @@ import { PollAvgQuestion } from '../../../core/models/summary.model';
     MatIconModule,
     MatTooltipModule,
     NgApexchartsModule,
+    EmptyDataComponent,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',

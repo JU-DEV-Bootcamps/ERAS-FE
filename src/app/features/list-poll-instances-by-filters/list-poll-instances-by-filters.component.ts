@@ -25,6 +25,7 @@ import { PollModel } from '../../core/models/poll.model';
 import { PollInstanceModel } from '../../core/models/poll-instance.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
+import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
 
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 interface DynamicPollInstance extends PollInstanceModel {
@@ -47,6 +48,7 @@ interface DynamicPollInstance extends PollInstanceModel {
     NgFor,
     ReactiveFormsModule,
     TimestampToDatePipe,
+    EmptyDataComponent,
   ],
   templateUrl: './list-poll-instances-by-filters.component.html',
   styleUrl: './list-poll-instances-by-filters.component.scss',
