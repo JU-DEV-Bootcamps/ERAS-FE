@@ -1,5 +1,6 @@
 import { BaseModel } from '../../models/common/base.model';
 
+//TODO!: Needs refactor for dates as strings, uuid as string?
 export interface Audit {
   createdBy: string;
   modifiedBy: string;
