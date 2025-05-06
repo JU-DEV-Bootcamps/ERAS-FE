@@ -44,46 +44,56 @@
     </div>
   </div>
 </form>
-@if (loading === true) {
+
+@if (loading) {
   <mat-spinner></mat-spinner>
 } @else {
-  @if (isMobile) {
-    <div class="card-container">
-      @for (pollInstance of pollInstances; track $index) {
-        <mat-card class="" appearance="outlined">
-          <mat-card-content>
-            <div class="button-container">
-              <button mat-icon-button (click)="goToDetails(pollInstance)">
-                <mat-icon>assignment</mat-icon>
-              </button>
-              <span>Details</span>
-            </div>
-            @for (column of columns; track $index) {
-              <div class="row-info">
-                <p class="field">{{ column }}</p>
-                @if (column === 'createdAt' || column === 'modifiedAt') {
-                  <p class="information">
-                    {{ pollInstance['audit']![column] | timestampToDate }}
-                  </p>
-                } @else if (column === 'name' || column === 'email') {
-                  <p class="information">
-                    {{ pollInstance['student'][column] }}
-                  </p>
-                } @else if (column === 'finishedAt') {
-                  <p class="information">
-                    {{ pollInstance[column] | timestampToDate }}
-                  </p>
-                } @else {
-                  <p class="information">{{ pollInstance[column] }}</p>
-                }
-              </div>
-            }
-          </mat-card-content>
-        </mat-card>
-      }
+  @if (!pollInstances.length) {
+    <div class="no-data">
+      <p class="no-data-message">
+        <strong> No data loaded. </strong>
+      </p>
+      <p class="no-data-message">
+        Select a Cohort and Poll to list Polls Answered.
+      </p>
     </div>
   } @else {
-    @if (pollInstances.length > 0) {
+    @if (isMobile) {
+      <div class="card-container">
+        @for (pollInstance of pollInstances; track $index) {
+          <mat-card class="" appearance="outlined">
+            <mat-card-content>
+              <div class="button-container">
+                <button mat-icon-button (click)="goToDetails(pollInstance)">
+                  <mat-icon>assignment</mat-icon>
+                </button>
+                <span>Details</span>
+              </div>
+              @for (column of columns; track $index) {
+                <div class="row-info">
+                  <p class="field">{{ column }}</p>
+                  @if (column === 'createdAt' || column === 'modifiedAt') {
+                    <p class="information">
+                      {{ pollInstance['audit']![column] | timestampToDate }}
+                    </p>
+                  } @else if (column === 'name' || column === 'email') {
+                    <p class="information">
+                      {{ pollInstance['student'][column] }}
+                    </p>
+                  } @else if (column === 'finishedAt') {
+                    <p class="information">
+                      {{ pollInstance[column] | timestampToDate }}
+                    </p>
+                  } @else {
+                    <p class="information">{{ pollInstance[column] }}</p>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    } @else {
       <div class="mat-elevation-z8">
         <table mat-table [dataSource]="data">
           @for (column of columns; track $index) {
@@ -136,16 +146,6 @@
             *matRowDef="let row; columns: columns.concat(['actions'])"
           ></tr>
         </table>
-      </div>
-    } @else if (pollInstances.length === 0 && !loading) {
-      <div class="no-data">
-        <p class="no-data-message">
-          Select a Cohort and Poll to list Polls Answered.
-        </p>
-      </div>
-    } @else {
-      <div class="no-data">
-        <p class="no-data-message">Poll instances not found.</p>
       </div>
     }
   }
