@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActionButton } from '../list/types/action';
+import { ActionData } from '../list/types/action';
 import { EventAction } from '../../events/load';
 import { MatButton } from '@angular/material/button';
 
@@ -10,14 +10,21 @@ import { MatButton } from '@angular/material/button';
   styleUrl: './action-button.component.css',
 })
 export class ActionButtonComponent {
-  @Input() actionButton: ActionButton = {
-    type: 'none',
+  @Input() actionData: ActionData = {
+    columnId: '',
+    text: '',
     label: '',
   };
-  @Input() data: unknown = {};
+  @Input() item: unknown = {};
   @Output() actionCalled = new EventEmitter<EventAction>();
 
   onButtonClick(event: Event) {
-    this.actionCalled.emit({ event, data: this.data });
+    if (this.actionData.label) {
+      this.actionCalled.emit({
+        event,
+        data: this.actionData,
+        item: this.item,
+      });
+    }
   }
 }

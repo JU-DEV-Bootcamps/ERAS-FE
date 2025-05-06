@@ -4,9 +4,15 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { defaultOptions, readOnlyColumns } from './constants/list';
-import { EventLoad, EventRemove, EventUpdate } from '../../events/load';
+import {
+  EventAction,
+  EventLoad,
+  EventRemove,
+  EventUpdate,
+} from '../../events/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
 import { Column } from './types/columns';
+import { ActionDatas } from './types/action';
 
 @Component({
   selector: 'app-list',
@@ -28,11 +34,10 @@ export class ListComponent<T extends object> implements OnInit {
   @Input() items: T[] = [];
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
-  @Input() isUpdateEnabled = false;
-  @Input() isRemoveEnabled = false;
+  @Input() actionDatas: ActionDatas = [];
+
   @Output() loadCalled = new EventEmitter<EventLoad>();
-  @Output() updateCalled = new EventEmitter<EventUpdate>();
-  @Output() removeCalled = new EventEmitter<EventRemove>();
+  @Output() actionCalled = new EventEmitter<EventAction>();
 
   ngOnInit(): void {
     this.load();
@@ -57,16 +62,8 @@ export class ListComponent<T extends object> implements OnInit {
     });
   }
 
-  handleUpdate(event: EventUpdate) {
-    if (this.isUpdateEnabled) {
-      this.updateCalled.emit(event);
-    }
-  }
-
-  handleRemove(event: EventRemove) {
-    if (this.isRemoveEnabled) {
-      this.removeCalled.emit(event);
-    }
+  handleAction(event: EventUpdate) {
+    this.actionCalled.emit(event);
   }
 
   removeRow(event: EventRemove) {

@@ -4,10 +4,8 @@
   <app-table-with-actions
     [columns]="columns"
     [items]="items"
-    [isUpdateEnabled]="isUpdateEnabled"
-    [isRemoveEnabled]="isRemoveEnabled"
-    (updateCalled)="handleUpdate($event)"
-    (removeCalled)="handleRemove($event)"
+    [actionDatas]="actionDatas"
+    (actionCalled)="handleAction($event)"
   ></app-table-with-actions>
   <br />
   <mat-paginator

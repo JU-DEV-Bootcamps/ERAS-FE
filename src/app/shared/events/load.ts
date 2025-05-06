@@ -1,3 +1,5 @@
+import { ActionData } from '../components/list/types/action';
+
 export class EventLoad {
   constructor(
     public pageIndex: number,
@@ -7,7 +9,8 @@ export class EventLoad {
 
 export interface EventAction {
   event: Event;
-  data: unknown;
+  item: unknown;
+  data: ActionData;
 }
 export type EventUpdate = EventAction;
 

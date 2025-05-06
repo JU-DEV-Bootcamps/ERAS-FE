@@ -16,8 +16,8 @@ import { CommonModule } from '@angular/common';
 import { ActionButtonComponent } from '../action-button/action-button.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { ActionButton } from '../list/types/action';
-import { EventRemove, EventUpdate } from '../../events/load';
+import { ActionDatas } from '../list/types/action';
+import { EventAction } from '../../events/load';
 import { Column } from '../list/types/columns';
 
 @Component({
@@ -40,20 +40,12 @@ import { Column } from '../list/types/columns';
 export class TableWithActionsComponent<T extends object>
   implements OnInit, OnChanges
 {
-  @Output() updateCalled = new EventEmitter<EventUpdate>();
-  @Output() removeCalled = new EventEmitter<EventRemove>();
   @Input() items: T[] = [];
   @Input() columns: Column<T>[] = [] as Column<T>[];
-  @Input() isUpdateEnabled = false;
-  @Input() isRemoveEnabled = false;
-  @Input() updateActionButton: ActionButton = {
-    type: 'update',
-    label: 'Update',
-  };
-  @Input() removeActionButton: ActionButton = {
-    type: 'remove',
-    label: 'Remove',
-  };
+  @Input() actionDatas: ActionDatas = [];
+
+  @Output() actionCalled = new EventEmitter<EventAction>();
+
   dataSource: T[] = [];
 
   isMobile = false;
@@ -70,12 +62,9 @@ export class TableWithActionsComponent<T extends object>
     this.isMobile = window.innerWidth < 768;
     this.totalItems = this.items.length;
 
-    if (this.isRemoveEnabled) {
-      this.actionColumns.push('actionRemove' as keyof T);
-    }
-    if (this.isUpdateEnabled) {
-      this.actionColumns.push('actionUpdate' as keyof T);
-    }
+    this.getActionDatas().forEach(actionData => {
+      this.actionColumns.push(actionData.columnId as keyof T);
+    });
     this.filterItems();
   }
 
@@ -106,12 +95,8 @@ export class TableWithActionsComponent<T extends object>
     this.totalItems = this.items.length;
   }
 
-  handleUpdate(event: EventUpdate) {
-    this.updateCalled.emit(event);
-  }
-
-  handleRemove(event: EventRemove) {
-    this.removeCalled.emit(event);
+  handleAction(event: EventAction) {
+    this.actionCalled.emit(event);
   }
 
   getColumnKeys() {
@@ -121,5 +106,13 @@ export class TableWithActionsComponent<T extends object>
   }
   getAllColumns() {
     return this.getColumnKeys().concat(this.actionColumns);
+  }
+
+  getActionDatas() {
+    return this.actionDatas;
+  }
+
+  getTotalActions() {
+    return this.getActionDatas().length;
   }
 }
