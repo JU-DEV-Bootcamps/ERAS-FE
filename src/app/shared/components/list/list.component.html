@@ -9,7 +9,7 @@
   ></app-table-with-actions>
   <br />
   <mat-paginator
-    [length]="items.length"
+    [length]="totalItems"
     (page)="onPageChange($event)"
     [pageSize]="pageSize"
     [pageIndex]="currentPage"

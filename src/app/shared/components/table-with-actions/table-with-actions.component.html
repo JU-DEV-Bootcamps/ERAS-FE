@@ -48,10 +48,10 @@
 
       <ng-container
         *ngFor="let actionData of getActionDatas()"
-        matColumnDef="{{ actionData.columnId }}"
+        [matColumnDef]="actionData.columnId"
       >
         <th mat-header-cell *matHeaderCellDef>{{ actionData.label }}</th>
-        <td mat-cell *matCellDef="let item of items">
+        <td mat-cell *matCellDef="let item">
           <app-action-button
             [item]="item"
             [actionData]="actionData"

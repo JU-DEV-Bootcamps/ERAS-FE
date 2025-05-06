@@ -32,6 +32,7 @@ export class ListComponent<T extends object> implements OnInit {
   pageSizeOptions = defaultOptions.pageSizeOptions;
 
   @Input() items: T[] = [];
+  @Input() totalItems = 0;
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() actionDatas: ActionDatas = [];
