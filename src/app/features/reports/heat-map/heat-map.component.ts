@@ -31,6 +31,7 @@ import {
 } from '../../heat-map/types/risk-students-detail.type';
 import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
+import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
 
 @Component({
   selector: 'app-heat-map',
@@ -41,6 +42,7 @@ import { fillDefaultData } from './util/heat-map.util';
     NgApexchartsModule,
     MatButtonModule,
     MatIconModule,
+    EmptyDataComponent,
   ],
   templateUrl: './heat-map.component.html',
   styleUrl: './heat-map.component.css',

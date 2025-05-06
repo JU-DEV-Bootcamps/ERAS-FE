@@ -76,8 +76,10 @@
     </apx-chart>
   </div>
 } @else {
-  <div style="text-align: center">
-    <h4>No data found</h4>
-    <p>Please select options in all fields to display the heatmap.</p>
+  <div style="padding-top: 8px">
+    <app-empty-data
+      title="No data found"
+      description="Please select options in all fields to display the heatmap."
+    ></app-empty-data>
   </div>
 }
