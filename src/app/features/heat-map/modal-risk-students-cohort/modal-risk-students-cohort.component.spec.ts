@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ModalRiskStudentsCohortComponent } from './modal-risk-students-cohort.component';
 import { of } from 'rxjs';
-import { HeatMapService } from '../../../core/services/heat-map.service';
-import { CohortService } from '../../../core/services/cohort.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 describe('ModalRiskStudentsCohortComponent', () => {
   let component: ModalRiskStudentsCohortComponent;
