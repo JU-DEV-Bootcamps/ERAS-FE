@@ -41,18 +41,20 @@
         [matColumnDef]="column.key.toString()"
       >
         <th mat-header-cell *matHeaderCellDef>
-          {{ column.label | titlecase }}
+          <b>{{ column.label | titlecase }}</b>
         </th>
-        <td mat-cell *matCellDef="let element">{{ element[column.key] }}</td>
+        <td mat-cell *matCellDef="let element">
+          {{ showElement(element, column) }}
+        </td>
       </ng-container>
 
-      <ng-container
-        *ngFor="let actionData of getActionDatas()"
-        [matColumnDef]="actionData.columnId"
-      >
-        <th mat-header-cell *matHeaderCellDef>{{ actionData.label }}</th>
+      <ng-container matColumnDef="Actions">
+        <th mat-header-cell *matHeaderCellDef>
+          <b>Actions</b>
+        </th>
         <td mat-cell *matCellDef="let item">
           <app-action-button
+            *ngFor="let actionData of getActionDatas()"
             [item]="item"
             [actionData]="actionData"
             (actionCalled)="handleAction($event)"

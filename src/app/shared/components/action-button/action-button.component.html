@@ -1,7 +1,12 @@
 @if (!item || !actionData || !actionData.label) {
   <br />
 } @else {
-  <button mat-button color="primary" (click)="onButtonClick($event)">
+  <button
+    mat-button
+    color="primary"
+    (click)="onButtonClick($event)"
+    [title]="actionData.label"
+  >
     <ng-content> Execute </ng-content>
   </button>
 }

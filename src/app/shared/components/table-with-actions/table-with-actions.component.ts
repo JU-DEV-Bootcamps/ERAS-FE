@@ -50,7 +50,7 @@ export class TableWithActionsComponent<T extends object>
 
   isMobile = false;
   totalItems = 0;
-  actionColumns = [] as (keyof T)[];
+  actionColumns = ['Actions'] as (keyof T)[];
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -61,10 +61,6 @@ export class TableWithActionsComponent<T extends object>
   ngOnInit() {
     this.isMobile = window.innerWidth < 768;
     this.totalItems = this.items.length;
-
-    this.getActionDatas().forEach(actionData => {
-      this.actionColumns.push(actionData.columnId as keyof T);
-    });
     this.filterItems();
   }
 
@@ -114,5 +110,15 @@ export class TableWithActionsComponent<T extends object>
 
   getTotalActions() {
     return this.getActionDatas().length;
+  }
+
+  showElement(element: T, column: Column<T>) {
+    const rawData = element[column.key];
+
+    if (column.pipe) {
+      return column.pipe.transform(rawData);
+    } else {
+      return rawData;
+    }
   }
 }

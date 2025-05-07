@@ -26,6 +26,10 @@ import { PollInstanceModel } from '../../core/models/poll-instance.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
 import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
+import { Column } from '../../shared/components/list/types/columns';
+import { ActionDatas } from '../../shared/components/list/types/action';
+import { ListComponent } from '../../shared/components/list/list.component';
+import { flattenArray } from '../../core/utilities/object/flatten';
 
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 interface DynamicPollInstance extends PollInstanceModel {
@@ -47,9 +51,9 @@ interface DynamicPollInstance extends PollInstanceModel {
     MatSelectModule,
     NgFor,
     ReactiveFormsModule,
-    TimestampToDatePipe,
     EmptyDataComponent,
-  ],
+    ListComponent,
+],
   templateUrl: './list-poll-instances-by-filters.component.html',
   styleUrl: './list-poll-instances-by-filters.component.scss',
 })
@@ -57,7 +61,32 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
 
+  transformPipe = new TimestampToDatePipe();
   columns = ['uuid', 'finishedAt', 'name', 'email', 'modifiedAt'];
+  columns2: Column<DynamicPollInstance>[] = [
+    {
+      label: 'Uuid',
+      key: 'student.uuid',
+    },
+    {
+      label: 'Finished At',
+      key: 'finishedAt',
+      pipe: this.transformPipe,
+    },
+    {
+      label: 'Student Name',
+      key: 'student.name',
+    },
+    {
+      label: 'Student Email',
+      key: 'student.email',
+    },
+    {
+      label: 'Modified At',
+      key: 'student.audit.modifiedAt',
+      pipe: this.transformPipe,
+    },
+  ];
   columnsText = [
     'Uuid',
     'Finished At',
@@ -73,8 +102,21 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   loading = false;
   data = new MatTableDataSource<PollInstanceModel>([]);
   pollInstances: DynamicPollInstance[] = [];
+  totalPollInstances = 0;
 
   cohortsData: CohortModel[] = [];
+  actionDatas: ActionDatas = [
+    {
+      columnId: 'actions',
+      label: 'Actions',
+      ngIconName: 'assignment',
+    },
+    {
+      columnId: 'edit',
+      label: 'Edit',
+      ngIconName: 'edit',
+    },
+  ];
   polls: PollModel[] = [];
   selectedCohortId = 0;
   selectedPollUuid = '';
@@ -143,7 +185,10 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
         this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
         );
-        this.pollInstances = data.body;
+        this.pollInstances = flattenArray(
+          data.body as unknown as Record<string, unknown>[]
+        ) as DynamicPollInstance[];
+        this.totalPollInstances = this.pollInstances.length;
         this.loading = false;
       });
   }

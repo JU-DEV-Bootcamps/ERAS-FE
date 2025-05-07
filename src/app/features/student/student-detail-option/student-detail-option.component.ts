@@ -169,7 +169,6 @@ export class StudentDetailOptionComponent implements OnInit {
 
   selectCohort(cohort: CohortComponents): void {
     this.cohortSeleccionado = cohort;
-    console.log('Interacción con:', this.cohortSeleccionado);
     this.selectedComponents = Object.entries(
       this.cohortSeleccionado.componentsAvg as Record<string, number>
     ).map(([key, value]) => ({
