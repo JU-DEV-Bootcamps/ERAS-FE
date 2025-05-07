@@ -94,7 +94,8 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
   }
 
   private loadStudentRisk(): void {
-    this.reportService.getTopPollReport(this.variableIds, this.pollUUID)
+    this.reportService
+      .getTopPollReport(this.variableIds, this.pollUUID)
       .subscribe({
         next: data => {
           this.studentRisk = data.body || [];
