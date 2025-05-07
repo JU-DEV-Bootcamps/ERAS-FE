@@ -12,8 +12,8 @@ import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
+import { ReportService } from '../../../core/services/api/report.service';
 
 @Component({
   selector: 'app-summary-heatmap',

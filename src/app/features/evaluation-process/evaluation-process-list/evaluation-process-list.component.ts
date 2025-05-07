@@ -13,10 +13,10 @@ import { Router } from '@angular/router';
 import { GENERAL_MESSAGES } from '../../../core/constants/messages';
 import { PagedReadEvaluationProcess } from '../../../core/models/evaluation-request.model';
 import { EvaluationModel } from '../../../core/models/evaluation.model';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
 import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
+import { EvaluationsService } from '../../../core/services/api/evaluations.service';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -43,7 +43,7 @@ import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-
 })
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
-  evaluationProcessService = inject(EvaluationProcessService);
+  evaluationProcessService = inject(EvaluationsService);
   columns: string[] = ['id', 'name', 'country', 'poll', 'period', 'status'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluationProcessList: any = [];

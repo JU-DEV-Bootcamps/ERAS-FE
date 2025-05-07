@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { CohortComponent } from './features/cohort/cohort/cohort.component';
 import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
 import { EvaluationProcessListComponent } from './features/evaluation-process/evaluation-process-list/evaluation-process-list.component';
 import { HomeComponent } from './features/home/home.component';
@@ -16,6 +15,7 @@ import { StudentDetailOptionComponent } from './features/student/student-detail-
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
+import { StudentsRiskComponent } from './features/cohort/students-risk/students-risk.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -35,11 +35,11 @@ export const routes: Routes = [
         component: StudentDetailOptionComponent,
       },
       {
-        path: 'heat-map',
+        path: 'reports/dynamic-heatmap',
         component: HeatMapComponent,
       },
       {
-        path: 'heat-map-summary',
+        path: 'heatmap-summary',
         component: SummaryHeatmapComponent,
       },
       {
@@ -55,15 +55,15 @@ export const routes: Routes = [
         component: ImportStudentsComponent,
       },
       {
-        path: 'cohort',
-        component: CohortComponent,
+        path: 'reports/summary-heatmap',
+        component: StudentsRiskComponent,
       },
       {
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
       },
       {
-        path: 'list-polls-by-filters',
+        path: 'reports/polls-answered',
         component: ListPollInstancesByFiltersComponent,
       },
       {
