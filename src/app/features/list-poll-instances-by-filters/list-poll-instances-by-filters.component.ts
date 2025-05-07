@@ -138,7 +138,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   loadPollInstances(cohortId: number): void {
     this.loading = true;
     this.pollInstanceService
-      .getPollInstancesByFilters(cohortId, 0)
+      .getPollInstancesByFilters(cohortId, 400)
       .subscribe(data => {
         this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
