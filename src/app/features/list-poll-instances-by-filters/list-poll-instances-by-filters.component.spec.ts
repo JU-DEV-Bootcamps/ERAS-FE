@@ -66,7 +66,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
     component.onSelectionChange();
     expect(
       mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(1, 0);
+    ).toHaveBeenCalledWith(1, 400);
   });
 
   it('should return correct width for columns in getWidth', () => {
