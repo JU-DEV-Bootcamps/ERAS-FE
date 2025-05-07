@@ -37,6 +37,8 @@ import {
 } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
+import { ListComponent } from '../../../shared/components/list/list.component';
+import { Column } from '../../../shared/components/list/types/columns';
 
 @Component({
   selector: 'app-students-risk',
@@ -51,6 +53,7 @@ import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-
     MatTooltipModule,
     NgApexchartsModule,
     EmptyDataComponent,
+    ListComponent,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -73,6 +76,22 @@ export class StudentsRiskComponent implements OnInit {
   });
 
   columns = ['studentName', 'email', 'avgRiskLevel'];
+  columns2: Column<StudentRiskAverage>[] = [
+    {
+      key: 'studentName',
+      label: 'Name',
+    },
+    {
+      key: 'email',
+      label: 'Email',
+    },
+    {
+      key: 'avgRiskLevel',
+      label: 'Average Risk',
+      pipe: new DecimalPipe('en-US'),
+      pipeArgs: ['1.2-2'],
+    },
+  ];
   variableColumns = ['variableName'];
 
   cohorts: CohortModel[] = [];
@@ -81,6 +100,7 @@ export class StudentsRiskComponent implements OnInit {
   polls: PollModel[] = [];
 
   students: StudentRiskAverage[] = [];
+  totalStudents = 0;
 
   load = false;
 
@@ -115,6 +135,7 @@ export class StudentsRiskComponent implements OnInit {
         })
         .subscribe(res => {
           this.students = res;
+          this.totalStudents = res.length;
           this.load = true;
         });
     }

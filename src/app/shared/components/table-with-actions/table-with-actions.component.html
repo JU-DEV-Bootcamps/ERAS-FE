@@ -15,7 +15,7 @@
             </span>
           </div>
         </mat-card-content>
-        <mat-card-actions *ngIf="getTotalActions() > 0">
+        <mat-card-actions *ngIf="getTotalActionDatas() > 0">
           <app-action-button
             *ngFor="let actionData of getActionDatas()"
             [item]="item"
@@ -48,7 +48,7 @@
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="Actions">
+      <ng-container *ngIf="getTotalActionDatas() > 0" matColumnDef="Actions">
         <th mat-header-cell *matHeaderCellDef>
           <b>Actions</b>
         </th>

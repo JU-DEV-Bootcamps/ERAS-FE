@@ -53,7 +53,7 @@ interface DynamicPollInstance extends PollInstanceModel {
     ReactiveFormsModule,
     EmptyDataComponent,
     ListComponent,
-],
+  ],
   templateUrl: './list-poll-instances-by-filters.component.html',
   styleUrl: './list-poll-instances-by-filters.component.scss',
 })
@@ -111,11 +111,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       label: 'Actions',
       ngIconName: 'assignment',
     },
-    {
-      columnId: 'edit',
-      label: 'Edit',
-      ngIconName: 'edit',
-    },
   ];
   polls: PollModel[] = [];
   selectedCohortId = 0;
@@ -144,7 +139,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     this.filtersForm.controls['selectedPoll'].valueChanges.subscribe(value => {
       if (value) this.selectedPollUuid = value;
     });
-    //this.loadPollInstances(this.selectedCohortId);
     this.checkScreenSize();
   }
 

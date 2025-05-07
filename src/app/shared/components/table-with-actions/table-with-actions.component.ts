@@ -101,14 +101,20 @@ export class TableWithActionsComponent<T extends object>
     });
   }
   getAllColumns() {
-    return this.getColumnKeys().concat(this.actionColumns);
+    let columnKeys = this.getColumnKeys();
+
+    if (this.getTotalActionDatas() > 0) {
+      columnKeys = columnKeys.concat(this.actionColumns);
+    }
+
+    return columnKeys;
   }
 
   getActionDatas() {
     return this.actionDatas;
   }
 
-  getTotalActions() {
+  getTotalActionDatas() {
     return this.getActionDatas().length;
   }
 
@@ -116,6 +122,9 @@ export class TableWithActionsComponent<T extends object>
     const rawData = element[column.key];
 
     if (column.pipe) {
+      if (column.pipeArgs) {
+        return column.pipe.transform(rawData, ...column.pipeArgs);
+      }
       return column.pipe.transform(rawData);
     } else {
       return rawData;
