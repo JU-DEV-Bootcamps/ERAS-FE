@@ -71,9 +71,6 @@ describe('ModalQuestionDetailsComponent', () => {
     reportService = TestBed.inject(
       ReportService
     ) as jasmine.SpyObj<ReportService>;
-    variableService = TestBed.inject(
-      PollService
-    ) as jasmine.SpyObj<PollService>;
   });
 
   it('should create', () => {
