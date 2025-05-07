@@ -62,8 +62,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   readonly dialog = inject(MatDialog);
 
   transformPipe = new TimestampToDatePipe();
-  columns = ['uuid', 'finishedAt', 'name', 'email', 'modifiedAt'];
-  columns2: Column<DynamicPollInstance>[] = [
+  columns: Column<DynamicPollInstance>[] = [
     {
       label: 'Uuid',
       key: 'student.uuid',
@@ -86,13 +85,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       key: 'student.audit.modifiedAt',
       pipe: this.transformPipe,
     },
-  ];
-  columnsText = [
-    'Uuid',
-    'Finished At',
-    'Student Name',
-    'Student Email',
-    'Modified At',
   ];
 
   pollService = inject(PollService);

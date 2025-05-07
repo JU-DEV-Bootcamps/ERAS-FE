@@ -47,7 +47,6 @@ import { Column } from '../../../shared/components/list/types/columns';
     MatSelectModule,
     MatTableModule,
     MatProgressBarModule,
-    DecimalPipe,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -75,8 +74,7 @@ export class StudentsRiskComponent implements OnInit {
     pollId: new FormControl<number | null>(null, [Validators.required]),
   });
 
-  columns = ['studentName', 'email', 'avgRiskLevel'];
-  columns2: Column<StudentRiskAverage>[] = [
+  columns: Column<StudentRiskAverage>[] = [
     {
       key: 'studentName',
       label: 'Name',
