@@ -11,7 +11,7 @@ import { PollName } from '../../models/poll-request.model';
   providedIn: 'root',
 })
 export class CosmicLatteService extends BaseApiService {
-  protected resource = 'CosmicLatte';
+  protected resource = 'cosmic-latte';
 
   healthCheck() {
     return this.http.get<HealthCheckResponse>(`${this.apiUrl}/health`).pipe(

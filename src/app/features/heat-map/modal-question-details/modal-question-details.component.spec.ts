@@ -10,13 +10,11 @@ import { of } from 'rxjs';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { ReportService } from '../../../core/services/api/report.service';
 import { PollService } from '../../../core/services/api/poll.service';
-import { VariableModel } from '../../../core/models/variable.model';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
   let fixture: ComponentFixture<ModalQuestionDetailsComponent>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let variableService: jasmine.SpyObj<PollService>;
 
   const mockQuestion: PollAvgQuestion = {
     question: 'Test Question',

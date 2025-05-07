@@ -17,7 +17,7 @@ import { AnswerResponse } from '../../models/answer-request.model';
   providedIn: 'root',
 })
 export class StudentService extends BaseApiService {
-  protected resource = 'Students';
+  protected resource = 'students';
 
   getStudentDetailsById(studentId: number) {
     return this.get<StudentResponse>(studentId);

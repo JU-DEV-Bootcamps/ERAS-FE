@@ -12,7 +12,7 @@ import { HttpParams } from '@angular/common/http';
   providedIn: 'root',
 })
 export class EvaluationsService extends BaseApiService {
-  protected resource = 'Evaluations';
+  protected resource = 'evaluations';
 
   getEvalProcSummary() {
     return this.get<EvaluationSummaryModel>(`summary`);

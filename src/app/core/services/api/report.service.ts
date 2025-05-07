@@ -12,7 +12,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ReportService extends BaseApiService {
-  protected resource = 'Reports';
+  protected resource = 'reports';
 
   getTopPollReport(variableIds: number[], pollUuiD: string, take?: number) {
     let params = new HttpParams().set('variableIds', variableIds.join(','));

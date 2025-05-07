@@ -16,7 +16,7 @@ import { map, Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class HeatMapService extends BaseApiService {
-  protected resource = 'HeatMap';
+  protected resource = 'heat-map';
   private pollQuestions = new Map<string, PollData[]>();
 
   getDataPoll(pollUUID: string) {

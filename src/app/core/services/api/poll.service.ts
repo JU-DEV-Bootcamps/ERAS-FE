@@ -9,7 +9,7 @@ import { VariableModel } from '../../models/variable.model';
   providedIn: 'root',
 })
 export class PollService extends BaseApiService {
-  protected resource = 'Polls';
+  protected resource = 'polls';
 
   getAllPolls() {
     return this.get<PollModel[]>('');

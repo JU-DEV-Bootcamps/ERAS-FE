@@ -11,7 +11,7 @@ import { ComponentsAvgGroupedByCohortsModel } from '../../models/reports/avg-rep
   providedIn: 'root',
 })
 export class PollInstanceService extends BaseApiService {
-  protected resource = 'PollInstances';
+  protected resource = 'poll-instances';
 
   getPollInstancesByLastDays(lastDays: number) {
     const params = new HttpParams().set('lastDays', lastDays);

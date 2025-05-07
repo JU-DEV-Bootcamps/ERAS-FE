@@ -7,7 +7,7 @@ import { BaseApiService } from './base-api.service';
   providedIn: 'root',
 })
 export class CohortService extends BaseApiService {
-  protected resource = 'Cohorts';
+  protected resource = 'cohorts';
 
   getCohorts() {
     return this.get<CohortModel[]>('');
