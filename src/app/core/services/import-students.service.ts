@@ -44,4 +44,17 @@ export class ImportStudentService {
       params,
     }) as Observable<ServerResponse>;
   }
+
+  update(data: StudentModel) {
+    return this.http.patch<StudentModel>(
+      `${this.apiUrl}/${this.endpoint}`,
+      data
+    );
+  }
+
+  remove(id: number) {
+    return this.http.delete<StudentModel>(
+      `${this.apiUrl}/${this.endpoint}/${id}`
+    );
+  }
 }
