@@ -16,8 +16,20 @@ describe('TableWithActionsComponent', () => {
   let fixture: ComponentFixture<TableWithActionsComponent<PollName>>;
 
   const mockItems: PollName[] = [
-    { parent: 'parent', name: 'John Doe', status: 'Active' },
-    { parent: 'other parent', name: 'Jane Smith', status: 'Inactive' },
+    {
+      parent: 'parent',
+      name: 'John Doe',
+      status: 'Active',
+      selectData: 'data',
+      country: 'algeria',
+    },
+    {
+      parent: 'other parent',
+      name: 'Jane Smith',
+      status: 'Inactive',
+      selectData: 'mockData',
+      country: 'argentina',
+    },
   ];
 
   const mockColumns: Column<PollName>[] = [

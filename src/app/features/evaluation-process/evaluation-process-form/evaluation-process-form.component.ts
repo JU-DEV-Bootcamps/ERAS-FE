@@ -59,26 +59,24 @@ export class EvaluationProcessFormComponent {
     parent: 'null',
     name: 'null',
     status: 'null',
+    selectData: 'null',
+    country: 'null',
   };
   pollsNames: PollName[] = [this.prefereToChooseLater];
   cosmicLatteService = inject(CosmicLatteService);
   evaluationsService = inject(EvaluationsService);
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pollDataSelected: any = null;
+  pollDataSelected: PollName | null = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      evaluation?: any;
+      evaluation?: EvaluationModel;
       title?: string;
       buttonText?: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      deleteFunction?: any;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updateFunction?: any;
+      deleteFunction?: (id: number) => void;
+      updateFunction?: () => void;
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
     private dialog: MatDialog,
@@ -114,7 +112,7 @@ export class EvaluationProcessFormComponent {
       this.buttonText = this.data.buttonText ?? 'Create';
       if (data.evaluation != null) {
         this.pollDataSelected = {
-          parent: data.evaluation.evaluationPollId ?? '',
+          parent: data.evaluation.evaluationPollId.toString() ?? '',
           name: data.evaluation.name ?? '',
           status: data.evaluation.status ?? '',
           selectData: data.evaluation.pollName
@@ -122,7 +120,7 @@ export class EvaluationProcessFormComponent {
             : '',
           country: data.evaluation.country,
         };
-        const countryAlpha3 = this.data.evaluation.country.toLowerCase();
+        const countryAlpha3 = this.data.evaluation?.country.toLowerCase();
 
         const fullCountry = countries.find(c => c.alpha3 === countryAlpha3);
 
@@ -145,7 +143,7 @@ export class EvaluationProcessFormComponent {
   }
   deleteEvaluation() {
     if (this.data.deleteFunction) {
-      this.data.deleteFunction(this.data.evaluation.id);
+      this.data.deleteFunction(this.data.evaluation!.id!);
       this.closeAndResetDialog();
     }
   }
@@ -197,7 +195,11 @@ export class EvaluationProcessFormComponent {
           next: () => {
             this.closeAndResetDialog();
             this.openDialog('Sucess: Process created!', true);
-            this.data.updateFunction();
+            if (this.data.updateFunction) {
+              this.data.updateFunction();
+            } else {
+              console.warn('No update function provided');
+            }
           },
           error: err => {
             this.openDialog(
@@ -225,7 +227,11 @@ export class EvaluationProcessFormComponent {
           next: () => {
             this.closeAndResetDialog();
             this.openDialog('Sucess: Process updated!', true);
-            this.data.updateFunction();
+            if (this.data.updateFunction) {
+              this.data.updateFunction();
+            } else {
+              console.warn('No update function provided');
+            }
           },
           error: err => {
             this.openDialog(

@@ -30,8 +30,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { HeatMapService } from '../../core/services/heat-map.service';
-import { PollService } from '../../core/services/poll.service';
 import { Poll } from '../list-students-by-poll/types/list-students-by-poll';
 import { ModalRiskStudentsDetailComponent } from '../heat-map/modal-risk-students-detail/modal-risk-students-detail.component';
 import { DialogRiskVariableData } from '../heat-map/types/risk-students-variables.type';
@@ -40,6 +38,8 @@ import { register } from 'swiper/element/bundle';
 import { PdfService } from '../../core/services/exports/pdf.service';
 import { RISK_COLORS } from '../../core/constants/riskLevel';
 import { PollData } from './types/data.adapter';
+import { PollService } from '../../core/services/api/poll.service';
+import { HeatMapService } from '../../core/services/api/heat-map.service';
 
 register();
 @Component({
@@ -137,8 +137,7 @@ export class HeatMapComponent implements OnInit {
     },
     tooltip: {
       y: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: function (val: number, opts?: any): string {
+        formatter: function (val: number, opts?): string {
           const rowIdx = opts.seriesIndex;
           const colIdx = opts.dataPointIndex;
           const grid = opts.series;
@@ -149,8 +148,7 @@ export class HeatMapComponent implements OnInit {
           return val.toString();
         },
         title: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          formatter: function (seriesName: string, opts?: any): string {
+          formatter: function (seriesName: string, opts?): string {
             const rowIdx = opts.seriesIndex;
             const colIdx = opts.dataPointIndex;
             const grid = opts.series;

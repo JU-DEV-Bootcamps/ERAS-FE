@@ -54,8 +54,8 @@ import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service
 })
 export class ImportAnswersPreviewComponent implements OnChanges {
   isMobile = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dataStudents: any = new MatTableDataSource([]);
+  dataStudents: MatTableDataSource<StudentPreview> =
+    new MatTableDataSource<StudentPreview>([]);
   pollDetails: PollPreview = {
     name: '',
     version: '',
@@ -126,7 +126,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       });
   }
   resetAllDataPolls() {
-    this.dataStudents = new MatTableDataSource([]);
+    this.dataStudents = new MatTableDataSource<StudentPreview>([]);
     this.studentsMobileVersion = [];
     this.totalStudents = 0;
     this.pollDetails = {
