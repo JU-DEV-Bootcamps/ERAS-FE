@@ -21,7 +21,7 @@
       <mat-select required id="sl-poll" formControlName="pollUuid">
         @for (poll of polls; track $index) {
           <mat-option [value]="poll.uuid">
-            {{ poll.name }}
+            {{ `${poll.name}-${poll.version}` }}
           </mat-option>
         }
       </mat-select>
