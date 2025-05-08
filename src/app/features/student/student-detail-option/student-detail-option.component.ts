@@ -25,6 +25,7 @@ import { PollService } from '../../../core/services/api/poll.service';
 import { HeatMapService } from '../../../core/services/api/heat-map.service';
 import { StudentService } from '../../../core/services/api/student.service';
 import { PollInstanceService } from '../../../core/services/api/poll-instance.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -46,6 +47,7 @@ import { PollInstanceService } from '../../../core/services/api/poll-instance.se
     MatRadioModule,
     MatExpansionModule,
     MatTableModule,
+    MatDividerModule
   ],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',
