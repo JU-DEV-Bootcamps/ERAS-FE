@@ -37,6 +37,8 @@ import { StudentService } from '../../../core/services/api/student.service';
 import { CohortService } from '../../../core/services/api/cohort.service';
 import { PollService } from '../../../core/services/api/poll.service';
 import { ReportService } from '../../../core/services/api/report.service';
+import { ListComponent } from '../../../shared/components/list/list.component';
+import { Column } from '../../../shared/components/list/types/column';
 
 @Component({
   selector: 'app-students-risk',
@@ -45,12 +47,12 @@ import { ReportService } from '../../../core/services/api/report.service';
     MatSelectModule,
     MatTableModule,
     MatProgressBarModule,
-    DecimalPipe,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     NgApexchartsModule,
     EmptyDataComponent,
+    ListComponent,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -72,7 +74,22 @@ export class StudentsRiskComponent implements OnInit {
     pollId: new FormControl<number | null>(null, [Validators.required]),
   });
 
-  columns = ['studentName', 'email', 'avgRiskLevel'];
+  columns: Column<StudentRiskAverage>[] = [
+    {
+      key: 'studentName',
+      label: 'Name',
+    },
+    {
+      key: 'email',
+      label: 'Email',
+    },
+    {
+      key: 'avgRiskLevel',
+      label: 'Average Risk',
+      pipe: new DecimalPipe('en-US'),
+      pipeArgs: ['1.2-2'],
+    },
+  ];
   variableColumns = ['variableName'];
 
   cohorts: CohortModel[] = [];
@@ -81,6 +98,7 @@ export class StudentsRiskComponent implements OnInit {
   polls: PollModel[] = [];
 
   students: StudentRiskAverage[] = [];
+  totalStudents = 0;
 
   load = false;
 
@@ -115,6 +133,7 @@ export class StudentsRiskComponent implements OnInit {
         )
         .subscribe(res => {
           this.students = res;
+          this.totalStudents = res.length;
           this.load = true;
         });
     }

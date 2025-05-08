@@ -6,10 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { TableComponent } from '../../shared/components/table/table.component';
+import { MatSelectModule } from '@angular/material/select'; 
 import { StudentModel } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/api/student.service';
+import { ListComponent } from '../../shared/components/list/list.component';
+import { EventLoad } from '../../shared/events/load';
+import { Column } from '../../shared/components/list/types/column';
 
 @Component({
   selector: 'app-list-students-by-poll',
@@ -23,18 +25,18 @@ import { StudentService } from '../../core/services/api/student.service';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    TableComponent,
+    ListComponent,
   ],
   templateUrl: './list-students-by-poll.component.html',
   styleUrl: './list-students-by-poll.component.scss',
 })
 export class ListStudentsByPollComponent implements OnInit {
-  columns: (keyof StudentModel)[] = [
-    'id',
-    'name',
-    'email',
-    'isImported',
-  ] as unknown as (keyof StudentModel)[];
+  columns: Column<StudentModel>[] = [
+    { label: '#', key: 'id' },
+    { label: 'Name', key: 'name' },
+    { label: 'Email', key: 'email' },
+    { label: 'Is Imported?', key: 'isImported' },
+  ];
 
   studentService = inject(StudentService);
 
@@ -59,6 +61,12 @@ export class ListStudentsByPollComponent implements OnInit {
         this.students = data.items;
         this.totalStudents = data.count;
       });
+  }
+
+  handleLoadCalled(event: EventLoad) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadStudents();
   }
 
   onPageChange({
