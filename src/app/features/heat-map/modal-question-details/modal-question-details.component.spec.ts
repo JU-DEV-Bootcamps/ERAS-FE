@@ -4,18 +4,17 @@ import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from './modal-question-details.component';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
-import { VariableService } from '../../../core/services/variable/variable.service';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
+import { ReportService } from '../../../core/services/api/report.service';
+import { PollService } from '../../../core/services/api/poll.service';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
   let fixture: ComponentFixture<ModalQuestionDetailsComponent>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let variableService: jasmine.SpyObj<VariableService>;
 
   const mockQuestion: PollAvgQuestion = {
     question: 'Test Question',
@@ -62,7 +61,7 @@ describe('ModalQuestionDetailsComponent', () => {
           useValue: { close: jasmine.createSpy('close') },
         },
         { provide: ReportService, useValue: reportServiceSpy },
-        { provide: VariableService, useValue: variableServiceSpy },
+        { provide: PollService, useValue: variableServiceSpy },
       ],
       teardown: { destroyAfterEach: false },
     }).compileComponents();
@@ -72,9 +71,6 @@ describe('ModalQuestionDetailsComponent', () => {
     reportService = TestBed.inject(
       ReportService
     ) as jasmine.SpyObj<ReportService>;
-    variableService = TestBed.inject(
-      VariableService
-    ) as jasmine.SpyObj<VariableService>;
   });
 
   it('should create', () => {
@@ -83,40 +79,6 @@ describe('ModalQuestionDetailsComponent', () => {
 
   it('should initialize with correct input data', () => {
     expect(component.inputQuestion).toEqual(mockDialogData);
-  });
-
-  it('should call getVariablesByPollUuid on initialization', () => {
-    const mockVariablesResponse = [
-      {
-        name: 'Is this a test?',
-        type: '',
-        audit: null,
-        idComponent: 0,
-        pollVariableId: 0,
-        idPoll: 0,
-        id: 31,
-      },
-    ];
-
-    variableService.getVariablesByPollUuid.and.returnValue(
-      of(mockVariablesResponse)
-    );
-    reportService.getTopPollReport.and.returnValue(
-      of({
-        success: true,
-        message: 'Success',
-        validationErrors: null,
-        body: [],
-      })
-    );
-
-    component.ngOnInit();
-
-    expect(variableService.getVariablesByPollUuid).toHaveBeenCalledWith(
-      'test-uuid',
-      ['test component']
-    );
-    expect(component.variableId).toBe(0);
   });
 
   it('should not call getTopPollReport when variableId is 0', () => {

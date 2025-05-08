@@ -13,7 +13,6 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import {
   PollAvgQuestion,
   PollTopReport,
@@ -22,7 +21,8 @@ import {
   getRiskColor,
   getRiskTextColor,
 } from '../../../core/constants/riskLevel';
-import { VariableService } from '../../../core/services/variable/variable.service';
+import { ReportService } from '../../../core/services/api/report.service';
+import { PollService } from '../../../core/services/api/poll.service';
 
 export interface SelectedHMData {
   cohortId: string;
@@ -52,7 +52,7 @@ export class ModalQuestionDetailsComponent implements OnInit {
   public inputQuestion: SelectedHMData = inject(MAT_DIALOG_DATA);
   public variableId = 0;
   private reportService = inject(ReportService);
-  private VariableService = inject(VariableService);
+  private PollService = inject(PollService);
 
   public studentsRisk: PollTopReport = [];
   public studentTableColumns: string[] = ['name', 'answer', 'risk', 'actions'];
@@ -68,7 +68,7 @@ export class ModalQuestionDetailsComponent implements OnInit {
 
   loadComponentsAndVariables(): void {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
-    this.VariableService.getVariablesByPollUuid(pollInstanceUUID, [
+    this.PollService.getVariablesByComponents(pollInstanceUUID, [
       this.inputQuestion.componentName.toLowerCase(),
     ]).subscribe(res => {
       const variable = res.find(

@@ -19,12 +19,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../core/models/cohort.model';
 import { PollModel } from '../../../core/models/poll.model';
-import { CohortService } from '../../../core/services/cohort.service';
-import { HeatMapService } from '../../../core/services/heat-map.service';
-import { PollService } from '../../../core/services/poll.service';
-import { PdfService } from '../../../core/services/report/pdf.service';
-import { Variable } from '../../../core/services/variable/interface/variable.interface';
-import { VariableService } from '../../../core/services/variable/variable.service';
+import { PdfService } from '../../../core/services/exports/pdf.service';
+import { Variable } from '../../../core/services/interfaces/variable.interface';
 import {
   Components,
   ComponentValueType,
@@ -32,6 +28,9 @@ import {
 import { ChartOptionsColorsCount } from '../constants/heat-map';
 import { fillDefaultData } from './util/heat-map.util';
 import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
+import { CohortService } from '../../../core/services/api/cohort.service';
+import { PollService } from '../../../core/services/api/poll.service';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
 
 @Component({
   selector: 'app-heat-map',
@@ -50,7 +49,6 @@ import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-
 export class HeatMapComponent implements OnInit {
   cohortService = inject(CohortService);
   pollsService = inject(PollService);
-  variableService = inject(VariableService);
   pdfService = inject(PdfService);
   heatmapService = inject(HeatMapService);
 
@@ -165,8 +163,8 @@ export class HeatMapComponent implements OnInit {
   }
 
   getQuestions(pollUuid: string, components: string[]) {
-    this.variableService
-      .getVariablesByPollUuid(pollUuid, components)
+    this.pollsService
+      .getVariablesByComponents(pollUuid, components)
       .subscribe(data => {
         this.questions = data;
         //NOTE: set deafult value for questions
