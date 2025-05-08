@@ -25,6 +25,7 @@ import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { CohortComponents } from '../../../core/models/cohort-components.model';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -46,6 +47,7 @@ import { CohortComponents } from '../../../core/models/cohort-components.model';
     MatRadioModule,
     MatExpansionModule,
     MatTableModule,
+    MatDividerModule
   ],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',
