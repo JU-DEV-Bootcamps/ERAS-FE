@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TitleCasePipe } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { PollName } from '../../../core/models/poll-request.model';
-import { Column } from '../list/types/columns';
+import { Column } from '../list/types/column';
 
 describe('TableWithActionsComponent', () => {
   let component: TableWithActionsComponent<PollName>;

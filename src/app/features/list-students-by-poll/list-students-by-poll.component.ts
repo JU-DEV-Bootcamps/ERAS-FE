@@ -11,7 +11,7 @@ import { StudentModel } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/api/student.service';
 import { ListComponent } from '../../shared/components/list/list.component';
 import { EventLoad } from '../../shared/events/load';
-import { Column } from '../../shared/components/list/types/columns';
+import { Column } from '../../shared/components/list/types/column';
 
 @Component({
   selector: 'app-list-students-by-poll',

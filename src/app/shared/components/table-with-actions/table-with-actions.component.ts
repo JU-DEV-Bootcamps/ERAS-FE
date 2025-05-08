@@ -18,7 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { ActionDatas } from '../list/types/action';
 import { EventAction } from '../../events/load';
-import { Column } from '../list/types/columns';
+import { Column } from '../list/types/column';
 
 @Component({
   selector: 'app-table-with-actions',

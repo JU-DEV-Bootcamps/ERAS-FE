@@ -38,7 +38,7 @@ import { CohortService } from '../../../core/services/api/cohort.service';
 import { PollService } from '../../../core/services/api/poll.service';
 import { ReportService } from '../../../core/services/api/report.service';
 import { ListComponent } from '../../../shared/components/list/list.component';
-import { Column } from '../../../shared/components/list/types/columns';
+import { Column } from '../../../shared/components/list/types/column';
 
 @Component({
   selector: 'app-students-risk',

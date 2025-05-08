@@ -11,7 +11,7 @@ import {
   EventUpdate,
 } from '../../events/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
-import { Column } from './types/columns';
+import { Column } from './types/column';
 import { ActionDatas } from './types/action';
 
 @Component({

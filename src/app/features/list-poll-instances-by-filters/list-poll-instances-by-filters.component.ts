@@ -26,7 +26,7 @@ import { EmptyDataComponent } from '../../shared/components/empty-data/empty-dat
 import { PollService } from '../../core/services/api/poll.service';
 import { PollInstanceService } from '../../core/services/api/poll-instance.service';
 import { CohortService } from '../../core/services/api/cohort.service';
-import { Column } from '../../shared/components/list/types/columns';
+import { Column } from '../../shared/components/list/types/column';
 import { ActionDatas } from '../../shared/components/list/types/action';
 import { ListComponent } from '../../shared/components/list/list.component';
 import { flattenArray } from '../../core/utilities/object/flatten';
