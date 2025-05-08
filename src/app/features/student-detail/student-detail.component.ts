@@ -24,11 +24,10 @@ import { AnswerResponse } from '../../core/models/answer-request.model';
 import { ComponentsAvgModel } from '../../core/models/components-avg.model';
 import { PollModel } from '../../core/models/poll.model';
 import { StudentResponse } from '../../core/models/student-request.model';
-import { AnswersService } from '../../core/services/answers.service';
-import { ComponentsService } from '../../core/services/components.service';
-import { PollService } from '../../core/services/poll.service';
-import { PdfService } from '../../core/services/report/pdf.service';
-import { StudentService } from '../../core/services/student.service';
+import { PdfService } from '../../core/services/exports/pdf.service';
+import { StudentService } from '../../core/services/api/student.service';
+import { PollService } from '../../core/services/api/poll.service';
+import { PollInstanceService } from '../../core/services/api/poll-instance.service';
 
 register();
 @Component({
@@ -77,8 +76,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   studentService = inject(StudentService);
   pollsService = inject(PollService);
-  componentService = inject(ComponentsService);
-  answersService = inject(AnswersService);
+  pollInsService = inject(PollInstanceService);
 
   selectedPoll = 0;
   studentPolls: PollModel[] = [];
@@ -154,7 +152,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   }
 
   getComponentsAvg(studentId: number, pollId: number) {
-    this.componentService
+    this.pollInsService
       .getComponentsRiskByPollForStudent(studentId, pollId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -169,7 +167,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   }
 
   getStudentAnswersByPoll(studentId: number, pollId: number) {
-    this.answersService
+    this.studentService
       .getStudentAnswersByPoll(studentId, pollId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

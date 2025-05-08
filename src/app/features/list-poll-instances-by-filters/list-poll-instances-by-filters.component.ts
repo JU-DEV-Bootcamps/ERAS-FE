@@ -17,15 +17,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { CohortModel } from '../../core/models/cohort.model';
-import { CohortService } from '../../core/services/cohort.service';
-import { PollInstanceService } from '../../core/services/poll-instance.service';
-import { PollService } from '../../core/services/poll.service';
 import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
 import { PollModel } from '../../core/models/poll.model';
 import { PollInstanceModel } from '../../core/models/poll-instance.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
 import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
+import { PollService } from '../../core/services/api/poll.service';
+import { PollInstanceService } from '../../core/services/api/poll-instance.service';
+import { CohortService } from '../../core/services/api/cohort.service';
 import { Column } from '../../shared/components/list/types/columns';
 import { ActionDatas } from '../../shared/components/list/types/action';
 import { ListComponent } from '../../shared/components/list/list.component';
@@ -166,7 +166,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   loadPollInstances(cohortId: number): void {
     this.loading = true;
     this.pollInstanceService
-      .getPollInstancesByFilters(cohortId, 0)
+      .getPollInstancesByFilters(cohortId, 400)
       .subscribe(data => {
         this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
@@ -192,7 +192,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
 
   generateHeatMap(): void {
     const url = this.router
-      .createUrlTree(['/heat-map-summary'], {
+      .createUrlTree(['/heatmap-summary'], {
         queryParams: {
           cohortId: this.filtersForm.value.selectedCohort,
           pollUuid: this.filtersForm.value.selectedPoll,

@@ -23,9 +23,9 @@ import { MatTableModule } from '@angular/material/table';
 import { debounceTime, filter, tap } from 'rxjs';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { CohortModel } from '../../../core/models/cohort.model';
-import { CohortService } from '../../../core/services/cohort.service';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { RiskStudentDetailType } from '../types/risk-students-detail.type';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 @Component({
   selector: 'app-modal-risk-students-cohort',

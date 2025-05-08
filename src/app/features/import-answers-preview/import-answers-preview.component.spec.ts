@@ -5,9 +5,9 @@ import {
   BrowserAnimationsModule,
   provideNoopAnimations,
 } from '@angular/platform-browser/animations';
-import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-import { PollService } from '../../core/services/poll.service';
 import { provideHttpClient } from '@angular/common/http';
+import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
+import { PollService } from '../../core/services/api/poll.service';
 
 describe('ImportAnswersPreviewComponent', () => {
   let component: ImportAnswersPreviewComponent;

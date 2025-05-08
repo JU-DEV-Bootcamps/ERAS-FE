@@ -10,7 +10,6 @@ import {
   ComponentValueType,
   RiskStudentDetailType,
 } from '../types/risk-students-detail.type';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -26,6 +25,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { debounceTime, filter, tap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
 
 @Component({
   selector: 'app-modal-risk-students-detail',
