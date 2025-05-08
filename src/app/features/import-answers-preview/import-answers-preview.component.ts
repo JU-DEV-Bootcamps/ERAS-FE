@@ -146,7 +146,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       updatedList.push(student.email);
     }
     this.studentListToExcludeSubject.next(updatedList);
-    this.allStudentsCheckedSubject.next(updatedList.length === 0);
+    this.allStudentsCheckedSubject.next(!updatedList.length);
   }
 
   handleAllCheckboxs(event: MatSlideToggleChange) {
