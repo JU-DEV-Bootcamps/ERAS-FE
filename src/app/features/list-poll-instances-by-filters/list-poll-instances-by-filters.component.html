@@ -55,7 +55,7 @@
     ></app-empty-data-message>
   } @else {
     <app-list
-      (actionCalled)="generateHeatMap()"
+      (actionCalled)="goToDetails($event)"
       (loadCalled)="loadCohortsList()"
       [items]="pollInstances"
       [totalItems]="totalPollInstances"

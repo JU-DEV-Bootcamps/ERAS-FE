@@ -35,7 +35,7 @@
   </ng-container>
 
   <ng-template #tableView>
-    <table mat-table [dataSource]="dataSource">
+    <table mat-table [dataSource]="items">
       <ng-container
         *ngFor="let column of columns"
         [matColumnDef]="column.key.toString()"
