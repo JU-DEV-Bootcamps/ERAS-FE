@@ -5,6 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StudentResponse } from '../models/student-request.model';
 import { StudentRiskAverage } from './interfaces/student.interface';
+import { CohortStudentsRiskByPollResponse } from '../models/cohort.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,5 +37,26 @@ export class StudentService {
     return this.http.get<StudentRiskAverage[]>(
       `${this.apiUrl}/${this.endpoint}/average/cohort/${cohortId}/poll/${pollId}`
     );
+  }
+
+  getCohortStudentsRisk(
+    pollUuid: string,
+    cohortId: number
+  ): Observable<CohortStudentsRiskByPollResponse[]> {
+    const params = new HttpParams().set('CohortId', cohortId);
+    const url = `${this.apiUrl}/${this.endpoint}/polls/${pollUuid}/top`;
+    return this.http.get<CohortStudentsRiskByPollResponse[]>(url, { params });
+  }
+
+  getCohortStudentsRiskByPoll(
+    pollUuid: string,
+    componentName: string,
+    cohortId: number
+  ): Observable<CohortStudentsRiskByPollResponse[]> {
+    const params = new HttpParams()
+      .set('ComponentName', componentName)
+      .set('CohortId', cohortId);
+    const url = `${this.apiUrl}/${this.endpoint}/polls/${pollUuid}/components/top`;
+    return this.http.get<CohortStudentsRiskByPollResponse[]>(url, { params });
   }
 }

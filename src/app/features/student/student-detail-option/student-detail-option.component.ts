@@ -26,6 +26,8 @@ import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { HeatMapService } from '../../../core/services/heat-map.service';
 import { CohortComponents } from '../../../core/models/cohort-components.model';
 import { MatDividerModule } from '@angular/material/divider';
+import { PollInstanceService } from '../../../core/services/poll-instance.service';
+import { StudentService } from '../../../core/services/student.service';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -47,7 +49,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatRadioModule,
     MatExpansionModule,
     MatTableModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',
@@ -64,12 +66,15 @@ export class StudentDetailOptionComponent implements OnInit {
   pollsService = inject(PollService);
   cohortsService = inject(CohortService);
   heatMapService = inject(HeatMapService);
+  pollInstanceService = inject(PollInstanceService);
+  studentsService = inject(StudentService);
+
   polls: Poll[] = [];
   studentRisk: CohortStudentsRiskByPollResponse[] = [];
   cohorts: CohortComponents[] = [];
   readonly panelOpenState = signal(false);
   riskStudentsDetail: CohortStudentsRiskByPollResponse[] = [];
-  columns = ['studentName', 'riskLevel', 'actions'];
+  columns = ['studentName', 'answerAverage', 'riskLevel', 'actions'];
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -115,16 +120,18 @@ export class StudentDetailOptionComponent implements OnInit {
     if (poll) {
       this.pollSeleccionado = poll;
 
-      this.cohortsService.getCohortComponents(poll.uuid).subscribe(response => {
-        this.cohorts = response.map(cohort => ({
-          ...cohort,
-          componentsAvg:
-            typeof cohort.componentsAvg === 'object' &&
-            cohort.componentsAvg !== null
-              ? { ...cohort.componentsAvg }
-              : {},
-        }));
-      });
+      this.pollInstanceService
+        .getCohortComponents(poll.uuid)
+        .subscribe(response => {
+          this.cohorts = response.map(cohort => ({
+            ...cohort,
+            componentsAvg:
+              typeof cohort.componentsAvg === 'object' &&
+              cohort.componentsAvg !== null
+                ? { ...cohort.componentsAvg }
+                : {},
+          }));
+        });
     }
   }
 
@@ -146,7 +153,7 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   loadComponentData(componentKey: string) {
-    this.cohortsService
+    this.studentsService
       .getCohortStudentsRiskByPoll(
         this.pollSeleccionado.uuid,
         componentKey,
@@ -179,13 +186,14 @@ export class StudentDetailOptionComponent implements OnInit {
       value: Number(value.toFixed(2)),
     }));
 
-    this.cohortsService
+    this.studentsService
       .getCohortStudentsRisk(
         this.pollSeleccionado.uuid,
         this.cohortSeleccionado.cohortId
       )
       .subscribe({
         next: data => {
+          console.log('Datos de riskStudentsDetail:', data);
           this.riskStudentsDetail = data;
         },
         error: error => {

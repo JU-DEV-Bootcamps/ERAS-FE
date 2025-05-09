@@ -8,5 +8,6 @@ export interface CohortModel extends BaseModel {
 export interface CohortStudentsRiskByPollResponse {
   studentId: number;
   studentName: string;
+  answerAverage: number;
   riskSum: number;
 }
