@@ -185,7 +185,8 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   onSlideChange(event: Event) {
     if (event.target && (event.target as SwiperEventTarget).swiper) {
-      const swiperInstance = (event.target as SwiperEventTarget).swiper as Swiper;
+      const swiperInstance = (event.target as SwiperEventTarget)
+        .swiper as Swiper;
       const activeIndex = swiperInstance.activeIndex;
       if (this.studentPolls[activeIndex]) {
         const pollId = this.studentPolls[activeIndex].id;

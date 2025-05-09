@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select'; 
+import { MatSelectModule } from '@angular/material/select';
 import { StudentModel } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/api/student.service';
 import { ListComponent } from '../../shared/components/list/list.component';
