@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>Edit object</h1>
+<mat-dialog-content class="modal">
+  <form>
+    <div *ngFor="let key of objectKeys(objectCopy)">
+      <mat-form-field appearance="fill" class="w-full my-2">
+        <mat-label>{{ key }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="objectCopy[key]"
+          [name]="key.toString()"
+          [readonly]="isReadOnly(key)"
+        />
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSave()">Save</button>
+</div>

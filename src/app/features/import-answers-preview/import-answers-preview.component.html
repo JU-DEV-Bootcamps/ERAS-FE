@@ -84,7 +84,7 @@
                         @if (column === 'save') {
                           Save all<mat-slide-toggle
                             class="custom-slide-toggle"
-                            (change)="hanldeAllCheckboxs($event)"
+                            (change)="handleAllCheckboxs($event)"
                             [checked]="allStudentsChecked$ | async"
                           ></mat-slide-toggle>
                         } @else {
@@ -108,7 +108,12 @@
                   <tr mat-row *matRowDef="let row; columns: columns"></tr>
                 </table>
                 <span class="buttonContainer">
-                  <button class="button" mat-flat-button (click)="savePolls()">
+                  <button
+                    class="button"
+                    mat-flat-button
+                    (click)="savePolls()"
+                    [disabled]="(selectedStudents$ | async) === 0"
+                  >
                     Save
                   </button>
                   <button

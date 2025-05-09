@@ -20,13 +20,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { PollService } from '../../core/services/poll.service';
 import { BehaviorSubject, first, map } from 'rxjs';
 import {
   MatSlideToggle,
   MatSlideToggleChange,
 } from '@angular/material/slide-toggle';
 import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
+import { PollService } from '../../core/services/api/poll.service';
+import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -53,8 +54,8 @@ import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-i
 })
 export class ImportAnswersPreviewComponent implements OnChanges {
   isMobile = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dataStudents: any = new MatTableDataSource([]);
+  dataStudents: MatTableDataSource<StudentPreview> =
+    new MatTableDataSource<StudentPreview>([]);
   pollDetails: PollPreview = {
     name: '',
     version: '',
@@ -67,6 +68,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   columns: (keyof StudentPreview)[] = ['#', 'name', 'email', 'cohort', 'save'];
 
   pollService = inject(PollService);
+  clService = inject(CosmicLatteService);
 
   @Input() importedPollData: PollInstance[] = [];
 
@@ -110,19 +112,21 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       );
     });
     this.saveCompleted.emit({ state: 'pending', data: null });
-    this.pollService.savePollsCosmicLattePreview(pollsToSave).subscribe({
-      next: data => {
-        this.saveCompleted.emit({ state: 'true', data: data });
-        this.resetAllDataPolls();
-      },
-      error: error => {
-        this.previewIsHiddenSubject.next(false);
-        this.saveCompleted.emit({ state: 'false', data: error });
-      },
-    });
+    this.clService
+      .savePollsCosmicLattePreview(pollsToSave as unknown as PollInstance[])
+      .subscribe({
+        next: data => {
+          this.saveCompleted.emit({ state: 'true', data: data });
+          this.resetAllDataPolls();
+        },
+        error: error => {
+          this.previewIsHiddenSubject.next(false);
+          this.saveCompleted.emit({ state: 'false', data: error });
+        },
+      });
   }
   resetAllDataPolls() {
-    this.dataStudents = new MatTableDataSource([]);
+    this.dataStudents = new MatTableDataSource<StudentPreview>([]);
     this.studentsMobileVersion = [];
     this.totalStudents = 0;
     this.pollDetails = {
@@ -142,13 +146,10 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       updatedList.push(student.email);
     }
     this.studentListToExcludeSubject.next(updatedList);
-    this.updateAllStudentsChecked(updatedList);
+    this.allStudentsCheckedSubject.next(!updatedList.length);
   }
-  updateAllStudentsChecked(excluded: string[]) {
-    const allChecked = excluded.length === this.totalStudents;
-    this.allStudentsCheckedSubject.next(allChecked);
-  }
-  hanldeAllCheckboxs(event: MatSlideToggleChange) {
+
+  handleAllCheckboxs(event: MatSlideToggleChange) {
     const updatedList: string[] = [];
     this.dataStudents.filteredData.forEach((student: StudentPreview) => {
       if (!event.checked) {

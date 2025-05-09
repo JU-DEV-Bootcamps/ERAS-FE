@@ -1,0 +1,10 @@
+@if (item && actionData && actionData.label) {
+  <button
+    mat-button
+    color="primary"
+    (click)="onButtonClick($event)"
+    [title]="actionData.label"
+  >
+    <ng-content> Execute </ng-content>
+  </button>
+}

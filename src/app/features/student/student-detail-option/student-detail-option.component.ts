@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,19 +14,18 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
-import { PollService } from '../../../core/services/poll.service';
 import { Poll } from '../../list-students-by-poll/types/list-students-by-poll';
-import { CohortService } from '../../../core/services/cohort.service';
 import { ApexOptions } from 'ng-apexcharts';
 import { CohortStudentsRiskByPollResponse } from '../../../core/models/cohort.model';
 import { toSentenceCase } from '../../../core/utilities/string-utils';
 import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
-import { HeatMapService } from '../../../core/services/heat-map.service';
 import { CohortComponents } from '../../../core/models/cohort-components.model';
+import { PollService } from '../../../core/services/api/poll.service';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
+import { StudentService } from '../../../core/services/api/student.service';
+import { PollInstanceService } from '../../../core/services/api/poll-instance.service';
 import { MatDividerModule } from '@angular/material/divider';
-import { PollInstanceService } from '../../../core/services/poll-instance.service';
-import { StudentService } from '../../../core/services/student.service';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -59,14 +57,14 @@ export class StudentDetailOptionComponent implements OnInit {
   public modalDataSudentVariable: DialogRiskVariableData =
     {} as DialogRiskVariableData;
 
-  pollSeleccionado: any = null;
+  pollSeleccionado: Poll | null = null;
   pollSeleccionadoId: number | null = null;
-  cohortSeleccionado: any = null;
-  selectedComponents: any = null;
+  cohortSeleccionado: CohortComponents | null = null;
+  selectedComponents: { key: string; value: number }[] = [];
   pollsService = inject(PollService);
-  cohortsService = inject(CohortService);
-  heatMapService = inject(HeatMapService);
   pollInstanceService = inject(PollInstanceService);
+  studentService = inject(StudentService);
+  heatMapService = inject(HeatMapService);
   studentsService = inject(StudentService);
 
   polls: Poll[] = [];
@@ -92,7 +90,7 @@ export class StudentDetailOptionComponent implements OnInit {
     dataLabels: {
       enabled: true,
       formatter: function (val: number) {
-        return val.toFixed(1) + '%';
+        return `${val.toFixed(1)} %`;
       },
     },
     plotOptions: {
@@ -121,7 +119,7 @@ export class StudentDetailOptionComponent implements OnInit {
       this.pollSeleccionado = poll;
 
       this.pollInstanceService
-        .getCohortComponents(poll.uuid)
+        .getComponentsAvgGroupedByCohorts(poll.uuid)
         .subscribe(response => {
           this.cohorts = response.map(cohort => ({
             ...cohort,
@@ -141,7 +139,7 @@ export class StudentDetailOptionComponent implements OnInit {
     if (typeof avg !== 'object' || avg === null) return [];
 
     return Object.values(avg).map(val =>
-      typeof val === 'number' ? val : parseFloat(val as any)
+      typeof val === 'number' ? val : parseFloat(val)
     );
   }
 
@@ -153,8 +151,9 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   loadComponentData(componentKey: string) {
-    this.studentsService
-      .getCohortStudentsRiskByPoll(
+    if (!this.pollSeleccionado || !this.cohortSeleccionado) return;
+    this.studentService
+      .getPollComponentTopStudents(
         this.pollSeleccionado.uuid,
         componentKey,
         this.cohortSeleccionado.cohortId
@@ -177,8 +176,8 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   selectCohort(cohort: CohortComponents): void {
+    if (!this.pollSeleccionado) return;
     this.cohortSeleccionado = cohort;
-    console.log('Interacción con:', this.cohortSeleccionado);
     this.selectedComponents = Object.entries(
       this.cohortSeleccionado.componentsAvg as Record<string, number>
     ).map(([key, value]) => ({
@@ -186,8 +185,8 @@ export class StudentDetailOptionComponent implements OnInit {
       value: Number(value.toFixed(2)),
     }));
 
-    this.studentsService
-      .getCohortStudentsRisk(
+    this.studentService
+      .getPollTopStudents(
         this.pollSeleccionado.uuid,
         this.cohortSeleccionado.cohortId
       )

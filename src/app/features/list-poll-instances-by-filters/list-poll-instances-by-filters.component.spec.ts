@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ListPollInstancesByFiltersComponent } from './list-poll-instances-by-filters.component';
-import { PollInstanceService } from '../../core/services/poll-instance.service';
-import { CohortService } from '../../core/services/cohort.service';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
-import { PollService } from '../../core/services/poll.service';
 import { provideHttpClient } from '@angular/common/http';
+import { PollInstanceService } from '../../core/services/api/poll-instance.service';
+import { CohortService } from '../../core/services/api/cohort.service';
+import { PollService } from '../../core/services/api/poll.service';
 
 describe('ListPollInstancesByFiltersComponent', () => {
   let component: ListPollInstancesByFiltersComponent;
@@ -66,7 +66,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
     component.onSelectionChange();
     expect(
       mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(1, 0);
+    ).toHaveBeenCalledWith(1, 400);
   });
 
   it('should return correct width for columns in getWidth', () => {

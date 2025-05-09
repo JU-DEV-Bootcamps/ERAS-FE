@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ListImportedStudentComponent } from './list-imported-student.component';
-import { ImportStudentService } from '../../core/services/import-students.service';
 
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
+import { StudentService } from '../../core/services/api/student.service';
 
 describe('ListImportedStudentComponent', () => {
   let component: ListImportedStudentComponent;
@@ -18,7 +18,7 @@ describe('ListImportedStudentComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ListImportedStudentComponent],
       providers: [
-        { provide: ImportStudentService, useValue: mockService },
+        { provide: StudentService, useValue: mockService },
         provideNoopAnimations(),
         provideHttpClientTesting(),
       ],
@@ -26,7 +26,7 @@ describe('ListImportedStudentComponent', () => {
 
     fixture = TestBed.createComponent(ListImportedStudentComponent);
     component = fixture.componentInstance;
-    mockService = TestBed.inject(ImportStudentService);
+    mockService = TestBed.inject(StudentService);
     fixture.detectChanges();
   });
 

@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
 import { HealthCheckResponse } from '../../core/models/cosmic-latte-request.model';
+import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 
 @Component({
   selector: 'app-cosmic-latte',
@@ -44,7 +44,7 @@ export class CosmicLatteComponent implements OnInit {
         this.healthCheckResponse = response;
       },
       error: error => {
-        console.error('Error al obtener datos', error);
+        console.error('Error while obtaining data', error);
       },
       complete: () => {
         this.isLoading = false;
