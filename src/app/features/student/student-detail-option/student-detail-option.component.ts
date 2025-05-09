@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
 import { Poll } from '../../list-students-by-poll/types/list-students-by-poll';
 import { ApexOptions } from 'ng-apexcharts';
-import { CohortStudentsRiskByPollResponse } from '../../../core/models/cohort.model';
+import { StudentRiskResponse } from '../../../core/models/cohort.model';
 import { toSentenceCase } from '../../../core/utilities/string-utils';
 import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
@@ -47,7 +47,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatRadioModule,
     MatExpansionModule,
     MatTableModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',
@@ -65,12 +65,14 @@ export class StudentDetailOptionComponent implements OnInit {
   pollInstanceService = inject(PollInstanceService);
   studentService = inject(StudentService);
   heatMapService = inject(HeatMapService);
+  studentsService = inject(StudentService);
+
   polls: Poll[] = [];
-  studentRisk: CohortStudentsRiskByPollResponse[] = [];
+  studentRisk: StudentRiskResponse[] = [];
   cohorts: CohortComponents[] = [];
   readonly panelOpenState = signal(false);
-  riskStudentsDetail: CohortStudentsRiskByPollResponse[] = [];
-  columns = ['studentName', 'riskLevel', 'actions'];
+  riskStudentsDetail: StudentRiskResponse[] = [];
+  columns = ['studentName', 'answerAverage', 'riskLevel', 'actions'];
 
   public chartOptions: ApexOptions = {
     chart: {
