@@ -45,8 +45,7 @@ export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationsService);
   columns: string[] = ['id', 'name', 'country', 'poll', 'period', 'status'];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  evaluationProcessList: any = [];
+  evaluationProcessList: EvaluationModel[] = [];
   pageSize = 5;
   currentPage = 0;
   totalEvaluations = 0;
@@ -68,27 +67,33 @@ export class EvaluationProcessListComponent implements OnInit {
   getClassName(value: string): string {
     return value ? value.replace(/\s+/g, '_') : '';
   }
-  deleteEvaluationConfirmation(id: string) {
-    this.openAlertDialog(
-      `Are you sure you want to delete the evaluation?`,
-      false,
-      () => this.deleteEvaluation(id)
-    );
+  deleteEvaluationConfirmation(id: number) {
+    if (id) {
+      this.openAlertDialog(
+        `Are you sure you want to delete the evaluation?`,
+        false,
+        () => this.deleteEvaluation(id)
+      );
+    } else {
+      console.warn("id wasn't provided");
+    }
   }
-  deleteEvaluation(id: string) {
-    this.evaluationProcessService.deleteEvaluationProcess(id).subscribe({
-      next: () => {
-        this.openAlertDialog('Evaluation deleted! ', true);
-        this.getEvaluationProcess();
-      },
-      error: err => {
-        this.openAlertDialog(
-          'Error: An error occurred while trying to delete the new evaluation process : ' +
-            err.message,
-          false
-        );
-      },
-    });
+  deleteEvaluation(id: number) {
+    this.evaluationProcessService
+      .deleteEvaluationProcess(id.toString())
+      .subscribe({
+        next: () => {
+          this.openAlertDialog('Evaluation deleted! ', true);
+          this.getEvaluationProcess();
+        },
+        error: err => {
+          this.openAlertDialog(
+            'Error: An error occurred while trying to delete the new evaluation process : ' +
+              err.message,
+            false
+          );
+        },
+      });
   }
   onPageChange({
     pageSize,
@@ -135,8 +140,8 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  goToImport(data: any) {
+
+  goToImport(data: EvaluationModel) {
     this.router.navigate(['import-answers'], {
       state: {
         pollName: data.pollName,
@@ -146,8 +151,8 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  openModalDetails(data: any): void {
+
+  openModalDetails(data: EvaluationModel): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(EvaluationProcessFormComponent, {
@@ -166,8 +171,7 @@ export class EvaluationProcessListComponent implements OnInit {
   openAlertDialog(
     descriptionMessage: string,
     isSuccess: boolean,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    deleteConfirmFunction?: any
+    deleteConfirmFunction?: () => void
   ): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
@@ -198,20 +202,14 @@ export class EvaluationProcessListComponent implements OnInit {
     return this.adaptDataToColumNames(statusTransformed);
   }
   adaptDataToColumNames(data: EvaluationModel[]): EvaluationModel[] {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    data.forEach((evaluation: any) => {
-      evaluation.start = evaluation.startDate;
-      evaluation.end = evaluation.endDate;
+    data.forEach((evaluation: EvaluationModel) => {
       evaluation.country = evaluation.country.toUpperCase();
-      evaluation.poll = evaluation.pollName
-        ? evaluation.pollName
-        : 'Not selected yet';
+      evaluation.pollName = evaluation.pollName ?? 'Not selected yet';
     });
     return data;
   }
   transformStatus(data: EvaluationModel[]): EvaluationModel[] {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    data.forEach((evaluation: any) => {
+    data.forEach((evaluation: EvaluationModel) => {
       evaluation.status = this.getStatusForEvaluationProcess(evaluation);
     });
     return data;
@@ -236,5 +234,9 @@ export class EvaluationProcessListComponent implements OnInit {
     } else {
       return 'Finished';
     }
+  }
+
+  getInfo(element: EvaluationModel, column: string) {
+    return element[column as keyof EvaluationModel];
   }
 }

@@ -44,7 +44,7 @@ export class CosmicLatteComponent implements OnInit {
         this.healthCheckResponse = response;
       },
       error: error => {
-        console.error('Error al obtener datos', error);
+        console.error('Error while obtaining data', error);
       },
       complete: () => {
         this.isLoading = false;

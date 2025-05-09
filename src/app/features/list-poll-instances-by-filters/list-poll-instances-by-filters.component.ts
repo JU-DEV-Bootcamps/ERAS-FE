@@ -31,11 +31,9 @@ import { ActionDatas } from '../../shared/components/list/types/action';
 import { ListComponent } from '../../shared/components/list/list.component';
 import { flattenArray } from '../../core/utilities/object/flatten';
 
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-interface DynamicPollInstance extends PollInstanceModel {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-}
+interface DynamicPollInstance
+  extends PollInstanceModel,
+    Record<string, unknown> {}
 
 @Component({
   selector: 'app-list-poll-instances-by-filters',

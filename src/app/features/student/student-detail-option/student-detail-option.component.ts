@@ -88,7 +88,7 @@ export class StudentDetailOptionComponent implements OnInit {
     dataLabels: {
       enabled: true,
       formatter: function (val: number) {
-        return val.toFixed(1) + '%';
+        return `${val.toFixed(1)} %`;
       },
     },
     plotOptions: {

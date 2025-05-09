@@ -60,7 +60,7 @@ const adaptMockAnswers = (
  * @returns Collection of answers, adapted to be used on Apexcharts' chartOptions.series
  */
 const adaptAnswers = (pollData: PollData[]) => {
-  const spanishToEnglish = {
+  const spanishToEnglish: Record<string, SurveyKind> = {
     academico: 'ACADEMIC',
     individual: 'INDIVIDUAL',
     familiar: 'FAMILIAR',
@@ -74,8 +74,6 @@ const adaptAnswers = (pollData: PollData[]) => {
   };
 
   for (const component of pollData) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
     const key: SurveyKind = spanishToEnglish[component.componentName];
 
     adaptedAnswers[key] = {

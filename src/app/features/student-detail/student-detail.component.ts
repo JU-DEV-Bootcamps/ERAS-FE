@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -28,8 +26,13 @@ import { PdfService } from '../../core/services/exports/pdf.service';
 import { StudentService } from '../../core/services/api/student.service';
 import { PollService } from '../../core/services/api/poll.service';
 import { PollInstanceService } from '../../core/services/api/poll-instance.service';
+import { ApexChartAnnotation } from '../../shared/components/charts/abstract-chart';
 
 register();
+
+interface SwiperEventTarget extends EventTarget {
+  swiper: Swiper;
+}
 @Component({
   selector: 'app-student-detail',
   imports: [
@@ -179,15 +182,20 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
         },
       });
   }
-  onSlideChange(event: any) {
-    const swiperInstance = event.target.swiper as Swiper;
-    const activeIndex = swiperInstance.activeIndex;
-    if (this.studentPolls[activeIndex]) {
-      const pollId = this.studentPolls[activeIndex].id;
-      this.selectedPoll = pollId;
-      this.getStudentAnswersByPoll(this.studentId, this.selectedPoll);
+
+  onSlideChange(event: Event) {
+    if (event.target && (event.target as SwiperEventTarget).swiper) {
+      const swiperInstance = (event.target as SwiperEventTarget).swiper as Swiper;
+      const activeIndex = swiperInstance.activeIndex;
+      if (this.studentPolls[activeIndex]) {
+        const pollId = this.studentPolls[activeIndex].id;
+        this.selectedPoll = pollId;
+        this.getStudentAnswersByPoll(this.studentId, this.selectedPoll);
+      } else {
+        this.studentAnswers = [];
+      }
     } else {
-      this.studentAnswers = [];
+      console.warn("Event target doesn't have a swiper");
     }
   }
 
@@ -207,7 +215,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   }
 
   buildChartSeries() {
-    const groupedByPoll: { [pollId: number]: any[] } = {};
+    const groupedByPoll: Record<number, ApexChartAnnotation[]> = {};
 
     if (this.componentsAvg && this.componentsAvg.length > 0) {
       this.componentsAvg.forEach(item => {
