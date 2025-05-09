@@ -4,15 +4,22 @@ import { PollModel } from '../../models/poll.model';
 import { PollVariableModel } from '../../models/poll-variable.model';
 import { HttpParams } from '@angular/common/http';
 import { VariableModel } from '../../models/variable.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PollService extends BaseApiService {
   protected resource = 'polls';
+  pollsCache$: Observable<PollModel[]> | null = null;
+
+  clearCache() {
+    this.pollsCache$ = null;
+  }
 
   getAllPolls() {
-    return this.get<PollModel[]>('');
+    if (this.pollsCache$) return this.pollsCache$;
+    return (this.pollsCache$ = this.get<PollModel[]>(''));
   }
 
   getPollsByCohortId(cohortId: number) {

@@ -1,0 +1,35 @@
+<h1 class="page-title">Dynamic Heatmap</h1>
+<app-poll-filters></app-poll-filters>
+
+@if (chartOption.series?.length) {
+  <div class="chart-container" #mainContainer>
+    <apx-chart
+      [series]="chartOption.series!"
+      [chart]="chartOption.chart!"
+      [xaxis]="chartOption.xaxis!"
+      [yaxis]="chartOption.yaxis!"
+      [colors]="chartOption.colors!"
+      [plotOptions]="chartOption.plotOptions!"
+      [title]="chartOption.title!"
+      [tooltip]="chartOption.tooltip!"
+    >
+    </apx-chart>
+    <button
+      class="export-button"
+      id="print-button"
+      mat-icon-button
+      color="primary"
+      [disabled]="isGeneratingPDF"
+      (click)="exportReportPdf()"
+    >
+      <mat-icon>print</mat-icon>
+    </button>
+  </div>
+} @else {
+  <div style="padding-top: 8px">
+    <app-empty-data-message
+      title="No data found"
+      description="Please select options in all fields to display the heatmap."
+    ></app-empty-data-message>
+  </div>
+}
