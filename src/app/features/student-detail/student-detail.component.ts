@@ -27,6 +27,8 @@ import { StudentService } from '../../core/services/api/student.service';
 import { PollService } from '../../core/services/api/poll.service';
 import { PollInstanceService } from '../../core/services/api/poll-instance.service';
 import { ApexChartAnnotation } from '../../shared/components/charts/abstract-chart';
+import { ListComponent } from '../../shared/components/list/list.component';
+import { Column } from '../../shared/components/list/types/column';
 
 register();
 
@@ -44,6 +46,7 @@ interface SwiperEventTarget extends EventTarget {
     CommonModule,
     MatTableModule,
     MatCardModule,
+    ListComponent,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
@@ -89,6 +92,28 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   @Input({ required: true }) studentId!: number;
 
   columns = ['variable', 'position', 'component', 'answer', 'score'];
+  columns2: Column<AnswerResponse>[] = [
+    {
+      key: 'variable',
+      label: 'Variable',
+    },
+    {
+      key: 'position',
+      label: 'Position',
+    },
+    {
+      key: 'component',
+      label: 'Component',
+    },
+    {
+      key: 'answer',
+      label: 'Answer',
+    },
+    {
+      key: 'score',
+      label: 'Score',
+    },
+  ];
 
   isMobile = false;
   pageSize = 10;
@@ -185,7 +210,8 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   onSlideChange(event: Event) {
     if (event.target && (event.target as SwiperEventTarget).swiper) {
-      const swiperInstance = (event.target as SwiperEventTarget).swiper as Swiper;
+      const swiperInstance = (event.target as SwiperEventTarget)
+        .swiper as Swiper;
       const activeIndex = swiperInstance.activeIndex;
       if (this.studentPolls[activeIndex]) {
         const pollId = this.studentPolls[activeIndex].id;
