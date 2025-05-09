@@ -1,10 +1,9 @@
 <!-- Card inicial para seleccionar un poll -->
 <div *ngIf="!pollSeleccionado" class="card-inicial-container">
-  <mat-card class="card">
-    <mat-card-header>
-      <mat-card-title>First Select a Poll</mat-card-title>
-    </mat-card-header>
-
+  <mat-card appearance="outlined" class="card">
+    <div>
+      <h2 class="cohorts-title">First Select a Poll</h2>
+    </div>
     <mat-card-content>
       <mat-radio-group
         name="pollGroup"
@@ -42,41 +41,43 @@
   *ngIf="pollSeleccionado && !cohortSeleccionado"
   class="cards-cohorts-container"
 >
-  <div class="header">
-    <button mat-icon-button class="header-left" (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2 class="cohorts-title">{{ pollSeleccionado.name }} - Cohorts</h2>
-  </div>
-  <div class="cards-container">
-    <mat-card class="card" *ngFor="let cohort of cohorts">
-      <mat-card-header>
-        <mat-card-title>{{ cohort.cohortName }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <apx-chart
-          [series]="getChartSeriesData(cohort)"
-          [labels]="getChartLabels(cohort)"
-          [chart]="chartOptions.chart!"
-          [responsive]="chartOptions.responsive!"
-          [legend]="chartOptions.legend!"
-          [colors]="chartOptions.colors!"
-          [plotOptions]="chartOptions.plotOptions!"
-          [dataLabels]="chartOptions.dataLabels!"
-        >
-        </apx-chart>
-      </mat-card-content>
-      <mat-card-actions>
-        <button
-          mat-stroked-button
-          color="accent"
-          (click)="selectCohort(cohort)"
-        >
-          See Details
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
+  <mat-card appearance="outlined" class="card">
+    <div class="header">
+      <button mat-icon-button class="header-left" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 class="cohorts-title">{{ pollSeleccionado.name }} - Cohorts</h2>
+    </div>
+    <div class="cards-container">
+      <mat-card class="card" *ngFor="let cohort of cohorts">
+        <mat-card-header>
+          <mat-card-title>{{ cohort.cohortName }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <apx-chart
+            [series]="getChartSeriesData(cohort)"
+            [labels]="getChartLabels(cohort)"
+            [chart]="chartOptions.chart!"
+            [responsive]="chartOptions.responsive!"
+            [legend]="chartOptions.legend!"
+            [colors]="chartOptions.colors!"
+            [plotOptions]="chartOptions.plotOptions!"
+            [dataLabels]="chartOptions.dataLabels!"
+          >
+          </apx-chart>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-stroked-button
+            color="accent"
+            (click)="selectCohort(cohort)"
+          >
+            See Details
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </mat-card>
 </div>
 
 <div
@@ -84,7 +85,7 @@
   class="cohort-details-container"
 >
   <div class="cohort-details-container">
-    <mat-card class="card">
+    <mat-card appearance="outlined" class="card">
       <div class="header">
         <button mat-icon-button class="header-left" (click)="goBack()">
           <mat-icon>arrow_back</mat-icon>
@@ -110,13 +111,14 @@
             >
             </apx-chart>
           </div>
+          <div class="custom-divider"></div>
           <div>
             <h4 style="padding: 0px; margin: 0px">Top Risk Students</h4>
             <p style="padding: 0px 0px 20px 0px; margin: 0px">
               {{ riskStudentsDetail.length }} students found
             </p>
 
-            <mat-table [dataSource]="riskStudentsDetail">
+            <mat-table class="students-table" [dataSource]="riskStudentsDetail">
               <ng-container matColumnDef="studentName">
                 <th mat-header-cell *matHeaderCellDef>Student Name</th>
                 <td mat-cell *matCellDef="let element">

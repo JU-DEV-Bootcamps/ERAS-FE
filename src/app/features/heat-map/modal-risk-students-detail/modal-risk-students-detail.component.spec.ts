@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
-import { HeatMapService } from '../../../core/services/heat-map.service';
+import { HeatMapService } from '../../../core/services/api/heat-map.service';
 
 describe('ModalRiskStudentsDetailComponent', () => {
   let component: ModalRiskStudentsDetailComponent;

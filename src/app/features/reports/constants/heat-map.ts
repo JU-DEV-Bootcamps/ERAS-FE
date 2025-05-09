@@ -73,8 +73,7 @@ export const ChartOptionsColorsCount: ApexOptions = {
   },
   tooltip: {
     y: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      formatter: function (val: number, opts?: any): string {
+      formatter: function (val: number, opts?): string {
         const rowIdx = opts.seriesIndex;
         const colIdx = opts.dataPointIndex;
         const grid = opts.series;
@@ -85,8 +84,7 @@ export const ChartOptionsColorsCount: ApexOptions = {
         return val.toString();
       },
       title: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: function (seriesName: string, opts?: any): string {
+        formatter: function (seriesName: string, opts?): string {
           const rowIdx = opts.seriesIndex;
           const colIdx = opts.dataPointIndex;
           const grid = opts.series;
@@ -100,8 +98,7 @@ export const ChartOptionsColorsCount: ApexOptions = {
     },
     x: {
       show: true,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      formatter: function (val: any): string {
+      formatter: function (val: number): string {
         return `Answer: ${val}`;
       },
     },

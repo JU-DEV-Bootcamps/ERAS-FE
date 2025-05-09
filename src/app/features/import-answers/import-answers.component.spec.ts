@@ -3,12 +3,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ImportAnswersComponent } from './import-answers.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
-import { CosmicLatteService } from '../../core/services/cosmic-latte.service';
-
-import { PollService } from '../../core/services/poll.service';
 import { provideHttpClient } from '@angular/common/http';
 import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
 import { AuditModel } from '../../core/models/common/audit.model';
+import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
+import { PollService } from '../../core/services/api/poll.service';
 
 describe('ImportAnswersComponent', () => {
   let component: ImportAnswersComponent;

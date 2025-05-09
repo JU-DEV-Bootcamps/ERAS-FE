@@ -18,12 +18,10 @@ export function GetChartOptions(
         show: false,
       },
       events: {
-        dataPointSelection: (
-          event: Event,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          chartContext: any,
-          config: { seriesIndex: number; dataPointIndex: number }
-        ) => {
+        dataPointSelection: (config: {
+          seriesIndex: number;
+          dataPointIndex: number;
+        }) => {
           if (dataPointSelection) {
             dataPointSelection(config.dataPointIndex, config.seriesIndex);
           }
@@ -99,8 +97,7 @@ export function GetChartOptions(
         show: true,
       },
       y: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formatter: function (val: number, opts?: any): string {
+        formatter: function (val: number, opts?): string {
           const rowIdx = opts.seriesIndex;
           const colIdx = opts.dataPointIndex;
           const grid = opts.series;

@@ -22,8 +22,7 @@ export interface DialogData {
     showMessage: boolean;
     details: string[];
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deleteConfirmFunction: any | null;
+  deleteConfirmFunction?: () => void;
 }
 @Component({
   selector: 'app-modal',
@@ -45,7 +44,11 @@ export class ModalComponent {
   ) {}
 
   delete() {
-    this.data.deleteConfirmFunction();
+    if (this.data.deleteConfirmFunction) {
+      this.data.deleteConfirmFunction();
+    } else {
+      console.warn('No delete confirm function provided');
+    }
     this.dialogRef.close();
   }
   closeDialog(): void {

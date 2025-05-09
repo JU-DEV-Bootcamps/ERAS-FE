@@ -4,8 +4,8 @@ import { EvaluationProcessListComponent } from './evaluation-process-list.compon
 import { provideHttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
 import { of } from 'rxjs';
+import { EvaluationsService } from '../../../core/services/api/evaluations.service';
 
 describe('EvaluationProcessListComponent', () => {
   let component: EvaluationProcessListComponent;
@@ -22,7 +22,7 @@ describe('EvaluationProcessListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EvaluationProcessListComponent],
       providers: [
-        { provide: EvaluationProcessService, useValue: mockEvaluationService },
+        { provide: EvaluationsService, useValue: mockEvaluationService },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         {
           provide: MatDialogRef,

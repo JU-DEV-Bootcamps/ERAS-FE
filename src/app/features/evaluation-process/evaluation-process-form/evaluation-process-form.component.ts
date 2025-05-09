@@ -11,7 +11,6 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { CosmicLatteService } from '../../../core/services/cosmic-latte.service';
 import { BehaviorSubject } from 'rxjs';
 import { GENERAL_MESSAGES } from '../../../core/constants/messages';
 import { MatIcon } from '@angular/material/icon';
@@ -22,13 +21,14 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { EvaluationProcessService } from '../../../core/services/evaluation-process.service';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
 import { countries } from '../../../core/constants/countries';
 import { CreateEvaluationModel } from '../../../core/models/evaluation-request.model';
 import { EvaluationModel } from '../../../core/models/evaluation.model';
 import { PollName } from '../../../core/models/poll-request.model';
+import { CosmicLatteService } from '../../../core/services/api/cosmic-latte.service';
+import { EvaluationsService } from '../../../core/services/api/evaluations.service';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -59,26 +59,24 @@ export class EvaluationProcessFormComponent {
     parent: 'null',
     name: 'null',
     status: 'null',
+    selectData: 'null',
+    country: 'null',
   };
   pollsNames: PollName[] = [this.prefereToChooseLater];
   cosmicLatteService = inject(CosmicLatteService);
-  evaluationProcessService = inject(EvaluationProcessService);
+  evaluationsService = inject(EvaluationsService);
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pollDataSelected: any = null;
+  pollDataSelected: PollName | null = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      evaluation?: any;
+      evaluation?: EvaluationModel;
       title?: string;
       buttonText?: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      deleteFunction?: any;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updateFunction?: any;
+      deleteFunction?: (id: number) => void;
+      updateFunction?: () => void;
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
     private dialog: MatDialog,
@@ -114,7 +112,7 @@ export class EvaluationProcessFormComponent {
       this.buttonText = this.data.buttonText ?? 'Create';
       if (data.evaluation != null) {
         this.pollDataSelected = {
-          parent: data.evaluation.evaluationPollId ?? '',
+          parent: data.evaluation.evaluationPollId.toString() ?? '',
           name: data.evaluation.name ?? '',
           status: data.evaluation.status ?? '',
           selectData: data.evaluation.pollName
@@ -122,7 +120,7 @@ export class EvaluationProcessFormComponent {
             : '',
           country: data.evaluation.country,
         };
-        const countryAlpha3 = this.data.evaluation.country.toLowerCase();
+        const countryAlpha3 = this.data.evaluation?.country.toLowerCase();
 
         const fullCountry = countries.find(c => c.alpha3 === countryAlpha3);
 
@@ -145,7 +143,7 @@ export class EvaluationProcessFormComponent {
   }
   deleteEvaluation() {
     if (this.data.deleteFunction) {
-      this.data.deleteFunction(this.data.evaluation.id);
+      this.data.deleteFunction(this.data.evaluation!.id!);
       this.closeAndResetDialog();
     }
   }
@@ -193,11 +191,15 @@ export class EvaluationProcessFormComponent {
         if (this.form.value.pollName === 'null') {
           delete newProcess.pollName;
         }
-        this.evaluationProcessService.createEvalProc(newProcess).subscribe({
+        this.evaluationsService.createEvalProc(newProcess).subscribe({
           next: () => {
             this.closeAndResetDialog();
             this.openDialog('Sucess: Process created!', true);
-            this.data.updateFunction();
+            if (this.data.updateFunction) {
+              this.data.updateFunction();
+            } else {
+              console.warn('No update function provided');
+            }
           },
           error: err => {
             this.openDialog(
@@ -221,22 +223,24 @@ export class EvaluationProcessFormComponent {
           country: this.selectedCountry,
         } as EvaluationModel;
 
-        this.evaluationProcessService
-          .updateEvaluationProcess(updateEval)
-          .subscribe({
-            next: () => {
-              this.closeAndResetDialog();
-              this.openDialog('Sucess: Process updated!', true);
+        this.evaluationsService.updateEvaluationProcess(updateEval).subscribe({
+          next: () => {
+            this.closeAndResetDialog();
+            this.openDialog('Sucess: Process updated!', true);
+            if (this.data.updateFunction) {
               this.data.updateFunction();
-            },
-            error: err => {
-              this.openDialog(
-                'Error: An error occurred while trying to update the new evaluation process : ' +
-                  err.message,
-                false
-              );
-            },
-          });
+            } else {
+              console.warn('No update function provided');
+            }
+          },
+          error: err => {
+            this.openDialog(
+              'Error: An error occurred while trying to update the new evaluation process : ' +
+                err.message,
+              false
+            );
+          },
+        });
       }
     }
   }

@@ -62,11 +62,11 @@
                     <p class="field">{{ column | titlecase }}</p>
                     @if (column === 'period') {
                       <p class="information">
-                        {{ element['start'] | date: 'MMM/d/yy' }}
-                        to {{ element['end'] | date: 'MMM/d/yy' }}
+                        {{ element['startDate'] | date: 'MMM/d/yy' }}
+                        to {{ element['endDate'] | date: 'MMM/d/yy' }}
                       </p>
                     } @else {
-                      <p class="information">{{ element[column] }}</p>
+                      <p class="information">{{ getInfo(element, column) }}</p>
                     }
                   }
                 </div>

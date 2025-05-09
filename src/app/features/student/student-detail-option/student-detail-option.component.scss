@@ -1,3 +1,6 @@
+@use '../../../../styles/utils/index.scss' as main-styles;
+@use '@angular/material' as mat;
+
 .content-option {
   display: flex;
   gap: 10px;
@@ -7,10 +10,20 @@
   display: flex;
   justify-content: center;
   padding-top: 40px;
+  color: main-styles.get-color(primary, 50);
 
   .card {
+    display: flex;
     width: 350px;
     text-align: center;
+    align-items: center;
+    margin: 20px;
+
+    .cart-title {
+      font-weight: main-styles.get-font-weight(bold);
+      color: main-styles.get-color(primary, 50);
+      font-size: main-styles.get-font-size(title, large);
+    }
 
     .poll-radio-group {
       display: flex;
@@ -32,32 +45,61 @@
         }
 
         strong {
-          font-size: 16px;
+          font-weight: main-styles.get-font-weight(semi-bold);
+          color: main-styles.get-color(primary, 50);
+          font-size: main-styles.get-font-size(title, medium);
         }
 
         p {
-          margin: 0;
-          font-size: 12px;
-          color: #666;
+          color: main-styles.get-color(primary, 50);
         }
       }
     }
   }
 
   button {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: main-styles.get-color(primary, 50);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: main-styles.get-font-size(body, large);
+    font-weight: 500;
+    line-height: 125%;
+    height: 40px;
     width: 100%;
+    padding: 10px 16px;
+
+    &:hover {
+      background-color: main-styles.get-color(primary, 30);
+    }
+
+    @media (min-width: 500px) {
+      padding: 10px 16px;
+      width: 200px;
+    }
+  }
+
+  button:disabled {
+    background-color: main-styles.get-color(neutral, 70);
+    color: main-styles.get-color(neutral, 40);
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 }
 
 .cards-cohorts-container {
   padding: 20px;
+  color: main-styles.get-color(primary, 50);
 
   .cohorts-title {
     text-align: center;
     margin: auto;
     flex: 0 0 auto;
     margin-bottom: 20px;
-    color: #424242;
+    color: main-styles.get-color(primary, 50);
   }
 
   .cards-container {
@@ -68,6 +110,34 @@
 
     .card {
       text-align: center;
+      margin: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: main-styles.get-color(primary, 50);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      font-size: main-styles.get-font-size(body, large);
+      font-weight: 500;
+      line-height: 125%;
+      height: 40px;
+      width: 100%;
+      padding: 10px 16px;
+
+      &:hover {
+        background-color: main-styles.get-color(primary, 30);
+      }
+
+      @media (min-width: 500px) {
+        padding: 10px 16px;
+        width: 200px;
+      }
     }
   }
 }
@@ -96,13 +166,14 @@
 }
 
 .cohort-details-container {
+  color: main-styles.get-color(primary, 50);
   padding: 20px;
 
   .cohorts-title {
     text-align: center;
     margin: auto;
     margin-bottom: 20px;
-    color: #424242;
+    color: main-styles.get-color(primary, 50);
   }
 
   .cohort-details-container {
@@ -116,22 +187,65 @@
       width: 100%;
       text-align: center;
     }
+
+    .custom-divider {
+      border-left: 1px solid #38546d;
+      border-right: 1px solid #16222c;
+      height: 80px;
+      margin: 20px;
+    }
   }
 
   .cohort-accordion {
+    color: main-styles.get-color(primary, 50);
     width: 100%;
   }
-}
 
-.risk-badge {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 500;
+  .mat-expansion-panel-header .mat-expansion-panel-header-title,
+  .mat-expansion-panel-header .mat-expansion-panel-header-description {
+    color: main-styles.get-color(primary, 50);
+  }
+
+  .students-table {
+    width: 100%;
+    background-color: #00000000;
+  }
+
+  .mat-mdc-header-row,
+  .mat-mdc-row {
+    width: 100%;
+    display: flex;
+    height: auto;
+    margin-bottom: 5px;
+  }
+
+  .mat-mdc-cell {
+    display: flex;
+    flex: 1;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+
+    .risk-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      width: 32px;
+      height: 32px;
+      margin: auto;
+    }
+  }
+
+  .mat-mdc-header-cell {
+    display: flex;
+    flex: 1;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    font-weight: main-styles.get-font-weight(semi-bold);
+  }
 }
 
 .mat-mdc-row .mat-mdc-cell {

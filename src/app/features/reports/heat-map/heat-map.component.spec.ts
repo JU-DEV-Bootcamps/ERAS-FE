@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HeatMapComponent } from './heat-map.component';
-import { CohortService } from '../../../core/services/cohort.service';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { CohortService } from '../../../core/services/api/cohort.service';
 
 describe('HeatMapComponent', () => {
   let component: HeatMapComponent;

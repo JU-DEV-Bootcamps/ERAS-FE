@@ -21,22 +21,24 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { CohortModel } from '../../../core/models/cohort.model';
-import { CohortService } from '../../../core/services/cohort.service';
-import { PollService } from '../../../core/services/poll.service';
-import { PdfService } from '../../../core/services/report/pdf.service';
-import { StudentService } from '../../../core/services/student.service';
+import { PdfService } from '../../../core/services/exports/pdf.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
 import { PollModel } from '../../../core/models/poll.model';
 import { StudentRiskAverage } from '../../../core/services/interfaces/student.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { GetChartOptions } from '../util/heat-map-config';
-import { ReportService } from '../../../core/services/report.service.ts.service';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
+import { StudentService } from '../../../core/services/api/student.service';
+import { CohortService } from '../../../core/services/api/cohort.service';
+import { PollService } from '../../../core/services/api/poll.service';
+import { ReportService } from '../../../core/services/api/report.service';
+import { ListComponent } from '../../../shared/components/list/list.component';
+import { Column } from '../../../shared/components/list/types/column';
 
 @Component({
   selector: 'app-students-risk',
@@ -45,12 +47,12 @@ import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-
     MatSelectModule,
     MatTableModule,
     MatProgressBarModule,
-    DecimalPipe,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     NgApexchartsModule,
     EmptyDataComponent,
+    ListComponent,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -72,7 +74,22 @@ export class StudentsRiskComponent implements OnInit {
     pollId: new FormControl<number | null>(null, [Validators.required]),
   });
 
-  columns = ['studentName', 'email', 'avgRiskLevel'];
+  columns: Column<StudentRiskAverage>[] = [
+    {
+      key: 'studentName',
+      label: 'Name',
+    },
+    {
+      key: 'email',
+      label: 'Email',
+    },
+    {
+      key: 'avgRiskLevel',
+      label: 'Average Risk',
+      pipe: new DecimalPipe('en-US'),
+      pipeArgs: ['1.2-2'],
+    },
+  ];
   variableColumns = ['variableName'];
 
   cohorts: CohortModel[] = [];
@@ -81,6 +98,7 @@ export class StudentsRiskComponent implements OnInit {
   polls: PollModel[] = [];
 
   students: StudentRiskAverage[] = [];
+  totalStudents = 0;
 
   load = false;
 
@@ -109,12 +127,13 @@ export class StudentsRiskComponent implements OnInit {
     if (this.selectForm.value.cohortId && this.selectForm.value.pollId) {
       this.load = false;
       this.studentService
-        .getAllAverageByCohortAndPoll({
-          cohortId: this.selectForm.value.cohortId,
-          pollId: this.selectForm.value.pollId,
-        })
+        .getAllAverageByCohortAndPoll(
+          this.selectForm.value.cohortId,
+          this.selectForm.value.pollId
+        )
         .subscribe(res => {
           this.students = res;
+          this.totalStudents = res.length;
           this.load = true;
         });
     }

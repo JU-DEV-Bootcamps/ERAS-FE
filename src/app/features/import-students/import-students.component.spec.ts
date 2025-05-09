@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ImportStudentsComponent } from './import-students.component';
-import { ImportStudentService } from '../../core/services/import-students.service';
 import { VALIDATION_MESSAGES } from '../../core/constants/messages';
 import { of } from 'rxjs';
+import { StudentService } from '../../core/services/api/student.service';
 
 describe('ImportStudentsComponent', () => {
   let component: ImportStudentsComponent;
   let fixture: ComponentFixture<ImportStudentsComponent>;
-  const mockService = jasmine.createSpyObj('ImportStudentService', ['getData']);
+  const mockService = jasmine.createSpyObj('StudentService', ['getData']);
 
   beforeEach(async () => {
     mockService.getData.and.returnValue(of({ items: [], count: 0 }));
     await TestBed.configureTestingModule({
       imports: [ImportStudentsComponent],
       providers: [
-        { provide: ImportStudentService, useValue: mockService },
+        { provide: StudentService, useValue: mockService },
         provideNoopAnimations(),
       ],
     }).compileComponents();
