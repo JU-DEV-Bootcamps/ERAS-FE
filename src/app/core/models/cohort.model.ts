@@ -5,7 +5,7 @@ export interface CohortModel extends BaseModel {
   courseCode: string;
 }
 
-export interface CohortStudentsRiskByPollResponse {
+export interface StudentRiskResponse {
   studentId: number;
   studentName: string;
   answerAverage: number;
