@@ -1,5 +1,11 @@
 <div class="mat-elevation-z8">
-  <mat-spinner *ngIf="columns.length <= 0 || totalItems <= 0" />
+  <mat-spinner
+    *ngIf="
+      columns.length <= 0 ||
+      (totalItems && totalItems <= 0) ||
+      (!totalItems && items.length <= 0)
+    "
+  />
 
   <ng-container *ngIf="columns.length > 0 && isMobile; else tableView">
     <div class="card-container">
