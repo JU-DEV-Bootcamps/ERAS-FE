@@ -72,4 +72,9 @@ export class DynamicHeatmapComponent {
       }, 2000);
     }, 10000);
   }
+
+  handleFilterSelect(filters: { uuid: string; variableIds: number[] }) {
+    console.info('filters received', filters);
+    this.generateHeatMap(filters.uuid, filters.variableIds);
+  }
 }

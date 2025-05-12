@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-polls-answered',
   imports: [],
   templateUrl: './polls-answered.component.html',
-  styleUrl: './polls-answered.component.css'
+  styleUrl: './polls-answered.component.css',
 })
-export class PollsAnsweredComponent {
-
-}
+export class PollsAnsweredComponent {}

@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-summary-heatmap',
   imports: [],
   templateUrl: './summary-heatmap.component.html',
-  styleUrl: './summary-heatmap.component.css'
+  styleUrl: './summary-heatmap.component.css',
 })
-export class SummaryHeatmapComponent {
-
-}
+export class SummaryHeatmapComponent {}

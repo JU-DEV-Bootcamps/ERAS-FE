@@ -8,9 +8,8 @@ describe('DynamicHeatmapComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DynamicHeatmapComponent]
-    })
-    .compileComponents();
+      imports: [DynamicHeatmapComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DynamicHeatmapComponent);
     component = fixture.componentInstance;

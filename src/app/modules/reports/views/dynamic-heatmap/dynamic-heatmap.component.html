@@ -1,5 +1,5 @@
 <h1 class="page-title">Dynamic Heatmap</h1>
-<app-poll-filters></app-poll-filters>
+<app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
 
 @if (chartOption.series?.length) {
   <div class="chart-container" #mainContainer>
