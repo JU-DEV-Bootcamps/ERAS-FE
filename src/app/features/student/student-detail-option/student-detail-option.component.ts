@@ -66,12 +66,15 @@ export class StudentDetailOptionComponent implements OnInit {
   studentService = inject(StudentService);
   heatMapService = inject(HeatMapService);
   studentsService = inject(StudentService);
+  selectedQuantity = 3;
+  quantities = [3, 5, 10, 15, 20];
 
   polls: Poll[] = [];
   studentRisk: StudentRiskResponse[] = [];
   cohorts: CohortComponents[] = [];
   readonly panelOpenState = signal(false);
   riskStudentsDetail: StudentRiskResponse[] = [];
+  filteredStudents = [...this.riskStudentsDetail];
   columns = ['studentName', 'answerAverage', 'riskLevel', 'actions'];
 
   public chartOptions: ApexOptions = {
@@ -175,6 +178,13 @@ export class StudentDetailOptionComponent implements OnInit {
     }
   }
 
+  updateTable() {
+    this.filteredStudents = this.riskStudentsDetail.slice(
+      0,
+      this.selectedQuantity
+    );
+  }
+
   selectCohort(cohort: CohortComponents): void {
     if (!this.pollSeleccionado) return;
     this.cohortSeleccionado = cohort;
@@ -193,6 +203,7 @@ export class StudentDetailOptionComponent implements OnInit {
       .subscribe({
         next: data => {
           this.riskStudentsDetail = data;
+          this.updateTable();
         },
         error: error => {
           console.error('Error fetching risk student details by cohort', error);

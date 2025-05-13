@@ -114,10 +114,16 @@
           <div>
             <h4 style="padding: 0px; margin: 0px">Top Risk Students</h4>
             <p style="padding: 0px 0px 20px 0px; margin: 0px">
-              {{ riskStudentsDetail.length }} students found
+              Top
+              <select [(ngModel)]="selectedQuantity" (change)="updateTable()">
+                <option *ngFor="let qty of quantities" [value]="qty">
+                  {{ qty }}
+                </option>
+              </select>
+              students at risk
             </p>
 
-            <mat-table class="students-table" [dataSource]="riskStudentsDetail">
+            <mat-table class="students-table" [dataSource]="filteredStudents">
               <ng-container matColumnDef="studentName">
                 <th mat-header-cell *matHeaderCellDef>Student Name</th>
                 <td mat-cell *matCellDef="let element">
