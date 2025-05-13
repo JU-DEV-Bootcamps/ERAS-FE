@@ -1,8 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -61,6 +68,7 @@ export class StudentDetailOptionComponent implements OnInit {
   pollSeleccionadoId: number | null = null;
   cohortSeleccionado: CohortComponents | null = null;
   selectedComponents: { key: string; value: number }[] = [];
+  componentStudentRisk: Record<string, StudentRiskResponse[]> = {};
   pollsService = inject(PollService);
   pollInstanceService = inject(PollInstanceService);
   studentService = inject(StudentService);
@@ -68,6 +76,7 @@ export class StudentDetailOptionComponent implements OnInit {
   studentsService = inject(StudentService);
   selectedQuantity = 3;
   quantities = [3, 5, 10, 15, 20];
+  accordion = viewChild.required(MatAccordion);
 
   polls: Poll[] = [];
   studentRisk: StudentRiskResponse[] = [];
@@ -116,6 +125,8 @@ export class StudentDetailOptionComponent implements OnInit {
       .subscribe(pollsList => (this.polls = pollsList));
   }
 
+  constructor(private cdr: ChangeDetectorRef) {}
+
   selectPoll(): void {
     const poll = this.polls.find(p => p.id === this.pollSeleccionadoId);
     if (poll) {
@@ -162,7 +173,8 @@ export class StudentDetailOptionComponent implements OnInit {
         this.cohortSeleccionado.cohortId
       )
       .subscribe(data => {
-        this.studentRisk = data;
+        this.componentStudentRisk[componentKey] = data;
+        this.cdr.detectChanges();
       });
   }
 

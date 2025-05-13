@@ -169,7 +169,13 @@
           </div>
         </div>
         <br />
-        <mat-accordion class="cohort-accordion">
+        <div class="action-buttons">
+          <button mat-button (click)="accordion().openAll()">Expand All</button>
+          <button mat-button (click)="accordion().closeAll()">
+            Collapse All
+          </button>
+        </div>
+        <mat-accordion class="cohort-accordion" multi>
           <mat-expansion-panel
             (opened)="loadComponentData(component.key.toLowerCase())"
             (closed)="studentRisk = []"
@@ -184,7 +190,11 @@
               </mat-panel-description>
             </mat-expansion-panel-header>
             <div>
-              <mat-table [dataSource]="studentRisk">
+              <mat-table
+                [dataSource]="
+                  componentStudentRisk[component.key.toLowerCase()] || []
+                "
+              >
                 <ng-container matColumnDef="studentName">
                   <th mat-header-cell *matHeaderCellDef>Student Name</th>
                   <td mat-cell *matCellDef="let element">
