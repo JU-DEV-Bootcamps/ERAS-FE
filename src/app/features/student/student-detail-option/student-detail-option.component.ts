@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
 import { Poll } from '../../list-students-by-poll/types/list-students-by-poll';
 import { ApexOptions } from 'ng-apexcharts';
-import { CohortStudentsRiskByPollResponse } from '../../../core/models/cohort.model';
+import { StudentRiskResponse } from '../../../core/models/cohort.model';
 import { toSentenceCase } from '../../../core/utilities/string-utils';
 import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
@@ -65,12 +65,17 @@ export class StudentDetailOptionComponent implements OnInit {
   pollInstanceService = inject(PollInstanceService);
   studentService = inject(StudentService);
   heatMapService = inject(HeatMapService);
+  studentsService = inject(StudentService);
+  selectedQuantity = 3;
+  quantities = [3, 5, 10, 15, 20];
+
   polls: Poll[] = [];
-  studentRisk: CohortStudentsRiskByPollResponse[] = [];
+  studentRisk: StudentRiskResponse[] = [];
   cohorts: CohortComponents[] = [];
   readonly panelOpenState = signal(false);
-  riskStudentsDetail: CohortStudentsRiskByPollResponse[] = [];
-  columns = ['studentName', 'riskLevel', 'actions'];
+  riskStudentsDetail: StudentRiskResponse[] = [];
+  filteredStudents = [...this.riskStudentsDetail];
+  columns = ['studentName', 'answerAverage', 'riskLevel', 'actions'];
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -173,6 +178,13 @@ export class StudentDetailOptionComponent implements OnInit {
     }
   }
 
+  updateTable() {
+    this.filteredStudents = this.riskStudentsDetail.slice(
+      0,
+      this.selectedQuantity
+    );
+  }
+
   selectCohort(cohort: CohortComponents): void {
     if (!this.pollSeleccionado) return;
     this.cohortSeleccionado = cohort;
@@ -191,6 +203,7 @@ export class StudentDetailOptionComponent implements OnInit {
       .subscribe({
         next: data => {
           this.riskStudentsDetail = data;
+          this.updateTable();
         },
         error: error => {
           console.error('Error fetching risk student details by cohort', error);
