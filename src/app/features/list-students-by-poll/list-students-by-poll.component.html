@@ -4,10 +4,64 @@
 @if (!dataStudents) {
   <mat-spinner></mat-spinner>
 } @else {
-  <app-list
-    (loadCalled)="handleLoadCalled($event)"
-    [items]="students"
-    [totalItems]="totalStudents"
-    [columns]="columns"
-  />
+  <table mat-table [dataSource]="dataStudents" class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>#</th>
+      <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="isImported">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let element">
+        <span
+          class="badge"
+          [ngClass]="element.isImported ? 'badge-success' : 'badge-secondary'"
+        >
+          <mat-icon>
+            {{ element.isImported ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+          {{ element.isImported ? 'Imported' : 'Not imported' }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef>Action</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          matTooltip="See more details"
+          matTooltipPosition="right"
+          aria-label="Button that displays more information about the student"
+          color="primary"
+          (click)="openStudentDetails(element)"
+        >
+          <mat-icon>analytics</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [length]="totalStudents"
+    (page)="onPageChange($event)"
+    [pageSize]="pageSize"
+    [pageIndex]="currentPage"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
 }
