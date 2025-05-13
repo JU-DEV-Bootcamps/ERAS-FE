@@ -1,8 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -16,7 +23,7 @@ import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
 import { Poll } from '../../list-students-by-poll/types/list-students-by-poll';
 import { ApexOptions } from 'ng-apexcharts';
-import { CohortStudentsRiskByPollResponse } from '../../../core/models/cohort.model';
+import { StudentRiskResponse } from '../../../core/models/cohort.model';
 import { toSentenceCase } from '../../../core/utilities/string-utils';
 import { MatTableModule } from '@angular/material/table';
 import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
@@ -61,16 +68,23 @@ export class StudentDetailOptionComponent implements OnInit {
   pollSeleccionadoId: number | null = null;
   cohortSeleccionado: CohortComponents | null = null;
   selectedComponents: { key: string; value: number }[] = [];
+  componentStudentRisk: Record<string, StudentRiskResponse[]> = {};
   pollsService = inject(PollService);
   pollInstanceService = inject(PollInstanceService);
   studentService = inject(StudentService);
   heatMapService = inject(HeatMapService);
+  studentsService = inject(StudentService);
+  selectedQuantity = 3;
+  quantities = [3, 5, 10, 15, 20];
+  accordion = viewChild.required(MatAccordion);
+
   polls: Poll[] = [];
-  studentRisk: CohortStudentsRiskByPollResponse[] = [];
+  studentRisk: StudentRiskResponse[] = [];
   cohorts: CohortComponents[] = [];
   readonly panelOpenState = signal(false);
-  riskStudentsDetail: CohortStudentsRiskByPollResponse[] = [];
-  columns = ['studentName', 'riskLevel', 'actions'];
+  riskStudentsDetail: StudentRiskResponse[] = [];
+  filteredStudents = [...this.riskStudentsDetail];
+  columns = ['studentName', 'answerAverage', 'riskLevel', 'actions'];
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -110,6 +124,8 @@ export class StudentDetailOptionComponent implements OnInit {
       .getAllPolls()
       .subscribe(pollsList => (this.polls = pollsList));
   }
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   selectPoll(): void {
     const poll = this.polls.find(p => p.id === this.pollSeleccionadoId);
@@ -157,7 +173,8 @@ export class StudentDetailOptionComponent implements OnInit {
         this.cohortSeleccionado.cohortId
       )
       .subscribe(data => {
-        this.studentRisk = data;
+        this.componentStudentRisk[componentKey] = data;
+        this.cdr.detectChanges();
       });
   }
 
@@ -171,6 +188,13 @@ export class StudentDetailOptionComponent implements OnInit {
     } else {
       this.pollSeleccionado = null;
     }
+  }
+
+  updateTable() {
+    this.filteredStudents = this.riskStudentsDetail.slice(
+      0,
+      this.selectedQuantity
+    );
   }
 
   selectCohort(cohort: CohortComponents): void {
@@ -191,6 +215,7 @@ export class StudentDetailOptionComponent implements OnInit {
       .subscribe({
         next: data => {
           this.riskStudentsDetail = data;
+          this.updateTable();
         },
         error: error => {
           console.error('Error fetching risk student details by cohort', error);

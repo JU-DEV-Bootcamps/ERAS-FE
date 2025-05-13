@@ -10,7 +10,7 @@ import { HttpParams } from '@angular/common/http';
 import { ServerResponse } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
 import { Observable } from 'rxjs';
-import { CohortStudentsRiskByPollResponse } from '../../models/cohort.model';
+import { StudentRiskResponse } from '../../models/cohort.model';
 import { AnswerResponse } from '../../models/answer-request.model';
 
 @Injectable({
@@ -54,7 +54,7 @@ export class StudentService extends BaseApiService {
     componentName: string,
     cohortId: number
   ) {
-    return this.get<CohortStudentsRiskByPollResponse[]>(
+    return this.get<StudentRiskResponse[]>(
       `polls/${pollUuid}/components/top`,
       new HttpParams()
         .set('componentName', componentName)
@@ -63,14 +63,14 @@ export class StudentService extends BaseApiService {
   }
 
   getPollTopStudents(pollUuid: string, cohortId: number) {
-    return this.get<CohortStudentsRiskByPollResponse[]>(
+    return this.get<StudentRiskResponse[]>(
       `polls/${pollUuid}/top`,
       new HttpParams().set('cohortId', cohortId)
     );
   }
 
   getPollStudentsRiskSum(pollUuid: string, cohortId: number) {
-    return this.get<CohortStudentsRiskByPollResponse[]>(
+    return this.get<StudentRiskResponse[]>(
       `polls/${pollUuid}/sum`,
       new HttpParams().set('cohortId', cohortId)
     );
@@ -78,5 +78,25 @@ export class StudentService extends BaseApiService {
 
   getStudentAnswersByPoll(studentId: number, pollId: number) {
     return this.get<AnswerResponse[]>(`${studentId}/polls/${pollId}/answers`);
+  }
+
+  getTopRiskStudents(pollUuid: string, cohortId: number) {
+    return this.get<StudentRiskResponse[]>(
+      `/polls/${pollUuid}/top`,
+      new HttpParams().set('CohortId', cohortId)
+    );
+  }
+
+  getTopRiskStudentsByComponent(
+    pollUuid: string,
+    componentName: string,
+    cohortId: number
+  ) {
+    return this.get<StudentRiskResponse[]>(
+      `/polls/${pollUuid}/components/top`,
+      new HttpParams()
+        .set('ComponentName', componentName)
+        .set('CohortId', cohortId)
+    );
   }
 }
