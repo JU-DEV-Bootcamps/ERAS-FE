@@ -47,7 +47,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatRadioModule,
     MatExpansionModule,
     MatTableModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',

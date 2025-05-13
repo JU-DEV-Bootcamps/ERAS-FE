@@ -1,54 +1,75 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
 import { Router, RouterLink } from '@angular/router';
 import {
   CohortsSummaryModel,
   EvaluationModel,
 } from '../../core/models/summary.model';
-import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
-import { MatTooltip } from '@angular/material/tooltip';
 import { PollModel } from '../../core/models/poll.model';
 import { CohortService } from '../../core/services/api/cohort.service';
 import { EvaluationsService } from '../../core/services/api/evaluations.service';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
+import { register } from 'swiper/element/bundle';
+import { Swiper } from 'swiper/types';
+import { DatePipe } from '@angular/common';
+import {
+  arrayToApexChartSeries,
+  FormatOptions,
+} from '../reports/util/data.adapter';
+import { AnswerModel } from '../../core/models/answer.model';
+import { PollInstanceModel } from '../../core/models/poll-instance.model';
+import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { ReportService } from '../../core/services/api/report.service';
+import { GetChartOptions } from '../cohort/util/heat-map-config';
 
+register();
+
+interface SwiperEventTarget extends EventTarget {
+  swiper: Swiper;
+}
 @Component({
   selector: 'app-home',
   imports: [
     MatCardModule,
     MatButtonModule,
     MatIcon,
-    BarChartComponent,
-    //PieChartComponent,
     RouterLink,
     DatePipe,
-    DecimalPipe,
-    MatTooltip,
+    NgApexchartsModule,
+    EmptyDataComponent,
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
+  styleUrl: './home.component.scss',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HomeComponent implements OnInit {
-  // Cohorts-Students-PollIntances-Answer-Variable Data
   cohortsList: string[] = [];
   cohortsSummary: CohortsSummaryModel | undefined;
   summaryReqError: string | undefined;
-  // EvalProcess-Polls-PollIntances-Answer-Variable Data
+
   evalProcSummary: EvaluationModel[] | undefined;
   lastEvalProc: EvaluationModel | undefined;
+  idxChosenEval = 0;
   mainEPPoll: PollModel | undefined;
   riskStudentCount = 0;
   riskPollAverage = 0;
-  //Services
+  selectedPollUuid = '';
+
   router = inject(Router);
   cohortsService = inject(CohortService);
   evalService = inject(EvaluationsService);
   clService = inject(CosmicLatteService);
+  reportService = inject(ReportService);
   readonly dialog = inject(MatDialog);
   riskStudentsDetail: {
     studentId: string;
@@ -57,11 +78,15 @@ export class HomeComponent implements OnInit {
   }[] = [];
 
   healthCheckStatus = false;
-  pollResults = [6, 5, 1, 4, 2, 6];
+
+  chartOptions: ApexOptions = {
+  };
+
   async ngOnInit(): Promise<void> {
     this.healthCheck();
     this.loadEvalProcSummary();
     this.loadCohortsSummary();
+    this.loadAvgPoll();
   }
 
   loadCohortsSummary() {
@@ -93,6 +118,26 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  loadAvgPoll() {
+    this.selectedPollUuid = this.getLastPollUuid();
+    if (this.selectedPollUuid) {
+      this.reportService
+        .getAvgPoolReport(this.selectedPollUuid, null)
+        .subscribe(res => {
+          const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+            res.body
+          );
+          this.chartOptions = GetChartOptions(
+            `Poll summary - ${this.lastEvalProc?.name} - ${this.lastEvalProc?.pollName}}`,
+            reportSeries,
+            null,
+            this.chartOptions
+          );
+          console.log(this.chartOptions);
+        });
+    }
+  }
+
   loadEvalProcSummary() {
     this.evalService.getEvalProcSummary().subscribe({
       next: summary => {
@@ -100,8 +145,9 @@ export class HomeComponent implements OnInit {
         this.lastEvalProc = summary.entities.find(
           ev => ev.pollInstances.length > 0
         );
-        this.mainEPPoll = this.lastEvalProc?.polls[0];
-        console.warn(this.lastEvalProc);
+        if (this.lastEvalProc) {
+          this.mainEPPoll = this.lastEvalProc.polls[0];
+        }
       },
       error: error => {
         this.summaryReqError = error;
@@ -129,5 +175,87 @@ export class HomeComponent implements OnInit {
       panelClass: 'border-modalbox-dialog',
       data: this.riskStudentsDetail,
     });
+  }
+  onSlideChange(event: Event) {
+    if (event.target && (event.target as SwiperEventTarget).swiper) {
+      const swiperInstance = (event.target as SwiperEventTarget)
+        .swiper as Swiper;
+
+      this.idxChosenEval = swiperInstance.snapIndex;
+      this.loadAvgPoll();
+    }
+  }
+
+  getLastPollUuid() {
+    if (!this.evalProcSummary) {
+      console.warn('Evaluation summary is not defined');
+
+      return '';
+    }
+
+    const chosenEvalSummary = this.evalProcSummary[this.idxChosenEval];
+    const mostRecentPoll = chosenEvalSummary.polls[0];
+
+    return mostRecentPoll?.uuid;
+  }
+
+  getPollInstancesChart(evaluation: EvaluationModel) {
+    const formatOptions: FormatOptions<
+      EvaluationModel,
+      PollInstanceModel,
+      AnswerModel
+    > = {
+      xAxisKey: 'answerText',
+      yAxisKey: 'riskLevel',
+      rowsKey: 'pollInstances',
+      colsKey: 'answers',
+    };
+    const evaluationSeries = arrayToApexChartSeries(evaluation, formatOptions);
+
+    return {
+      ...this.chartOptions,
+      series: evaluationSeries,
+      title: {
+        text: `Risk Heatmap - ${evaluation.name} - ${evaluation.pollName}`,
+      },
+      xaxis: {
+        type: 'category',
+        labels: {
+          show: false,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      tooltip: {
+        x: {
+          show: true,
+        },
+        y: {
+          formatter: function (val: number, opts?: unknown): string {
+            if (opts) {
+              const options = opts as {
+                seriesIndex: number;
+                dataPointIndex: number;
+                series: number[][];
+              };
+              const rowIdx = options.seriesIndex;
+              const colIdx = options.dataPointIndex;
+              const grid = options.series;
+
+              if (!grid || !rowIdx || !colIdx || grid[rowIdx][colIdx] === -1) {
+                return '';
+              }
+            }
+            return val.toString();
+          },
+          title: {
+            formatter: function (): string {
+              return 'Average Risk Level:';
+            },
+          },
+        },
+      },
+    };
   }
 }

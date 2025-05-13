@@ -34,81 +34,82 @@
   </div>
 
   <h2 class="page-subtitle">Evaluation Processes</h2>
-  <!-- Todo: Add URL PARAM to send last days -->
-  <p class="link" routerLink="/list-polls-by-cohort">View all Evaluations</p>
-  @if (lastEvalProc) {
-    <mat-card appearance="outlined">
-      <mat-card-header>
-        <mat-card-title>{{ lastEvalProc.name }}</mat-card-title>
-        <mat-card-subtitle
-          matTooltip="Evaluation process ID"
-          style="color: cadetblue; margin-left: 5px"
-          >#{{ lastEvalProc.id }}</mat-card-subtitle
-        >
-      </mat-card-header>
-      <div class="eval-summary">
-        <ul>
-          <li class="date-info">
-            <p style="font-weight: bolder; margin-right: 10px">Published:</p>
-            <span>{{ lastEvalProc.startDate | date }}</span>
-          </li>
-          <li class="date-info">
-            <p style="font-weight: bolder; margin-right: 10px">Deadline:</p>
-            <span>{{ lastEvalProc.endDate | date }}</span>
-          </li>
-        </ul>
-        <div style="display: flex; width: 90%; justify-content: center">
-          <mat-card class="eval-card">
-            <mat-card-title>Polls Answered</mat-card-title>
-            <mat-card-footer>{{
-              lastEvalProc.pollInstances.length
-            }}</mat-card-footer>
-          </mat-card>
-          @if (riskStudentsDetail) {
-            <mat-card
-              (click)="openStudentsByCohortDialog()"
-              class="eval-card clickable"
-            >
-              <mat-card-title>High Risk Students</mat-card-title>
-              <mat-card-footer>{{ riskStudentCount }}</mat-card-footer>
-            </mat-card>
-          }
+  @if (evalProcSummary && evalProcSummary.length > 0) {
+    <div #mainContainer>
+      <div class="student-header">
+        <div class="student-info">
+          <h2 class="page-title">{{ evalProcSummary[idxChosenEval].name }}</h2>
+          <h4 class="page-subtitle">
+            Status: {{ evalProcSummary[idxChosenEval].status }}
+          </h4>
+          <h4 class="page-ssid">
+            ID: {{ evalProcSummary[idxChosenEval].evaluationPollId }}
+          </h4>
         </div>
       </div>
-      <mat-card class="poll-summary">
-        <mat-card-header>
-          <mat-card-title>{{ mainEPPoll?.name }}</mat-card-title>
-          <mat-card-subtitle matTooltip="Version: {{ mainEPPoll?.version }}">
-            #{{ mainEPPoll?.id }}
-          </mat-card-subtitle>
-        </mat-card-header>
-        <div class="poll-details">
-          <p>ID: {{ mainEPPoll?.uuid }}</p>
-          <p>Version: {{ mainEPPoll?.version }}</p>
-          <p>Creation Date: {{ mainEPPoll?.audit?.createdAt | date }}</p>
-          <p style="font-size: larger; font-weight: bold">
-            Risk Average: {{ riskPollAverage | number: '1.0-2' }}
+
+      <div class="container">
+        <mat-card class="card-details">
+          <h3 class="title">Student Details</h3>
+          <p>
+            Name:
+            {{ evalProcSummary[idxChosenEval].name }}
           </p>
-        </div>
-        <app-bar-chart
-          [seriesY]="pollResults"
-          style="width: 90%"
-        ></app-bar-chart>
-        <!-- <app-pie-chart
-            [seriesY]="pollResults"
-            class="back-result"
-        ></app-pie-chart> -->
-        <mat-card-actions>
-          <button mat-stroked-button (click)="redirectToLastPoll()">
-            View More
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    </mat-card>
+          <p>
+            Poll name:
+            {{ evalProcSummary[idxChosenEval].name }}
+          </p>
+          <p>
+            Date:
+            {{ evalProcSummary[idxChosenEval].startDate | date }} to
+            {{ evalProcSummary[idxChosenEval].endDate | date }}
+          </p>
+          <p>Status: {{ evalProcSummary[idxChosenEval].status }}</p>
+        </mat-card>
+        <section class="main" id="chart-student-detail">
+          <swiper-container
+            id="swiper-container"
+            class="swiper"
+            effect="cards"
+            grab-cursor="true"
+            (swiperslidechange)="onSlideChange($event)"
+          >
+            @for (evaluation of evalProcSummary; track $index) {
+              <swiper-slide>
+                <h3 class="title">Last evaluations</h3>
+                <p class="date-risk-by-components">
+                  Poll Name: {{ evaluation.name }}
+                </p>
+                <p class="date-risk-by-components">
+                  Status: {{ evaluation.status }}
+                </p>
+                <div class="chart-container" #chart>
+                  @if (
+                    chartOptions &&
+                    chartOptions.series &&
+                    chartOptions.chart &&
+                    chartOptions.plotOptions
+                  ) {
+                    <apx-chart
+                      [series]="chartOptions.series"
+                      [chart]="chartOptions.chart"
+                      [plotOptions]="chartOptions.plotOptions"
+                      [xaxis]="chartOptions.xaxis!"
+                      [tooltip]="chartOptions.tooltip!"
+                    >
+                    </apx-chart>
+                  }
+                </div>
+              </swiper-slide>
+            }
+          </swiper-container>
+        </section>
+      </div>
+    </div>
   } @else {
-    <span style="font-weight: bolder"
-      >No evaluation process with polls answered yet.</span
-    >
+    <app-empty-data-message
+      description="No evaluation process with polls answered yet."
+    ></app-empty-data-message>
   }
   <h2 class="page-subtitle">Connected Services</h2>
   <div class="section">

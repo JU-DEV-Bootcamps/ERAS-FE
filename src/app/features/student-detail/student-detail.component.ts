@@ -13,7 +13,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Subject, takeUntil } from 'rxjs';
 import { register } from 'swiper/element/bundle';
@@ -44,8 +43,6 @@ interface SwiperEventTarget extends EventTarget {
     MatDividerModule,
     MatCardModule,
     CommonModule,
-    MatTableModule,
-    MatCardModule,
     ListComponent,
   ],
   templateUrl: './student-detail.component.html',

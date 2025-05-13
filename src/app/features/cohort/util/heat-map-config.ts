@@ -8,7 +8,8 @@ import {
 export function GetChartOptions(
   title: string,
   series: ApexAxisChartSeries,
-  dataPointSelection?: (x: number, y: number) => void
+  dataPointSelection?: ((x: number, y: number) => void) | null,
+  baseChartOptions?: ApexOptions
 ): ApexOptions {
   return {
     series: series,
@@ -127,5 +128,6 @@ export function GetChartOptions(
         <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">${formattedZValue}</div>`;
       },
     },
+    ...baseChartOptions,
   };
 }
