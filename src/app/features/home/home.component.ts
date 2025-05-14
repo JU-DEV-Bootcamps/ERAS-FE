@@ -30,7 +30,9 @@ import { PollInstanceModel } from '../../core/models/poll-instance.model';
 import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { ReportService } from '../../core/services/api/report.service';
-import { GetChartOptions } from '../cohort/util/heat-map-config';
+import { AnswersRisks, RiskLevel } from '../../core/models/common/risk.model';
+import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 register();
 
@@ -47,6 +49,8 @@ interface SwiperEventTarget extends EventTarget {
     DatePipe,
     NgApexchartsModule,
     EmptyDataComponent,
+    BarChartComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -64,6 +68,13 @@ export class HomeComponent implements OnInit {
   riskStudentCount = 0;
   riskPollAverage = 0;
   selectedPollUuid = '';
+  riskLevels = {
+    risks: [] as number[],
+    levels: [] as RiskLevel[],
+  };
+  riskLevelAvg = '-';
+  isLoadingEvaluations = true;
+  isLoadingPollInstances = true;
 
   router = inject(Router);
   cohortsService = inject(CohortService);
@@ -79,8 +90,7 @@ export class HomeComponent implements OnInit {
 
   healthCheckStatus = false;
 
-  chartOptions: ApexOptions = {
-  };
+  chartOptions: ApexOptions = {};
 
   async ngOnInit(): Promise<void> {
     this.healthCheck();
@@ -121,20 +131,25 @@ export class HomeComponent implements OnInit {
   loadAvgPoll() {
     this.selectedPollUuid = this.getLastPollUuid();
     if (this.selectedPollUuid) {
-      this.reportService
-        .getAvgPoolReport(this.selectedPollUuid, null)
-        .subscribe(res => {
-          const reportSeries = this.reportService.getHMSeriesFromAvgReport(
-            res.body
-          );
-          this.chartOptions = GetChartOptions(
-            `Poll summary - ${this.lastEvalProc?.name} - ${this.lastEvalProc?.pollName}}`,
-            reportSeries,
-            null,
-            this.chartOptions
-          );
-          console.log(this.chartOptions);
-        });
+      this.isLoadingPollInstances = true;
+      this.reportService.getSummaryPollReport(this.selectedPollUuid).subscribe({
+        next: res => {
+          const body = res.body as AnswersRisks;
+
+          this.riskLevelAvg = body.averageRisk.toFixed(2);
+          this.riskLevels =
+            this.reportService.getBMSeriesFromSummaryReport(body);
+        },
+        error: error => {
+          console.error('Error while obtaining poll instances data', error);
+        },
+        complete: () => {
+          this.isLoadingPollInstances = false;
+        },
+      });
+    } else {
+      console.warn('No pollUuid is undefined');
+      this.isLoadingPollInstances = false;
     }
   }
 
@@ -151,6 +166,9 @@ export class HomeComponent implements OnInit {
       },
       error: error => {
         this.summaryReqError = error;
+      },
+      complete: () => {
+        this.isLoadingEvaluations = false;
       },
     });
   }

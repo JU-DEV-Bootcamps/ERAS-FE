@@ -76,21 +76,23 @@
                 <p class="date-risk-by-components">
                   Status: {{ evaluation.status }}
                 </p>
+                <p class="date-risk-by-components">
+                  Risk average: {{ riskLevelAvg }}
+                </p>
                 <div class="chart-container" #chart>
-                  @if (
-                    chartOptions &&
-                    chartOptions.series &&
-                    chartOptions.chart &&
-                    chartOptions.plotOptions
+                  @if (isLoadingPollInstances) {
+                    <mat-spinner />
+                  } @else if (
+                    riskLevels.risks.length > 0 && riskLevels.levels.length > 0
                   ) {
-                    <apx-chart
-                      [series]="chartOptions.series"
-                      [chart]="chartOptions.chart"
-                      [plotOptions]="chartOptions.plotOptions"
-                      [xaxis]="chartOptions.xaxis!"
-                      [tooltip]="chartOptions.tooltip!"
-                    >
-                    </apx-chart>
+                    <app-bar-chart
+                      [seriesY]="riskLevels.risks"
+                      [categoriesX]="riskLevels.levels"
+                    ></app-bar-chart>
+                  } @else {
+                    <app-empty-data-message
+                      description="No poll instance data found."
+                    ></app-empty-data-message>
                   }
                 </div>
               </swiper-slide>
@@ -100,9 +102,13 @@
       </div>
     </div>
   } @else {
-    <app-empty-data-message
-      description="No evaluation process with polls answered yet."
-    ></app-empty-data-message>
+    @if (isLoadingEvaluations) {
+      <mat-spinner />
+    } @else {
+      <app-empty-data-message
+        description="No evaluation process with polls answered yet."
+      ></app-empty-data-message>
+    }
   }
   <h2 class="page-subtitle">Connected Services</h2>
   <div class="section">
