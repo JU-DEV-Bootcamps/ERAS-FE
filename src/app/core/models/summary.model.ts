@@ -76,3 +76,32 @@ export interface StudentQuestionReport {
   variable: VariableModel;
   answer: AnswerModel;
 }
+
+export interface PollCountReport {
+  components: PollCountComponent[];
+}
+
+export interface PollCountComponent {
+  description: string;
+  questions: PollCountQuestion[];
+}
+
+export interface PollCountQuestion {
+  question: string;
+  averageRisk: number;
+  answers: PollCountAnswer[];
+}
+
+export interface PollCountAnswer {
+  answerText: string;
+  answerRisk: number;
+  count: number;
+  students: PollCountStudent[];
+}
+
+export interface PollCountStudent {
+  name: string;
+  email: string;
+  cohortId: number;
+  cohortName: string;
+}

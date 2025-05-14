@@ -17,7 +17,6 @@ import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
 import { StudentsRiskComponent } from './features/cohort/students-risk/students-risk.component';
 import { DynamicHeatmapComponent } from './modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
-import { PollsAnsweredComponent } from './modules/reports/views/polls-answered/polls-answered.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -42,14 +41,6 @@ export const routes: Routes = [
       {
         path: 'reports2/dynamic-heatmap',
         component: DynamicHeatmapComponent,
-      },
-      {
-        path: 'reports2/summary-heatmap',
-        component: SummaryHeatmapComponent,
-      },
-      {
-        path: 'reports2/polls-answered',
-        component: PollsAnsweredComponent,
       },
       { path: 'profile', component: ProfileComponent },
       {

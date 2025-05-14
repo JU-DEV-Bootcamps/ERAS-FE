@@ -13,7 +13,6 @@ import { CohortService } from '../../../../core/services/api/cohort.service';
 import { PollModel } from '../../../../core/models/poll.model';
 import { CohortModel } from '../../../../core/models/cohort.model';
 import { VariableModel } from '../../../../core/models/variable.model';
-import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-poll-filters',
@@ -22,7 +21,6 @@ import { JsonPipe } from '@angular/common';
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
-    JsonPipe,
   ],
   templateUrl: './poll-filters.component.html',
   styleUrl: './poll-filters.component.css',
@@ -35,7 +33,7 @@ export class PollFiltersComponent implements OnInit {
   componentNames: string[] = [];
   variables: VariableModel[] = [];
 
-  filters = output<{ uuid: string; variableIds: number[] }>();
+  filters = output<{ uuid: string; cohortId: number; variableIds: number[] }>();
 
   filterForm = new FormGroup({
     pollUuid: new FormControl<string | null>(null, [Validators.required]),
@@ -54,7 +52,7 @@ export class PollFiltersComponent implements OnInit {
     this.pollsService.getAllPolls().subscribe(res => (this.polls = res));
     this.cohortsService
       .getCohorts()
-      .subscribe(res => (this.cohorts = [this.selectAllCohort, ...res]));
+      .subscribe(res => (this.cohorts = [this.selectAllCohort, ...res.body]));
 
     this.filterForm.controls.cohortId.valueChanges.subscribe(() => {
       this.handleCohortSelect();
@@ -102,14 +100,10 @@ export class PollFiltersComponent implements OnInit {
   }
   sendFilters() {
     console.info('Sending filters', this.filterForm.value);
-    if (
-      !this.filterForm.value.pollUuid ||
-      this.filterForm.value.cohortId === null
-    )
-      return;
-    const pollUuid = this.filterForm.value.pollUuid;
+    const uuid = this.filterForm.value.pollUuid;
+    const cohortId = this.filterForm.value.cohortId;
     const variableIds = this.filterForm.value.variables;
-    if (!pollUuid || !variableIds) return;
-    this.filters.emit({ uuid: pollUuid, variableIds });
+    if (!uuid || cohortId == null || !variableIds) return;
+    this.filters.emit({ uuid, cohortId, variableIds });
   }
 }

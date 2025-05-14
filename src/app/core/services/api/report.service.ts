@@ -4,6 +4,7 @@ import { ApiResponse } from '../../models/api-response.model';
 import {
   GetQueryResponse,
   PollAvgReport,
+  PollCountReport,
   PollTopReport,
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
@@ -34,6 +35,19 @@ export class ReportService extends BaseApiService {
     );
   }
 
+  getCountPoolReport(
+    pollInstanceUuid: string,
+    cohortId: number | null,
+    variableIds: number[]
+  ) {
+    let params = new HttpParams().set('variableIds', variableIds.join(','));
+    if (cohortId != null) params = params.set('cohortId', cohortId);
+    return this.get<GetQueryResponse<PollCountReport>>(
+      `polls/${pollInstanceUuid}/count`,
+      params
+    );
+  }
+
   getHMSeriesFromAvgReport(body: PollAvgReport) {
     const series = body.components.map(component => {
       return {
@@ -42,13 +56,29 @@ export class ReportService extends BaseApiService {
           return {
             x: question.question,
             y: question.averageRisk,
-            details: question.answersDetails,
             z: question.answersDetails
               .map(
                 ans =>
                   `${ans.answerPercentage}% = ${ans.answerText}: ${ans.studentsEmails.join(', ')}`
               )
               .join('; </br>'),
+          };
+        }),
+      };
+    });
+    return series;
+  }
+
+  getHMSeriesFromCountReport(body: PollCountReport) {
+    const compTest = body.components[0];
+    const series = compTest.questions.map(question => {
+      return {
+        name: `${question.question}`,
+        data: question.answers.map(a => {
+          return {
+            x: a.answerRisk,
+            y: a.answerRisk,
+            z: `RISK:${a.answerRisk} COUNT:${a.count} A:${a.answerText}`,
           };
         }),
       };

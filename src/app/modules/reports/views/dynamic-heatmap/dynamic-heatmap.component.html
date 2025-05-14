@@ -1,22 +1,10 @@
-<h1 class="page-title">Dynamic Heatmap</h1>
-<app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
-
-@if (chartOption.series?.length) {
-  <div class="chart-container" #mainContainer>
-    <apx-chart
-      [series]="chartOption.series!"
-      [chart]="chartOption.chart!"
-      [xaxis]="chartOption.xaxis!"
-      [yaxis]="chartOption.yaxis!"
-      [colors]="chartOption.colors!"
-      [plotOptions]="chartOption.plotOptions!"
-      [title]="chartOption.title!"
-      [tooltip]="chartOption.tooltip!"
-    >
-    </apx-chart>
+<div #mainContainer>
+  <h1 class="page-title">Dynamic Heatmap</h1>
+  <div>
+    <app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
     <button
-      class="export-button"
       id="print-button"
+      class="export-button"
       mat-icon-button
       color="primary"
       [disabled]="isGeneratingPDF"
@@ -25,11 +13,26 @@
       <mat-icon>print</mat-icon>
     </button>
   </div>
-} @else {
-  <div style="padding-top: 8px">
-    <app-empty-data-message
-      title="No data found"
-      description="Please select options in all fields to display the heatmap."
-    ></app-empty-data-message>
-  </div>
-}
+  @if (chartOption.series?.length) {
+    <div class="chart-container">
+      <apx-chart
+        [series]="chartOption.series!"
+        [chart]="chartOption.chart!"
+        [xaxis]="chartOption.xaxis!"
+        [yaxis]="chartOption.yaxis!"
+        [colors]="chartOption.colors!"
+        [plotOptions]="chartOption.plotOptions!"
+        [title]="chartOption.title!"
+        [tooltip]="chartOption.tooltip!"
+      >
+      </apx-chart>
+    </div>
+  } @else {
+    <div style="padding-top: 8px">
+      <app-empty-data-message
+        title="No data found"
+        description="Please select options in all fields to display the heatmap."
+      ></app-empty-data-message>
+    </div>
+  }
+</div>

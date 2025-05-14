@@ -152,7 +152,7 @@ export class HeatMapComponent implements OnInit {
 
   getCohorts() {
     this.cohortService.getCohorts().subscribe(data => {
-      this.cohorts = data;
+      this.cohorts = data.body;
     });
   }
 

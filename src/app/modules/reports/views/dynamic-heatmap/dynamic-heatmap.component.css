@@ -1,6 +1,6 @@
 .chart-container {
   width: 100%;
-height: auto;
+  height: auto;
   max-width: 100%;
   max-height: 100%;
   overflow-x: auto;
@@ -8,7 +8,16 @@ height: auto;
   padding: 10px;
 }
 
-#print-button {
+.export-button {
   float: right;
-  margin-left: 10px;
+  width: 35px;
+  height: 35px;
+  margin-left: 0px;
+  background-color: none;
+  border: none;
+  border-radius: 50%;
+  &:hover {
+    background-color: #bbbbbb;
+    cursor: pointer;
+  }
 }

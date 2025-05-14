@@ -8,9 +8,10 @@ import {
 export function GetChartOptions(
   title: string,
   series: ApexAxisChartSeries,
-  dataPointSelection?: (x: number, y: number) => void
+  dataPointSelection?: (x: number, y: number) => void,
+  fixColors = true
 ): ApexOptions {
-  return {
+  const options: ApexOptions = {
     series: series,
     chart: {
       type: 'heatmap',
@@ -43,53 +44,12 @@ export function GetChartOptions(
     plotOptions: {
       heatmap: {
         distributed: false,
-        colorScale: {
-          inverse: false,
-          ranges: [
-            {
-              from: -1,
-              to: 0,
-              color: RISK_COLORS[0], //'#FFFFFF',
-              foreColor: RISK_TEXT_COLORS[0],
-              name: RISK_LABELS[0], //No Answer
-            },
-            {
-              from: 0,
-              to: 1,
-              color: RISK_COLORS[1], //'#008000',
-              foreColor: RISK_TEXT_COLORS[1],
-              name: RISK_LABELS[1], //'Low Risk',
-            },
-            {
-              from: 1,
-              to: 2,
-              color: RISK_COLORS[2], //'#3CB371',
-              foreColor: RISK_TEXT_COLORS[2],
-              name: RISK_LABELS[2], //'Low-Medium Risk',
-            },
-            {
-              from: 2,
-              to: 3,
-              color: RISK_COLORS[3], //'#F0D722',
-              foreColor: RISK_TEXT_COLORS[3],
-              name: RISK_LABELS[3], //'Medium Risk',
-            },
-            {
-              from: 3,
-              to: 4,
-              color: RISK_COLORS[4], //'#FFA500',
-              foreColor: RISK_TEXT_COLORS[4],
-              name: RISK_LABELS[4], //'Medium-High Risk',
-            },
-            {
-              from: 4,
-              to: 10,
-              color: RISK_COLORS[5], //'#FF0000',
-              foreColor: RISK_TEXT_COLORS[5],
-              name: RISK_LABELS[5], //'High Risk',
-            },
-          ],
-        },
+        ...(fixColors && {
+          colorScale: {
+            inverse: false,
+            ranges: fixedColorRange,
+          },
+        }),
       },
     },
     tooltip: {
@@ -128,4 +88,50 @@ export function GetChartOptions(
       },
     },
   };
+  return options;
 }
+
+const fixedColorRange = [
+  {
+    from: -1,
+    to: 0,
+    color: RISK_COLORS[0], //'#FFFFFF',
+    foreColor: RISK_TEXT_COLORS[0],
+    name: RISK_LABELS[0], //No Answer
+  },
+  {
+    from: 0,
+    to: 1,
+    color: RISK_COLORS[1], //'#008000',
+    foreColor: RISK_TEXT_COLORS[1],
+    name: RISK_LABELS[1], //'Low Risk',
+  },
+  {
+    from: 1,
+    to: 2,
+    color: RISK_COLORS[2], //'#3CB371',
+    foreColor: RISK_TEXT_COLORS[2],
+    name: RISK_LABELS[2], //'Low-Medium Risk',
+  },
+  {
+    from: 2,
+    to: 3,
+    color: RISK_COLORS[3], //'#F0D722',
+    foreColor: RISK_TEXT_COLORS[3],
+    name: RISK_LABELS[3], //'Medium Risk',
+  },
+  {
+    from: 3,
+    to: 4,
+    color: RISK_COLORS[4], //'#FFA500',
+    foreColor: RISK_TEXT_COLORS[4],
+    name: RISK_LABELS[4], //'Medium-High Risk',
+  },
+  {
+    from: 4,
+    to: 10,
+    color: RISK_COLORS[5], //'#FF0000',
+    foreColor: RISK_TEXT_COLORS[5],
+    name: RISK_LABELS[5], //'High Risk',
+  },
+];
