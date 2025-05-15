@@ -1,3 +1,5 @@
+import { RiskLevel } from '../models/common/risk.model';
+
 export const RISK_COLORS: Record<number | 'default', string> = {
   0: '#939090',
   1: '#008000',
@@ -18,7 +20,7 @@ export const RISK_TEXT_COLORS: Record<number | 'default', string> = {
   default: '#FFFFFF',
 };
 
-export const RISK_LABELS: Record<number, string> = {
+export const RISK_LABELS: Record<number, RiskLevel> = {
   0: 'No Answer',
   1: 'Low Risk',
   2: 'Low-Medium Risk',

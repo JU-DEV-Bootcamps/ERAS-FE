@@ -7,6 +7,7 @@ import {
   PollTopReport,
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
+import { AnswersRisks, RiskLevel } from '../../models/common/risk.model';
 
 @Injectable({
   providedIn: 'root',
@@ -54,5 +55,41 @@ export class ReportService extends BaseApiService {
       };
     });
     return series;
+  }
+
+  getSummaryPollReport(pollUuiD: string) {
+    return this.get<ApiResponse<unknown>>(`polls/${pollUuiD}/summary`);
+  }
+
+  getBMSeriesFromSummaryReport(body: AnswersRisks) {
+    const record: Record<RiskLevel, number> = {
+      'No Answer': 0,
+      'Low Risk': 0,
+      'Low-Medium Risk': 0,
+      'Medium Risk': 0,
+      'Medium-High Risk': 0,
+      'High Risk': 0,
+    };
+
+    for (const risk of body.risks) {
+      if (risk >= 1 && risk <= 2) {
+        record['Low Risk']++;
+      } else if (risk >= 2 && risk <= 3) {
+        record['Low-Medium Risk']++;
+      } else if (risk >= 3 && risk <= 4) {
+        record['Medium Risk']++;
+      } else if (risk >= 4 && risk <= 5) {
+        record['Medium-High Risk']++;
+      } else if (risk >= 5 && risk <= 10) {
+        record['High Risk']++;
+      } else {
+        record['No Answer']++;
+      }
+    }
+
+    return {
+      risks: Object.values(record),
+      levels: Object.keys(record) as RiskLevel[],
+    };
   }
 }

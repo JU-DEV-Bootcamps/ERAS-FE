@@ -13,7 +13,7 @@ export class PieChartComponent extends ChartBase implements OnInit {
   public chartOptions: ApexOptions = {};
   seriesY = input([12, 5, 3, 2, 12, 6]);
   colors = input(Object.values(RISK_COLORS));
-  categoriesX = input(Object.values(RISK_LABELS));
+  categoriesX = input(Object.values(RISK_LABELS as string[]));
 
   constructor() {
     super();

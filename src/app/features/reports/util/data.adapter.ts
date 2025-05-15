@@ -166,4 +166,41 @@ const orderAnswers = (answers: ApexAxisChartSeries, fill?: boolean) => {
   return answers;
 };
 
-export { adaptAnswers, adaptMockAnswers, filterAnswers, orderAnswers };
+export interface FormatOptions<T, U, V> {
+  yAxisKey: keyof V;
+  xAxisKey: keyof V;
+  rowsKey: keyof T;
+  colsKey: keyof U;
+}
+const arrayToApexChartSeries = <T, U, V>(
+  collectionContainer: T,
+  formatOptions: FormatOptions<T, U, V>
+) => {
+  const dataChart: ApexAxisChartSeries = [];
+  const rowRawDatas = collectionContainer[formatOptions.rowsKey] as U[];
+
+  for (const rowRawData of rowRawDatas) {
+    const row = {
+      data: [] as { x: unknown; y: unknown }[],
+    };
+    const columnRaws = rowRawData[formatOptions.colsKey] as V[];
+
+    for (const columnRaw of columnRaws) {
+      row.data.push({
+        x: columnRaw[formatOptions.xAxisKey],
+        y: columnRaw[formatOptions.yAxisKey],
+      });
+    }
+    dataChart.push(row);
+  }
+
+  return dataChart;
+};
+
+export {
+  arrayToApexChartSeries,
+  adaptAnswers,
+  adaptMockAnswers,
+  filterAnswers,
+  orderAnswers,
+};
