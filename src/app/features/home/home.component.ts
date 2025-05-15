@@ -33,6 +33,7 @@ import { ReportService } from '../../core/services/api/report.service';
 import { AnswersRisks, RiskLevel } from '../../core/models/common/risk.model';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs';
 
 register();
 
@@ -132,21 +133,25 @@ export class HomeComponent implements OnInit {
     this.selectedPollUuid = this.getLastPollUuid();
     if (this.selectedPollUuid) {
       this.isLoadingPollInstances = true;
-      this.reportService.getSummaryPollReport(this.selectedPollUuid).subscribe({
-        next: res => {
-          const body = res.body as AnswersRisks;
+      this.reportService
+        .getSummaryPollReport(this.selectedPollUuid)
+        .pipe(
+          finalize(() => {
+            this.isLoadingPollInstances = false;
+          })
+        )
+        .subscribe({
+          next: res => {
+            const body = res.body as AnswersRisks;
 
-          this.riskLevelAvg = body.averageRisk.toFixed(2);
-          this.riskLevels =
-            this.reportService.getBMSeriesFromSummaryReport(body);
-        },
-        error: error => {
-          console.error('Error while obtaining poll instances data', error);
-        },
-        complete: () => {
-          this.isLoadingPollInstances = false;
-        },
-      });
+            this.riskLevelAvg = body.averageRisk.toFixed(2);
+            this.riskLevels =
+              this.reportService.getBMSeriesFromSummaryReport(body);
+          },
+          error: error => {
+            console.error('Error while obtaining poll instances data', error);
+          },
+        });
     } else {
       console.warn('No pollUuid is undefined');
       this.isLoadingPollInstances = false;
@@ -154,23 +159,27 @@ export class HomeComponent implements OnInit {
   }
 
   loadEvalProcSummary() {
-    this.evalService.getEvalProcSummary().subscribe({
-      next: summary => {
-        this.evalProcSummary = summary.entities;
-        this.lastEvalProc = summary.entities.find(
-          ev => ev.pollInstances.length > 0
-        );
-        if (this.lastEvalProc) {
-          this.mainEPPoll = this.lastEvalProc.polls[0];
-        }
-      },
-      error: error => {
-        this.summaryReqError = error;
-      },
-      complete: () => {
-        this.isLoadingEvaluations = false;
-      },
-    });
+    this.evalService
+      .getEvalProcSummary()
+      .pipe(
+        finalize(() => {
+          this.isLoadingEvaluations = false;
+        })
+      )
+      .subscribe({
+        next: summary => {
+          this.evalProcSummary = summary.entities;
+          this.lastEvalProc = summary.entities.find(
+            ev => ev.pollInstances.length > 0
+          );
+          if (this.lastEvalProc) {
+            this.mainEPPoll = this.lastEvalProc.polls[0];
+          }
+        },
+        error: error => {
+          this.summaryReqError = error;
+        },
+      });
   }
 
   healthCheck() {
