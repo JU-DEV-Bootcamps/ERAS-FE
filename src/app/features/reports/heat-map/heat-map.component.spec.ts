@@ -16,7 +16,14 @@ describe('HeatMapComponent', () => {
       'getCohorts',
     ]);
 
-    mockCohortService.getCohorts.and.returnValue(of([]));
+    mockCohortService.getCohorts.and.returnValue(
+      of({
+        body: [],
+        success: true,
+        message: '',
+        validationErrors: null,
+      })
+    );
 
     await TestBed.configureTestingModule({
       imports: [HeatMapComponent],

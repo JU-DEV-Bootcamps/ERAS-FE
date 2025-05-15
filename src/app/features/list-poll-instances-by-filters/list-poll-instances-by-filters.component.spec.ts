@@ -24,7 +24,11 @@ describe('ListPollInstancesByFiltersComponent', () => {
     mockPollInstanceService.getPollInstancesByFilters.and.returnValue(
       of({ body: [] })
     );
-    mockCohortService.getCohorts.and.returnValue(of([]));
+    mockCohortService.getCohorts.and.returnValue(
+      of({
+        body: [],
+      })
+    );
     mockPollService.getPollsByCohortId.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
