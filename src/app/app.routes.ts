@@ -27,7 +27,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       {
-        path: 'reports/dynamic-heatmap',
+        path: 'reports2/dynamic-heatmap',
         component: HeatMapComponent,
       },
       {
@@ -39,7 +39,7 @@ export const routes: Routes = [
         component: ListPollInstancesByFiltersComponent,
       },
       {
-        path: 'reports2/dynamic-heatmap',
+        path: 'reports/dynamic-heatmap',
         component: DynamicHeatmapComponent,
       },
       { path: 'profile', component: ProfileComponent },
