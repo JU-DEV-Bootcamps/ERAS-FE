@@ -9,9 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { StudentModel } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/api/student.service';
-import { ListComponent } from '../../shared/components/list/list.component';
 import { EventLoad } from '../../shared/events/load';
-import { Column } from '../../shared/components/list/types/column';
+import { NgClass } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
 
 @Component({
   selector: 'app-list-students-by-poll',
@@ -25,18 +27,15 @@ import { Column } from '../../shared/components/list/types/column';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    ListComponent,
+    MatTooltipModule,
+    NgClass,
   ],
   templateUrl: './list-students-by-poll.component.html',
   styleUrl: './list-students-by-poll.component.scss',
 })
 export class ListStudentsByPollComponent implements OnInit {
-  columns: Column<StudentModel>[] = [
-    { label: '#', key: 'id' },
-    { label: 'Name', key: 'name' },
-    { label: 'Email', key: 'email' },
-    { label: 'Is Imported?', key: 'isImported' },
-  ];
+  readonly dialog = inject(MatDialog);
+  displayedColumns: string[] = ['id', 'name', 'email', 'isImported', 'action'];
 
   studentService = inject(StudentService);
 
@@ -79,5 +78,16 @@ export class ListStudentsByPollComponent implements OnInit {
     this.currentPage = pageIndex;
     this.pageSize = pageSize;
     this.loadStudents();
+  }
+
+  openStudentDetails(student: StudentModel): void {
+    this.dialog.open(ModalStudentDetailComponent, {
+      width: 'clamp(520px, 50vw, 980px)',
+      maxWidth: '90vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data: { studentId: student.id },
+    });
   }
 }

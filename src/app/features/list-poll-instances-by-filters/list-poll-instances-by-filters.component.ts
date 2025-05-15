@@ -30,6 +30,7 @@ import { Column } from '../../shared/components/list/types/column';
 import { ActionDatas } from '../../shared/components/list/types/action';
 import { ListComponent } from '../../shared/components/list/list.component';
 import { flattenArray } from '../../core/utilities/object/flatten';
+import { EventAction } from '../../shared/events/load';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
@@ -200,14 +201,19 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  goToDetails(pollInstance: PollInstanceModel): void {
+  goToDetails(event: EventAction): void {
+    console.log(event);
+    const pollInstance: PollInstanceModel = event.item as PollInstanceModel;
+
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
       minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
-      data: { studentId: pollInstance.student.id },
+      data: {
+        studentId: pollInstance['student.id' as keyof PollInstanceModel],
+      },
     });
   }
 

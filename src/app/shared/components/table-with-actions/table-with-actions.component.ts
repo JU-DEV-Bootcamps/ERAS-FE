@@ -4,7 +4,6 @@ import {
   HostListener,
   Input,
   OnInit,
-  OnChanges,
   Output,
   EventEmitter,
 } from '@angular/core';
@@ -37,9 +36,7 @@ import { Column } from '../list/types/column';
   templateUrl: './table-with-actions.component.html',
   styleUrls: ['./table-with-actions.component.css'],
 })
-export class TableWithActionsComponent<T extends object>
-  implements OnInit, OnChanges
-{
+export class TableWithActionsComponent<T extends object> implements OnInit {
   @Input() items: T[] = [];
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() actionDatas: ActionDatas = [];
@@ -60,34 +57,6 @@ export class TableWithActionsComponent<T extends object>
 
   ngOnInit() {
     this.isMobile = window.innerWidth < 768;
-    this.totalItems = this.items.length;
-    this.filterItems();
-  }
-
-  ngOnChanges() {
-    this.filterItems();
-  }
-
-  filterItems() {
-    if (!this.items || !this.columns) {
-      console.error('Items or columns are not defined.');
-      return;
-    }
-
-    const keys = this.columns.map(column => {
-      return column.key;
-    });
-
-    this.dataSource = this.items.map(item => {
-      const newItem = Object.keys(item)
-        .filter(key => keys.includes(key as keyof T))
-        .reduce((newItem: Partial<T>, key) => {
-          newItem[key as keyof T] = item[key as keyof T];
-          return newItem;
-        }, {});
-
-      return newItem;
-    }) as unknown as T[];
     this.totalItems = this.items.length;
   }
 

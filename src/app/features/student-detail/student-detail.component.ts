@@ -13,7 +13,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Subject, takeUntil } from 'rxjs';
 import { register } from 'swiper/element/bundle';
@@ -27,6 +26,8 @@ import { StudentService } from '../../core/services/api/student.service';
 import { PollService } from '../../core/services/api/poll.service';
 import { PollInstanceService } from '../../core/services/api/poll-instance.service';
 import { ApexChartAnnotation } from '../../shared/components/charts/abstract-chart';
+import { ListComponent } from '../../shared/components/list/list.component';
+import { Column } from '../../shared/components/list/types/column';
 
 register();
 
@@ -42,8 +43,7 @@ interface SwiperEventTarget extends EventTarget {
     MatDividerModule,
     MatCardModule,
     CommonModule,
-    MatTableModule,
-    MatCardModule,
+    ListComponent,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
@@ -89,6 +89,28 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   @Input({ required: true }) studentId!: number;
 
   columns = ['variable', 'position', 'component', 'answer', 'score'];
+  columns2: Column<AnswerResponse>[] = [
+    {
+      key: 'variable',
+      label: 'Variable',
+    },
+    {
+      key: 'position',
+      label: 'Position',
+    },
+    {
+      key: 'component',
+      label: 'Component',
+    },
+    {
+      key: 'answer',
+      label: 'Answer',
+    },
+    {
+      key: 'score',
+      label: 'Score',
+    },
+  ];
 
   isMobile = false;
   pageSize = 10;

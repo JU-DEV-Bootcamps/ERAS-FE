@@ -1,4 +1,5 @@
 import { BaseModel } from './common/base.model';
+import { Student } from './student.model';
 import { VariableModel } from './variable.model';
 
 export interface AnswerModel extends BaseModel {
@@ -7,4 +8,12 @@ export interface AnswerModel extends BaseModel {
   variable: VariableModel;
   pollInstanceId: number;
   pollVariableId: number;
+}
+
+export interface Answer extends BaseModel {
+  answer: string;
+  score: number;
+  pollInstanceId: number;
+  pollVariableId: number;
+  student: Student;
 }
