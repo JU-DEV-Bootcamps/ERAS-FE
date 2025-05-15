@@ -4,8 +4,8 @@ import { catchError } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { BaseApiService } from './base-api.service';
 import { HealthCheckResponse } from '../../models/cosmic-latte-request.model';
-import { PollInstance } from '../interfaces/cosmic-latte-poll-import-list.interface';
 import { PollName } from '../../models/poll-request.model';
+import { PollInstance } from '../../models/poll-instance.model';
 
 @Injectable({
   providedIn: 'root',

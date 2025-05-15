@@ -11,3 +11,11 @@ export interface StudentModel extends BaseModel {
   cohortId: number;
   cohort?: CohortModel;
 }
+
+export interface Student extends BaseModel {
+  uuid: string | null;
+  name: string;
+  email: string;
+  studentDetail: null;
+  cohort: CohortModel;
+}

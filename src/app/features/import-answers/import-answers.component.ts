@@ -28,11 +28,12 @@ import {
   GENERAL_MESSAGES,
   IMPORT_MESSAGES,
 } from '../../core/constants/messages';
-import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
+
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
 import { PollName } from '../../core/models/poll-request.model';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
+import { PollInstance } from '../../core/models/poll-instance.model';
 
 @Component({
   selector: 'app-import-answers',
