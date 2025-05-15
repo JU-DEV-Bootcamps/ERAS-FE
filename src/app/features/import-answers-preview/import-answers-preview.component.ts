@@ -25,9 +25,9 @@ import {
   MatSlideToggle,
   MatSlideToggleChange,
 } from '@angular/material/slide-toggle';
-import { PollInstance } from '../../core/services/interfaces/cosmic-latte-poll-import-list.interface';
 import { PollService } from '../../core/services/api/poll.service';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
+import { PollInstance } from '../../core/models/poll-instance.model';
 
 @Component({
   selector: 'app-import-answers-preview',
