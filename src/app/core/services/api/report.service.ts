@@ -4,6 +4,7 @@ import { ApiResponse } from '../../models/api-response.model';
 import {
   GetQueryResponse,
   PollAvgReport,
+  PollCountComponent,
   PollCountReport,
   PollTopReport,
 } from '../../models/summary.model';
@@ -70,15 +71,32 @@ export class ReportService extends BaseApiService {
   }
 
   getHMSeriesFromCountReport(body: PollCountReport) {
-    const compTest = body.components[0];
-    const series = compTest.questions.map(question => {
+    const compTest = body.components.map(c => c.questions);
+    const compTestFlat = compTest.reduce((acc, val) => acc.concat(val), []);
+    const series = compTestFlat.map(question => {
       return {
         name: `${question.question}`,
         data: question.answers.map(a => {
           return {
             x: a.answerRisk,
             y: a.answerRisk,
-            z: `RISK:${a.answerRisk} COUNT:${a.count} A:${a.answerText}`,
+            z: `${a.count} answers with risk ${a.answerRisk} for: ${a.answerText}`,
+          };
+        }),
+      };
+    });
+    return series;
+  }
+
+  getHMSeriesFromCountComponent(component: PollCountComponent) {
+    const series = component.questions.map(question => {
+      return {
+        name: `${question.question}`,
+        data: question.answers.map(a => {
+          return {
+            x: a.answerRisk,
+            y: a.answerRisk,
+            z: `${a.count} answers with risk ${a.answerRisk} for: ${a.answerText}`,
           };
         }),
       };

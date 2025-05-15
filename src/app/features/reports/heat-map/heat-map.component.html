@@ -2,6 +2,19 @@
 <form [formGroup]="selectForm">
   <div class="form-container">
     <mat-form-field appearance="fill">
+      <mat-label for="sl-poll">Poll</mat-label>
+      <mat-select required id="sl-poll" formControlName="pollUuid">
+        @for (poll of polls; track $index) {
+          <mat-option [value]="poll.uuid">
+            {{ poll.name }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (selectForm.get('pollUuid')?.errors) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="fill">
       <mat-label for="sl-component">Cohort</mat-label>
       <mat-select required id="sl-component" formControlName="cohortId">
         @for (cohort of cohorts; track $index) {
@@ -15,21 +28,6 @@
         <mat-error>This field is required</mat-error>
       }
     </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label for="sl-poll">Poll</mat-label>
-      <mat-select required id="sl-poll" formControlName="pollUuid">
-        @for (poll of polls; track $index) {
-          <mat-option [value]="poll.uuid">
-            {{ poll.name }}
-          </mat-option>
-        }
-      </mat-select>
-      @if (selectForm.get('pollUuid')?.errors) {
-        <mat-error>This field is required</mat-error>
-      }
-    </mat-form-field>
-
     <mat-form-field appearance="fill">
       <mat-label for="component">Component</mat-label>
       <mat-select id="component" formControlName="component" multiple>

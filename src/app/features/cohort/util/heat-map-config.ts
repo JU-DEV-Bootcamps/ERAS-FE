@@ -9,6 +9,7 @@ export function GetChartOptions(
   title: string,
   series: ApexAxisChartSeries,
   dataPointSelection?: (x: number, y: number) => void,
+  tooltipFunction?: (x: number, y: number) => string,
   fixColors = true
 ): ApexOptions {
   const options: ApexOptions = {
@@ -19,10 +20,11 @@ export function GetChartOptions(
         show: false,
       },
       events: {
-        dataPointSelection: (config: {
-          seriesIndex: number;
-          dataPointIndex: number;
-        }) => {
+        dataPointSelection: (
+          event: Event,
+          chartContext: unknown,
+          config: { seriesIndex: number; dataPointIndex: number }
+        ) => {
           if (dataPointSelection) {
             dataPointSelection(config.dataPointIndex, config.seriesIndex);
           }
@@ -80,10 +82,10 @@ export function GetChartOptions(
         const zValue = dataPoint.z;
         const formattedZValue = zValue;
 
-        return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Question: </b>${xValue}</div>
+        return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>X: </b>${xValue}</div>
         <div style="border-top: 1px solid #ccc;"></div>
-        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>Average Risk Level: </b>${yValue}</div>
-        <div style="border-top: 1px solid #ccc;"><b>Answers:</b></div>
+        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>Y: </b>${yValue}</div>
+        <div style="border-top: 1px solid #ccc;"><b>Details:</b></div>
         <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">${formattedZValue}</div>`;
       },
     },

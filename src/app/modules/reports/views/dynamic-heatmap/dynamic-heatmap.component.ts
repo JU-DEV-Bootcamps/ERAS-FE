@@ -5,12 +5,20 @@ import { printReportInfo } from '../../exportReport.util';
 import { PdfService } from '../../../../core/services/exports/pdf.service';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { HeatMapService } from '../../../../core/services/api/heat-map.service';
-import { fillDefaultData } from '../../../../features/reports/heat-map/util/heat-map.util';
 import { ChartOptionsColorsCount } from '../../../../features/reports/constants/heat-map';
 import { MatIcon } from '@angular/material/icon';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { ReportService } from '../../../../core/services/api/report.service';
 import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
+import {
+  ModalQuestionDetailsComponent,
+  SelectedHMData,
+} from '../../../../features/heat-map/modal-question-details/modal-question-details.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  PollCountQuestion,
+  PollCountReport,
+} from '../../../../core/models/summary.model';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -25,6 +33,9 @@ import { GetChartOptions } from '../../../../features/cohort/util/heat-map-confi
 })
 export class DynamicHeatmapComponent {
   public isGeneratingPDF = true;
+  private readonly dialog = inject(MatDialog);
+  uuid: string | null = null;
+  cohortId: number | null = null;
   chartOption = { ...ChartOptionsColorsCount };
   pdfService = inject(PdfService);
   heatmapService = inject(HeatMapService);
@@ -34,47 +45,36 @@ export class DynamicHeatmapComponent {
 
   constructor(private snackBar: MatSnackBar) {}
 
-  generateHeatMap(
-    pollInstanceUuid: string,
-    cohortId: number,
-    variablesIds: number[]
-  ) {
+  generateHeatMap(variablesIds: number[]) {
+    if (this.uuid === null || this.cohortId === null) return;
     this.reportService
-      .getCountPoolReport(pollInstanceUuid, cohortId, variablesIds)
+      .getCountPoolReport(this.uuid, this.cohortId, variablesIds)
       .subscribe(data => {
-        console.info('countReport', data);
-        const hmSeries = this.reportService.getHMSeriesFromCountReport(
-          data.body
-        );
-        this.chartOption = GetChartOptions(
-          `Heatmap: Componente ${data.body.components[0].description}`,
-          hmSeries,
-          (x, y) => {
-            const selectedQuestion = data.body.components[0].questions.length;
-            this.snackBar.open(
-              `x=${x}; y=${y}. Selected questions = ${selectedQuestion}`,
-              'OK',
-              {
-                duration: 3000,
-                panelClass: ['custom-snackbar'],
-              }
-            );
-          }
-        );
+        this.generateSeries(data.body);
+        this.isGeneratingPDF = false;
       });
-    // this.heatmapService
-    //   .generateHeatmap(pollInstanceUuid, variablesIds)
-    //   .subscribe(data => {
-    //     const heatmap = fillDefaultData([...data]);
+  }
 
-    //     const serie = heatmap.map(d => ({
-    //       data: d.data.sort((a, b) => a.y - b.y),
-    //       name: d.name,
-    //     }));
-
-    //     this.chartOption.series = serie;
-    //     this.isGeneratingPDF = false;
-    //   });
+  generateSeries(report: PollCountReport) {
+    const hmSeries = this.reportService.getHMSeriesFromCountComponent(
+      report.components[0]
+    );
+    this.chartOption = GetChartOptions(
+      `Answer count, each column is a risk and each cell shows the count of answers: ${report.components[0].description}`,
+      hmSeries,
+      (x, y) => {
+        this.snackBar.open(`x=${x}; y=${y}.`, 'OK', {
+          duration: 3000,
+          panelClass: ['custom-snackbar'],
+        });
+        this.openDetailsModal(
+          this.uuid!,
+          this.cohortId!,
+          report.components[0].questions[y],
+          report.components[0].description
+        );
+      }
+    );
   }
 
   exportReportPdf() {
@@ -110,6 +110,23 @@ export class DynamicHeatmapComponent {
     variableIds: number[];
   }) {
     console.info('filters received', filters);
-    this.generateHeatMap(filters.uuid, filters.cohortId, filters.variableIds);
+    this.uuid = filters.uuid;
+    this.cohortId = filters.cohortId;
+    this.generateHeatMap(filters.variableIds);
+  }
+
+  openDetailsModal(
+    pollUuid: string,
+    cohortId: number,
+    question: PollCountQuestion,
+    componentName: string
+  ): void {
+    const data: SelectedHMData = {
+      cohortId: cohortId.toString(),
+      pollUuid,
+      componentName,
+      question,
+    };
+    this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 }

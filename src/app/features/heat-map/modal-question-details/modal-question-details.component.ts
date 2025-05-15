@@ -15,6 +15,7 @@ import {
 } from '@angular/material/dialog';
 import {
   PollAvgQuestion,
+  PollCountQuestion,
   PollTopReport,
 } from '../../../core/models/summary.model';
 import {
@@ -28,7 +29,7 @@ export interface SelectedHMData {
   cohortId: string;
   pollUuid: string;
   componentName: string;
-  question: PollAvgQuestion;
+  question: PollAvgQuestion | PollCountQuestion;
 }
 
 @Component({
@@ -101,5 +102,9 @@ export class ModalQuestionDetailsComponent implements OnInit {
 
   openStudentDetails(studentId: number): void {
     window.open(`student-details/${studentId}`, '_blank');
+  }
+
+  isPollAvgQuestion(question: PollAvgQuestion | PollCountQuestion) {
+    return question && 'averageAnswer' in question && 'averageRisk' in question;
   }
 }

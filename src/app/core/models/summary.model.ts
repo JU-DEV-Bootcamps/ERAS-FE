@@ -50,11 +50,17 @@ export interface PollAvgComponent {
   questions: PollAvgQuestion[];
 }
 
-export interface PollAvgQuestion {
+export interface basePollQuestion {
   question: string;
-  averageAnswer: string;
   averageRisk: number;
+}
+
+export interface PollAvgQuestion extends basePollQuestion {
+  averageAnswer: string;
   answersDetails: AnswerDetail[];
+}
+export interface PollCountQuestion extends basePollQuestion {
+  answers: PollCountAnswer[];
 }
 
 export interface AnswerDetail {
@@ -84,12 +90,6 @@ export interface PollCountReport {
 export interface PollCountComponent {
   description: string;
   questions: PollCountQuestion[];
-}
-
-export interface PollCountQuestion {
-  question: string;
-  averageRisk: number;
-  answers: PollCountAnswer[];
 }
 
 export interface PollCountAnswer {

@@ -4,7 +4,9 @@
       <h2 class="title-modal">Question Details</h2>
       <h3>{{ inputQuestion.componentName }}</h3>
       <h4>{{ inputQuestion.question.question }}</h4>
-      <p>Most answered option: {{ inputQuestion.question.averageAnswer }}</p>
+      @if (isPollAvgQuestion(inputQuestion.question)) {
+        <p>Most answered option: {{ inputQuestion.question.averageAnswer }}</p>
+      }
       <div style="display: flex; align-items: center; gap: 3px">
         <h4>Average Answer Risk:</h4>
         <div
