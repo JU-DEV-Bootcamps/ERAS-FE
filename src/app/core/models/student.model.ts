@@ -16,6 +16,6 @@ export interface Student extends BaseModel {
   uuid: string | null;
   name: string;
   email: string;
-  studentDetail: null;
+  studentDetail: StudentDetailModel | null;
   cohort: CohortModel;
 }
