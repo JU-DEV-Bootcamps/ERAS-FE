@@ -30,7 +30,7 @@
     "html2canvas-pro": "^1.5.8",
     "jspdf": "^3.0.0",
     "keycloak-angular": "^19.0.2",
-    "keycloak-js": "^26.2.0",
+    "keycloak-js": "^26.1.4",
     "ng-apexcharts": "^1.15.0",
     "ng-openapi-gen": "^0.52.0",
     "ngx-cookie-service": "^19.0.0",
