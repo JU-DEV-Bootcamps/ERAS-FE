@@ -13,6 +13,7 @@ import { CohortService } from '../../../../core/services/api/cohort.service';
 import { PollModel } from '../../../../core/models/poll.model';
 import { CohortModel } from '../../../../core/models/cohort.model';
 import { VariableModel } from '../../../../core/models/variable.model';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-poll-filters',
@@ -33,7 +34,12 @@ export class PollFiltersComponent implements OnInit {
   componentNames: string[] = [];
   variables: VariableModel[] = [];
 
-  filters = output<{ uuid: string; cohortId: number; variableIds: number[] }>();
+  filters = output<{
+    title: string;
+    uuid: string;
+    cohortId: number;
+    variableIds: number[];
+  }>();
 
   filterForm = new FormGroup({
     pollUuid: new FormControl<string | null>(null, [Validators.required]),
@@ -57,9 +63,9 @@ export class PollFiltersComponent implements OnInit {
     this.filterForm.controls.cohortId.valueChanges.subscribe(() => {
       this.handleCohortSelect();
     });
-    this.filterForm.controls.components.valueChanges.subscribe(() =>
-      this.handleUpdateComponents()
-    );
+    this.filterForm.controls.components.valueChanges
+      .pipe(debounceTime(300))
+      .subscribe(() => this.handleUpdateComponents());
   }
 
   handleCohortSelect() {
@@ -80,12 +86,15 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handleUpdateComponents() {
-    console.info('Updating components', this.filterForm.value.components);
     if (
       !this.filterForm.value.pollUuid ||
       this.filterForm.value.cohortId === null
     )
       return;
+    if (this.filterForm.value.components!.length === 0) {
+      this.filterForm.controls.variables.setValue([]);
+      return;
+    }
     this.filterForm.controls.variables.setValue(
       this.variables
         .filter(v =>
@@ -99,11 +108,18 @@ export class PollFiltersComponent implements OnInit {
     if (!isOpen) this.sendFilters();
   }
   sendFilters() {
-    console.info('Sending filters', this.filterForm.value);
+    const pollName = this.polls.find(
+      p => p.uuid === this.filterForm.value.pollUuid
+    )?.name;
+    const cohortName =
+      this.filterForm.value.cohortId === 0
+        ? 'All cohorts'
+        : this.cohorts.find(c => c.id === this.filterForm.value.cohortId)?.name;
+    const title = `Poll: ${pollName} - Cohort: ${cohortName}`;
     const uuid = this.filterForm.value.pollUuid;
     const cohortId = this.filterForm.value.cohortId;
     const variableIds = this.filterForm.value.variables;
     if (!uuid || cohortId == null || !variableIds) return;
-    this.filters.emit({ uuid, cohortId, variableIds });
+    this.filters.emit({ title, uuid, cohortId, variableIds });
   }
 }

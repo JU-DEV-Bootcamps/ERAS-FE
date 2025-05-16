@@ -5,9 +5,7 @@ import { printReportInfo } from '../../exportReport.util';
 import { PdfService } from '../../../../core/services/exports/pdf.service';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { HeatMapService } from '../../../../core/services/api/heat-map.service';
-import { ChartOptionsColorsCount } from '../../../../features/reports/constants/heat-map';
 import { MatIcon } from '@angular/material/icon';
-import { NgApexchartsModule } from 'ng-apexcharts';
 import { ReportService } from '../../../../core/services/api/report.service';
 import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
 import {
@@ -19,6 +17,7 @@ import {
   PollCountQuestion,
   PollCountReport,
 } from '../../../../core/models/summary.model';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -34,9 +33,10 @@ import {
 export class DynamicHeatmapComponent {
   public isGeneratingPDF = true;
   private readonly dialog = inject(MatDialog);
+  title = '';
   uuid: string | null = null;
   cohortId: number | null = null;
-  chartOption = { ...ChartOptionsColorsCount };
+  chartsOptions: ApexOptions[] = [];
   pdfService = inject(PdfService);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
@@ -56,24 +56,22 @@ export class DynamicHeatmapComponent {
   }
 
   generateSeries(report: PollCountReport) {
-    const hmSeries = this.reportService.getHMSeriesFromCountComponent(
-      report.components[0]
+    const hmSeries = report.components.map(c =>
+      this.reportService.getHMSeriesFromCountComponent(c)
     );
-    this.chartOption = GetChartOptions(
-      `Answer count, each column is a risk and each cell shows the count of answers: ${report.components[0].description}`,
-      hmSeries,
-      (x, y) => {
-        this.snackBar.open(`x=${x}; y=${y}.`, 'OK', {
-          duration: 3000,
-          panelClass: ['custom-snackbar'],
-        });
-        this.openDetailsModal(
-          this.uuid!,
-          this.cohortId!,
-          report.components[0].questions[y],
-          report.components[0].description
-        );
-      }
+    this.chartsOptions = hmSeries.map((series, index) =>
+      GetChartOptions(
+        `Reporte: ${report.components[index].description}`,
+        series,
+        (x, y) => {
+          this.openDetailsModal(
+            this.uuid!,
+            this.cohortId!,
+            report.components[0].questions[y],
+            report.components[0].description
+          );
+        }
+      )
     );
   }
 
@@ -105,11 +103,12 @@ export class DynamicHeatmapComponent {
   }
 
   handleFilterSelect(filters: {
+    title: string;
     uuid: string;
     cohortId: number;
     variableIds: number[];
   }) {
-    console.info('filters received', filters);
+    this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortId = filters.cohortId;
     this.generateHeatMap(filters.variableIds);
