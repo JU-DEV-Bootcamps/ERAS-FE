@@ -12,6 +12,7 @@ import {
   MatDialogModule,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialog,
 } from '@angular/material/dialog';
 import {
   PollAvgQuestion,
@@ -24,6 +25,7 @@ import {
 } from '../../../core/constants/riskLevel';
 import { ReportService } from '../../../core/services/api/report.service';
 import { PollService } from '../../../core/services/api/poll.service';
+import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
 
 export interface SelectedHMData {
   cohortId: string;
@@ -50,6 +52,7 @@ export interface SelectedHMData {
   styleUrl: './modal-question-details.component.css',
 })
 export class ModalQuestionDetailsComponent implements OnInit {
+  readonly dialog = inject(MatDialog);
   public inputQuestion: SelectedHMData = inject(MAT_DIALOG_DATA);
   public variableId = 0;
   private reportService = inject(ReportService);
@@ -100,7 +103,14 @@ export class ModalQuestionDetailsComponent implements OnInit {
   }
 
   openStudentDetails(studentId: number): void {
-    window.open(`student-details/${studentId}`, '_blank');
+    this.dialog.open(ModalStudentDetailComponent, {
+      width: 'clamp(520px, 50vw, 980px)',
+      maxWidth: '90vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data: { studentId: studentId },
+    });
   }
 
   isPollAvgQuestion(question: PollAvgQuestion | PollCountQuestion) {
