@@ -47,7 +47,7 @@ export class ReportService extends BaseApiService {
             z: question.answersDetails
               .map(
                 ans =>
-                  `${ans.answerPercentage}% = ${ans.answerText}: ${ans.studentsEmails.join(', ')}`
+                  `${ans.answerPercentage}% = ${this.addAnswerSeparator(ans.answerText)}: ${ans.studentsEmails.join(', ')}`
               )
               .join('; </br>'),
           };
@@ -91,5 +91,9 @@ export class ReportService extends BaseApiService {
       risks: Object.values(record),
       levels: Object.keys(record) as RiskLevel[],
     };
+  }
+
+  addAnswerSeparator(texto: string): string {
+    return texto.replace(/(?!^)([A-Z])/g, ' - $1');
   }
 }
