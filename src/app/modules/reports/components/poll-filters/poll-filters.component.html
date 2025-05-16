@@ -1,0 +1,61 @@
+<form [formGroup]="filterForm">
+  <div class="form-container">
+    <mat-form-field appearance="fill">
+      <mat-label for="sl-poll">Poll</mat-label>
+      <mat-select id="sl-poll" formControlName="pollUuid">
+        @for (poll of polls; track $index) {
+          <mat-option [value]="poll.uuid">
+            {{ poll.name }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (filterForm.get('pollUuid')?.errors) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+    @if (filterForm.value.pollUuid) {
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Cohort</mat-label>
+        <mat-select required id="sl-component" formControlName="cohortId">
+          @for (cohort of cohorts; track $index) {
+            <mat-option [value]="cohort.id">
+              {{ cohort.name }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (filterForm.get('cohortId')?.errors) {
+          <mat-error>This field is required</mat-error>
+        }
+      </mat-form-field>
+    }
+    @if (filterForm.value.cohortId !== null) {
+      <mat-form-field appearance="fill">
+        <mat-label for="component">Component</mat-label>
+        <mat-select
+          id="component"
+          formControlName="components"
+          multiple
+          (openedChange)="onOpenedChange($event)"
+        >
+          @for (component of componentNames; track $index) {
+            <mat-option [value]="component">{{ component }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label for="question">Questions</mat-label>
+        <mat-select
+          id="variables"
+          formControlName="variables"
+          multiple
+          (openedChange)="onOpenedChange($event)"
+        >
+          @for (variable of variables; track $index) {
+            <mat-option [value]="variable.id">{{ variable.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </div>
+</form>

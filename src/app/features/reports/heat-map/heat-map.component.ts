@@ -76,8 +76,8 @@ export class HeatMapComponent implements OnInit {
   ];
 
   selectForm = new FormGroup({
-    cohortId: new FormControl<number | null>(null, [Validators.required]),
-    pollUuid: new FormControl<string | null>({ value: null, disabled: true }, [
+    pollUuid: new FormControl<string | null>(null, [Validators.required]),
+    cohortId: new FormControl<number | null>({ value: null, disabled: true }, [
       Validators.required,
     ]),
     component: new FormControl<ComponentValueType[]>(
@@ -98,15 +98,15 @@ export class HeatMapComponent implements OnInit {
   constructor(private snackBar: MatSnackBar) {}
 
   ngOnInit() {
-    this.getCohorts();
-    this.selectForm.controls.cohortId.valueChanges.subscribe(value => {
+    this.getPolls();
+    this.selectForm.controls.pollUuid.valueChanges.subscribe(value => {
       if (value) {
-        this.getPollsByCohortId(value);
+        this.getCohortBySelectedPoll(value);
         this.toggleEnable();
       }
     });
 
-    this.selectForm.controls.pollUuid.valueChanges.subscribe(value => {
+    this.selectForm.controls.cohortId.valueChanges.subscribe(value => {
       if (value) {
         this.toggleEnable();
       }
@@ -127,38 +127,41 @@ export class HeatMapComponent implements OnInit {
   }
 
   toggleEnable() {
-    const cohortValid = this.selectForm.get('cohortId')?.valid;
-    const pollField = this.selectForm.get('pollUuid');
+    const pollValid = this.selectForm.get('pollUuid')?.valid;
+    const cohortField = this.selectForm.get('cohortId');
     const componentField = this.selectForm.get('component');
     const questionField = this.selectForm.get('question');
 
-    if (cohortValid) {
-      pollField?.enable({ emitEvent: false });
+    if (pollValid) {
+      cohortField?.enable({ emitEvent: false });
     } else {
-      pollField?.disable({ emitEvent: false });
+      cohortField?.disable({ emitEvent: false });
     }
-    if (pollField?.valid) {
+    if (cohortField?.valid) {
       componentField?.enable({ emitEvent: false });
     } else {
       componentField?.disable({ emitEvent: false });
     }
     if (componentField?.valid) {
       questionField?.enable({ emitEvent: false });
-      this.getQuestions(pollField!.value!, componentField!.value!);
+      this.getQuestions(
+        this.selectForm.value.pollUuid!,
+        componentField!.value!
+      );
     } else {
       questionField?.disable({ emitEvent: false });
     }
   }
 
-  getCohorts() {
-    this.cohortService.getCohorts().subscribe(data => {
-      this.cohorts = data;
+  getPolls() {
+    this.pollsService.getAllPolls().subscribe(data => {
+      this.polls = data;
     });
   }
 
-  getPollsByCohortId(id: number) {
-    this.pollsService.getPollsByCohortId(id).subscribe(data => {
-      this.polls = data;
+  getCohortBySelectedPoll(uuid: string) {
+    this.cohortService.getCohorts(uuid).subscribe(data => {
+      this.cohorts = data.body;
     });
   }
 

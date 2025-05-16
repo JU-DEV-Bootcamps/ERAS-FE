@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { CohortModel } from '../../models/cohort.model';
 import { CohortsSummaryModel } from '../../models/summary.model';
 import { BaseApiService } from './base-api.service';
+import { ApiResponse } from '../../models/api-response.model';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -9,8 +11,9 @@ import { BaseApiService } from './base-api.service';
 export class CohortService extends BaseApiService {
   protected resource = 'cohorts';
 
-  getCohorts() {
-    return this.get<CohortModel[]>('');
+  getCohorts(pollUuid: string | null = null) {
+    const params = new HttpParams().set('pollUuid', pollUuid || '');
+    return this.get<ApiResponse<CohortModel[]>>('', params);
   }
 
   getCohortsSummary() {

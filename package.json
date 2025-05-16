@@ -2,7 +2,7 @@
   "name": "eras-fe",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
+    "ng": "ng serve",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

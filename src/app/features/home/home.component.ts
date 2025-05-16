@@ -145,8 +145,9 @@ export class HomeComponent implements OnInit {
             const body = res.body as AnswersRisks;
 
             this.riskLevelAvg = body.averageRisk.toFixed(2);
-            this.riskLevels =
-              this.reportService.getBMSeriesFromSummaryReport(body);
+            this.riskLevels = this.reportService.getBMSeriesFromSummaryReport(
+              body.risks
+            );
           },
           error: error => {
             console.error('Error while obtaining poll instances data', error);

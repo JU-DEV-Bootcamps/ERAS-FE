@@ -151,7 +151,7 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
         },
         id: 0,
       };
-      this.cohortsData = data;
+      this.cohortsData = data.body;
       this.cohortsData.push(defaultOpt);
     });
   }

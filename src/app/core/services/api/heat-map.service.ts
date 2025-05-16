@@ -64,8 +64,9 @@ export class HeatMapService extends BaseApiService {
 
   generateHeatmap(
     pollInstanceUuid: string,
-    variablesIds: number[]
+    variablesIds: number[],
+    cohortId?: number
   ): Observable<HeatMapData[]> {
-    return this.post('', { pollInstanceUuid, variablesIds });
+    return this.post('', { pollInstanceUuid, cohortId, variablesIds });
   }
 }

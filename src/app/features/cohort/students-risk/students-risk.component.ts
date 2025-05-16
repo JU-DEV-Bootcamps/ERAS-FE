@@ -148,7 +148,7 @@ export class StudentsRiskComponent implements OnInit {
   getCohortsByPoll(id: number) {
     this.cohortService.getCohorts().subscribe(data => {
       console.warn('API Call needs to filter by poll Id:', id);
-      this.cohorts = data;
+      this.cohorts = data.body;
     });
   }
 
