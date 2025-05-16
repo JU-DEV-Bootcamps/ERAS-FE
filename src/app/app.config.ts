@@ -4,11 +4,7 @@ import { provideKeycloak } from 'keycloak-angular';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import {
-  provideHttpClient,
-  withFetch,
-  withInterceptors,
-} from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from './core/utilities/keycloak-interceptor';
 
@@ -22,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([keycloakHttpInterceptor]), withFetch()),
+    provideHttpClient(withInterceptors([keycloakHttpInterceptor])),
     provideAnimationsAsync(),
   ],
 };
