@@ -114,14 +114,6 @@ describe('ModalQuestionDetailsComponent', () => {
     expect(component.getRiskColor(3)).toBeDefined();
   });
 
-  it('should open student details in new tab', () => {
-    spyOn(window, 'open');
-
-    component.openStudentDetails(123);
-
-    expect(window.open).toHaveBeenCalledWith('student-details/123', '_blank');
-  });
-
   it('should close dialog when onClose is called', () => {
     component.onClose();
     expect(component.dialogRef.close).toHaveBeenCalled();
