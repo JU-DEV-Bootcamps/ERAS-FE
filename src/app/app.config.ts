@@ -14,6 +14,7 @@ export const appConfig: ApplicationConfig = {
       config: environment.keycloak,
       initOptions: {
         onLoad: 'login-required',
+        checkLoginIframe: false,
       },
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
