@@ -169,7 +169,6 @@ export class StudentsRiskComponent implements OnInit {
           `Risk Heatmap - ${this.selectedPoll?.name}-${this.selectedCohort?.name || 'All Cohorts'}`,
           reportSeries,
           (x, y) => {
-            console.warn(x, y, res.body);
             const compReport = res.body.components[y];
             const selectedQuestion = compReport.questions[x];
             this.openDetailsModal(selectedQuestion, compReport.description);

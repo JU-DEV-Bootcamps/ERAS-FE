@@ -63,13 +63,25 @@ export class DynamicHeatmapComponent {
       GetChartOptions(
         `Reporte: ${report.components[index].description}`,
         series,
-        (x, y) => {
+        (_x, y) => {
           this.openDetailsModal(
             this.uuid!,
             this.cohortId!,
-            report.components[0].questions[y],
-            report.components[0].description
+            report.components[index].questions[y],
+            report.components[index].description
           );
+        },
+        undefined,
+        (x, y) => {
+          const component = report.components[index];
+          const question = component.questions[x];
+          const riskLevel = question.answers[y];
+          console.info(component);
+          return `
+          <b>${riskLevel.count} students answered with a risk Level of ${riskLevel.answerRisk}</b>
+          <b>Componente:</b> ${component.description} </br>
+          <b>Question:</b> ${question.question} </br>
+          `;
         }
       )
     );
