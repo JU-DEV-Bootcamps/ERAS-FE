@@ -33,6 +33,7 @@ import { HeatMapService } from '../../../core/services/api/heat-map.service';
 import { StudentService } from '../../../core/services/api/student.service';
 import { PollInstanceService } from '../../../core/services/api/poll-instance.service';
 import { MatDividerModule } from '@angular/material/divider';
+import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -221,5 +222,17 @@ export class StudentDetailOptionComponent implements OnInit {
           console.error('Error fetching risk student details by cohort', error);
         },
       });
+  }
+
+  openStudentDetails(studentId: string): void {
+    console.log('Entra');
+    this.dialog.open(ModalStudentDetailComponent, {
+      width: 'clamp(520px, 50vw, 980px)',
+      maxWidth: '90vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data: { studentId: studentId },
+    });
   }
 }
