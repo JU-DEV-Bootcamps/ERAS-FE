@@ -11,9 +11,5 @@ export const environment = {
     url: '__KEYCLOAK_URL__',
     realm: 'jalasoft',
     clientId: '__CLIENT_ID__',
-    enable: true,
-    authority: '__KEYCLOAK_URL__',
-    redirectUri: '__WEB_URL__',
-    postLogoutRedirectUri: '__WEB_URL__',
   },
 };

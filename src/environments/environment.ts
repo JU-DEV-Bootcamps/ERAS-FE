@@ -5,8 +5,5 @@ export const environment = {
     url: '',
     realm: '',
     clientId: '',
-    enable: '',
-    redirectUri: '',
-    postLogoutRedirectUri: '',
   },
 };
