@@ -20,6 +20,9 @@ export function GetChartOptions(
       toolbar: {
         show: false,
       },
+      animations: {
+        enabled: false,
+      },
       events: {
         dataPointSelection: (
           event: Event,

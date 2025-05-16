@@ -76,7 +76,6 @@ export class DynamicHeatmapComponent {
           const component = report.components[index];
           const question = component.questions[x];
           const riskLevel = question.answers[y];
-          console.info(component);
           return `
           <b>${riskLevel.count} students answered with a risk Level of ${riskLevel.answerRisk}</b>
           <b>Componente:</b> ${component.description} </br>

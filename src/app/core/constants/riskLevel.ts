@@ -11,8 +11,8 @@ export const RISK_COLORS: Record<number | 'default', string> = {
 };
 
 export const RISK_TEXT_COLORS: Record<number | 'default', string> = {
-  0: '#b0fffa', // White text for gray background
-  1: '#b0fffa', // White text for dark green
+  0: '##003735', // Black text for gray background
+  1: '##003735', // Black text for dark green
   2: '#003735', // Black text for medium sea green
   3: '#003735', // Black text for yellow
   4: '#003735', // Black text for orange

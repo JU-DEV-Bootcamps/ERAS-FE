@@ -75,7 +75,6 @@ export class ModalQuestionDetailsComponent implements OnInit {
       const variable = res.find(
         variable => variable.name == this.inputQuestion.question.question
       );
-      console.error(this.inputQuestion.question.question, 'not found');
       if (!variable) return;
       this.variableId = variable.id;
       this.loadStudentList();
