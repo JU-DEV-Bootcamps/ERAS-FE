@@ -6,6 +6,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { Location } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -126,13 +127,16 @@ export class StudentDetailOptionComponent implements OnInit {
       .subscribe(pollsList => (this.polls = pollsList));
   }
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private location: Location
+  ) {}
 
   selectPoll(): void {
     const poll = this.polls.find(p => p.id === this.pollSeleccionadoId);
     if (poll) {
       this.pollSeleccionado = poll;
-
+      this.location.go('/' + this.pollSeleccionado.name);
       this.pollInstanceService
         .getComponentsAvgGroupedByCohorts(poll.uuid)
         .subscribe(response => {
@@ -186,8 +190,10 @@ export class StudentDetailOptionComponent implements OnInit {
   goBack() {
     if (this.pollSeleccionado && this.cohortSeleccionado) {
       this.cohortSeleccionado = null;
+      this.location.go('/' + this.pollSeleccionado.name);
     } else {
       this.pollSeleccionado = null;
+      this.location.go('/');
     }
   }
 
@@ -201,6 +207,12 @@ export class StudentDetailOptionComponent implements OnInit {
   selectCohort(cohort: CohortComponents): void {
     if (!this.pollSeleccionado) return;
     this.cohortSeleccionado = cohort;
+    this.location.go(
+      '/' +
+        this.pollSeleccionado.name +
+        '/' +
+        this.cohortSeleccionado.cohortName
+    );
     this.selectedComponents = Object.entries(
       this.cohortSeleccionado.componentsAvg as Record<string, number>
     ).map(([key, value]) => ({
