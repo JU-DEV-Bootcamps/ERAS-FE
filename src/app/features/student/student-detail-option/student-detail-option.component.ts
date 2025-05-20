@@ -225,7 +225,6 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   openStudentDetails(studentId: string): void {
-    console.log('Entra');
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',

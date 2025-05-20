@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -51,7 +51,7 @@ export interface SelectedHMData {
   templateUrl: './modal-question-details.component.html',
   styleUrl: './modal-question-details.component.css',
 })
-export class ModalQuestionDetailsComponent implements OnInit {
+export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
   readonly dialog = inject(MatDialog);
   public inputQuestion: SelectedHMData = inject(MAT_DIALOG_DATA);
   public variableId = 0;
@@ -64,6 +64,12 @@ export class ModalQuestionDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadComponentsAndVariables();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.dialogRef.updateSize('auto');
+    });
   }
 
   onClose(): void {

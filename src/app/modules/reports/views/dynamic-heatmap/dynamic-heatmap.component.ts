@@ -137,6 +137,13 @@ export class DynamicHeatmapComponent {
       componentName,
       question,
     };
-    this.dialog.open(ModalQuestionDetailsComponent, { data });
+    this.dialog.open(ModalQuestionDetailsComponent, {
+      width: 'clamp(320px, 50vw, 580px)',
+      maxWidth: '50vw',
+      minHeight: '500px',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data,
+    });
   }
 }

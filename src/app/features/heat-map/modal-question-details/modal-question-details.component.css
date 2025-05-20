@@ -89,6 +89,12 @@
   background-color: #f8f9fa;
 }
 
+.column-gap {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
 @media screen and (max-width: 930px) {
   .select-container {
     justify-content: center;

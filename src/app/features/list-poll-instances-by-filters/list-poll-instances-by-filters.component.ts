@@ -202,7 +202,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   }
 
   goToDetails(event: EventAction): void {
-    console.log(event);
     const pollInstance: PollInstanceModel = event.item as PollInstanceModel;
 
     this.dialog.open(ModalStudentDetailComponent, {

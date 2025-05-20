@@ -29,8 +29,7 @@
     <mat-card class="student-card">
       <mat-card-header class="card-header">
         <div class="title-card-header">
-          <mat-card-title>selectedVaribleDisplay</mat-card-title>
-          <mat-card-subtitle>Answers details </mat-card-subtitle>
+          <mat-card-title>Answer details</mat-card-title>
         </div>
         <div class="icon-card-header">
           <button
@@ -53,9 +52,11 @@
             <mat-header-cell *matHeaderCellDef class="name-column">
               Name
             </mat-header-cell>
-            <mat-cell *matCellDef="let item" class="name-column">
-              <mat-icon matListItemIcon>person</mat-icon>
-              {{ item.student.name }}
+            <mat-cell *matCellDef="let item">
+              <span class="column-gap">
+                <mat-icon>person</mat-icon>
+                {{ item.studentName }}
+              </span>
             </mat-cell>
           </ng-container>
 
@@ -64,7 +65,7 @@
               Answer
             </mat-header-cell>
             <mat-cell *matCellDef="let item" class="answer-column">
-              {{ item.answer.answerText }}
+              {{ item.answerText }}
             </mat-cell>
           </ng-container>
 
@@ -75,10 +76,10 @@
             <mat-cell *matCellDef="let item" class="risk-column">
               <div
                 class="risk-badge"
-                [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
-                [style.color]="getTextRiskColor(item.answer.riskLevel)"
+                [style.backgroundColor]="getRiskColor(item.answerRisk)"
+                [style.color]="getTextRiskColor(item.answerRisk)"
               >
-                {{ item.answer.riskLevel }}
+                {{ item.answerRisk }}
               </div>
             </mat-cell>
           </ng-container>
@@ -91,7 +92,7 @@
               <button
                 mat-icon-button
                 aria-label="View details"
-                (click)="openStudentDetails(item.student.id)"
+                (click)="openStudentDetails(item.studentId)"
               >
                 <mat-icon>visibility</mat-icon>
               </button>
