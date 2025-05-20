@@ -1,7 +1,27 @@
 .container-table-button {
-  display: flex;
+    display: flex;
 }
 
 .card-container mat-card {
     margin-bottom: 0.5em;
+}
+
+.container-title-button {
+    display: flex;
+    justify-content: space-between;
+}
+
+.title {
+    color: #000;
+    font-size: var(--Headline-Small-Size, 24px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: var(--Headline-Small-Line-Height, 32px);
+    letter-spacing: var(--Headline-Small-Tracking, 0px);
+    margin: 5px;
+    padding: 0px;
+}
+
+.button-export {
+    margin-left: auto;
 }

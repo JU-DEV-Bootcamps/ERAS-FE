@@ -24,6 +24,7 @@ import { CsvService } from '../../../core/services/exports/csv.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-list',
@@ -36,6 +37,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatIconModule,
     MatSidenavModule,
     MatButtonModule,
+    MatTooltipModule,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
@@ -52,6 +54,7 @@ export class ListComponent<T extends object> implements OnInit {
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() actionDatas: ActionDatas = [];
+  @Input() title?: string;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
