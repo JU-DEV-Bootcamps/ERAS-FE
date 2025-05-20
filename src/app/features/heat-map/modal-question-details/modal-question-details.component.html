@@ -54,8 +54,10 @@
             </mat-header-cell>
             <mat-cell *matCellDef="let item">
               <span class="column-gap">
-                <mat-icon>person</mat-icon>
-                {{ item.studentName }}
+                <mat-icon class="icon">person</mat-icon>
+                <div class="text">
+                  {{ item.studentName }}
+                </div>
               </span>
             </mat-cell>
           </ng-container>

@@ -139,7 +139,7 @@ export class DynamicHeatmapComponent {
     };
     this.dialog.open(ModalQuestionDetailsComponent, {
       width: 'clamp(320px, 50vw, 580px)',
-      maxWidth: '50vw',
+      maxWidth: '60vw',
       minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
