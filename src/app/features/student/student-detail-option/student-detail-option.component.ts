@@ -56,8 +56,8 @@ import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-st
     MatRadioModule,
     MatExpansionModule,
     MatTableModule,
-    MatDividerModule,
-  ],
+    MatDividerModule
+],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',
 })
@@ -136,7 +136,7 @@ export class StudentDetailOptionComponent implements OnInit {
     const poll = this.polls.find(p => p.id === this.pollSeleccionadoId);
     if (poll) {
       this.pollSeleccionado = poll;
-      this.location.go('/' + this.pollSeleccionado.name);
+      this.location.go('/student-option/' + this.pollSeleccionado.name);
       this.pollInstanceService
         .getComponentsAvgGroupedByCohorts(poll.uuid)
         .subscribe(response => {
@@ -190,10 +190,10 @@ export class StudentDetailOptionComponent implements OnInit {
   goBack() {
     if (this.pollSeleccionado && this.cohortSeleccionado) {
       this.cohortSeleccionado = null;
-      this.location.go('/' + this.pollSeleccionado.name);
+      this.location.go('/student-option/' + this.pollSeleccionado.name);
     } else {
       this.pollSeleccionado = null;
-      this.location.go('/');
+      this.location.go('/student-option');
     }
   }
 
@@ -208,7 +208,7 @@ export class StudentDetailOptionComponent implements OnInit {
     if (!this.pollSeleccionado) return;
     this.cohortSeleccionado = cohort;
     this.location.go(
-      '/' +
+      '/student-option/' +
         this.pollSeleccionado.name +
         '/' +
         this.cohortSeleccionado.cohortName
