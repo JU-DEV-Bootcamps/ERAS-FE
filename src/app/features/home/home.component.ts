@@ -154,8 +154,12 @@ export class HomeComponent implements OnInit {
           },
         });
     } else {
-      console.warn('No pollUuid is undefined');
+      console.warn('pollUuid is undefined');
       this.isLoadingPollInstances = false;
+      this.riskLevels = {
+        risks: [] as number[],
+        levels: [] as RiskLevel[],
+      };
     }
   }
 
