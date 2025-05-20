@@ -21,6 +21,9 @@ import { TableWithActionsComponent } from '../table-with-actions/table-with-acti
 import { Column } from './types/column';
 import { ActionDatas } from './types/action';
 import { CsvService } from '../../../core/services/exports/csv.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-list',
@@ -30,6 +33,9 @@ import { CsvService } from '../../../core/services/exports/csv.service';
     MatPaginatorModule,
     MatCardModule,
     TableWithActionsComponent,
+    MatIconModule,
+    MatSidenavModule,
+    MatButtonModule,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
@@ -129,11 +135,11 @@ export class ListComponent<T extends object> implements OnInit {
   exportToCSV() {
     const columnKeys = this.columns.map(c => c.key);
     const columnLabels = this.columns.map(c => c.label);
-    const x = this.csvService.exportToCSV(
+
+    this.csvService.exportToCSV(
       this.items,
       columnKeys as string[],
       columnLabels
     );
-    console.log(x);
   }
 }

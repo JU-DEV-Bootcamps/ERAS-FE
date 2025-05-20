@@ -1,22 +1,28 @@
 @if (!data) {
   <mat-spinner></mat-spinner>
 } @else {
-  <button (click)="exportToCSV()">Click</button>
-  <app-table-with-actions
-    [columns]="columns"
-    [items]="items"
-    [actionDatas]="actionDatas"
-    (actionCalled)="handleAction($event)"
-  ></app-table-with-actions>
-  <br />
-  <mat-paginator
-    [length]="totalItems"
-    (page)="onPageChange($event)"
-    [pageSize]="pageSize"
-    [pageIndex]="currentPage"
-    [pageSizeOptions]="pageSizeOptions"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+  <div class="container-table-button">
+    <div>
+      <app-table-with-actions
+        [columns]="columns"
+        [items]="items"
+        [actionDatas]="actionDatas"
+        (actionCalled)="handleAction($event)"
+      ></app-table-with-actions>
+      <br />
+      <mat-paginator
+        [length]="totalItems"
+        (page)="onPageChange($event)"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+    <button mat-button (click)="exportToCSV()" class="button-export">
+      <mat-icon>get_app</mat-icon>
+    </button>
+  </div>
 }

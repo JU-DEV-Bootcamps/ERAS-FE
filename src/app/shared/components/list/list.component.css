@@ -1,0 +1,7 @@
+.container-table-button {
+  display: flex;
+}
+
+.card-container mat-card {
+    margin-bottom: 0.5em;
+}

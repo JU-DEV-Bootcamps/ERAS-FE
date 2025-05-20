@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { CSV_CONFIG } from '../../constants/csv';
 import Papa, { UnparseObject } from 'papaparse';
+import { BaseExportService } from './base-export.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CsvService {
+export class CsvService extends BaseExportService {
+  protected extension = 'csv';
+
   exportToCSV(data: object[], columns: string[], fields?: string[]) {
     const unparsedObject: { data: object[]; fields?: string[] } = { data };
 
@@ -21,6 +24,6 @@ export class CsvService {
       parsedObject = parsedObject.replace(regex, headers + CSV_CONFIG.newline);
     }
 
-    return parsedObject;
+    super.downloadTextFile(parsedObject, 'file');
   }
 }
