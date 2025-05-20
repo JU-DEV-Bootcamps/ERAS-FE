@@ -12,11 +12,11 @@ import { HeatMapComponent } from './features/reports/heat-map/heat-map.component
 import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
 import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
-import { LayoutComponent } from './shared/components/layout/layout.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
 import { StudentsRiskComponent } from './features/cohort/students-risk/students-risk.component';
 import { DynamicHeatmapComponent } from './modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
+import { LayoutComponent } from './shared/components/layout/layout.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },

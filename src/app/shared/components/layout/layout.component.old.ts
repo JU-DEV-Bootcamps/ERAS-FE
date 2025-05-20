@@ -1,7 +1,12 @@
 import { Component, effect, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import Keycloak from 'keycloak-js';
 import {
@@ -10,23 +15,10 @@ import {
   typeEventArgs,
   ReadyArgs,
 } from 'keycloak-angular';
-import { MenuSectionComponent } from './menu-section/menu-section.component';
-import { MenuItemComponent } from './menu-item/menu-item.component';
-import { UserMenuComponent } from './user-menu/user-menu.component';
-import { MatButtonModule } from '@angular/material/button';
-import { MatRadioModule } from '@angular/material/radio';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
-  selector: 'app-layout',
+  selector: 'app-old-layout',
   imports: [
-    CommonModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MenuSectionComponent,
-    MenuItemComponent,
     RouterOutlet,
     CommonModule,
     MatSidenavModule,
@@ -37,22 +29,25 @@ import { MatMenuModule } from '@angular/material/menu';
     MatIconModule,
     MatToolbarModule,
     MatMenuModule,
-    UserMenuComponent
-],
-  templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss'],
+  ],
+  templateUrl: './layout.component.old.html',
+  styleUrls: ['./layout.component.old.scss'],
 })
-export class LayoutComponent {
+export class LayoutOldComponent {
   user?: { name: string; email: string };
   authenticated = false;
   keycloakStatus: string | undefined;
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
+  isSettingsExpanded = false;
+  isImportsExpanded = false;
+  isListsExpanded = false;
+  isReportsExpanded = false;
 
   router = inject(Router);
   constructor() {
     this.user = {
-      name: this.keycloak.clientId || 'NameNot Found',
+      name: "this.keycloak.fullName || 'NameNot Found'",
       email: 'userInfo.email',
     };
 
@@ -82,8 +77,19 @@ export class LayoutComponent {
   logout() {
     this.keycloak.logout();
   }
-
   redirect(redirectTo: string) {
     this.router.navigate([redirectTo]);
+  }
+  toggleSettings(expand: boolean) {
+    this.isSettingsExpanded = expand;
+  }
+  toggleImports(expand: boolean) {
+    this.isImportsExpanded = expand;
+  }
+  toggleLists(expand: boolean) {
+    this.isListsExpanded = expand;
+  }
+  toggleReports(expand: boolean) {
+    this.isReportsExpanded = expand;
   }
 }
