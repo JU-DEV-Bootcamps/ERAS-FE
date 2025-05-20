@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -13,6 +20,7 @@ import {
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
 import { Column } from './types/column';
 import { ActionDatas } from './types/action';
+import { CsvService } from '../../../core/services/exports/csv.service';
 
 @Component({
   selector: 'app-list',
@@ -27,6 +35,8 @@ import { ActionDatas } from './types/action';
   styleUrl: './list.component.css',
 })
 export class ListComponent<T extends object> implements OnInit {
+  csvService = inject(CsvService);
+
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
@@ -114,5 +124,16 @@ export class ListComponent<T extends object> implements OnInit {
     });
 
     return itemWithId;
+  }
+
+  exportToCSV() {
+    const columnKeys = this.columns.map(c => c.key);
+    const columnLabels = this.columns.map(c => c.label);
+    const x = this.csvService.exportToCSV(
+      this.items,
+      columnKeys as string[],
+      columnLabels
+    );
+    console.log(x);
   }
 }

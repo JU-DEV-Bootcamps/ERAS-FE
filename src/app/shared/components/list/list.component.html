@@ -1,6 +1,7 @@
 @if (!data) {
   <mat-spinner></mat-spinner>
 } @else {
+  <button (click)="exportToCSV()">Click</button>
   <app-table-with-actions
     [columns]="columns"
     [items]="items"
