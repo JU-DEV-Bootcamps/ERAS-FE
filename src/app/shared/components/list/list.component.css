@@ -2,6 +2,10 @@
     display: flex;
 }
 
+.container-table-button div {
+    width: 100%;
+}
+
 .card-container mat-card {
     margin-bottom: 0.5em;
 }
