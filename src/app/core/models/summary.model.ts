@@ -2,9 +2,6 @@ import { UUID } from 'crypto';
 import { PollModel } from './poll.model';
 import { PollInstanceModel } from './poll-instance.model';
 import { BaseModel } from './common/base.model';
-import { StudentModel } from './student.model';
-import { VariableModel } from './variable.model';
-import { AnswerModel } from './answer.model';
 
 export interface CohortsSummaryModel {
   cohortCount: number;
@@ -75,12 +72,28 @@ export interface GetQueryResponse<T> {
   body: T;
 }
 
-export type PollTopReport = StudentQuestionReport[];
+export type PollTopReport = StudentReportAnswerRiskLevel[];
 
-export interface StudentQuestionReport {
-  student: StudentModel;
-  variable: VariableModel;
-  answer: AnswerModel;
+export interface StudentReportAnswerRiskLevel {
+  pollUuid: string;
+  componentName: string;
+  pollVariableId: number;
+  question: string;
+  answerText: string;
+  pollInstanceId: number;
+  studentName: string;
+  studentEmail: string;
+  answerRisk: number;
+  pollInstanceRiskSum: number;
+  pollInstanceAnswersCount: number;
+  componentAverageRisk: number;
+  variableAverageRisk: number;
+  answerCount: number;
+  answerPercentage: number;
+  cohortId: number;
+  cohortName?: string;
+  averageRiskByCohortComponent: number;
+  studentId: number;
 }
 
 export interface PollCountReport {
