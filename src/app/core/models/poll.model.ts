@@ -4,7 +4,8 @@ import { ComponentModel } from './component.model';
 
 export interface PollModel extends BaseModel {
   name: string;
-  version: string;
+  lastVersion: string;
+  lastVersionDate: Date;
   uuid: UUID;
   components: ComponentModel[];
 }

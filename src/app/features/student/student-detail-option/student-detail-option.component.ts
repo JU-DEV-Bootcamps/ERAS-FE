@@ -22,7 +22,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
-import { Poll } from '../../list-students-by-poll/types/list-students-by-poll';
+
 import { ApexOptions } from 'ng-apexcharts';
 import { StudentRiskResponse } from '../../../core/models/cohort.model';
 import { toSentenceCase } from '../../../core/utilities/string-utils';
@@ -35,6 +35,7 @@ import { StudentService } from '../../../core/services/api/student.service';
 import { PollInstanceService } from '../../../core/services/api/poll-instance.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
+import { PollModel } from '../../../core/models/poll.model';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -66,7 +67,7 @@ export class StudentDetailOptionComponent implements OnInit {
   public modalDataSudentVariable: DialogRiskVariableData =
     {} as DialogRiskVariableData;
 
-  pollSeleccionado: Poll | null = null;
+  pollSeleccionado: PollModel | null = null;
   pollSeleccionadoId: number | null = null;
   cohortSeleccionado: CohortComponents | null = null;
   selectedComponents: { key: string; value: number }[] = [];
@@ -80,7 +81,7 @@ export class StudentDetailOptionComponent implements OnInit {
   quantities = [3, 5, 10, 15, 20];
   accordion = viewChild.required(MatAccordion);
 
-  polls: Poll[] = [];
+  polls: PollModel[] = [];
   studentRisk: StudentRiskResponse[] = [];
   cohorts: CohortComponents[] = [];
   readonly panelOpenState = signal(false);
