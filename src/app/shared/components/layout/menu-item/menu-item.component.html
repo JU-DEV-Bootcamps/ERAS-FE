@@ -1,4 +1,4 @@
-<button mat-button (click)="redirect()">
+<button mat-button (click)="redirect()" [class.active]="isActive">
   @if (icon) {
     <mat-icon>{{ icon }}</mat-icon>
   }

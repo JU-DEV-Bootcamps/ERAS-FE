@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-menu-item',
   templateUrl: './menu-item.component.html',
-  styleUrls: ['./menu-item.component.scss'],
+  styleUrls: ['./menu-item.component.css'],
   imports: [MatIcon],
 })
 export class MenuItemComponent {
@@ -14,10 +14,10 @@ export class MenuItemComponent {
   @Input() redirectUrl!: string;
 
   private router = inject(Router);
-
+  get isActive(): boolean {
+    return this.router.url === '/' + this.redirectUrl;
+  }
   redirect() {
-    if (this.redirectUrl) {
-      this.router.navigate([this.redirectUrl]);
-    }
+    this.router.navigate([this.redirectUrl]);
   }
 }

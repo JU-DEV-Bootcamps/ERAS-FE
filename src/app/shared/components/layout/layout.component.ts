@@ -37,53 +37,14 @@ import { MatMenuModule } from '@angular/material/menu';
     MatIconModule,
     MatToolbarModule,
     MatMenuModule,
-    UserMenuComponent
-],
+    UserMenuComponent,
+  ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  user?: { name: string; email: string };
-  authenticated = false;
-  keycloakStatus: string | undefined;
-  private readonly keycloak = inject(Keycloak);
-  private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
-
-  router = inject(Router);
-  constructor() {
-    this.user = {
-      name: this.keycloak.clientId || 'NameNot Found',
-      email: 'userInfo.email',
-    };
-
-    effect(() => {
-      const keycloakEvent = this.keycloakSignal();
-
-      this.keycloakStatus = keycloakEvent.type;
-
-      if (keycloakEvent.type === KeycloakEventType.Ready) {
-        this.authenticated = typeEventArgs<ReadyArgs>(keycloakEvent.args);
-      }
-
-      if (keycloakEvent.type === KeycloakEventType.AuthLogout) {
-        this.authenticated = false;
-      }
-    });
-  }
-
-  manageKeycloakUser(): void {
-    this.keycloak.accountManagement();
-  }
-
-  login() {
-    this.keycloak.login();
-  }
-
-  logout() {
-    this.keycloak.logout();
-  }
-
-  redirect(redirectTo: string) {
-    this.router.navigate([redirectTo]);
+  sidenavOpen = false;
+  sidenavToggle() {
+    this.sidenavOpen = !this.sidenavOpen;
   }
 }

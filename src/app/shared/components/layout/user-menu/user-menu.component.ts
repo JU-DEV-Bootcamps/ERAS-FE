@@ -8,7 +8,7 @@ import Keycloak from 'keycloak-js';
 @Component({
   selector: 'app-user-menu',
   templateUrl: './user-menu.component.html',
-  styleUrls: ['./user-menu.component.css'],
+  styleUrls: ['./user-menu.component.scss'],
   imports: [MatMenu, MatIcon, MatToolbar, MatMenuTrigger],
 })
 export class UserMenuComponent {

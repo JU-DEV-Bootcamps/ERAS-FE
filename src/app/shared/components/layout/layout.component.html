@@ -1,9 +1,9 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav [mode]="'side'" [opened]="true" class="custom-sidenav">
-    <div class="custom-sidenav-header">
-      <p>ERAS</p>
-    </div>
-    <div class="custom-sidenav-content">
+  <mat-sidenav #sidenav [mode]="'side'" [opened]="true">
+    <button class="expand-button" mat-icon-button (click)="sidenavToggle()">
+      <mat-icon>{{ sidenavOpen ? 'arrow_back_ios' : 'menu' }}</mat-icon>
+    </button>
+    <div>
       <app-menu-item title="Home" icon="home" redirectUrl=""></app-menu-item>
       <app-menu-item
         title="Student Monitoring"
@@ -62,10 +62,8 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar class="custom-navbar">
-      <!-- <button mat-icon-button (click)="sidenav.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button> -->
+    <mat-toolbar>
+      <h1 class="app-title">ERAS</h1>
       <app-user-menu></app-user-menu>
     </mat-toolbar>
     <div class="container">
