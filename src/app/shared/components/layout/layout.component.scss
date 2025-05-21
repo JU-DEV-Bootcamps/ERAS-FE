@@ -39,11 +39,11 @@ mat-sidenav{
   height: 110%;
   border-radius: 0%;
 }
-.expand-button{
-  width: 100%;
-  color: ut.get-color('neutral', 50);
-  height: 50px;
+.sidenav-expanded {
+  width: 300px;
+  transition: width 0.3s ease-in-out;
 }
+
 .mat-drawer-inner-container{
   display: block;
   position: fixed;
@@ -67,4 +67,44 @@ mat-toolbar{
   display: flex;
   justify-content: space-between;
   height: 50px;
+}
+button {
+  display: flex;
+  align-items: left;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  width: 300px;
+  height: 40px;
+}
+.menu-button.active, .menu-button:hover{
+  color: #e0f7fa; /* Use your primary color */
+  background: #19bfb9; /* Optional: subtle background */
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+.menu-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  padding-left: 18px;
+  margin: 0;
+  vertical-align: middle;
+}
+.expand-button{
+  width: 150px;
+  color: ut.get-color('neutral', 50);
+  height: 50px;
+}
+.menu-label{
+  position: absolute;
+  left: 75px;
+  margin-top: 5px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: white;
 }

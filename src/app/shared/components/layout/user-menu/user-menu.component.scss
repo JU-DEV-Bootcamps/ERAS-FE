@@ -38,11 +38,12 @@
 
 .avatar-menu{
   .menu-button {
-    background-color: ut.get-color('primary', 50);
+    background-color: transparent;
     border: none;
+    color: ut.get-color('primary', 30);
   }
   .menu-button:hover {
     background-color: ut.get-color('neutral', 50);
-    color: var(--mat-sys-on-primary);
+    color: ut.get-color('neutral', 30);
   }
 }

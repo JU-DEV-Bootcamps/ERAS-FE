@@ -1,7 +1,14 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav [mode]="'side'" [opened]="true">
+  <mat-sidenav
+    #sidenav
+    [mode]="'side'"
+    [opened]="true"
+    [class.sidenav-expanded]="sidenavOpen"
+  >
     <button class="expand-button" mat-icon-button (click)="sidenavToggle()">
-      <mat-icon>{{ sidenavOpen ? 'arrow_back_ios' : 'menu' }}</mat-icon>
+      <mat-icon class="menu-icon">{{
+        sidenavOpen ? 'arrow_back_ios' : 'menu'
+      }}</mat-icon>
     </button>
     <div>
       <app-menu-item title="Home" icon="home" redirectUrl=""></app-menu-item>

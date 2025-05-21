@@ -1,15 +1,8 @@
-import { Component, effect, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { CommonModule } from '@angular/common';
-import Keycloak from 'keycloak-js';
-import {
-  KEYCLOAK_EVENT_SIGNAL,
-  KeycloakEventType,
-  typeEventArgs,
-  ReadyArgs,
-} from 'keycloak-angular';
 import { MenuSectionComponent } from './menu-section/menu-section.component';
 import { MenuItemComponent } from './menu-item/menu-item.component';
 import { UserMenuComponent } from './user-menu/user-menu.component';
@@ -44,7 +37,18 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class LayoutComponent {
   sidenavOpen = false;
+  @ViewChild('sidenav', { read: ElementRef }) sidenavRef!: ElementRef;
   sidenavToggle() {
     this.sidenavOpen = !this.sidenavOpen;
+  }
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (
+      this.sidenavOpen &&
+      this.sidenavRef &&
+      !this.sidenavRef.nativeElement.contains(event.target)
+    ) {
+      this.sidenavToggle();
+    }
   }
 }

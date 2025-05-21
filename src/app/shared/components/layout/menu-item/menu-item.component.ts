@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-menu-item',
   templateUrl: './menu-item.component.html',
-  styleUrls: ['./menu-item.component.css'],
+  styleUrls: ['../layout.component.scss', './menu-item.component.scss'],
   imports: [MatIcon],
 })
 export class MenuItemComponent {

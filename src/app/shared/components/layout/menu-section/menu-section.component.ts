@@ -4,7 +4,7 @@ import { MatIcon } from '@angular/material/icon';
 @Component({
   selector: 'app-menu-section',
   templateUrl: './menu-section.component.html',
-  styleUrls: ['./menu-section.component.css'],
+  styleUrls: ['../layout.component.scss', './menu-section.component.css'],
   imports: [MatIcon],
 })
 export class MenuSectionComponent {
