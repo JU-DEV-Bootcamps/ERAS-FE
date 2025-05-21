@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas-pro';
 import { PDF_CONFIG } from '../../constants/pdf';
+import { BaseExportService } from './base-export.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PdfService {
+export class PdfService extends BaseExportService {
+  protected extension = 'pdf';
+
   exportToPDF(element: HTMLElement, name: string, callback?: () => void) {
     html2canvas(element, { scale: 2, useCORS: true })
       .then(canvas => {
@@ -62,7 +65,7 @@ export class PdfService {
           currentHeight += sectionHeight;
         }
 
-        pdf.save(`${name}.pdf`);
+        pdf.save(`${name}.${this.extension}`);
       })
       .catch(error => {
         console.error('Error al generar el PDF:', error);
