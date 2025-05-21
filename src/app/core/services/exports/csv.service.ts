@@ -1,13 +1,16 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CSV_CONFIG } from '../../constants/csv';
 import Papa, { UnparseObject } from 'papaparse';
 import { BaseExportService } from './base-export.service';
+import { BreadcrumbsService } from '../breadcrumbs.service';
+import { generateFileName } from '../../utilities/file/file-name';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CsvService extends BaseExportService {
   protected extension = 'csv';
+  readonly breadcrumbsService = inject(BreadcrumbsService);
 
   exportToCSV(data: object[], columns: string[], fields?: string[]) {
     const unparsedObject: { data: object[]; fields?: string[] } = { data };
@@ -24,6 +27,6 @@ export class CsvService extends BaseExportService {
       parsedObject = parsedObject.replace(regex, headers + CSV_CONFIG.newline);
     }
 
-    super.downloadTextFile(parsedObject, 'file');
+    super.downloadTextFile(parsedObject, generateFileName());
   }
 }
