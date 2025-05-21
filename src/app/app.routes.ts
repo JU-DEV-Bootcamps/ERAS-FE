@@ -29,52 +29,68 @@ export const routes: Routes = [
       {
         path: 'reports2/dynamic-heatmap',
         component: HeatMapComponent,
+        data: { breadcrumb: 'Dynamic Heatmap' },
       },
       {
         path: 'reports/summary-heatmap',
         component: StudentsRiskComponent,
+        data: { breadcrumb: 'Summary Heatmap' },
       },
       {
         path: 'reports/polls-answered',
         component: ListPollInstancesByFiltersComponent,
+        data: { breadcrumb: 'Polls Answered' },
       },
       {
         path: 'reports/dynamic-heatmap',
         component: DynamicHeatmapComponent,
+        data: { breadcrumb: 'Dynamic Heatmap' },
       },
-      { path: 'profile', component: ProfileComponent },
+      {
+        path: 'profile',
+        component: ProfileComponent,
+        data: { breadcrumb: 'Profile' },
+      },
       {
         path: 'cosmic-latte',
         component: CosmicLatteComponent,
+        data: { breadcrumb: 'Cosmic Latte' },
       },
       {
         path: 'student-option',
         component: StudentDetailOptionComponent,
+        data: { breadcrumb: 'Student Monitoring' },
       },
       {
         path: 'heatmap-summary',
         component: SummaryHeatmapComponent,
+        data: { breadcrumb: 'Heatmap Summary' },
       },
       {
         path: 'evaluation-process',
         component: EvaluationProcessListComponent,
+        data: { breadcrumb: 'Evaluation Process' },
       },
       {
         path: 'import-answers',
         component: ImportAnswersComponent,
+        data: { breadcrumb: 'Import Answers' },
       },
       {
         path: 'import-students',
         component: ImportStudentsComponent,
+        data: { breadcrumb: 'Import Students' },
       },
       {
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
+        data: { breadcrumb: 'Students List By Poll' },
       },
       {
         path: 'risk-students',
         component: RiskStudentsComponent,
         canActivate: [authGuard],
+        data: { breadcrumb: 'Risk Students' },
       },
       //Example to use guard with role
       {
