@@ -59,7 +59,6 @@
     </div>
 
     <div id="table-container">
-      <strong>Students Risk</strong>
       <app-list
         (actionCalled)="(null)"
         (loadCalled)="getStudentsByCohortAndPoll()"
@@ -67,6 +66,7 @@
         [totalItems]="totalStudents"
         [columns]="columns"
         [actionDatas]="[]"
+        [title]="'Students Risk'"
       />
     </div>
     <div></div>

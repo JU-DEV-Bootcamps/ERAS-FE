@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -13,6 +20,11 @@ import {
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
 import { Column } from './types/column';
 import { ActionDatas } from './types/action';
+import { CsvService } from '../../../core/services/exports/csv.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-list',
@@ -22,11 +34,17 @@ import { ActionDatas } from './types/action';
     MatPaginatorModule,
     MatCardModule,
     TableWithActionsComponent,
+    MatIconModule,
+    MatSidenavModule,
+    MatButtonModule,
+    MatTooltipModule,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
 })
 export class ListComponent<T extends object> implements OnInit {
+  csvService = inject(CsvService);
+
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
@@ -36,6 +54,7 @@ export class ListComponent<T extends object> implements OnInit {
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() actionDatas: ActionDatas = [];
+  @Input() title?: string;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -114,5 +133,16 @@ export class ListComponent<T extends object> implements OnInit {
     });
 
     return itemWithId;
+  }
+
+  exportToCSV() {
+    const columnKeys = this.columns.map(c => c.key);
+    const columnLabels = this.columns.map(c => c.label);
+
+    this.csvService.exportToCSV(
+      this.items,
+      columnKeys as string[],
+      columnLabels
+    );
   }
 }
