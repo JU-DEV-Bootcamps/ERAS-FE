@@ -18,6 +18,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
   ]);
   const mockPollService = jasmine.createSpyObj('PollService', [
     'getPollsByCohortId',
+    'getAllPolls', // Se agregó el método faltante
   ]);
 
   beforeEach(async () => {
@@ -30,6 +31,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
       })
     );
     mockPollService.getPollsByCohortId.and.returnValue(of([]));
+    mockPollService.getAllPolls.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [ListPollInstancesByFiltersComponent],
