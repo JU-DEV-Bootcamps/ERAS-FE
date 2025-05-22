@@ -12,6 +12,7 @@ p{
   padding: 0;
   margin: 0;
 }
-p.expanded{
-  border-bottom: 1px solid ut.get-color(neutral, 60);
+
+.submenu{
+  background-color: ut.get-color(primary, 20);
 }
