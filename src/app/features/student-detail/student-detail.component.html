@@ -60,7 +60,7 @@
             <h3 class="title">Risk by Components</h3>
             <p class="date-risk-by-components">Poll Name: {{ poll.name }}</p>
             <p class="date-risk-by-components">
-              Last update: {{ poll.version }}
+              Last update: {{ poll.lastVersionDate | date: 'mediumDate' }}
             </p>
             <div class="chart-container" #chart>
               @if (chartSeriesByPollId[selectedPoll]) {

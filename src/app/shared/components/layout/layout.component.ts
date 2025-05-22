@@ -1,24 +1,25 @@
-import { Component, effect, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
-import Keycloak from 'keycloak-js';
-import {
-  KEYCLOAK_EVENT_SIGNAL,
-  KeycloakEventType,
-  typeEventArgs,
-  ReadyArgs,
-} from 'keycloak-angular';
+import { MenuSectionComponent } from './menu-section/menu-section.component';
+import { MenuItemComponent } from './menu-item/menu-item.component';
+import { UserMenuComponent } from './user-menu/user-menu.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-layout',
   imports: [
+    CommonModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MenuSectionComponent,
+    MenuItemComponent,
     RouterOutlet,
     CommonModule,
     MatSidenavModule,
@@ -29,67 +30,25 @@ import {
     MatIconModule,
     MatToolbarModule,
     MatMenuModule,
+    UserMenuComponent,
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent {
-  user?: { name: string; email: string };
-  authenticated = false;
-  keycloakStatus: string | undefined;
-  private readonly keycloak = inject(Keycloak);
-  private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
-  isSettingsExpanded = false;
-  isImportsExpanded = false;
-  isListsExpanded = false;
-  isReportsExpanded = false;
-
-  router = inject(Router);
-  constructor() {
-    this.user = {
-      name: "this.keycloak.fullName || 'NameNot Found'",
-      email: 'userInfo.email',
-    };
-
-    effect(() => {
-      const keycloakEvent = this.keycloakSignal();
-
-      this.keycloakStatus = keycloakEvent.type;
-
-      if (keycloakEvent.type === KeycloakEventType.Ready) {
-        this.authenticated = typeEventArgs<ReadyArgs>(keycloakEvent.args);
-      }
-
-      if (keycloakEvent.type === KeycloakEventType.AuthLogout) {
-        this.authenticated = false;
-      }
-    });
+  sidenavOpen = false;
+  @ViewChild('sidenav', { read: ElementRef }) sidenavRef!: ElementRef;
+  sidenavToggle() {
+    this.sidenavOpen = !this.sidenavOpen;
   }
-
-  manageKeycloakUser(): void {
-    this.keycloak.accountManagement();
-  }
-
-  login() {
-    this.keycloak.login();
-  }
-
-  logout() {
-    this.keycloak.logout();
-  }
-  redirect(redirectTo: string) {
-    this.router.navigate([redirectTo]);
-  }
-  toggleSettings(expand: boolean) {
-    this.isSettingsExpanded = expand;
-  }
-  toggleImports(expand: boolean) {
-    this.isImportsExpanded = expand;
-  }
-  toggleLists(expand: boolean) {
-    this.isListsExpanded = expand;
-  }
-  toggleReports(expand: boolean) {
-    this.isReportsExpanded = expand;
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (
+      this.sidenavOpen &&
+      this.sidenavRef &&
+      !this.sidenavRef.nativeElement.contains(event.target)
+    ) {
+      this.sidenavToggle();
+    }
   }
 }

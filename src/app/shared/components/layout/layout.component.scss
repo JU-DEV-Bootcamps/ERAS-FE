@@ -1,188 +1,115 @@
 @use '@angular/material' as mat;
 @use '../../../../styles/utils' as ut;
 
-.mat-drawer-container {
-  height: 100%;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  margin-right: ut.get-size(margin, lg);
-}
-
-.user-info button {
-  width: ut.get-size(icon-size, extra-large);
-  height: ut.get-size(icon-size, extra-large);
-  margin: ut.get-size(margin, xs);
-  border-radius: 50%;
-  border: none;
-  background-color: ut.get-color('neutral', 100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-info button:hover {
-  box-shadow: 1px 2px 2px var(--mat-sys-primary);
-}
-
-.username {
-  margin-right: ut.get-size(margin, lg);
-  font-size: ut.get-font-size(label, medium);
-  font-weight: ut.get-font-weight(medium);
-  color: var(--mat-sys-primary);
-}
-
-.avatar {
-  width: ut.get-size(icon-size, extra-large);
-  height: ut.get-size(icon-size, extra-large);
-  border-radius: 50%;
-}
-
-.menu-button {
-  color: var(--mat-sys-primary);
-}
-
 .container {
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 6%;
   padding: ut.get-size(padding, m);
   box-sizing: border-box;
   height: 90%;
 }
-
-.custom-navbar {
-  background-color: ut.get-color('neutral', 100);
-  color: ut.get-color('neutral', 20);
-  border-bottom: 1px solid ut.get-color('neutral', 70);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: ut.get-size(padding, m);
-  height: 56px;
-}
-
-::ng-deep #cdk-overlay-0 {
-  background-color: ut.get-color('neutral', 100);
-}
-
-.custom-sidenav {
-  border-radius: 0%;
-  width: 240px;
-}
-
-.custom-sidenav-header {
-  background-color: ut.get-color('neutral', 30);
-  color: ut.get-color('neutral', 100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-style: normal;
-  padding: ut.get-size(padding, m);
-  height: 56px;
-  width: 100%;
-  box-sizing: border-box;
-  border-bottom: 1px solid ut.get-color('neutral', 30);
-}
-
-.custom-sidenav-header p {
-  text-align: center;
-  font-family: var(--Headline-Small-Font, Roboto);
-  font-size: ut.get-font-size(headline, small);
-  font-style: normal;
-  font-weight: 700;
-  line-height: var(--Headline-Small-Line-Height, 32px);
-  letter-spacing: var(--Headline-Small-Tracking, 0px);
-}
-
-.custom-sidenav-content {
-  background-color: ut.get-color('neutral', 40);
-  color: ut.get-color('neutral', 100);
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100% - 56px);
-}
-
-.custom-sidenav-content p {
-  margin-top: ut.get-size(margin, xs);
-  margin-bottom: ut.get-size(margin, xs);
-}
-
-button.mat-mdc-button.custom-nav-button {
-  display: inline-flex;
-  color: ut.get-color('neutral', 100);
-  padding: ut.get-size(padding, xxl);
-  justify-content: flex-start;
-  margin-left: ut.get-size(margin, md);
-  margin-right: ut.get-size(margin, md);
-  width: calc(100% - 24px);
-}
-
-p button.mat-mdc-button.custom-nav-button:hover {
-  background-color: ut.get-color('primary', 70);
-  border-radius: 10px;
-}
-
-mat-sidenav button.cdk-focused {
-  background-color: ut.get-color('primary', 70);
-  border-radius: 10px;
-}
-
-mat-sidenav button.cdk-program-focused {
-  background-color: ut.get-color('primary', 70);
-  border-radius: 10px;
-}
-
-p button.mat-mdc-button.custom-button-style {
-  color: ut.get-color('neutral', 100);
-  padding: ut.get-size(padding, xxl);
-  justify-content: flex-start;
-  margin-left: ut.get-size(margin, xl);
-  margin-right: ut.get-size(margin, md);
-  width: calc(100% - 24px);
-  border-radius: 10px;
-}
-
-p button.custom-button-style:hover {
-  background-color: ut.get-color('primary', 70);
-  border-radius: 10px;
-}
-
-mat-icon {
-  vertical-align: middle;
-}
-
-.label-settings {
-  line-height: 1.4;
-  vertical-align: middle;
-}
-
+// Responsive margin for container
 @media (max-width: 1200px) {
-  .container {
-    max-width: 1000px;
+  .container .app-title {
+    margin: 0 4%;
   }
 }
-
-@media (max-width: 992px) {
-  .container {
-    max-width: 750px;
-    padding: 15px;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    max-width: 600px;
-    padding: 10px;
-  }
-}
-
-@media (max-width: 576px) {
-  .container {
+@media (max-width: 800px) {
+  .container .app-title{
+    margin: 0 1%;
     max-width: 100%;
-    padding: 5px;
+    padding: ut.get-size(padding, xs);
   }
+}
+@media (max-width: 600px) {
+  .container .app-title{
+    margin: 0;
+    padding: ut.get-size(padding, xs);
+  }
+}
+
+mat-sidenav-container{
+  height: 100%;
+}
+mat-sidenav{
+  background-color: ut.get-color('primary', 25); //neutral 30
+  color: ut.get-color('neutral', 70);
+  width: 70px;
+  height: 110%;
+  border-radius: 0%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: left;
+}
+mat-sidenav.sidenav-expanded {
+  width: 250px;
+}
+.sidenav-expanded .menu-label{
+    color: ut.get-color('neutral', 70);
+}
+.mat-drawer-inner-container{
+  display: block;
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+mat-sidenav::-webkit-scrollbar,
+mat-sidenav-content::-webkit-scrollbar,
+.mat-drawer-inner-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.app-title{
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: ut.get-color('primary', 30);
+}
+mat-toolbar{
+  display: flex;
+  justify-content: space-between;
+  height: 50px;
+}
+button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  width: 300px;
+  height: 50px;
+  color: ut.get-color('neutral', 70);
+}
+.menu-button.active, .menu-button:hover{
+  color: ut.get-color('neutral', 100);
+  background: ut.get-color('primary', 70);
+  transition:
+    color 0.2s,
+    background 0.2s;
+  .menu-label{
+    color: ut.get-color('neutral', 100);
+  }
+}
+.menu-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  padding-left: 18px;
+  margin: 0;
+  vertical-align: middle;
+}
+.expand-button{
+  width: 150px;
+  color: ut.get-color('neutral', 50);
+  height: 50px;
+}
+.menu-label{
+  position: absolute;
+  left: 75px;
+  font-size: ut.get-font-size(title, medium);
+  font-weight: 500;
+  white-space: nowrap;
 }
