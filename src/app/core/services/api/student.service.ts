@@ -7,7 +7,7 @@ import {
 import { BaseApiService } from './base-api.service';
 import { StudentModel } from '../../models/student.model';
 import { HttpParams } from '@angular/common/http';
-import { ServerResponse } from '../interfaces/server.type';
+import { Pagination, ServerResponse } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
 import { Observable } from 'rxjs';
 import { StudentRiskResponse } from '../../models/cohort.model';
@@ -76,8 +76,19 @@ export class StudentService extends BaseApiService {
     );
   }
 
-  getStudentAnswersByPoll(studentId: number, pollId: number) {
-    return this.get<AnswerResponse[]>(`${studentId}/polls/${pollId}/answers`);
+  getStudentAnswersByPoll(
+    studentId: number,
+    pollId: number,
+    pagination: Pagination
+  ) {
+    const params = new HttpParams()
+      .set('PageSize', pagination.pageSize)
+      .set('Page', pagination.pageIndex);
+
+    return this.get<PagedResult<AnswerResponse>>(
+      `${studentId}/polls/${pollId}/answers`,
+      params
+    );
   }
 
   getTopRiskStudents(pollUuid: string, cohortId: number) {

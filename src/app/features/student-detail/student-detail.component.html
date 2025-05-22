@@ -80,7 +80,7 @@
 
   <div class="table-container">
     <app-list
-      (loadCalled)="getStudentDetails(studentId)"
+      (loadCalled)="handleLoad(studentId, $event)"
       [columns]="columns2"
       [items]="studentAnswers"
       [totalItems]="studentAnswers.length"
