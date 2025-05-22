@@ -17,6 +17,7 @@ import { ModalComponent } from '../../../shared/components/modal-dialog/modal-di
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
 import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
 import { EvaluationsService } from '../../../core/services/api/evaluations.service';
+import { Status } from '../../../core/constants/common';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -59,7 +60,7 @@ export class EvaluationProcessListComponent implements OnInit {
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
-  status = ['Incomplete', 'Not started yet'];
+  status = [Status.INCOMPLETE, Status.NOT_STARTED];
 
   router = inject(Router);
 
