@@ -44,15 +44,23 @@ import { EvaluationsService } from '../../../core/services/api/evaluations.servi
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationsService);
-  columns: string[] = ['id', 'name', 'country', 'poll', 'period', 'status'];
+  columns: string[] = [
+    'id',
+    'name',
+    'country',
+    'pollName',
+    'period',
+    'status',
+    'action',
+  ];
   evaluationProcessList: EvaluationModel[] = [];
   pageSize = 5;
   currentPage = 0;
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
+  status = ['Incomplete', 'Not started yet'];
 
-  constructor(private datePipe: DatePipe) {}
   router = inject(Router);
 
   @HostListener('window:resize', ['$event'])
