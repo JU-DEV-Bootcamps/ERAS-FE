@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalStudentDetailComponent } from './modal-student-detail.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 
 describe('ModalStudentDetailComponent', () => {
   let component: ModalStudentDetailComponent;
@@ -22,6 +23,7 @@ describe('ModalStudentDetailComponent', () => {
             studentId: 1,
           },
         },
+        { provide: ActivatedRoute, useValue: {} },
 
         provideHttpClient(),
       ],
