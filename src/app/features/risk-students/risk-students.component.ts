@@ -124,8 +124,8 @@ export class RiskStudentsComponent implements OnInit {
 
   loadPollsList(): void {
     this.pollService.getAllPolls().subscribe(data => {
-      this.pollsData = data;
-      this.form.get('pollUuid')?.setValue(data[0].uuid);
+      this.pollsData = data.items;
+      this.form.get('pollUuid')?.setValue(data.items[0].uuid);
     });
   }
 

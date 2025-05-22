@@ -28,6 +28,9 @@ import { PollInstanceService } from '../../core/services/api/poll-instance.servi
 import { ApexChartAnnotation } from '../../shared/components/charts/abstract-chart';
 import { ListComponent } from '../../shared/components/list/list.component';
 import { Column } from '../../shared/components/list/types/column';
+import { EventLoad } from '../../shared/events/load';
+import { Pagination } from '../../core/services/interfaces/server.type';
+import { PagedResult } from '../../core/services/interfaces/page.type';
 
 register();
 
@@ -113,8 +116,10 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   ];
 
   isMobile = false;
-  pageSize = 10;
-  currentPage = 0;
+  pagination: Pagination = {
+    pageSize: 10,
+    pageIndex: 0,
+  };
   totalPolls = 0;
 
   public chartOptions: ApexOptions = {
@@ -140,7 +145,13 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  getStudentDetails(studentId: number) {
+  getStudentDetails(studentId: number, event?: EventLoad) {
+    if (event) {
+      this.pagination = {
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+      };
+    }
     this.studentService
       .getStudentDetailsById(studentId)
       .pipe(takeUntil(this.destroy$))
@@ -157,12 +168,12 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   getStudentPolls(studentId: number) {
     this.pollsService
-      .getPollsByStudentId(studentId)
+      .getPollsByStudentId(studentId, this.pagination)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: PollModel[]) => {
-          this.studentPolls = data;
-          data.forEach(studentPoll => {
+        next: (data: PagedResult<PollModel>) => {
+          this.studentPolls = data.items;
+          data.items.forEach(studentPoll => {
             this.getComponentsAvg(studentId, studentPoll.id);
           });
           if (this.studentPolls.length > 0) {
@@ -193,11 +204,12 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   getStudentAnswersByPoll(studentId: number, pollId: number) {
     this.studentService
-      .getStudentAnswersByPoll(studentId, pollId)
+      .getStudentAnswersByPoll(studentId, pollId, this.pagination)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: AnswerResponse[]) => {
-          this.studentAnswers = data;
+        next: (data: PagedResult<AnswerResponse>) => {
+          console.log(data)
+          this.studentAnswers = data.items;
         },
         error: error => {
           console.error(error);

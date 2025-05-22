@@ -141,7 +141,7 @@ export class StudentsRiskComponent implements OnInit {
 
   getPolls() {
     this.pollsService.getAllPolls().subscribe(data => {
-      this.polls = data;
+      this.polls = data.items;
     });
   }
 
