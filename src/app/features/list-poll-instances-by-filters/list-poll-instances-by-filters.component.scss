@@ -19,6 +19,11 @@
   }
 }
 
+.expanded {
+  flex-grow: 2;
+  width: 100%;
+}
+
 .button-container {
   display: flex;
   justify-content: flex-end;

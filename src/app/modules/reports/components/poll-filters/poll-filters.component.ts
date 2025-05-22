@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, output } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -29,6 +29,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './poll-filters.component.css',
 })
 export class PollFiltersComponent implements OnInit {
+  @Input() showVariables = true;
+
   pollsService = inject(PollService);
   cohortsService = inject(CohortService);
   polls: PollModel[] = [];

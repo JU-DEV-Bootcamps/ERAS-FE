@@ -1,12 +1,6 @@
-import { NgFor } from '@angular/common';
+import { PollFiltersComponent } from './../../modules/reports/components/poll-filters/poll-filters.component';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,10 +42,10 @@ interface DynamicPollInstance
     FormsModule,
     MatInputModule,
     MatSelectModule,
-    NgFor,
     ReactiveFormsModule,
     EmptyDataComponent,
     ListComponent,
+    PollFiltersComponent,
   ],
   templateUrl: './list-poll-instances-by-filters.component.html',
   styleUrl: './list-poll-instances-by-filters.component.scss',
@@ -107,11 +101,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   selectedCohortId = 0;
   selectedPollUuid = '';
 
-  filtersForm = new FormGroup({
-    selectedCohort: new FormControl<number | null>(null, [Validators.required]),
-    selectedPoll: new FormControl<string | null>(null, [Validators.required]),
-  });
-
   pageSize = 10;
   currentPage = 0;
 
@@ -119,17 +108,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCohortsList();
-    this.filtersForm.controls['selectedCohort'].valueChanges.subscribe(
-      value => {
-        if (value) {
-          this.getPollsByCohortId(value);
-          this.selectedCohortId = value;
-        }
-      }
-    );
-    this.filtersForm.controls['selectedPoll'].valueChanges.subscribe(value => {
-      if (value) this.selectedPollUuid = value;
-    });
     this.checkScreenSize();
   }
 
@@ -178,23 +156,12 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       });
   }
 
-  onSelectionChange() {
-    if (this.filtersForm.invalid) return;
-    if (
-      this.filtersForm.value.selectedCohort &&
-      this.filtersForm.value.selectedPoll
-    ) {
-      this.loading = true;
-      this.loadPollInstances(this.filtersForm.value.selectedCohort);
-    }
-  }
-
   generateHeatMap(): void {
     const url = this.router
       .createUrlTree(['/heatmap-summary'], {
         queryParams: {
-          cohortId: this.filtersForm.value.selectedCohort,
-          pollUuid: this.filtersForm.value.selectedPoll,
+          cohortId: this.selectedCohortId,
+          pollUuid: this.selectedPollUuid,
         },
       })
       .toString();
@@ -214,6 +181,18 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
         studentId: pollInstance['student.id' as keyof PollInstanceModel],
       },
     });
+  }
+
+  handleFilterSelect(filters: {
+    title: string;
+    uuid: string;
+    cohortId: number;
+    variableIds: number[];
+  }) {
+    this.selectedPollUuid = filters.uuid;
+    this.selectedCohortId = filters.cohortId;
+    this.loading = true;
+    this.loadPollInstances(this.selectedCohortId);
   }
 
   getWidth(column: string): string {
