@@ -14,6 +14,7 @@ import { PollModel } from '../../../../core/models/poll.model';
 import { CohortModel } from '../../../../core/models/cohort.model';
 import { VariableModel } from '../../../../core/models/variable.model';
 import { debounceTime } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-poll-filters',
@@ -22,6 +23,7 @@ import { debounceTime } from 'rxjs';
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
+    CommonModule,
   ],
   templateUrl: './poll-filters.component.html',
   styleUrl: './poll-filters.component.css',
