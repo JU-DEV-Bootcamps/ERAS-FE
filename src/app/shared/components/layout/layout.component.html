@@ -1,201 +1,77 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav [mode]="'over'" class="custom-sidenav">
-    <div class="custom-sidenav-header">
-      <p>ERAS</p>
-    </div>
-    <div class="custom-sidenav-content">
-      <p>
-        <button mat-button (click)="redirect('')" class="custom-nav-button">
-          <mat-icon>home</mat-icon>
-          Home
-        </button>
-      </p>
-      <p>
-        <button
-          mat-button
-          class="custom-nav-button"
-          (click)="redirect('student-option')"
-        >
-          <mat-icon>person_search</mat-icon>
-          Student Monitoring
-        </button>
-      </p>
-
-      <p>
-        <button
-          mat-button
-          (click)="toggleReports(!isReportsExpanded)"
-          class="custom-nav-button"
-        >
-          <mat-icon>pie_chart_outline</mat-icon>
-          Reports
-          <span class="icon-arrow">
-            <mat-icon *ngIf="!isReportsExpanded">arrow_drop_down</mat-icon>
-            <mat-icon *ngIf="isReportsExpanded">arrow_drop_up</mat-icon>
-          </span>
-        </button>
-      </p>
-
-      <!-- Submenu for Reports -->
-      <div *ngIf="isReportsExpanded" class="settings-submenu">
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('reports/dynamic-heatmap')"
-          >
-            <mat-icon>description</mat-icon>
-            Dynamic Heatmap
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('reports/summary-heatmap')"
-          >
-            <mat-icon>find_in_page</mat-icon>
-            Summary Heatmap
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('reports/polls-answered')"
-          >
-            <mat-icon>poll</mat-icon>
-            Polls Answered
-          </button>
-        </p>
-      </div>
-      <p>
-        <button
-          mat-button
-          (click)="toggleLists(!isListsExpanded)"
-          class="custom-nav-button"
-        >
-          <mat-icon>list</mat-icon>
-          Lists
-          <span class="icon-arrow">
-            <mat-icon *ngIf="!isListsExpanded">arrow_drop_down</mat-icon>
-            <mat-icon *ngIf="isListsExpanded">arrow_drop_up</mat-icon>
-          </span>
-        </button>
-      </p>
-      <!-- Submenu for Lists -->
-      <div *ngIf="isListsExpanded" class="settings-submenu">
-        <p>
-          <button
-            mat-button
-            (click)="redirect('evaluation-process')"
-            class="custom-button-style"
-          >
-            <mat-icon>fact_check_outline</mat-icon>
-            Evaluation Processes
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            class="custom-button-style"
-            (click)="redirect('list-students-by-poll')"
-          >
-            <mat-icon>school</mat-icon>
-            Students List
-          </button>
-        </p>
-      </div>
-      <p>
-        <button
-          mat-button
-          class="custom-nav-button"
-          (click)="toggleSettings(!isSettingsExpanded)"
-        >
-          <mat-icon>settings</mat-icon>
-          <span class="label-settings">Settings</span>
-          <span class="icon-arrow">
-            <mat-icon *ngIf="!isSettingsExpanded">arrow_drop_down</mat-icon>
-            <mat-icon *ngIf="isSettingsExpanded">arrow_drop_up</mat-icon>
-          </span>
-        </button>
-      </p>
-
-      <div *ngIf="isSettingsExpanded" class="settings-submenu">
-        <p>
-          <button
-            mat-button
-            (click)="redirect('cosmic-latte')"
-            class="custom-button-style"
-          >
-            <mat-icon>check_circle</mat-icon>
-            Cosmic Latte
-          </button>
-        </p>
-      </div>
-      <p>
-        <button
-          mat-button
-          class="custom-nav-button"
-          (click)="toggleImports(!isImportsExpanded)"
-        >
-          <mat-icon>drive_folder_upload</mat-icon>
-          <span class="label-settings">Imports</span>
-          <span class="icon-arrow">
-            <mat-icon *ngIf="!isImportsExpanded">arrow_drop_down</mat-icon>
-            <mat-icon *ngIf="isImportsExpanded">arrow_drop_up</mat-icon>
-          </span>
-        </button>
-      </p>
-      <div *ngIf="isImportsExpanded" class="settings-submenu">
-        <p>
-          <button
-            mat-button
-            (click)="redirect('import-answers')"
-            class="custom-button-style"
-          >
-            <mat-icon>insert_chart_outlined</mat-icon>
-            Import Polls
-          </button>
-        </p>
-        <p>
-          <button
-            mat-button
-            (click)="redirect('import-students')"
-            class="custom-button-style"
-          >
-            <mat-icon>person_add</mat-icon>
-            Import Students
-          </button>
-        </p>
-      </div>
+  <mat-sidenav
+    #sidenav
+    [mode]="'side'"
+    [opened]="true"
+    [class.sidenav-expanded]="sidenavOpen"
+  >
+    <button class="expand-button" mat-icon-button (click)="sidenavToggle()">
+      <mat-icon class="menu-icon">{{
+        sidenavOpen ? 'arrow_back_ios' : 'menu'
+      }}</mat-icon>
+    </button>
+    <div>
+      <app-menu-item title="Home" icon="home" redirectUrl=""></app-menu-item>
+      <app-menu-item
+        title="Student Monitoring"
+        icon="person_search"
+        redirectUrl="student-option"
+      ></app-menu-item>
+      <app-menu-section title="Reports" icon="pie_chart_outline">
+        <app-menu-item
+          title="Dynamic Heatmap"
+          icon="description"
+          redirectUrl="reports/dynamic-heatmap"
+        ></app-menu-item>
+        <app-menu-item
+          title="Summary Heatmap"
+          icon="find_in_page"
+          redirectUrl="reports/summary-heatmap"
+        ></app-menu-item>
+        <app-menu-item
+          title="Polls Answered"
+          icon="poll"
+          redirectUrl="reports/polls-answered"
+        ></app-menu-item>
+      </app-menu-section>
+      <app-menu-section title="Lists" icon="list">
+        <app-menu-item
+          title="Evaluation Processes"
+          icon="fact_check_outline"
+          redirectUrl="evaluation-process"
+        ></app-menu-item>
+        <app-menu-item
+          title="Students List"
+          icon="school"
+          redirectUrl="list-students-by-poll"
+        ></app-menu-item>
+      </app-menu-section>
+      <app-menu-section title="Imports" icon="drive_folder_upload">
+        <app-menu-item
+          title="Import Polls"
+          icon="insert_chart_outlined"
+          redirectUrl="import-answers"
+        ></app-menu-item>
+        <app-menu-item
+          title="Import Students"
+          icon="person_add"
+          redirectUrl="import-students"
+        ></app-menu-item>
+      </app-menu-section>
+      <app-menu-section title="Settings" icon="settings">
+        <app-menu-item
+          title="Cosmic Latte"
+          icon="check_circle"
+          redirectUrl="cosmic-latte"
+        ></app-menu-item>
+      </app-menu-section>
     </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar class="custom-navbar">
-      <button mat-icon-button (click)="sidenav.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      @if (user) {
-        <div class="user-info">
-          <button>
-            <mat-icon>notifications_none</mat-icon>
-          </button>
-          <button [matMenuTriggerFor]="beforeMenu" class="avatar-button">
-            <mat-icon>person</mat-icon>
-          </button>
-        </div>
-      }
-      <mat-menu #beforeMenu="matMenu" xPosition="before" class="avatar-menu">
-        <button mat-menu-item (click)="redirect('profile')" class="menu-button">
-          <mat-icon>person</mat-icon>Profile
-        </button>
-        <button mat-menu-item (click)="logout()" class="menu-button">
-          <mat-icon>logout</mat-icon>Logout
-        </button>
-      </mat-menu>
+    <mat-toolbar>
+      <h1 class="app-title">ERAS</h1>
+      <app-user-menu></app-user-menu>
     </mat-toolbar>
     <div class="container">
       <router-outlet></router-outlet>
