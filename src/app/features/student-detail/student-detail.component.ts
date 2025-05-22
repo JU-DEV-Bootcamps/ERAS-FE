@@ -212,7 +212,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: PagedResult<AnswerResponse>) => {
-          console.log(data)
           this.studentAnswers = data.items;
         },
         error: error => {
