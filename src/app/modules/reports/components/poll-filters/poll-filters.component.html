@@ -5,7 +5,8 @@
       <mat-select id="sl-poll" formControlName="pollUuid">
         @for (poll of polls; track $index) {
           <mat-option [value]="poll.uuid">
-            {{ poll.name }}
+            {{ poll.name }} - V{{ poll.lastVersion }} -
+            {{ poll.lastVersionDate | date: 'mediumDate' }}
           </mat-option>
         }
       </mat-select>

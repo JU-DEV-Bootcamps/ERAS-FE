@@ -17,7 +17,10 @@
         >
           <div>
             <strong>{{ poll.name }}</strong>
-            <p>{{ poll.uuid }}</p>
+            <p>
+              Version: {{ poll.lastVersion }} <br />
+              Version Date: {{ poll.lastVersionDate | date: 'mediumDate' }}
+            </p>
           </div>
         </mat-radio-button>
       </mat-radio-group>
