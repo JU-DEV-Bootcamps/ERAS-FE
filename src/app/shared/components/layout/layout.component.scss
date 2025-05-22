@@ -34,16 +34,19 @@ mat-sidenav-container{
 }
 mat-sidenav{
   background-color: ut.get-color('primary', 25); //neutral 30
-  color: ut.get-color('neutral', 100);
+  color: ut.get-color('neutral', 70);
   width: 70px;
   height: 110%;
   border-radius: 0%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: left;
 }
-.sidenav-expanded {
-  width: 300px;
-  transition: width 0.3s ease-in-out;
+mat-sidenav.sidenav-expanded {
+  width: 250px;
 }
-
+.sidenav-expanded .menu-label{
+    color: ut.get-color('neutral', 70);
+}
 .mat-drawer-inner-container{
   display: block;
   position: fixed;
@@ -77,14 +80,18 @@ button {
   margin: 0;
   cursor: pointer;
   width: 300px;
-  height: 40px;
+  height: 50px;
+  color: ut.get-color('neutral', 70);
 }
 .menu-button.active, .menu-button:hover{
-  color: #e0f7fa; /* Use your primary color */
-  background: #19bfb9; /* Optional: subtle background */
+  color: ut.get-color('neutral', 100);
+  background: ut.get-color('primary', 70);
   transition:
     color 0.2s,
     background 0.2s;
+  .menu-label{
+    color: ut.get-color('neutral', 100);
+  }
 }
 .menu-icon {
   font-size: 30px;
@@ -102,8 +109,7 @@ button {
 .menu-label{
   position: absolute;
   left: 75px;
-  font-size: 1.2rem;
+  font-size: ut.get-font-size(title, medium);
   font-weight: 500;
   white-space: nowrap;
-  color: white;
 }

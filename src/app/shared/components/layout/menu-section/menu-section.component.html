@@ -1,4 +1,4 @@
-<p>
+<p [class.expanded]="isExpanded">
   <button class="menu-button" mat-button (click)="toggle()">
     @if (icon) {
       <mat-icon class="menu-icon">{{ icon }}</mat-icon>
