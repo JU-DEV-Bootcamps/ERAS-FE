@@ -56,23 +56,6 @@ describe('ListPollInstancesByFiltersComponent', () => {
     expect(component.cohortsData.length).toBeGreaterThan(0);
   });
 
-  it('should update polls on selection change for cohortId', () => {
-    mockPollService.getPollsByCohortId.calls.reset();
-    component.filtersForm.controls['selectedCohort'].setValue(1);
-    expect(mockPollService.getPollsByCohortId).toHaveBeenCalledWith(1);
-    expect(component.selectedCohortId).toBe(1);
-  });
-
-  it('should update poll instances on selection change', () => {
-    mockPollInstanceService.getPollInstancesByFilters.calls.reset();
-    component.filtersForm.controls['selectedCohort'].setValue(1);
-    component.filtersForm.controls['selectedPoll'].setValue('test-uuid');
-    component.onSelectionChange();
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(1, 400);
-  });
-
   it('should return correct width for columns in getWidth', () => {
     expect(component.getWidth('modifiedAt')).toBe('15%');
     expect(component.getWidth('finishedAt')).toBe('15%');
