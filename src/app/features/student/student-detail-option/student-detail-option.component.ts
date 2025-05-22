@@ -124,7 +124,7 @@ export class StudentDetailOptionComponent implements OnInit {
   ngOnInit(): void {
     this.pollsService
       .getAllPolls()
-      .subscribe(pollsList => (this.polls = pollsList.items));
+      .subscribe(pollsList => (this.polls = pollsList));
   }
 
   constructor(

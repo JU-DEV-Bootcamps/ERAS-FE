@@ -145,13 +145,17 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  getStudentDetails(studentId: number, event?: EventLoad) {
+  handleLoad(studentId: number, event: EventLoad) {
     if (event) {
       this.pagination = {
         pageIndex: event.pageIndex,
         pageSize: event.pageSize,
       };
     }
+    this.getStudentDetails(studentId);
+  }
+
+  getStudentDetails(studentId: number) {
     this.studentService
       .getStudentDetailsById(studentId)
       .pipe(takeUntil(this.destroy$))
@@ -168,12 +172,12 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   getStudentPolls(studentId: number) {
     this.pollsService
-      .getPollsByStudentId(studentId, this.pagination)
+      .getPollsByStudentId(studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: PagedResult<PollModel>) => {
-          this.studentPolls = data.items;
-          data.items.forEach(studentPoll => {
+        next: (data: PollModel[]) => {
+          this.studentPolls = data;
+          data.forEach(studentPoll => {
             this.getComponentsAvg(studentId, studentPoll.id);
           });
           if (this.studentPolls.length > 0) {
