@@ -11,6 +11,12 @@
     "lint": "ng lint",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "src/**/*.{js,ts,scss,md,html,json}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.0.0",
