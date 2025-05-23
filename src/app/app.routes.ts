@@ -4,7 +4,6 @@ import { EvaluationProcessListComponent } from './features/evaluation-process/ev
 import { HomeComponent } from './features/home/home.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
-import { ListPollInstancesByFiltersComponent } from './features/list-poll-instances-by-filters/list-poll-instances-by-filters.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { LoginComponent } from './features/login/login.component';
 import { ProfileComponent } from './features/profile/profile.component';
@@ -17,6 +16,7 @@ import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
 import { StudentsRiskComponent } from './features/cohort/students-risk/students-risk.component';
 import { DynamicHeatmapComponent } from './modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
+import { PollsAnsweredComponent } from './modules/reports/views/polls-answered/polls-answered.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -38,7 +38,7 @@ export const routes: Routes = [
       },
       {
         path: 'reports/polls-answered',
-        component: ListPollInstancesByFiltersComponent,
+        component: PollsAnsweredComponent,
         data: { breadcrumb: 'Polls Answered' },
       },
       {

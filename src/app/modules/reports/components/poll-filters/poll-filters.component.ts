@@ -62,7 +62,12 @@ export class PollFiltersComponent implements OnInit {
     this.pollsService.getAllPolls().subscribe(res => (this.polls = res));
     this.cohortsService
       .getCohorts()
-      .subscribe(res => (this.cohorts = [this.selectAllCohort, ...res.body]));
+      .subscribe(
+        res =>
+          (this.cohorts = this.showVariables
+            ? [this.selectAllCohort, ...res.body]
+            : [...res.body])
+      );
 
     this.filterForm.controls.cohortId.valueChanges.subscribe(() => {
       this.handleCohortSelect();

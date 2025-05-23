@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ListPollInstancesByFiltersComponent } from './list-poll-instances-by-filters.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
-import { PollInstanceService } from '../../core/services/api/poll-instance.service';
-import { CohortService } from '../../core/services/api/cohort.service';
-import { PollService } from '../../core/services/api/poll.service';
+import { PollInstanceService } from '../../../../core/services/api/poll-instance.service';
+import { CohortService } from '../../../../core/services/api/cohort.service';
+import { PollService } from '../../../../core/services/api/poll.service';
+import { PollsAnsweredComponent } from './polls-answered.component';
 
-describe('ListPollInstancesByFiltersComponent', () => {
-  let component: ListPollInstancesByFiltersComponent;
-  let fixture: ComponentFixture<ListPollInstancesByFiltersComponent>;
+describe('PollsAnsweredComponent', () => {
+  let component: PollsAnsweredComponent;
+  let fixture: ComponentFixture<PollsAnsweredComponent>;
   const mockPollInstanceService = jasmine.createSpyObj('PollInstanceService', [
     'getPollInstancesByFilters',
   ]);
@@ -34,7 +34,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
     mockPollService.getAllPolls.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [ListPollInstancesByFiltersComponent],
+      imports: [PollsAnsweredComponent],
       providers: [
         { provide: PollInstanceService, useValue: mockPollInstanceService },
         { provide: CohortService, useValue: mockCohortService },
@@ -44,7 +44,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ListPollInstancesByFiltersComponent);
+    fixture = TestBed.createComponent(PollsAnsweredComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

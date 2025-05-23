@@ -1,4 +1,4 @@
-import { PollFiltersComponent } from './../../modules/reports/components/poll-filters/poll-filters.component';
+import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,28 +10,28 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { CohortModel } from '../../core/models/cohort.model';
-import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
-import { PollModel } from '../../core/models/poll.model';
-import { PollInstanceModel } from '../../core/models/poll-instance.model';
+import { CohortModel } from '../../../../core/models/cohort.model';
+import { TimestampToDatePipe } from '../../../../shared/pipes/timestamp-to-date.pipe';
+import { PollModel } from '../../../../core/models/poll.model';
+import { PollInstanceModel } from '../../../../core/models/poll-instance.model';
 import { MatDialog } from '@angular/material/dialog';
-import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
-import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
-import { PollService } from '../../core/services/api/poll.service';
-import { PollInstanceService } from '../../core/services/api/poll-instance.service';
-import { CohortService } from '../../core/services/api/cohort.service';
-import { Column } from '../../shared/components/list/types/column';
-import { ActionDatas } from '../../shared/components/list/types/action';
-import { ListComponent } from '../../shared/components/list/list.component';
-import { flattenArray } from '../../core/utilities/object/flatten';
-import { EventAction } from '../../shared/events/load';
+import { ModalStudentDetailComponent } from '../../../../features/modal-student-detail/modal-student-detail.component';
+import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
+import { PollService } from '../../../../core/services/api/poll.service';
+import { PollInstanceService } from '../../../../core/services/api/poll-instance.service';
+import { CohortService } from '../../../../core/services/api/cohort.service';
+import { Column } from '../../../../shared/components/list/types/column';
+import { ActionDatas } from '../../../../shared/components/list/types/action';
+import { ListComponent } from '../../../../shared/components/list/list.component';
+import { flattenArray } from '../../../../core/utilities/object/flatten';
+import { EventAction } from '../../../../shared/events/load';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
     Record<string, unknown> {}
 
 @Component({
-  selector: 'app-list-poll-instances-by-filters',
+  selector: 'app-polls-answered',
   imports: [
     MatButtonModule,
     MatIconModule,
@@ -47,10 +47,10 @@ interface DynamicPollInstance
     ListComponent,
     PollFiltersComponent,
   ],
-  templateUrl: './list-poll-instances-by-filters.component.html',
-  styleUrl: './list-poll-instances-by-filters.component.scss',
+  templateUrl: './polls-answered.component.html',
+  styleUrl: './polls-answered.component.scss',
 })
-export class ListPollInstancesByFiltersComponent implements OnInit {
+export class PollsAnsweredComponent implements OnInit {
   private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
 
