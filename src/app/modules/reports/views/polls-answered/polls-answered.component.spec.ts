@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ListPollInstancesByFiltersComponent } from './list-poll-instances-by-filters.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
-import { PollInstanceService } from '../../core/services/api/poll-instance.service';
-import { CohortService } from '../../core/services/api/cohort.service';
-import { PollService } from '../../core/services/api/poll.service';
+import { PollInstanceService } from '../../../../core/services/api/poll-instance.service';
+import { CohortService } from '../../../../core/services/api/cohort.service';
+import { PollService } from '../../../../core/services/api/poll.service';
+import { PollsAnsweredComponent } from './polls-answered.component';
 
-describe('ListPollInstancesByFiltersComponent', () => {
-  let component: ListPollInstancesByFiltersComponent;
-  let fixture: ComponentFixture<ListPollInstancesByFiltersComponent>;
+describe('PollsAnsweredComponent', () => {
+  let component: PollsAnsweredComponent;
+  let fixture: ComponentFixture<PollsAnsweredComponent>;
   const mockPollInstanceService = jasmine.createSpyObj('PollInstanceService', [
     'getPollInstancesByFilters',
   ]);
@@ -18,6 +18,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
   ]);
   const mockPollService = jasmine.createSpyObj('PollService', [
     'getPollsByCohortId',
+    'getAllPolls', // Se agregó el método faltante
   ]);
 
   beforeEach(async () => {
@@ -30,9 +31,10 @@ describe('ListPollInstancesByFiltersComponent', () => {
       })
     );
     mockPollService.getPollsByCohortId.and.returnValue(of([]));
+    mockPollService.getAllPolls.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [ListPollInstancesByFiltersComponent],
+      imports: [PollsAnsweredComponent],
       providers: [
         { provide: PollInstanceService, useValue: mockPollInstanceService },
         { provide: CohortService, useValue: mockCohortService },
@@ -42,7 +44,7 @@ describe('ListPollInstancesByFiltersComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ListPollInstancesByFiltersComponent);
+    fixture = TestBed.createComponent(PollsAnsweredComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -54,23 +56,6 @@ describe('ListPollInstancesByFiltersComponent', () => {
   it('should load cohorts on init', () => {
     expect(mockCohortService.getCohorts).toHaveBeenCalled();
     expect(component.cohortsData.length).toBeGreaterThan(0);
-  });
-
-  it('should update polls on selection change for cohortId', () => {
-    mockPollService.getPollsByCohortId.calls.reset();
-    component.filtersForm.controls['selectedCohort'].setValue(1);
-    expect(mockPollService.getPollsByCohortId).toHaveBeenCalledWith(1);
-    expect(component.selectedCohortId).toBe(1);
-  });
-
-  it('should update poll instances on selection change', () => {
-    mockPollInstanceService.getPollInstancesByFilters.calls.reset();
-    component.filtersForm.controls['selectedCohort'].setValue(1);
-    component.filtersForm.controls['selectedPoll'].setValue('test-uuid');
-    component.onSelectionChange();
-    expect(
-      mockPollInstanceService.getPollInstancesByFilters
-    ).toHaveBeenCalledWith(1, 400);
   });
 
   it('should return correct width for columns in getWidth', () => {

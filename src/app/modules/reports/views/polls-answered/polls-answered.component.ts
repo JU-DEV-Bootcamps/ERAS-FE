@@ -1,12 +1,6 @@
-import { NgFor } from '@angular/common';
+import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,28 +10,28 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { CohortModel } from '../../core/models/cohort.model';
-import { TimestampToDatePipe } from '../../shared/pipes/timestamp-to-date.pipe';
-import { PollModel } from '../../core/models/poll.model';
-import { PollInstanceModel } from '../../core/models/poll-instance.model';
+import { CohortModel } from '../../../../core/models/cohort.model';
+import { TimestampToDatePipe } from '../../../../shared/pipes/timestamp-to-date.pipe';
+import { PollModel } from '../../../../core/models/poll.model';
+import { PollInstanceModel } from '../../../../core/models/poll-instance.model';
 import { MatDialog } from '@angular/material/dialog';
-import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
-import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
-import { PollService } from '../../core/services/api/poll.service';
-import { PollInstanceService } from '../../core/services/api/poll-instance.service';
-import { CohortService } from '../../core/services/api/cohort.service';
-import { Column } from '../../shared/components/list/types/column';
-import { ActionDatas } from '../../shared/components/list/types/action';
-import { ListComponent } from '../../shared/components/list/list.component';
-import { flattenArray } from '../../core/utilities/object/flatten';
-import { EventAction } from '../../shared/events/load';
+import { ModalStudentDetailComponent } from '../../../../features/modal-student-detail/modal-student-detail.component';
+import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
+import { PollService } from '../../../../core/services/api/poll.service';
+import { PollInstanceService } from '../../../../core/services/api/poll-instance.service';
+import { CohortService } from '../../../../core/services/api/cohort.service';
+import { Column } from '../../../../shared/components/list/types/column';
+import { ActionDatas } from '../../../../shared/components/list/types/action';
+import { ListComponent } from '../../../../shared/components/list/list.component';
+import { flattenArray } from '../../../../core/utilities/object/flatten';
+import { EventAction } from '../../../../shared/events/load';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
     Record<string, unknown> {}
 
 @Component({
-  selector: 'app-list-poll-instances-by-filters',
+  selector: 'app-polls-answered',
   imports: [
     MatButtonModule,
     MatIconModule,
@@ -48,15 +42,15 @@ interface DynamicPollInstance
     FormsModule,
     MatInputModule,
     MatSelectModule,
-    NgFor,
     ReactiveFormsModule,
     EmptyDataComponent,
     ListComponent,
+    PollFiltersComponent,
   ],
-  templateUrl: './list-poll-instances-by-filters.component.html',
-  styleUrl: './list-poll-instances-by-filters.component.scss',
+  templateUrl: './polls-answered.component.html',
+  styleUrl: './polls-answered.component.scss',
 })
-export class ListPollInstancesByFiltersComponent implements OnInit {
+export class PollsAnsweredComponent implements OnInit {
   private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
 
@@ -107,11 +101,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
   selectedCohortId = 0;
   selectedPollUuid = '';
 
-  filtersForm = new FormGroup({
-    selectedCohort: new FormControl<number | null>(null, [Validators.required]),
-    selectedPoll: new FormControl<string | null>(null, [Validators.required]),
-  });
-
   pageSize = 10;
   currentPage = 0;
 
@@ -119,17 +108,6 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCohortsList();
-    this.filtersForm.controls['selectedCohort'].valueChanges.subscribe(
-      value => {
-        if (value) {
-          this.getPollsByCohortId(value);
-          this.selectedCohortId = value;
-        }
-      }
-    );
-    this.filtersForm.controls['selectedPoll'].valueChanges.subscribe(value => {
-      if (value) this.selectedPollUuid = value;
-    });
     this.checkScreenSize();
   }
 
@@ -178,23 +156,12 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
       });
   }
 
-  onSelectionChange() {
-    if (this.filtersForm.invalid) return;
-    if (
-      this.filtersForm.value.selectedCohort &&
-      this.filtersForm.value.selectedPoll
-    ) {
-      this.loading = true;
-      this.loadPollInstances(this.filtersForm.value.selectedCohort);
-    }
-  }
-
   generateHeatMap(): void {
     const url = this.router
       .createUrlTree(['/heatmap-summary'], {
         queryParams: {
-          cohortId: this.filtersForm.value.selectedCohort,
-          pollUuid: this.filtersForm.value.selectedPoll,
+          cohortId: this.selectedCohortId,
+          pollUuid: this.selectedPollUuid,
         },
       })
       .toString();
@@ -214,6 +181,18 @@ export class ListPollInstancesByFiltersComponent implements OnInit {
         studentId: pollInstance['student.id' as keyof PollInstanceModel],
       },
     });
+  }
+
+  handleFilterSelect(filters: {
+    title: string;
+    uuid: string;
+    cohortId: number;
+    variableIds: number[];
+  }) {
+    this.selectedPollUuid = filters.uuid;
+    this.selectedCohortId = filters.cohortId;
+    this.loading = true;
+    this.loadPollInstances(this.selectedCohortId);
   }
 
   getWidth(column: string): string {

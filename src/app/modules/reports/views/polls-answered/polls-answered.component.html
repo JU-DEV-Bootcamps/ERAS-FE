@@ -1,0 +1,45 @@
+<div class="page-header">
+  <h2 class="page-title">Polls Answered</h2>
+</div>
+<div class="form-container">
+  <app-poll-filters
+    class="expanded"
+    [showVariables]="false"
+    (filters)="handleFilterSelect($event)"
+  ></app-poll-filters>
+
+  <div class="button-container">
+    <button
+      mat-fab
+      class="button-extended"
+      extended
+      aria-label="Generate HeatMap"
+      disabled="{{ pollInstances.length === 0 }}"
+      type="submit"
+      (click)="generateHeatMap()"
+    >
+      <mat-icon>dashboard</mat-icon>
+      Heatmap
+    </button>
+  </div>
+</div>
+
+@if (loading) {
+  <mat-spinner></mat-spinner>
+} @else {
+  @if (!pollInstances.length) {
+    <app-empty-data-message
+      title="No data loaded."
+      description="Select a Cohort and Poll to list Polls Answered."
+    ></app-empty-data-message>
+  } @else {
+    <app-list
+      (actionCalled)="goToDetails($event)"
+      (loadCalled)="loadCohortsList()"
+      [items]="pollInstances"
+      [totalItems]="totalPollInstances"
+      [columns]="columns"
+      [actionDatas]="actionDatas"
+    />
+  }
+}

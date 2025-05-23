@@ -29,7 +29,7 @@
         }
       </mat-form-field>
     }
-    @if (filterForm.value.cohortId !== null) {
+    @if (filterForm.value.cohortId !== null && showVariables) {
       <mat-form-field appearance="fill">
         <mat-label for="component">Component</mat-label>
         <mat-select
