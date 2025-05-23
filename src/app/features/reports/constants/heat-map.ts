@@ -1,6 +1,7 @@
 import { ApexOptions } from 'ng-apexcharts';
 import {
   RISK_COLORS,
+  RISK_LABELS,
   RISK_TEXT_COLORS,
 } from '../../../core/constants/riskLevel';
 
@@ -39,42 +40,42 @@ export const ChartOptionsColorsCount: ApexOptions = {
             to: 0,
             color: RISK_COLORS[0],
             foreColor: RISK_TEXT_COLORS[0],
-            name: 'No answer',
+            name: RISK_LABELS[0],
           },
           {
             from: 0,
             to: 2,
             color: RISK_COLORS[1],
             foreColor: RISK_TEXT_COLORS[1],
-            name: 'Low Risk',
+            name: RISK_LABELS[1],
           },
           {
             from: 2,
             to: 4,
             color: RISK_COLORS[2],
             foreColor: RISK_TEXT_COLORS[2],
-            name: 'Low-Medium Risk',
+            name: RISK_LABELS[2],
           },
           {
             from: 4,
             to: 6,
             color: RISK_COLORS[3],
             foreColor: RISK_TEXT_COLORS[3],
-            name: 'Medium Risk',
+            name: RISK_LABELS[3],
           },
           {
             from: 6,
             to: 8,
             color: RISK_COLORS[4],
             foreColor: RISK_TEXT_COLORS[4],
-            name: 'Medium-High Risk',
+            name: RISK_LABELS[4],
           },
           {
             from: 8,
             to: 100,
             color: RISK_COLORS['default'],
             foreColor: RISK_TEXT_COLORS['default'],
-            name: 'High Risk',
+            name: RISK_LABELS['default'],
           },
         ],
       },
