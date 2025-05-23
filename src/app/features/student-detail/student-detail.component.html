@@ -79,12 +79,12 @@
   </div>
 
   <div class="table-container">
-    <h3 class="title">Student Answers</h3>
     <app-list
-      (loadCalled)="getStudentDetails(studentId)"
+      (loadCalled)="handleLoad(studentId, $event)"
       [columns]="columns2"
       [items]="studentAnswers"
       [totalItems]="studentAnswers.length"
+      [title]="'Student Answers'"
     />
   </div>
 </div>

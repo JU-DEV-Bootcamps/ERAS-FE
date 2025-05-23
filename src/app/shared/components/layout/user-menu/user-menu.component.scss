@@ -1,0 +1,49 @@
+@use '@angular/material' as mat;
+@use '../../../../../styles/utils' as ut;
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: ut.get-size(margin, lg);
+}
+
+.user-info button {
+  width: ut.get-size(icon-size, extra-large);
+  height: ut.get-size(icon-size, extra-large);
+  margin: ut.get-size(margin, xs);
+  border-radius: 50%;
+  border: none;
+  background-color: ut.get-color('neutral', 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info button:hover {
+  box-shadow: 1px 2px 2px var(--mat-sys-primary);
+}
+
+.username {
+  margin-right: ut.get-size(margin, lg);
+  font-size: ut.get-font-size(label, medium);
+  font-weight: ut.get-font-weight(medium);
+  color: var(--mat-sys-primary);
+}
+
+.avatar {
+  width: ut.get-size(icon-size, extra-large);
+  height: ut.get-size(icon-size, extra-large);
+  border-radius: 50%;
+}
+
+.avatar-menu{
+  .menu-button {
+    background-color: transparent;
+    border: none;
+    color: ut.get-color('primary', 30);
+  }
+  .menu-button:hover {
+    background-color: ut.get-color('neutral', 50);
+    color: ut.get-color('neutral', 30);
+  }
+}

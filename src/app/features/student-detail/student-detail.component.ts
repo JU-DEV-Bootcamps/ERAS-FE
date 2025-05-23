@@ -28,6 +28,9 @@ import { PollInstanceService } from '../../core/services/api/poll-instance.servi
 import { ApexChartAnnotation } from '../../shared/components/charts/abstract-chart';
 import { ListComponent } from '../../shared/components/list/list.component';
 import { Column } from '../../shared/components/list/types/column';
+import { EventLoad } from '../../shared/events/load';
+import { Pagination } from '../../core/services/interfaces/server.type';
+import { PagedResult } from '../../core/services/interfaces/page.type';
 
 register();
 
@@ -113,8 +116,10 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   ];
 
   isMobile = false;
-  pageSize = 10;
-  currentPage = 0;
+  pagination: Pagination = {
+    pageSize: 10,
+    pageIndex: 0,
+  };
   totalPolls = 0;
 
   public chartOptions: ApexOptions = {
@@ -138,6 +143,16 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  handleLoad(studentId: number, event: EventLoad) {
+    if (event) {
+      this.pagination = {
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+      };
+    }
+    this.getStudentDetails(studentId);
   }
 
   getStudentDetails(studentId: number) {
@@ -193,11 +208,11 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   getStudentAnswersByPoll(studentId: number, pollId: number) {
     this.studentService
-      .getStudentAnswersByPoll(studentId, pollId)
+      .getStudentAnswersByPoll(studentId, pollId, this.pagination)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: AnswerResponse[]) => {
-          this.studentAnswers = data;
+        next: (data: PagedResult<AnswerResponse>) => {
+          this.studentAnswers = data.items;
         },
         error: error => {
           console.error(error);
