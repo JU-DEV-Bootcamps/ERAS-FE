@@ -16,6 +16,9 @@ export function GetChartOptions(
   const options: ApexOptions = {
     series: series,
     chart: {
+      zoom: {
+        enabled: false,
+      },
       type: 'heatmap',
       toolbar: {
         show: false,

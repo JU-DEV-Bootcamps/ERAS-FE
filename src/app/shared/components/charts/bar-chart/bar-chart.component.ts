@@ -13,7 +13,7 @@ export class BarChartComponent extends ChartBase implements OnInit {
   public chartOptions: ApexOptions = {};
   seriesY = input([1]);
   colors = input(Object.values(RISK_COLORS));
-  categoriesX = input(Object.values(RISK_LABELS as string[]));
+  categoriesX = input(Object.values(RISK_LABELS).map(rl => rl.toString()));
   constructor() {
     super();
   }
