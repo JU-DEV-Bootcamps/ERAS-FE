@@ -1,4 +1,4 @@
-@use './../../../../styles/utils/index.scss' as main-styles;
+@use '../../../../../../styles/utils/index.scss' as main-styles;
 
 .noEvalsContainer {
   display: flex;
@@ -7,24 +7,28 @@
   align-items: center;
   gap: 5vh;
 }
+
 .spinerContainer {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .floatingButtonContainer {
   width: 100%;
   display: flex;
   justify-content: end;
-  margin-bottom: -75px;
   .addNewButton {
     margin: 10px;
     background: main-styles.get-color(primary, 60);
     color: white;
-    width: 110px;
+    mat-icon {
+      color: white;
+    }
   }
 }
+
 .badgeStatus {
   padding: 4px;
   border-radius: 10px;
@@ -123,6 +127,7 @@ button:not(:first-child) {
   font-weight: 550;
   margin: 5px 0px;
 }
+
 table {
   @media (max-width: 768px) {
     td.pollCell {
@@ -131,4 +136,22 @@ table {
       white-space: wrap;
     }
   }
+}
+
+th {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+button {
+  mat-icon {
+    color: #00a29c;
+  }
+}
+
+.card-action {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
 }

@@ -10,13 +10,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { GENERAL_MESSAGES } from '../../../core/constants/messages';
-import { PagedReadEvaluationProcess } from '../../../core/models/evaluation-request.model';
-import { EvaluationModel } from '../../../core/models/evaluation.model';
-import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
+import { GENERAL_MESSAGES } from '../../../../../core/constants/messages';
+import { PagedReadEvaluationProcess } from '../../../../../core/models/evaluation-request.model';
+import { EvaluationModel } from '../../../../../core/models/evaluation.model';
+import { ModalComponent } from '../../../../../shared/components/modal-dialog/modal-dialog.component';
 import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
-import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
-import { EvaluationsService } from '../../../core/services/api/evaluations.service';
+import { EmptyDataComponent } from '../../../../../shared/components/empty-data/empty-data.component';
+import { EvaluationsService } from '../../../../../core/services/api/evaluations.service';
+import { Status } from '../../../../../core/constants/common';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -44,15 +45,23 @@ import { EvaluationsService } from '../../../core/services/api/evaluations.servi
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationsService);
-  columns: string[] = ['id', 'name', 'country', 'poll', 'period', 'status'];
+  columns: string[] = [
+    'id',
+    'name',
+    'country',
+    'pollName',
+    'period',
+    'status',
+    'action',
+  ];
   evaluationProcessList: EvaluationModel[] = [];
   pageSize = 5;
   currentPage = 0;
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
+  status = [Status.INCOMPLETE, Status.NOT_STARTED];
 
-  constructor(private datePipe: DatePipe) {}
   router = inject(Router);
 
   @HostListener('window:resize', ['$event'])
