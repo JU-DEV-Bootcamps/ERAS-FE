@@ -34,6 +34,7 @@ import { AnswersRisks, RiskLevel } from '../../core/models/common/risk.model';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
+import { MatSelectAllComponent } from '../../shared/components/mat-select-all/mat-select-all.component';
 
 register();
 
@@ -52,6 +53,7 @@ interface SwiperEventTarget extends EventTarget {
     EmptyDataComponent,
     BarChartComponent,
     MatProgressSpinnerModule,
+    MatSelectAllComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

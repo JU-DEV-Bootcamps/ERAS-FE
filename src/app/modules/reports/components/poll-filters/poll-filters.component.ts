@@ -15,6 +15,7 @@ import { CohortModel } from '../../../../core/models/cohort.model';
 import { VariableModel } from '../../../../core/models/variable.model';
 import { debounceTime } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { SelectAllDirective } from '../../../../shared/directives/select-all.directive';
 
 @Component({
   selector: 'app-poll-filters',
@@ -24,6 +25,7 @@ import { CommonModule } from '@angular/common';
     MatSelectModule,
     MatIconModule,
     CommonModule,
+    SelectAllDirective,
   ],
   templateUrl: './poll-filters.component.html',
   styleUrl: './poll-filters.component.css',
@@ -37,6 +39,7 @@ export class PollFiltersComponent implements OnInit {
   cohorts: CohortModel[] = [];
   componentNames: string[] = [];
   variables: VariableModel[] = [];
+  variableGroups: VariableModel[][] = [];
 
   filters = output<{
     title: string;
@@ -52,23 +55,11 @@ export class PollFiltersComponent implements OnInit {
     variables: new FormControl<number[]>([], [Validators.required]),
   });
 
-  selectAllCohort: CohortModel = {
-    id: 0,
-    name: 'Select All',
-    courseCode: 'Select All',
-  };
-
   ngOnInit(): void {
     this.pollsService.getAllPolls().subscribe(res => (this.polls = res));
     this.cohortsService
       .getCohorts()
-      .subscribe(
-        res =>
-          (this.cohorts = this.showVariables
-            ? [this.selectAllCohort, ...res.body]
-            : [...res.body])
-      );
-
+      .subscribe(res => (this.cohorts = res.body));
     this.filterForm.controls.cohortId.valueChanges.subscribe(() => {
       this.handleCohortSelect();
     });
@@ -86,6 +77,9 @@ export class PollFiltersComponent implements OnInit {
       .subscribe(variables => {
         this.variables = variables;
         this.componentNames = [...new Set(variables.map(v => v.componentName))];
+        this.variableGroups = this.componentNames.map(c =>
+          variables.filter(v => v.componentName === c)
+        );
         this.filterForm.controls.components.setValue(this.componentNames);
         this.filterForm.controls.variables.setValue(
           this.variables.map(v => v.id)
@@ -100,17 +94,23 @@ export class PollFiltersComponent implements OnInit {
       this.filterForm.value.cohortId === null
     )
       return;
-    if (this.filterForm.value.components!.length === 0) {
-      this.filterForm.controls.variables.setValue([]);
-      return;
-    }
-    this.filterForm.controls.variables.setValue(
-      this.variables
-        .filter(v =>
-          this.filterForm.value.components?.includes(v.componentName)
-        )
-        .map(v => v.id)
-    );
+    // if (this.filterForm.value.components!.length === 0) {
+    //   this.filterForm.controls.variables.setValue([]);
+    //   return;
+    // }
+    // if (
+    //   this.filterForm.value.components!.length === this.componentNames.length
+    // ) {
+    //   this.filterForm.controls.variables.setValue([0]);
+    //   return;
+    // }
+    // this.filterForm.controls.variables.setValue(
+    //   this.variables
+    //     .filter(v =>
+    //       this.filterForm.value.components?.includes(v.componentName)
+    //     )
+    //     .map(v => v.id)
+    // );
   }
 
   onOpenedChange(isOpen: boolean) {

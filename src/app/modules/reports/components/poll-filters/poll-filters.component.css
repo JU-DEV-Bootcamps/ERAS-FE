@@ -3,3 +3,14 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
 }
+.versioned-option span{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.version{
+  font-weight: 600;
+  font-size: small;
+}
