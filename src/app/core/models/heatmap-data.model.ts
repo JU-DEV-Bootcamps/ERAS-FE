@@ -3,7 +3,8 @@ export interface HeatMapData {
   data: Serie[];
 }
 
-interface Serie {
+export interface Serie {
   x: string;
   y: number;
+  z: string;
 }

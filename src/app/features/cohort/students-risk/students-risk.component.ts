@@ -165,9 +165,11 @@ export class StudentsRiskComponent implements OnInit {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
+        const series = this.reportService.regroupByColor(reportSeries);
+
         this.chartOptions = GetChartOptions(
           `Risk Heatmap - ${this.selectedPoll?.name}-${this.selectedCohort?.name || 'All Cohorts'}`,
-          reportSeries,
+          series,
           (x, y) => {
             const compReport = res.body.components[y];
             const selectedQuestion = compReport.questions[x];
