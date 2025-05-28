@@ -8,6 +8,7 @@ import { By } from '@angular/platform-browser';
 import { StudentModel } from '../../../core/models/student.model';
 import { EditObjectModalComponent } from './modal-edit-object.component';
 import { StudentDetailModel } from '../../../core/models/student-detail.model';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 describe('EditObjectModalComponent', () => {
   let component: EditObjectModalComponent<StudentModel>;
@@ -49,6 +50,7 @@ describe('EditObjectModalComponent', () => {
         MatButtonModule,
       ],
       providers: [
+        provideAnimations(),
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: MAT_DIALOG_DATA, useValue: mockStudentModel },
       ],
