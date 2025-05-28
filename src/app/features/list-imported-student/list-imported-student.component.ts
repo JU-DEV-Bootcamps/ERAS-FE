@@ -20,7 +20,7 @@ import { StudentService } from '../../core/services/api/student.service';
   styleUrl: './list-imported-student.component.scss',
 })
 export class ListImportedStudentComponent implements OnInit {
-  columns: (keyof StudentModel)[] = ['id', 'name', 'uuid', 'email'];
+  columns: (keyof StudentModel)[] = ['id', 'name', 'email'];
 
   studentService = inject(StudentService);
 
