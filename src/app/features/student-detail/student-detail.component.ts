@@ -169,7 +169,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
         },
       });
   }
-
+  processedPolls = new Set<number>();
   getStudentPolls(studentId: number) {
     this.pollsService
       .getPollsByStudentId(studentId)
@@ -178,7 +178,10 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
         next: (data: PollModel[]) => {
           this.studentPolls = data;
           data.forEach(studentPoll => {
-            this.getComponentsAvg(studentId, studentPoll.id);
+            if (!this.processedPolls.has(studentPoll.id)) {
+              this.processedPolls.add(studentPoll.id);
+              this.getComponentsAvg(studentId, studentPoll.id);
+            }
           });
           if (this.studentPolls.length > 0) {
             this.selectedPoll = this.studentPolls[0].id;
