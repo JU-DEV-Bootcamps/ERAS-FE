@@ -46,4 +46,8 @@ export abstract class BaseApiService {
       params,
     });
   }
+
+  arrayAsStringParams(ids: number[] | string[]) {
+    return ids.join(',').replace(/^,+|,+$/g, '');
+  }
 }

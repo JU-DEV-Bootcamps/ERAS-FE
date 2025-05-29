@@ -160,7 +160,7 @@ export class StudentsRiskComponent implements OnInit {
   getHeatMap() {
     if (!this.selectedPoll) return;
     this.reportService
-      .getAvgPoolReport(this.selectedPoll.uuid, this.selectedCohort?.id || 0)
+      .getAvgPoolReport(this.selectedPoll.uuid, [this.selectedCohort?.id || 0])
       .subscribe(res => {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body

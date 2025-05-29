@@ -34,18 +34,18 @@ export class SummaryHeatmapComponent implements OnInit {
   public chartOptions: ApexOptions = {};
   private pollUuid = '';
   private route = inject(ActivatedRoute);
-  private cohortId = '';
+  private cohortId: number[] = [];
 
   isLoading = true;
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.cohortId = params['cohortId'] || '0';
+      this.cohortId = params['cohortId'] || [];
       this.pollUuid = params['pollUuid'] || '0';
     });
 
     this.reportService
-      .getAvgPoolReport(this.pollUuid, parseInt(this.cohortId))
+      .getAvgPoolReport(this.pollUuid, this.cohortId)
       .subscribe(res => {
         this.isLoading = false;
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
@@ -65,7 +65,7 @@ export class SummaryHeatmapComponent implements OnInit {
 
   openDetailsModal(question: PollAvgQuestion, componentName: string): void {
     const data: SelectedHMData = {
-      cohortId: this.cohortId,
+      cohortId: this.cohortId.join(','),
       pollUuid: this.pollUuid,
       componentName,
       question,

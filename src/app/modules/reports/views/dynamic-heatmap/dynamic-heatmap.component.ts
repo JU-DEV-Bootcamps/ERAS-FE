@@ -35,7 +35,7 @@ export class DynamicHeatmapComponent {
   private readonly dialog = inject(MatDialog);
   title = '';
   uuid: string | null = null;
-  cohortId: number | null = null;
+  cohorTitle: string | null = null;
   chartsOptions: ApexOptions[] = [];
   pdfService = inject(PdfService);
   heatmapService = inject(HeatMapService);
@@ -45,10 +45,10 @@ export class DynamicHeatmapComponent {
 
   constructor(private snackBar: MatSnackBar) {}
 
-  generateHeatMap(variablesIds: number[]) {
-    if (this.uuid === null || this.cohortId === null) return;
+  generateHeatMap(cohortIds: number[], variablesIds: number[]) {
+    if (this.uuid === null) return;
     this.reportService
-      .getCountPoolReport(this.uuid, this.cohortId, variablesIds)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds)
       .subscribe(data => {
         this.generateSeries(data.body);
         this.isGeneratingPDF = false;
@@ -66,7 +66,7 @@ export class DynamicHeatmapComponent {
         (_x, y) => {
           this.openDetailsModal(
             this.uuid!,
-            this.cohortId!,
+            1,
             report.components[index].questions[y],
             report.components[index].description
           );
@@ -116,13 +116,12 @@ export class DynamicHeatmapComponent {
   handleFilterSelect(filters: {
     title: string;
     uuid: string;
-    cohortId: number;
+    cohortIds: number[];
     variableIds: number[];
   }) {
     this.title = filters.title;
     this.uuid = filters.uuid;
-    this.cohortId = filters.cohortId;
-    this.generateHeatMap(filters.variableIds);
+    this.generateHeatMap(filters.cohortIds, filters.variableIds);
   }
 
   openDetailsModal(
