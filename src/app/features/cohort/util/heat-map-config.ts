@@ -105,7 +105,7 @@ export function GetChartOptions(
   return options;
 }
 
-const fixedColorRange = [
+export const fixedColorRange = [
   {
     from: -1,
     to: 0,
@@ -143,7 +143,7 @@ const fixedColorRange = [
   },
   {
     from: 4,
-    to: 10,
+    to: 14,
     color: RISK_COLORS[5], //'#FF0000',
     foreColor: RISK_TEXT_COLORS[5],
     name: RISK_LABELS[5], //'High Risk',

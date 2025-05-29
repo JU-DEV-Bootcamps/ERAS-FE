@@ -4,7 +4,7 @@ import { HeatMapData } from '../../../../core/models/heatmap-data.model';
 export const fillDefaultData = (data: HeatMapData[]) => {
   const maxSize = Math.max(...data.map(obj => obj.data.length));
 
-  const defaultSerie = { x: 'No answer', y: -1 };
+  const defaultSerie = { x: 'No answer', y: -1, z: '' };
 
   data.forEach(d => {
     while (d.data.length < maxSize) {

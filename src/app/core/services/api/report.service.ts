@@ -10,6 +10,8 @@ import {
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
 import { RiskLevel } from '../../models/common/risk.model';
+import { fixedColorRange } from '../../../features/cohort/util/heat-map-config';
+import { Serie } from '../../models/heatmap-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -142,5 +144,69 @@ export class ReportService extends BaseApiService {
 
   addAnswerSeparator(texto: string): string {
     return texto.replace(/(?!^)([A-Z])/g, ' - $1');
+  }
+
+  getColorKey(value: number) {
+    const color = fixedColorRange.find(r => value >= r.from && value < r.to);
+    return color?.color ?? '#000000';
+  }
+
+  regroupByColor(
+    serie: {
+      name: string;
+      data: Serie[];
+    }[]
+  ) {
+    const rows = [...serie];
+
+    const groupedByRow = rows.map(row => {
+      const colorGroups: Record<string, Serie[]> = {};
+
+      for (const item of row.data) {
+        const color = this.getColorKey(item.y);
+        if (!colorGroups[color]) {
+          colorGroups[color] = [];
+        }
+        colorGroups[color].push(item);
+      }
+
+      return {
+        name: row.name,
+        colorGroups,
+      };
+    });
+
+    const colorList = fixedColorRange.map(r => r.color);
+    const maxByColor: Record<string, number> = {};
+
+    for (const color of colorList) {
+      maxByColor[color] = Math.max(
+        ...groupedByRow.map(row => row.colorGroups[color]?.length || 0)
+      );
+    }
+
+    const finalRows = groupedByRow.map(row => {
+      const newData: Serie[] = [];
+
+      for (const color of colorList) {
+        const items = row.colorGroups[color] ?? [];
+        const missing = maxByColor[color] - items.length;
+
+        const fillers = Array(missing)
+          .fill(null)
+          .map(() => ({
+            x: '',
+            y: -1,
+            z: '',
+          }));
+
+        newData.push(...items, ...fillers);
+      }
+      return {
+        name: row.name,
+        data: newData,
+      };
+    });
+    return finalRows;
   }
 }

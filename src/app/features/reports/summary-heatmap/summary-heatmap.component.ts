@@ -51,9 +51,10 @@ export class SummaryHeatmapComponent implements OnInit {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
+        const serie = this.reportService.regroupByColor(reportSeries);
         this.chartOptions = GetChartOptions(
           `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
-          reportSeries,
+          serie,
           (x, y) => {
             const compReport = res.body.components[y];
             const selectedQuestion = compReport.questions[x];
