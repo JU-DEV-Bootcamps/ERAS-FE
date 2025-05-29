@@ -6,7 +6,6 @@ import {
   inject,
   Input,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -52,7 +51,7 @@ interface SwiperEventTarget extends EventTarget {
   styleUrl: './student-detail.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class StudentDetailComponent implements OnInit, OnDestroy {
+export class StudentDetailComponent implements OnDestroy {
   @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
   private readonly exportPrintService = inject(PdfService);
   studentDetails: StudentResponse = {
@@ -135,10 +134,6 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   };
 
   private destroy$ = new Subject<void>();
-
-  ngOnInit(): void {
-    this.getStudentDetails(this.studentId);
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

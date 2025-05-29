@@ -46,10 +46,4 @@ describe('StudentDetailComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should call getStudentDetails on init', () => {
-    const spy = spyOn(component, 'getStudentDetails');
-    component.ngOnInit();
-    expect(spy).toHaveBeenCalled();
-  });
 });
