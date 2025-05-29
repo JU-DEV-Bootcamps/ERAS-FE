@@ -1,4 +1,4 @@
-name: Test - Package FE 
+name: RW - Test - Package FE 
 
 on:
   workflow_call:
@@ -45,10 +45,10 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch name'
+        description: 'Environment'
         required: true
         default: 'develop'
-        type: branch
+        type: environment
 jobs:
   test:
     runs-on: ubuntu-latest
