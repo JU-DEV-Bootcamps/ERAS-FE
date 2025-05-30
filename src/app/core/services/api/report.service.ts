@@ -51,10 +51,7 @@ export class ReportService extends BaseApiService {
       this.arrayAsStringParams(variableIds)
     );
     if (cohortIds != null)
-      params = params.set(
-        'cohortIds',
-        cohortIds.join(',').replace(/^,+|,+$/g, '')
-      );
+      params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
     return this.get<GetQueryResponse<PollCountReport>>(
       `polls/${pollInstanceUuid}/count`,
       params
