@@ -9,18 +9,17 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import {
-  CohortsSummaryModel,
+  CountSummaryModel,
   EvaluationModel,
 } from '../../core/models/summary.model';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentRisklevelTableComponent } from '../../shared/components/student-risklevel-table/student-risklevel-table.component';
 import { PollModel } from '../../core/models/poll.model';
-import { CohortService } from '../../core/services/api/cohort.service';
 import { EvaluationsService } from '../../core/services/api/evaluations.service';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import {
   arrayToApexChartSeries,
   FormatOptions,
@@ -52,22 +51,19 @@ interface SwiperEventTarget extends EventTarget {
     EmptyDataComponent,
     BarChartComponent,
     MatProgressSpinnerModule,
+    JsonPipe,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HomeComponent implements OnInit {
-  cohortsList: string[] = [];
-  cohortsSummary: CohortsSummaryModel | undefined;
   summaryReqError: string | undefined;
-
+  count: CountSummaryModel | undefined;
   evalProcSummary: EvaluationModel[] | undefined;
   lastEvalProc: EvaluationModel | undefined;
   idxChosenEval = 0;
   mainEPPoll: PollModel | undefined;
-  riskStudentCount = 0;
-  riskPollAverage = 0;
   selectedPollUuid = '';
   riskLevels = {
     risks: [] as number[],
@@ -78,7 +74,6 @@ export class HomeComponent implements OnInit {
   isLoadingPollInstances = true;
 
   router = inject(Router);
-  cohortsService = inject(CohortService);
   evalService = inject(EvaluationsService);
   clService = inject(CosmicLatteService);
   reportService = inject(ReportService);
@@ -95,38 +90,15 @@ export class HomeComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.healthCheck();
+    this.loadCount();
     this.loadEvalProcSummary();
-    this.loadCohortsSummary();
     this.loadAvgPoll();
   }
 
-  loadCohortsSummary() {
-    this.cohortsService.getCohortsSummary().subscribe({
-      next: summary => {
-        this.cohortsSummary = summary;
-        this.cohortsList = summary.summary.map(cohort => cohort.cohortName);
-        this.riskStudentsDetail = summary.summary
-          .sort((a, b) => b.pollinstancesAverage - a.pollinstancesAverage)
-          .map(csummary => {
-            return {
-              studentId: csummary.studentUuid,
-              studentName: csummary.studentName,
-              riskLevel: csummary.pollinstancesAverage,
-            };
-          });
-        this.riskStudentCount = this.riskStudentsDetail.filter(
-          s => s.riskLevel >= 3
-        ).length;
-        this.riskPollAverage =
-          this.riskStudentsDetail.reduce(
-            (acc, curr) => acc + curr.riskLevel,
-            0
-          ) / this.riskStudentsDetail.length;
-      },
-      error: error => {
-        this.summaryReqError = error;
-      },
-    });
+  loadCount() {
+    this.reportService
+      .getCountSummary()
+      .subscribe(res => (this.count = res.body));
   }
 
   loadAvgPoll() {

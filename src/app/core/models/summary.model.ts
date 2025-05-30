@@ -3,6 +3,16 @@ import { PollModel } from './poll.model';
 import { PollInstanceModel } from './poll-instance.model';
 import { BaseModel } from './common/base.model';
 
+export const ENTITY_NAMES = [
+  'Students',
+  'Cohorts',
+  'Evaluations',
+  'Polls',
+  'PollInstances',
+] as const;
+export type EntityName = (typeof ENTITY_NAMES)[number];
+export type CountSummaryModel = Record<EntityName, number>;
+
 export interface CohortsSummaryModel {
   cohortCount: number;
   studentCount: number;

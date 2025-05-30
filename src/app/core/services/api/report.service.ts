@@ -2,6 +2,7 @@ import { HttpParams } from '@angular/common/http';
 import { BaseApiService } from './base-api.service';
 import { ApiResponse } from '../../models/api-response.model';
 import {
+  CountSummaryModel,
   GetQueryResponse,
   PollAvgReport,
   PollCountComponent,
@@ -18,7 +19,9 @@ import { Serie } from '../../models/heatmap-data.model';
 })
 export class ReportService extends BaseApiService {
   protected resource = 'reports';
-
+  getCountSummary() {
+    return this.get<ApiResponse<CountSummaryModel>>('count');
+  }
   getTopPollReport(variableIds: number[], pollUuiD: string, take?: number) {
     let params = new HttpParams().set(
       'variableIds',

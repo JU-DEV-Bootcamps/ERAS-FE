@@ -8,57 +8,24 @@
     <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>group</mat-icon>
       <mat-card-title>Students</mat-card-title>
-      <mat-card-footer>{{
-        cohortsSummary?.studentCount || '?'
-      }}</mat-card-footer>
+      <mat-card-footer>{{ count?.Students || 0 }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="reports/polls-answered">
       <mat-icon>file_copy</mat-icon>
       <mat-card-title>Polls Answered</mat-card-title>
-      <mat-card-footer>{{
-        cohortsSummary?.studentCount || '?'
-      }}</mat-card-footer>
+      <mat-card-footer>{{ count?.PollInstances || 0 }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/evaluation-process">
       <mat-icon>insert_chart</mat-icon>
       <mat-card-title>Evaluations</mat-card-title>
-      <mat-card-footer>{{ evalProcSummary?.length }}</mat-card-footer>
+      <mat-card-footer>{{ count?.Evaluations }}</mat-card-footer>
     </mat-card>
   </div>
 
   <h2 class="page-subtitle">Evaluation Processes</h2>
   @if (evalProcSummary && evalProcSummary.length > 0) {
     <div #mainContainer>
-      <div class="student-header">
-        <div class="student-info">
-          <h2 class="page-title">{{ evalProcSummary[idxChosenEval].name }}</h2>
-          <h4 class="page-subtitle">
-            Status: {{ evalProcSummary[idxChosenEval].status }}
-          </h4>
-          <h4 class="page-ssid">
-            ID: {{ evalProcSummary[idxChosenEval].evaluationPollId }}
-          </h4>
-        </div>
-      </div>
-
       <div class="container">
-        <mat-card class="card-details">
-          <h3 class="title">Student Details</h3>
-          <p>
-            Name:
-            {{ evalProcSummary[idxChosenEval].name }}
-          </p>
-          <p>
-            Poll name:
-            {{ evalProcSummary[idxChosenEval].name }}
-          </p>
-          <p>
-            Date:
-            {{ evalProcSummary[idxChosenEval].startDate | date }} to
-            {{ evalProcSummary[idxChosenEval].endDate | date }}
-          </p>
-          <p>Status: {{ evalProcSummary[idxChosenEval].status }}</p>
-        </mat-card>
         <section class="main" id="chart-student-detail">
           <swiper-container
             id="swiper-container"
@@ -69,9 +36,33 @@
           >
             @for (evaluation of evalProcSummary; track $index) {
               <swiper-slide>
-                <h3 class="title">Last evaluations</h3>
+                <div>
+                  <mat-icon class="swipe-icon">swipe</mat-icon>
+                  <h2 class="title">
+                    Evaluation: {{ evalProcSummary[idxChosenEval].name }}
+                  </h2>
+                  <p>Status: {{ evalProcSummary[idxChosenEval].status }}</p>
+                  <p>
+                    ID: {{ evalProcSummary[idxChosenEval].evaluationPollId }}
+                  </p>
+                  <p>
+                    Polls answered:
+                    {{ evalProcSummary[idxChosenEval].pollInstances.length }}
+                  </p>
+                  <p>
+                    Poll name:
+                    {{ evalProcSummary[idxChosenEval].pollName }}
+                  </p>
+                  <p>
+                    Timeline:
+                    {{ evalProcSummary[idxChosenEval].startDate | date }} to
+                    {{ evalProcSummary[idxChosenEval].endDate | date }}
+                  </p>
+                </div>
+
+                <h3 class="title">Poll {{ evaluation.polls | json }}</h3>
                 <p class="date-risk-by-components">
-                  Poll Name: {{ evaluation.name }}
+                  Poll Name: {{ evaluation.pollInstances | json }}
                 </p>
                 <p class="date-risk-by-components">
                   Status: {{ evaluation.status }}
