@@ -48,7 +48,37 @@ on:
         description: 'Environment'
         required: true
         default: 'develop'
-        type: environment
+        type: string
+      api_url:
+        description: 'ERAS API url'
+        default: 'https://ec2-18-219-214-67.us-east-2.compute.amazonaws.com:5001'
+        required: true
+        type: string
+      keycloak_url:
+        description: 'Jala logion API url'
+        default: 'https://dev.login.jala-one.com/auth'
+        required: true
+        type: string
+      client_id:
+        description: 'client id'
+        default: 'eras'
+        required: true
+        type: string
+      web_url:
+        description: 'ERAS web app'
+        default: 'https://ec2-18-219-214-67.us-east-2.compute.amazonaws.com'
+        required: true
+        type: string
+      dockerhub_username:
+        description: 'ERAS dockerhub account username'
+        default: 'erasadmin'
+        required: true
+        type: string
+      environment_tag:
+        description: 'ERAS environment tag'
+        default: 'dev'
+        required: true
+        type: string
 jobs:
   test:
     runs-on: ubuntu-latest
