@@ -13,8 +13,9 @@ import { CohortService } from '../../../../core/services/api/cohort.service';
 import { PollModel } from '../../../../core/models/poll.model';
 import { CohortModel } from '../../../../core/models/cohort.model';
 import { VariableModel } from '../../../../core/models/variable.model';
-import { debounceTime } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { SelectAllDirective } from '../../../../shared/directives/select-all.directive';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-poll-filters',
@@ -24,6 +25,8 @@ import { CommonModule } from '@angular/common';
     MatSelectModule,
     MatIconModule,
     CommonModule,
+    SelectAllDirective,
+    MatProgressSpinner,
   ],
   templateUrl: './poll-filters.component.html',
   styleUrl: './poll-filters.component.css',
@@ -33,52 +36,51 @@ export class PollFiltersComponent implements OnInit {
 
   pollsService = inject(PollService);
   cohortsService = inject(CohortService);
-  polls: PollModel[] = [];
+  polls: PollModel[] | null = [];
   cohorts: CohortModel[] = [];
   componentNames: string[] = [];
   variables: VariableModel[] = [];
+  variableGroups: VariableModel[][] = [];
 
   filters = output<{
     title: string;
     uuid: string;
-    cohortId: number;
+    cohortIds: number[];
     variableIds: number[];
   }>();
 
   filterForm = new FormGroup({
     pollUuid: new FormControl<string | null>(null, [Validators.required]),
-    cohortId: new FormControl<number | null>(null, [Validators.required]),
-    components: new FormControl<string[] | null>([], [Validators.required]),
-    variables: new FormControl<number[]>([], [Validators.required]),
+    cohortIds: new FormControl<number[] | null>(null, [Validators.required]),
+    componentNames: new FormControl<string[] | null>(null, [
+      Validators.required,
+    ]),
+    variables: new FormControl<number[] | null>(null, [Validators.required]),
   });
 
-  selectAllCohort: CohortModel = {
-    id: 0,
-    name: 'Select All',
-    courseCode: 'Select All',
-  };
-
   ngOnInit(): void {
-    this.pollsService.getAllPolls().subscribe(res => (this.polls = res));
-    this.cohortsService
-      .getCohorts()
-      .subscribe(
-        res =>
-          (this.cohorts = this.showVariables
-            ? [this.selectAllCohort, ...res.body]
-            : [...res.body])
-      );
-
-    this.filterForm.controls.cohortId.valueChanges.subscribe(() => {
-      this.handleCohortSelect();
+    this.pollsService.getAllPolls().subscribe({
+      next: res => (this.polls = res),
+      error: () => (this.polls = null),
     });
-    this.filterForm.controls.components.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe(() => this.handleUpdateComponents());
+    this.filterForm.controls.pollUuid.valueChanges.subscribe(() => {
+      this.cohortsService
+        .getCohorts(this.filterForm.value.pollUuid)
+        .subscribe(res => {
+          this.cohorts = res.body;
+          this.filterForm.controls.cohortIds.setValue(
+            this.cohorts.map(c => c.id)
+          );
+          this.handleCohortSelect(false);
+        });
+    });
   }
 
-  handleCohortSelect() {
+  handleCohortSelect(isOpen: boolean) {
+    console.info('handleCohortSelect', this.filterForm.value.cohortIds);
+    if (isOpen) return;
     if (!this.filterForm.value.pollUuid) return;
+    if (this.filterForm.value.cohortIds?.length === 0) return;
     this.pollsService
       .getVariablesByComponents(this.filterForm.value.pollUuid, [
         ...this.componentNames,
@@ -86,7 +88,10 @@ export class PollFiltersComponent implements OnInit {
       .subscribe(variables => {
         this.variables = variables;
         this.componentNames = [...new Set(variables.map(v => v.componentName))];
-        this.filterForm.controls.components.setValue(this.componentNames);
+        this.variableGroups = this.componentNames.map(c =>
+          variables.filter(v => v.componentName === c)
+        );
+        this.filterForm.controls.componentNames.setValue(this.componentNames);
         this.filterForm.controls.variables.setValue(
           this.variables.map(v => v.id)
         );
@@ -94,41 +99,41 @@ export class PollFiltersComponent implements OnInit {
       });
   }
 
-  handleUpdateComponents() {
+  handleUpdateComponents(isOpen: boolean) {
+    if (isOpen) return;
     if (
-      !this.filterForm.value.pollUuid ||
-      this.filterForm.value.cohortId === null
+      this.filterForm.value.pollUuid === null ||
+      this.filterForm.value.cohortIds?.length === 0
     )
       return;
-    if (this.filterForm.value.components!.length === 0) {
-      this.filterForm.controls.variables.setValue([]);
+    if (this.filterForm.value.componentNames!.length === 0) {
+      this.variableGroups = [];
       return;
     }
+    this.variableGroups =
+      this.filterForm.value.componentNames?.map(c =>
+        this.variables.filter(v => v.componentName === c)
+      ) || [];
     this.filterForm.controls.variables.setValue(
-      this.variables
-        .filter(v =>
-          this.filterForm.value.components?.includes(v.componentName)
-        )
-        .map(v => v.id)
+      this.variableGroups.flat().map(v => v.id)
     );
+    this.sendFilters();
   }
 
-  onOpenedChange(isOpen: boolean) {
+  handleVariableSelect(isOpen: boolean) {
     if (!isOpen) this.sendFilters();
   }
   sendFilters() {
-    const pollName = this.polls.find(
+    if (!this.polls) return;
+    const poll = this.polls.find(
       p => p.uuid === this.filterForm.value.pollUuid
-    )?.name;
-    const cohortName =
-      this.filterForm.value.cohortId === 0
-        ? 'All cohorts'
-        : this.cohorts.find(c => c.id === this.filterForm.value.cohortId)?.name;
-    const title = `Poll: ${pollName} - Cohort: ${cohortName}`;
+    );
+    const cohorts = this.filterForm.value.cohortIds || [];
+    const title = `Poll: ${poll?.name} V${poll?.lastVersion} - Cohort(s): ${cohorts.map(cohortId => this.cohorts.find(c => c.id == cohortId)?.name)}`;
     const uuid = this.filterForm.value.pollUuid;
-    const cohortId = this.filterForm.value.cohortId;
+    const cohortIds = this.filterForm.value.cohortIds;
     const variableIds = this.filterForm.value.variables;
-    if (!uuid || cohortId == null || !variableIds) return;
-    this.filters.emit({ title, uuid, cohortId, variableIds });
+    if (!uuid || !cohortIds || !variableIds) return;
+    this.filters.emit({ title, uuid, cohortIds, variableIds });
   }
 }

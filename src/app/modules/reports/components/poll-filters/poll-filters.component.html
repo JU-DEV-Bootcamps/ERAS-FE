@@ -1,23 +1,43 @@
 <form [formGroup]="filterForm">
+  @if (polls?.length === 0) {
+    <mat-spinner></mat-spinner>
+  } @else if (polls === null) {
+    <p class="error-message">
+      There was an error looking for polls. Please contact support
+    </p>
+  }
   <div class="form-container">
-    <mat-form-field appearance="fill">
-      <mat-label for="sl-poll">Poll</mat-label>
-      <mat-select id="sl-poll" formControlName="pollUuid">
-        @for (poll of polls; track $index) {
-          <mat-option [value]="poll.uuid">
-            {{ poll.name }} - V{{ poll.lastVersion }} -
-            {{ poll.lastVersionDate | date: 'mediumDate' }}
-          </mat-option>
+    @if (polls !== null && polls.length > 0) {
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-poll">Poll</mat-label>
+        <mat-select id="sl-poll" formControlName="pollUuid">
+          @for (poll of polls; track $index) {
+            <mat-option class="versioned-option" [value]="poll.uuid">
+              <p>{{ poll.name }}</p>
+              <p class="version">
+                V{{ poll.lastVersion }}-{{
+                  poll.lastVersionDate | date: 'shortDate'
+                }}
+              </p>
+            </mat-option>
+          }
+        </mat-select>
+        @if (filterForm.get('pollUuid')?.errors) {
+          <mat-error>This field is required</mat-error>
         }
-      </mat-select>
-      @if (filterForm.get('pollUuid')?.errors) {
-        <mat-error>This field is required</mat-error>
-      }
-    </mat-form-field>
+      </mat-form-field>
+    }
     @if (filterForm.value.pollUuid) {
       <mat-form-field appearance="fill">
-        <mat-label for="sl-component">Cohort</mat-label>
-        <mat-select required id="sl-component" formControlName="cohortId">
+        <mat-label for="sl-cohort">Cohort</mat-label>
+        <mat-select
+          required
+          id="sl-cohort"
+          multiple
+          formControlName="cohortIds"
+          (openedChange)="handleCohortSelect($event)"
+        >
+          <mat-option appSelectAll [allValues]="cohorts">Select all</mat-option>
           @for (cohort of cohorts; track $index) {
             <mat-option [value]="cohort.id">
               {{ cohort.name }}
@@ -29,31 +49,58 @@
         }
       </mat-form-field>
     }
-    @if (filterForm.value.cohortId !== null && showVariables) {
+    @if (
+      filterForm.value.cohortIds &&
+      filterForm.value.cohortIds.length &&
+      showVariables
+    ) {
       <mat-form-field appearance="fill">
-        <mat-label for="component">Component</mat-label>
+        <mat-label for="sl-component">Components</mat-label>
         <mat-select
-          id="component"
-          formControlName="components"
+          required
+          id="sl-components"
           multiple
-          (openedChange)="onOpenedChange($event)"
+          (openedChange)="handleUpdateComponents($event)"
+          formControlName="componentNames"
         >
+          <mat-option appSelectAll [allValues]="componentNames"
+            >Select all</mat-option
+          >
           @for (component of componentNames; track $index) {
-            <mat-option [value]="component">{{ component }}</mat-option>
+            <mat-option [value]="component">
+              {{ component }}
+            </mat-option>
           }
         </mat-select>
+        @if (filterForm.get('componentNames')?.errors) {
+          <mat-error>This field is required</mat-error>
+        }
       </mat-form-field>
-
+    }
+    @if (
+      filterForm.value.cohortIds &&
+      filterForm.value.cohortIds.length > 0 &&
+      showVariables
+    ) {
       <mat-form-field appearance="fill">
-        <mat-label for="question">Questions</mat-label>
+        <mat-label for="variables">Variables</mat-label>
         <mat-select
-          id="variables"
+          id="sl-variables"
           formControlName="variables"
           multiple
-          (openedChange)="onOpenedChange($event)"
+          (openedChange)="handleVariableSelect($event)"
         >
-          @for (variable of variables; track $index) {
-            <mat-option [value]="variable.id">{{ variable.name }}</mat-option>
+          <mat-option appSelectAll [allValues]="variables"
+            >Select all</mat-option
+          >
+          @for (group of variableGroups; track group) {
+            <mat-optgroup [label]="group[0].componentName | uppercase">
+              @for (variable of group; track variable) {
+                <mat-option class="group-option" [value]="variable.id">{{
+                  variable.name
+                }}</mat-option>
+              }
+            </mat-optgroup>
           }
         </mat-select>
       </mat-form-field>

@@ -20,7 +20,10 @@ export class ReportService extends BaseApiService {
   protected resource = 'reports';
 
   getTopPollReport(variableIds: number[], pollUuiD: string, take?: number) {
-    let params = new HttpParams().set('variableIds', variableIds.join(','));
+    let params = new HttpParams().set(
+      'variableIds',
+      this.arrayAsStringParams(variableIds)
+    );
     if (take !== undefined && take !== null) {
       params = params.set('take', take);
     }
@@ -30,9 +33,10 @@ export class ReportService extends BaseApiService {
     );
   }
 
-  getAvgPoolReport(pollInstanceUUID: string, cohortId: number | null) {
+  getAvgPoolReport(pollInstanceUUID: string, cohortIds: number[]) {
     let params = new HttpParams();
-    if (cohortId != null) params = params.set('cohortId', cohortId);
+    if (cohortIds.length > 0)
+      params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
     return this.get<GetQueryResponse<PollAvgReport>>(
       `polls/${pollInstanceUUID}/avg`,
       params
@@ -41,11 +45,15 @@ export class ReportService extends BaseApiService {
 
   getCountPoolReport(
     pollInstanceUuid: string,
-    cohortId: number | null,
+    cohortIds: number[] | null,
     variableIds: number[]
   ) {
-    let params = new HttpParams().set('variableIds', variableIds.join(','));
-    if (cohortId != null) params = params.set('cohortId', cohortId);
+    let params = new HttpParams().set(
+      'variableIds',
+      this.arrayAsStringParams(variableIds)
+    );
+    if (cohortIds != null)
+      params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
     return this.get<GetQueryResponse<PollCountReport>>(
       `polls/${pollInstanceUuid}/count`,
       params
@@ -63,7 +71,7 @@ export class ReportService extends BaseApiService {
             z: question.answersDetails
               .map(
                 ans =>
-                  `${ans.answerPercentage}% = ${this.addAnswerSeparator(ans.answerText)}: ${ans.studentsEmails.join(', ')}`
+                  `${ans.answerPercentage}% = ${this.addAnswerSeparator(ans.answerText)}: ${this.arrayAsStringParams(ans.studentsEmails)}`
               )
               .join('; </br>'),
           };
@@ -142,8 +150,8 @@ export class ReportService extends BaseApiService {
     };
   }
 
-  addAnswerSeparator(texto: string): string {
-    return texto.replace(/(?!^)([A-Z])/g, ' - $1');
+  addAnswerSeparator(text: string): string {
+    return text.replace(/(?!^)([A-Z])/g, ' - $1');
   }
 
   getColorKey(value: number) {

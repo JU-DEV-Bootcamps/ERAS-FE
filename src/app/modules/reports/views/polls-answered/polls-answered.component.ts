@@ -98,7 +98,7 @@ export class PollsAnsweredComponent implements OnInit {
     },
   ];
   polls: PollModel[] = [];
-  selectedCohortId = 0;
+  selectedCohortIds: number[] = [];
   selectedPollUuid = '';
 
   pageSize = 10;
@@ -140,10 +140,10 @@ export class PollsAnsweredComponent implements OnInit {
     });
   }
 
-  loadPollInstances(cohortId: number): void {
+  loadPollInstances(cohortIds: number[]): void {
     this.loading = true;
     this.pollInstanceService
-      .getPollInstancesByFilters(cohortId, 400)
+      .getPollInstancesByFilters(cohortIds, 400)
       .subscribe(data => {
         this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
@@ -160,7 +160,7 @@ export class PollsAnsweredComponent implements OnInit {
     const url = this.router
       .createUrlTree(['/heatmap-summary'], {
         queryParams: {
-          cohortId: this.selectedCohortId,
+          cohortId: this.selectedCohortIds,
           pollUuid: this.selectedPollUuid,
         },
       })
@@ -186,13 +186,13 @@ export class PollsAnsweredComponent implements OnInit {
   handleFilterSelect(filters: {
     title: string;
     uuid: string;
-    cohortId: number;
+    cohortIds: number[];
     variableIds: number[];
   }) {
     this.selectedPollUuid = filters.uuid;
-    this.selectedCohortId = filters.cohortId;
+    this.selectedCohortIds = filters.cohortIds;
     this.loading = true;
-    this.loadPollInstances(this.selectedCohortId);
+    this.loadPollInstances(this.selectedCohortIds);
   }
 
   getWidth(column: string): string {
