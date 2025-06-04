@@ -26,14 +26,6 @@ mat-icon {
   font-family: 'Material Icons', sans-serif;
 }
 
-button[mat-fab],
-button[mat-flat-button] {
-  background-color: var(
-    --mdc-filled-text-field-container-color,
-    var(--mat-sys-surface-variant)
-  );
-}
-
 // Select backgroud color
 .cdk-overlay-pane {
   background-color: white !important;
