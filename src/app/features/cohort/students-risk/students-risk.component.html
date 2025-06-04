@@ -1,5 +1,5 @@
 <h1 class="page-title">Summary Heatmap</h1>
-<form [formGroup]="selectForm">
+<form [formGroup]="filterForm">
   <div class="form-container">
     <mat-form-field appearance="fill">
       <mat-label for="sl-poll">Poll</mat-label>
@@ -10,22 +10,28 @@
           </mat-option>
         }
       </mat-select>
-      @if (selectForm.get('pollId')?.errors) {
+      @if (filterForm.get('pollId')?.errors) {
         <mat-error>This field is required</mat-error>
       }
     </mat-form-field>
     @if (selectedPoll) {
       <mat-form-field appearance="fill">
         <mat-label for="sl-component">Cohort</mat-label>
-        <mat-select required id="sl-component" formControlName="cohortId">
+        <mat-select
+          required
+          id="sl-component"
+          multiple
+          formControlName="cohortIds"
+          (openedChange)="handleCohortSelect($event)"
+        >
+          <mat-option appSelectAll [allValues]="cohorts">Select all</mat-option>
           @for (cohort of cohorts; track $index) {
             <mat-option [value]="cohort.id">
               {{ cohort.name }}
             </mat-option>
           }
-          <mat-option [value]="0"> Select All (Not available yet) </mat-option>
         </mat-select>
-        @if (selectForm.get('cohortId')?.errors) {
+        @if (filterForm.get('cohortIds')?.errors) {
           <mat-error>This field is required</mat-error>
         }
       </mat-form-field>
@@ -33,7 +39,7 @@
   </div>
 </form>
 
-@defer (when load) {
+@defer (when isLoading) {
   <ng-container>
     <div class="action-section">
       <button mat-icon-button matTooltip="Download pdf" (click)="downloadPDF()">

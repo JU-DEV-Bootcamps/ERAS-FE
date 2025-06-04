@@ -19,7 +19,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
 import { CohortModel } from '../../../core/models/cohort.model';
 import { PdfService } from '../../../core/services/exports/pdf.service';
 import { generateFileName } from '../../../core/utilities/file/file-name';
@@ -39,6 +38,7 @@ import { PollService } from '../../../core/services/api/poll.service';
 import { ReportService } from '../../../core/services/api/report.service';
 import { ListComponent } from '../../../shared/components/list/list.component';
 import { Column } from '../../../shared/components/list/types/column';
+import { SelectAllDirective } from '../../../shared/directives/select-all.directive';
 
 @Component({
   selector: 'app-students-risk',
@@ -52,6 +52,7 @@ import { Column } from '../../../shared/components/list/types/column';
     MatTooltipModule,
     NgApexchartsModule,
     EmptyDataComponent,
+    SelectAllDirective,
     ListComponent,
   ],
   templateUrl: './students-risk.component.html',
@@ -59,7 +60,7 @@ import { Column } from '../../../shared/components/list/types/column';
 })
 export class StudentsRiskComponent implements OnInit {
   studentService = inject(StudentService);
-  cohortService = inject(CohortService);
+  cohortsService = inject(CohortService);
   pollsService = inject(PollService);
   pdfService = inject(PdfService);
   reportService = inject(ReportService);
@@ -68,11 +69,6 @@ export class StudentsRiskComponent implements OnInit {
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
   chartOptions: ApexOptions = {};
-
-  selectForm = new FormGroup({
-    cohortId: new FormControl<number | null>(null, [Validators.required]),
-    pollId: new FormControl<number | null>(null, [Validators.required]),
-  });
 
   columns: Column<StudentRiskAverage>[] = [
     {
@@ -100,67 +96,74 @@ export class StudentsRiskComponent implements OnInit {
   students: StudentRiskAverage[] = [];
   totalStudents = 0;
 
-  load = false;
+  isLoading = false;
+
+  filterForm = new FormGroup({
+    pollId: new FormControl<number>(-1, [Validators.required]),
+    cohortIds: new FormControl<number[]>([], [Validators.required]),
+  });
 
   ngOnInit() {
-    this.getPolls();
-    this.selectForm.controls['pollId'].valueChanges.subscribe(value => {
-      if (value) {
-        this.selectedPoll = this.polls.find(p => p.id == value);
-        this.getCohortsByPoll(value);
-      }
+    this.pollsService.getAllPolls().subscribe({
+      next: res => (this.polls = res),
+      error: () => (this.polls = []),
     });
-
-    this.selectForm.valueChanges.subscribe(value => {
-      if (value.cohortId !== null && value.pollId) {
-        this.selectedCohort = this.cohorts.find(c => c.id == value);
-        this.getStudentsByCohortAndPoll();
-        this.getHeatMap();
+    this.filterForm.controls.pollId.valueChanges.subscribe(value => {
+      if (value) {
+        this.cohortsService.getCohortsByPollId(value).subscribe(res => {
+          this.cohorts = res.body;
+          this.filterForm.controls.cohortIds.setValue(
+            this.cohorts.map(c => c.id)
+          );
+          this.handleCohortSelect(false);
+        });
+        this.selectedPoll = this.polls.find(p => p.id == value);
       }
     });
   }
 
+  handleCohortSelect(isOpen: boolean) {
+    if (isOpen) return;
+    if (!this.filterForm.value.pollId) return;
+    if (this.filterForm.value.cohortIds?.length === 0) return;
+    this.getStudentsByCohortAndPoll();
+    this.getHeatMap();
+  }
+
   getStudentsByCohortAndPoll() {
-    if (this.selectForm.invalid) {
+    if (this.filterForm.invalid) {
       return;
     }
-    if (this.selectForm.value.cohortId && this.selectForm.value.pollId) {
-      this.load = false;
+    if (this.filterForm.value.cohortIds && this.filterForm.value.pollId) {
+      this.isLoading = false;
       this.studentService
-        .getAllAverageByCohortAndPoll(
-          this.selectForm.value.cohortId,
-          this.selectForm.value.pollId
+        .getAllAverageByCohortsAndPollId(
+          this.filterForm.value.cohortIds,
+          this.filterForm.value.pollId
         )
         .subscribe(res => {
           this.students = res;
           this.totalStudents = res.length;
-          this.load = true;
+          this.isLoading = true;
         });
     }
   }
 
-  getPolls() {
-    this.pollsService.getAllPolls().subscribe(data => {
-      this.polls = data;
-    });
-  }
-
   getCohortsByPoll(id: number) {
-    this.cohortService.getCohorts().subscribe(data => {
-      console.warn('API Call needs to filter by poll Id:', id);
+    this.cohortsService.getCohortsByPollId(id).subscribe(data => {
       this.cohorts = data.body;
     });
   }
 
-  getColorRisk(riskLevel: number) {
-    const option = Math.floor(riskLevel) as RiskColorType;
-    return RISK_COLORS[option] || RISK_COLORS.default;
-  }
-
   getHeatMap() {
     if (!this.selectedPoll) return;
+    if (this.filterForm.invalid) return;
+
     this.reportService
-      .getAvgPoolReport(this.selectedPoll.uuid, [this.selectedCohort?.id || 0])
+      .getAvgPoolReport(
+        this.selectedPoll.uuid,
+        this.filterForm.value.cohortIds!
+      )
       .subscribe(res => {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
@@ -168,7 +171,7 @@ export class StudentsRiskComponent implements OnInit {
         const series = this.reportService.regroupByColor(reportSeries);
 
         this.chartOptions = GetChartOptions(
-          `Risk Heatmap - ${this.selectedPoll?.name}-${this.selectedCohort?.name || 'All Cohorts'}`,
+          `Risk Heatmap - ${this.selectedPoll?.name}-${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
           series,
           (x, y) => {
             const compReport = res.body.components[y];
@@ -197,7 +200,7 @@ export class StudentsRiskComponent implements OnInit {
     if (!this.selectedPoll) return;
     const data: SelectedHMData = {
       cohortId: this.selectedCohort?.id.toString() || '0',
-      pollUuid: this.selectedPoll?.uuid,
+      pollUuid: this.selectedPoll?.id.toString(),
       componentName,
       question,
     };

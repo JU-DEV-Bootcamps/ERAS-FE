@@ -26,12 +26,21 @@ export class StudentService extends BaseApiService {
     return this.get<StudentModel[]>('');
   }
 
-  getAllAverageByCohortAndPoll(cohortId: number, pollId: number) {
+  getAllAverageByCohortsAndPoll(cohortIds: number[], pollUuid: string) {
     const params = new HttpParams()
-      .set('cohortId', cohortId)
-      .set('pollId', pollId);
+      .set('cohortIds', cohortIds.join(','))
+      .set('pollUuid', pollUuid);
+    // Is this endpoint being used? On BE there's a students/avg
     return this.get<StudentRiskAverage[]>('average', params);
   }
+
+  getAllAverageByCohortsAndPollId(cohortIds: number[], pollId: number) {
+    const params = new HttpParams()
+      .set('cohortIds', cohortIds.join(','))
+      .set('pollId', pollId);
+    return this.get<StudentRiskAverage[]>('average/poll', params);
+  }
+
   postData(data: StudentImport[]): Observable<ServerResponse> {
     return this.post('', data);
   }
