@@ -10,14 +10,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { GENERAL_MESSAGES } from '../../../../../core/constants/messages';
-import { PagedReadEvaluationProcess } from '../../../../../core/models/evaluation-request.model';
-import { EvaluationModel } from '../../../../../core/models/evaluation.model';
-import { ModalComponent } from '../../../../../shared/components/modal-dialog/modal-dialog.component';
-import { EvaluationProcessFormComponent } from '../evaluation-process-form/evaluation-process-form.component';
-import { EmptyDataComponent } from '../../../../../shared/components/empty-data/empty-data.component';
-import { EvaluationsService } from '../../../../../core/services/api/evaluations.service';
-import { Status } from '../../../../../core/constants/common';
+import { GENERAL_MESSAGES } from '../../../../core/constants/messages';
+import { PagedReadEvaluationProcess } from '../../../../core/models/evaluation-request.model';
+import { EvaluationModel } from '../../../../core/models/evaluation.model';
+import { ModalComponent } from '../../../../shared/components/modal-dialog/modal-dialog.component';
+import { EvaluationProcessFormComponent } from '../../components/evaluation-process-form/evaluation-process-form.component';
+import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
+import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
+import { Status } from '../../../../core/constants/common';
+import { getStatusForEvaluationProcess } from '../../utils/evaluations.util';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -219,30 +220,9 @@ export class EvaluationProcessListComponent implements OnInit {
   }
   transformStatus(data: EvaluationModel[]): EvaluationModel[] {
     data.forEach((evaluation: EvaluationModel) => {
-      evaluation.status = this.getStatusForEvaluationProcess(evaluation);
+      evaluation.status = getStatusForEvaluationProcess(evaluation);
     });
     return data;
-  }
-  getStatusForEvaluationProcess(evaluation: EvaluationModel): string {
-    if (
-      evaluation.pollName == null ||
-      evaluation.pollName == '' ||
-      evaluation.status == 'Incompleted'
-    ) {
-      return 'Incomplete';
-    }
-
-    const now = Date.now();
-    const startTime = new Date(evaluation.startDate).getTime();
-    const endTime = new Date(evaluation.endDate).getTime();
-
-    if (now < startTime) {
-      return 'Not started yet';
-    } else if (now >= startTime && now < endTime) {
-      return 'In progress';
-    } else {
-      return 'Finished';
-    }
   }
 
   getInfo(element: EvaluationModel, column: string) {

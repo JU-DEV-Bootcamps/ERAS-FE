@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
-import { EvaluationProcessListComponent } from './modules/reports/views/evaluation-process/evaluation-process-list/evaluation-process-list.component';
+import { EvaluationProcessListComponent } from './modules/lists/views/evaluation-process-list/evaluation-process-list.component';
 import { HomeComponent } from './features/home/home.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';

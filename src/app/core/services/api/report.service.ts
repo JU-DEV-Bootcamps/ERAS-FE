@@ -10,9 +10,10 @@ import {
   PollTopReport,
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
-import { RiskLevel } from '../../models/common/risk.model';
+import { RiskCountReport } from '../../models/common/risk.model';
 import { fixedColorRange } from '../../../features/cohort/util/heat-map-config';
 import { Serie } from '../../models/heatmap-data.model';
+import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 
 @Injectable({
   providedIn: 'root',
@@ -117,39 +118,18 @@ export class ReportService extends BaseApiService {
     });
     return series;
   }
-  getSummaryPollReport(pollUuiD: string) {
-    return this.get<ApiResponse<unknown>>(`polls/${pollUuiD}/summary`);
+  getRiskCountPollReport(pollUuiD: string) {
+    return this.get<ApiResponse<RiskCountReport>>(
+      `polls/${pollUuiD}/risk-count`
+    );
   }
 
-  getBMSeriesFromSummaryReport(risks: number[]) {
-    const record: Record<RiskLevel, number> = {
-      'No Answer': 0,
-      'Low Risk': 0,
-      'Low-Medium Risk': 0,
-      'Medium Risk': 0,
-      'Medium-High Risk': 0,
-      'High Risk': 0,
-    };
-
-    risks.forEach(risk => {
-      if (risk >= 1 && risk <= 2) {
-        record['Low Risk']++;
-      } else if (risk >= 2 && risk <= 3) {
-        record['Low-Medium Risk']++;
-      } else if (risk >= 3 && risk <= 4) {
-        record['Medium Risk']++;
-      } else if (risk >= 4 && risk <= 5) {
-        record['Medium-High Risk']++;
-      } else if (risk >= 5 && risk <= 10) {
-        record['High Risk']++;
-      } else {
-        record['No Answer']++;
-      }
-    });
-
+  getBMSeriesFromSummaryReport(report: RiskCountReport) {
+    const orderedRisks = report.risks.sort((a, b) => a.endRange - b.endRange);
     return {
-      risks: Object.values(record),
-      levels: Object.keys(record) as RiskLevel[],
+      risks: orderedRisks.map(r => r.count),
+      levels: orderedRisks.map(r => `${RISK_LEVEL[r.endRange]} ${r.label}`),
+      colors: orderedRisks.map(r => RISK_COLORS[r.endRange]),
     };
   }
 

@@ -28,12 +28,6 @@ export interface CohortSummaryModel {
   pollinstancesCount: number;
 }
 
-export interface EvaluationSummaryModel {
-  entities: EvaluationModel[];
-  success: boolean;
-  message: string;
-}
-
 export interface EvaluationModel extends BaseModel {
   name: string;
   status: string;
