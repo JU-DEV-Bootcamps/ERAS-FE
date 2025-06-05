@@ -17,7 +17,8 @@ export class CohortService extends BaseApiService {
   }
 
   getCohortsByPollId(pollUuid: number | null = null) {
-    const params = new HttpParams().set('pollId', pollUuid || '');
+    const params = new HttpParams();
+    if (pollUuid) params.set('pollId', pollUuid);
     return this.get<ApiResponse<CohortModel[]>>('poll', params);
   }
 

@@ -18,6 +18,7 @@ import {
   PollCountReport,
 } from '../../../../core/models/summary.model';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { Filter } from '../../components/poll-filters/types/filters';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -113,12 +114,7 @@ export class DynamicHeatmapComponent {
     }, 10000);
   }
 
-  handleFilterSelect(filters: {
-    title: string;
-    uuid: string;
-    cohortIds: number[];
-    variableIds: number[];
-  }) {
+  handleFilterSelect(filters: Filter) {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.generateHeatMap(filters.cohortIds, filters.variableIds);

@@ -25,6 +25,7 @@ import { ActionDatas } from '../../../../shared/components/list/types/action';
 import { ListComponent } from '../../../../shared/components/list/list.component';
 import { flattenArray } from '../../../../core/utilities/object/flatten';
 import { EventAction } from '../../../../shared/events/load';
+import { Filter } from '../../components/poll-filters/types/filters';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
@@ -183,12 +184,7 @@ export class PollsAnsweredComponent implements OnInit {
     });
   }
 
-  handleFilterSelect(filters: {
-    title: string;
-    uuid: string;
-    cohortIds: number[];
-    variableIds: number[];
-  }) {
+  handleFilterSelect(filters: Filter) {
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
     this.loading = true;
