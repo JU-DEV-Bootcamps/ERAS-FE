@@ -120,19 +120,13 @@ export class SummaryHeatmapComponent implements OnInit {
     if (this.cohortIds && this.selectedPoll && this.selectedPoll.id) {
       this.isLoading = true;
       this.studentService
-        .getAllAverageByCohortsAndPollId(this.cohortIds, this.selectedPoll.id)
+        .getAllAverageByCohortsAndPoll(this.cohortIds, this.selectedPoll.uuid)
         .subscribe(res => {
           this.students = res;
           this.totalStudents = res.length;
           this.isLoading = false;
         });
     }
-  }
-
-  getCohortsByPoll(id: number) {
-    this.cohortsService.getCohortsByPollId(id).subscribe(data => {
-      this.cohorts = data.body;
-    });
   }
 
   getHeatMap() {

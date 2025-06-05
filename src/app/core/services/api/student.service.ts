@@ -34,13 +34,6 @@ export class StudentService extends BaseApiService {
     return this.get<StudentRiskAverage[]>('average', params);
   }
 
-  getAllAverageByCohortsAndPollId(cohortIds: number[], pollId: number) {
-    const params = new HttpParams()
-      .set('cohortIds', this.arrayAsStringParams(cohortIds))
-      .set('pollId', pollId);
-    return this.get<StudentRiskAverage[]>('average/poll', params);
-  }
-
   postData(data: StudentImport[]): Observable<ServerResponse> {
     return this.post('', data);
   }
