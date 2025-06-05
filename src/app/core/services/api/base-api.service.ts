@@ -47,7 +47,7 @@ export abstract class BaseApiService {
     });
   }
 
-  arrayAsStringParams(ids: number[] | string[]) {
-    return ids.join(',').replace(/^,+|,+$/g, '');
+  arrayAsStringParams(keys: number[] | string[]) {
+    return keys.length > 1 ? keys.join(',').replace(/^,+|,+$/g, '') : keys[1];
   }
 }

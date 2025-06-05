@@ -12,7 +12,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject } from 'rxjs';
-import { GENERAL_MESSAGES } from '../../../../../core/constants/messages';
+import { GENERAL_MESSAGES } from '../../../../core/constants/messages';
 import { MatIcon } from '@angular/material/icon';
 import {
   MAT_DIALOG_DATA,
@@ -21,14 +21,14 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { ModalComponent } from '../../../../../shared/components/modal-dialog/modal-dialog.component';
+import { ModalComponent } from '../../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
-import { countries } from '../../../../../core/constants/countries';
-import { CreateEvaluationModel } from '../../../../../core/models/evaluation-request.model';
-import { EvaluationModel } from '../../../../../core/models/evaluation.model';
-import { PollName } from '../../../../../core/models/poll-request.model';
-import { CosmicLatteService } from '../../../../../core/services/api/cosmic-latte.service';
-import { EvaluationsService } from '../../../../../core/services/api/evaluations.service';
+import { countries } from '../../../../core/constants/countries';
+import { CreateEvaluationModel } from '../../../../core/models/evaluation-request.model';
+import { EvaluationModel } from '../../../../core/models/evaluation.model';
+import { PollName } from '../../../../core/models/poll-request.model';
+import { CosmicLatteService } from '../../../../core/services/api/cosmic-latte.service';
+import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
 
 @Component({
   selector: 'app-evaluation-process-form',

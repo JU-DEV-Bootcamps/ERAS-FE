@@ -12,5 +12,5 @@ export interface EvaluationModel extends BaseModel {
   pollId: number;
   evaluationPollId: number;
   polls: PollModel[];
-  pollInstances?: PollInstanceModel;
+  pollInstances: PollInstanceModel[];
 }

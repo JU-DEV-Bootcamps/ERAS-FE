@@ -1,4 +1,4 @@
-@use '../../../../../../styles/utils/index.scss' as main-styles;
+@use '../../../../../styles/utils/index.scss' as main-styles;
 
 .modal {
   padding-top: 25px;
@@ -27,7 +27,6 @@
       }
     }
   }
-
 
   ::ng-deep ng-country-select mat-form-field {
     display: block;
