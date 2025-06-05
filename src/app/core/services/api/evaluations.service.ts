@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { EvaluationSummaryModel } from '../../models/summary.model';
 import {
   CreateEvaluationModel,
   PagedReadEvaluationProcess,
@@ -7,6 +6,7 @@ import {
 import { EvaluationModel } from '../../models/evaluation.model';
 import { BaseApiService } from './base-api.service';
 import { HttpParams } from '@angular/common/http';
+import { GetQueryResponse } from '../../models/summary.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +14,8 @@ import { HttpParams } from '@angular/common/http';
 export class EvaluationsService extends BaseApiService {
   protected resource = 'evaluations';
 
-  getEvalProcSummary() {
-    return this.get<EvaluationSummaryModel>(`summary`);
+  getEvalProcDetails(id: number) {
+    return this.get<GetQueryResponse<EvaluationModel>>(id);
   }
   createEvalProc(data: CreateEvaluationModel) {
     return this.post('', data);
