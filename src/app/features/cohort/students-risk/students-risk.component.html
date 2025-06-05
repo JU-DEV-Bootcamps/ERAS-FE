@@ -5,8 +5,13 @@
       <mat-label for="sl-poll">Poll</mat-label>
       <mat-select required id="sl-poll" formControlName="pollId">
         @for (poll of polls; track $index) {
-          <mat-option [value]="poll.id">
-            {{ poll.name }}
+          <mat-option class="versioned-option" [value]="poll.id">
+            <p>{{ poll.name }}</p>
+            <p class="version">
+              V{{ poll.lastVersion }}-{{
+                poll.lastVersionDate | date: 'shortDate'
+              }}
+            </p>
           </mat-option>
         }
       </mat-select>

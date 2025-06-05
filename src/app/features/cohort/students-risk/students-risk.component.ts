@@ -1,4 +1,4 @@
-import { DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -58,6 +58,7 @@ import { Serie } from '../../../core/models/heatmap-data.model';
     EmptyDataComponent,
     SelectAllDirective,
     ListComponent,
+    CommonModule,
   ],
   templateUrl: './students-risk.component.html',
   styleUrl: './students-risk.component.scss',
@@ -234,7 +235,6 @@ export class StudentsRiskComponent implements OnInit {
       componentName,
       question,
     };
-    console.info(data);
     this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 }
