@@ -30,7 +30,10 @@ import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
-import { PollAvgQuestion } from '../../../core/models/summary.model';
+import {
+  PollAvgQuestion,
+  PollAvgReport,
+} from '../../../core/models/summary.model';
 import { EmptyDataComponent } from '../../../shared/components/empty-data/empty-data.component';
 import { StudentService } from '../../../core/services/api/student.service';
 import { CohortService } from '../../../core/services/api/cohort.service';
@@ -39,6 +42,7 @@ import { ReportService } from '../../../core/services/api/report.service';
 import { ListComponent } from '../../../shared/components/list/list.component';
 import { Column } from '../../../shared/components/list/types/column';
 import { SelectAllDirective } from '../../../shared/directives/select-all.directive';
+import { Serie } from '../../../core/models/heatmap-data.model';
 
 @Component({
   selector: 'app-students-risk',
@@ -169,17 +173,43 @@ export class StudentsRiskComponent implements OnInit {
           res.body
         );
         const series = this.reportService.regroupByColor(reportSeries);
-
         this.chartOptions = GetChartOptions(
           `Risk Heatmap - ${this.selectedPoll?.name}-${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
           series,
           (x, y) => {
-            const compReport = res.body.components[y];
-            const selectedQuestion = compReport.questions[x];
-            this.openDetailsModal(selectedQuestion, compReport.description);
+            const component = series[y];
+            const serieQuestion = series[y].data[x];
+            const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
+              res.body,
+              component.name,
+              serieQuestion
+            );
+
+            if (!pollAvgQuestion) {
+              console.error('Error getting question from report.');
+            } else {
+              this.openDetailsModal(pollAvgQuestion, component.name);
+            }
           }
         );
       });
+  }
+
+  getPollAvgQuestionFromSeries(
+    report: PollAvgReport,
+    componentName: string,
+    serieQuestion: Serie
+  ): PollAvgQuestion | null {
+    const reportComponent = report.components.find(c =>
+      componentName.includes(c.description)
+    );
+    const question = reportComponent?.questions.find(
+      question =>
+        question.question === serieQuestion.x &&
+        question.averageRisk === serieQuestion.y
+    );
+
+    return question ?? null;
   }
 
   downloadPDF() {
@@ -204,6 +234,7 @@ export class StudentsRiskComponent implements OnInit {
       componentName,
       question,
     };
+    console.info(data);
     this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 }
