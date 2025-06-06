@@ -99,6 +99,7 @@ export class SummaryHeatmapComponent implements OnInit {
   totalStudents = 0;
 
   isLoading = false;
+  title = '';
 
   ngOnInit() {
     this.pollsService.getAllPolls().subscribe({
@@ -110,14 +111,8 @@ export class SummaryHeatmapComponent implements OnInit {
     });
   }
 
-  handleCohortSelect(isOpen: boolean) {
-    if (isOpen) return;
-    this.getStudentsByCohortAndPoll();
-    this.getHeatMap();
-  }
-
   getStudentsByCohortAndPoll() {
-    if (this.cohortIds && this.selectedPoll && this.selectedPoll.id) {
+    if (this.cohortIds && this.selectedPoll && this.selectedPoll.uuid) {
       this.isLoading = true;
       this.studentService
         .getAllAverageByCohortsAndPoll(this.cohortIds, this.selectedPoll.uuid)
@@ -205,8 +200,9 @@ export class SummaryHeatmapComponent implements OnInit {
 
   handleFilterSelect(filters: Filter) {
     this.cohortIds = filters.cohortIds;
-    //this.title = filters.title;
-    this.handleCohortSelect(false);
+    this.title = filters.title;
+    this.getStudentsByCohortAndPoll();
+    this.getHeatMap();
     this.selectedPoll = this.polls.find(p => p.uuid == filters.uuid);
   }
 }
