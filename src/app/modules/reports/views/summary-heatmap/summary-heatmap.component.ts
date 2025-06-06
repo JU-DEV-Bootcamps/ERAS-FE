@@ -113,7 +113,7 @@ export class SummaryHeatmapComponent {
         );
         const series = this.reportService.regroupByColor(reportSeries);
         this.chartOptions = GetChartOptions(
-          `Risk Heatmap - ${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
+          `Risk Heatmap ${this.title} - ${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
           series,
           (x, y) => {
             const component = series[y];
