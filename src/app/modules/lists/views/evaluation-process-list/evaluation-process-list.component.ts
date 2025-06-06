@@ -61,7 +61,7 @@ export class EvaluationProcessListComponent implements OnInit {
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
-  importPollsDisabled = [Status.INCOMPLETE];
+  importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED];
 
   router = inject(Router);
 
