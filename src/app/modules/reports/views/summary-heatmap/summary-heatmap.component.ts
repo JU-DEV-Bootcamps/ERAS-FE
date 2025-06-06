@@ -78,7 +78,6 @@ export class SummaryHeatmapComponent {
   ];
   variableColumns = ['variableName'];
 
-  cohorts: CohortModel[] = [];
   cohortIds: number[] = [];
   selectedCohort?: CohortModel;
   pollUuid = '';
@@ -112,25 +111,21 @@ export class SummaryHeatmapComponent {
           res.body
         );
         const series = this.reportService.regroupByColor(reportSeries);
-        this.chartOptions = GetChartOptions(
-          `Risk Heatmap ${this.title} - ${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
-          series,
-          (x, y) => {
-            const component = series[y];
-            const serieQuestion = series[y].data[x];
-            const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
-              res.body,
-              component.name,
-              serieQuestion
-            );
+        this.chartOptions = GetChartOptions(`${this.title}`, series, (x, y) => {
+          const component = series[y];
+          const serieQuestion = series[y].data[x];
+          const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
+            res.body,
+            component.name,
+            serieQuestion
+          );
 
-            if (!pollAvgQuestion) {
-              console.error('Error getting question from report.');
-            } else {
-              this.openDetailsModal(pollAvgQuestion, component.name);
-            }
+          if (!pollAvgQuestion) {
+            console.error('Error getting question from report.');
+          } else {
+            this.openDetailsModal(pollAvgQuestion, component.name);
           }
-        );
+        });
       });
   }
 

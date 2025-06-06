@@ -100,7 +100,6 @@ describe('SummaryHeatmapComponent', () => {
     reportServiceSpy.regroupByColor.and.returnValue(mockSeries);
 
     component.pollUuid = 'poll-uuid';
-    component.cohorts = [];
     component.getHeatMap();
 
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
