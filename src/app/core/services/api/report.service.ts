@@ -82,6 +82,11 @@ export class ReportService extends BaseApiService {
         }),
       };
     });
+
+    series.forEach(serie => {
+      serie.data.sort((a, b) => a.y - b.y);
+    });
+
     return series;
   }
 

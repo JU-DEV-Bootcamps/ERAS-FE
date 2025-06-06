@@ -77,7 +77,6 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handleCohortSelect(isOpen: boolean) {
-    console.info('handleCohortSelect', this.filterForm.value.cohortIds);
     if (isOpen) return;
     if (!this.filterForm.value.pollUuid) return;
     if (this.filterForm.value.cohortIds?.length === 0) return;
