@@ -1,11 +1,5 @@
 import { CommonModule, DecimalPipe } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  inject,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +11,6 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../../core/models/cohort.model';
 import { PdfService } from '../../../../core/services/exports/pdf.service';
 import { generateFileName } from '../../../../core/utilities/file/file-name';
-import { PollModel } from '../../../../core/models/poll.model';
 import { StudentRiskAverage } from '../../../../core/services/interfaces/student.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
@@ -31,8 +24,6 @@ import {
 } from '../../../../core/models/summary.model';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { StudentService } from '../../../../core/services/api/student.service';
-import { CohortService } from '../../../../core/services/api/cohort.service';
-import { PollService } from '../../../../core/services/api/poll.service';
 import { ReportService } from '../../../../core/services/api/report.service';
 import { ListComponent } from '../../../../shared/components/list/list.component';
 import { Column } from '../../../../shared/components/list/types/column';
@@ -59,10 +50,8 @@ import { Filter } from '../../components/poll-filters/types/filters';
   templateUrl: './summary-heatmap.component.html',
   styleUrl: './summary-heatmap.component.scss',
 })
-export class SummaryHeatmapComponent implements OnInit {
+export class SummaryHeatmapComponent {
   studentService = inject(StudentService);
-  cohortsService = inject(CohortService);
-  pollsService = inject(PollService);
   pdfService = inject(PdfService);
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
@@ -92,8 +81,7 @@ export class SummaryHeatmapComponent implements OnInit {
   cohorts: CohortModel[] = [];
   cohortIds: number[] = [];
   selectedCohort?: CohortModel;
-  selectedPoll?: PollModel;
-  polls: PollModel[] = [];
+  pollUuid = '';
 
   students: StudentRiskAverage[] = [];
   totalStudents = 0;
@@ -101,21 +89,11 @@ export class SummaryHeatmapComponent implements OnInit {
   isLoading = false;
   title = '';
 
-  ngOnInit() {
-    this.pollsService.getAllPolls().subscribe({
-      next: res => {
-        this.polls = res;
-        this.selectedPoll = this.polls[0];
-      },
-      error: () => (this.polls = []),
-    });
-  }
-
   getStudentsByCohortAndPoll() {
-    if (this.cohortIds && this.selectedPoll && this.selectedPoll.uuid) {
+    if (this.cohortIds && this.pollUuid) {
       this.isLoading = true;
       this.studentService
-        .getAllAverageByCohortsAndPoll(this.cohortIds, this.selectedPoll.uuid)
+        .getAllAverageByCohortsAndPoll(this.cohortIds, this.pollUuid)
         .subscribe(res => {
           this.students = res;
           this.totalStudents = res.length;
@@ -125,17 +103,17 @@ export class SummaryHeatmapComponent implements OnInit {
   }
 
   getHeatMap() {
-    if (!this.selectedPoll) return;
+    if (!this.pollUuid) return;
 
     this.reportService
-      .getAvgPoolReport(this.selectedPoll.uuid, this.cohortIds)
+      .getAvgPoolReport(this.pollUuid, this.cohortIds)
       .subscribe(res => {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
         const series = this.reportService.regroupByColor(reportSeries);
         this.chartOptions = GetChartOptions(
-          `Risk Heatmap - ${this.selectedPoll?.name}-${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
+          `Risk Heatmap - ${this.cohorts && this.cohorts.length === 1 ? this.cohorts[0].name : 'All Cohorts'}`,
           series,
           (x, y) => {
             const component = series[y];
@@ -188,10 +166,10 @@ export class SummaryHeatmapComponent implements OnInit {
   }
 
   openDetailsModal(question: PollAvgQuestion, componentName: string): void {
-    if (!this.selectedPoll) return;
+    if (!this.pollUuid) return;
     const data: SelectedHMData = {
       cohortId: this.selectedCohort?.id.toString() || '0',
-      pollUuid: this.selectedPoll?.id.toString(),
+      pollUuid: this.pollUuid,
       componentName,
       question,
     };
@@ -201,8 +179,8 @@ export class SummaryHeatmapComponent implements OnInit {
   handleFilterSelect(filters: Filter) {
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
+    this.pollUuid = filters.uuid;
     this.getStudentsByCohortAndPoll();
     this.getHeatMap();
-    this.selectedPoll = this.polls.find(p => p.uuid == filters.uuid);
   }
 }
