@@ -167,7 +167,7 @@ export class HeatMapComponent implements OnInit {
 
   getQuestions(pollUuid: string, components: string[]) {
     this.pollsService
-      .getVariablesByComponents(pollUuid, components)
+      .getVariablesByComponents(pollUuid, components, true)
       .subscribe(data => {
         this.questions = data;
         //NOTE: set deafult value for questions

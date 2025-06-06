@@ -46,12 +46,14 @@ export class ReportService extends BaseApiService {
   getCountPoolReport(
     pollInstanceUuid: string,
     cohortIds: number[] | null,
-    variableIds: number[]
+    variableIds: number[],
+    lastVersion: boolean
   ) {
     let params = new HttpParams().set(
       'variableIds',
       this.arrayAsStringParams(variableIds)
     );
+    params = params.set('lastVersion', lastVersion);
     if (cohortIds != null)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
     return this.get<GetQueryResponse<PollCountReport>>(

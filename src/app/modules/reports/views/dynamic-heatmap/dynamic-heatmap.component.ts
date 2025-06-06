@@ -45,10 +45,14 @@ export class DynamicHeatmapComponent {
 
   constructor(private snackBar: MatSnackBar) {}
 
-  generateHeatMap(cohortIds: number[], variablesIds: number[]) {
+  generateHeatMap(
+    cohortIds: number[],
+    variablesIds: number[],
+    lastVersion = true
+  ) {
     if (this.uuid === null) return;
     this.reportService
-      .getCountPoolReport(this.uuid, cohortIds, variablesIds)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
       .subscribe(data => {
         this.generateSeries(data.body);
         this.isGeneratingPDF = false;
@@ -118,10 +122,15 @@ export class DynamicHeatmapComponent {
     uuid: string;
     cohortIds: number[];
     variableIds: number[];
+    lastVersion: boolean;
   }) {
     this.title = filters.title;
     this.uuid = filters.uuid;
-    this.generateHeatMap(filters.cohortIds, filters.variableIds);
+    this.generateHeatMap(
+      filters.cohortIds,
+      filters.variableIds,
+      filters.lastVersion
+    );
   }
 
   openDetailsModal(

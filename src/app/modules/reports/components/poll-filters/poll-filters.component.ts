@@ -47,10 +47,14 @@ export class PollFiltersComponent implements OnInit {
     uuid: string;
     cohortIds: number[];
     variableIds: number[];
+    lastVersion: boolean;
   }>();
 
   filterForm = new FormGroup({
-    pollUuid: new FormControl<string | null>(null, [Validators.required]),
+    selectedPoll: new FormControl<PollModel | null>(null, [
+      Validators.required,
+    ]),
+    lastVersion: new FormControl<boolean>(true, [Validators.required]),
     cohortIds: new FormControl<number[] | null>(null, [Validators.required]),
     componentNames: new FormControl<string[] | null>(null, [
       Validators.required,
@@ -63,9 +67,9 @@ export class PollFiltersComponent implements OnInit {
       next: res => (this.polls = res),
       error: () => (this.polls = null),
     });
-    this.filterForm.controls.pollUuid.valueChanges.subscribe(() => {
+    this.filterForm.controls.selectedPoll.valueChanges.subscribe(() => {
       this.cohortsService
-        .getCohorts(this.filterForm.value.pollUuid)
+        .getCohorts(this.filterForm.value.selectedPoll?.uuid)
         .subscribe(res => {
           this.cohorts = res.body;
           this.filterForm.controls.cohortIds.setValue(
@@ -77,14 +81,15 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handleCohortSelect(isOpen: boolean) {
-    console.info('handleCohortSelect', this.filterForm.value.cohortIds);
     if (isOpen) return;
-    if (!this.filterForm.value.pollUuid) return;
+    if (!this.filterForm.value.selectedPoll?.uuid) return;
     if (this.filterForm.value.cohortIds?.length === 0) return;
     this.pollsService
-      .getVariablesByComponents(this.filterForm.value.pollUuid, [
-        ...this.componentNames,
-      ])
+      .getVariablesByComponents(
+        this.filterForm.value.selectedPoll?.uuid,
+        [...this.componentNames],
+        !!this.filterForm.value.lastVersion
+      )
       .subscribe(variables => {
         this.variables = variables;
         this.componentNames = [...new Set(variables.map(v => v.componentName))];
@@ -99,10 +104,16 @@ export class PollFiltersComponent implements OnInit {
       });
   }
 
+  handleVersionSelect(isOpen: boolean) {
+    console.info('handleVersionSelect', this.filterForm.value.lastVersion);
+    if (isOpen) return;
+    this.handleCohortSelect(false);
+  }
+
   handleUpdateComponents(isOpen: boolean) {
     if (isOpen) return;
     if (
-      this.filterForm.value.pollUuid === null ||
+      this.filterForm.value.selectedPoll?.uuid === null ||
       this.filterForm.value.cohortIds?.length === 0
     )
       return;
@@ -126,14 +137,15 @@ export class PollFiltersComponent implements OnInit {
   sendFilters() {
     if (!this.polls) return;
     const poll = this.polls.find(
-      p => p.uuid === this.filterForm.value.pollUuid
+      p => p.uuid === this.filterForm.value.selectedPoll?.uuid
     );
     const cohorts = this.filterForm.value.cohortIds || [];
     const title = `Poll: ${poll?.name} V${poll?.lastVersion} - Cohort(s): ${cohorts.map(cohortId => this.cohorts.find(c => c.id == cohortId)?.name)}`;
-    const uuid = this.filterForm.value.pollUuid;
+    const uuid = this.filterForm.value.selectedPoll?.uuid;
     const cohortIds = this.filterForm.value.cohortIds;
     const variableIds = this.filterForm.value.variables;
-    if (!uuid || !cohortIds || !variableIds) return;
-    this.filters.emit({ title, uuid, cohortIds, variableIds });
+    const lastVersion = this.filterForm.value.lastVersion;
+    if (!uuid || !cohortIds || !variableIds || !lastVersion) return;
+    this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
   }
 }

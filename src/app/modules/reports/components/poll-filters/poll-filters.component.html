@@ -10,24 +10,35 @@
     @if (polls !== null && polls.length > 0) {
       <mat-form-field appearance="fill">
         <mat-label for="sl-poll">Poll</mat-label>
-        <mat-select id="sl-poll" formControlName="pollUuid">
+        <mat-select id="sl-poll" formControlName="selectedPoll">
           @for (poll of polls; track $index) {
-            <mat-option class="versioned-option" [value]="poll.uuid">
+            <mat-option class="versioned-option" [value]="poll">
               <p>{{ poll.name }}</p>
-              <p class="version">
-                V{{ poll.lastVersion }}-{{
-                  poll.lastVersionDate | date: 'shortDate'
-                }}
-              </p>
             </mat-option>
           }
         </mat-select>
-        @if (filterForm.get('pollUuid')?.errors) {
+        @if (filterForm.get('selectedPoll')?.errors) {
           <mat-error>This field is required</mat-error>
         }
       </mat-form-field>
     }
-    @if (filterForm.value.pollUuid) {
+    @if (filterForm.value.selectedPoll) {
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-version">Version</mat-label>
+        <mat-select
+          formControlName="lastVersion"
+          (openedChange)="handleVersionSelect($event)"
+        >
+          <mat-option [value]="false">Older Versions</mat-option>
+          <mat-option [value]="true">
+            Last Version V{{ filterForm.value.selectedPoll.lastVersion }} -
+            {{
+              filterForm.value.selectedPoll.lastVersionDate | date: 'shortDate'
+            }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+
       <mat-form-field appearance="fill">
         <mat-label for="sl-cohort">Cohort</mat-label>
         <mat-select

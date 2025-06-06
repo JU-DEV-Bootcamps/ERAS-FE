@@ -36,11 +36,16 @@ export class PollService extends BaseApiService {
     const params = new HttpParams().set('studentId', studentId);
     return this.get<PollModel[]>('', params);
   }
-  getVariablesByComponents(pollUuid: string, components: string[]) {
+  getVariablesByComponents(
+    pollUuid: string,
+    components: string[],
+    lastVersion: boolean
+  ) {
     let params = new HttpParams();
     components.forEach(component => {
       params = params.append('component', component);
     });
+    params = params.append('lastVersion', lastVersion);
     return this.get<VariableModel[]>(`${pollUuid}/variables`, params);
   }
 }
