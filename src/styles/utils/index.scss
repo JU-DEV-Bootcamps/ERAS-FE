@@ -92,3 +92,15 @@ mat-form-field {
 mat-option[appselectall] {
   background-color: #c698f1 !important;
 }
+
+.swipe-icon {
+  color: #a85d97;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  cursor: grab;
+}

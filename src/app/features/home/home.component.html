@@ -1,64 +1,31 @@
 <div>
   <h1 class="page-title">Home</h1>
   <h2 class="page-subtitle">Overview</h2>
-  @if (summaryReqError) {
+  @if (EvaluationsError) {
     <span class="error-message">Could not load all summary details.</span>
   }
   <div class="section">
     <mat-card class="link-card" routerLink="/list-students-by-poll">
       <mat-icon>group</mat-icon>
       <mat-card-title>Students</mat-card-title>
-      <mat-card-footer>{{
-        cohortsSummary?.studentCount || '?'
-      }}</mat-card-footer>
+      <mat-card-footer>{{ count?.Students || 0 }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="reports/polls-answered">
       <mat-icon>file_copy</mat-icon>
       <mat-card-title>Polls Answered</mat-card-title>
-      <mat-card-footer>{{
-        cohortsSummary?.studentCount || '?'
-      }}</mat-card-footer>
+      <mat-card-footer>{{ count?.PollInstances || 0 }}</mat-card-footer>
     </mat-card>
     <mat-card class="link-card" routerLink="/evaluation-process">
       <mat-icon>insert_chart</mat-icon>
       <mat-card-title>Evaluations</mat-card-title>
-      <mat-card-footer>{{ evalProcSummary?.length }}</mat-card-footer>
+      <mat-card-footer>{{ count?.Evaluations }}</mat-card-footer>
     </mat-card>
   </div>
 
   <h2 class="page-subtitle">Evaluation Processes</h2>
-  @if (evalProcSummary && evalProcSummary.length > 0) {
+  @if (evaluations && evaluations.length > 0) {
     <div #mainContainer>
-      <div class="student-header">
-        <div class="student-info">
-          <h2 class="page-title">{{ evalProcSummary[idxChosenEval].name }}</h2>
-          <h4 class="page-subtitle">
-            Status: {{ evalProcSummary[idxChosenEval].status }}
-          </h4>
-          <h4 class="page-ssid">
-            ID: {{ evalProcSummary[idxChosenEval].evaluationPollId }}
-          </h4>
-        </div>
-      </div>
-
       <div class="container">
-        <mat-card class="card-details">
-          <h3 class="title">Student Details</h3>
-          <p>
-            Name:
-            {{ evalProcSummary[idxChosenEval].name }}
-          </p>
-          <p>
-            Poll name:
-            {{ evalProcSummary[idxChosenEval].name }}
-          </p>
-          <p>
-            Date:
-            {{ evalProcSummary[idxChosenEval].startDate | date }} to
-            {{ evalProcSummary[idxChosenEval].endDate | date }}
-          </p>
-          <p>Status: {{ evalProcSummary[idxChosenEval].status }}</p>
-        </mat-card>
         <section class="main" id="chart-student-detail">
           <swiper-container
             id="swiper-container"
@@ -67,32 +34,77 @@
             grab-cursor="true"
             (swiperslidechange)="onSlideChange($event)"
           >
-            @for (evaluation of evalProcSummary; track $index) {
+            @for (evaluation of evaluations; track $index) {
               <swiper-slide>
-                <h3 class="title">Last evaluations</h3>
-                <p class="date-risk-by-components">
-                  Poll Name: {{ evaluation.name }}
-                </p>
-                <p class="date-risk-by-components">
-                  Status: {{ evaluation.status }}
-                </p>
-                <p class="date-risk-by-components">
-                  Risk average: {{ riskLevelAvg }}
-                </p>
-                <div class="chart-container" #chart>
-                  @if (isLoadingPollInstances) {
-                    <mat-spinner />
-                  } @else if (
-                    riskLevels.risks.length > 0 && riskLevels.levels.length > 0
-                  ) {
-                    <app-bar-chart
-                      [seriesY]="riskLevels.risks"
-                      [categoriesX]="riskLevels.levels"
-                    ></app-bar-chart>
-                  } @else {
-                    <app-empty-data-message
-                      description="No poll instance data found."
-                    ></app-empty-data-message>
+                <div class="evaluation-details">
+                  <mat-icon class="swipe-icon">swipe</mat-icon>
+                  <h2>Evaluation: {{ evaluations[idxChosenEval].name }}</h2>
+                  <p>
+                    Country:
+                    <span>{{
+                      evaluations[idxChosenEval].country | alpha3CountryName
+                    }}</span>
+                    {{ evaluations[idxChosenEval].country | alpha3Flag }}
+                  </p>
+                  <p>
+                    Period:
+                    {{
+                      evaluations[idxChosenEval].startDate | date: 'shortDate'
+                    }}
+                    to
+                    {{ evaluations[idxChosenEval].endDate | date: 'shortDate' }}
+                  </p>
+                  <p
+                    class="statusRow"
+                    [ngClass]="getEvalClass(evaluations[idxChosenEval])"
+                  >
+                    Status: {{ getEvalStatus(evaluations[idxChosenEval]) }}
+                  </p>
+                </div>
+                <!-- Poll Information -->
+                <div class="poll-details">
+                  @if (selPoll) {
+                    <p>
+                      Poll:
+                      {{ evaluations[idxChosenEval].pollName }} V{{
+                        selPoll.lastVersion || 0
+                      }}
+                    </p>
+                    @if (selEval?.pollInstances) {
+                      <p>
+                        Polls answered:
+                        {{ selEval?.pollInstances?.length || 0 }}
+                      </p>
+                    }
+                    <p>Risk average: {{ riskLevelAvg }}</p>
+
+                    <p class="details">
+                      Created by: {{ selPoll.audit?.createdBy }}
+                    </p>
+                    <p class="details">
+                      Version Created:
+                      {{ selPoll.lastVersionDate | date: 'shortDate' }}
+                    </p>
+                    <p class="details">Unique Id: {{ selPoll.uuid }}</p>
+
+                    <div class="chart-container" #chart>
+                      @if (isLoadingPollInstances) {
+                        <mat-spinner />
+                      } @else if (
+                        riskLevels.risks.length > 0 &&
+                        riskLevels.levels.length > 0
+                      ) {
+                        <app-bar-chart
+                          [seriesY]="riskLevels.risks"
+                          [categoriesX]="riskLevels.levels"
+                          [colors]="riskLevels.colors"
+                        ></app-bar-chart>
+                      } @else {
+                        <app-empty-data-message
+                          description="No poll instance data found."
+                        ></app-empty-data-message>
+                      }
+                    </div>
                   }
                 </div>
               </swiper-slide>
