@@ -5,4 +5,5 @@ export interface ExportArgs {
   fileName: string;
   container: ElementRef;
   snackBar?: MatSnackBar;
+  preProcess?: string;
 }

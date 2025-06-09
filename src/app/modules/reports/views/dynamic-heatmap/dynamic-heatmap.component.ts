@@ -18,6 +18,8 @@ import {
 } from '../../../../core/models/summary.model';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Filter } from '../../components/poll-filters/types/filters';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -25,14 +27,16 @@ import { Filter } from '../../components/poll-filters/types/filters';
     PollFiltersComponent,
     EmptyDataComponent,
     MatIcon,
+    MatTooltipModule,
+    MatProgressBarModule,
     NgApexchartsModule,
   ],
   templateUrl: './dynamic-heatmap.component.html',
   styleUrl: './dynamic-heatmap.component.css',
 })
 export class DynamicHeatmapComponent {
-  public isGeneratingPDF = true;
   private readonly dialog = inject(MatDialog);
+
   title = '';
   uuid: string | null = null;
   cohorTitle: string | null = null;
@@ -41,17 +45,23 @@ export class DynamicHeatmapComponent {
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
 
+  isGeneratingPDF = false;
+  isLoading = false;
+
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
   constructor(private snackBar: MatSnackBar) {}
 
   generateHeatMap(cohortIds: number[], variablesIds: number[]) {
     if (this.uuid === null) return;
+
+    this.isLoading = true;
     this.reportService
       .getCountPoolReport(this.uuid, cohortIds, variablesIds)
       .subscribe(data => {
         this.generateSeries(data.body);
         this.isGeneratingPDF = false;
+        this.isLoading = false;
       });
   }
 

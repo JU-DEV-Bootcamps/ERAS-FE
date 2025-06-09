@@ -12,7 +12,52 @@ import {
 export class PdfHelper {
   pdfService = inject(PdfService);
 
-  printReportInfo(mainContainer: ElementRef): HTMLElement {
+  process(clonedElement: HTMLElement, key: string) {
+    const processes: Record<string, (clonedElement: HTMLElement) => void> = {
+      'student-detail': (clonedElement: HTMLElement) => {
+        clonedElement
+          .querySelector('#chart-student-detail')
+          ?.classList.add('print-chart');
+
+        const swiperContainer =
+          clonedElement.querySelector('#swiper-container');
+        if (swiperContainer) {
+          swiperContainer.removeAttribute('effect');
+        }
+
+        const h1 = document.createElement('h1');
+        h1.textContent = 'Student Details';
+        h1.style.textAlign = 'center';
+        h1.style.fontSize = '2em';
+        h1.style.fontWeight = '500';
+        clonedElement.insertBefore(h1, clonedElement.firstChild);
+
+        const thElements = clonedElement.querySelectorAll('th');
+        thElements.forEach(th => {
+          th.style.fontSize = '1.3em';
+        });
+
+        const tdElements = clonedElement.querySelectorAll('td');
+        tdElements.forEach(td => {
+          td.style.fontSize = '1.3em';
+        });
+
+        const tspanElements = clonedElement.querySelectorAll('tspan');
+        tspanElements.forEach(tspan => {
+          tspan.style.fontSize = '1.6em';
+        });
+
+        const printButton = clonedElement.querySelector('#print-button');
+        printButton?.remove();
+      },
+    };
+
+    if (processes[key]) {
+      processes[key](clonedElement);
+    }
+  }
+
+  printReportInfo(mainContainer: ElementRef, preProcess?: string): HTMLElement {
     const mainContainerElement = mainContainer.nativeElement;
     const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
     clonedElement.style.width = STYLE_CONF.width;
@@ -62,6 +107,11 @@ export class PdfHelper {
         maxWidth: 'none',
       });
     }
+
+    if (preProcess) {
+      this.process(clonedElement, preProcess);
+    }
+
     return clonedElement;
   }
 
@@ -74,7 +124,7 @@ export class PdfHelper {
     }
 
     const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
-    const clonedElement = this.printReportInfo(args.container);
+    const clonedElement = this.printReportInfo(args.container, args.preProcess);
 
     document.body.appendChild(clonedElement);
     return this.pdfService.exportToPDF(clonedElement, fileName, () => {

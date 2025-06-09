@@ -9,8 +9,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '../../../../core/models/cohort.model';
-import { PdfService } from '../../../../core/services/exports/pdf.service';
-import { generateFileName } from '../../../../core/utilities/file/file-name';
 import { StudentRiskAverage } from '../../../../core/services/interfaces/student.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
@@ -30,6 +28,8 @@ import { Column } from '../../../../shared/components/list/types/column';
 import { Serie } from '../../../../core/models/heatmap-data.model';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Filter } from '../../components/poll-filters/types/filters';
+import { PdfHelper } from '../../exportReport.util';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-students-risk',
@@ -52,7 +52,7 @@ import { Filter } from '../../components/poll-filters/types/filters';
 })
 export class SummaryHeatmapComponent {
   studentService = inject(StudentService);
-  pdfService = inject(PdfService);
+  pdfHelper = inject(PdfHelper);
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
 
@@ -86,7 +86,10 @@ export class SummaryHeatmapComponent {
   totalStudents = 0;
 
   isLoading = false;
+  isGeneratingPDF = false;
   title = '';
+
+  constructor(private snackBar: MatSnackBar) {}
 
   getStudentsByCohortAndPoll() {
     if (this.cohortIds && this.pollUuid) {
@@ -146,19 +149,16 @@ export class SummaryHeatmapComponent {
     return question ?? null;
   }
 
-  downloadPDF() {
-    const fileName = generateFileName('cohort_report');
+  async exportReportPdf() {
+    if (this.isGeneratingPDF) return;
 
-    const clonedElement = this.contentToExport.nativeElement.cloneNode(
-      true
-    ) as HTMLElement;
-
-    clonedElement.style.width = '1440px';
-    clonedElement.style.margin = 'auto';
-
-    document.body.appendChild(clonedElement);
-    this.pdfService.exportToPDF(clonedElement, fileName);
-    document.body.removeChild(clonedElement);
+    this.isGeneratingPDF = true;
+    await this.pdfHelper.exportToPdf({
+      fileName: 'cohort_report',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+    });
+    this.isGeneratingPDF = false;
   }
 
   openDetailsModal(question: PollAvgQuestion, componentName: string): void {
