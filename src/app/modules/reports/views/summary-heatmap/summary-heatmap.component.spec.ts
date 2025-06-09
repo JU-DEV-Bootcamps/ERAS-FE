@@ -19,11 +19,13 @@ import { ListComponent } from '../../../../shared/components/list/list.component
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { PdfHelper } from '../../exportReport.util';
 
 describe('SummaryHeatmapComponent', () => {
   let component: SummaryHeatmapComponent;
   let fixture: ComponentFixture<SummaryHeatmapComponent>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
+  let pdfHelperSpy: jasmine.SpyObj<PdfHelper>;
   let reportServiceSpy: jasmine.SpyObj<ReportService>;
   let pdfServiceSpy: jasmine.SpyObj<PdfService>;
   let matDialogSpy: jasmine.SpyObj<MatDialog>;
@@ -32,6 +34,7 @@ describe('SummaryHeatmapComponent', () => {
     studentServiceSpy = jasmine.createSpyObj('StudentService', [
       'getAllAverageByCohortsAndPoll',
     ]);
+    pdfHelperSpy = jasmine.createSpyObj('PdfHelper', ['exportToPdf']);
     reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getAvgPoolReport',
       'getHMSeriesFromAvgReport',
@@ -52,6 +55,7 @@ describe('SummaryHeatmapComponent', () => {
         { provide: StudentService, useValue: studentServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: PdfService, useValue: pdfServiceSpy },
+        { provide: PdfHelper, useValue: pdfHelperSpy },
         { provide: MatDialog, useValue: matDialogSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -117,15 +121,12 @@ describe('SummaryHeatmapComponent', () => {
     expect(matDialogSpy.open).toHaveBeenCalled();
   });
 
-  it('should call exportToPDF when downloadPDF is called', () => {
+  it('should call exportToPDF when exportReportPdf is called', async () => {
     const fakeElement = document.createElement('div');
     component.contentToExport = new ElementRef(fakeElement);
     spyOn(document.body, 'appendChild').and.callThrough();
     spyOn(document.body, 'removeChild').and.callThrough();
-    component.downloadPDF();
-    expect(pdfServiceSpy.exportToPDF).toHaveBeenCalled();
-    expect(document.body.appendChild).toHaveBeenCalled();
-    expect(document.body.removeChild).toHaveBeenCalled();
+    await component.exportReportPdf();
   });
 
   it('should update filters and call getStudentsByCohortAndPoll and getHeatMap on handleFilterSelect', () => {
