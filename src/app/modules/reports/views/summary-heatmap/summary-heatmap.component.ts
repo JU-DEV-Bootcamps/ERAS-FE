@@ -153,7 +153,8 @@ export class SummaryHeatmapComponent {
       true
     ) as HTMLElement;
 
-    clonedElement.style.width = '800px';
+    clonedElement.style.width = '1440px';
+    clonedElement.style.margin = 'auto';
 
     document.body.appendChild(clonedElement);
     this.pdfService.exportToPDF(clonedElement, fileName);

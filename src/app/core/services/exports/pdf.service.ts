@@ -11,7 +11,12 @@ export class PdfService extends BaseExportService {
   protected extension = 'pdf';
 
   exportToPDF(element: HTMLElement, name: string, callback?: () => void) {
-    html2canvas(element, { scale: 2, useCORS: true })
+    html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      removeContainer: true,
+    })
       .then(canvas => {
         const pdf = new jsPDF('p', 'mm', 'letter');
 
@@ -41,9 +46,9 @@ export class PdfService extends BaseExportService {
             .getContext('2d')!
             .getImageData(
               0,
-              currentHeight * (canvas.width / imgWidth),
+              currentHeight * (canvas.height / imgHeight),
               canvas.width,
-              sectionHeight * (canvas.width / imgWidth)
+              sectionHeight * (canvas.height / imgHeight)
             );
 
           const tempCanvas = document.createElement('canvas');
@@ -68,7 +73,7 @@ export class PdfService extends BaseExportService {
         pdf.save(`${name}.${this.extension}`);
       })
       .catch(error => {
-        console.error('Error al generar el PDF:', error);
+        console.error('Error while generating PDF:', error);
       })
       .finally(() => {
         callback?.();
