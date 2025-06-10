@@ -20,7 +20,6 @@ import { AnswerResponse } from '../../core/models/answer-request.model';
 import { ComponentsAvgModel } from '../../core/models/components-avg.model';
 import { PollModel } from '../../core/models/poll.model';
 import { StudentResponse } from '../../core/models/student-request.model';
-import { PdfService } from '../../core/services/exports/pdf.service';
 import { StudentService } from '../../core/services/api/student.service';
 import { PollService } from '../../core/services/api/poll.service';
 import { PollInstanceService } from '../../core/services/api/poll-instance.service';
@@ -30,6 +29,9 @@ import { Column } from '../../shared/components/list/types/column';
 import { EventLoad } from '../../shared/events/load';
 import { Pagination } from '../../core/services/interfaces/server.type';
 import { PagedResult } from '../../core/services/interfaces/page.type';
+import { PdfHelper } from '../../modules/reports/exportReport.util';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 register();
 
@@ -46,6 +48,7 @@ interface SwiperEventTarget extends EventTarget {
     MatCardModule,
     CommonModule,
     ListComponent,
+    MatTooltipModule,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
@@ -53,7 +56,6 @@ interface SwiperEventTarget extends EventTarget {
 })
 export class StudentDetailComponent implements OnDestroy {
   @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
-  private readonly exportPrintService = inject(PdfService);
   studentDetails: StudentResponse = {
     entity: {
       uuid: '',
@@ -80,6 +82,7 @@ export class StudentDetailComponent implements OnDestroy {
   };
 
   studentService = inject(StudentService);
+  pdfHelper = inject(PdfHelper);
   pollsService = inject(PollService);
   pollInsService = inject(PollInstanceService);
 
@@ -87,6 +90,9 @@ export class StudentDetailComponent implements OnDestroy {
   studentPolls: PollModel[] = [];
   studentAnswers: AnswerResponse[] = [];
   componentsAvg: ComponentsAvgModel[] = [];
+
+  isGeneratingPDF = false;
+  isLoading = false;
 
   @Input({ required: true }) studentId!: number;
 
@@ -135,6 +141,8 @@ export class StudentDetailComponent implements OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  constructor(private snackBar: MatSnackBar) {}
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -182,9 +190,11 @@ export class StudentDetailComponent implements OnDestroy {
             this.selectedPoll = this.studentPolls[0].id;
             this.getStudentAnswersByPoll(studentId, this.selectedPoll);
           }
+          this.isLoading = false;
         },
         error: error => {
           console.error(error);
+          this.isLoading = false;
         },
       });
   }
@@ -274,71 +284,17 @@ export class StudentDetailComponent implements OnDestroy {
     }
   }
 
-  printStudentInfo() {
-    const mainContainerElement = this.mainContainer.nativeElement;
+  async exportReportPdf() {
+    if (this.isGeneratingPDF) return;
 
-    const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
-    clonedElement.style.width = '1440px';
-    clonedElement.style.margin = 'auto';
-    clonedElement
-      .querySelector('#chart-student-detail')
-      ?.classList.add('print-chart');
+    this.isGeneratingPDF = true;
 
-    const swiperContainer = clonedElement.querySelector('#swiper-container');
-    if (swiperContainer) {
-      swiperContainer.removeAttribute('effect');
-    }
-
-    const h1 = document.createElement('h1');
-    h1.textContent = 'Student Details';
-    h1.style.textAlign = 'center';
-    h1.style.fontSize = '2em';
-    h1.style.fontWeight = '500';
-    clonedElement.insertBefore(h1, clonedElement.firstChild);
-
-    clonedElement.style.fontSize = '1.2em';
-
-    const h2Elements = clonedElement.querySelectorAll('h2');
-    h2Elements.forEach(h2 => {
-      h2.style.fontSize = '1.6em';
+    await this.pdfHelper.exportToPdf({
+      fileName: 'student-detail',
+      container: this.mainContainer,
+      preProcess: 'student-detail',
+      snackBar: this.snackBar,
     });
-
-    const h3Elements = clonedElement.querySelectorAll('h3');
-    h3Elements.forEach(h3 => {
-      h3.style.fontSize = '1.4em';
-    });
-
-    const h4Elements = clonedElement.querySelectorAll('h4');
-    h4Elements.forEach(h4 => {
-      h4.style.fontSize = '1.2em';
-    });
-
-    const pElements = clonedElement.querySelectorAll('p');
-    pElements.forEach(p => {
-      p.style.fontSize = '1.2em';
-    });
-
-    const thElements = clonedElement.querySelectorAll('th');
-    thElements.forEach(th => {
-      th.style.fontSize = '1.3em';
-    });
-
-    const tdElements = clonedElement.querySelectorAll('td');
-    tdElements.forEach(td => {
-      td.style.fontSize = '1.3em';
-    });
-
-    const tspanElements = clonedElement.querySelectorAll('tspan');
-    tspanElements.forEach(tspan => {
-      tspan.style.fontSize = '1.6em';
-    });
-
-    const printButton = clonedElement.querySelector('#print-button');
-    printButton?.remove();
-
-    document.body.appendChild(clonedElement);
-    this.exportPrintService.exportToPDF(clonedElement, `student-detail-2.pdf`);
-    document.body.removeChild(clonedElement);
   }
 
   capitalize(text: string) {

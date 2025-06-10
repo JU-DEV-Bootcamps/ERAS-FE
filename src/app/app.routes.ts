@@ -7,7 +7,6 @@ import { ImportStudentsComponent } from './features/import-students/import-stude
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { LoginComponent } from './features/login/login.component';
 import { ProfileComponent } from './features/profile/profile.component';
-import { HeatMapComponent } from './features/reports/heat-map/heat-map.component';
 import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
 import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
@@ -25,11 +24,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: HomeComponent },
-      {
-        path: 'reports2/dynamic-heatmap',
-        component: HeatMapComponent,
-        data: { breadcrumb: 'Dynamic Heatmap' },
-      },
       {
         path: 'reports/summary-heatmap',
         component: SummaryHeatmapComponent,

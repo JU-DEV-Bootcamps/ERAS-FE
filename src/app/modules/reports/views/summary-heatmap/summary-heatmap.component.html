@@ -9,8 +9,13 @@
 @defer (when isLoading) {
   <ng-container>
     <div class="action-section">
-      <button mat-icon-button matTooltip="Download pdf" (click)="downloadPDF()">
-        <mat-icon>download</mat-icon>
+      <button
+        mat-icon-button
+        [disabled]="isGeneratingPDF"
+        matTooltip="Download pdf"
+        (click)="exportReportPdf()"
+      >
+        <mat-icon>print</mat-icon>
       </button>
     </div>
   </ng-container>
@@ -47,7 +52,5 @@
 } @loading {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 } @placeholder {
-  <app-empty-data-message
-    description="Select a cohort and poll"
-  ></app-empty-data-message>
+  <app-empty-data-message description="Select a cohort and poll" />
 }
