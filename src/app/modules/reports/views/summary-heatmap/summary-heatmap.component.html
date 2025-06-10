@@ -1,0 +1,56 @@
+<h1 class="page-title">Summary Heatmap</h1>
+<h2 class="page-subtitle">{{ title }}</h2>
+<app-poll-filters
+  class="expanded"
+  [showVariables]="false"
+  (filters)="handleFilterSelect($event)"
+></app-poll-filters>
+
+@defer (when isLoading) {
+  <ng-container>
+    <div class="action-section">
+      <button
+        mat-icon-button
+        [disabled]="isGeneratingPDF"
+        matTooltip="Download pdf"
+        (click)="exportReportPdf()"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+
+  <div class="table-container" #contentToExport>
+    <div class="chart-container">
+      <apx-chart
+        id="heatmap"
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [colors]="chartOptions.colors!"
+        [plotOptions]="chartOptions.plotOptions!"
+        [title]="chartOptions.title!"
+        [tooltip]="chartOptions.tooltip!"
+      >
+      </apx-chart>
+    </div>
+
+    <div id="table-container">
+      <app-list
+        (actionCalled)="(null)"
+        (loadCalled)="getStudentsByCohortAndPoll()"
+        [items]="students"
+        [totalItems]="totalStudents"
+        [columns]="columns"
+        [actionDatas]="[]"
+        [title]="'Students Risk'"
+      />
+    </div>
+    <div></div>
+  </div>
+} @loading {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @placeholder {
+  <app-empty-data-message description="Select a cohort and poll" />
+}

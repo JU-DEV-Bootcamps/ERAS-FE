@@ -74,7 +74,7 @@
                             edit
                           </mat-icon>
                         </button>
-                        @if (status.includes(element.status)) {
+                        @if (!importPollsDisabled.includes(element.status)) {
                           <button
                             mat-icon-button
                             matTooltip="Go to import"
@@ -183,7 +183,7 @@
                   </mat-icon>
                 </button>
 
-                @if (status.includes(item.status)) {
+                @if (!importPollsDisabled.includes(item.status)) {
                   <button
                     mat-icon-button
                     matTooltip="Go to import"

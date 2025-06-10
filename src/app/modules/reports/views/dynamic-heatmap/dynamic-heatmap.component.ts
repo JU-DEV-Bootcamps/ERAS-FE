@@ -1,8 +1,7 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { printReportInfo } from '../../exportReport.util';
-import { PdfService } from '../../../../core/services/exports/pdf.service';
+import { PdfHelper } from '../../exportReport.util';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { HeatMapService } from '../../../../core/services/api/heat-map.service';
 import { MatIcon } from '@angular/material/icon';
@@ -18,6 +17,9 @@ import {
   PollCountReport,
 } from '../../../../core/models/summary.model';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { Filter } from '../../components/poll-filters/types/filters';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -25,23 +27,28 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
     PollFiltersComponent,
     EmptyDataComponent,
     MatIcon,
+    MatTooltipModule,
+    MatProgressBarModule,
     NgApexchartsModule,
   ],
   templateUrl: './dynamic-heatmap.component.html',
   styleUrl: './dynamic-heatmap.component.css',
 })
 export class DynamicHeatmapComponent {
-  public isGeneratingPDF = true;
   private readonly dialog = inject(MatDialog);
+
   title = '';
   uuid: string | null = null;
   cohorTitle: string | null = null;
   chartsOptions: ApexOptions[] = [];
-  pdfService = inject(PdfService);
+  pdfHelper = inject(PdfHelper);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
 
-  @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
+  isGeneratingPDF = false;
+  isLoading = false;
+
+  @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -51,11 +58,14 @@ export class DynamicHeatmapComponent {
     lastVersion = true
   ) {
     if (this.uuid === null) return;
+
+    this.isLoading = true;
     this.reportService
       .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
       .subscribe(data => {
         this.generateSeries(data.body);
         this.isGeneratingPDF = false;
+        this.isLoading = false;
       });
   }
 
@@ -90,40 +100,19 @@ export class DynamicHeatmapComponent {
     );
   }
 
-  exportReportPdf() {
+  async exportReportPdf() {
     if (this.isGeneratingPDF) return;
+
     this.isGeneratingPDF = true;
-    const snackBarRef = this.snackBar.open('Generating PDF...', 'Close', {
-      duration: 10000,
-      panelClass: ['custom-snackbar'],
+    await this.pdfHelper.exportToPdf({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
     });
-
-    setTimeout(() => {
-      const clonedElement = printReportInfo(this.mainContainer);
-      document.body.appendChild(clonedElement);
-
-      this.pdfService.exportToPDF(clonedElement, `report-detail.pdf`);
-
-      setTimeout(() => {
-        snackBarRef.dismiss();
-
-        this.snackBar.open('PDF generated successfully', 'OK', {
-          duration: 3000,
-          panelClass: ['custom-snackbar'],
-        });
-        this.isGeneratingPDF = false;
-        document.body.removeChild(clonedElement);
-      }, 2000);
-    }, 10000);
+    this.isGeneratingPDF = false;
   }
 
-  handleFilterSelect(filters: {
-    title: string;
-    uuid: string;
-    cohortIds: number[];
-    variableIds: number[];
-    lastVersion: boolean;
-  }) {
+  handleFilterSelect(filters: Filter) {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.generateHeatMap(

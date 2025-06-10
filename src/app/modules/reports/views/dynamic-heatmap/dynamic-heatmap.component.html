@@ -1,20 +1,24 @@
-<div #mainContainer>
-  <h1 class="page-title">Dynamic Heatmap</h1>
-  <h2 class="page-subtitle">{{ title }}</h2>
-  <div>
-    <app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
-    <button
-      id="print-button"
-      class="export-button"
-      mat-icon-button
-      color="primary"
-      [disabled]="isGeneratingPDF"
-      (click)="exportReportPdf()"
-    >
-      <mat-icon>print</mat-icon>
-    </button>
-  </div>
-  @if (chartsOptions.length) {
+<h1 class="page-title">Dynamic Heatmap</h1>
+<h2 class="page-subtitle">{{ title }}</h2>
+<app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
+
+@defer (when isLoading) {
+  <ng-container>
+    <div class="action-section">
+      <button
+        id="print-button"
+        class="export-button"
+        matTooltip="Download pdf"
+        mat-icon-button
+        color="primary"
+        [disabled]="isGeneratingPDF"
+        (click)="exportReportPdf()"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+  <div #contentToExport>
     @for (chartOption of chartsOptions; track $index) {
       <div class="chart-container">
         <apx-chart
@@ -30,12 +34,12 @@
         </apx-chart>
       </div>
     }
-  } @else {
-    <div style="padding-top: 8px">
-      <app-empty-data-message
-        title="No data loaded."
-        description="Please select options in all fields to display the heatmap."
-      ></app-empty-data-message>
-    </div>
-  }
-</div>
+  </div>
+} @loading {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @placeholder {
+  <app-empty-data-message
+    title="No data loaded."
+    description="Please select options in all fields to display the heatmap."
+  />
+}

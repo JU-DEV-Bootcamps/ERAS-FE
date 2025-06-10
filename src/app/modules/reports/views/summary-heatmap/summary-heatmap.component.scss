@@ -41,10 +41,28 @@
 .list-container {
   width: 1200px;
 }
+
+.versioned-option span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.version {
+  font-weight: 600;
+  font-size: small;
+}
+
 @media (max-width: 768px) {
   .chart-container {
     width: 768px;
     max-width: none;
     max-height: none;
   }
+}
+
+.page-break {
+  page-break-before: after;
+  break-before: page;
 }

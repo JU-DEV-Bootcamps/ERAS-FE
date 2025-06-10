@@ -1,12 +1,12 @@
-export interface AnswersRisks {
-  risks: number[];
+export interface RiskCountReport {
+  risks: RiskCount[];
   averageRisk: number;
+  answerCount: number;
 }
 
-export type RiskLevel =
-  | 'No Answer'
-  | 'Low Risk'
-  | 'Low-Medium Risk'
-  | 'Medium Risk'
-  | 'Medium-High Risk'
-  | 'High Risk';
+export interface RiskCount {
+  label: string;
+  startRange: number;
+  endRange: number;
+  count: number;
+}

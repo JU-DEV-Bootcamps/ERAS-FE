@@ -1,19 +1,17 @@
 import { Routes } from '@angular/router';
 import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
-import { EvaluationProcessListComponent } from './modules/reports/views/evaluation-process/evaluation-process-list/evaluation-process-list.component';
+import { EvaluationProcessListComponent } from './modules/lists/views/evaluation-process-list/evaluation-process-list.component';
 import { HomeComponent } from './features/home/home.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
 import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
 import { LoginComponent } from './features/login/login.component';
 import { ProfileComponent } from './features/profile/profile.component';
-import { HeatMapComponent } from './features/reports/heat-map/heat-map.component';
-import { SummaryHeatmapComponent } from './features/reports/summary-heatmap/summary-heatmap.component';
 import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
 import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
-import { StudentsRiskComponent } from './features/cohort/students-risk/students-risk.component';
+import { SummaryHeatmapComponent } from './modules/reports/views/summary-heatmap/summary-heatmap.component';
 import { DynamicHeatmapComponent } from './modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
 import { PollsAnsweredComponent } from './modules/reports/views/polls-answered/polls-answered.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
@@ -27,13 +25,8 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       {
-        path: 'reports2/dynamic-heatmap',
-        component: HeatMapComponent,
-        data: { breadcrumb: 'Dynamic Heatmap' },
-      },
-      {
         path: 'reports/summary-heatmap',
-        component: StudentsRiskComponent,
+        component: SummaryHeatmapComponent,
         data: { breadcrumb: 'Summary Heatmap' },
       },
       {

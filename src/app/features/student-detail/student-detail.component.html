@@ -7,9 +7,11 @@
     </div>
     <button
       id="print-button"
+      class="export-button"
+      matTooltip="Download pdf"
       mat-icon-button
       color="primary"
-      (click)="printStudentInfo()"
+      (click)="exportReportPdf()"
     >
       <mat-icon>print</mat-icon>
     </button>

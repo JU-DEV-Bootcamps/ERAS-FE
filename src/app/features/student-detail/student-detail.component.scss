@@ -231,3 +231,17 @@ mat-table {
   width: 800px;
   margin-left: 80px;
 }
+
+.export-button {
+  float: right;
+  width: 35px;
+  height: 35px;
+  margin-left: 0px;
+  background-color: none;
+  border: none;
+  border-radius: 50%;
+  &:hover {
+    background-color: #bbbbbb;
+    cursor: pointer;
+  }
+}
