@@ -93,7 +93,7 @@ describe('SummaryHeatmapComponent', () => {
       studentServiceSpy.getAllAverageByCohortsAndPoll
     ).toHaveBeenCalledWith({
       cohortIds: [1],
-      pollUuid: 'uuid',
+      pollUuid: 'poll-uuid',
       page: 0,
       pageSize: 10,
     });
