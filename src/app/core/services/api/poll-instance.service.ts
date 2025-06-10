@@ -29,11 +29,14 @@ export class PollInstanceService extends BaseApiService {
     return this.get<ServerResponse>('');
   }
 
-  getComponentsAvgGroupedByCohorts(pollUuid: string) {
+  getComponentsAvgGroupedByCohorts(pollUuid: string, lastVersion: boolean) {
+    const params = new HttpParams().set('lastVersion', lastVersion);
     return this.get<ComponentsAvgGroupedByCohortsModel>(
-      `${pollUuid}/cohorts/avg`
+      `${pollUuid}/cohorts/avg`,
+      params
     );
   }
+
   getComponentsRiskByPollForStudent(studentId: number, pollUuid: number) {
     const params = new HttpParams().set('studentId', studentId);
     return this.get<ComponentsAvgModel[]>(`${pollUuid}/avg`, params);

@@ -52,21 +52,23 @@ export class StudentService extends BaseApiService {
   getPollComponentTopStudents(
     pollUuid: string,
     componentName: string,
-    cohortId: number
+    cohortId: number,
+    lastVersion: boolean
   ) {
     return this.get<StudentRiskResponse[]>(
       `polls/${pollUuid}/components/top`,
       new HttpParams()
         .set('componentName', componentName)
         .set('cohortId', cohortId)
+        .set('LastVersion', lastVersion)
     );
   }
 
-  getPollTopStudents(pollUuid: string, cohortId: number) {
-    return this.get<StudentRiskResponse[]>(
-      `polls/${pollUuid}/top`,
-      new HttpParams().set('cohortId', cohortId)
-    );
+  getPollTopStudents(pollUuid: string, cohortId: number, lastVersion: boolean) {
+    const params = new HttpParams()
+      .set('CohortId', cohortId)
+      .set('LastVersion', lastVersion);
+    return this.get<StudentRiskResponse[]>(`polls/${pollUuid}/top`, params);
   }
 
   getPollStudentsRiskSum(pollUuid: string, cohortId: number) {

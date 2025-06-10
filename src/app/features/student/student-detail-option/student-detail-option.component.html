@@ -18,7 +18,15 @@
           <div>
             <strong>{{ poll.name }}</strong>
             <p>
-              Version: {{ poll.lastVersion }} <br />
+              Version:
+              <select (change)="selectVersion($event)">
+                <option [value]="false">Older Versions</option>
+                <option [value]="true" selected>
+                  Last Version V{{ poll.lastVersion }} -
+                  {{ poll.lastVersionDate | date: 'shortDate' }}
+                </option>
+              </select>
+              <br />
               Version Date: {{ poll.lastVersionDate | date: 'mediumDate' }}
             </p>
           </div>
