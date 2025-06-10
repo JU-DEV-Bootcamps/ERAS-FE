@@ -1,10 +1,12 @@
 import {
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
   OnInit,
   Output,
+  ViewChild,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -25,6 +27,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PdfHelper } from '../../../modules/reports/exportReport.util';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-list',
@@ -38,16 +43,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatSidenavModule,
     MatButtonModule,
     MatTooltipModule,
+    MatMenuModule,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
 })
 export class ListComponent<T extends object> implements OnInit {
   csvService = inject(CsvService);
+  pdfHelper = inject(PdfHelper);
 
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
   pageSizeOptions = defaultOptions.pageSizeOptions;
+
+  isGenerating = false;
 
   @Input() items: T[] = [];
   @Input() totalItems = 0;
@@ -58,6 +67,10 @@ export class ListComponent<T extends object> implements OnInit {
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
+
+  @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+
+  constructor(private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
     this.load();
@@ -136,6 +149,9 @@ export class ListComponent<T extends object> implements OnInit {
   }
 
   exportToCSV() {
+    if (this.isGenerating) return;
+    this.isGenerating = true;
+
     const columnKeys = this.columns.map(c => c.key);
     const columnLabels = this.columns.map(c => c.label);
 
@@ -144,5 +160,20 @@ export class ListComponent<T extends object> implements OnInit {
       columnKeys as string[],
       columnLabels
     );
+
+    this.isGenerating = false;
+  }
+
+  async exportToPdf() {
+    if (this.isGenerating) return;
+
+    this.isGenerating = true;
+    await this.pdfHelper.exportToPdf({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+      preProcess: 'list',
+    });
+    this.isGenerating = false;
   }
 }

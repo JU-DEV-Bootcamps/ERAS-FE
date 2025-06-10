@@ -50,6 +50,17 @@ export class PdfHelper {
         const printButton = clonedElement.querySelector('#print-button');
         printButton?.remove();
       },
+      list: (clonedElement: HTMLElement) => {
+        const actionColumnCells = clonedElement.querySelectorAll(
+          '.action-column-header,.action-column-cell'
+        );
+        actionColumnCells.forEach(cell => {
+          cell.remove();
+        });
+
+        const paginator = clonedElement.querySelector('mat-paginator');
+        paginator?.remove();
+      },
     };
 
     if (processes[key]) {

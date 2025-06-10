@@ -2,23 +2,30 @@
   <mat-spinner></mat-spinner>
 } @else {
   <div class="container-title-button">
-    @if (title) {
-      <div class="container-title">
+    <div class="container-title">
+      @if (title) {
         <h3 class="title">{{ title }}</h3>
-      </div>
-    }
-    <button
-      mat-button
-      (click)="exportToCSV()"
-      class="button-export"
-      matTooltip="Export to CSV"
-      matTooltipPosition="right"
-    >
-      <mat-icon>get_app</mat-icon>
+      }
+    </div>
+    <button mat-button matTooltip="Export" [matMenuTriggerFor]="menu">
+      <mat-icon>print</mat-icon>
     </button>
+
+    <mat-menu #menu="matMenu">
+      <button mat-button (click)="exportToCSV()">To CSV</button>
+      <br />
+      <button
+        id="print-button"
+        mat-button
+        [disabled]="isGenerating"
+        (click)="exportToPdf()"
+      >
+        To PDF
+      </button>
+    </mat-menu>
   </div>
 }
-<div class="container-table-button">
+<div class="container-table-button" #contentToExport>
   <div>
     <app-table-with-actions
       [columns]="columns"

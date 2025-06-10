@@ -118,7 +118,7 @@ export class PollsAnsweredComponent implements OnInit {
   }
 
   loadCohortsList(): void {
-    this.cohortService.getCohorts().subscribe(data => {
+    this.cohortService.getCohorts(this.selectedPollUuid).subscribe(data => {
       const defaultOpt: CohortModel = {
         name: 'All Cohorts',
         courseCode: '',
