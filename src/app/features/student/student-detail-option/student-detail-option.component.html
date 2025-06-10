@@ -19,7 +19,10 @@
             <strong>{{ poll.name }}</strong>
             <p>
               Version:
-              <select (change)="selectVersion($event)">
+              <select
+                [(ngModel)]="lastVersion"
+                (change)="selectVersion($event)"
+              >
                 <option [value]="false">Older Versions</option>
                 <option [value]="true" selected>
                   Last Version V{{ poll.lastVersion }} -
@@ -58,7 +61,7 @@
       </button>
       <h2 class="cohorts-title">{{ pollSeleccionado.name }} - Cohorts</h2>
     </div>
-    <div class="cards-container">
+    <div *ngIf="cohorts.length > 0; else emptyCohorts" class="cards-container">
       <mat-card class="card" *ngFor="let cohort of cohorts">
         <mat-card-header>
           <mat-card-title>{{ cohort.cohortName }}</mat-card-title>
@@ -87,6 +90,9 @@
         </mat-card-actions>
       </mat-card>
     </div>
+    <ng-template #emptyCohorts>
+      <p class="empty-state">No cohorts available for this poll.</p>
+    </ng-template>
   </mat-card>
 </div>
 
