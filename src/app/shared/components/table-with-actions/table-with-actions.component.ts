@@ -16,7 +16,11 @@ import { CommonModule } from '@angular/common';
 import { ActionButtonComponent } from '../action-button/action-button.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { ActionDatas } from '../list/types/action';
+import {
+  ActionData,
+  ActionDatas,
+  ActionDataWithCondition,
+} from '../list/types/action';
 import { EventAction } from '../../events/load';
 import { Column } from '../list/types/column';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -70,8 +74,6 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
 
   handleAction(event: EventAction) {
     this.actionCalled.emit(event);
-    console.log(this.templateMap);
-    console.log(this.templateMap.get('isImported'));
   }
 
   getColumnKeys() {
@@ -106,7 +108,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   }
 
   showElement(element: T, column: Column<T>) {
-    const rawData = element[column.key];
+    const rawData = element;
 
     if (column.pipe) {
       if (column.pipeArgs) {
@@ -114,11 +116,19 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
       }
       return column.pipe.transform(rawData);
     } else {
-      return rawData;
+      return rawData[column.key];
     }
   }
 
   getTemplateForColumn(key: string): TemplateRef<unknown> | null {
     return this.templateMap.get(key) || null;
+  }
+
+  isRenderable(actionData: ActionData | ActionDataWithCondition<T>, item: T) {
+    const actionDataWC = actionData as ActionDataWithCondition<T>;
+    const isValidWithCondition =
+      !actionDataWC.isRenderable || actionDataWC.isRenderable(item);
+
+    return isValidWithCondition;
   }
 }

@@ -93,6 +93,7 @@ export class PollsAnsweredComponent implements OnInit {
   cohortsData: CohortModel[] = [];
   actionDatas: ActionDatas = [
     {
+      id: 'seeStudentDetails',
       columnId: 'actions',
       label: 'Actions',
       ngIconName: 'assignment',

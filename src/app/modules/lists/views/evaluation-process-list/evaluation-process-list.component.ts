@@ -1,13 +1,12 @@
-import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { GENERAL_MESSAGES } from '../../../../core/constants/messages';
@@ -19,41 +18,79 @@ import { EmptyDataComponent } from '../../../../shared/components/empty-data/emp
 import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
 import { Status } from '../../../../core/constants/common';
 import { getStatusForEvaluationProcess } from '../../utils/evaluations.util';
+import { Column } from '../../../../shared/components/list/types/column';
+import { ActionDatas } from '../../../../shared/components/list/types/action';
+import { ListComponent } from '../../../../shared/components/list/list.component';
+import { EventAction, EventLoad } from '../../../../shared/events/load';
+import { RangeTimestampPipe } from '../../../../shared/pipes/range-timestamp.pipe';
+import { BadgeStatusComponent } from './badge-status/badge-status.component';
 
 @Component({
   selector: 'app-evaluation-process-list',
   imports: [
     MatProgressSpinnerModule,
-    MatPaginator,
     MatTableModule,
     MatCardModule,
-    NgFor,
     NgIf,
-    MatTable,
-    TitleCasePipe,
     MatChipsModule,
-    NgClass,
-    DatePipe,
     MatButtonModule,
     MatIcon,
     MatTooltipModule,
     EmptyDataComponent,
+    ListComponent,
+    BadgeStatusComponent,
   ],
-  providers: [DatePipe],
   templateUrl: './evaluation-process-list.component.html',
   styleUrl: './evaluation-process-list.component.scss',
 })
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   evaluationProcessService = inject(EvaluationsService);
-  columns: string[] = [
-    'id',
-    'name',
-    'country',
-    'pollName',
-    'period',
-    'status',
-    'action',
+  columns: Column<EvaluationModel>[] = [
+    {
+      key: 'id',
+      label: 'Id',
+    },
+    {
+      key: 'name',
+      label: 'Name',
+    },
+    {
+      key: 'country',
+      label: 'Country',
+    },
+    {
+      key: 'pollName',
+      label: 'Poll Name',
+    },
+    {
+      key: 'startDate',
+      label: 'Period',
+      pipe: new RangeTimestampPipe(),
+    },
+  ];
+  columnTemplates: Column<EvaluationModel>[] = [
+    {
+      key: 'status',
+      label: 'Status',
+    },
+  ];
+  actionDatas: ActionDatas<EvaluationModel> = [
+    {
+      columnId: 'actions',
+      id: 'openModalDetails',
+      label: 'Actions',
+      ngIconName: 'edit',
+      tooltip: 'Edit evaluation',
+    },
+    {
+      columnId: 'actions',
+      id: 'goImport',
+      label: 'Actions',
+      ngIconName: 'drive_file_move',
+      tooltip: 'Go to import',
+      isRenderable: this.isRenderable.bind(this),
+    },
   ];
   evaluationProcessList: EvaluationModel[] = [];
   pageSize = 5;
@@ -70,10 +107,32 @@ export class EvaluationProcessListComponent implements OnInit {
     const target = event.target as Window;
     this.isMobile = target.innerWidth < 600;
   }
+
   ngOnInit(): void {
-    this.getEvaluationProcess();
     this.isMobile = window.innerWidth < 600;
   }
+
+  handleLoadCalled(event: EventLoad) {
+    this.currentPage = event.page;
+    this.pageSize = event.pageSize;
+    this.getEvaluationProcess();
+  }
+
+  handleActionCalled(event: EventAction) {
+    const actions: Record<string, (item: EvaluationModel) => void> = {
+      goImport: (element: EvaluationModel) => {
+        this.goToImport(element);
+      },
+      openModalDetails: (element: EvaluationModel) => {
+        this.openModalDetails(element);
+      },
+    };
+
+    if (actions[event.data.id]) {
+      actions[event.data.id](event.item as EvaluationModel);
+    }
+  }
+
   getClassName(value: string): string {
     return value ? value.replace(/\s+/g, '_') : '';
   }
@@ -227,5 +286,9 @@ export class EvaluationProcessListComponent implements OnInit {
 
   getInfo(element: EvaluationModel, column: string) {
     return element[column as keyof EvaluationModel];
+  }
+
+  isRenderable(item: EvaluationModel) {
+    return !this.importPollsDisabled.includes(item.status);
   }
 }

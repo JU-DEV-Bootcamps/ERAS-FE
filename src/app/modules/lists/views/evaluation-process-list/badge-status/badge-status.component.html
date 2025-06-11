@@ -1,0 +1,13 @@
+@if (element) {
+  <span
+    class="badgeStatus"
+    [ngClass]="getClassName(element.status)"
+    tabindex="0"
+  >
+    {{ element.status }}
+  </span>
+} @else {
+  <app-empty-data-message description="No evaluation process found" />
+}
+
+<!-- (keyup.enter)="openModalDetails(element)" -->

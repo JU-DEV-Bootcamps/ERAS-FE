@@ -72,6 +72,7 @@ export class ListStudentsByPollComponent implements OnInit {
   actionDatas: ActionDatas = [
     {
       columnId: 'actions',
+      id: 'checkDetails',
       label: 'Actions',
       ngIconName: 'analytics',
       tooltip: 'See more details',

@@ -5,6 +5,7 @@ export type ActionData = ActionDataText | ActionDataIcon;
 export interface BaseDataAction {
   label: string;
   columnId: string;
+  id: string;
 }
 
 export interface ActionDataText extends BaseDataAction {
@@ -18,4 +19,11 @@ export interface ActionDataIcon extends BaseDataAction {
   tooltip?: string;
 }
 
-export type ActionDatas = ActionData[];
+export interface ActionDataWithCondition<T> extends ActionDataIcon {
+  isRenderable: (item: T) => boolean;
+}
+
+export type ActionDatas<T = unknown> = (
+  | ActionData
+  | ActionDataWithCondition<T>
+)[];

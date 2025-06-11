@@ -12,6 +12,7 @@ export interface EventAction {
   item: unknown;
   data: ActionData;
 }
+
 export type EventUpdate = EventAction;
 
 export type EventRemove = EventAction;
