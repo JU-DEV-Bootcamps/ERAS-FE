@@ -35,7 +35,7 @@
   } @else {
     <app-list
       (actionCalled)="goToDetails($event)"
-      (loadCalled)="loadCohortsList()"
+      (loadCalled)="loadPollInstances($event)"
       [items]="pollInstances"
       [totalItems]="totalPollInstances"
       [columns]="columns"

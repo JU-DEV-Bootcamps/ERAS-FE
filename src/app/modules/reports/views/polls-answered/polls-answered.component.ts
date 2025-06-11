@@ -24,7 +24,7 @@ import { Column } from '../../../../shared/components/list/types/column';
 import { ActionDatas } from '../../../../shared/components/list/types/action';
 import { ListComponent } from '../../../../shared/components/list/list.component';
 import { flattenArray } from '../../../../core/utilities/object/flatten';
-import { EventAction } from '../../../../shared/events/load';
+import { EventAction, EventLoad } from '../../../../shared/events/load';
 import { Filter } from '../../components/poll-filters/types/filters';
 
 interface DynamicPollInstance
@@ -141,18 +141,36 @@ export class PollsAnsweredComponent implements OnInit {
     });
   }
 
-  loadPollInstances(cohortIds: number[]): void {
+  loadPollInstances(event: EventLoad): void {
+    this.pollInstanceService
+      .getPollInstancesByFilters({
+        cohortIds: this.selectedCohortIds,
+        page: event.pageIndex,
+        pageSize: event.pageSize,
+      })
+      .subscribe(data => {
+        this.pollInstances = flattenArray(
+          data.body.items as unknown as Record<string, unknown>[]
+        ) as DynamicPollInstance[];
+
+        this.totalPollInstances = data.body.count;
+      });
+  }
+
+  load(): void {
     this.loading = true;
     this.pollInstanceService
-      .getPollInstancesByFilters(cohortIds, 400)
+      .getPollInstancesByFilters({
+        cohortIds: this.selectedCohortIds,
+        page: 0,
+        pageSize: 10,
+      })
       .subscribe(data => {
-        this.data = new MatTableDataSource<PollInstanceModel>(
-          data.body.filter(p => p.uuid == this.selectedPollUuid)
-        );
         this.pollInstances = flattenArray(
-          data.body as unknown as Record<string, unknown>[]
+          data.body.items as unknown as Record<string, unknown>[]
         ) as DynamicPollInstance[];
-        this.totalPollInstances = this.pollInstances.length;
+
+        this.totalPollInstances = data.body.count;
         this.loading = false;
       });
   }
@@ -188,7 +206,7 @@ export class PollsAnsweredComponent implements OnInit {
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
     this.loading = true;
-    this.loadPollInstances(this.selectedCohortIds);
+    this.load();
   }
 
   getWidth(column: string): string {
