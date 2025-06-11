@@ -96,6 +96,7 @@ export class PollsAnsweredComponent implements OnInit {
       columnId: 'actions',
       label: 'Actions',
       ngIconName: 'assignment',
+      tooltip: 'See student details',
     },
   ];
   polls: PollModel[] = [];
@@ -145,7 +146,7 @@ export class PollsAnsweredComponent implements OnInit {
     this.pollInstanceService
       .getPollInstancesByFilters({
         cohortIds: this.selectedCohortIds,
-        page: event.pageIndex,
+        page: event.page,
         pageSize: event.pageSize,
       })
       .subscribe(data => {

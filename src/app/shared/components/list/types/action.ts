@@ -15,6 +15,7 @@ export interface ActionDataText extends BaseDataAction {
 export interface ActionDataIcon extends BaseDataAction {
   ngIconName: string;
   text?: never;
+  tooltip?: string;
 }
 
 export type ActionDatas = ActionData[];

@@ -74,6 +74,7 @@ export class ListStudentsByPollComponent implements OnInit {
       columnId: 'actions',
       label: 'Actions',
       ngIconName: 'analytics',
+      tooltip: 'See more details',
     },
   ];
 

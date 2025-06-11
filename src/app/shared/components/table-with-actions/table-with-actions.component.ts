@@ -19,6 +19,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ActionDatas } from '../list/types/action';
 import { EventAction } from '../../events/load';
 import { Column } from '../list/types/column';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -33,6 +34,7 @@ import { Column } from '../list/types/column';
     ActionButtonComponent,
     MatProgressSpinnerModule,
     MatTableModule,
+    MatTooltip,
   ],
   templateUrl: './table-with-actions.component.html',
   styleUrls: ['./table-with-actions.component.css'],

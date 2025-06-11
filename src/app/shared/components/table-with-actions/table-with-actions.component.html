@@ -82,9 +82,12 @@
             [actionData]="actionData"
             (actionCalled)="handleAction($event)"
           >
-            <mat-icon *ngIf="actionData.ngIconName && !actionData.text">{{
-              actionData.ngIconName
-            }}</mat-icon>
+            <mat-icon
+              *ngIf="actionData.ngIconName && !actionData.text"
+              [matTooltip]="actionData.tooltip ?? 'action'"
+            >
+              {{ actionData.ngIconName }}
+            </mat-icon>
             <span *ngIf="actionData.text && !actionData.ngIconName">{{
               actionData.text
             }}</span>
