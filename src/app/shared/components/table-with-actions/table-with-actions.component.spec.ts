@@ -10,6 +10,7 @@ import { TitleCasePipe } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { PollName } from '../../../core/models/poll-request.model';
 import { Column } from '../list/types/column';
+import { ActionDatas } from '../list/types/action';
 
 describe('TableWithActionsComponent', () => {
   let component: TableWithActionsComponent<PollName>;
@@ -38,9 +39,9 @@ describe('TableWithActionsComponent', () => {
     { key: 'status', label: 'Status' },
   ];
 
-  const mockActionDatas = [
-    { columnId: 'edit', text: 'Edit', label: 'Edit' },
-    { columnId: 'delete', ngIconName: 'delete', label: 'Delete' },
+  const mockActionDatas: ActionDatas = [
+    { columnId: 'edit', text: 'Edit', label: 'Edit', id: 'id1' },
+    { columnId: 'delete', ngIconName: 'delete', label: 'Delete', id: 'id2' },
   ];
 
   beforeEach(async () => {
