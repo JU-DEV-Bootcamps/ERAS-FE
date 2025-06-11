@@ -105,9 +105,9 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handleVersionSelect(isOpen: boolean) {
-    console.info('handleVersionSelect', this.filterForm.value.lastVersion);
     if (isOpen) return;
     this.handleCohortSelect(false);
+    this.sendFilters();
   }
 
   handleUpdateComponents(isOpen: boolean) {
@@ -144,8 +144,8 @@ export class PollFiltersComponent implements OnInit {
     const uuid = this.filterForm.value.selectedPoll?.uuid;
     const cohortIds = this.filterForm.value.cohortIds;
     const variableIds = this.filterForm.value.variables;
-    const lastVersion = this.filterForm.value.lastVersion;
-    if (!uuid || !cohortIds || !variableIds || !lastVersion) return;
+    const lastVersion = this.filterForm.value.lastVersion!;
+    if (!uuid || !cohortIds || !variableIds) return;
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
   }
 }
