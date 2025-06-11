@@ -1,0 +1,13 @@
+@if (element) {
+  <span
+    class="badge"
+    [ngClass]="element.isImported ? 'badge-success' : 'badge-secondary'"
+  >
+    <mat-icon>
+      {{ element.isImported ? 'check_circle' : 'cancel' }}
+    </mat-icon>
+    {{ element.isImported ? 'Imported' : 'Not imported' }}
+  </span>
+} @else {
+  <app-empty-data-message description="No student found" />
+}

@@ -12,7 +12,7 @@ import {
 export class PdfHelper {
   pdfService = inject(PdfService);
 
-  process(clonedElement: HTMLElement, key: string) {
+  preProcessHTML(clonedElement: HTMLElement, key: string) {
     const processes: Record<string, (clonedElement: HTMLElement) => void> = {
       'student-detail': (clonedElement: HTMLElement) => {
         clonedElement
@@ -74,6 +74,10 @@ export class PdfHelper {
     clonedElement.style.width = STYLE_CONF.width;
     clonedElement.style.margin = STYLE_CONF.margin;
 
+    if (preProcess) {
+      this.preProcessHTML(clonedElement, preProcess);
+    }
+
     const swiperContainer = clonedElement.querySelector('#swiper-container');
     if (swiperContainer) {
       swiperContainer.removeAttribute('effect');
@@ -117,10 +121,6 @@ export class PdfHelper {
         margin: '0 auto',
         maxWidth: 'none',
       });
-    }
-
-    if (preProcess) {
-      this.process(clonedElement, preProcess);
     }
 
     return clonedElement;

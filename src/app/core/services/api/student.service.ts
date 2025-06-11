@@ -19,9 +19,13 @@ import { AnswerResponse } from '../../models/answer-request.model';
 export class StudentService extends BaseApiService {
   protected resource = 'students';
 
-  getStudentDetailsById(studentId: number) {
-    return this.get<StudentResponse>(studentId);
+  getStudentDetailsById(studentId: number, pagination: Pagination) {
+    const params = new HttpParams()
+      .set('PageSize', pagination.pageSize)
+      .set('Page', pagination.page);
+    return this.get<StudentResponse>(studentId, params);
   }
+
   getAllStudents() {
     return this.get<StudentModel[]>('');
   }
@@ -38,7 +42,7 @@ export class StudentService extends BaseApiService {
     return this.post('', data);
   }
 
-  getData({ page = 1, pageSize = 10 }) {
+  getData({ page = 1, pageSize = 10 }: Pagination) {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
     return this.get<PagedResult<StudentModel>>('', params);
   }
@@ -85,7 +89,7 @@ export class StudentService extends BaseApiService {
   ) {
     const params = new HttpParams()
       .set('PageSize', pagination.pageSize)
-      .set('Page', pagination.pageIndex);
+      .set('Page', pagination.page);
 
     return this.get<PagedResult<AnswerResponse>>(
       `${studentId}/polls/${pollId}/answers`,

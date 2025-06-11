@@ -7,7 +7,7 @@
         <h3 class="title">{{ title }}</h3>
       }
     </div>
-    <button mat-button matTooltip="Export" [matMenuTriggerFor]="menu">
+    <button mat-button matTooltip="Export table" [matMenuTriggerFor]="menu">
       <mat-icon>print</mat-icon>
     </button>
 
@@ -30,6 +30,8 @@
     <app-table-with-actions
       [columns]="columns"
       [items]="items"
+      [columnTemplates]="columnTemplates"
+      [templateMap]="templateMap"
       [actionDatas]="actionDatas"
       (actionCalled)="handleAction($event)"
     ></app-table-with-actions>
@@ -42,7 +44,6 @@
       [pageSizeOptions]="pageSizeOptions"
       showFirstLastButtons
       aria-label="Select page"
-    >
-    </mat-paginator>
+    />
   </div>
 </div>

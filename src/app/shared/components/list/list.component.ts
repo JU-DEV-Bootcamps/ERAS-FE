@@ -1,15 +1,19 @@
 import {
   Component,
+  ContentChildren,
   ElementRef,
   EventEmitter,
   inject,
   Input,
   OnInit,
   Output,
+  QueryList,
+  TemplateRef,
   ViewChild,
+  AfterContentInit,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { defaultOptions, readOnlyColumns } from './constants/list';
@@ -20,7 +24,7 @@ import {
   EventUpdate,
 } from '../../events/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
-import { Column } from './types/column';
+import { Column, ComponentColumn } from './types/column';
 import { ActionDatas } from './types/action';
 import { CsvService } from '../../../core/services/exports/csv.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,7 +52,9 @@ import { MatMenuModule } from '@angular/material/menu';
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
 })
-export class ListComponent<T extends object> implements OnInit {
+export class ListComponent<T extends object>
+  implements OnInit, AfterContentInit
+{
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
 
@@ -62,13 +68,18 @@ export class ListComponent<T extends object> implements OnInit {
   @Input() totalItems = 0;
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
+  @Input() componentColumns: ComponentColumn[] = [] as ComponentColumn[];
   @Input() actionDatas: ActionDatas = [];
   @Input() title?: string;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
 
+  @ContentChildren(TemplateRef) templates!: QueryList<TemplateRef<unknown>>;
+  @Input() columnTemplates: Column<T>[] = [];
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+
+  templateMap = new Map<string, TemplateRef<unknown>>();
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -76,21 +87,26 @@ export class ListComponent<T extends object> implements OnInit {
     this.load();
   }
 
-  onPageChange({
-    pageSize,
-    pageIndex,
-  }: {
-    pageIndex: number;
-    pageSize: number;
-  }): void {
-    this.currentPage = pageIndex;
-    this.pageSize = pageSize;
+  ngAfterContentInit() {
+    // Si usas #badgeTemplate, el nombre será 'badgeTemplate'
+    this.templates.forEach((tpl: TemplateRef<unknown>) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const name = (tpl as any)._declarationTContainer?.localNames?.[0];
+      if (name) {
+        this.templateMap.set(name, tpl);
+      }
+    });
+  }
+
+  onPageChange(pagination: PageEvent): void {
+    this.currentPage = pagination.pageIndex;
+    this.pageSize = pagination.pageSize;
     this.load();
   }
 
   load(): void {
     this.loadCalled.emit({
-      pageIndex: this.currentPage,
+      page: this.currentPage,
       pageSize: this.pageSize,
     });
   }

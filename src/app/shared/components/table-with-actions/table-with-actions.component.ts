@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   EventEmitter,
+  TemplateRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,6 +40,11 @@ import { Column } from '../list/types/column';
 export class TableWithActionsComponent<T extends object> implements OnInit {
   @Input() items: T[] = [];
   @Input() columns: Column<T>[] = [] as Column<T>[];
+  @Input() templateMap: Map<string, TemplateRef<unknown>> = new Map<
+    string,
+    TemplateRef<unknown>
+  >();
+  @Input() columnTemplates: Column<T>[] = [];
   @Input() actionDatas: ActionDatas = [];
 
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -62,6 +68,8 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
 
   handleAction(event: EventAction) {
     this.actionCalled.emit(event);
+    console.log(this.templateMap);
+    console.log(this.templateMap.get('isImported'));
   }
 
   getColumnKeys() {
@@ -71,6 +79,10 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   }
   getAllColumns() {
     let columnKeys = this.getColumnKeys();
+
+    if (this.getTotalTemplateColumns() > 0) {
+      columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));
+    }
 
     if (this.getTotalActionDatas() > 0) {
       columnKeys = columnKeys.concat(this.actionColumns);
@@ -87,6 +99,10 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     return this.getActionDatas().length;
   }
 
+  getTotalTemplateColumns() {
+    return this.columnTemplates.length;
+  }
+
   showElement(element: T, column: Column<T>) {
     const rawData = element[column.key];
 
@@ -98,5 +114,9 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     } else {
       return rawData;
     }
+  }
+
+  getTemplateForColumn(key: string): TemplateRef<unknown> | null {
+    return this.templateMap.get(key) || null;
   }
 }
