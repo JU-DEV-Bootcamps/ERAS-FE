@@ -1,11 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import { TableComponent } from '../../shared/components/table/table.component';
 import { StudentModel } from '../../core/models/student.model';
 import { StudentService } from '../../core/services/api/student.service';
+import { ListComponent } from '../../shared/components/list/list.component';
+import { Column } from '../../shared/components/list/types/column';
+import { EventLoad } from '../../shared/events/load';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-list-imported-student',
@@ -14,17 +17,28 @@ import { StudentService } from '../../core/services/api/student.service';
     MatTableModule,
     MatPaginatorModule,
     MatCardModule,
-    TableComponent,
+    ListComponent,
   ],
   templateUrl: './list-imported-student.component.html',
   styleUrl: './list-imported-student.component.scss',
 })
-export class ListImportedStudentComponent implements OnInit {
-  columns: (keyof StudentModel)[] = ['id', 'name', 'email'];
+export class ListImportedStudentComponent {
+  columns: Column<StudentModel>[] = [
+    {
+      key: 'id',
+      label: '#',
+    },
+    {
+      key: 'name',
+      label: 'Name',
+    },
+    {
+      key: 'email',
+      label: 'Email',
+    },
+  ];
 
   studentService = inject(StudentService);
-
-  data = new MatTableDataSource<StudentModel>([]);
   students: StudentModel[] = [];
 
   pageSize = 10;
@@ -32,33 +46,29 @@ export class ListImportedStudentComponent implements OnInit {
   totalStudents = 0;
 
   isMobile = false;
+  isLoading = false;
 
-  ngOnInit(): void {
+  handleLoad(event: EventLoad) {
+    this.currentPage = event.page;
+    this.pageSize = event.pageSize;
     this.loadStudents();
   }
 
   loadStudents(): void {
+    this.isLoading = true;
     this.studentService
       .getData({
         page: this.currentPage,
         pageSize: this.pageSize,
       })
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe(data => {
-        this.data = new MatTableDataSource<StudentModel>(data.items);
         this.students = data.items;
         this.totalStudents = data.count;
       });
-  }
-
-  onPageChange({
-    pageSize,
-    pageIndex,
-  }: {
-    pageIndex: number;
-    pageSize: number;
-  }): void {
-    this.currentPage = pageIndex;
-    this.pageSize = pageSize;
-    this.loadStudents();
   }
 }
