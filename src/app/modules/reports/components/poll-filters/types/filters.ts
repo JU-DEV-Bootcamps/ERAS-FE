@@ -3,4 +3,5 @@ export interface Filter {
   uuid: string;
   cohortIds: number[];
   variableIds: number[];
+  lastVersion: boolean;
 }

@@ -69,6 +69,7 @@ export class StudentDetailOptionComponent implements OnInit {
 
   pollSeleccionado: PollModel | null = null;
   pollSeleccionadoId: number | null = null;
+  lastVersion = false;
   cohortSeleccionado: CohortComponents | null = null;
   selectedComponents: { key: string; value: number }[] = [];
   componentStudentRisk: Record<string, StudentRiskResponse[]> = {};
@@ -139,7 +140,7 @@ export class StudentDetailOptionComponent implements OnInit {
       this.pollSeleccionado = poll;
       this.location.go('/student-option/' + this.pollSeleccionado.name);
       this.pollInstanceService
-        .getComponentsAvgGroupedByCohorts(poll.uuid)
+        .getComponentsAvgGroupedByCohorts(poll.uuid, this.lastVersion)
         .subscribe(response => {
           this.cohorts = response.map(cohort => ({
             ...cohort,
@@ -151,6 +152,11 @@ export class StudentDetailOptionComponent implements OnInit {
           }));
         });
     }
+  }
+
+  selectVersion(event: Event) {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    this.lastVersion = selectedValue === 'true';
   }
 
   getChartSeriesData(cohort: CohortComponents): number[] {
@@ -176,7 +182,8 @@ export class StudentDetailOptionComponent implements OnInit {
       .getPollComponentTopStudents(
         this.pollSeleccionado.uuid,
         componentKey,
-        this.cohortSeleccionado.cohortId
+        this.cohortSeleccionado.cohortId,
+        this.lastVersion
       )
       .subscribe(data => {
         this.componentStudentRisk[componentKey] = data;
@@ -224,7 +231,8 @@ export class StudentDetailOptionComponent implements OnInit {
     this.studentService
       .getPollTopStudents(
         this.pollSeleccionado.uuid,
-        this.cohortSeleccionado.cohortId
+        this.cohortSeleccionado.cohortId,
+        this.lastVersion
       )
       .subscribe({
         next: data => {

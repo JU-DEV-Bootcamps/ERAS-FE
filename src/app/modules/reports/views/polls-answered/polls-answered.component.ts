@@ -101,6 +101,7 @@ export class PollsAnsweredComponent implements OnInit {
   polls: PollModel[] = [];
   selectedCohortIds: number[] = [];
   selectedPollUuid = '';
+  lastVersion = true;
 
   pageSize = 10;
   currentPage = 0;
@@ -147,6 +148,8 @@ export class PollsAnsweredComponent implements OnInit {
         cohortIds: this.selectedCohortIds,
         page: event.pageIndex,
         pageSize: event.pageSize,
+        lastVersion: this.lastVersion,
+        pollUuid: this.selectedPollUuid,
       })
       .subscribe(data => {
         this.pollInstances = flattenArray(
@@ -164,6 +167,8 @@ export class PollsAnsweredComponent implements OnInit {
         cohortIds: this.selectedCohortIds,
         page: 0,
         pageSize: 10,
+        lastVersion: this.lastVersion,
+        pollUuid: this.selectedPollUuid,
       })
       .subscribe(data => {
         this.pollInstances = flattenArray(
@@ -205,6 +210,7 @@ export class PollsAnsweredComponent implements OnInit {
   handleFilterSelect(filters: Filter) {
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
+    this.lastVersion = filters.lastVersion;
     this.loading = true;
     this.load();
   }

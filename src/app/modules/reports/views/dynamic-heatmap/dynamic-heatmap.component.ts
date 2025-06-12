@@ -20,6 +20,7 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -50,14 +51,21 @@ export class DynamicHeatmapComponent {
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  generateHeatMap(cohortIds: number[], variablesIds: number[]) {
+  generateHeatMap(
+    cohortIds: number[],
+    variablesIds: number[],
+    lastVersion: boolean
+  ) {
     if (this.uuid === null) return;
 
     this.isLoading = true;
     this.reportService
-      .getCountPoolReport(this.uuid, cohortIds, variablesIds)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
       .subscribe(data => {
         this.generateSeries(data.body);
         this.isGeneratingPDF = false;
@@ -66,6 +74,7 @@ export class DynamicHeatmapComponent {
   }
 
   generateSeries(report: PollCountReport) {
+    this.chartsOptions = [];
     const hmSeries = report.components.map(c =>
       this.reportService.getHMSeriesFromCountComponent(c)
     );
@@ -94,6 +103,7 @@ export class DynamicHeatmapComponent {
         }
       )
     );
+    this.cdr.detectChanges();
   }
 
   async exportReportPdf() {
@@ -111,7 +121,11 @@ export class DynamicHeatmapComponent {
   handleFilterSelect(filters: Filter) {
     this.title = filters.title;
     this.uuid = filters.uuid;
-    this.generateHeatMap(filters.cohortIds, filters.variableIds);
+    this.generateHeatMap(
+      filters.cohortIds,
+      filters.variableIds,
+      filters.lastVersion
+    );
   }
 
   openDetailsModal(

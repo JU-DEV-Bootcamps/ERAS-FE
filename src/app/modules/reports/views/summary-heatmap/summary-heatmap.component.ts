@@ -81,6 +81,7 @@ export class SummaryHeatmapComponent {
 
   cohortIds: number[] = [];
   selectedCohort?: CohortModel;
+  lastVersion = true;
   pollUuid = '';
 
   students: StudentRiskAverage[] = [];
@@ -101,6 +102,7 @@ export class SummaryHeatmapComponent {
           pageSize: event.pageSize,
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
+          lastVersion: this.lastVersion,
         })
         .subscribe(res => {
           this.students = res.items;
@@ -114,7 +116,7 @@ export class SummaryHeatmapComponent {
     if (!this.pollUuid) return;
 
     this.reportService
-      .getAvgPoolReport(this.pollUuid, this.cohortIds)
+      .getAvgPoolReport(this.pollUuid, this.cohortIds, this.lastVersion)
       .subscribe(res => {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
@@ -182,6 +184,7 @@ export class SummaryHeatmapComponent {
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
     this.pollUuid = filters.uuid;
+    this.lastVersion = filters.lastVersion;
     this.getStudentsByCohortAndPoll({ pageSize: 10, pageIndex: 0 });
     this.getHeatMap();
   }

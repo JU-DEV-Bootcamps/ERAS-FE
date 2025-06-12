@@ -31,17 +31,20 @@ export class StudentService extends BaseApiService {
     pageSize,
     cohortIds,
     pollUuid,
+    lastVersion,
   }: {
     cohortIds: number[];
-    pollUuid: string;
     page: number;
     pageSize: number;
+    pollUuid: string;
+    lastVersion: boolean;
   }) {
     const params = new HttpParams()
       .set('cohortIds', this.arrayAsStringParams(cohortIds))
       .set('pollUuid', pollUuid)
       .set('page', page)
-      .set('pageSize', pageSize);
+      .set('pageSize', pageSize)
+      .set('lastVersion', lastVersion);
     return this.get<PagedResult<StudentRiskAverage>>('average', params);
   }
 
@@ -65,21 +68,23 @@ export class StudentService extends BaseApiService {
   getPollComponentTopStudents(
     pollUuid: string,
     componentName: string,
-    cohortId: number
+    cohortId: number,
+    lastVersion: boolean
   ) {
     return this.get<StudentRiskResponse[]>(
       `polls/${pollUuid}/components/top`,
       new HttpParams()
         .set('componentName', componentName)
         .set('cohortId', cohortId)
+        .set('LastVersion', lastVersion)
     );
   }
 
-  getPollTopStudents(pollUuid: string, cohortId: number) {
-    return this.get<StudentRiskResponse[]>(
-      `polls/${pollUuid}/top`,
-      new HttpParams().set('cohortId', cohortId)
-    );
+  getPollTopStudents(pollUuid: string, cohortId: number, lastVersion: boolean) {
+    const params = new HttpParams()
+      .set('CohortId', cohortId)
+      .set('LastVersion', lastVersion);
+    return this.get<StudentRiskResponse[]>(`polls/${pollUuid}/top`, params);
   }
 
   getPollStudentsRiskSum(pollUuid: string, cohortId: number) {

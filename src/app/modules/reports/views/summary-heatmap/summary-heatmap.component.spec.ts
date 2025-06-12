@@ -96,6 +96,7 @@ describe('SummaryHeatmapComponent', () => {
       pollUuid: 'poll-uuid',
       page: 0,
       pageSize: 10,
+      lastVersion: true,
     });
     expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);
@@ -117,7 +118,8 @@ describe('SummaryHeatmapComponent', () => {
 
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
       'poll-uuid',
-      []
+      [],
+      true
     );
     expect(component.chartOptions).toBeDefined();
   });
