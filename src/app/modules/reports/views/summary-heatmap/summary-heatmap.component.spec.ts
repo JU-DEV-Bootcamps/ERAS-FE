@@ -84,10 +84,10 @@ describe('SummaryHeatmapComponent', () => {
     );
     component.cohortIds = [1];
     component.pollUuid = 'poll-uuid';
-    component.getStudentsByCohortAndPoll();
+    component.getStudentsByCohortAndPoll(true);
     expect(
       studentServiceSpy.getAllAverageByCohortsAndPoll
-    ).toHaveBeenCalledWith([1], 'poll-uuid');
+    ).toHaveBeenCalledWith([1], 'poll-uuid', true);
     expect(component.students).toEqual(mockStudents);
     expect(component.totalStudents).toBe(1);
     expect(component.isLoading).toBeFalse();
@@ -104,11 +104,12 @@ describe('SummaryHeatmapComponent', () => {
     reportServiceSpy.regroupByColor.and.returnValue(mockSeries);
 
     component.pollUuid = 'poll-uuid';
-    component.getHeatMap();
+    component.getHeatMap(true);
 
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
       'poll-uuid',
-      []
+      [],
+      true
     );
     expect(component.chartOptions).toBeDefined();
   });
