@@ -1,3 +1,5 @@
+@use '../../../../../styles/utils/index.scss' as main-styles;
+
 .noEvalsContainer {
   display: flex;
   flex-direction: column;
@@ -99,4 +101,18 @@ button {
   display: flex;
   flex-direction: row;
   justify-content: end;
+}
+
+.floatingButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  .addNewButton {
+    margin: 10px;
+    background: main-styles.get-color(primary, 60);
+    color: white;
+    mat-icon {
+      color: white;
+    }
+  }
 }

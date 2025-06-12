@@ -16,20 +16,6 @@
   }
 }
 
-.floatingButtonContainer {
-  width: 100%;
-  display: flex;
-  justify-content: end;
-  .addNewButton {
-    margin: 10px;
-    background: main-styles.get-color(primary, 60);
-    color: white;
-    mat-icon {
-      color: white;
-    }
-  }
-}
-
 .statusActionContainer {
   display: flex;
   gap: 10px;
