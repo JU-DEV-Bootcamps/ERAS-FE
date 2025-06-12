@@ -45,7 +45,10 @@ export class PollInstanceService extends BaseApiService {
       params = params.append('cohortId', id);
     });
 
-    return this.get<ApiResponse<PagedResult<PollInstanceModel>>>('', params);
+    return this.get<ApiResponse<PagedResult<PollInstanceModel>>>(
+      pollUuid,
+      params
+    );
   }
 
   getAllPollInstances() {
