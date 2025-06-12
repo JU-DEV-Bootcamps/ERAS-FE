@@ -1,0 +1,12 @@
+@if (element) {
+  <div
+    class="risk-badge"
+    [style.backgroundColor]="getColorRisk(element.riskSum)"
+  >
+    {{ element.riskSum }}
+  </div>
+} @else {
+  <app-empty-data-message description="No evaluation process found" />
+}
+
+<!-- (keyup.enter)="openModalDetails(element)" -->

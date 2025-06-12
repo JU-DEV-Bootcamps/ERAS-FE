@@ -89,7 +89,7 @@ export class EvaluationProcessListComponent implements OnInit {
       label: 'Actions',
       ngIconName: 'drive_file_move',
       tooltip: 'Go to import',
-      isRenderable: this.isRenderable.bind(this),
+      isVisible: this.isVisible.bind(this),
     },
   ];
   evaluationProcessList: EvaluationModel[] = [];
@@ -288,7 +288,7 @@ export class EvaluationProcessListComponent implements OnInit {
     return element[column as keyof EvaluationModel];
   }
 
-  isRenderable(item: EvaluationModel) {
+  isVisible(item: EvaluationModel) {
     return !this.importPollsDisabled.includes(item.status);
   }
 }

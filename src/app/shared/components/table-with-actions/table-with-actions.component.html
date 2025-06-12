@@ -30,7 +30,7 @@
           >
             <mat-icon
               *ngIf="
-                isRenderable(actionData, item) &&
+                isVisible(actionData, item) &&
                 !actionData.text &&
                 actionData.ngIconName
               "
@@ -39,7 +39,7 @@
             </mat-icon>
             <span
               *ngIf="
-                isRenderable(actionData, item) &&
+                isVisible(actionData, item) &&
                 actionData.text &&
                 !actionData.ngIconName
               "
@@ -52,15 +52,27 @@
   </ng-container>
 
   <ng-template #tableView>
-    <table mat-table [dataSource]="items">
+    <table
+      mat-table
+      [className]="mapClass?.table?.table ?? ''"
+      [dataSource]="items"
+    >
       <ng-container
         *ngFor="let column of columns"
         [matColumnDef]="column.key.toString()"
       >
-        <th mat-header-cell *matHeaderCellDef>
+        <th
+          mat-header-cell
+          [className]="mapClass?.table?.header ?? ''"
+          *matHeaderCellDef
+        >
           <b>{{ column.label | titlecase }}</b>
         </th>
-        <td mat-cell *matCellDef="let element">
+        <td
+          mat-cell
+          [className]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let element"
+        >
           {{ showElement(element, column) }}
         </td>
       </ng-container>
@@ -69,10 +81,18 @@
         *ngFor="let columnTemplate of columnTemplates"
         [matColumnDef]="columnTemplate.key.toString()"
       >
-        <th mat-header-cell *matHeaderCellDef>
+        <th
+          mat-header-cell
+          [className]="mapClass?.table?.table ?? ''"
+          *matHeaderCellDef
+        >
           <b>{{ columnTemplate.label | titlecase }}</b>
         </th>
-        <td mat-cell *matCellDef="let item">
+        <td
+          mat-cell
+          [className]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let item"
+        >
           <ng-container
             *ngTemplateOutlet="
               getTemplateForColumn(columnTemplate.key.toString());
@@ -83,13 +103,23 @@
       </ng-container>
 
       <ng-container *ngIf="getTotalActionDatas() > 0" matColumnDef="Actions">
-        <th mat-header-cell *matHeaderCellDef class="action-column-header">
+        <th
+          mat-header-cell
+          [className]="mapClass?.table?.header ?? ''"
+          *matHeaderCellDef
+          class="action-column-header"
+        >
           <b>Actions</b>
         </th>
-        <td mat-cell *matCellDef="let item" class="action-column-cell">
+        <td
+          mat-cell
+          [className]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let item"
+          class="action-column-cell"
+        >
           <span *ngFor="let actionData of getActionDatas()">
             <app-action-button
-              *ngIf="isRenderable(actionData, item)"
+              *ngIf="isVisible(actionData, item)"
               [item]="item"
               [actionData]="actionData"
               (actionCalled)="handleAction($event)"
@@ -108,8 +138,16 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="getAllColumns()"></tr>
-      <tr mat-row *matRowDef="let row; columns: getAllColumns()"></tr>
+      <tr
+        mat-header-row
+        [className]="mapClass?.table?.row ?? ''"
+        *matHeaderRowDef="getAllColumns()"
+      ></tr>
+      <tr
+        mat-row
+        [className]="mapClass?.table?.row ?? ''"
+        *matRowDef="let row; columns: getAllColumns()"
+      ></tr>
     </table>
   </ng-template>
 </div>

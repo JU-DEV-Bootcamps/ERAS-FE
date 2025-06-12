@@ -28,6 +28,7 @@
 <div class="container-table-button" #contentToExport>
   <div>
     <app-table-with-actions
+      [mapClass]="mapClass?.table ? mapClass : undefined"
       [columns]="columns"
       [items]="items"
       [columnTemplates]="columnTemplates"
@@ -37,6 +38,7 @@
     ></app-table-with-actions>
     <br />
     <mat-paginator
+      [className]="mapClass?.paginator"
       [length]="totalItems"
       (page)="onPageChange($event)"
       [pageSize]="pageSize"

@@ -24,6 +24,7 @@ import {
 import { EventAction } from '../../events/load';
 import { Column } from '../list/types/column';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MapClass } from '../list/types/class';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -52,6 +53,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   >();
   @Input() columnTemplates: Column<T>[] = [];
   @Input() actionDatas: ActionDatas = [];
+  @Input() mapClass?: MapClass;
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
@@ -112,9 +114,14 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
 
     if (column.pipe) {
       if (column.pipeArgs) {
-        return column.pipe.transform(rawData, ...column.pipeArgs);
+        return column.pipe.transform(
+          column.pipeKey ? rawData[column.pipeKey] : rawData,
+          ...column.pipeArgs
+        );
       }
-      return column.pipe.transform(rawData);
+      return column.pipe.transform(
+        column.pipeKey ? rawData[column.pipeKey] : rawData
+      );
     } else {
       return rawData[column.key];
     }
@@ -124,10 +131,10 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     return this.templateMap.get(key) || null;
   }
 
-  isRenderable(actionData: ActionData | ActionDataWithCondition<T>, item: T) {
+  isVisible(actionData: ActionData | ActionDataWithCondition<T>, item: T) {
     const actionDataWC = actionData as ActionDataWithCondition<T>;
     const isValidWithCondition =
-      !actionDataWC.isRenderable || actionDataWC.isRenderable(item);
+      !actionDataWC.isVisible || actionDataWC.isVisible(item);
 
     return isValidWithCondition;
   }

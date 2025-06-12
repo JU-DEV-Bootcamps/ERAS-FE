@@ -1,0 +1,9 @@
+table {
+    text-align: left;
+    width: 100%;
+}
+
+.mat-mdc-table {
+    color: black;
+    width: 100%;
+}

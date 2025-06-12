@@ -34,6 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfHelper } from '../../../modules/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MapClass } from './types/class';
 
 @Component({
   selector: 'app-list',
@@ -71,6 +72,7 @@ export class ListComponent<T extends object>
   @Input() componentColumns: ComponentColumn[] = [] as ComponentColumn[];
   @Input() actionDatas: ActionDatas = [];
   @Input() title?: string;
+  @Input() mapClass?: MapClass;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();

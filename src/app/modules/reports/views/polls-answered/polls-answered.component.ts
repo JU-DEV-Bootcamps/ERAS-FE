@@ -65,6 +65,7 @@ export class PollsAnsweredComponent implements OnInit {
       label: 'Finished At',
       key: 'finishedAt',
       pipe: this.transformPipe,
+      pipeKey: 'finishedAt',
     },
     {
       label: 'Student Name',
@@ -78,6 +79,7 @@ export class PollsAnsweredComponent implements OnInit {
       label: 'Modified At',
       key: 'student.audit.modifiedAt',
       pipe: this.transformPipe,
+      pipeKey: 'student.audit.modifiedAt',
     },
   ];
 

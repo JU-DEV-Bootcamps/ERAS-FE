@@ -73,6 +73,7 @@ export class SummaryHeatmapComponent {
       key: 'avgRiskLevel',
       label: 'Average Risk',
       pipe: new DecimalPipe('en-US'),
+      pipeKey: 'avgRiskLevel',
       pipeArgs: ['1.2-2'],
     },
   ];
