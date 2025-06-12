@@ -313,7 +313,7 @@ export class StudentDetailOptionComponent implements OnInit {
         this.openStudentDetails(element.studentId.toString());
       },
     };
-    console.log(event.data.id);
+
     if (actions[event.data.id]) {
       actions[event.data.id](event.item as StudentRiskResponse);
     }

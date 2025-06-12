@@ -1,0 +1,10 @@
+@if (element) {
+  <span class="column-gap">
+    <mat-icon class="icon">person</mat-icon>
+    <div class="text">
+      {{ element.studentName }}
+    </div>
+  </span>
+} @else {
+  <app-empty-data-message description="No student found" />
+}

@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
-import { StudentRiskResponse } from '../../../../core/models/cohort.model';
 import {
   getRiskColor,
   getRiskTextColor,
 } from '../../../../core/constants/riskLevel';
+import { StudentReportAnswerRiskLevel } from '../../../../core/models/summary.model';
 
 @Component({
   selector: 'app-badge-risk-level',
@@ -15,7 +15,7 @@ import {
   imports: [MatIconModule, CommonModule, EmptyDataComponent],
 })
 export class BadgeRiskComponent {
-  @Input() item: StudentRiskResponse | undefined;
+  @Input() item: StudentReportAnswerRiskLevel | undefined;
 
   getRiskColor(riskLevel: number): string {
     return getRiskColor(riskLevel);

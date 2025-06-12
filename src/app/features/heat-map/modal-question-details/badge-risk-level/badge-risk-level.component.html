@@ -1,10 +1,10 @@
 @if (item) {
   <div
     class="risk-badge"
-    [style.backgroundColor]="getRiskColor(item.riskSum)"
-    [style.color]="getTextRiskColor(item.riskSum)"
+    [style.backgroundColor]="getRiskColor(item.answerRisk)"
+    [style.color]="getTextRiskColor(item.answerRisk)"
   >
-    {{ item.riskSum }}
+    {{ item.answerRisk }}
   </div>
 } @else {
   <app-empty-data-message description="No evaluation process found" />

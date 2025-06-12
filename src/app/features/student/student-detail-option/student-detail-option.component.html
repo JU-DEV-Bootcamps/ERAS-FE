@@ -120,8 +120,8 @@
               [totalItems]="filteredStudents.length"
               [title]="'Top Risk Students'"
             >
-              <ng-template #riskSum let-element>
-                <app-badge-risk-level [element]="element" />
+              <ng-template #riskSum let-item>
+                <app-badge-risk-level [item]="item" />
               </ng-template>
             </app-list>
           </div>
@@ -163,8 +163,8 @@
                     .length
                 "
               >
-                <ng-template #riskSum let-element>
-                  <app-badge-risk-level [element]="element" />
+                <ng-template #riskSum let-item>
+                  <app-badge-risk-level [item]="item" />
                 </ng-template>
               </app-list>
             </div>
