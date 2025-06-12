@@ -6,6 +6,7 @@ import { ServerResponse } from '../interfaces/server.type';
 import { BaseApiService } from './base-api.service';
 import { ComponentsAvgModel } from '../../models/components-avg.model';
 import { ComponentsAvgGroupedByCohortsModel } from '../../models/reports/avg-reports';
+import { PagedResult } from '../interfaces/page.type';
 
 @Injectable({
   providedIn: 'root',
@@ -18,17 +19,33 @@ export class PollInstanceService extends BaseApiService {
     return this.get<ServerResponse>('', params);
   }
 
-  getPollInstancesByFilters(
-    cohortIds: number[],
-    lastDays: number,
-    lastVersion: boolean,
-    pollUuid: string
-  ) {
-    const params = new HttpParams()
-      .set('cohortIds', this.arrayAsStringParams(cohortIds))
+  getPollInstancesByFilters({
+    cohortIds,
+    lastDays = 400,
+    page,
+    pageSize,
+    lastVersion,
+    pollUuid,
+  }: {
+    cohortIds: number[];
+    lastDays?: number;
+    page: number;
+    pageSize: number;
+    lastVersion: boolean;
+    pollUuid: string;
+  }) {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('pageSize', pageSize)
       .set('days', lastDays)
-      .set('lastVersion', lastVersion);
-    return this.get<ApiResponse<PollInstanceModel[]>>(pollUuid, params);
+      .set('lastVersion', lastVersion)
+      .set('pollUuid', pollUuid);
+
+    cohortIds.forEach(id => {
+      params = params.append('cohortId', id);
+    });
+
+    return this.get<ApiResponse<PagedResult<PollInstanceModel>>>('', params);
   }
 
   getAllPollInstances() {
