@@ -18,11 +18,17 @@ export class PollInstanceService extends BaseApiService {
     return this.get<ServerResponse>('', params);
   }
 
-  getPollInstancesByFilters(cohortIds: number[], lastDays: number) {
+  getPollInstancesByFilters(
+    cohortIds: number[],
+    lastDays: number,
+    lastVersion: boolean,
+    pollUuid: string
+  ) {
     const params = new HttpParams()
       .set('cohortIds', this.arrayAsStringParams(cohortIds))
-      .set('days', lastDays);
-    return this.get<ApiResponse<PollInstanceModel[]>>('', params);
+      .set('days', lastDays)
+      .set('lastVersion', lastVersion);
+    return this.get<ApiResponse<PollInstanceModel[]>>(pollUuid, params);
   }
 
   getAllPollInstances() {

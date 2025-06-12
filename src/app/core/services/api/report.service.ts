@@ -37,8 +37,13 @@ export class ReportService extends BaseApiService {
     );
   }
 
-  getAvgPoolReport(pollInstanceUUID: string, cohortIds: number[]) {
+  getAvgPoolReport(
+    pollInstanceUUID: string,
+    cohortIds: number[],
+    lastVersion: boolean
+  ) {
     let params = new HttpParams();
+    params = params.set('lastVersion', lastVersion);
     if (cohortIds.length > 0)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
     return this.get<GetQueryResponse<PollAvgReport>>(

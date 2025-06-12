@@ -39,7 +39,7 @@
     <div id="table-container">
       <app-list
         (actionCalled)="(null)"
-        (loadCalled)="getStudentsByCohortAndPoll()"
+        (loadCalled)="getStudentsByCohortAndPoll(lastVersion)"
         [items]="students"
         [totalItems]="totalStudents"
         [columns]="columns"

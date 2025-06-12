@@ -141,10 +141,14 @@ export class PollsAnsweredComponent implements OnInit {
     });
   }
 
-  loadPollInstances(cohortIds: number[]): void {
+  loadPollInstances(
+    cohortIds: number[],
+    lastVersion: boolean,
+    pollUuid: string
+  ): void {
     this.loading = true;
     this.pollInstanceService
-      .getPollInstancesByFilters(cohortIds, 400)
+      .getPollInstancesByFilters(cohortIds, 400, lastVersion, pollUuid)
       .subscribe(data => {
         this.data = new MatTableDataSource<PollInstanceModel>(
           data.body.filter(p => p.uuid == this.selectedPollUuid)
@@ -188,7 +192,11 @@ export class PollsAnsweredComponent implements OnInit {
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
     this.loading = true;
-    this.loadPollInstances(this.selectedCohortIds);
+    this.loadPollInstances(
+      this.selectedCohortIds,
+      filters.lastVersion,
+      this.selectedPollUuid
+    );
   }
 
   getWidth(column: string): string {
