@@ -24,33 +24,45 @@ export class PollInstanceService extends BaseApiService {
     lastDays = 400,
     page,
     pageSize,
+    lastVersion,
+    pollUuid,
   }: {
     cohortIds: number[];
     lastDays?: number;
     page: number;
     pageSize: number;
+    lastVersion: boolean;
+    pollUuid: string;
   }) {
     let params = new HttpParams()
       .set('page', page)
       .set('pageSize', pageSize)
-      .set('days', lastDays);
+      .set('days', lastDays)
+      .set('lastVersion', lastVersion)
+      .set('pollUuid', pollUuid);
 
     cohortIds.forEach(id => {
       params = params.append('cohortId', id);
     });
 
-    return this.get<ApiResponse<PagedResult<PollInstanceModel>>>('', params);
+    return this.get<ApiResponse<PagedResult<PollInstanceModel>>>(
+      pollUuid,
+      params
+    );
   }
 
   getAllPollInstances() {
     return this.get<ServerResponse>('');
   }
 
-  getComponentsAvgGroupedByCohorts(pollUuid: string) {
+  getComponentsAvgGroupedByCohorts(pollUuid: string, lastVersion: boolean) {
+    const params = new HttpParams().set('lastVersion', lastVersion);
     return this.get<ComponentsAvgGroupedByCohortsModel>(
-      `${pollUuid}/cohorts/avg`
+      `${pollUuid}/cohorts/avg`,
+      params
     );
   }
+
   getComponentsRiskByPollForStudent(studentId: number, pollUuid: number) {
     const params = new HttpParams().set('studentId', studentId);
     return this.get<ComponentsAvgModel[]>(`${pollUuid}/avg`, params);

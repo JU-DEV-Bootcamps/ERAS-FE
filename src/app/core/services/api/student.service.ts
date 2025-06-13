@@ -30,12 +30,26 @@ export class StudentService extends BaseApiService {
     return this.get<StudentModel[]>('');
   }
 
-  getAllAverageByCohortsAndPoll(cohortIds: number[], pollUuid: string) {
+  getAllAverageByCohortsAndPoll({
+    page,
+    pageSize,
+    cohortIds,
+    pollUuid,
+    lastVersion,
+  }: {
+    cohortIds: number[];
+    page: number;
+    pageSize: number;
+    pollUuid: string;
+    lastVersion: boolean;
+  }) {
     const params = new HttpParams()
       .set('cohortIds', this.arrayAsStringParams(cohortIds))
-      .set('pollUuid', pollUuid);
-    // Is this endpoint being used? On BE there's a students/avg
-    return this.get<StudentRiskAverage[]>('average', params);
+      .set('pollUuid', pollUuid)
+      .set('page', page)
+      .set('pageSize', pageSize)
+      .set('lastVersion', lastVersion);
+    return this.get<PagedResult<StudentRiskAverage>>('average', params);
   }
 
   postData(data: StudentImport[]): Observable<ServerResponse> {
@@ -58,21 +72,23 @@ export class StudentService extends BaseApiService {
   getPollComponentTopStudents(
     pollUuid: string,
     componentName: string,
-    cohortId: number
+    cohortId: number,
+    lastVersion: boolean
   ) {
     return this.get<StudentRiskResponse[]>(
       `polls/${pollUuid}/components/top`,
       new HttpParams()
         .set('componentName', componentName)
         .set('cohortId', cohortId)
+        .set('LastVersion', lastVersion)
     );
   }
 
-  getPollTopStudents(pollUuid: string, cohortId: number) {
-    return this.get<StudentRiskResponse[]>(
-      `polls/${pollUuid}/top`,
-      new HttpParams().set('cohortId', cohortId)
-    );
+  getPollTopStudents(pollUuid: string, cohortId: number, lastVersion: boolean) {
+    const params = new HttpParams()
+      .set('CohortId', cohortId)
+      .set('LastVersion', lastVersion);
+    return this.get<StudentRiskResponse[]>(`polls/${pollUuid}/top`, params);
   }
 
   getPollStudentsRiskSum(pollUuid: string, cohortId: number) {

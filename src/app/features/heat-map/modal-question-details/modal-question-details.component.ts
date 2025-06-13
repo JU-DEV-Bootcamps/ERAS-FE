@@ -112,9 +112,11 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
 
   loadComponentsAndVariables(): void {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
-    this.PollService.getVariablesByComponents(pollInstanceUUID, [
-      this.inputQuestion.componentName.toLowerCase(),
-    ]).subscribe(res => {
+    this.PollService.getVariablesByComponents(
+      pollInstanceUUID,
+      [this.inputQuestion.componentName.toLowerCase()],
+      true
+    ).subscribe(res => {
       const variable = res.find(
         variable => variable.name == this.inputQuestion.question.question
       );

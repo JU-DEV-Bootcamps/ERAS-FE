@@ -30,6 +30,7 @@ import { PollFiltersComponent } from '../../components/poll-filters/poll-filters
 import { Filter } from '../../components/poll-filters/types/filters';
 import { PdfHelper } from '../../exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { EventLoad } from '../../../../shared/events/load';
 
 @Component({
   selector: 'app-students-risk',
@@ -81,6 +82,7 @@ export class SummaryHeatmapComponent {
 
   cohortIds: number[] = [];
   selectedCohort?: CohortModel;
+  lastVersion = true;
   pollUuid = '';
 
   students: StudentRiskAverage[] = [];
@@ -92,14 +94,20 @@ export class SummaryHeatmapComponent {
 
   constructor(private snackBar: MatSnackBar) {}
 
-  getStudentsByCohortAndPoll() {
+  getStudentsByCohortAndPoll(event: EventLoad) {
     if (this.cohortIds && this.pollUuid) {
       this.isLoading = true;
       this.studentService
-        .getAllAverageByCohortsAndPoll(this.cohortIds, this.pollUuid)
+        .getAllAverageByCohortsAndPoll({
+          page: event.pageIndex,
+          pageSize: event.pageSize,
+          cohortIds: this.cohortIds,
+          pollUuid: this.pollUuid,
+          lastVersion: this.lastVersion,
+        })
         .subscribe(res => {
-          this.students = res;
-          this.totalStudents = res.length;
+          this.students = res.items;
+          this.totalStudents = res.count;
           this.isLoading = false;
         });
     }
@@ -109,7 +117,7 @@ export class SummaryHeatmapComponent {
     if (!this.pollUuid) return;
 
     this.reportService
-      .getAvgPoolReport(this.pollUuid, this.cohortIds)
+      .getAvgPoolReport(this.pollUuid, this.cohortIds, this.lastVersion)
       .subscribe(res => {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
@@ -177,7 +185,8 @@ export class SummaryHeatmapComponent {
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
     this.pollUuid = filters.uuid;
-    this.getStudentsByCohortAndPoll();
+    this.lastVersion = filters.lastVersion;
+    this.getStudentsByCohortAndPoll({ pageSize: 10, pageIndex: 0 });
     this.getHeatMap();
   }
 }

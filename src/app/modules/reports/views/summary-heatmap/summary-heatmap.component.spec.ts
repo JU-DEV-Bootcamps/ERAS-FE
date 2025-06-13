@@ -20,6 +20,7 @@ import { EmptyDataComponent } from '../../../../shared/components/empty-data/emp
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PdfHelper } from '../../exportReport.util';
+import { PagedResult } from '../../../../core/services/interfaces/page.type';
 
 describe('SummaryHeatmapComponent', () => {
   let component: SummaryHeatmapComponent;
@@ -71,24 +72,33 @@ describe('SummaryHeatmapComponent', () => {
   });
 
   it('should call getAllAverageByCohortsAndPoll and update students and totalStudents', () => {
-    const mockStudents: StudentRiskAverage[] = [
-      {
-        studentName: 'Test',
-        email: 'test@test.com',
-        avgRiskLevel: 1,
-        studentId: 1,
-      },
-    ];
+    const mockStudents: PagedResult<StudentRiskAverage> = {
+      items: [
+        {
+          studentName: 'Test',
+          email: 'test@test.com',
+          avgRiskLevel: 1,
+          studentId: 1,
+        },
+      ],
+      count: 1,
+    };
     studentServiceSpy.getAllAverageByCohortsAndPoll.and.returnValue(
       of(mockStudents)
     );
     component.cohortIds = [1];
     component.pollUuid = 'poll-uuid';
-    component.getStudentsByCohortAndPoll();
+    component.getStudentsByCohortAndPoll({ pageSize: 10, pageIndex: 0 });
     expect(
       studentServiceSpy.getAllAverageByCohortsAndPoll
-    ).toHaveBeenCalledWith([1], 'poll-uuid');
-    expect(component.students).toEqual(mockStudents);
+    ).toHaveBeenCalledWith({
+      cohortIds: [1],
+      pollUuid: 'poll-uuid',
+      page: 0,
+      pageSize: 10,
+      lastVersion: true,
+    });
+    expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);
     expect(component.isLoading).toBeFalse();
   });
@@ -108,7 +118,8 @@ describe('SummaryHeatmapComponent', () => {
 
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
       'poll-uuid',
-      []
+      [],
+      true
     );
     expect(component.chartOptions).toBeDefined();
   });
