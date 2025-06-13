@@ -99,7 +99,7 @@ export class SummaryHeatmapComponent {
       this.isLoading = true;
       this.studentService
         .getAllAverageByCohortsAndPoll({
-          page: event.pageIndex,
+          page: event.page,
           pageSize: event.pageSize,
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
@@ -186,7 +186,7 @@ export class SummaryHeatmapComponent {
     this.title = filters.title;
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
-    this.getStudentsByCohortAndPoll({ pageSize: 10, pageIndex: 0 });
+    this.getStudentsByCohortAndPoll({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
 }

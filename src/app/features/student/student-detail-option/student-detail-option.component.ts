@@ -37,11 +37,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
 import { PollModel } from '../../../core/models/poll.model';
 import { ListComponent } from '../../../shared/components/list/list.component';
-//import { EventLoad } from '../../../shared/events/load';
 import { Column } from '../../../shared/components/list/types/column';
-import { BadgeRiskComponent } from './badge-risk-level/badge-risk-level.component';
 import { EventAction } from '../../../shared/events/load';
 import { MapClass } from '../../../shared/components/list/types/class';
+import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -75,10 +74,10 @@ export class StudentDetailOptionComponent implements OnInit {
   public modalDataSudentVariable: DialogRiskVariableData =
     {} as DialogRiskVariableData;
 
-  pollSeleccionado: PollModel | null = null;
-  pollSeleccionadoId: number | null = null;
+  pollSelected: PollModel | null = null;
+  pollSelectedId: number | null = null;
   lastVersion = false;
-  cohortSeleccionado: CohortComponents | null = null;
+  cohortSelected: CohortComponents | null = null;
   selectedComponents: { key: string; value: number }[] = [];
   componentStudentRisk: Record<string, StudentRiskResponse[]> = {};
   pollsService = inject(PollService);
@@ -220,7 +219,7 @@ export class StudentDetailOptionComponent implements OnInit {
       .getPollComponentTopStudents(
         this.pollSelected.uuid,
         componentKey,
-        this.cohortSeleccionado.cohortId,
+        this.cohortSelected.cohortId,
         this.lastVersion
       )
       .subscribe(data => {
@@ -268,8 +267,8 @@ export class StudentDetailOptionComponent implements OnInit {
 
     this.studentService
       .getPollTopStudents(
-        this.pollSeleccionado.uuid,
-        this.cohortSeleccionado.cohortId,
+        this.pollSelected.uuid,
+        this.cohortSelected.cohortId,
         this.lastVersion
       )
       .subscribe({
@@ -294,12 +293,13 @@ export class StudentDetailOptionComponent implements OnInit {
     });
   }
 
-  handleLoad(/* event: EventLoad */) {
+  handleLoad() {
     if (this.pollSelected && this.cohortSelected) {
       this.studentService
         .getPollTopStudents(
           this.pollSelected.uuid,
-          this.cohortSelected.cohortId
+          this.cohortSelected.cohortId,
+          this.lastVersion
         )
         .subscribe({
           next: data => {

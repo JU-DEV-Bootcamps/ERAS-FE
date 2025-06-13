@@ -37,7 +37,7 @@
       [actionDatas]="actionDatas"
     >
       <ng-template #answerRisk let-item>
-        <app-badge-risk-level [item]="item" />
+        <app-badge-risk-level [riskLevel]="item.question.averageRisk" />
       </ng-template>
     </app-list>
   }

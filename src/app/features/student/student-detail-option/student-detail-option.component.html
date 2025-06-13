@@ -135,7 +135,7 @@
               [title]="'Top Risk Students'"
             >
               <ng-template #riskSum let-item>
-                <app-badge-risk-level [item]="item" />
+                <app-badge-risk-level [riskLevel]="item.riskSum" />
               </ng-template>
             </app-list>
           </div>
@@ -178,7 +178,7 @@
                 "
               >
                 <ng-template #riskSum let-item>
-                  <app-badge-risk-level [item]="item" />
+                  <app-badge-risk-level [riskLevel]="item.riskSum" />
                 </ng-template>
               </app-list>
             </div>

@@ -31,7 +31,7 @@ import { Column } from '../../../shared/components/list/types/column';
 import { ActionDatas } from '../../../shared/components/list/types/action';
 import { EventAction } from '../../../shared/events/load';
 import { ListComponent } from '../../../shared/components/list/list.component';
-import { BadgeRiskComponent } from './badge-risk-level/badge-risk-level.component';
+import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
 
 export interface SelectedHMData {
   cohortId: string;
