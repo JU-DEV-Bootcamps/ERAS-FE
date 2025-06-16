@@ -16,45 +16,63 @@
         appearance="outlined"
       >
         <mat-card-content [class]="mapClass?.card?.content ?? ''">
-          <div class="row-info" *ngFor="let column of getColumnKeys()">
+          <div class="row-info" *ngFor="let column of columns">
             <span>
-              <b class="field">{{ column.toString() | titlecase }}</b
+              <b class="field">{{ column.label }}</b
               >:
             </span>
             <span class="information">
-              {{ item[column] }}
+              {{ item[column.key] }}
+            </span>
+          </div>
+          <div
+            class="row-info row-mobile"
+            *ngFor="let columnTemplate of columnTemplates"
+          >
+            <span>
+              <b class="field">{{ columnTemplate.label }}</b
+              >:
+            </span>
+            <span class="information">
+              <ng-container
+                class
+                *ngTemplateOutlet="
+                  getTemplateForColumn(columnTemplate.key.toString());
+                  context: { $implicit: item }
+                "
+              ></ng-container>
             </span>
           </div>
         </mat-card-content>
-        <mat-card-actions
-          [class]="mapClass?.card?.actions ?? ''"
-          *ngIf="getTotalActionDatas() > 0"
-        >
-          <app-action-button
-            *ngFor="let actionData of getActionDatas()"
-            [item]="item"
-            [actionData]="actionData"
-            (actionCalled)="handleAction($event)"
-          >
-            <mat-icon
-              *ngIf="
+        @if (getTotalActionDatas() > 0) {
+          <mat-card-actions [class]="mapClass?.card?.actions ?? ''">
+            @for (actionData of getActionDatas(); track $index) {
+              @if (
                 isVisible(actionData, item) &&
                 !actionData.text &&
                 actionData.ngIconName
-              "
-            >
-              {{ actionData.ngIconName }}
-            </mat-icon>
-            <span
-              *ngIf="
-                isVisible(actionData, item) &&
-                actionData.text &&
-                !actionData.ngIconName
-              "
-              >{{ actionData.text }}</span
-            >
-          </app-action-button>
-        </mat-card-actions>
+              ) {
+                <app-action-button
+                  [item]="item"
+                  [actionData]="actionData"
+                  (actionCalled)="handleAction($event)"
+                >
+                  <mat-icon [matTooltip]="actionData.tooltip ?? 'action'">
+                    {{ actionData.ngIconName }}
+                  </mat-icon>
+                </app-action-button>
+              } @else {
+                @if (
+                  isVisible(actionData, item) &&
+                  actionData.text &&
+                  !actionData.ngIconName
+                ) {
+                  {{ actionData.text }}
+                }
+              }
+            }
+          </mat-card-actions>
+        }
       </mat-card>
     </div>
   </ng-container>

@@ -105,6 +105,11 @@ export class PdfHelper {
       tooltip.remove();
     });
 
+    // Mobile
+    clonedElement.querySelectorAll('mat-card-actions').forEach(matCard => {
+      matCard.remove();
+    });
+
     const containerCardList = clonedElement.querySelector(
       '.container-card-list'
     ) as HTMLElement;
