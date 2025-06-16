@@ -4,8 +4,19 @@ import { ImportStudentsComponent } from './import-students.component';
 import { VALIDATION_MESSAGES } from '../../core/constants/messages';
 import { of } from 'rxjs';
 import { StudentService } from '../../core/services/api/student.service';
+import { ActivatedRoute } from '@angular/router';
 
 describe('ImportStudentsComponent', () => {
+  const mockActivatedRoute = {
+    snapshot: {
+      paramMap: {
+        get: () => null,
+      },
+    },
+    params: of({}),
+    queryParams: of({}),
+  };
+
   let component: ImportStudentsComponent;
   let fixture: ComponentFixture<ImportStudentsComponent>;
   const mockService = jasmine.createSpyObj('StudentService', ['getData']);
@@ -16,6 +27,7 @@ describe('ImportStudentsComponent', () => {
       imports: [ImportStudentsComponent],
       providers: [
         { provide: StudentService, useValue: mockService },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
         provideNoopAnimations(),
       ],
     }).compileComponents();
