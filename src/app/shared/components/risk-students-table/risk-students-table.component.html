@@ -35,10 +35,10 @@
             <mat-card-title style="text-align: center; font-weight: bold"
               >Results Summary</mat-card-title
             >
-            @if (studentName.length > 0 && studentRiskDetail.length > 0) {
+            @if (studentRisks.length > 0) {
               <app-bar-chart
-                [seriesY]="studentRiskDetail"
-                [categoriesX]="studentName"
+                [seriesY]="risks"
+                [categoriesX]="studentNames"
                 style="width: 90%"
               ></app-bar-chart>
             } @else {
@@ -53,10 +53,10 @@
             >
             <div class="overlaped">
               <p class="front-result">{{ lastPoll.average }}</p>
-              @if (studentName.length > 0 && studentRiskDetail.length > 0) {
+              @if (studentNames.length > 0 && risks.length > 0) {
                 <app-pie-chart
-                  [seriesY]="studentRiskDetail"
-                  [categoriesX]="studentName"
+                  [seriesY]="risks"
+                  [categoriesX]="studentNames"
                   class="back-result"
                 ></app-pie-chart>
               } @else {
@@ -67,40 +67,18 @@
             </div>
           </mat-card>
         </div>
-        <br />
-        <mat-card-header>
-          <mat-card-title>Students List by Risk Average</mat-card-title>
-        </mat-card-header>
-        <div class="table-container">
-          <mat-table [dataSource]="studentRisk" class="student-table">
-            <ng-container matColumnDef="name">
-              <mat-header-cell *matHeaderCellDef class="name-column">
-                Name
-              </mat-header-cell>
-              <mat-cell *matCellDef="let item" class="name-column">
-                <mat-icon matListItemIcon>person</mat-icon>
-                {{ item.student.name }}
-              </mat-cell>
-            </ng-container>
-            <ng-container matColumnDef="risk">
-              <mat-header-cell *matHeaderCellDef class="risk-column">
-                Risk Level
-              </mat-header-cell>
-              <mat-cell *matCellDef="let item" class="risk-column">
-                <div
-                  class="risk-badge"
-                  [style.backgroundColor]="getRiskColor(item.answer.riskLevel)"
-                >
-                  {{ item.answer.riskLevel }}
-                </div>
-              </mat-cell>
-            </ng-container>
-            <mat-header-row
-              *matHeaderRowDef="displayedColumns"
-            ></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-          </mat-table>
-        </div>
+        <app-list
+          (loadCalled)="handleLoadCalled()"
+          [columns]="columns"
+          [columnTemplates]="columnTemplates"
+          [items]="studentRisks"
+          [totalItems]="totalStudentRisks"
+          [title]="'Students List by Risk Average'"
+        >
+          <ng-template #risk let-item>
+            <app-badge-risk-level [riskLevel]="item.risk" />
+          </ng-template>
+        </app-list>
       </mat-card>
     </mat-card-content>
   </div>

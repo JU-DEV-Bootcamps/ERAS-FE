@@ -9,8 +9,13 @@
 
   <ng-container *ngIf="columns.length > 0 && isMobile; else tableView">
     <div class="card-container">
-      <mat-card *ngFor="let item of items" class="card" appearance="outlined">
-        <mat-card-content>
+      <mat-card
+        [class]="mapClass?.card?.card ?? ''"
+        *ngFor="let item of items"
+        class="card"
+        appearance="outlined"
+      >
+        <mat-card-content [class]="mapClass?.card?.content ?? ''">
           <div class="row-info" *ngFor="let column of getColumnKeys()">
             <span>
               <b class="field">{{ column.toString() | titlecase }}</b
@@ -21,7 +26,10 @@
             </span>
           </div>
         </mat-card-content>
-        <mat-card-actions *ngIf="getTotalActionDatas() > 0">
+        <mat-card-actions
+          [class]="mapClass?.card?.actions ?? ''"
+          *ngIf="getTotalActionDatas() > 0"
+        >
           <app-action-button
             *ngFor="let actionData of getActionDatas()"
             [item]="item"
@@ -54,7 +62,7 @@
   <ng-template #tableView>
     <table
       mat-table
-      [className]="mapClass?.table?.table ?? ''"
+      [class]="mapClass?.table?.table ?? ''"
       [dataSource]="items"
     >
       <ng-container
@@ -63,14 +71,14 @@
       >
         <th
           mat-header-cell
-          [className]="mapClass?.table?.header ?? ''"
+          [class]="mapClass?.table?.header ?? ''"
           *matHeaderCellDef
         >
           <b>{{ column.label | titlecase }}</b>
         </th>
         <td
           mat-cell
-          [className]="mapClass?.table?.cell ?? ''"
+          [class]="mapClass?.table?.cell ?? ''"
           *matCellDef="let element"
         >
           {{ showElement(element, column) }}
@@ -83,14 +91,14 @@
       >
         <th
           mat-header-cell
-          [className]="mapClass?.table?.table ?? ''"
+          [class]="mapClass?.table?.table ?? ''"
           *matHeaderCellDef
         >
           <b>{{ columnTemplate.label | titlecase }}</b>
         </th>
         <td
           mat-cell
-          [className]="mapClass?.table?.cell ?? ''"
+          [class]="mapClass?.table?.cell ?? ''"
           *matCellDef="let item"
         >
           <ng-container
@@ -105,7 +113,7 @@
       <ng-container *ngIf="getTotalActionDatas() > 0" matColumnDef="Actions">
         <th
           mat-header-cell
-          [className]="mapClass?.table?.header ?? ''"
+          [class]="mapClass?.table?.header ?? ''"
           *matHeaderCellDef
           class="action-column-header"
         >
@@ -113,7 +121,7 @@
         </th>
         <td
           mat-cell
-          [className]="mapClass?.table?.cell ?? ''"
+          [class]="mapClass?.table?.cell ?? ''"
           *matCellDef="let item"
           class="action-column-cell"
         >
@@ -140,12 +148,12 @@
 
       <tr
         mat-header-row
-        [className]="mapClass?.table?.row ?? ''"
+        [class]="mapClass?.table?.row ?? ''"
         *matHeaderRowDef="getAllColumns()"
       ></tr>
       <tr
         mat-row
-        [className]="mapClass?.table?.row ?? ''"
+        [class]="mapClass?.table?.row ?? ''"
         *matRowDef="let row; columns: getAllColumns()"
       ></tr>
     </table>

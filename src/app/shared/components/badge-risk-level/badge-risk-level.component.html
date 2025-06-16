@@ -1,4 +1,4 @@
-@if (riskLevel) {
+@if (riskLevel || riskLevel === 0) {
   <div
     class="risk-badge"
     [style.backgroundColor]="getRiskColor(riskLevel)"
