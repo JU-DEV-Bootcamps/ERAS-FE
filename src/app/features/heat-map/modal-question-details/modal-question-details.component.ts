@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -59,7 +59,7 @@ export interface SelectedHMData {
   templateUrl: './modal-question-details.component.html',
   styleUrl: './modal-question-details.component.css',
 })
-export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
+export class ModalQuestionDetailsComponent implements AfterViewInit {
   readonly dialog = inject(MatDialog);
   public inputQuestion: SelectedHMData = inject(MAT_DIALOG_DATA);
   public variableId = 0;
@@ -67,7 +67,6 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
   private PollService = inject(PollService);
 
   public studentsRisk: PollTopReport = [];
-  public studentTableColumns: string[] = ['name', 'answer', 'risk', 'actions'];
   columns: Column<StudentReportAnswerRiskLevel>[] = [
     {
       key: 'studentName',
@@ -95,10 +94,6 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
   ];
 
   constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
-
-  ngOnInit(): void {
-    this.loadComponentsAndVariables();
-  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -148,7 +143,6 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
-      minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
       data: { studentId: studentId },

@@ -20,7 +20,6 @@ import {
   PollAvgQuestion,
   PollAvgReport,
 } from '../../../../core/models/summary.model';
-import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { StudentService } from '../../../../core/services/api/student.service';
 import { ReportService } from '../../../../core/services/api/report.service';
 import { ListComponent } from '../../../../shared/components/list/list.component';
@@ -31,6 +30,7 @@ import { Filter } from '../../components/poll-filters/types/filters';
 import { PdfHelper } from '../../exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EventLoad } from '../../../../shared/events/load';
+import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 
 @Component({
   selector: 'app-students-risk',

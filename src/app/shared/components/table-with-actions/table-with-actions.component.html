@@ -53,11 +53,12 @@
                 actionData.ngIconName
               ) {
                 <app-action-button
+                  [matTooltip]="actionData.tooltip ?? 'action'"
                   [item]="item"
                   [actionData]="actionData"
                   (actionCalled)="handleAction($event)"
                 >
-                  <mat-icon [matTooltip]="actionData.tooltip ?? 'action'">
+                  <mat-icon>
                     {{ actionData.ngIconName }}
                   </mat-icon>
                 </app-action-button>

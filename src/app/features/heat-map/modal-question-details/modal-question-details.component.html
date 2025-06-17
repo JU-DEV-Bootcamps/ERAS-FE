@@ -24,21 +24,18 @@
       <mat-icon>close</mat-icon>
     </button>
   </div>
-
-  @if (studentsRisk && studentsRisk.length > 0) {
-    <app-list
-      (loadCalled)="handleLoadCalled()"
-      (actionCalled)="handleActionCalled($event)"
-      [columns]="columns"
-      [columnTemplates]="columnTemplates"
-      [items]="studentsRisk"
-      [totalItems]="studentsRisk.length"
-      [title]="'Answer Details'"
-      [actionDatas]="actionDatas"
-    >
-      <ng-template #answerRisk let-item>
-        <app-badge-risk-level [riskLevel]="item.answerRisk" />
-      </ng-template>
-    </app-list>
-  }
+  <app-list
+    (loadCalled)="handleLoadCalled()"
+    (actionCalled)="handleActionCalled($event)"
+    [columns]="columns"
+    [columnTemplates]="columnTemplates"
+    [items]="studentsRisk"
+    [totalItems]="studentsRisk.length"
+    [title]="'Answer Details'"
+    [actionDatas]="actionDatas"
+  >
+    <ng-template #answerRisk let-item>
+      <app-badge-risk-level [riskLevel]="item.answerRisk" />
+    </ng-template>
+  </app-list>
 </mat-dialog-content>

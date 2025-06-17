@@ -10,12 +10,22 @@ import { of } from 'rxjs';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { ReportService } from '../../../core/services/api/report.service';
 import { PollService } from '../../../core/services/api/poll.service';
+import { ActivatedRoute } from '@angular/router';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
   let fixture: ComponentFixture<ModalQuestionDetailsComponent>;
   let reportService: jasmine.SpyObj<ReportService>;
 
+  const mockActivatedRoute = {
+    snapshot: {
+      paramMap: {
+        get: () => null,
+      },
+    },
+    params: of({}),
+    queryParams: of({}),
+  };
   const mockQuestion: PollAvgQuestion = {
     question: 'Test Question',
     averageRisk: 3,
@@ -62,6 +72,7 @@ describe('ModalQuestionDetailsComponent', () => {
         },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: PollService, useValue: variableServiceSpy },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
       teardown: { destroyAfterEach: false },
     }).compileComponents();

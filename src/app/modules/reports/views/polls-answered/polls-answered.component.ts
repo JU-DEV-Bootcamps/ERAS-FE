@@ -202,7 +202,6 @@ export class PollsAnsweredComponent implements OnInit {
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
-      minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
       data: {

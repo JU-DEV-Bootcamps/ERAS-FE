@@ -12,7 +12,7 @@ import { PollName } from '../../../core/models/poll-request.model';
 import { Column } from '../list/types/column';
 import { ActionDatas } from '../list/types/action';
 
-fdescribe('TableWithActionsComponent', () => {
+describe('TableWithActionsComponent', () => {
   let component: TableWithActionsComponent<PollName>;
   let fixture: ComponentFixture<TableWithActionsComponent<PollName>>;
 
