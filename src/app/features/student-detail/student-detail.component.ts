@@ -32,6 +32,7 @@ import { PagedResult } from '../../core/services/interfaces/page.type';
 import { PdfHelper } from '../../modules/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { getRiskColor } from '../../core/constants/riskLevel';
 
 register();
 
@@ -89,6 +90,7 @@ export class StudentDetailComponent implements OnDestroy {
   selectedPoll = 0;
   studentPolls: PollModel[] = [];
   studentAnswers: AnswerResponse[] = [];
+  totalStudentAnswers = 0;
   componentsAvg: ComponentsAvgModel[] = [];
 
   isGeneratingPDF = false;
@@ -96,8 +98,7 @@ export class StudentDetailComponent implements OnDestroy {
 
   @Input({ required: true }) studentId!: number;
 
-  columns = ['variable', 'position', 'component', 'answer', 'score'];
-  columns2: Column<AnswerResponse>[] = [
+  columns: Column<AnswerResponse>[] = [
     {
       key: 'variable',
       label: 'Variable',
@@ -221,6 +222,7 @@ export class StudentDetailComponent implements OnDestroy {
       .subscribe({
         next: (data: PagedResult<AnswerResponse>) => {
           this.studentAnswers = data.items;
+          this.totalStudentAnswers = data.count;
         },
         error: error => {
           console.error(error);
@@ -248,16 +250,7 @@ export class StudentDetailComponent implements OnDestroy {
   chartSeriesByPollId: Record<number, ApexAxisChartSeries> = {};
 
   getColorByRisk(value: number): string {
-    if (value >= 0 && value <= 2) {
-      return '#4CAF50';
-    } else if (value > 2 && value <= 3) {
-      return '#E5E880';
-    } else if (value > 3 && value <= 4) {
-      return '#E8B079';
-    } else if (value > 4) {
-      return '#E68787';
-    }
-    return '#CCC';
+    return getRiskColor(Math.floor(value)) ?? '#CCC';
   }
 
   buildChartSeries() {

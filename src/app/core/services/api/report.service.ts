@@ -7,13 +7,15 @@ import {
   PollAvgReport,
   PollCountComponent,
   PollCountReport,
-  PollTopReport,
+  StudentReportAnswerRiskLevel,
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
 import { fixedColorRange } from '../../../features/cohort/util/heat-map-config';
 import { Serie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
+import { Pagination } from '../interfaces/server.type';
+import { PagedResult } from '../interfaces/page.type';
 
 @Injectable({
   providedIn: 'root',
@@ -23,16 +25,18 @@ export class ReportService extends BaseApiService {
   getCountSummary() {
     return this.get<ApiResponse<CountSummaryModel>>('count');
   }
-  getTopPollReport(variableIds: number[], pollUuiD: string, take?: number) {
-    let params = new HttpParams().set(
-      'variableIds',
-      this.arrayAsStringParams(variableIds)
-    );
-    if (take !== undefined && take !== null) {
-      params = params.set('take', take);
-    }
-    return this.get<ApiResponse<PollTopReport>>(
-      `polls/${pollUuiD}/top`,
+  getTopPollReport(
+    variableIds: number[],
+    pollUuid: string,
+    pagination: Pagination
+  ) {
+    const params = new HttpParams()
+      .set('variableIds', this.arrayAsStringParams(variableIds))
+      .set('PageSize', pagination.pageSize)
+      .set('Page', pagination.page);
+
+    return this.get<ApiResponse<PagedResult<StudentReportAnswerRiskLevel>>>(
+      `polls/${pollUuid}/top`,
       params
     );
   }
