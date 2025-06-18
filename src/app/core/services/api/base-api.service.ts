@@ -48,6 +48,6 @@ export abstract class BaseApiService {
   }
 
   arrayAsStringParams(keys: number[] | string[]) {
-    return keys.length > 1 ? keys.join(',').replace(/^,+|,+$/g, '') : keys[1];
+    return keys.length > 1 ? keys.join(',').replace(/^,+|,+$/g, '') : keys[0];
   }
 }

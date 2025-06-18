@@ -10,6 +10,7 @@ import { TitleCasePipe } from '@angular/common';
 import { By } from '@angular/platform-browser';
 import { PollName } from '../../../core/models/poll-request.model';
 import { Column } from '../list/types/column';
+import { ActionDatas } from '../list/types/action';
 
 describe('TableWithActionsComponent', () => {
   let component: TableWithActionsComponent<PollName>;
@@ -38,9 +39,19 @@ describe('TableWithActionsComponent', () => {
     { key: 'status', label: 'Status' },
   ];
 
-  const mockActionDatas = [
-    { columnId: 'edit', text: 'Edit', label: 'Edit' },
-    { columnId: 'delete', ngIconName: 'delete', label: 'Delete' },
+  const mockActionDatas: ActionDatas = [
+    {
+      columnId: 'actions',
+      ngIconName: 'edit',
+      label: 'Edit',
+      id: 'id1',
+    },
+    {
+      columnId: 'actions',
+      ngIconName: 'delete',
+      label: 'Delete',
+      id: 'id2',
+    },
   ];
 
   beforeEach(async () => {
@@ -71,10 +82,14 @@ describe('TableWithActionsComponent', () => {
   });
 
   it('should render action buttons in the Actions column', () => {
+    const rowInfos = fixture.debugElement.queryAll(
+      By.css('.row-info') //app-table-with-actions tr for desktop version
+    );
     const actionButtons = fixture.debugElement.queryAll(
       By.css('app-action-button')
     );
 
+    expect(rowInfos.length).toBe(mockItems.length * mockColumns.length);
     expect(actionButtons.length).toBe(
       mockItems.length * mockActionDatas.length
     );

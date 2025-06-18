@@ -1,7 +1,6 @@
 import {
   Component,
   inject,
-  OnInit,
   Input,
   OnChanges,
   SimpleChanges,
@@ -17,6 +16,9 @@ import { PieChartComponent } from '../charts/pie-chart/pie-chart.component';
 import { ReportService } from '../../../core/services/api/report.service';
 import { PollTopReport } from '../../../core/models/summary.model';
 import { CohortService } from '../../../core/services/api/cohort.service';
+import { ListComponent } from '../list/list.component';
+import { BadgeRiskComponent } from '../badge-risk-level/badge-risk-level.component';
+import { Column } from '../list/types/column';
 
 interface StudentSummary {
   studentUuid: string;
@@ -27,6 +29,10 @@ interface StudentSummary {
   pollinstancesCount: number;
 }
 
+interface StudentRisk {
+  name: string;
+  risk: number;
+}
 interface StudentDataResponse {
   cohortCount: number;
   studentCount: number;
@@ -56,11 +62,13 @@ const lastPollPlaceholder = {
     MatProgressSpinnerModule,
     BarChartComponent,
     PieChartComponent,
+    ListComponent,
+    BadgeRiskComponent,
   ],
   templateUrl: './risk-students-table.component.html',
   styleUrls: ['./risk-students-table.component.scss'],
 })
-export class RiskStudentsTableComponent implements OnInit, OnChanges {
+export class RiskStudentsTableComponent implements OnChanges {
   private reportService = inject(ReportService);
   private cohortService = inject(CohortService);
 
@@ -70,16 +78,26 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
   public studentRisk: PollTopReport = [];
   public studentDataResponse: StudentDataResponse[] = [];
   public displayedColumns: string[] = ['name', 'risk'];
-  public lastPoll = lastPollPlaceholder;
-  public studentName: string[] = [];
-  public studentRiskDetail: number[] = [];
 
-  ngOnInit(): void {
-    if (this.isValidData()) {
-      this.loadStudentRisk();
-    }
-    this.loadCohorts();
-  }
+  columns: Column<StudentRisk>[] = [
+    {
+      key: 'name',
+      label: 'Name',
+    },
+  ];
+  columnTemplates: Column<StudentRisk>[] = [
+    {
+      key: 'risk',
+      label: 'Risk',
+    },
+  ];
+
+  studentNames: string[] = [];
+  risks: number[] = [];
+  studentRisks: StudentRisk[] = [];
+  totalStudentRisks = 0;
+
+  public lastPoll = lastPollPlaceholder;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['pollUUID'] || changes['variableIds']) {
@@ -140,21 +158,38 @@ export class RiskStudentsTableComponent implements OnInit, OnChanges {
   }
 
   private createDataChar(): void {
-    this.studentName = this.studentDataResponse.flatMap(studentData =>
-      studentData.summary.map(student => student.studentName)
-    );
+    this.studentNames = [];
+    this.risks = [];
+    this.studentRisks = [];
+    this.totalStudentRisks = 0;
+    this.studentDataResponse.flatMap(studentData =>
+      studentData.summary.forEach(student => {
+        const name = student.studentName;
+        const risk = Math.round(student.pollinstancesAverage);
+        const studentRisk: StudentRisk = {
+          name,
+          risk,
+        };
 
-    this.studentRiskDetail = this.studentDataResponse.flatMap(studentData =>
-      studentData.summary.map(student =>
-        Math.round(student.pollinstancesAverage)
-      )
+        this.studentNames.push(name);
+        this.risks.push(risk);
+        this.studentRisks.push(studentRisk);
+      })
     );
+    this.totalStudentRisks = this.studentRisks.length;
   }
 
   private updateChartData(): void {
-    if (this.studentName.length > 0 && this.studentRiskDetail.length > 0) {
+    if (this.studentRisks.length > 0) {
       this.createDataChar();
     }
     this.createDataChar();
+  }
+
+  handleLoadCalled() {
+    if (this.isValidData()) {
+      this.loadStudentRisk();
+    }
+    this.loadCohorts();
   }
 }

@@ -24,89 +24,18 @@
       <mat-icon>close</mat-icon>
     </button>
   </div>
-
-  @if (studentsRisk && studentsRisk.length > 0) {
-    <mat-card class="student-card">
-      <mat-card-header class="card-header">
-        <div class="title-card-header">
-          <mat-card-title>Answer details</mat-card-title>
-        </div>
-        <div class="icon-card-header">
-          <button
-            mat-icon-button
-            [matMenuTriggerFor]="menu"
-            [disabled]="true"
-            aria-label="Export options"
-          >
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item>Export</button>
-          </mat-menu>
-        </div>
-      </mat-card-header>
-
-      <mat-card-content>
-        <mat-table [dataSource]="studentsRisk" class="student-table">
-          <ng-container matColumnDef="name">
-            <mat-header-cell *matHeaderCellDef class="name-column">
-              Name
-            </mat-header-cell>
-            <mat-cell *matCellDef="let item">
-              <span class="column-gap">
-                <mat-icon class="icon">person</mat-icon>
-                <div class="text">
-                  {{ item.studentName }}
-                </div>
-              </span>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="answer">
-            <mat-header-cell *matHeaderCellDef class="answer-column">
-              Answer
-            </mat-header-cell>
-            <mat-cell *matCellDef="let item" class="answer-column">
-              {{ item.answerText }}
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="risk">
-            <mat-header-cell *matHeaderCellDef class="risk-column">
-              Risk Level
-            </mat-header-cell>
-            <mat-cell *matCellDef="let item" class="risk-column">
-              <div
-                class="risk-badge"
-                [style.backgroundColor]="getRiskColor(item.answerRisk)"
-                [style.color]="getTextRiskColor(item.answerRisk)"
-              >
-                {{ item.answerRisk }}
-              </div>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <mat-header-cell *matHeaderCellDef class="actions-column">
-              Actions
-            </mat-header-cell>
-            <mat-cell *matCellDef="let item" class="actions-column">
-              <button
-                mat-icon-button
-                aria-label="View details"
-                (click)="openStudentDetails(item.studentId)"
-              >
-                <mat-icon>visibility</mat-icon>
-              </button>
-            </mat-cell>
-          </ng-container>
-
-          <mat-header-row
-            *matHeaderRowDef="studentTableColumns"
-          ></mat-header-row>
-          <mat-row *matRowDef="let row; columns: studentTableColumns"></mat-row>
-        </mat-table>
-      </mat-card-content>
-    </mat-card>
-  }
+  <app-list
+    (loadCalled)="handleLoadCalled()"
+    (actionCalled)="handleActionCalled($event)"
+    [columns]="columns"
+    [columnTemplates]="columnTemplates"
+    [items]="studentsRisk"
+    [totalItems]="studentsRisk.length"
+    [title]="'Answer Details'"
+    [actionDatas]="actionDatas"
+  >
+    <ng-template #answerRisk let-item>
+      <app-badge-risk-level [riskLevel]="item.answerRisk" />
+    </ng-template>
+  </app-list>
 </mat-dialog-content>

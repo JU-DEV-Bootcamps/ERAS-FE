@@ -123,7 +123,7 @@ export class StudentDetailComponent implements OnDestroy {
   isMobile = false;
   pagination: Pagination = {
     pageSize: 10,
-    pageIndex: 0,
+    page: 0,
   };
   totalPolls = 0;
 
@@ -151,7 +151,7 @@ export class StudentDetailComponent implements OnDestroy {
   handleLoad(studentId: number, event: EventLoad) {
     if (event) {
       this.pagination = {
-        pageIndex: event.pageIndex,
+        page: event.page,
         pageSize: event.pageSize,
       };
     }
@@ -160,7 +160,7 @@ export class StudentDetailComponent implements OnDestroy {
 
   getStudentDetails(studentId: number) {
     this.studentService
-      .getStudentDetailsById(studentId)
+      .getStudentDetailsById(studentId, this.pagination)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: StudentResponse) => {

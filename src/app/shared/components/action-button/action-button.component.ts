@@ -14,6 +14,7 @@ export class ActionButtonComponent {
     columnId: '',
     text: '',
     label: '',
+    id: '',
   };
   @Input() item: unknown = {};
   @Output() actionCalled = new EventEmitter<EventAction>();

@@ -1,0 +1,44 @@
+@use '../../../../../../styles/utils/index.scss' as main-styles;
+
+.badgeStatus {
+  padding: 4px;
+  border-radius: 10px;
+  border: none;
+  width: 100px;
+  height: 20px;
+  display: block;
+  color: white;
+  text-align: center;
+  font-weight: 500;
+  opacity: 0.75;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.statusActionContainer {
+  display: flex;
+  gap: 10px;
+  height: 100%;
+  justify-content: end;
+  .goToImport {
+    color: main-styles.get-color(primary, 80);
+    &:hover {
+      color: main-styles.get-color(primary, 50);
+      transform: scale(1.25);
+    }
+  }
+}
+
+.Incomplete {
+  background-color: main-styles.get-color(tertiary, 20);
+}
+.Not_started_yet {
+  background-color: main-styles.get-color(primary, 60);
+}
+.In_progress {
+  background-color: main-styles.get-color(primary, 30);
+}
+.Finished {
+  background-color: main-styles.get-color(neutral, 60);
+}

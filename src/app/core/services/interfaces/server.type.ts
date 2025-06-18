@@ -4,5 +4,5 @@ export interface ServerResponse {
 }
 export interface Pagination {
   pageSize: number;
-  pageIndex: number;
+  page: number;
 }

@@ -12,7 +12,7 @@ import {
 export class PdfHelper {
   pdfService = inject(PdfService);
 
-  process(clonedElement: HTMLElement, key: string) {
+  preProcessHTML(clonedElement: HTMLElement, key: string) {
     const processes: Record<string, (clonedElement: HTMLElement) => void> = {
       'student-detail': (clonedElement: HTMLElement) => {
         clonedElement
@@ -50,6 +50,17 @@ export class PdfHelper {
         const printButton = clonedElement.querySelector('#print-button');
         printButton?.remove();
       },
+      list: (clonedElement: HTMLElement) => {
+        const actionColumnCells = clonedElement.querySelectorAll(
+          '.action-column-header,.action-column-cell'
+        );
+        actionColumnCells.forEach(cell => {
+          cell.remove();
+        });
+
+        const paginator = clonedElement.querySelector('mat-paginator');
+        paginator?.remove();
+      },
     };
 
     if (processes[key]) {
@@ -62,6 +73,10 @@ export class PdfHelper {
     const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
     clonedElement.style.width = STYLE_CONF.width;
     clonedElement.style.margin = STYLE_CONF.margin;
+
+    if (preProcess) {
+      this.preProcessHTML(clonedElement, preProcess);
+    }
 
     const swiperContainer = clonedElement.querySelector('#swiper-container');
     if (swiperContainer) {
@@ -90,6 +105,11 @@ export class PdfHelper {
       tooltip.remove();
     });
 
+    // Mobile
+    clonedElement.querySelectorAll('mat-card-actions').forEach(matCard => {
+      matCard.remove();
+    });
+
     const containerCardList = clonedElement.querySelector(
       '.container-card-list'
     ) as HTMLElement;
@@ -106,10 +126,6 @@ export class PdfHelper {
         margin: '0 auto',
         maxWidth: 'none',
       });
-    }
-
-    if (preProcess) {
-      this.process(clonedElement, preProcess);
     }
 
     return clonedElement;

@@ -36,6 +36,11 @@ import { PollInstanceService } from '../../../core/services/api/poll-instance.se
 import { MatDividerModule } from '@angular/material/divider';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
 import { PollModel } from '../../../core/models/poll.model';
+import { ListComponent } from '../../../shared/components/list/list.component';
+import { Column } from '../../../shared/components/list/types/column';
+import { EventAction } from '../../../shared/events/load';
+import { MapClass } from '../../../shared/components/list/types/class';
+import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -58,6 +63,8 @@ import { PollModel } from '../../../core/models/poll.model';
     MatExpansionModule,
     MatTableModule,
     MatDividerModule,
+    ListComponent,
+    BadgeRiskComponent,
   ],
   templateUrl: './student-detail-option.component.html',
   styleUrl: './student-detail-option.component.scss',
@@ -67,10 +74,10 @@ export class StudentDetailOptionComponent implements OnInit {
   public modalDataSudentVariable: DialogRiskVariableData =
     {} as DialogRiskVariableData;
 
-  pollSeleccionado: PollModel | null = null;
-  pollSeleccionadoId: number | null = null;
+  pollSelected: PollModel | null = null;
+  pollSelectedId: number | null = null;
   lastVersion = false;
-  cohortSeleccionado: CohortComponents | null = null;
+  cohortSelected: CohortComponents | null = null;
   selectedComponents: { key: string; value: number }[] = [];
   componentStudentRisk: Record<string, StudentRiskResponse[]> = {};
   pollsService = inject(PollService);
@@ -88,7 +95,37 @@ export class StudentDetailOptionComponent implements OnInit {
   readonly panelOpenState = signal(false);
   riskStudentsDetail: StudentRiskResponse[] = [];
   filteredStudents = [...this.riskStudentsDetail];
-  columns = ['studentName', 'answerAverage', 'riskLevel', 'actions'];
+  columns: Column<StudentRiskResponse>[] = [
+    {
+      key: 'studentName',
+      label: 'Student Name',
+    },
+    {
+      key: 'answerAverage',
+      label: 'Answers Avg. Risk',
+    },
+  ];
+  columnTemplates: Column<StudentRiskResponse>[] = [
+    {
+      key: 'riskSum',
+      label: 'Risk Level',
+    },
+  ];
+  actionDatas = [
+    {
+      columnId: 'actions',
+      id: 'openStudentDetails',
+      label: 'Actions',
+      ngIconName: 'visibility',
+      tooltip: 'View details',
+    },
+  ];
+  mapClass: MapClass = {
+    table: {
+      table: 'bg-transparent',
+    },
+    paginator: 'bg-transparent',
+  };
 
   public chartOptions: ApexOptions = {
     chart: {
@@ -135,10 +172,10 @@ export class StudentDetailOptionComponent implements OnInit {
   ) {}
 
   selectPoll(): void {
-    const poll = this.polls.find(p => p.id === this.pollSeleccionadoId);
+    const poll = this.polls.find(p => p.id === this.pollSelectedId);
     if (poll) {
-      this.pollSeleccionado = poll;
-      this.location.go('/student-option/' + this.pollSeleccionado.name);
+      this.pollSelected = poll;
+      this.location.go('/student-option/' + this.pollSelected.name);
       this.pollInstanceService
         .getComponentsAvgGroupedByCohorts(poll.uuid, this.lastVersion)
         .subscribe(response => {
@@ -177,12 +214,12 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   loadComponentData(componentKey: string) {
-    if (!this.pollSeleccionado || !this.cohortSeleccionado) return;
+    if (!this.pollSelected || !this.cohortSelected) return;
     this.studentService
       .getPollComponentTopStudents(
-        this.pollSeleccionado.uuid,
+        this.pollSelected.uuid,
         componentKey,
-        this.cohortSeleccionado.cohortId,
+        this.cohortSelected.cohortId,
         this.lastVersion
       )
       .subscribe(data => {
@@ -196,11 +233,11 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   goBack() {
-    if (this.pollSeleccionado && this.cohortSeleccionado) {
-      this.cohortSeleccionado = null;
-      this.location.go('/student-option/' + this.pollSeleccionado.name);
+    if (this.pollSelected && this.cohortSelected) {
+      this.cohortSelected = null;
+      this.location.go('/student-option/' + this.pollSelected.name);
     } else {
-      this.pollSeleccionado = null;
+      this.pollSelected = null;
       this.location.go('/student-option');
     }
   }
@@ -213,16 +250,16 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   selectCohort(cohort: CohortComponents): void {
-    if (!this.pollSeleccionado) return;
-    this.cohortSeleccionado = cohort;
+    if (!this.pollSelected) return;
+    this.cohortSelected = cohort;
     this.location.go(
       '/student-option/' +
-        this.pollSeleccionado.name +
+        this.pollSelected.name +
         '/' +
-        this.cohortSeleccionado.cohortName
+        this.cohortSelected.cohortName
     );
     this.selectedComponents = Object.entries(
-      this.cohortSeleccionado.componentsAvg as Record<string, number>
+      this.cohortSelected.componentsAvg as Record<string, number>
     ).map(([key, value]) => ({
       key: toSentenceCase(key),
       value: Number(value.toFixed(2)),
@@ -230,8 +267,8 @@ export class StudentDetailOptionComponent implements OnInit {
 
     this.studentService
       .getPollTopStudents(
-        this.pollSeleccionado.uuid,
-        this.cohortSeleccionado.cohortId,
+        this.pollSelected.uuid,
+        this.cohortSelected.cohortId,
         this.lastVersion
       )
       .subscribe({
@@ -249,10 +286,46 @@ export class StudentDetailOptionComponent implements OnInit {
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
-      minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
       data: { studentId: studentId },
     });
+  }
+
+  handleLoad() {
+    if (this.pollSelected && this.cohortSelected) {
+      this.studentService
+        .getPollTopStudents(
+          this.pollSelected.uuid,
+          this.cohortSelected.cohortId,
+          this.lastVersion
+        )
+        .subscribe({
+          next: data => {
+            this.riskStudentsDetail = data;
+            this.updateTable();
+          },
+          error: error => {
+            console.error(
+              'Error fetching risk student details by cohort',
+              error
+            );
+          },
+        });
+    } else {
+      console.warn('pollSelected or cohortSelected is null');
+    }
+  }
+
+  handleActionCalled(event: EventAction) {
+    const actions: Record<string, (item: StudentRiskResponse) => void> = {
+      openStudentDetails: (element: StudentRiskResponse) => {
+        this.openStudentDetails(element.studentId.toString());
+      },
+    };
+
+    if (actions[event.data.id]) {
+      actions[event.data.id](event.item as StudentRiskResponse);
+    }
   }
 }

@@ -20,7 +20,6 @@ import {
   PollAvgQuestion,
   PollAvgReport,
 } from '../../../../core/models/summary.model';
-import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { StudentService } from '../../../../core/services/api/student.service';
 import { ReportService } from '../../../../core/services/api/report.service';
 import { ListComponent } from '../../../../shared/components/list/list.component';
@@ -31,6 +30,7 @@ import { Filter } from '../../components/poll-filters/types/filters';
 import { PdfHelper } from '../../exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EventLoad } from '../../../../shared/events/load';
+import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 
 @Component({
   selector: 'app-students-risk',
@@ -74,6 +74,7 @@ export class SummaryHeatmapComponent {
       key: 'avgRiskLevel',
       label: 'Average Risk',
       pipe: new DecimalPipe('en-US'),
+      pipeKey: 'avgRiskLevel',
       pipeArgs: ['1.2-2'],
     },
   ];
@@ -98,7 +99,7 @@ export class SummaryHeatmapComponent {
       this.isLoading = true;
       this.studentService
         .getAllAverageByCohortsAndPoll({
-          page: event.pageIndex,
+          page: event.page,
           pageSize: event.pageSize,
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
@@ -185,7 +186,7 @@ export class SummaryHeatmapComponent {
     this.title = filters.title;
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
-    this.getStudentsByCohortAndPoll({ pageSize: 10, pageIndex: 0 });
+    this.getStudentsByCohortAndPoll({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
 }

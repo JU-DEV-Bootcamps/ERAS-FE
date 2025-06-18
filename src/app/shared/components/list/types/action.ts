@@ -5,6 +5,7 @@ export type ActionData = ActionDataText | ActionDataIcon;
 export interface BaseDataAction {
   label: string;
   columnId: string;
+  id: string;
 }
 
 export interface ActionDataText extends BaseDataAction {
@@ -15,6 +16,14 @@ export interface ActionDataText extends BaseDataAction {
 export interface ActionDataIcon extends BaseDataAction {
   ngIconName: string;
   text?: never;
+  tooltip?: string;
 }
 
-export type ActionDatas = ActionData[];
+export interface ActionDataWithCondition<T> extends ActionDataIcon {
+  isVisible: (item: T) => boolean;
+}
+
+export type ActionDatas<T = unknown> = (
+  | ActionData
+  | ActionDataWithCondition<T>
+)[];

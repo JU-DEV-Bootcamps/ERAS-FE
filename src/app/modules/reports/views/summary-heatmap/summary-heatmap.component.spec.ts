@@ -88,7 +88,7 @@ describe('SummaryHeatmapComponent', () => {
     );
     component.cohortIds = [1];
     component.pollUuid = 'poll-uuid';
-    component.getStudentsByCohortAndPoll({ pageSize: 10, pageIndex: 0 });
+    component.getStudentsByCohortAndPoll({ pageSize: 10, page: 0 });
     expect(
       studentServiceSpy.getAllAverageByCohortsAndPoll
     ).toHaveBeenCalledWith({

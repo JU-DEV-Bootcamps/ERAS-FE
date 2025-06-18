@@ -65,6 +65,7 @@ export class PollsAnsweredComponent implements OnInit {
       label: 'Finished At',
       key: 'finishedAt',
       pipe: this.transformPipe,
+      pipeKey: 'finishedAt',
     },
     {
       label: 'Student Name',
@@ -78,6 +79,7 @@ export class PollsAnsweredComponent implements OnInit {
       label: 'Modified At',
       key: 'student.audit.modifiedAt',
       pipe: this.transformPipe,
+      pipeKey: 'student.audit.modifiedAt',
     },
   ];
 
@@ -93,9 +95,11 @@ export class PollsAnsweredComponent implements OnInit {
   cohortsData: CohortModel[] = [];
   actionDatas: ActionDatas = [
     {
+      id: 'seeStudentDetails',
       columnId: 'actions',
       label: 'Actions',
       ngIconName: 'assignment',
+      tooltip: 'See student details',
     },
   ];
   polls: PollModel[] = [];
@@ -119,7 +123,7 @@ export class PollsAnsweredComponent implements OnInit {
   }
 
   loadCohortsList(): void {
-    this.cohortService.getCohorts().subscribe(data => {
+    this.cohortService.getCohorts(this.selectedPollUuid).subscribe(data => {
       const defaultOpt: CohortModel = {
         name: 'All Cohorts',
         courseCode: '',
@@ -146,7 +150,7 @@ export class PollsAnsweredComponent implements OnInit {
     this.pollInstanceService
       .getPollInstancesByFilters({
         cohortIds: this.selectedCohortIds,
-        page: event.pageIndex,
+        page: event.page,
         pageSize: event.pageSize,
         lastVersion: this.lastVersion,
         pollUuid: this.selectedPollUuid,
@@ -198,7 +202,6 @@ export class PollsAnsweredComponent implements OnInit {
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
-      minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
       data: {

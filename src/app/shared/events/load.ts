@@ -2,7 +2,7 @@ import { ActionData } from '../components/list/types/action';
 
 export class EventLoad {
   constructor(
-    public pageIndex: number,
+    public page: number,
     public pageSize: number
   ) {}
 }
@@ -12,6 +12,7 @@ export interface EventAction {
   item: unknown;
   data: ActionData;
 }
+
 export type EventUpdate = EventAction;
 
 export type EventRemove = EventAction;

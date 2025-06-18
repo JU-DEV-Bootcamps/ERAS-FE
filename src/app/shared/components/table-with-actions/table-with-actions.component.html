@@ -9,74 +9,172 @@
 
   <ng-container *ngIf="columns.length > 0 && isMobile; else tableView">
     <div class="card-container">
-      <mat-card *ngFor="let item of items" class="card" appearance="outlined">
-        <mat-card-content>
-          <div class="row-info" *ngFor="let column of getColumnKeys()">
+      <mat-card
+        [class]="mapClass?.card?.card ?? ''"
+        *ngFor="let item of items"
+        class="card"
+        appearance="outlined"
+      >
+        <mat-card-content [class]="mapClass?.card?.content ?? ''">
+          <div class="row-info" *ngFor="let column of columns">
             <span>
-              <b class="field">{{ column.toString() | titlecase }}</b
+              <b class="field">{{ column.label }}</b
               >:
             </span>
             <span class="information">
-              {{ item[column] }}
+              {{ item[column.key] }}
+            </span>
+          </div>
+          <div
+            class="row-info row-mobile"
+            *ngFor="let columnTemplate of columnTemplates"
+          >
+            <span>
+              <b class="field">{{ columnTemplate.label }}</b
+              >:
+            </span>
+            <span class="information">
+              <ng-container
+                class
+                *ngTemplateOutlet="
+                  getTemplateForColumn(columnTemplate.key.toString());
+                  context: { $implicit: item }
+                "
+              ></ng-container>
             </span>
           </div>
         </mat-card-content>
-        <mat-card-actions *ngIf="getTotalActionDatas() > 0">
-          <app-action-button
-            *ngFor="let actionData of getActionDatas()"
-            [item]="item"
-            [actionData]="actionData"
-            (actionCalled)="handleAction($event)"
-          >
-            <mat-icon *ngIf="actionData.ngIconName && !actionData.text">{{
-              actionData.ngIconName
-            }}</mat-icon>
-            <span *ngIf="actionData.text && !actionData.ngIconName">{{
-              actionData.text
-            }}</span>
-          </app-action-button>
-        </mat-card-actions>
+        @if (getTotalActionDatas() > 0) {
+          <mat-card-actions [class]="mapClass?.card?.actions ?? ''">
+            @for (actionData of getActionDatas(); track $index) {
+              @if (
+                isVisible(actionData, item) &&
+                !actionData.text &&
+                actionData.ngIconName
+              ) {
+                <app-action-button
+                  [matTooltip]="actionData.tooltip ?? 'action'"
+                  [item]="item"
+                  [actionData]="actionData"
+                  (actionCalled)="handleAction($event)"
+                >
+                  <mat-icon>
+                    {{ actionData.ngIconName }}
+                  </mat-icon>
+                </app-action-button>
+              } @else {
+                @if (
+                  isVisible(actionData, item) &&
+                  actionData.text &&
+                  !actionData.ngIconName
+                ) {
+                  {{ actionData.text }}
+                }
+              }
+            }
+          </mat-card-actions>
+        }
       </mat-card>
     </div>
   </ng-container>
 
   <ng-template #tableView>
-    <table mat-table [dataSource]="items">
+    <table
+      mat-table
+      [class]="mapClass?.table?.table ?? ''"
+      [dataSource]="items"
+    >
       <ng-container
         *ngFor="let column of columns"
         [matColumnDef]="column.key.toString()"
       >
-        <th mat-header-cell *matHeaderCellDef>
+        <th
+          mat-header-cell
+          [class]="mapClass?.table?.header ?? ''"
+          *matHeaderCellDef
+        >
           <b>{{ column.label | titlecase }}</b>
         </th>
-        <td mat-cell *matCellDef="let element">
+        <td
+          mat-cell
+          [class]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let element"
+        >
           {{ showElement(element, column) }}
         </td>
       </ng-container>
 
-      <ng-container *ngIf="getTotalActionDatas() > 0" matColumnDef="Actions">
-        <th mat-header-cell *matHeaderCellDef>
-          <b>Actions</b>
+      <ng-container
+        *ngFor="let columnTemplate of columnTemplates"
+        [matColumnDef]="columnTemplate.key.toString()"
+      >
+        <th
+          mat-header-cell
+          [class]="mapClass?.table?.table ?? ''"
+          *matHeaderCellDef
+        >
+          <b>{{ columnTemplate.label | titlecase }}</b>
         </th>
-        <td mat-cell *matCellDef="let item">
-          <app-action-button
-            *ngFor="let actionData of getActionDatas()"
-            [item]="item"
-            [actionData]="actionData"
-            (actionCalled)="handleAction($event)"
-          >
-            <mat-icon *ngIf="actionData.ngIconName && !actionData.text">{{
-              actionData.ngIconName
-            }}</mat-icon>
-            <span *ngIf="actionData.text && !actionData.ngIconName">{{
-              actionData.text
-            }}</span>
-          </app-action-button>
+        <td
+          mat-cell
+          [class]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let item"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              getTemplateForColumn(columnTemplate.key.toString());
+              context: { $implicit: item }
+            "
+          ></ng-container>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="getAllColumns()"></tr>
-      <tr mat-row *matRowDef="let row; columns: getAllColumns()"></tr>
+      <ng-container *ngIf="getTotalActionDatas() > 0" matColumnDef="Actions">
+        <th
+          mat-header-cell
+          [class]="mapClass?.table?.header ?? ''"
+          *matHeaderCellDef
+          class="action-column-header"
+        >
+          <b>Actions</b>
+        </th>
+        <td
+          mat-cell
+          [class]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let item"
+          class="action-column-cell"
+        >
+          <span *ngFor="let actionData of getActionDatas()">
+            <app-action-button
+              *ngIf="isVisible(actionData, item)"
+              [item]="item"
+              [actionData]="actionData"
+              (actionCalled)="handleAction($event)"
+            >
+              <mat-icon
+                *ngIf="!actionData.text && actionData.ngIconName"
+                [matTooltip]="actionData.tooltip ?? 'action'"
+              >
+                {{ actionData.ngIconName }}
+              </mat-icon>
+              <span *ngIf="actionData.text && !actionData.ngIconName">{{
+                actionData.text
+              }}</span>
+            </app-action-button>
+          </span>
+        </td>
+      </ng-container>
+
+      <tr
+        mat-header-row
+        [class]="mapClass?.table?.row ?? ''"
+        *matHeaderRowDef="getAllColumns()"
+      ></tr>
+      <tr
+        mat-row
+        [class]="mapClass?.table?.row ?? ''"
+        *matRowDef="let row; columns: getAllColumns()"
+      ></tr>
     </table>
   </ng-template>
 </div>

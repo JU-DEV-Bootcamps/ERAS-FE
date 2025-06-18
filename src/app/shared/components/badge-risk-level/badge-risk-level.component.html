@@ -1,0 +1,13 @@
+@if (riskLevel || riskLevel === 0) {
+  <div
+    class="risk-badge"
+    [style.backgroundColor]="getRiskColor(riskLevel)"
+    [style.color]="getTextRiskColor(riskLevel)"
+  >
+    {{ riskLevel }}
+  </div>
+} @else {
+  <app-empty-data-message description="No risk value provided" />
+}
+
+<!-- (keyup.enter)="openModalDetails(item)" -->

@@ -1,18 +1,7 @@
-<p class="subtitle">Imported Students List</p>
-
-@if (!data) {
-  <mat-spinner></mat-spinner>
-} @else {
-  <app-table [columns]="columns" [dataSource]="students"></app-table>
-  <br />
-  <mat-paginator
-    [length]="totalStudents"
-    (page)="onPageChange($event)"
-    [pageSize]="pageSize"
-    [pageIndex]="currentPage"
-    [pageSizeOptions]="[5, 10, 25, 100]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
-}
+<app-list
+  (loadCalled)="handleLoad($event)"
+  [columns]="columns"
+  [items]="students"
+  [totalItems]="totalStudents"
+  [title]="'Imported Students List'"
+/>

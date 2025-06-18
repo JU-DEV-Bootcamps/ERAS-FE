@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,7 @@ import {
   PollAvgQuestion,
   PollCountQuestion,
   PollTopReport,
+  StudentReportAnswerRiskLevel,
 } from '../../../core/models/summary.model';
 import {
   getRiskColor,
@@ -26,6 +27,11 @@ import {
 import { ReportService } from '../../../core/services/api/report.service';
 import { PollService } from '../../../core/services/api/poll.service';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
+import { Column } from '../../../shared/components/list/types/column';
+import { ActionDatas } from '../../../shared/components/list/types/action';
+import { EventAction } from '../../../shared/events/load';
+import { ListComponent } from '../../../shared/components/list/list.component';
+import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
 
 export interface SelectedHMData {
   cohortId: string;
@@ -47,11 +53,13 @@ export interface SelectedHMData {
     MatCardModule,
     MatTableModule,
     MatMenuModule,
+    ListComponent,
+    BadgeRiskComponent,
   ],
   templateUrl: './modal-question-details.component.html',
   styleUrl: './modal-question-details.component.css',
 })
-export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
+export class ModalQuestionDetailsComponent implements AfterViewInit {
   readonly dialog = inject(MatDialog);
   public inputQuestion: SelectedHMData = inject(MAT_DIALOG_DATA);
   public variableId = 0;
@@ -59,12 +67,33 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
   private PollService = inject(PollService);
 
   public studentsRisk: PollTopReport = [];
-  public studentTableColumns: string[] = ['name', 'answer', 'risk', 'actions'];
-  constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
+  columns: Column<StudentReportAnswerRiskLevel>[] = [
+    {
+      key: 'studentName',
+      label: 'Name',
+    },
+    {
+      key: 'answerText',
+      label: 'Answer',
+    },
+  ];
+  columnTemplates: Column<StudentReportAnswerRiskLevel>[] = [
+    {
+      key: 'answerRisk',
+      label: 'Risk Level',
+    },
+  ];
+  actionDatas: ActionDatas = [
+    {
+      columnId: 'actions',
+      id: 'openStudentDetails',
+      label: 'Actions',
+      ngIconName: 'visibility',
+      tooltip: 'View details',
+    },
+  ];
 
-  ngOnInit(): void {
-    this.loadComponentsAndVariables();
-  }
+  constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -114,7 +143,6 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
-      minHeight: '500px',
       maxHeight: '60vh',
       panelClass: 'border-modalbox-dialog',
       data: { studentId: studentId },
@@ -123,5 +151,24 @@ export class ModalQuestionDetailsComponent implements OnInit, AfterViewInit {
 
   isPollAvgQuestion(question: PollAvgQuestion | PollCountQuestion) {
     return question && 'averageAnswer' in question && 'averageRisk' in question;
+  }
+
+  handleLoadCalled() {
+    this.loadComponentsAndVariables();
+  }
+
+  handleActionCalled(event: EventAction) {
+    const actions: Record<
+      string,
+      (item: StudentReportAnswerRiskLevel) => void
+    > = {
+      openStudentDetails: (element: StudentReportAnswerRiskLevel) => {
+        this.openStudentDetails(element.studentId);
+      },
+    };
+
+    if (actions[event.data.id]) {
+      actions[event.data.id](event.item as StudentReportAnswerRiskLevel);
+    }
   }
 }

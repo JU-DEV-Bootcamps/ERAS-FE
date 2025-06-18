@@ -111,9 +111,11 @@ export class HomeComponent implements OnInit {
   loadEvalDetails(evalId: number) {
     this.evalService.getEvalProcDetails(evalId).subscribe(res => {
       this.selEval = res.body;
-      if (this.selEval?.pollInstances) {
+      if (this.selEval?.polls && this.selEval?.polls.length > 0) {
         this.selPoll = this.selEval.polls[0];
         this.loadPollDetails(this.selPoll.uuid);
+      } else {
+        this.selPoll = undefined;
       }
     });
   }

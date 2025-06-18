@@ -1,5 +1,5 @@
 <!-- Card inicial para seleccionar un poll -->
-<div *ngIf="!pollSeleccionado" class="card-inicial-container">
+<div *ngIf="!pollSelected" class="card-inicial-container">
   <mat-card appearance="outlined" class="card">
     <div>
       <h2 class="cohorts-title">First Select a Poll</h2>
@@ -7,7 +7,7 @@
     <mat-card-content>
       <mat-radio-group
         name="pollGroup"
-        [(ngModel)]="pollSeleccionadoId"
+        [(ngModel)]="pollSelectedId"
         class="poll-radio-group"
       >
         <mat-radio-button
@@ -41,7 +41,7 @@
       <button
         mat-raised-button
         color="primary"
-        [disabled]="!pollSeleccionadoId"
+        [disabled]="!pollSelectedId"
         (click)="selectPoll()"
       >
         Continuar
@@ -50,16 +50,13 @@
   </mat-card>
 </div>
 
-<div
-  *ngIf="pollSeleccionado && !cohortSeleccionado"
-  class="cards-cohorts-container"
->
+<div *ngIf="pollSelected && !cohortSelected" class="cards-cohorts-container">
   <mat-card appearance="outlined" class="card">
     <div class="header">
       <button mat-icon-button class="header-left" (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h2 class="cohorts-title">{{ pollSeleccionado.name }} - Cohorts</h2>
+      <h2 class="cohorts-title">{{ pollSelected.name }} - Cohorts</h2>
     </div>
     <div *ngIf="cohorts.length > 0; else emptyCohorts" class="cards-container">
       <mat-card class="card" *ngFor="let cohort of cohorts">
@@ -96,10 +93,7 @@
   </mat-card>
 </div>
 
-<div
-  *ngIf="cohortSeleccionado && pollSeleccionado"
-  class="cohort-details-container"
->
+<div *ngIf="cohortSelected && pollSelected" class="cohort-details-container">
   <div class="cohort-details-container">
     <mat-card appearance="outlined" class="card">
       <div class="header">
@@ -107,7 +101,7 @@
           <mat-icon>arrow_back</mat-icon>
         </button>
         <h2 class="cohorts-title">
-          {{ pollSeleccionado.name }} - {{ cohortSeleccionado.cohortName }}
+          {{ pollSelected.name }} - {{ cohortSelected.cohortName }}
         </h2>
       </div>
       <mat-card-content>
@@ -116,8 +110,8 @@
             <h4 style="padding: 0px; margin: 0px">Risk Overview</h4>
             <p style="padding: 0px 0px 20px 0px; margin: 0px">By Component</p>
             <apx-chart
-              [series]="getChartSeriesData(cohortSeleccionado)"
-              [labels]="getChartLabels(cohortSeleccionado)"
+              [series]="getChartSeriesData(cohortSelected)"
+              [labels]="getChartLabels(cohortSelected)"
               [chart]="chartOptions.chart!"
               [responsive]="chartOptions.responsive!"
               [legend]="chartOptions.legend!"
@@ -129,60 +123,21 @@
           </div>
           <div class="custom-divider"></div>
           <div>
-            <h4 style="padding: 0px; margin: 0px">Top Risk Students</h4>
-            <p style="padding: 0px 0px 20px 0px; margin: 0px">
-              Top
-              <select [(ngModel)]="selectedQuantity" (change)="updateTable()">
-                <option *ngFor="let qty of quantities" [value]="qty">
-                  {{ qty }}
-                </option>
-              </select>
-              students at risk
-            </p>
-
-            <mat-table class="students-table" [dataSource]="filteredStudents">
-              <ng-container matColumnDef="studentName">
-                <th mat-header-cell *matHeaderCellDef>Student Name</th>
-                <td mat-cell *matCellDef="let element">
-                  {{ element.studentName }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="answerAverage">
-                <th mat-header-cell *matHeaderCellDef>Answers Avg. Risk</th>
-                <td mat-cell *matCellDef="let element">
-                  {{ element.answerAverage }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="riskLevel">
-                <th mat-header-cell *matHeaderCellDef>Risk Level</th>
-                <td mat-cell *matCellDef="let element">
-                  <div
-                    class="risk-badge"
-                    [style.backgroundColor]="getColorRisk(element.riskSum)"
-                  >
-                    {{ element.riskSum }}
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>Actions</th>
-                <td mat-cell *matCellDef="let element">
-                  <button
-                    mat-icon-button
-                    aria-label="View details"
-                    (click)="openStudentDetails(element.studentId)"
-                  >
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="columns"></tr>
-              <tr mat-row *matRowDef="let row; columns: columns"></tr>
-            </mat-table>
+            <app-list
+              [mapClass]="mapClass"
+              (loadCalled)="handleLoad()"
+              (actionCalled)="handleActionCalled($event)"
+              [columns]="columns"
+              [columnTemplates]="columnTemplates"
+              [actionDatas]="actionDatas"
+              [items]="filteredStudents"
+              [totalItems]="filteredStudents.length"
+              [title]="'Top Risk Students'"
+            >
+              <ng-template #riskSum let-item>
+                <app-badge-risk-level [riskLevel]="item.riskSum" />
+              </ng-template>
+            </app-list>
           </div>
         </div>
         <br />
@@ -207,53 +162,25 @@
               </mat-panel-description>
             </mat-expansion-panel-header>
             <div>
-              <mat-table
-                [dataSource]="
+              <app-list
+                (loadCalled)="handleLoad()"
+                (actionCalled)="handleActionCalled($event)"
+                [mapClass]="mapClass"
+                [columns]="columns"
+                [columnTemplates]="columnTemplates"
+                [actionDatas]="actionDatas"
+                [items]="
                   componentStudentRisk[component.key.toLowerCase()] || []
                 "
+                [totalItems]="
+                  (componentStudentRisk[component.key.toLowerCase()] || [])
+                    .length
+                "
               >
-                <ng-container matColumnDef="studentName">
-                  <th mat-header-cell *matHeaderCellDef>Student Name</th>
-                  <td mat-cell *matCellDef="let element">
-                    {{ element.studentName }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="answerAverage">
-                  <th mat-header-cell *matHeaderCellDef>Answers Avg. Risk</th>
-                  <td mat-cell *matCellDef="let element">
-                    {{ element.answerAverage }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="riskLevel">
-                  <th mat-header-cell *matHeaderCellDef>Risk Level</th>
-                  <td mat-cell *matCellDef="let element">
-                    <div
-                      class="risk-badge"
-                      [style.backgroundColor]="getColorRisk(element.riskSum)"
-                    >
-                      {{ element.riskSum }}
-                    </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let element">
-                    <button
-                      mat-icon-button
-                      aria-label="View details"
-                      (click)="openStudentDetails(element.studentId)"
-                    >
-                      <mat-icon>visibility</mat-icon>
-                    </button>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="columns"></tr>
-                <tr mat-row *matRowDef="let row; columns: columns"></tr>
-              </mat-table>
+                <ng-template #riskSum let-item>
+                  <app-badge-risk-level [riskLevel]="item.riskSum" />
+                </ng-template>
+              </app-list>
             </div>
           </mat-expansion-panel>
         </mat-accordion>
