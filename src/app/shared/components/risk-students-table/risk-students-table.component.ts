@@ -19,6 +19,8 @@ import { CohortService } from '../../../core/services/api/cohort.service';
 import { ListComponent } from '../list/list.component';
 import { BadgeRiskComponent } from '../badge-risk-level/badge-risk-level.component';
 import { Column } from '../list/types/column';
+import { EventLoad } from '../../events/load';
+import { Pagination } from '../../../core/services/interfaces/server.type';
 
 interface StudentSummary {
   studentUuid: string;
@@ -96,6 +98,10 @@ export class RiskStudentsTableComponent implements OnChanges {
   risks: number[] = [];
   studentRisks: StudentRisk[] = [];
   totalStudentRisks = 0;
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
 
   public lastPoll = lastPollPlaceholder;
 
@@ -113,10 +119,11 @@ export class RiskStudentsTableComponent implements OnChanges {
 
   private loadStudentRisk(): void {
     this.reportService
-      .getTopPollReport(this.variableIds, this.pollUUID)
+      .getTopPollReport(this.variableIds, this.pollUUID, this.pagination)
       .subscribe({
         next: data => {
-          this.studentRisk = data.body || [];
+          this.studentRisk = data.body.items || [];
+          this.totalStudentRisks = data.body.count || 0;
         },
         error: err => {
           console.error('Error fetching student risk data:', err);
@@ -186,7 +193,12 @@ export class RiskStudentsTableComponent implements OnChanges {
     this.createDataChar();
   }
 
-  handleLoadCalled() {
+  handleLoadCalled(event: EventLoad) {
+    this.pagination = {
+      page: event.page,
+      pageSize: event.pageSize,
+    };
+
     if (this.isValidData()) {
       this.loadStudentRisk();
     }
