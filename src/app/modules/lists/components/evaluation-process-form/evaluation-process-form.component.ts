@@ -87,8 +87,8 @@ export class EvaluationProcessFormComponent {
         data?.evaluation?.name ?? '',
         [
           Validators.required,
-          Validators.minLength(2),
-          Validators.maxLength(280),
+          Validators.minLength(3),
+          Validators.maxLength(50),
         ],
       ],
       pollName: [
@@ -96,12 +96,13 @@ export class EvaluationProcessFormComponent {
           value: data?.evaluation?.pollName ?? '',
           disabled: !!data?.evaluation?.pollName,
         },
-        Validators.required,
+        [Validators.required, Validators.maxLength(50)],
       ],
       country: [
         {
           value: data?.evaluation?.country ?? '',
         },
+        [Validators.maxLength(50)],
       ],
       startDate: [data?.evaluation?.startDate ?? '', Validators.required],
       endDate: [data?.evaluation?.endDate ?? '', Validators.required],
