@@ -68,7 +68,7 @@
           </mat-card>
         </div>
         <app-list
-          (loadCalled)="handleLoadCalled()"
+          (loadCalled)="handleLoadCalled($event)"
           [columns]="columns"
           [columnTemplates]="columnTemplates"
           [items]="studentRisks"

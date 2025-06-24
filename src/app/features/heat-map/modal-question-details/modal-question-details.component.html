@@ -25,12 +25,12 @@
     </button>
   </div>
   <app-list
-    (loadCalled)="handleLoadCalled()"
+    (loadCalled)="handleLoadCalled($event)"
     (actionCalled)="handleActionCalled($event)"
     [columns]="columns"
     [columnTemplates]="columnTemplates"
-    [items]="studentsRisk"
-    [totalItems]="studentsRisk.length"
+    [items]="studentRisks"
+    [totalItems]="totalStudentRisks"
     [title]="'Answer Details'"
     [actionDatas]="actionDatas"
   >

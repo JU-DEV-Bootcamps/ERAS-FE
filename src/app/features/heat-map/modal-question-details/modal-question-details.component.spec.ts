@@ -108,14 +108,17 @@ describe('ModalQuestionDetailsComponent', () => {
       success: true,
       message: 'Success',
       validationErrors: null,
-      body: [],
+      body: {
+        items: [],
+        count: 0,
+      },
     };
 
     reportService.getTopPollReport.and.returnValue(of(mockResponse));
 
     component.loadStudentList();
 
-    expect(component.studentsRisk).toEqual([]);
+    expect(component.studentRisks).toEqual([]);
   });
 
   it('should get correct risk color based on risk level', () => {
