@@ -181,6 +181,5 @@ export class RiskStudentsTableComponent {
       this.loadStudentRisk();
     }
     this.loadCohorts();
-    //updateChartData();
   }
 }
