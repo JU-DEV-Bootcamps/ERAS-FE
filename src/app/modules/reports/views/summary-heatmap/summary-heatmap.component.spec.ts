@@ -135,7 +135,11 @@ describe('SummaryHeatmapComponent', () => {
     const question = { question: 'Q', averageRisk: 1 } as PollAvgQuestion;
     component.pollUuid = 'poll-uuid';
     component.selectedCohort = { id: 1, name: 'Cohort' } as CohortModel;
-    component.openDetailsModal(question, 'Component');
+    component.openDetailsModal(
+      question,
+      'FAMILIAR' as ComponentValueType,
+      'Component test'
+    );
     expect(matDialogSpy.open).toHaveBeenCalled();
   });
 
