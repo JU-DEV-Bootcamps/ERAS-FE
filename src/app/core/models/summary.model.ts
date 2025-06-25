@@ -106,7 +106,8 @@ export interface PollCountReport {
 }
 
 export interface PollCountComponent {
-  description: string;
+  description: ComponentValueType;
+  text: string;
   questions: PollCountQuestion[];
 }
 

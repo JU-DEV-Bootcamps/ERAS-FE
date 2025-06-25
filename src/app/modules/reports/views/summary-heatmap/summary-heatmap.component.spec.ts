@@ -21,6 +21,7 @@ import { PollFiltersComponent } from '../../components/poll-filters/poll-filters
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PdfHelper } from '../../exportReport.util';
 import { PagedResult } from '../../../../core/services/interfaces/page.type';
+import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
 describe('SummaryHeatmapComponent', () => {
   let component: SummaryHeatmapComponent;
@@ -108,7 +109,13 @@ describe('SummaryHeatmapComponent', () => {
       body: { components: [], pollCount: 0 },
       status: 'success',
     };
-    const mockSeries = [{ name: 'Comp', data: [] }];
+    const mockSeries = [
+      {
+        description: 'FAMILIAR' as ComponentValueType,
+        text: 'Familiar description',
+        data: [],
+      },
+    ];
     reportServiceSpy.getAvgPoolReport.and.returnValue(of(mockReport));
     reportServiceSpy.getHMSeriesFromAvgReport.and.returnValue(mockSeries);
     reportServiceSpy.regroupByColor.and.returnValue(mockSeries);

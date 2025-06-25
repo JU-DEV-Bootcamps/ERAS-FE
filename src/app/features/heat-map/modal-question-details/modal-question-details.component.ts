@@ -33,11 +33,13 @@ import { EventAction, EventLoad } from '../../../shared/events/load';
 import { ListComponent } from '../../../shared/components/list/list.component';
 import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
 import { Pagination } from '../../../core/services/interfaces/server.type';
+import { ComponentValueType } from '../types/risk-students-detail.type';
 
 export interface SelectedHMData {
   cohortId: string;
   pollUuid: string;
-  componentName: string;
+  componentName: ComponentValueType;
+  text?: string;
   question: PollAvgQuestion | PollCountQuestion;
 }
 
