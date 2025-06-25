@@ -78,7 +78,7 @@ export class ReportService extends BaseApiService {
   getHMSeriesFromAvgReport(body: PollAvgReport) {
     const series = body.components.map(component => {
       return {
-        name: `${component.description}\n RISK AVG: ${component.averageRisk.toFixed(2)}`,
+        description: component.description,
         data: component.questions.map(question => {
           return {
             x: question.question,
@@ -160,7 +160,7 @@ export class ReportService extends BaseApiService {
 
   regroupByColor(
     serie: {
-      name: string;
+      description: string;
       data: Serie[];
     }[]
   ) {
@@ -178,7 +178,7 @@ export class ReportService extends BaseApiService {
       }
 
       return {
-        name: row.name,
+        name: row.description,
         colorGroups,
       };
     });
