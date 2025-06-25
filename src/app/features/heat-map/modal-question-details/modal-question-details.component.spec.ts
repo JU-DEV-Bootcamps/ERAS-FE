@@ -11,6 +11,7 @@ import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { ReportService } from '../../../core/services/api/report.service';
 import { PollService } from '../../../core/services/api/poll.service';
 import { ActivatedRoute } from '@angular/router';
+import { ComponentValueType } from '../types/risk-students-detail.type';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
@@ -42,7 +43,8 @@ describe('ModalQuestionDetailsComponent', () => {
   const mockDialogData: SelectedHMData = {
     cohortId: 'cohort-1',
     pollUuid: 'test-uuid',
-    componentName: 'Test Component',
+    componentName: 'FAMILIAR' as ComponentValueType,
+    text: 'Test Component',
     question: mockQuestion,
   };
 
