@@ -31,6 +31,7 @@ import { PdfHelper } from '../../exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EventLoad } from '../../../../shared/events/load';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
+import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
 @Component({
   selector: 'app-students-risk',
@@ -122,20 +123,25 @@ export class SummaryHeatmapComponent {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
+        console.log(reportSeries);
         const series = this.reportService.regroupByColor(reportSeries);
         this.chartOptions = GetChartOptions(`${this.title}`, series, (x, y) => {
           const component = series[y];
           const serieQuestion = series[y].data[x];
           const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
             res.body,
-            component.name,
+            component.description,
             serieQuestion
           );
 
           if (!pollAvgQuestion) {
             console.error('Error getting question from report.');
           } else {
-            this.openDetailsModal(pollAvgQuestion, component.name);
+            this.openDetailsModal(
+              pollAvgQuestion,
+              component.description,
+              component.text
+            );
           }
         });
       });
@@ -170,12 +176,17 @@ export class SummaryHeatmapComponent {
     this.isGeneratingPDF = false;
   }
 
-  openDetailsModal(question: PollAvgQuestion, componentName: string): void {
+  openDetailsModal(
+    question: PollAvgQuestion,
+    componentName: ComponentValueType,
+    text?: string
+  ): void {
     if (!this.pollUuid) return;
     const data: SelectedHMData = {
       cohortId: this.selectedCohort?.id.toString() || '0',
       pollUuid: this.pollUuid,
       componentName,
+      text: text ?? componentName,
       question,
     };
     this.dialog.open(ModalQuestionDetailsComponent, { data });

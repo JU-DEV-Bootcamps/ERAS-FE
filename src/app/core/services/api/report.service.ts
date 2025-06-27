@@ -16,6 +16,7 @@ import { Serie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
+import { ComponentValueType } from '../../../features/heat-map/types/risk-students-detail.type';
 
 @Injectable({
   providedIn: 'root',
@@ -78,7 +79,8 @@ export class ReportService extends BaseApiService {
   getHMSeriesFromAvgReport(body: PollAvgReport) {
     const series = body.components.map(component => {
       return {
-        name: `${component.description}\n RISK AVG: ${component.averageRisk.toFixed(2)}`,
+        text: `${component.description}\n RISK AVG: ${component.averageRisk.toFixed(2)}`,
+        description: component.description,
         data: component.questions.map(question => {
           return {
             x: question.question,
@@ -160,7 +162,8 @@ export class ReportService extends BaseApiService {
 
   regroupByColor(
     serie: {
-      name: string;
+      description: ComponentValueType;
+      text: string;
       data: Serie[];
     }[]
   ) {
@@ -178,7 +181,8 @@ export class ReportService extends BaseApiService {
       }
 
       return {
-        name: row.name,
+        description: row.description,
+        text: row.text,
         colorGroups,
       };
     });
@@ -210,7 +214,8 @@ export class ReportService extends BaseApiService {
         newData.push(...items, ...fillers);
       }
       return {
-        name: row.name,
+        description: row.description,
+        text: row.text,
         data: newData,
       };
     });

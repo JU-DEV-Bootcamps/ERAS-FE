@@ -21,6 +21,7 @@ import { Filter } from '../../components/poll-filters/types/filters';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ChangeDetectorRef } from '@angular/core';
+import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -87,7 +88,8 @@ export class DynamicHeatmapComponent {
             this.uuid!,
             1,
             report.components[index].questions[y],
-            report.components[index].description
+            report.components[index].description,
+            report.components[index].text
           );
         },
         undefined,
@@ -132,12 +134,14 @@ export class DynamicHeatmapComponent {
     pollUuid: string,
     cohortId: number,
     question: PollCountQuestion,
-    componentName: string
+    componentName: ComponentValueType,
+    text?: string
   ): void {
     const data: SelectedHMData = {
       cohortId: cohortId.toString(),
       pollUuid,
       componentName,
+      text,
       question,
     };
     this.dialog.open(ModalQuestionDetailsComponent, {

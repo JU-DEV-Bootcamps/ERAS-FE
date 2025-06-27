@@ -148,7 +148,6 @@ export class RiskStudentsTableComponent {
     this.studentNames = [];
     this.risks = [];
     this.studentRisks = [];
-    console.log(this.studentDataResponse);
     this.studentDataResponse.forEach(student => {
       const name = student.studentName;
       const risk = Math.round(student.pollinstancesAverage);
@@ -161,7 +160,6 @@ export class RiskStudentsTableComponent {
       this.risks.push(risk);
       this.studentRisks.push(studentRisk);
     });
-    console.log(this.studentRisks);
   }
 
   private updateChartData(): void {
