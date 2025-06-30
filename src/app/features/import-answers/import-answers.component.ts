@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   HostListener,
+  OnInit,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -34,6 +35,11 @@ import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-
 import { PollName } from '../../core/models/poll-request.model';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 import { PollInstance } from '../../core/models/poll-instance.model';
+import { ConfigurationsService } from '../../core/services/api/configurations.service';
+import Keycloak from 'keycloak-js';
+import { ConfigurationsModel } from '../../core/models/configurations.model';
+import { ServiceProvidersService } from '../../core/services/api/service-providers.service';
+import { ServiceProviderModel } from '../../core/models/service-providers.model';
 
 @Component({
   selector: 'app-import-answers',
@@ -58,13 +64,16 @@ import { PollInstance } from '../../core/models/poll-instance.model';
   providers: [provideNativeDateAdapter(), DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ImportAnswersComponent {
+export class ImportAnswersComponent implements OnInit {
   form: FormGroup;
 
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
 
   pollsNames: PollName[] = [];
+  userConfigurations: ConfigurationsModel[] = [];
+  selectedConfiguration: ConfigurationsModel | null = null;
+  serviceProviders: ServiceProviderModel[] = [];
   importedPollData: PollInstance[] = [];
   columns = ['#', 'name', 'email', 'cohort', 'actions'];
   students = [];
@@ -76,6 +85,9 @@ export class ImportAnswersComponent {
     private fb: FormBuilder,
     private dialog: MatDialog,
     private cosmicLatteService: CosmicLatteService,
+    private configurationsService: ConfigurationsService,
+    private serviceProvidersService: ServiceProvidersService,
+    private readonly keycloak: Keycloak,
     private datePipe: DatePipe,
     private router: Router
   ) {
@@ -92,6 +104,7 @@ export class ImportAnswersComponent {
       };
     }
     this.form = this.fb.group({
+      configuration: '',
       surveyName: [
         this.preselectedPollState?.surveyName ?? '',
         [Validators.pattern(/^(?!\s*$).+/)],
@@ -99,9 +112,16 @@ export class ImportAnswersComponent {
       start: this.preselectedPollState?.start ?? '',
       end: this.preselectedPollState?.end ?? '',
     });
-    this.getPollDetails();
-    this.checkScreenSize();
+    // this.getPollDetails();
   }
+
+  async ngOnInit() {
+    const profile = await this.keycloak.loadUserProfile();
+    this.getUserConfigurations(profile.id || '');
+    this.checkScreenSize();
+    this.getServiceProviders();
+  }
+
   @HostListener('window:resize', [])
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
@@ -147,7 +167,12 @@ export class ImportAnswersComponent {
 
     this.loadingSubject.next(true);
     this.cosmicLatteService
-      .importAnswerBySurvey(name, startDate, endDate)
+      .importAnswerBySurvey(
+        this.selectedConfiguration!.id,
+        name,
+        startDate,
+        endDate
+      )
       .subscribe({
         next: (data: PollInstance[]) => {
           this.importedPollData = data;
@@ -184,8 +209,8 @@ export class ImportAnswersComponent {
       this.openDialog('Error saving polls. Please try again.', false);
     }
   }
-  getPollDetails() {
-    this.cosmicLatteService.getPollNames().subscribe({
+  getPollDetails(configurationId: number) {
+    this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: data => {
         this.pollsNames = data;
         this.loadingSubject.next(false);
@@ -197,6 +222,46 @@ export class ImportAnswersComponent {
       },
     });
   }
+  getUserConfigurations(userId: string) {
+    this.configurationsService.getConfigurationsByUserId(userId).subscribe({
+      next: data => {
+        this.userConfigurations = data;
+        this.loadingSubject.next(false);
+      },
+      error: err => {
+        this.loadingSubject.next(false);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err.message);
+        this.resetForm();
+      },
+    });
+  }
+  getServiceProviders() {
+    this.serviceProvidersService.getAllServiceProviders().subscribe({
+      next: data => {
+        this.serviceProviders = data;
+        this.loadingSubject.next(false);
+      },
+      error: err => {
+        this.loadingSubject.next(false);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err.message);
+        this.resetForm();
+      },
+    });
+  }
+
+  getServiceProviderName(
+    configuration: ConfigurationsModel
+  ): string | undefined {
+    return this.serviceProviders.find(
+      sp => sp.id === configuration.serviceProviderId
+    )?.serviceProviderName;
+  }
+
+  onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
+    this.selectedConfiguration = selectedConfiguration;
+    this.getPollDetails(selectedConfiguration.id);
+  }
+
   formatDate(date: Date): string {
     if (isNaN(date.getTime())) {
       return '';

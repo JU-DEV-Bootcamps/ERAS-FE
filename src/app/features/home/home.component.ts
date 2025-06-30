@@ -85,7 +85,7 @@ export class HomeComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.loadCount();
     this.loadEvaluations();
-    this.healthCheck();
+    // this.healthCheck();
   }
 
   loadCount() {
@@ -140,12 +140,12 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  healthCheck() {
-    this.clService.healthCheck().subscribe(response => {
-      this.healthCheckStatus =
-        response.entries.cosmicLatteApi.status === 'Healthy';
-    });
-  }
+  // healthCheck() {
+  //   this.clService.healthCheck().subscribe(response => {
+  //     this.healthCheckStatus =
+  //       response.entries.cosmicLatteApi.status === 'Healthy';
+  //   });
+  // }
 
   onSlideChange(event: Event) {
     if (event.target && (event.target as SwiperEventTarget).swiper) {

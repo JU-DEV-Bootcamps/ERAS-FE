@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>Create new configuration</h2>
+<form [formGroup]="configurationForm">
+  <mat-dialog-content>
+    <mat-form-field appearance="fill">
+      <mat-label>Configuration Name</mat-label>
+      <input
+        matInput
+        formControlName="configurationName"
+        placeholder="Enter configuration name"
+      />
+      <mat-error
+        *ngIf="configurationForm.get('configurationName')?.hasError('required')"
+      >
+        Configuration name is required.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Base URL</mat-label>
+      <input matInput formControlName="baseUrl" placeholder="Enter base URL" />
+      <mat-error *ngIf="configurationForm.get('baseUrl')?.hasError('required')">
+        Base URL is required.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>API Key</mat-label>
+      <input matInput formControlName="apiKey" placeholder="Enter API key" />
+      <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('required')">
+        API Key is required.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Service Provider</mat-label>
+      <mat-select formControlName="serviceProvider">
+        <mat-option
+          *ngFor="let provider of serviceProviders"
+          [value]="provider.id"
+        >
+          {{ provider.serviceProviderName }}
+        </mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="configurationForm.get('serviceProvider')?.hasError('required')"
+      >
+        Service provider is required.
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="warn" type="button" (click)="close()">
+      Close
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      (click)="saveConfiguration()"
+    >
+      Save Configuration
+    </button>
+  </mat-dialog-actions>
+</form>

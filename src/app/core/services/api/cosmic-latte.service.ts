@@ -13,8 +13,13 @@ import { PollInstance } from '../../models/poll-instance.model';
 export class CosmicLatteService extends BaseApiService {
   protected resource = 'cosmic-latte';
 
-  healthCheck() {
-    return this.http.get<HealthCheckResponse>(`${this.apiUrl}/health`).pipe(
+  healthCheck(configurationId: number) {
+    const params = new HttpParams().set(
+      'ConfigurationId',
+      configurationId.toString()
+    );
+
+    return this.get<HealthCheckResponse>('health', params).pipe(
       catchError(() => {
         return throwError(() => new Error('Error on health check'));
       })
@@ -22,11 +27,14 @@ export class CosmicLatteService extends BaseApiService {
   }
 
   importAnswerBySurvey(
+    configurationId: number,
     evaluationSetName: string,
     start?: string | null,
     end?: string | null
   ) {
-    let params = new HttpParams().set('EvaluationSetName', evaluationSetName);
+    let params = new HttpParams()
+      .set('EvaluationSetName', evaluationSetName)
+      .set('ConfigurationId', configurationId.toString());
     if (start && start.length > 0) {
       params = params.set('startDate', start);
     }
@@ -36,8 +44,9 @@ export class CosmicLatteService extends BaseApiService {
     return this.get<PollInstance[]>('polls', params);
   }
 
-  getPollNames() {
-    return this.get<PollName[]>('polls/names').pipe(
+  getPollNames(configurationId: number) {
+    const params = new HttpParams().set('ConfigurationId', configurationId);
+    return this.get<PollName[]>('polls/names', params).pipe(
       catchError(error => {
         return throwError(
           () => new Error('Failed to fetch polls details', error)

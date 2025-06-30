@@ -1,0 +1,132 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+}
+
+.title {
+  display: flex;
+  flex-direction: row;
+  color: #144d4d;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: medium;
+}
+.title-status {
+  color: #144d4d;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: medium;
+}
+
+.ligth {
+  margin: 5px;
+  padding: 0;
+  color: #144d4d;
+  font-family: 'Roboto', sans-serif; /* Tipo de fuente */
+  font-size: 12px; /* Tamaño de fuente */
+  font-weight: lighter;
+}
+
+.button {
+  margin: 10px;
+  background: #19bfb9;
+}
+
+.check {
+  color: #07cb07;
+}
+.close {
+  color: #f13636;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.center {
+  justify-content: center;
+  align-items: center;
+}
+.section {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+}
+.services-card {
+  padding: 15px;
+  color: #008581;
+  text-align: center;
+}
+.cl-icon {
+  color: #9064b9;
+  font-size: 64px;
+  width: 100%;
+  height: 80px;
+}
+.check {
+  color: #07cb07;
+}
+.close {
+  color: #f13636;
+}
+.card-grid-wrapper {
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.card-grid-container {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  overflow: visible;
+}
+
+.grid-card {
+  padding: 20px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 12px;
+}
+mat-card {
+  width: 350px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+mat-card-title {
+  text-align: center;
+  width: 100%;
+  font-weight: 500;
+}
+mat-card-actions {
+  width: 100%;
+  display: flex;
+  font-weight: 500;
+  justify-content: space-between;
+  margin-top: -15px;
+}
+mat-card-footer {
+  font-size: x-large;
+}
+
+@media only screen and (max-width: 600px) {
+  .content {
+    height: 90%;
+  }
+  .grow {
+    flex-grow: 1;
+  }
+}

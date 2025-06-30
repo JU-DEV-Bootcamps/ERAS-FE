@@ -247,7 +247,7 @@ export class EvaluationProcessFormComponent {
   }
 
   getPollDetails() {
-    this.cosmicLatteService.getPollNames().subscribe({
+    this.cosmicLatteService.getPollNames(1).subscribe({
       next: (data: PollName[]) => {
         this.pollsNames = [this.prefereToChooseLater, ...data];
         this.loadingSubject.next(false);

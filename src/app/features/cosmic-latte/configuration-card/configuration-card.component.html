@@ -1,0 +1,61 @@
+<mat-card class="services-card">
+  <mat-card-title>
+    <span>{{ configuration.configurationName }}</span>
+  </mat-card-title>
+
+  <mat-card-content>
+    <div class="col center">
+      <h3 class="title-status">Service Status</h3>
+      @if (isLoading) {
+        <mat-spinner></mat-spinner>
+      } @else {
+        @if (healthCheckResponse.status) {
+          <mat-icon class="check">check</mat-icon>
+        } @else {
+          <mat-icon class="close">close</mat-icon>
+        }
+        <h3 class="ligth">last test :</h3>
+        <h3 class="ligth">
+          {{ healthCheckResponse.dateTime | date: 'short' }}
+        </h3>
+      }
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <div class="actions-container">
+      <img
+        [src]="serviceProviders[0].serviceProviderLogo"
+        alt=""
+        style="width: 150px"
+      />
+
+      <div class="button-group">
+        <div>
+          <button
+            mat-icon-button
+            aria-label="Actualizar"
+            (click)="testConnection(configuration)"
+          >
+            <mat-icon>update</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            aria-label="Edit"
+            (click)="editConfiguration(configuration)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            aria-label="Delete"
+            (click)="deleteConfiguration(configuration.id)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-card-actions>
+</mat-card>
