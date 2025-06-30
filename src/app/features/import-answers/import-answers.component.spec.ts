@@ -70,6 +70,7 @@ describe('ImportAnswersComponent', () => {
     mockService.importAnswerBySurvey.and.returnValue(of(poll));
     component.onSubmit();
     expect(mockService.importAnswerBySurvey).toHaveBeenCalledWith(
+      1,
       'Test Survey',
       null,
       null
