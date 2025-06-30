@@ -104,7 +104,7 @@ export class PollFiltersComponent implements OnInit {
         );
         this.filterForm.controls.componentNames.setValue(this.componentNames);
         this.filterForm.controls.variables.setValue(
-          this.variables.map(v => v.id)
+          this.variables.map(v => v.pollVariableId)
         );
         this.sendFilters();
       });
