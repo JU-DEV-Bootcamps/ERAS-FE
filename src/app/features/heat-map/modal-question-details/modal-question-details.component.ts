@@ -29,14 +29,17 @@ import { PollService } from '../../../core/services/api/poll.service';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
 import { Column } from '../../../shared/components/list/types/column';
 import { ActionDatas } from '../../../shared/components/list/types/action';
-import { EventAction } from '../../../shared/events/load';
+import { EventAction, EventLoad } from '../../../shared/events/load';
 import { ListComponent } from '../../../shared/components/list/list.component';
 import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
+import { Pagination } from '../../../core/services/interfaces/server.type';
+import { ComponentValueType } from '../types/risk-students-detail.type';
 
 export interface SelectedHMData {
   cohortId: string;
   pollUuid: string;
-  componentName: string;
+  componentName: ComponentValueType;
+  text?: string;
   question: PollAvgQuestion | PollCountQuestion;
 }
 
@@ -66,7 +69,8 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   private reportService = inject(ReportService);
   private PollService = inject(PollService);
 
-  public studentsRisk: PollTopReport = [];
+  studentRisks: PollTopReport = [];
+  totalStudentRisks = 0;
   columns: Column<StudentReportAnswerRiskLevel>[] = [
     {
       key: 'studentName',
@@ -92,6 +96,10 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
       tooltip: 'View details',
     },
   ];
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
 
   constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
 
@@ -125,9 +133,10 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
     if (this.variableId === 0) return;
     this.reportService
-      .getTopPollReport([this.variableId], pollInstanceUUID)
+      .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
       .subscribe(data => {
-        this.studentsRisk = data.body;
+        this.studentRisks = data.body.items || [];
+        this.totalStudentRisks = data.body.count || 0;
       });
   }
 
@@ -153,7 +162,11 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
     return question && 'averageAnswer' in question && 'averageRisk' in question;
   }
 
-  handleLoadCalled() {
+  handleLoadCalled(event: EventLoad) {
+    this.pagination = {
+      page: event.page,
+      pageSize: event.pageSize,
+    };
     this.loadComponentsAndVariables();
   }
 

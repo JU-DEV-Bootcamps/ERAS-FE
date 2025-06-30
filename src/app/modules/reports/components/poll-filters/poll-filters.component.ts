@@ -67,17 +67,23 @@ export class PollFiltersComponent implements OnInit {
       next: res => (this.polls = res),
       error: () => (this.polls = null),
     });
-    this.filterForm.controls.selectedPoll.valueChanges.subscribe(() => {
-      this.cohortsService
-        .getCohorts(this.filterForm.value.selectedPoll?.uuid)
-        .subscribe(res => {
-          this.cohorts = res.body;
-          this.filterForm.controls.cohortIds.setValue(
-            this.cohorts.map(c => c.id)
-          );
-          this.handleCohortSelect(false);
-        });
-    });
+    this.filterForm.controls.selectedPoll.valueChanges.subscribe(
+      newSelectedPoll => {
+        if (newSelectedPoll) {
+          this.cohortsService
+            .getCohorts(newSelectedPoll.uuid)
+            .subscribe(res => {
+              this.cohorts = res.body;
+              this.filterForm.controls.cohortIds.setValue(
+                this.cohorts.map(c => c.id)
+              );
+              this.handleCohortSelect(false);
+            });
+        } else {
+          console.warn('selectedPoll is null');
+        }
+      }
+    );
   }
 
   handleCohortSelect(isOpen: boolean) {

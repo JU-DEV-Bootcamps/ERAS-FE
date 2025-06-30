@@ -2,7 +2,7 @@
   <div class="modal-header">
     <div class="modal-header-title">
       <h2 class="title-modal">Question Details</h2>
-      <h3>{{ inputQuestion.componentName }}</h3>
+      <h3>{{ inputQuestion.text }}</h3>
       <h4>{{ inputQuestion.question.question }}</h4>
       @if (isPollAvgQuestion(inputQuestion.question)) {
         <p>Most answered option: {{ inputQuestion.question.averageAnswer }}</p>
@@ -25,12 +25,12 @@
     </button>
   </div>
   <app-list
-    (loadCalled)="handleLoadCalled()"
+    (loadCalled)="handleLoadCalled($event)"
     (actionCalled)="handleActionCalled($event)"
     [columns]="columns"
     [columnTemplates]="columnTemplates"
-    [items]="studentsRisk"
-    [totalItems]="studentsRisk.length"
+    [items]="studentRisks"
+    [totalItems]="totalStudentRisks"
     [title]="'Answer Details'"
     [actionDatas]="actionDatas"
   >

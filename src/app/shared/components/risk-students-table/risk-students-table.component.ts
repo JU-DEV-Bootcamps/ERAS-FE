@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  Input,
-  OnChanges,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -14,11 +8,16 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { BarChartComponent } from '../charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../charts/pie-chart/pie-chart.component';
 import { ReportService } from '../../../core/services/api/report.service';
-import { PollTopReport } from '../../../core/models/summary.model';
+import {
+  CohortsSummaryModel,
+  PollTopReport,
+} from '../../../core/models/summary.model';
 import { CohortService } from '../../../core/services/api/cohort.service';
 import { ListComponent } from '../list/list.component';
 import { BadgeRiskComponent } from '../badge-risk-level/badge-risk-level.component';
 import { Column } from '../list/types/column';
+import { EventLoad } from '../../events/load';
+import { Pagination } from '../../../core/services/interfaces/server.type';
 
 interface StudentSummary {
   studentUuid: string;
@@ -32,11 +31,6 @@ interface StudentSummary {
 interface StudentRisk {
   name: string;
   risk: number;
-}
-interface StudentDataResponse {
-  cohortCount: number;
-  studentCount: number;
-  summary: StudentSummary[];
 }
 
 const lastPollPlaceholder = {
@@ -68,7 +62,7 @@ const lastPollPlaceholder = {
   templateUrl: './risk-students-table.component.html',
   styleUrls: ['./risk-students-table.component.scss'],
 })
-export class RiskStudentsTableComponent implements OnChanges {
+export class RiskStudentsTableComponent {
   private reportService = inject(ReportService);
   private cohortService = inject(CohortService);
 
@@ -76,7 +70,7 @@ export class RiskStudentsTableComponent implements OnChanges {
   @Input() variableIds!: number[];
 
   public studentRisk: PollTopReport = [];
-  public studentDataResponse: StudentDataResponse[] = [];
+  public studentDataResponse: StudentSummary[] = [];
   public displayedColumns: string[] = ['name', 'risk'];
 
   columns: Column<StudentRisk>[] = [
@@ -96,27 +90,19 @@ export class RiskStudentsTableComponent implements OnChanges {
   risks: number[] = [];
   studentRisks: StudentRisk[] = [];
   totalStudentRisks = 0;
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
 
   public lastPoll = lastPollPlaceholder;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['pollUUID'] || changes['variableIds']) {
-      if (this.isValidData()) {
-        this.loadStudentRisk();
-      }
-      this.loadCohorts();
-    }
-    if (changes['studentName'] || changes['studentRiskDetail']) {
-      this.updateChartData();
-    }
-  }
-
   private loadStudentRisk(): void {
     this.reportService
-      .getTopPollReport(this.variableIds, this.pollUUID)
+      .getTopPollReport(this.variableIds, this.pollUUID, this.pagination)
       .subscribe({
         next: data => {
-          this.studentRisk = data.body || [];
+          this.studentRisk = data.body.items || [];
         },
         error: err => {
           console.error('Error fetching student risk data:', err);
@@ -126,9 +112,10 @@ export class RiskStudentsTableComponent implements OnChanges {
   }
 
   private loadCohorts(): void {
-    this.cohortService.getCohortsSummary().subscribe({
-      next: data => {
-        this.studentDataResponse = Array.isArray(data) ? data : [data];
+    this.cohortService.getCohortsSummary(this.pagination).subscribe({
+      next: (data: CohortsSummaryModel) => {
+        this.studentDataResponse = data.summary;
+        this.totalStudentRisks = data.studentCount;
         this.createDataChar();
       },
       error: err => {
@@ -161,22 +148,18 @@ export class RiskStudentsTableComponent implements OnChanges {
     this.studentNames = [];
     this.risks = [];
     this.studentRisks = [];
-    this.totalStudentRisks = 0;
-    this.studentDataResponse.flatMap(studentData =>
-      studentData.summary.forEach(student => {
-        const name = student.studentName;
-        const risk = Math.round(student.pollinstancesAverage);
-        const studentRisk: StudentRisk = {
-          name,
-          risk,
-        };
+    this.studentDataResponse.forEach(student => {
+      const name = student.studentName;
+      const risk = Math.round(student.pollinstancesAverage);
+      const studentRisk: StudentRisk = {
+        name,
+        risk,
+      };
 
-        this.studentNames.push(name);
-        this.risks.push(risk);
-        this.studentRisks.push(studentRisk);
-      })
-    );
-    this.totalStudentRisks = this.studentRisks.length;
+      this.studentNames.push(name);
+      this.risks.push(risk);
+      this.studentRisks.push(studentRisk);
+    });
   }
 
   private updateChartData(): void {
@@ -186,7 +169,12 @@ export class RiskStudentsTableComponent implements OnChanges {
     this.createDataChar();
   }
 
-  handleLoadCalled() {
+  handleLoadCalled(event: EventLoad) {
+    this.pagination = {
+      page: event.page,
+      pageSize: event.pageSize,
+    };
+
     if (this.isValidData()) {
       this.loadStudentRisk();
     }

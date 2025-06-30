@@ -33,9 +33,11 @@
   </div>
 
   <div class="filter-container">
-    <app-risk-students-table
-      [pollUUID]="selectedPoll.uuid"
-      [variableIds]="variableIds"
-    ></app-risk-students-table>
+    @if (selectedPoll) {
+      <app-risk-students-table
+        [pollUUID]="selectedPoll.uuid"
+        [variableIds]="variableIds"
+      />
+    }
   </div>
 </div>

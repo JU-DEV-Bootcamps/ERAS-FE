@@ -46,8 +46,8 @@ export class ListStudentsByPollComponent implements OnInit {
   students: StudentModel[] = [];
   totalStudents = 0;
   pagination: Pagination = {
-    page: 0,
     pageSize: 10,
+    page: 0,
   };
   columns: Column<StudentModel>[] = [
     {
