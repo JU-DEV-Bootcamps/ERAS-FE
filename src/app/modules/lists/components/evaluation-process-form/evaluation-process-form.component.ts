@@ -1,3 +1,4 @@
+import { ConfigurationsService } from './../../../../core/services/api/configurations.service';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { Component, Inject, inject } from '@angular/core';
 import {
@@ -29,6 +30,9 @@ import { EvaluationModel } from '../../../../core/models/evaluation.model';
 import { PollName } from '../../../../core/models/poll-request.model';
 import { CosmicLatteService } from '../../../../core/services/api/cosmic-latte.service';
 import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
+import { ConfigurationsModel } from '../../../../core/models/configurations.model';
+import { ServiceProvidersService } from '../../../../core/services/api/service-providers.service';
+import { ServiceProviderModel } from '../../../../core/models/service-providers.model';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -65,9 +69,14 @@ export class EvaluationProcessFormComponent {
   pollsNames: PollName[] = [this.prefereToChooseLater];
   cosmicLatteService = inject(CosmicLatteService);
   evaluationsService = inject(EvaluationsService);
+  configurationsService = inject(ConfigurationsService);
+  configurations: ConfigurationsModel[] = [];
+  serviceProvidersService = inject(ServiceProvidersService);
+  serviceProviders: ServiceProviderModel[] = [];
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
   pollDataSelected: PollName | null = null;
+  selectedConfiguration: ConfigurationsModel | null = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -91,6 +100,7 @@ export class EvaluationProcessFormComponent {
           Validators.maxLength(50),
         ],
       ],
+      configuration: [null, Validators.required],
       pollName: [
         {
           value: data?.evaluation?.pollName ?? '',
@@ -130,12 +140,25 @@ export class EvaluationProcessFormComponent {
         }
       }
     }
-
-    this.getPollDetails();
+    this.getConfigurations();
+    this.getServiceProviders();
   }
 
   public onCountrySelected(country: Country): void {
     this.selectedCountry = country.alpha3;
+  }
+
+  onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
+    this.selectedConfiguration = selectedConfiguration;
+    this.getPollDetails(selectedConfiguration.id);
+  }
+
+  getServiceProviderName(
+    configuration: ConfigurationsModel
+  ): string | undefined {
+    return this.serviceProviders.find(
+      sp => sp.id === configuration.serviceProviderId
+    )?.serviceProviderName;
   }
 
   closeAndResetDialog() {
@@ -246,8 +269,42 @@ export class EvaluationProcessFormComponent {
     }
   }
 
-  getPollDetails() {
-    this.cosmicLatteService.getPollNames(1).subscribe({
+  getServiceProviders() {
+    this.serviceProvidersService.getAllServiceProviders().subscribe({
+      next: (data: ServiceProviderModel[]) => {
+        this.serviceProviders = data;
+        this.loadingSubject.next(false);
+      },
+      error: err => {
+        this.loadingSubject.next(false);
+        this.openDialog(
+          'Error: An error occurred while trying to get the service providers :' +
+            err.message,
+          false
+        );
+      },
+    });
+  }
+
+  getConfigurations() {
+    this.configurationsService.getAllConfigurations().subscribe({
+      next: (data: ConfigurationsModel[]) => {
+        this.configurations = data;
+        this.loadingSubject.next(false);
+      },
+      error: err => {
+        this.loadingSubject.next(false);
+        this.openDialog(
+          'Error: An error occurred while trying to get the configurations :' +
+            err.message,
+          false
+        );
+      },
+    });
+  }
+
+  getPollDetails(configurationId: number) {
+    this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: (data: PollName[]) => {
         this.pollsNames = [this.prefereToChooseLater, ...data];
         this.loadingSubject.next(false);

@@ -9,7 +9,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { EvaluationsService } from '../../core/services/api/evaluations.service';
-import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
 import { DatePipe, NgClass } from '@angular/common';
@@ -75,7 +74,6 @@ export class HomeComponent implements OnInit {
 
   router = inject(Router);
   evalService = inject(EvaluationsService);
-  clService = inject(CosmicLatteService);
   reportService = inject(ReportService);
 
   healthCheckStatus = false;
@@ -139,13 +137,6 @@ export class HomeComponent implements OnInit {
           (this.PollInstanceError = `Something went wrong when looking for poll ${pollUuid} details.`),
       });
   }
-
-  // healthCheck() {
-  //   this.clService.healthCheck().subscribe(response => {
-  //     this.healthCheckStatus =
-  //       response.entries.cosmicLatteApi.status === 'Healthy';
-  //   });
-  // }
 
   onSlideChange(event: Event) {
     if (event.target && (event.target as SwiperEventTarget).swiper) {

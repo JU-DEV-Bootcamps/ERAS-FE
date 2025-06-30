@@ -122,22 +122,4 @@
       ></app-empty-data-message>
     }
   }
-  <h2 class="page-subtitle">Connected Services</h2>
-  <div class="section">
-    <mat-card class="services-card">
-      <mat-card-title>Cosmic Latte</mat-card-title>
-      <mat-icon class="cl-icon">local_drink</mat-icon>
-      <mat-card-actions>
-        @if (healthCheckStatus) {
-          <mat-icon class="check">check</mat-icon>
-        } @else {
-          <mat-icon class="close">close</mat-icon>
-        }
-        <p>{{ healthCheckStatus ? 'OK' : 'NOK' }}</p>
-        <button mat-mini-fab aria-label="Service Settings">
-          <mat-icon routerLink="/cosmic-latte">settings</mat-icon>
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
 </div>

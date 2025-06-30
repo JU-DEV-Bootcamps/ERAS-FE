@@ -52,6 +52,33 @@
 
     <div class="row">
       <mat-form-field class="input">
+        <mat-label> Select a Configuration </mat-label>
+        <mat-select
+          formControlName="configuration"
+          (selectionChange)="onConfigurationChange($event.value)"
+        >
+          @for (configuration of configurations; track configuration) {
+            <mat-option [value]="configuration">
+              {{ configuration.configurationName }} -
+              {{ getServiceProviderName(configuration) }}
+            </mat-option>
+          }
+        </mat-select>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('configuration')?.hasError('required') &&
+            form.get('configuration')?.touched
+          "
+        >
+          You have to choose an option.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field class="input">
         @if (pollDataSelected !== null) {
           <mat-label> {{ pollDataSelected.selectData }}</mat-label>
         } @else {
