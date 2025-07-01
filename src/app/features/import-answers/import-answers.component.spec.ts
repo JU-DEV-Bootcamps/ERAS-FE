@@ -102,7 +102,7 @@ describe('ImportAnswersComponent', () => {
       null
     );
 
-    expect(component.form.controls['surveyName'].value).toBe('');
+    expect(component.form.controls['surveyName'].value).toBeNull();
     expect(component.form.pristine).toBeTrue();
     expect(component.form.untouched).toBeTrue();
   });
@@ -122,6 +122,6 @@ describe('ImportAnswersComponent', () => {
     component.onSubmit();
 
     expect(mockService.importAnswerBySurvey).toHaveBeenCalled();
-    expect(component.form.controls['surveyName'].value).toBe('');
+    expect(component.form.controls['surveyName'].value).toBeNull();
   });
 });
