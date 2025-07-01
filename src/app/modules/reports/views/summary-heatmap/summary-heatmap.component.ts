@@ -123,7 +123,6 @@ export class SummaryHeatmapComponent {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
-        console.log(reportSeries);
         const series = this.reportService.regroupByColor(reportSeries);
         this.chartOptions = GetChartOptions(`${this.title}`, series, (x, y) => {
           const component = series[y];
