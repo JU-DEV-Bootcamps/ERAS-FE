@@ -9,6 +9,7 @@ import { AuditModel } from '../../core/models/common/audit.model';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 import { PollService } from '../../core/services/api/poll.service';
 import { PollInstance } from '../../core/models/poll-instance.model';
+import { ConfigurationsModel } from '../../core/models/configurations.model';
 
 describe('ImportAnswersComponent', () => {
   let component: ImportAnswersComponent;
@@ -28,6 +29,7 @@ describe('ImportAnswersComponent', () => {
     mockPollService.savePollsCosmicLattePreview.and.returnValue([]);
 
     mockService.getPollNames.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [ImportAnswersComponent, ReactiveFormsModule],
       providers: [
@@ -47,35 +49,46 @@ describe('ImportAnswersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  const audit: AuditModel = {
-    createdBy: 'string',
-    modifiedBy: 'string',
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-  };
-  const poll: PollInstance[] = [
-    {
-      id: 0,
-      idCosmicLatte: 'string',
-      uuid: 'string',
-      name: 'string',
-      version: 'string',
-      finishedAt: 'string',
-      components: [],
-      audit: audit,
-    },
-  ];
   it('should reset the form after a successful submission', () => {
+    const audit: AuditModel = {
+      createdBy: 'string',
+      modifiedBy: 'string',
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+    };
+
+    const poll: PollInstance[] = [
+      {
+        id: 0,
+        idCosmicLatte: 'string',
+        uuid: 'string',
+        name: 'string',
+        version: 'string',
+        finishedAt: 'string',
+        components: [],
+        audit: audit,
+      },
+    ];
+
+    component.selectedConfiguration = {
+      id: 1,
+      serviceProviderId: 1,
+    } as ConfigurationsModel;
+
     component.form.controls['surveyName'].setValue('Test Survey');
+
     mockService.importAnswerBySurvey.and.returnValue(of(poll));
+
     component.onSubmit();
+
     expect(mockService.importAnswerBySurvey).toHaveBeenCalledWith(
       1,
       'Test Survey',
       null,
       null
     );
-    expect(component.form.value.surveyName).toBe(null);
+
+    expect(component.form.controls['surveyName'].value).toBe('');
     expect(component.form.pristine).toBeTrue();
     expect(component.form.untouched).toBeTrue();
   });
