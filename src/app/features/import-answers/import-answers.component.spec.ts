@@ -1,13 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
 import { ImportAnswersComponent } from './import-answers.component';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { ReactiveFormsModule } from '@angular/forms';
+import { of, throwError } from 'rxjs';
+import Keycloak from 'keycloak-js';
+import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
-
-import { AuditModel } from '../../core/models/common/audit.model';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
-import { PollService } from '../../core/services/api/poll.service';
+import { ConfigurationsService } from '../../core/services/api/configurations.service';
+import { ServiceProvidersService } from '../../core/services/api/service-providers.service';
+import { AuditModel } from '../../core/models/common/audit.model';
 import { PollInstance } from '../../core/models/poll-instance.model';
 import { ConfigurationsModel } from '../../core/models/configurations.model';
 
@@ -15,26 +19,36 @@ describe('ImportAnswersComponent', () => {
   let component: ImportAnswersComponent;
   let fixture: ComponentFixture<ImportAnswersComponent>;
   let mockService: jasmine.SpyObj<CosmicLatteService>;
-
-  const mockPollService = jasmine.createSpyObj('PollService', [
-    'savePollsCosmicLattePreview',
-  ]);
+  let mockKeycloak: jasmine.SpyObj<Keycloak>;
 
   beforeEach(async () => {
     mockService = jasmine.createSpyObj('CosmicLatteService', [
       'importAnswerBySurvey',
       'getPollNames',
     ]);
-
-    mockPollService.savePollsCosmicLattePreview.and.returnValue([]);
+    const mockConfigService = jasmine.createSpyObj('ConfigurationsService', [
+      'getConfigurationsByUserId',
+    ]);
+    const mockSPService = jasmine.createSpyObj('ServiceProvidersService', [
+      'getAllServiceProviders',
+    ]);
+    mockKeycloak = jasmine.createSpyObj('Keycloak', ['loadUserProfile']);
+    const mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+    const mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     mockService.getPollNames.and.returnValue(of([]));
+    mockKeycloak.loadUserProfile.and.resolveTo({ id: 'user123' });
 
     await TestBed.configureTestingModule({
       imports: [ImportAnswersComponent, ReactiveFormsModule],
       providers: [
         { provide: CosmicLatteService, useValue: mockService },
-        { provide: PollService, useValue: mockPollService },
+        { provide: ConfigurationsService, useValue: mockConfigService },
+        { provide: ServiceProvidersService, useValue: mockSPService },
+        { provide: Keycloak, useValue: mockKeycloak },
+        { provide: MatDialog, useValue: mockDialog },
+        { provide: Router, useValue: mockRouter },
+        { provide: DatePipe, useClass: DatePipe },
         provideNoopAnimations(),
         provideHttpClient(),
       ],
@@ -91,5 +105,23 @@ describe('ImportAnswersComponent', () => {
     expect(component.form.controls['surveyName'].value).toBe('');
     expect(component.form.pristine).toBeTrue();
     expect(component.form.untouched).toBeTrue();
+  });
+
+  it('should handle error on submission', () => {
+    component.selectedConfiguration = {
+      id: 1,
+      serviceProviderId: 1,
+    } as ConfigurationsModel;
+
+    component.form.controls['surveyName'].setValue('Test Survey');
+
+    mockService.importAnswerBySurvey.and.returnValue(
+      throwError(() => ({ error: { message: 'Server error' } }))
+    );
+
+    component.onSubmit();
+
+    expect(mockService.importAnswerBySurvey).toHaveBeenCalled();
+    expect(component.form.controls['surveyName'].value).toBe('');
   });
 });
