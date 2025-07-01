@@ -75,7 +75,7 @@ describe('NewConfigurationModalComponent', () => {
     expect(mockDialogRef.close).toHaveBeenCalledWith({
       configurationName: 'Updated Config',
       baseUrl: 'https://updated.com',
-      encryptedKey: 'newkey',
+      apiKey: 'newkey',
       serviceProvider: 3,
       id: 1,
     });
