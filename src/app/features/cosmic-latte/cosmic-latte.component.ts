@@ -38,10 +38,10 @@ export class CosmicLatteComponent implements OnInit {
   constructor(private readonly keycloak: Keycloak) {}
 
   async ngOnInit() {
-    this.loadConfigurations();
     this.loadServiceProviders();
     const profile = await this.keycloak.loadUserProfile();
     this.userId = profile.id || '';
+    this.loadConfigurations(this.userId);
   }
 
   createConfiguration() {
@@ -57,8 +57,9 @@ export class CosmicLatteComponent implements OnInit {
           id: 0,
           userId: this.userId,
           configurationName: result.configurationName,
-          baseUrl: result.baseUrl,
+          baseURL: result.baseURL,
           encryptedKey: result.apiKey,
+          isDeleted: false,
           serviceProviderId: result.serviceProvider,
           audit: {
             createdBy: 'configurator',
@@ -78,15 +79,15 @@ export class CosmicLatteComponent implements OnInit {
               console.error('Error while creating configuration', error);
             },
             complete: () => {
-              this.loadConfigurations();
+              this.loadConfigurations(this.userId);
             },
           });
       }
     });
   }
 
-  loadConfigurations() {
-    this.configurationsService.getAllConfigurations().subscribe({
+  loadConfigurations(userId: string) {
+    this.configurationsService.getConfigurationsByUserId(userId).subscribe({
       next: response => {
         this.configurations = response;
         console.log('Configurations loaded successfully', response);
@@ -120,7 +121,7 @@ export class CosmicLatteComponent implements OnInit {
 
   onConfigurationUpdate(updateList: boolean) {
     if (updateList) {
-      this.loadConfigurations();
+      this.loadConfigurations(this.userId);
     }
   }
 }

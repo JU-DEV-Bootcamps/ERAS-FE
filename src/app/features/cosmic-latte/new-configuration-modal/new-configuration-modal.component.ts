@@ -55,7 +55,7 @@ export class NewConfigurationModalComponent implements OnInit {
 
     this.configurationForm = this.fb.group({
       configurationName: ['', Validators.required],
-      baseUrl: ['', Validators.required],
+      baseURL: ['', Validators.required],
       apiKey: ['', Validators.required],
       serviceProvider: ['', Validators.required],
     });
@@ -63,7 +63,7 @@ export class NewConfigurationModalComponent implements OnInit {
     if (this.existingConfiguration) {
       this.configurationForm.patchValue({
         configurationName: this.existingConfiguration.configurationName,
-        baseUrl: this.existingConfiguration.baseUrl,
+        baseURL: this.existingConfiguration.baseURL,
         apiKey: this.existingConfiguration.encryptedKey,
         serviceProvider: this.existingConfiguration.serviceProviderId,
       });

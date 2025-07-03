@@ -100,7 +100,13 @@ export class EvaluationProcessFormComponent {
           Validators.maxLength(50),
         ],
       ],
-      configuration: [null, Validators.required],
+      configuration: [
+        {
+          value: '',
+          disabled: !!data?.evaluation?.configurationId,
+        },
+        Validators.required,
+      ],
       pollName: [
         {
           value: data?.evaluation?.pollName ?? '',
@@ -131,6 +137,10 @@ export class EvaluationProcessFormComponent {
             : '',
           country: data.evaluation.country,
         };
+        this.selectedConfiguration =
+          this.configurations.find(
+            c => c.id === data.evaluation?.configurationId
+          ) ?? null;
         const countryAlpha3 = this.data.evaluation?.country.toLowerCase();
 
         const fullCountry = countries.find(c => c.alpha3 === countryAlpha3);
@@ -211,7 +221,7 @@ export class EvaluationProcessFormComponent {
           endDate: this.form.value.endDate,
           pollName: this.form.value.pollName,
           country: this.selectedCountry,
-        };
+        } as CreateEvaluationModel;
         if (this.form.value.pollName === 'null') {
           delete newProcess.pollName;
         }
@@ -291,6 +301,16 @@ export class EvaluationProcessFormComponent {
       next: (data: ConfigurationsModel[]) => {
         this.configurations = data;
         this.loadingSubject.next(false);
+        if (this.data.evaluation?.configurationId) {
+          const configuration = this.configurations.find(
+            c => c.id === this.data.evaluation?.configurationId
+          );
+          if (configuration) {
+            this.selectedConfiguration = configuration;
+            this.form.get('configuration')?.setValue(configuration);
+            this.getPollDetails(configuration.id);
+          }
+        }
       },
       error: err => {
         this.loadingSubject.next(false);

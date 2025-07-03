@@ -56,6 +56,7 @@
         <mat-select
           formControlName="configuration"
           (selectionChange)="onConfigurationChange($event.value)"
+          [value]="selectedConfiguration || ''"
         >
           @for (configuration of configurations; track configuration) {
             <mat-option [value]="configuration">

@@ -18,6 +18,8 @@ import { ConfigurationsService } from '../../../core/services/api/configurations
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NewConfigurationModalComponent } from '../new-configuration-modal/new-configuration-modal.component';
 import { CommonModule } from '@angular/common';
+import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
+import { GENERAL_MESSAGES } from '../../../core/constants/messages';
 
 @Component({
   selector: 'app-configuration-card',
@@ -77,7 +79,7 @@ export class ConfigurationCardComponent implements OnInit {
         const updatedConfiguration: ConfigurationsModel = {
           ...configuration,
           configurationName: result.configurationName,
-          baseUrl: result.baseUrl,
+          baseURL: result.baseUrl,
           encryptedKey: result.apiKey,
           serviceProviderId: result.serviceProvider,
         };
@@ -96,6 +98,47 @@ export class ConfigurationCardComponent implements OnInit {
           });
       }
     });
+  }
+  openAlertDialog(
+    descriptionMessage: string,
+    isSuccess: boolean,
+    deleteConfirmFunction?: () => void
+  ): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+    this.dialog.open(ModalComponent, {
+      width: '450px',
+      height: 'auto',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        isSuccess: isSuccess,
+        title: isSuccess
+          ? GENERAL_MESSAGES.SUCCESS_TITLE
+          : GENERAL_MESSAGES.ERROR_TITLE,
+        success: {
+          details: descriptionMessage,
+        },
+        error: {
+          title: GENERAL_MESSAGES.ERROR_TITLE,
+          details: [descriptionMessage],
+          message: descriptionMessage,
+        },
+        deleteConfirmFunction: deleteConfirmFunction,
+      },
+    });
+  }
+
+  deleteConfigurationConfirmation(id: number) {
+    if (id) {
+      this.openAlertDialog(
+        `Are you sure you want to delete the configuration?`,
+        false,
+        () => this.deleteConfiguration(id)
+      );
+    } else {
+      console.warn("id wasn't provided");
+    }
   }
 
   deleteConfiguration(configurationId: number) {
