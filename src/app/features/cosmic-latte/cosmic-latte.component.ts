@@ -52,7 +52,6 @@ export class CosmicLatteComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('New configuration data:', result);
         const newConfiguration: ConfigurationsModel = {
           id: 0,
           userId: this.userId,
@@ -72,7 +71,6 @@ export class CosmicLatteComponent implements OnInit {
           .createConfiguration(newConfiguration)
           .subscribe({
             next: response => {
-              this.configurations.push(response);
               console.log('Configuration created successfully', response);
             },
             error: error => {
@@ -90,7 +88,7 @@ export class CosmicLatteComponent implements OnInit {
     this.configurationsService.getConfigurationsByUserId(userId).subscribe({
       next: response => {
         this.configurations = response;
-        console.log('Configurations loaded successfully', response);
+        console.log('Configurations loaded successfully');
       },
       error: error => {
         console.error('Error while loading configurations', error);

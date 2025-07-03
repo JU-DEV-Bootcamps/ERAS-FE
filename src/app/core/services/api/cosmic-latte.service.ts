@@ -14,10 +14,7 @@ export class CosmicLatteService extends BaseApiService {
   protected resource = 'cosmic-latte';
 
   healthCheck(configurationId: number) {
-    const params = new HttpParams().set(
-      'ConfigurationId',
-      configurationId.toString()
-    );
+    const params = new HttpParams().set('ConfigurationId', configurationId);
 
     return this.get<HealthCheckResponse>('health', params).pipe(
       catchError(() => {

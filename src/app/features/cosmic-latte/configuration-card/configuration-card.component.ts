@@ -75,11 +75,10 @@ export class ConfigurationCardComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Updated configuration data:', result);
         const updatedConfiguration: ConfigurationsModel = {
           ...configuration,
           configurationName: result.configurationName,
-          baseURL: result.baseUrl,
+          baseURL: result.baseURL,
           encryptedKey: result.apiKey,
           serviceProviderId: result.serviceProvider,
         };
