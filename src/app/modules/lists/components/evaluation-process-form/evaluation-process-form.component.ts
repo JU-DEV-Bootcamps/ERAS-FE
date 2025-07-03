@@ -228,6 +228,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
           pollName: this.form.value.pollName,
+          configurationId: this.selectedConfiguration?.id,
           country: this.selectedCountry,
         } as CreateEvaluationModel;
         if (this.form.value.pollName === 'null') {
