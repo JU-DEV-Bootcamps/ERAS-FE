@@ -21,6 +21,7 @@ describe('NewConfigurationModalComponent', () => {
       baseURL: 'https://example.com',
       encryptedKey: 'abc123',
       serviceProviderId: 2,
+      isDeleted: false,
     } as ConfigurationsModel,
   };
 
@@ -56,28 +57,31 @@ describe('NewConfigurationModalComponent', () => {
   it('should initialize the form with existing configuration data', () => {
     expect(component.configurationForm.value).toEqual({
       configurationName: 'Test Config',
-      baseUrl: 'https://example.com',
+      baseURL: 'https://example.com',
       apiKey: 'abc123',
       serviceProvider: 2,
+      isDeleted: false,
     });
   });
 
   it('should close the dialog with form data when form is valid', () => {
     component.configurationForm.setValue({
       configurationName: 'Updated Config',
-      baseUrl: 'https://updated.com',
+      baseURL: 'https://updated.com',
       apiKey: 'newkey',
       serviceProvider: 3,
+      isDeleted: false,
     });
 
     component.saveConfiguration();
 
     expect(mockDialogRef.close).toHaveBeenCalledWith({
       configurationName: 'Updated Config',
-      baseUrl: 'https://updated.com',
+      baseURL: 'https://updated.com',
       apiKey: 'newkey',
       serviceProvider: 3,
       id: 1,
+      isDeleted: false,
     });
   });
 
