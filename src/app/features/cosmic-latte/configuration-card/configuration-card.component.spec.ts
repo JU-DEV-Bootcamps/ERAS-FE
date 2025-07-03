@@ -38,7 +38,7 @@ describe('ConfigurationCardComponent', () => {
     component.configuration = {
       id: 1,
       configurationName: 'Test Config',
-      baseUrl: 'https://example.com',
+      baseURL: 'https://example.com',
       encryptedKey: 'abc123',
       serviceProviderId: 1,
     } as ConfigurationsModel;

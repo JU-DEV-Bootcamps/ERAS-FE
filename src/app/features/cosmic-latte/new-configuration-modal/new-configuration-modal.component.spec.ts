@@ -18,7 +18,7 @@ describe('NewConfigurationModalComponent', () => {
     existingConfiguration: {
       id: 1,
       configurationName: 'Test Config',
-      baseUrl: 'https://example.com',
+      baseURL: 'https://example.com',
       encryptedKey: 'abc123',
       serviceProviderId: 2,
     } as ConfigurationsModel,
