@@ -1,6 +1,6 @@
 import { ConfigurationsService } from './../../../../core/services/api/configurations.service';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -33,6 +33,7 @@ import { EvaluationsService } from '../../../../core/services/api/evaluations.se
 import { ConfigurationsModel } from '../../../../core/models/configurations.model';
 import { ServiceProvidersService } from '../../../../core/services/api/service-providers.service';
 import { ServiceProviderModel } from '../../../../core/models/service-providers.model';
+import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -54,7 +55,7 @@ import { ServiceProviderModel } from '../../../../core/models/service-providers.
   providers: [provideNativeDateAdapter(), DatePipe],
   styleUrl: './evaluation-process-form.component.scss',
 })
-export class EvaluationProcessFormComponent {
+export class EvaluationProcessFormComponent implements OnInit {
   form: FormGroup;
   title;
   buttonText;
@@ -77,6 +78,7 @@ export class EvaluationProcessFormComponent {
   isLoading$ = this.loadingSubject.asObservable();
   pollDataSelected: PollName | null = null;
   selectedConfiguration: ConfigurationsModel | null = null;
+  userId = '';
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -89,7 +91,8 @@ export class EvaluationProcessFormComponent {
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
     private dialog: MatDialog,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private readonly keycloak: Keycloak
   ) {
     this.form = this.fb.group({
       name: [
@@ -150,6 +153,11 @@ export class EvaluationProcessFormComponent {
         }
       }
     }
+  }
+
+  async ngOnInit() {
+    const profile = await this.keycloak.loadUserProfile();
+    this.userId = profile.id || '';
     this.getConfigurations();
     this.getServiceProviders();
   }
@@ -297,6 +305,34 @@ export class EvaluationProcessFormComponent {
   }
 
   getConfigurations() {
+    if (!this.data.evaluation) {
+      this.configurationsService
+        .getConfigurationsByUserId(this.userId)
+        .subscribe({
+          next: (data: ConfigurationsModel[]) => {
+            this.configurations = data;
+            this.loadingSubject.next(false);
+            const configuration = this.configurations.find(
+              c => c.id === this.data.evaluation?.configurationId
+            );
+            if (configuration) {
+              this.selectedConfiguration = configuration;
+              this.form.get('configuration')?.setValue(configuration);
+              this.getPollDetails(configuration.id);
+            }
+          },
+          error: err => {
+            this.loadingSubject.next(false);
+            this.openDialog(
+              'Error: An error occurred while trying to get the configurations :' +
+                err.message,
+              false
+            );
+          },
+        });
+      return;
+    }
+
     this.configurationsService.getAllConfigurations().subscribe({
       next: (data: ConfigurationsModel[]) => {
         this.configurations = data;

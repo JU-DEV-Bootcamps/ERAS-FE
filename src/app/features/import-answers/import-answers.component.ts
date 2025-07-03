@@ -112,7 +112,6 @@ export class ImportAnswersComponent implements OnInit {
       start: this.preselectedPollState?.start ?? '',
       end: this.preselectedPollState?.end ?? '',
     });
-    // this.getPollDetails();
   }
 
   async ngOnInit() {
