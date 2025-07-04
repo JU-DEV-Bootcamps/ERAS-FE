@@ -10,6 +10,7 @@ export interface EvaluationModel extends BaseModel {
   pollName: string;
   country: string;
   pollId: number;
+  configurationId: number;
   evaluationPollId: number;
   polls: PollModel[];
   pollInstances: PollInstanceModel[];

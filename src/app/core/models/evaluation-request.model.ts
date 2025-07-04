@@ -6,6 +6,7 @@ export interface CreateEvaluationModel {
   endDate: Date;
   pollName?: string;
   country?: string;
+  configurationId: number;
 }
 
 export interface PagedReadEvaluationProcess {

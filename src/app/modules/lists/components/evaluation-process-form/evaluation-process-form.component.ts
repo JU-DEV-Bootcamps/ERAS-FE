@@ -1,5 +1,6 @@
+import { ConfigurationsService } from './../../../../core/services/api/configurations.service';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -29,6 +30,10 @@ import { EvaluationModel } from '../../../../core/models/evaluation.model';
 import { PollName } from '../../../../core/models/poll-request.model';
 import { CosmicLatteService } from '../../../../core/services/api/cosmic-latte.service';
 import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
+import { ConfigurationsModel } from '../../../../core/models/configurations.model';
+import { ServiceProvidersService } from '../../../../core/services/api/service-providers.service';
+import { ServiceProviderModel } from '../../../../core/models/service-providers.model';
+import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -50,7 +55,7 @@ import { EvaluationsService } from '../../../../core/services/api/evaluations.se
   providers: [provideNativeDateAdapter(), DatePipe],
   styleUrl: './evaluation-process-form.component.scss',
 })
-export class EvaluationProcessFormComponent {
+export class EvaluationProcessFormComponent implements OnInit {
   form: FormGroup;
   title;
   buttonText;
@@ -65,9 +70,15 @@ export class EvaluationProcessFormComponent {
   pollsNames: PollName[] = [this.prefereToChooseLater];
   cosmicLatteService = inject(CosmicLatteService);
   evaluationsService = inject(EvaluationsService);
+  configurationsService = inject(ConfigurationsService);
+  configurations: ConfigurationsModel[] = [];
+  serviceProvidersService = inject(ServiceProvidersService);
+  serviceProviders: ServiceProviderModel[] = [];
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
   pollDataSelected: PollName | null = null;
+  selectedConfiguration: ConfigurationsModel | null = null;
+  userId = '';
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -80,7 +91,8 @@ export class EvaluationProcessFormComponent {
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
     private dialog: MatDialog,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private readonly keycloak: Keycloak
   ) {
     this.form = this.fb.group({
       name: [
@@ -90,6 +102,13 @@ export class EvaluationProcessFormComponent {
           Validators.minLength(3),
           Validators.maxLength(50),
         ],
+      ],
+      configuration: [
+        {
+          value: '',
+          disabled: !!data?.evaluation?.configurationId,
+        },
+        Validators.required,
       ],
       pollName: [
         {
@@ -121,6 +140,10 @@ export class EvaluationProcessFormComponent {
             : '',
           country: data.evaluation.country,
         };
+        this.selectedConfiguration =
+          this.configurations.find(
+            c => c.id === data.evaluation?.configurationId
+          ) ?? null;
         const countryAlpha3 = this.data.evaluation?.country.toLowerCase();
 
         const fullCountry = countries.find(c => c.alpha3 === countryAlpha3);
@@ -130,12 +153,30 @@ export class EvaluationProcessFormComponent {
         }
       }
     }
+  }
 
-    this.getPollDetails();
+  async ngOnInit() {
+    const profile = await this.keycloak.loadUserProfile();
+    this.userId = profile.id || '';
+    this.getConfigurations();
+    this.getServiceProviders();
   }
 
   public onCountrySelected(country: Country): void {
     this.selectedCountry = country.alpha3;
+  }
+
+  onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
+    this.selectedConfiguration = selectedConfiguration;
+    this.getPollDetails(selectedConfiguration.id);
+  }
+
+  getServiceProviderName(
+    configuration: ConfigurationsModel
+  ): string | undefined {
+    return this.serviceProviders.find(
+      sp => sp.id === configuration.serviceProviderId
+    )?.serviceProviderName;
   }
 
   closeAndResetDialog() {
@@ -187,8 +228,9 @@ export class EvaluationProcessFormComponent {
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
           pollName: this.form.value.pollName,
+          configurationId: this.selectedConfiguration?.id,
           country: this.selectedCountry,
-        };
+        } as CreateEvaluationModel;
         if (this.form.value.pollName === 'null') {
           delete newProcess.pollName;
         }
@@ -246,8 +288,80 @@ export class EvaluationProcessFormComponent {
     }
   }
 
-  getPollDetails() {
-    this.cosmicLatteService.getPollNames().subscribe({
+  getServiceProviders() {
+    this.serviceProvidersService.getAllServiceProviders().subscribe({
+      next: (data: ServiceProviderModel[]) => {
+        this.serviceProviders = data;
+        this.loadingSubject.next(false);
+      },
+      error: err => {
+        this.loadingSubject.next(false);
+        this.openDialog(
+          'Error: An error occurred while trying to get the service providers :' +
+            err.message,
+          false
+        );
+      },
+    });
+  }
+
+  getConfigurations() {
+    if (!this.data.evaluation) {
+      this.configurationsService
+        .getConfigurationsByUserId(this.userId)
+        .subscribe({
+          next: (data: ConfigurationsModel[]) => {
+            this.configurations = data;
+            this.loadingSubject.next(false);
+            const configuration = this.configurations.find(
+              c => c.id === this.data.evaluation?.configurationId
+            );
+            if (configuration) {
+              this.selectedConfiguration = configuration;
+              this.form.get('configuration')?.setValue(configuration);
+              this.getPollDetails(configuration.id);
+            }
+          },
+          error: err => {
+            this.loadingSubject.next(false);
+            this.openDialog(
+              'Error: An error occurred while trying to get the configurations :' +
+                err.message,
+              false
+            );
+          },
+        });
+      return;
+    }
+
+    this.configurationsService.getAllConfigurations().subscribe({
+      next: (data: ConfigurationsModel[]) => {
+        this.configurations = data;
+        this.loadingSubject.next(false);
+        if (this.data.evaluation?.configurationId) {
+          const configuration = this.configurations.find(
+            c => c.id === this.data.evaluation?.configurationId
+          );
+          if (configuration) {
+            this.selectedConfiguration = configuration;
+            this.form.get('configuration')?.setValue(configuration);
+            this.getPollDetails(configuration.id);
+          }
+        }
+      },
+      error: err => {
+        this.loadingSubject.next(false);
+        this.openDialog(
+          'Error: An error occurred while trying to get the configurations :' +
+            err.message,
+          false
+        );
+      },
+    });
+  }
+
+  getPollDetails(configurationId: number) {
+    this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: (data: PollName[]) => {
         this.pollsNames = [this.prefereToChooseLater, ...data];
         this.loadingSubject.next(false);
