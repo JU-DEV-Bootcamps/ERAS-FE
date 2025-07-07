@@ -81,6 +81,7 @@ export class ReportService extends BaseApiService {
       return {
         text: `${component.description}\n RISK AVG: ${component.averageRisk.toFixed(2)}`,
         description: component.description,
+        name: component.description,
         data: component.questions.map(question => {
           return {
             x: question.question,
