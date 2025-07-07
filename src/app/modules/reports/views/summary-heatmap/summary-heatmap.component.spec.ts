@@ -112,6 +112,7 @@ describe('SummaryHeatmapComponent', () => {
     const mockSeries = [
       {
         description: 'FAMILIAR' as ComponentValueType,
+        name: 'FAMILIAR' as ComponentValueType,
         text: 'Familiar description',
         data: [],
       },
