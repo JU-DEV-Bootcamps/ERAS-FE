@@ -1,4 +1,9 @@
-import { Component, inject, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  AfterViewInit,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -101,7 +106,10 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
     pageSize: 10,
   };
 
-  constructor(public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>) {}
+  constructor(
+    public dialogRef: MatDialogRef<ModalQuestionDetailsComponent>,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -137,6 +145,7 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
       .subscribe(data => {
         this.studentRisks = data.body.items || [];
         this.totalStudentRisks = data.body.count || 0;
+        this.cdr.detectChanges();
       });
   }
 
