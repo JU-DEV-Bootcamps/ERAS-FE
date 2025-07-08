@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -69,8 +69,9 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   private reportService = inject(ReportService);
   private PollService = inject(PollService);
 
-  studentRisks: PollTopReport = [];
-  totalStudentRisks = 0;
+  studentRisks = signal<PollTopReport>([]);
+  totalStudentRisks = signal(0);
+
   columns: Column<StudentReportAnswerRiskLevel>[] = [
     {
       key: 'studentName',
@@ -135,8 +136,8 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
     this.reportService
       .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
       .subscribe(data => {
-        this.studentRisks = data.body.items || [];
-        this.totalStudentRisks = data.body.count || 0;
+        this.studentRisks.set(data.body.items || []);
+        this.totalStudentRisks.set(data.body.count || 0);
       });
   }
 
