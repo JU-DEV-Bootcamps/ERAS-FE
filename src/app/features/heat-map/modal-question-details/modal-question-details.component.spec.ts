@@ -120,7 +120,7 @@ describe('ModalQuestionDetailsComponent', () => {
 
     component.loadStudentList();
 
-    expect(component.studentRisks).toEqual([]);
+    expect(component.studentRisks()).toEqual([]);
   });
 
   it('should get correct risk color based on risk level', () => {
