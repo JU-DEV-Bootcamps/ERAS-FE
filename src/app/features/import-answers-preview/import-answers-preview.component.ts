@@ -144,6 +144,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       updatedList = updatedList.filter(email => email !== student.email);
     } else {
       updatedList.push(student.email);
+      student.save = event.checked;
     }
     this.studentListToExcludeSubject.next(updatedList);
     this.allStudentsCheckedSubject.next(!updatedList.length);
