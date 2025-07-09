@@ -34,6 +34,7 @@ import { ConfigurationsModel } from '../../../../core/models/configurations.mode
 import { ServiceProvidersService } from '../../../../core/services/api/service-providers.service';
 import { ServiceProviderModel } from '../../../../core/models/service-providers.model';
 import Keycloak from 'keycloak-js';
+import { noWhitespaceValidator } from '../../../../shared/validators/no-whitespace.validator';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -101,6 +102,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(50),
+          noWhitespaceValidator,
         ],
       ],
       configuration: [
