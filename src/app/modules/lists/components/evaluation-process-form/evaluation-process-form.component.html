@@ -39,6 +39,16 @@
         >
           This cannot be empty.
         </mat-error>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('name')?.hasError('whitespace') &&
+            form.get('name')?.touched
+          "
+        >
+            This field cannot contain only spaces.
+        </mat-error>
       </mat-form-field>
     </div>
 
