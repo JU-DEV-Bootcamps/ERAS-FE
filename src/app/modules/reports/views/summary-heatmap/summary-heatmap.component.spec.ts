@@ -23,7 +23,7 @@ import { PdfHelper } from '../../exportReport.util';
 import { PagedResult } from '../../../../core/services/interfaces/page.type';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
-fdescribe('SummaryHeatmapComponent', () => {
+describe('SummaryHeatmapComponent', () => {
   let component: SummaryHeatmapComponent;
   let fixture: ComponentFixture<SummaryHeatmapComponent>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
