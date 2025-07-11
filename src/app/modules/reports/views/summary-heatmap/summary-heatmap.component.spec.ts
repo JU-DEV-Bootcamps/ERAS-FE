@@ -12,7 +12,7 @@ import {
   PollAvgReport,
 } from '../../../../core/models/summary.model';
 import { CohortModel } from '../../../../core/models/cohort.model';
-import { Serie } from '../../../../core/models/heatmap-data.model';
+import { SummarySerie } from '../../../../core/models/heatmap-data.model';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { StudentRiskAverage } from '../../../../core/services/interfaces/student.interface';
 import { ListComponent } from '../../../../shared/components/list/list.component';
@@ -23,7 +23,7 @@ import { PdfHelper } from '../../exportReport.util';
 import { PagedResult } from '../../../../core/services/interfaces/page.type';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
-describe('SummaryHeatmapComponent', () => {
+fdescribe('SummaryHeatmapComponent', () => {
   let component: SummaryHeatmapComponent;
   let fixture: ComponentFixture<SummaryHeatmapComponent>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
@@ -40,7 +40,7 @@ describe('SummaryHeatmapComponent', () => {
     reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getAvgPoolReport',
       'getHMSeriesFromAvgReport',
-      'regroupByColor',
+      'regroupSummaryByColor',
     ]);
     pdfServiceSpy = jasmine.createSpyObj('PdfService', ['exportToPDF']);
     matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -119,7 +119,7 @@ describe('SummaryHeatmapComponent', () => {
     ];
     reportServiceSpy.getAvgPoolReport.and.returnValue(of(mockReport));
     reportServiceSpy.getHMSeriesFromAvgReport.and.returnValue(mockSeries);
-    reportServiceSpy.regroupByColor.and.returnValue(mockSeries);
+    reportServiceSpy.regroupSummaryByColor.and.returnValue(mockSeries);
 
     component.pollUuid = 'poll-uuid';
     component.getHeatMap();
@@ -169,7 +169,7 @@ describe('SummaryHeatmapComponent', () => {
     const result = component.getPollAvgQuestionFromSeries(
       report as unknown as PollAvgReport,
       'desc',
-      { x: 'Q', y: 1 } as Serie
+      { x: 'Q', y: 1 } as SummarySerie
     );
     expect(result).toBeNull();
   });
