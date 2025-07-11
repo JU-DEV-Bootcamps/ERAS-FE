@@ -79,10 +79,12 @@ export class DynamicHeatmapComponent {
     const hmSeries = report.components.map(c =>
       this.reportService.getHMSeriesFromCountComponent(c)
     );
-    this.chartsOptions = hmSeries.map((series, index) =>
-      GetChartOptions(
+    this.chartsOptions = hmSeries.map((series, index) => {
+      const regroupSeries = this.reportService.regroupDynamicByColor(series);
+
+      return GetChartOptions(
         `Reporte: ${report.components[index].description}`,
-        series,
+        regroupSeries,
         (_x, y) => {
           this.openDetailsModal(
             this.uuid!,
@@ -96,15 +98,19 @@ export class DynamicHeatmapComponent {
         (x, y) => {
           const component = report.components[index];
           const question = component.questions[x];
-          const riskLevel = question.answers[y];
+          //const riskLevel = question.answers[y];
+
+          const totalFillers = regroupSeries[x].data[y].totalFillers || 0;
+          const riskLevel = question.answers[y - totalFillers];
+
           return `
           <b>${riskLevel.count} students answered with a risk Level of ${riskLevel.answerRisk}</b>
           <b>Componente:</b> ${component.description} </br>
           <b>Question:</b> ${question.question} </br>
           `;
         }
-      )
-    );
+      );
+    });
     this.cdr.detectChanges();
   }
 

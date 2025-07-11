@@ -9,8 +9,8 @@ import {
 import { DEFAULT_LIMIT } from '../../constants/pagination';
 import { GetQueryResponse } from '../../models/summary.model';
 import { HeatmapSummaryModel } from '../../models/heatmap-summary.model';
-import { HeatMapData } from '../../models/heatmap-data.model';
 import { map, Observable, of } from 'rxjs';
+import { SummaryHeatMapData } from '../../models/heatmap-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -66,7 +66,7 @@ export class HeatMapService extends BaseApiService {
     pollInstanceUuid: string,
     variablesIds: number[],
     cohortId?: number
-  ): Observable<HeatMapData[]> {
+  ): Observable<SummaryHeatMapData[]> {
     return this.post('', { pollInstanceUuid, cohortId, variablesIds });
   }
 }
