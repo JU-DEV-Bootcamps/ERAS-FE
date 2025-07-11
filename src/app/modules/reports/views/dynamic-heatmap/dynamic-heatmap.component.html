@@ -11,30 +11,32 @@
         matTooltip="Download pdf"
         mat-icon-button
         color="primary"
-        [disabled]="isGeneratingPDF"
+        [disabled]="!chartsOptions.length || isGeneratingPDF"
         (click)="exportReportPdf()"
       >
         <mat-icon>print</mat-icon>
       </button>
     </div>
   </ng-container>
-  <div #contentToExport>
-    @for (chartOption of chartsOptions; track $index) {
-      <div class="chart-container">
-        <apx-chart
-          [series]="chartOption.series!"
-          [chart]="chartOption.chart!"
-          [xaxis]="chartOption.xaxis!"
-          [yaxis]="chartOption.yaxis!"
-          [colors]="chartOption.colors!"
-          [plotOptions]="chartOption.plotOptions!"
-          [title]="chartOption.title!"
-          [tooltip]="chartOption.tooltip!"
-        >
-        </apx-chart>
-      </div>
-    }
-  </div>
+  @if (chartsOptions) {
+    <div #contentToExport>
+      @for (chartOption of chartsOptions; track $index) {
+        <div class="chart-container">
+          <apx-chart
+            [series]="chartOption.series!"
+            [chart]="chartOption.chart!"
+            [xaxis]="chartOption.xaxis!"
+            [yaxis]="chartOption.yaxis!"
+            [colors]="chartOption.colors!"
+            [plotOptions]="chartOption.plotOptions!"
+            [title]="chartOption.title!"
+            [tooltip]="chartOption.tooltip!"
+          >
+          </apx-chart>
+        </div>
+      }
+    </div>
+  }
 } @loading {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 } @placeholder {
