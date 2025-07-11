@@ -14,6 +14,7 @@ import {
 } from '../../heat-map/modal-question-details/modal-question-details.component';
 import { PollAvgQuestion } from '../../../core/models/summary.model';
 import { ReportService } from '../../../core/services/api/report.service';
+import { ComponentValueType } from '../../heat-map/types/risk-students-detail.type';
 
 @Component({
   selector: 'app-summary-heatmap',
@@ -45,26 +46,30 @@ export class SummaryHeatmapComponent implements OnInit {
     });
 
     this.reportService
-      .getAvgPoolReport(this.pollUuid, this.cohortId)
+      .getAvgPoolReport(this.pollUuid, this.cohortId, true)
       .subscribe(res => {
         this.isLoading = false;
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
-        const serie = this.reportService.regroupByColor(reportSeries);
+        const serie = this.reportService.regroupSummaryByColor(reportSeries);
         this.chartOptions = GetChartOptions(
           `Risk Heatmap - ${this.cohortId}-${this.pollUuid}`,
           serie,
           (x, y) => {
             const compReport = res.body.components[y];
             const selectedQuestion = compReport.questions[x];
+
             this.openDetailsModal(selectedQuestion, compReport.description);
           }
         );
       });
   }
 
-  openDetailsModal(question: PollAvgQuestion, componentName: string): void {
+  openDetailsModal(
+    question: PollAvgQuestion,
+    componentName: ComponentValueType
+  ): void {
     const data: SelectedHMData = {
       cohortId: this.cohortId.join(','),
       pollUuid: this.pollUuid,
