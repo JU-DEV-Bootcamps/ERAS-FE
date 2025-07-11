@@ -9,9 +9,10 @@ import { StudentModel } from '../../models/student.model';
 import { HttpParams } from '@angular/common/http';
 import { Pagination, ServerResponse } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { StudentRiskResponse } from '../../models/cohort.model';
 import { AnswerResponse } from '../../models/answer-request.model';
+import { sortArray } from '../../utilities/sort';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +50,12 @@ export class StudentService extends BaseApiService {
       .set('page', page)
       .set('pageSize', pageSize)
       .set('lastVersion', lastVersion);
-    return this.get<PagedResult<StudentRiskAverage>>('average', params);
+    return this.get<PagedResult<StudentRiskAverage>>('average', params).pipe(
+      map(result => {
+        result.items = sortArray(result.items, 'studentName');
+        return result;
+      })
+    );
   }
 
   postData(data: StudentImport[]): Observable<ServerResponse> {
@@ -58,7 +64,12 @@ export class StudentService extends BaseApiService {
 
   getData({ page = 1, pageSize = 10 }: Pagination) {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
-    return this.get<PagedResult<StudentModel>>('', params);
+    return this.get<PagedResult<StudentModel>>('', params).pipe(
+      map(result => {
+        result.items = sortArray(result.items, 'name');
+        return result;
+      })
+    );
   }
 
   getDataStudentsByPoll({ days = 30, pollUuid = '', page = 1, pageSize = 10 }) {

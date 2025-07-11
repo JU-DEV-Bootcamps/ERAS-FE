@@ -26,6 +26,7 @@ import { ListComponent } from '../../../../shared/components/list/list.component
 import { flattenArray } from '../../../../core/utilities/object/flatten';
 import { EventAction, EventLoad } from '../../../../shared/events/load';
 import { Filter } from '../../components/poll-filters/types/filters';
+import { sortArray } from '../../../../core/utilities/sort';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
@@ -156,9 +157,12 @@ export class PollsAnsweredComponent implements OnInit {
         pollUuid: this.selectedPollUuid,
       })
       .subscribe(data => {
-        this.pollInstances = flattenArray(
+        const flatedArray = flattenArray(
           data.body.items as unknown as Record<string, unknown>[]
         ) as DynamicPollInstance[];
+
+        //TODO: Remove this workaround, once we have implemented order by column on the table.
+        this.pollInstances = sortArray(flatedArray, 'student.name');
 
         this.totalPollInstances = data.body.count;
       });
@@ -175,9 +179,12 @@ export class PollsAnsweredComponent implements OnInit {
         pollUuid: this.selectedPollUuid,
       })
       .subscribe(data => {
-        this.pollInstances = flattenArray(
+        const flatedArray = flattenArray(
           data.body.items as unknown as Record<string, unknown>[]
         ) as DynamicPollInstance[];
+
+        //TODO: Remove this workaround, once we have implemented order by column on the table.
+        this.pollInstances = sortArray(flatedArray, 'student.name');
 
         this.totalPollInstances = data.body.count;
         this.loading = false;
