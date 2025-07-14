@@ -98,8 +98,6 @@ export class DynamicHeatmapComponent {
         (x, y) => {
           const component = report.components[index];
           const question = component.questions[x];
-          //const riskLevel = question.answers[y];
-
           const totalFillers = regroupSeries[x].data[y].totalFillers || 0;
           const riskLevel = question.answers[y - totalFillers];
 

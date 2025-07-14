@@ -16,19 +16,10 @@ import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
-import { ComponentValueType } from '../../../features/heat-map/types/risk-students-detail.type';
-
-interface DynamicReport {
-  name: string;
-  data: DynamicSerie[];
-}
-
-interface SummaryReport {
-  text: string;
-  description: ComponentValueType;
-  name: ComponentValueType;
-  data: SummarySerie[];
-}
+import {
+  DynamicReport,
+  SummaryReport,
+} from '../../models/reports/reports-data.model';
 
 @Injectable({
   providedIn: 'root',
