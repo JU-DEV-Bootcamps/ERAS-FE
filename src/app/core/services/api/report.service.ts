@@ -12,11 +12,14 @@ import {
 import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
 import { fixedColorRange } from '../../../features/cohort/util/heat-map-config';
-import { Serie } from '../../models/heatmap-data.model';
+import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
-import { ComponentValueType } from '../../../features/heat-map/types/risk-students-detail.type';
+import {
+  DynamicReport,
+  SummaryReport,
+} from '../../models/reports/reports-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -125,12 +128,13 @@ export class ReportService extends BaseApiService {
   getHMSeriesFromCountComponent(component: PollCountComponent) {
     const series = component.questions.map(question => {
       return {
+        text: `${question.question}`,
+        description: `${question.question}`,
         name: `${question.question}`,
         data: question.answers.map(a => {
           return {
-            x: a.answerRisk,
+            x: Math.trunc(a.answerRisk),
             y: a.answerRisk,
-            z: `${a.count} answers with risk ${a.answerRisk} for: ${a.answerText}`,
           };
         }),
       };
@@ -161,17 +165,11 @@ export class ReportService extends BaseApiService {
     return color?.color ?? '#000000';
   }
 
-  regroupByColor(
-    serie: {
-      description: ComponentValueType;
-      text: string;
-      data: Serie[];
-    }[]
-  ) {
+  regroupSummaryByColor(serie: SummaryReport[]): SummaryReport[] {
     const rows = [...serie];
 
     const groupedByRow = rows.map(row => {
-      const colorGroups: Record<string, Serie[]> = {};
+      const colorGroups: Record<string, SummarySerie[]> = {};
 
       for (const item of row.data) {
         const color = this.getColorKey(item.y);
@@ -183,6 +181,7 @@ export class ReportService extends BaseApiService {
 
       return {
         description: row.description,
+        name: row.name,
         text: row.text,
         colorGroups,
       };
@@ -198,7 +197,7 @@ export class ReportService extends BaseApiService {
     }
 
     const finalRows = groupedByRow.map(row => {
-      const newData: Serie[] = [];
+      const newData: SummarySerie[] = [];
 
       for (const color of colorList) {
         const items = row.colorGroups[color] ?? [];
@@ -217,6 +216,76 @@ export class ReportService extends BaseApiService {
       return {
         description: row.description,
         text: row.text,
+        name: row.name,
+        data: newData,
+      };
+    });
+    return finalRows;
+  }
+
+  regroupDynamicByColor(serie: DynamicReport[]): DynamicReport[] {
+    const rows = [...serie];
+    const groupedByRow = rows.map(row => {
+      const colorGroups: Record<string, DynamicSerie[]> = {};
+
+      for (const item of row.data) {
+        const color = this.getColorKey(item.y);
+        if (!colorGroups[color]) {
+          colorGroups[color] = [];
+        }
+        colorGroups[color].push(item);
+      }
+
+      return {
+        name: row.name,
+        colorGroups,
+      };
+    });
+
+    const colorList = fixedColorRange.map(r => r.color);
+    const maxByColor: Record<string, number> = {};
+
+    for (const color of colorList) {
+      maxByColor[color] = Math.max(
+        ...groupedByRow.map(row => row.colorGroups[color]?.length || 0)
+      );
+    }
+
+    const finalRows = groupedByRow.map(row => {
+      const newData: DynamicSerie[] = [];
+
+      let totalFillers = 0;
+
+      for (let i = 0; i < colorList.length; i++) {
+        const color = colorList[i];
+        const prevColor =
+          colorList
+            .slice(0, i)
+            .find(color => row.colorGroups[color] !== undefined) || '';
+
+        let items = row.colorGroups[color] ?? [];
+        const missing = maxByColor[color] - items.length;
+        const cgLength = row.colorGroups[color]?.length || -1;
+        const cgLengthPrev = row.colorGroups[prevColor]?.length || -1;
+        const position =
+          cgLength > 0
+            ? row.colorGroups[color][cgLength - 1].y
+            : cgLengthPrev > 0
+              ? row.colorGroups[prevColor][cgLengthPrev - 1].y + 1
+              : 0;
+        const fillers = Array(missing).fill({
+          x: position,
+          y: -1,
+        });
+        items = items.map(item => {
+          return { ...item, totalFillers };
+        });
+        newData.push(...items);
+        newData.push(...fillers);
+        totalFillers += fillers.length;
+      }
+      return {
+        name: row.name,
         data: newData,
       };
     });

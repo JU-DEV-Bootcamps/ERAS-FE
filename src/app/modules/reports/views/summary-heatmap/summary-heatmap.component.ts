@@ -24,7 +24,7 @@ import { StudentService } from '../../../../core/services/api/student.service';
 import { ReportService } from '../../../../core/services/api/report.service';
 import { ListComponent } from '../../../../shared/components/list/list.component';
 import { Column } from '../../../../shared/components/list/types/column';
-import { Serie } from '../../../../core/models/heatmap-data.model';
+import { SummarySerie } from '../../../../core/models/heatmap-data.model';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { PdfHelper } from '../../exportReport.util';
@@ -123,7 +123,7 @@ export class SummaryHeatmapComponent {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           res.body
         );
-        const series = this.reportService.regroupByColor(reportSeries);
+        const series = this.reportService.regroupSummaryByColor(reportSeries);
         this.chartOptions = GetChartOptions(`${this.title}`, series, (x, y) => {
           const component = series[y];
           const serieQuestion = series[y].data[x];
@@ -138,7 +138,7 @@ export class SummaryHeatmapComponent {
           } else {
             this.openDetailsModal(
               pollAvgQuestion,
-              component.description,
+              component.description as ComponentValueType,
               component.text
             );
           }
@@ -149,7 +149,7 @@ export class SummaryHeatmapComponent {
   getPollAvgQuestionFromSeries(
     report: PollAvgReport,
     componentName: string,
-    serieQuestion: Serie
+    serieQuestion: SummarySerie
   ): PollAvgQuestion | null {
     const reportComponent = report.components.find(c =>
       componentName.includes(c.description)
