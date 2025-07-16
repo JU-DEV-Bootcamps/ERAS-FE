@@ -3,72 +3,106 @@
     #sidenav
     [mode]="'side'"
     [opened]="true"
-    [class.sidenav-expanded]="sidenavOpen"
+    [style.width]="sidenavWidth()"
   >
-    <button class="expand-button" mat-icon-button (click)="sidenavToggle()">
+    <button
+      class="expand-button"
+      mat-icon-button
+      (click)="collapsed.set(!collapsed())"
+    >
       <mat-icon class="menu-icon">{{
-        sidenavOpen ? 'arrow_back_ios' : 'menu'
+        collapsed() ? 'menu' : 'arrow_back_ios'
       }}</mat-icon>
     </button>
     <div>
-      <app-menu-item title="Home" icon="home" redirectUrl=""></app-menu-item>
+      <app-menu-item
+        title="Home"
+        icon="home"
+        redirectUrl=""
+        [collapseSignal]="!collapsed()"
+      ></app-menu-item>
       <app-menu-item
         title="Student Monitoring"
         icon="person_search"
         redirectUrl="student-option"
+        [collapseSignal]="!collapsed()"
       ></app-menu-item>
-      <app-menu-section title="Reports" icon="pie_chart_outline">
+      <app-menu-section
+        title="Reports"
+        icon="pie_chart_outline"
+        [collapseSignal]="!collapsed()"
+      >
         <app-menu-item
           title="Dynamic Heatmap"
           icon="description"
           redirectUrl="reports/dynamic-heatmap"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
         <app-menu-item
           title="Summary Heatmap"
           icon="find_in_page"
           redirectUrl="reports/summary-heatmap"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
         <app-menu-item
           title="Polls Answered"
           icon="poll"
           redirectUrl="reports/polls-answered"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
       </app-menu-section>
-      <app-menu-section title="Lists" icon="list">
+      <app-menu-section
+        title="Lists"
+        icon="view_list"
+        [collapseSignal]="!collapsed()"
+      >
         <app-menu-item
           title="Evaluation Processes"
           icon="fact_check_outline"
           redirectUrl="evaluation-process"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
         <app-menu-item
           title="Students List"
           icon="school"
           redirectUrl="list-students-by-poll"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
       </app-menu-section>
-      <app-menu-section title="Imports" icon="drive_folder_upload">
+      <app-menu-section
+        title="Imports"
+        icon="drive_folder_upload"
+        [collapseSignal]="!collapsed()"
+      >
         <app-menu-item
           title="Import Polls"
           icon="insert_chart_outlined"
           redirectUrl="import-answers"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
         <app-menu-item
           title="Import Students"
           icon="person_add"
           redirectUrl="import-students"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
       </app-menu-section>
-      <app-menu-section title="Settings" icon="settings">
+      <app-menu-section
+        title="Settings"
+        icon="settings"
+        [collapseSignal]="!collapsed()"
+      >
         <app-menu-item
           title="Service Providers"
           icon="check_circle"
           redirectUrl="cosmic-latte"
+          [collapseSignal]="!collapsed()"
         ></app-menu-item>
       </app-menu-section>
     </div>
   </mat-sidenav>
 
-  <mat-sidenav-content>
+  <mat-sidenav-content [style.margin-left]="sidenavWidth()">
     <mat-toolbar>
       <h1 class="app-title">ERAS</h1>
       <app-user-menu></app-user-menu>
