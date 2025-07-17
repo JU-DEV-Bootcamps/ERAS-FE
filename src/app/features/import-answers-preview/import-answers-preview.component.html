@@ -50,8 +50,11 @@
                           <p class="field">{{ column | titlecase }}</p>
                           @if (column === 'save') {
                             <mat-slide-toggle
+                              [disabled]="!isStudentElegible(student)"
                               class="custom-slide-toggle"
-                              [checked]="student[column]"
+                              [checked]="
+                                student[column] && isStudentElegible(student)
+                              "
                               (change)="handleCheckbox($event, student)"
                             ></mat-slide-toggle>
                           } @else {
@@ -95,7 +98,10 @@
                         @if (column === 'save') {
                           <mat-slide-toggle
                             class="custom-slide-toggle"
-                            [checked]="element[column]"
+                            [disabled]="!isStudentElegible(element)"
+                            [checked]="
+                              element[column] && isStudentElegible(element)
+                            "
                             (change)="handleCheckbox($event, element)"
                           ></mat-slide-toggle>
                         } @else {

@@ -87,13 +87,13 @@ export class ImportStudentsComponent {
 
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
-      this.csvErrors = []; // Reset errors
+      this.csvErrors = [];
       this.validateFile(this.selectedFile);
     }
   }
 
   private async validateFile(file: File): Promise<void> {
-    const maxFileSize = 5 * 1024 * 1024; // 5MB
+    const maxFileSize = 5 * 1024 * 1024;
 
     if (file.size > maxFileSize) {
       this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
@@ -106,7 +106,6 @@ export class ImportStudentsComponent {
       this.selectedFile = null;
       return;
     }
-    // Pre-scan Papaparse to check for errors
     await this.csvCheckerService.validateCSV(file);
     this.csvErrors = this.csvCheckerService.getErrors();
     if (this.csvErrors.length > 0) {

@@ -28,6 +28,7 @@ import {
 import { PollService } from '../../core/services/api/poll.service';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 import { PollInstance } from '../../core/models/poll-instance.model';
+import { PollPreview, StudentPreview } from '../interfaces/preview';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -101,8 +102,9 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   }
 
   savePolls() {
-    this.previewIsHiddenSubject.next(true);
     let pollsToSave;
+
+    this.previewIsHiddenSubject.next(true);
     this.studentListToExclude$.pipe(first()).subscribe(excluded => {
       pollsToSave = this.importedPollData.filter(
         poll =>
@@ -189,18 +191,10 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     this.dataStudents = new MatTableDataSource(created);
     this.studentsMobileVersion = created;
   }
-}
+  isStudentElegible(student: StudentPreview): boolean {
+    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const regexName = /^\p{L}+(?:[ '-]\p{L}+)*$/u;
 
-interface PollPreview {
-  name: string;
-  version: string;
-  cosmicLatteId: string;
-  components: string[];
-}
-interface StudentPreview {
-  '#': number;
-  name: string;
-  email: string;
-  cohort: string;
-  save: boolean;
+    return regexName.test(student.name) && regexEmail.test(student.email);
+  }
 }
