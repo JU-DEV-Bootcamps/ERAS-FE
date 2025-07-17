@@ -5,7 +5,14 @@
   [class.active]="isActive"
 >
   @if (icon) {
-    <mat-icon class="menu-icon">{{ icon }}</mat-icon>
+    <mat-icon
+      matListItemIcon
+      [fontSet]="isActive ? 'material-icons' : 'material-icons-outlined'"
+      class="menu-icon"
+      >{{ icon }}</mat-icon
+    >
   }
-  <span class="menu-label">{{ title }}</span>
+  <span [class.hide-title]="!collapseSignal()" class="menu-label">{{
+    title
+  }}</span>
 </button>
