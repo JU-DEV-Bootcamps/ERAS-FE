@@ -29,6 +29,11 @@ import { PollService } from '../../core/services/api/poll.service';
 import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
 import { PollInstance } from '../../core/models/poll-instance.model';
 import { PollPreview, StudentPreview } from '../interfaces/preview';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  isStudentEmailValid,
+  isStudentNameValid,
+} from '../../modules/lists/utils/student.util';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -49,6 +54,7 @@ import { PollPreview, StudentPreview } from '../interfaces/preview';
     AsyncPipe,
     MatSlideToggle,
     NgClass,
+    MatTooltipModule,
   ],
   templateUrl: './import-answers-preview.component.html',
   styleUrl: './import-answers-preview.component.scss',
@@ -64,7 +70,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     components: [],
   };
 
-  studentsMobileVersion: StudentPreview[] = [];
+  studentPreviews: StudentPreview[] = [];
   totalStudents = 0;
   columns: (keyof StudentPreview)[] = ['#', 'name', 'email', 'cohort', 'save'];
 
@@ -84,11 +90,19 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   allStudentsCheckedSubject = new BehaviorSubject<boolean>(true);
   allStudentsChecked$ = this.allStudentsCheckedSubject.asObservable();
 
+  invalidStudentsSubject = new BehaviorSubject<StudentPreview[]>([]);
+  invalidStudents$ = this.invalidStudentsSubject.asObservable();
+
   previewIsHiddenSubject = new BehaviorSubject<boolean>(false);
   previewIsHidden$ = this.previewIsHiddenSubject.asObservable();
 
   selectedStudents$ = this.studentListToExclude$.pipe(
-    map(excluded => this.totalStudents - excluded.length)
+    map(
+      excluded =>
+        this.totalStudents -
+        excluded.length -
+        this.invalidStudentsSubject.value.length
+    )
   );
 
   @HostListener('window:resize', [])
@@ -98,6 +112,15 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['importedPollData']) {
       this.mapDataCreatedPoll(this.importedPollData);
+      this.getInvalidStudents(this.studentPreviews);
+      this.selectedStudents$ = this.studentListToExclude$.pipe(
+        map(
+          excluded =>
+            this.totalStudents -
+            excluded.length -
+            this.invalidStudentsSubject.value.length
+        )
+      );
     }
   }
 
@@ -129,7 +152,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   }
   resetAllDataPolls() {
     this.dataStudents = new MatTableDataSource<StudentPreview>([]);
-    this.studentsMobileVersion = [];
+    this.studentPreviews = [];
     this.totalStudents = 0;
     this.pollDetails = {
       name: '',
@@ -164,8 +187,10 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     this.allStudentsCheckedSubject.next(event.checked);
   }
   mapDataCreatedPoll(data: PollInstance[]) {
-    const created = [];
+    const studentPreviews: StudentPreview[] = [];
+
     this.totalStudents = data.length;
+    this.pollDetails.components = [];
     for (let i = 0; data.length > i; i++) {
       if (i == 0) {
         this.pollDetails.name = data[i].name;
@@ -186,15 +211,26 @@ export class ImportAnswersPreviewComponent implements OnChanges {
         cohort: cohort,
         save: true,
       };
-      created.push(student);
-    }
-    this.dataStudents = new MatTableDataSource(created);
-    this.studentsMobileVersion = created;
-  }
-  isStudentElegible(student: StudentPreview): boolean {
-    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const regexName = /^\p{L}+(?:[ '-]\p{L}+)*$/u;
 
-    return regexName.test(student.name) && regexEmail.test(student.email);
+      studentPreviews.push(student);
+    }
+    this.dataStudents = new MatTableDataSource(studentPreviews);
+    this.studentPreviews = studentPreviews;
+  }
+
+  getInvalidStudents(studentPreviews: StudentPreview[]) {
+    const invalidStudents: StudentPreview[] = [];
+
+    studentPreviews.forEach(student => {
+      if (!this.isStudentValid(student)) {
+        invalidStudents.push(student);
+      }
+    });
+    this.invalidStudentsSubject.next(invalidStudents);
+  }
+  isStudentValid(student: StudentPreview): boolean {
+    return (
+      isStudentNameValid(student.name) && isStudentEmailValid(student.email)
+    );
   }
 }

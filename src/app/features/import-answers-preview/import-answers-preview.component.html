@@ -42,7 +42,7 @@
           } @else {
             @if (isMobile) {
               <div class="card-container">
-                @for (student of studentsMobileVersion; track $index) {
+                @for (studentPreview of studentPreviews; track $index) {
                   <mat-card class="" appearance="outlined">
                     <mat-card-content>
                       @for (column of columns; track $index) {
@@ -50,15 +50,31 @@
                           <p class="field">{{ column | titlecase }}</p>
                           @if (column === 'save') {
                             <mat-slide-toggle
-                              [disabled]="!isStudentElegible(student)"
                               class="custom-slide-toggle"
-                              [checked]="
-                                student[column] && isStudentElegible(student)
+                              [disabled]="
+                                !invalidStudentsSubject.value.includes(
+                                  studentPreview
+                                )
                               "
-                              (change)="handleCheckbox($event, student)"
+                              [checked]="
+                                studentPreview[column] &&
+                                !invalidStudentsSubject.value.includes(
+                                  studentPreview
+                                )
+                              "
+                              [matTooltip]="
+                                !invalidStudentsSubject.value.includes(
+                                  studentPreview
+                                )
+                                  ? 'Name or email invalid'
+                                  : 'lasdjfaosdjfapdjfofaj'
+                              "
+                              (change)="handleCheckbox($event, studentPreview)"
                             ></mat-slide-toggle>
                           } @else {
-                            <p class="information">{{ student[column] }}</p>
+                            <p class="information">
+                              {{ studentPreview[column] }}
+                            </p>
                           }
                         </div>
                       }
@@ -94,18 +110,32 @@
                           {{ column | titlecase }}
                         }
                       </th>
-                      <td mat-cell *matCellDef="let element">
+                      <td mat-cell *matCellDef="let studentPreview">
                         @if (column === 'save') {
                           <mat-slide-toggle
                             class="custom-slide-toggle"
-                            [disabled]="!isStudentElegible(element)"
-                            [checked]="
-                              element[column] && isStudentElegible(element)
+                            [matTooltip]="
+                              invalidStudentsSubject.value.includes(
+                                studentPreview
+                              )
+                                ? 'Name or email invalid'
+                                : ''
                             "
-                            (change)="handleCheckbox($event, element)"
+                            [disabled]="
+                              invalidStudentsSubject.value.includes(
+                                studentPreview
+                              )
+                            "
+                            [checked]="
+                              studentPreview[column] &&
+                              !invalidStudentsSubject.value.includes(
+                                studentPreview
+                              )
+                            "
+                            (change)="handleCheckbox($event, studentPreview)"
                           ></mat-slide-toggle>
                         } @else {
-                          {{ element[column] }}
+                          {{ studentPreview[column] }}
                         }
                       </td>
                     </ng-container>
