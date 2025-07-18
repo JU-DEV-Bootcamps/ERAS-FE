@@ -53,18 +53,18 @@
                               class="custom-slide-toggle"
                               [disabled]="
                                 !invalidStudentsSubject.value.includes(
-                                  studentPreview
+                                  studentPreview.email
                                 )
                               "
                               [checked]="
                                 studentPreview[column] &&
                                 !invalidStudentsSubject.value.includes(
-                                  studentPreview
+                                  studentPreview.email
                                 )
                               "
                               [matTooltip]="
                                 !invalidStudentsSubject.value.includes(
-                                  studentPreview
+                                  studentPreview.email
                                 )
                                   ? 'Name or email invalid'
                                   : 'lasdjfaosdjfapdjfofaj'
@@ -116,20 +116,20 @@
                             class="custom-slide-toggle"
                             [matTooltip]="
                               invalidStudentsSubject.value.includes(
-                                studentPreview
+                                studentPreview.email
                               )
                                 ? 'Name or email invalid'
                                 : ''
                             "
                             [disabled]="
                               invalidStudentsSubject.value.includes(
-                                studentPreview
+                                studentPreview.email
                               )
                             "
                             [checked]="
                               studentPreview[column] &&
                               !invalidStudentsSubject.value.includes(
-                                studentPreview
+                                studentPreview.email
                               )
                             "
                             (change)="handleCheckbox($event, studentPreview)"

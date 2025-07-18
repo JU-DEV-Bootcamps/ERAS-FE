@@ -84,19 +84,19 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     data: unknown;
   }>();
 
-  studentListToExcludeSubject = new BehaviorSubject<string[]>([]);
-  studentListToExclude$ = this.studentListToExcludeSubject.asObservable();
+  studentExcludedEmailsSubject = new BehaviorSubject<string[]>([]);
+  studentExcludedEmails$ = this.studentExcludedEmailsSubject.asObservable();
 
   allStudentsCheckedSubject = new BehaviorSubject<boolean>(true);
   allStudentsChecked$ = this.allStudentsCheckedSubject.asObservable();
 
-  invalidStudentsSubject = new BehaviorSubject<StudentPreview[]>([]);
+  invalidStudentsSubject = new BehaviorSubject<string[]>([]);
   invalidStudents$ = this.invalidStudentsSubject.asObservable();
 
   previewIsHiddenSubject = new BehaviorSubject<boolean>(false);
   previewIsHidden$ = this.previewIsHiddenSubject.asObservable();
 
-  selectedStudents$ = this.studentListToExclude$.pipe(
+  selectedStudents$ = this.studentExcludedEmails$.pipe(
     map(
       excluded =>
         this.totalStudents -
@@ -113,7 +113,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     if (changes['importedPollData']) {
       this.mapDataCreatedPoll(this.importedPollData);
       this.getInvalidStudents(this.studentPreviews);
-      this.selectedStudents$ = this.studentListToExclude$.pipe(
+      this.selectedStudents$ = this.studentExcludedEmails$.pipe(
         map(
           excluded =>
             this.totalStudents -
@@ -128,14 +128,18 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     let pollsToSave;
 
     this.previewIsHiddenSubject.next(true);
-    this.studentListToExclude$.pipe(first()).subscribe(excluded => {
-      pollsToSave = this.importedPollData.filter(
-        poll =>
-          !excluded.includes(
-            poll.components?.[0].variables?.[0].answer?.student?.email
-          )
-      );
+    this.studentExcludedEmails$.pipe(first()).subscribe(excluded => {
+      const invalidStudents = this.invalidStudentsSubject.value;
+
+      pollsToSave = this.importedPollData.filter(poll => {
+        const student = poll.components?.[0].variables?.[0].answer?.student;
+        return (
+          !excluded.includes(student.email) &&
+          !invalidStudents.includes(student.email)
+        );
+      });
     });
+
     this.saveCompleted.emit({ state: 'pending', data: null });
     this.clService
       .savePollsCosmicLattePreview(pollsToSave as unknown as PollInstance[])
@@ -163,7 +167,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     this.importedPollData = [];
   }
   handleCheckbox(event: MatSlideToggleChange, student: StudentPreview) {
-    let updatedList = [...this.studentListToExcludeSubject.value];
+    let updatedList = [...this.studentExcludedEmailsSubject.value];
 
     if (event.checked) {
       updatedList = updatedList.filter(email => email !== student.email);
@@ -171,7 +175,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       updatedList.push(student.email);
       student.save = event.checked;
     }
-    this.studentListToExcludeSubject.next(updatedList);
+    this.studentExcludedEmailsSubject.next(updatedList);
     this.allStudentsCheckedSubject.next(!updatedList.length);
   }
 
@@ -183,7 +187,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
       }
       student.save = event.checked;
     });
-    this.studentListToExcludeSubject.next(updatedList);
+    this.studentExcludedEmailsSubject.next(updatedList);
     this.allStudentsCheckedSubject.next(event.checked);
   }
   mapDataCreatedPoll(data: PollInstance[]) {
@@ -219,13 +223,14 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   }
 
   getInvalidStudents(studentPreviews: StudentPreview[]) {
-    const invalidStudents: StudentPreview[] = [];
+    const invalidStudents: string[] = [];
 
     studentPreviews.forEach(student => {
       if (!this.isStudentValid(student)) {
-        invalidStudents.push(student);
+        invalidStudents.push(student.email);
       }
     });
+    console.log(invalidStudents);
     this.invalidStudentsSubject.next(invalidStudents);
   }
   isStudentValid(student: StudentPreview): boolean {
