@@ -1,5 +1,6 @@
 export function isStudentNameValid(name: string): boolean {
   const regexName = /^\p{L}+(?:[ '-]\p{L}+)*$/u;
+  console.log(name, regexName.test(name));
   return regexName.test(name);
 }
 

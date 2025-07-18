@@ -108,10 +108,12 @@ export class ImportStudentsComponent {
     }
     await this.csvCheckerService.validateCSV(file);
     this.csvErrors = this.csvCheckerService.getErrors();
+
     if (this.csvErrors.length > 0) {
       this.fileError = VALIDATION_MESSAGES.CSV_SCAN_ERROR;
       this.csvErrors = this.processErrors(this.csvErrors);
       this.openDialog(GENERAL_MESSAGES.DETAILS, false);
+
       return;
     }
     this.fileError = null;
@@ -147,11 +149,9 @@ export class ImportStudentsComponent {
           const filteredRow = {} as StudentImport;
 
           for (const key in row) {
-            // Filter irrelevant index column
             if (key !== '' && isStudentImportKey(key)) {
               const value = row[key];
 
-              // Correct format decimal numbers
               if (typeof value === 'string' && value.includes(',')) {
                 row[key] = value.replace(',', '.');
               }

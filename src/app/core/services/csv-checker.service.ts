@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
 import Papa from 'papaparse';
+import {
+  isStudentEmailValid,
+  isStudentNameValid,
+} from '../../modules/lists/utils/student.util';
 
 @Injectable({
   providedIn: 'root',
@@ -21,10 +25,6 @@ export class CsvCheckerService {
   csvData: Record<string, string>[] = [];
   validationErrors: string[] = [];
 
-  /**
-   * The async keyword allows us to use the await keyword for the CSV parsing.
-   * This also means that the function will return a Promise that resolves to void.
-   */
   async validateCSV(csv: File): Promise<void> {
     try {
       const { data, fields } = await this.parseCSV(csv);
@@ -43,10 +43,6 @@ export class CsvCheckerService {
     return this.csvData;
   }
 
-  /**
-   * This function parses the CSV file using Papa.parse, which is an asynchronous operation.
-   * We wrap it in a Promise to use async/await syntax for better readability and error handling
-   */
   private async parseCSV(
     csv: File
   ): Promise<{ data: Record<string, string>[]; fields: string[] }> {
@@ -57,7 +53,9 @@ export class CsvCheckerService {
         complete: result => {
           const data = result.data as Record<string, string>[];
           const fields = result.meta.fields || [];
-          resolve({ data, fields });
+          const sanitizedData = this.sanitizeData(data);
+
+          resolve({ data: sanitizedData, fields });
         },
         error: error => {
           reject(error);
@@ -91,25 +89,24 @@ export class CsvCheckerService {
     }
   }
 
-  private validateRows(data: Record<string, unknown>[]): void {
+  private validateRows(data: Record<string, string>[]): void {
     data.forEach((row, index) => {
       const rowErrors: string[] = [];
       const emailField = 'Email';
-      // Check for empty fields
+      const nameField = 'Name';
+
       Object.keys(row).forEach(field => {
-        if (
-          row[field] === null ||
-          row[field] === undefined ||
-          row[field] === ''
-        ) {
+        if (!row[field]) {
           rowErrors.push(`Field ${field} is empty`);
         }
       });
 
-      if (!this.validateEmail(row[emailField])) {
+      if (!isStudentNameValid(row[nameField])) {
+        rowErrors.push('Invalid name format');
+      }
+      if (!isStudentEmailValid(row[emailField])) {
         rowErrors.push('Invalid email format');
       }
-
       this.validateNumericFields(row, rowErrors);
 
       if (rowErrors.length > 0) {
@@ -139,14 +136,27 @@ export class CsvCheckerService {
     });
   }
 
-  private validateEmail(email: unknown): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return typeof email === 'string' && emailRegex.test(email);
-  }
-
   private validateNumeric(value: unknown): boolean {
     if (value === null || value === undefined) return false;
     const stringValue = value.toString().replace(',', '.');
     return !isNaN(Number(stringValue));
+  }
+
+  private sanitizeData(
+    data: Record<string, string>[]
+  ): Record<string, string>[] {
+    const sanitizedData = [] as Record<string, string>[];
+
+    data.forEach(row => {
+      const pairs = Object.entries(row);
+      const sanitizePairs = {} as Record<string, string>;
+
+      pairs.forEach(([k, v]) => {
+        sanitizePairs[k.trim()] = v.trim();
+      });
+      sanitizedData.push(sanitizePairs);
+    });
+
+    return sanitizedData;
   }
 }
