@@ -1,0 +1,42 @@
+<div class="cards-cohorts-container">
+  <mat-card appearance="outlined" class="card">
+    <div class="header">
+      <button mat-icon-button class="header-left" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 class="cohorts-title">{{ pollSelected.name }} - Cohorts</h2>
+    </div>
+    <div *ngIf="cohorts.length > 0; else emptyCohorts" class="cards-container">
+      <mat-card class="card" *ngFor="let cohort of cohorts">
+        <mat-card-header>
+          <mat-card-title>{{ cohort.cohortName }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <apx-chart
+            [series]="getChartSeriesData(cohort)"
+            [labels]="getChartLabels(cohort)"
+            [chart]="chartOptions.chart!"
+            [responsive]="chartOptions.responsive!"
+            [legend]="chartOptions.legend!"
+            [colors]="chartOptions.colors!"
+            [plotOptions]="chartOptions.plotOptions!"
+            [dataLabels]="chartOptions.dataLabels!"
+          >
+          </apx-chart>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-stroked-button
+            color="accent"
+            (click)="selectCohort(cohort)"
+          >
+            See Details
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+    <ng-template #emptyCohorts>
+      <p class="empty-state">No cohorts available for this poll version.</p>
+    </ng-template>
+  </mat-card>
+</div>
