@@ -7,45 +7,51 @@
         <h3 class="title">{{ title }}</h3>
       }
     </div>
-    <button mat-button matTooltip="Export table" [matMenuTriggerFor]="menu">
-      <mat-icon>print</mat-icon>
-    </button>
-
-    <mat-menu #menu="matMenu">
-      <button mat-button (click)="exportToCSV()">To CSV</button>
-      <br />
-      <button
-        id="print-button"
-        mat-button
-        [disabled]="isGenerating"
-        (click)="exportToPdf()"
-      >
-        To PDF
+    @if (items.length) {
+      <button mat-button matTooltip="Export table" [matMenuTriggerFor]="menu">
+        <mat-icon>print</mat-icon>
       </button>
-    </mat-menu>
+
+      <mat-menu #menu="matMenu">
+        <button mat-button (click)="exportToCSV()">To CSV</button>
+        <br />
+        <button
+          id="print-button"
+          mat-button
+          [disabled]="isGenerating"
+          (click)="exportToPdf()"
+        >
+          To PDF
+        </button>
+      </mat-menu>
+    }
   </div>
 }
 <div class="container-table-button" #contentToExport>
   <div>
-    <app-table-with-actions
-      [mapClass]="mapClass?.table ? mapClass : undefined"
-      [columns]="columns"
-      [items]="items"
-      [columnTemplates]="columnTemplates"
-      [templateMap]="templateMap"
-      [actionDatas]="actionDatas"
-      (actionCalled)="handleAction($event)"
-    ></app-table-with-actions>
-    <br />
-    <mat-paginator
-      [className]="mapClass?.paginator"
-      [length]="totalItems"
-      (page)="onPageChange($event)"
-      [pageSize]="pageSize"
-      [pageIndex]="currentPage"
-      [pageSizeOptions]="pageSizeOptions"
-      showFirstLastButtons
-      aria-label="Select page"
-    />
+    @if (!items.length) {
+      <app-empty-data-message />
+    } @else {
+      <app-table-with-actions
+        [mapClass]="mapClass?.table ? mapClass : undefined"
+        [columns]="columns"
+        [items]="items"
+        [columnTemplates]="columnTemplates"
+        [templateMap]="templateMap"
+        [actionDatas]="actionDatas"
+        (actionCalled)="handleAction($event)"
+      ></app-table-with-actions>
+      <br />
+      <mat-paginator
+        [className]="mapClass?.paginator"
+        [length]="totalItems"
+        (page)="onPageChange($event)"
+        [pageSize]="pageSize"
+        [pageIndex]="currentPage"
+        [pageSizeOptions]="pageSizeOptions"
+        showFirstLastButtons
+        aria-label="Select page"
+      />
+    }
   </div>
 </div>
