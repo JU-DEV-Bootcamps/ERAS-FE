@@ -8,7 +8,6 @@ import { ListStudentsByPollComponent } from './features/list-students-by-poll/li
 import { LoginComponent } from './features/login/login.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
-// import { StudentDetailOptionComponent } from './features/student/student-detail-option/student-detail-option.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
 import { SummaryHeatmapComponent } from './modules/reports/views/summary-heatmap/summary-heatmap.component';

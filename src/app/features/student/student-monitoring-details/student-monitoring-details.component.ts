@@ -144,10 +144,6 @@ export class StudentMonitoringDetailsComponent implements OnInit {
       const cohortId = Number(params.get('cohortId'));
       const lastVersionParam = params.get('lastVersion');
 
-      console.log('pollUuid:', pollUuid);
-      console.log('lastVersion:', lastVersionParam);
-      console.log('cohortId:', cohortId);
-
       this.lastVersion = lastVersionParam === 'true';
 
       if (pollUuid && cohortId) {
