@@ -1,0 +1,90 @@
+<div *ngIf="pollSelected && cohortSelected" class="cohort-details-container">
+  <mat-card appearance="outlined" class="card">
+    <div class="header">
+      <button mat-icon-button class="header-left" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 class="cohorts-title">
+        {{ pollSelected.name }} - {{ cohortSelected.cohortName }}
+      </h2>
+    </div>
+
+    <mat-card-content>
+      <div class="global-cohort-container">
+        <div *ngIf="cohortSelected?.componentsAvg">
+          <h4 style="padding: 0px; margin: 0px">Risk Overview</h4>
+          <p style="padding: 0px 0px 20px 0px; margin: 0px">By Component</p>
+          <apx-chart
+            [series]="getChartSeriesData(cohortSelected)"
+            [labels]="getChartLabels(cohortSelected)"
+            [chart]="chartOptions.chart!"
+            [responsive]="chartOptions.responsive!"
+            [legend]="chartOptions.legend!"
+            [colors]="chartOptions.colors!"
+            [plotOptions]="chartOptions.plotOptions!"
+            [dataLabels]="chartOptions.dataLabels!"
+          ></apx-chart>
+        </div>
+
+        <div class="custom-divider"></div>
+        <app-list
+          [mapClass]="mapClass"
+          (loadCalled)="handleLoad()"
+          (actionCalled)="handleActionCalled($event)"
+          [columns]="columns"
+          [columnTemplates]="columnTemplates"
+          [actionDatas]="actionDatas"
+          [items]="filteredStudents"
+          [totalItems]="filteredStudents.length"
+          [title]="'Top Risk Students'"
+        >
+          <ng-template #riskSum let-item>
+            <app-badge-risk-level [riskLevel]="item.riskSum" />
+          </ng-template>
+        </app-list>
+      </div>
+
+      <br />
+      <div class="action-buttons">
+        <button mat-button (click)="expandAllPanels()">Expand All</button>
+        <button mat-button (click)="collapseAllPanels()">Collapse All</button>
+      </div>
+
+      <mat-accordion class="cohort-accordion" multi>
+        <mat-expansion-panel
+          *ngFor="let component of selectedComponents"
+          (opened)="loadComponentData(component.key.toLowerCase())"
+          (closed)="studentRisk = []"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <strong>{{ component.key }}</strong>
+            </mat-panel-title>
+            <mat-panel-description>
+              Total Answer Average Risk: {{ component.value }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div>
+            <app-list
+              (loadCalled)="handleLoad()"
+              (actionCalled)="handleActionCalled($event)"
+              [mapClass]="mapClass"
+              [columns]="columns"
+              [columnTemplates]="columnTemplates"
+              [actionDatas]="actionDatas"
+              [items]="componentStudentRisk[component.key.toLowerCase()] || []"
+              [totalItems]="
+                (componentStudentRisk[component.key.toLowerCase()] || []).length
+              "
+            >
+              <ng-template #riskSum let-item>
+                <app-badge-risk-level [riskLevel]="item.riskSum" />
+              </ng-template>
+            </app-list>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-card-content>
+  </mat-card>
+</div>

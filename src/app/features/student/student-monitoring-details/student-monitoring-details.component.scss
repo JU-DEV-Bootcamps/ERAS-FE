@@ -1,0 +1,196 @@
+@use '../../../../styles/utils/index.scss' as main-styles;
+@use '@angular/material' as mat;
+
+.content-option {
+  display: flex;
+  gap: 10px;
+}
+
+.card-inicial-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+  color: main-styles.get-color(primary, 50);
+
+  .card {
+    display: flex;
+    width: 350px;
+    text-align: center;
+    align-items: center;
+    margin: 20px;
+
+    .cart-title {
+      font-weight: main-styles.get-font-weight(bold);
+      color: main-styles.get-color(primary, 50);
+      font-size: main-styles.get-font-size(title, large);
+    }
+
+    .poll-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px 0;
+
+      .poll-radio-button {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: #f5f5f5;
+        }
+
+        strong {
+          font-weight: main-styles.get-font-weight(semi-bold);
+          color: main-styles.get-color(primary, 50);
+          font-size: main-styles.get-font-size(title, medium);
+        }
+
+        p {
+          color: main-styles.get-color(primary, 50);
+        }
+      }
+    }
+  }
+
+  button {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: main-styles.get-color(primary, 50);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: main-styles.get-font-size(body, large);
+    font-weight: 500;
+    line-height: 125%;
+    height: 40px;
+    width: 100%;
+    padding: 10px 16px;
+
+    &:hover {
+      background-color: main-styles.get-color(primary, 30);
+    }
+
+    @media (min-width: 500px) {
+      padding: 10px 16px;
+      width: 200px;
+    }
+  }
+
+  button:disabled {
+    background-color: main-styles.get-color(neutral, 70);
+    color: main-styles.get-color(neutral, 40);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.cards-cohorts-container {
+  padding: 20px;
+  color: main-styles.get-color(primary, 50);
+
+  .cohorts-title {
+    text-align: center;
+    margin: auto;
+    flex: 0 0 auto;
+    margin-bottom: 20px;
+    color: main-styles.get-color(primary, 50);
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: main-styles.get-color(primary, 50);
+    font-size: main-styles.get-font-size(title, medium);
+  }
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+
+    .card {
+      text-align: center;
+      margin: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: main-styles.get-color(primary, 50);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      font-size: main-styles.get-font-size(body, large);
+      font-weight: 500;
+      line-height: 125%;
+      height: 40px;
+      width: 100%;
+      padding: 10px 16px;
+
+      &:hover {
+        background-color: main-styles.get-color(primary, 30);
+      }
+
+      @media (min-width: 500px) {
+        padding: 10px 16px;
+        width: 200px;
+      }
+    }
+  }
+}
+
+.global-cohort-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .child {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    min-width: 50%;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+}
+
+.mat-mdc-row .mat-mdc-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.bg-transparent {
+  background-color: #00000000;
+}

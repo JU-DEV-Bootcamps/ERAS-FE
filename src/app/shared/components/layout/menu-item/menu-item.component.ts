@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
@@ -12,6 +12,7 @@ export class MenuItemComponent {
   @Input() title!: string;
   @Input() icon?: string;
   @Input() redirectUrl!: string;
+  collapseSignal = input<boolean>();
 
   private router = inject(Router);
   get isActive(): boolean {

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, Input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
@@ -11,6 +11,7 @@ export class MenuSectionComponent {
   @Input() title!: string;
   @Input() icon?: string;
   @Input() isExpanded = false;
+  collapseSignal = input<boolean>();
 
   toggle() {
     this.isExpanded = !this.isExpanded;
