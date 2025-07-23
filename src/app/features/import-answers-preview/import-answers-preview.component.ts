@@ -31,9 +31,9 @@ import { PollInstance } from '../../core/models/poll-instance.model';
 import { PollPreview, StudentPreview } from '../interfaces/preview';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-  isStudentEmailValid,
-  isStudentNameValid,
-} from '../../modules/lists/utils/student.util';
+  isFieldEmailValid,
+  isFieldNameValid,
+} from '../../core/utilities/validators/fields.util';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -230,12 +230,9 @@ export class ImportAnswersPreviewComponent implements OnChanges {
         invalidStudents.push(student.email);
       }
     });
-    console.log(invalidStudents);
     this.invalidStudentsSubject.next(invalidStudents);
   }
   isStudentValid(student: StudentPreview): boolean {
-    return (
-      isStudentNameValid(student.name) && isStudentEmailValid(student.email)
-    );
+    return isFieldNameValid(student.name) && isFieldEmailValid(student.email);
   }
 }

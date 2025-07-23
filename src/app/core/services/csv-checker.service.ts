@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import Papa from 'papaparse';
 import {
-  isStudentEmailValid,
-  isStudentNameValid,
-} from '../../modules/lists/utils/student.util';
-
+  isFieldEmailValid,
+  isFieldNameValid,
+} from '../utilities/validators/fields.util';
 @Injectable({
   providedIn: 'root',
 })
@@ -101,10 +100,10 @@ export class CsvCheckerService {
         }
       });
 
-      if (!isStudentNameValid(row[nameField])) {
+      if (!isFieldNameValid(row[nameField])) {
         rowErrors.push('Invalid name format');
       }
-      if (!isStudentEmailValid(row[emailField])) {
+      if (!isFieldEmailValid(row[emailField])) {
         rowErrors.push('Invalid email format');
       }
       this.validateNumericFields(row, rowErrors);
