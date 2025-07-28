@@ -1,0 +1,50 @@
+<div class="card-inicial-container">
+  <mat-card appearance="outlined" class="card">
+    <div>
+      <h2 class="cohorts-title">First Select a Poll</h2>
+    </div>
+    <mat-card-content>
+      <mat-radio-group
+        name="pollGroup"
+        [(ngModel)]="pollSelectedId"
+        class="poll-radio-group"
+      >
+        <mat-radio-button
+          *ngFor="let poll of polls"
+          [value]="poll.id"
+          class="poll-radio-button"
+        >
+          <div>
+            <strong>{{ poll.name }}</strong>
+            <p>
+              Version:
+              <select
+                [(ngModel)]="lastVersion"
+                (change)="selectVersion($event)"
+              >
+                <option [value]="false">Older Versions</option>
+                <option [value]="true" selected>
+                  Last Version V{{ poll.lastVersion }} -
+                  {{ poll.lastVersionDate | date: 'shortDate' }}
+                </option>
+              </select>
+              <br />
+              Version Date: {{ poll.lastVersionDate | date: 'mediumDate' }}
+            </p>
+          </div>
+        </mat-radio-button>
+      </mat-radio-group>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!pollSelectedId"
+        (click)="selectPoll()"
+      >
+        Continue
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -42,7 +42,7 @@
           } @else {
             @if (isMobile) {
               <div class="card-container">
-                @for (student of studentsMobileVersion; track $index) {
+                @for (studentPreview of studentPreviews; track $index) {
                   <mat-card class="" appearance="outlined">
                     <mat-card-content>
                       @for (column of columns; track $index) {
@@ -51,11 +51,30 @@
                           @if (column === 'save') {
                             <mat-slide-toggle
                               class="custom-slide-toggle"
-                              [checked]="student[column]"
-                              (change)="handleCheckbox($event, student)"
+                              [disabled]="
+                                !invalidStudentsSubject.value.includes(
+                                  studentPreview.email
+                                )
+                              "
+                              [checked]="
+                                studentPreview[column] &&
+                                !invalidStudentsSubject.value.includes(
+                                  studentPreview.email
+                                )
+                              "
+                              [matTooltip]="
+                                !invalidStudentsSubject.value.includes(
+                                  studentPreview.email
+                                )
+                                  ? 'Name or email invalid'
+                                  : ''
+                              "
+                              (change)="handleCheckbox($event, studentPreview)"
                             ></mat-slide-toggle>
                           } @else {
-                            <p class="information">{{ student[column] }}</p>
+                            <p class="information">
+                              {{ studentPreview[column] }}
+                            </p>
                           }
                         </div>
                       }
@@ -91,15 +110,32 @@
                           {{ column | titlecase }}
                         }
                       </th>
-                      <td mat-cell *matCellDef="let element">
+                      <td mat-cell *matCellDef="let studentPreview">
                         @if (column === 'save') {
                           <mat-slide-toggle
                             class="custom-slide-toggle"
-                            [checked]="element[column]"
-                            (change)="handleCheckbox($event, element)"
+                            [matTooltip]="
+                              invalidStudentsSubject.value.includes(
+                                studentPreview.email
+                              )
+                                ? 'Name or email invalid'
+                                : ''
+                            "
+                            [disabled]="
+                              invalidStudentsSubject.value.includes(
+                                studentPreview.email
+                              )
+                            "
+                            [checked]="
+                              studentPreview[column] &&
+                              !invalidStudentsSubject.value.includes(
+                                studentPreview.email
+                              )
+                            "
+                            (change)="handleCheckbox($event, studentPreview)"
                           ></mat-slide-toggle>
                         } @else {
-                          {{ element[column] }}
+                          {{ studentPreview[column] }}
                         }
                       </td>
                     </ng-container>

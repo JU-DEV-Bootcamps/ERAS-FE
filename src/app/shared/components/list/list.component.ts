@@ -35,6 +35,7 @@ import { PdfHelper } from '../../../modules/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MapClass } from './types/class';
+import { EmptyDataComponent } from '../empty-data/empty-data.component';
 
 @Component({
   selector: 'app-list',
@@ -49,6 +50,7 @@ import { MapClass } from './types/class';
     MatButtonModule,
     MatTooltipModule,
     MatMenuModule,
+    EmptyDataComponent,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
