@@ -83,21 +83,31 @@ export function GetChartOptions(
         },
       },
       custom: function ({ seriesIndex, dataPointIndex, w }) {
-        if (tooltipCustomFunction) {
-          return tooltipCustomFunction(seriesIndex, dataPointIndex);
-        } else {
-          const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-          const xValue = dataPoint.x;
-          const yValue = dataPoint.y;
-          const zValue = dataPoint.z;
-          const formattedZValue = zValue;
+        const content = () => {
+          if (tooltipCustomFunction) {
+            return tooltipCustomFunction(seriesIndex, dataPointIndex);
+          } else {
+            const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+            const xValue = dataPoint.x;
+            const yValue = dataPoint.y;
+            const zValue = dataPoint.z;
+            const formattedZValue = zValue;
 
-          return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Question: </b>${xValue}</div>
+            return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Question: </b>${xValue}</div>
         <div style="border-top: 1px solid #ccc;"></div>
         <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>Answer: </b>${yValue}</div>
         <div style="border-top: 1px solid #ccc;"><b>Details:</b></div>
         <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">${formattedZValue}</div>`;
-        }
+          }
+        };
+        const wrap = (content: string) => {
+          return `
+            <div class="apex-tooltip-container">
+              ${content}
+            </div>
+            `;
+        };
+        return wrap(content());
       },
     },
     ...baseChartOptions,
