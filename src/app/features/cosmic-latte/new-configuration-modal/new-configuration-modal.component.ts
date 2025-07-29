@@ -56,7 +56,14 @@ export class NewConfigurationModalComponent implements OnInit {
     this.configurationForm = this.fb.group({
       configurationName: ['', Validators.required],
       baseURL: ['', Validators.required],
-      apiKey: ['', Validators.required],
+      apiKey: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(32),
+          Validators.maxLength(32),
+        ],
+      ],
       serviceProvider: ['', Validators.required],
     });
 
@@ -100,5 +107,9 @@ export class NewConfigurationModalComponent implements OnInit {
     } else {
       console.error('Form is invalid');
     }
+  }
+
+  preventAction(event: ClipboardEvent) {
+    event.preventDefault();
   }
 }

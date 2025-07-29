@@ -20,6 +20,7 @@ import { NewConfigurationModalComponent } from '../new-configuration-modal/new-c
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { GENERAL_MESSAGES } from '../../../core/constants/messages';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-configuration-card',
@@ -30,6 +31,7 @@ import { GENERAL_MESSAGES } from '../../../core/constants/messages';
     MatProgressSpinnerModule,
     MatDialogModule,
     CommonModule,
+    MatTooltipModule,
   ],
   templateUrl: './configuration-card.component.html',
   styleUrl: './configuration-card.component.css',
@@ -54,7 +56,10 @@ export class ConfigurationCardComponent implements OnInit {
     this.isLoading = true;
     this.cosmicLatteService.healthCheck(configuration.id).subscribe({
       next: response => {
-        this.healthCheckResponse = response;
+        this.healthCheckResponse = {
+          ...response,
+          status: response.status ?? false,
+        };
         this.isLoading = false;
       },
       error: error => {
