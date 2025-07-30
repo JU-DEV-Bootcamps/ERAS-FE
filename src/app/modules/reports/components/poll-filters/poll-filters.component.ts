@@ -89,7 +89,10 @@ export class PollFiltersComponent implements OnInit {
   handleCohortSelect(isOpen: boolean) {
     if (isOpen) return;
     if (!this.filterForm.value.selectedPoll?.uuid) return;
-    if (this.filterForm.value.cohortIds?.length === 0) return;
+    if (!this.filterForm.value.cohortIds?.length) {
+      this.sendFilters();
+      return;
+    }
     this.pollsService
       .getVariablesByComponents(
         this.filterForm.value.selectedPoll?.uuid,
@@ -125,6 +128,8 @@ export class PollFiltersComponent implements OnInit {
       return;
     if (this.filterForm.value.componentNames!.length === 0) {
       this.variableGroups = [];
+      this.resetField('variables');
+      this.sendFilters();
       return;
     }
     this.variableGroups =
@@ -138,8 +143,14 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handleVariableSelect(isOpen: boolean) {
-    if (!isOpen) this.sendFilters();
+    if (isOpen) return;
+    if (!this.filterForm.value.variables?.length) {
+      this.resetField('variables');
+    }
+
+    this.sendFilters();
   }
+
   sendFilters() {
     if (!this.polls) return;
     const poll = this.polls.find(
@@ -147,11 +158,14 @@ export class PollFiltersComponent implements OnInit {
     );
     const cohorts = this.filterForm.value.cohortIds || [];
     const title = `Poll: ${poll?.name} V${poll?.lastVersion} - Cohort(s): ${cohorts.map(cohortId => this.cohorts.find(c => c.id == cohortId)?.name)}`;
-    const uuid = this.filterForm.value.selectedPoll?.uuid;
-    const cohortIds = this.filterForm.value.cohortIds;
-    const variableIds = this.filterForm.value.variables;
+    const uuid = this.filterForm.value.selectedPoll?.uuid || '';
+    const cohortIds = this.filterForm.value.cohortIds!;
+    const variableIds = this.filterForm.value.variables!;
     const lastVersion = this.filterForm.value.lastVersion!;
-    if (!uuid || !cohortIds || !variableIds) return;
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
+  }
+
+  private resetField(controlName: string) {
+    this.filterForm.get(controlName)!.reset();
   }
 }

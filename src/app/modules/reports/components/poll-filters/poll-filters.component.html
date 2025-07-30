@@ -101,9 +101,11 @@
           multiple
           (openedChange)="handleVariableSelect($event)"
         >
-          <mat-option appSelectAll [allValues]="variables"
-            >Select all</mat-option
-          >
+          @if (!!variableGroups.length) {
+            <mat-option appSelectAll [allValues]="variables"
+              >Select all</mat-option
+            >
+          }
           @for (group of variableGroups; track group) {
             <mat-optgroup [label]="group[0].componentName | uppercase">
               @for (variable of group; track variable) {

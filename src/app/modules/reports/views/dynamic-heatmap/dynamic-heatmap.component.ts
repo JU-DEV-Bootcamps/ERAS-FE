@@ -127,6 +127,10 @@ export class DynamicHeatmapComponent {
   handleFilterSelect(filters: Filter) {
     this.title = filters.title;
     this.uuid = filters.uuid;
+    if (!filters.cohortIds || !filters.variableIds || !filters.lastVersion) {
+      this.chartsOptions = [];
+      return;
+    }
     this.generateHeatMap(
       filters.cohortIds,
       filters.variableIds,
