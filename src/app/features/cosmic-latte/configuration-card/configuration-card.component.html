@@ -33,8 +33,9 @@
         <div>
           <button
             mat-icon-button
-            aria-label="Actualizar"
+            aria-label="Test Connection"
             (click)="testConnection(configuration)"
+            matTooltip="Test Connection"
           >
             <mat-icon>update</mat-icon>
           </button>
@@ -43,6 +44,7 @@
             mat-icon-button
             aria-label="Edit"
             (click)="editConfiguration(configuration)"
+            matTooltip="Edit Configuration"
           >
             <mat-icon>edit</mat-icon>
           </button>
@@ -51,6 +53,7 @@
             mat-icon-button
             aria-label="Delete"
             (click)="deleteConfigurationConfirmation(configuration.id)"
+            matTooltip="Delete Configuration"
           >
             <mat-icon>delete</mat-icon>
           </button>

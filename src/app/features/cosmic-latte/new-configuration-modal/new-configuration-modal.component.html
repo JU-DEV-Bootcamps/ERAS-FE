@@ -7,6 +7,7 @@
         matInput
         formControlName="configurationName"
         placeholder="Enter configuration name"
+        maxlength="50"
       />
       <mat-error
         *ngIf="configurationForm.get('configurationName')?.hasError('required')"
@@ -25,9 +26,21 @@
 
     <mat-form-field appearance="fill">
       <mat-label>API Key</mat-label>
-      <input matInput formControlName="apiKey" placeholder="Enter API key" />
+      <input
+        matInput
+        formControlName="apiKey"
+        placeholder="Enter API key"
+        (copy)="preventAction($event)"
+        type="password"
+      />
       <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('required')">
         API Key is required.
+      </mat-error>
+      <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('minlength')">
+        API Key must be at least 32 characters long.
+      </mat-error>
+      <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('maxlength')">
+        API Key must not exceed 32 characters.
       </mat-error>
     </mat-form-field>
 
