@@ -10,7 +10,11 @@
     @if (polls !== null && polls.length > 0) {
       <mat-form-field appearance="fill">
         <mat-label for="sl-poll">Poll</mat-label>
-        <mat-select id="sl-poll" formControlName="selectedPoll">
+        <mat-select
+          id="sl-poll"
+          formControlName="selectedPoll"
+          (openedChange)="handlePollSelect($event)"
+        >
           @for (poll of polls; track $index) {
             <mat-option class="versioned-option" [value]="poll">
               <p>{{ poll.name }}</p>
@@ -27,7 +31,7 @@
         <mat-label for="sl-version">Version</mat-label>
         <mat-select
           formControlName="lastVersion"
-          (openedChange)="handleVersionSelect($event)"
+          (openedChange)="handlePollSelect($event)"
         >
           <mat-option [value]="false">Older Versions</mat-option>
           <mat-option [value]="true">
@@ -39,26 +43,28 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-cohort">Cohort</mat-label>
-        <mat-select
-          required
-          id="sl-cohort"
-          multiple
-          formControlName="cohortIds"
-          (openedChange)="handleCohortSelect($event)"
-        >
-          <mat-option appSelectAll [allValues]="cohorts">Select all</mat-option>
-          @for (cohort of cohorts; track $index) {
-            <mat-option [value]="cohort.id">
-              {{ cohort.name }}
-            </mat-option>
-          }
-        </mat-select>
-        @if (filterForm.get('cohortId')?.errors) {
-          <mat-error>This field is required</mat-error>
-        }
-      </mat-form-field>
+      @if ((filterForm.value.cohortIds || []).length > 0) {
+        <mat-form-field appearance="fill">
+          <mat-label for="sl-cohort">Cohort</mat-label>
+          <mat-select
+            id="sl-cohort"
+            multiple
+            formControlName="cohortIds"
+            (openedChange)="handleCohortSelect($event)"
+          >
+            @if (cohorts.length > 0) {
+              <mat-option appSelectAll [allValues]="cohorts"
+                >Select all</mat-option
+              >
+            }
+            @for (cohort of cohorts; track $index) {
+              <mat-option [value]="cohort.id">
+                {{ cohort.name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
     }
     @if (
       filterForm.value.cohortIds &&

@@ -71,7 +71,7 @@ export class ModalRiskStudentsCohortComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cohortService.getCohorts().subscribe({
+    this.cohortService.getCohorts(null, true).subscribe({
       next: data => (this.cohorts = data.body),
       error: error => console.error('Error fetching cohorts', error),
     });

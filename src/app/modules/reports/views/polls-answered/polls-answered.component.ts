@@ -124,21 +124,23 @@ export class PollsAnsweredComponent implements OnInit {
   }
 
   loadCohortsList(): void {
-    this.cohortService.getCohorts(this.selectedPollUuid).subscribe(data => {
-      const defaultOpt: CohortModel = {
-        name: 'All Cohorts',
-        courseCode: '',
-        audit: {
-          createdBy: '',
-          modifiedBy: '',
-          createdAt: new Date(),
-          modifiedAt: new Date(),
-        },
-        id: 0,
-      };
-      this.cohortsData = data.body;
-      this.cohortsData.push(defaultOpt);
-    });
+    this.cohortService
+      .getCohorts(this.selectedPollUuid, this.lastVersion)
+      .subscribe(data => {
+        const defaultOpt: CohortModel = {
+          name: 'All Cohorts',
+          courseCode: '',
+          audit: {
+            createdBy: '',
+            modifiedBy: '',
+            createdAt: new Date(),
+            modifiedAt: new Date(),
+          },
+          id: 0,
+        };
+        this.cohortsData = data.body;
+        this.cohortsData.push(defaultOpt);
+      });
   }
 
   getPollsByCohortId(id: number) {
