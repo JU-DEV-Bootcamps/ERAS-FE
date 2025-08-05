@@ -29,6 +29,13 @@
       >
         Configuration name must not exceed 20 characters.
       </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('forbiddenChars')
+        "
+      >
+        Configuration name contains forbidden characters.
+      </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
