@@ -1,27 +1,5 @@
 @use './../../../styles/utils/index.scss' as main-styles;
 
-.container {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  gap: 20px;
-}
-
-.main {
-  display: grid;
-  gap: 20px;
-}
-
-.title {
-  color: #000;
-  font-size: var(--Headline-Small-Size, 24px);
-  font-style: normal;
-  font-weight: 400;
-  line-height: var(--Headline-Small-Line-Height, 32px);
-  letter-spacing: var(--Headline-Small-Tracking, 0px);
-  margin: 5px;
-  padding: 0px;
-}
-
 .details {
   margin: 0px;
   color: var(--neutral-700, #605e5e);
@@ -33,7 +11,7 @@
 
 .swiper {
   min-height: 240px;
-  width: clamp(320px, 80vw, 970px);
+  width: clamp(320px, 75vw, 970px);
 }
 
 swiper-slide {
@@ -65,26 +43,6 @@ swiper-slide:nth-child(1n) {
   justify-content: center;
 }
 
-.section {
-  display: flex;
-  width: 100%;
-  gap: 20px;
-}
-
-.link-card {
-  width: 150px;
-  height: 150px;
-  display: block;
-  justify-items: center;
-  align-content: center;
-  color: #008581;
-  text-align: center;
-  cursor: pointer;
-}
-.link-card:hover {
-  text-decoration: underline;
-}
-
 .services-card {
   padding: 15px;
   color: #008581;
@@ -102,31 +60,6 @@ swiper-slide:nth-child(1n) {
   font-weight: 500;
   font-size: large;
   margin-left: 20px;
-}
-@media screen and (max-width: 500px) {
-  .section {
-    flex-wrap: wrap;
-  }
-  .eval-summary {
-    display: block;
-  }
-}
-
-mat-card-title {
-  text-align: center;
-  width: 100%;
-  font-weight: 500;
-}
-mat-card-actions {
-  width: 100%;
-  display: flex;
-  font-weight: 500;
-  justify-content: space-between;
-  margin-top: -15px;
-}
-
-mat-card-footer {
-  font-size: x-large;
 }
 
 .check {

@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
 import Keycloak from 'keycloak-js';
 
 @Component({
@@ -13,9 +12,8 @@ import Keycloak from 'keycloak-js';
 })
 export class UserMenuComponent {
   user?: { name: string; email: string };
-  authenticated = false;
+  timedOutCloser: ReturnType<typeof setTimeout> | null = null;
   private readonly keycloak = inject(Keycloak);
-  router = inject(Router);
 
   constructor() {
     this.user = {
@@ -24,19 +22,20 @@ export class UserMenuComponent {
     };
   }
 
-  manageKeycloakUser(): void {
-    this.keycloak.accountManagement();
-  }
-
-  login() {
-    this.keycloak.login();
-  }
-
   logout() {
     this.keycloak.logout();
   }
 
-  redirect(redirectTo: string) {
-    this.router.navigate([redirectTo]);
+  mouseEnter(trigger: MatMenuTrigger) {
+    if (this.timedOutCloser) {
+      clearTimeout(this.timedOutCloser);
+    }
+    trigger.openMenu();
+  }
+
+  mouseLeave(trigger: MatMenuTrigger) {
+    this.timedOutCloser = setTimeout(() => {
+      trigger.closeMenu();
+    }, 100);
   }
 }

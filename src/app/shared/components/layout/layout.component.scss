@@ -4,32 +4,9 @@
 .container {
   width: 100%;
   max-width: 1200px;
-  margin: 0 6%;
-  padding: ut.get-size(padding, m);
   box-sizing: border-box;
   height: 90%;
-}
-// Responsive margin for container
-@media (max-width: 1200px) {
-  .container,
-  .app-title {
-    margin: 0 4%;
-  }
-}
-@media (max-width: 800px) {
-  .container,
-  .app-title {
-    margin: 0 1%;
-    max-width: 100%;
-    padding: ut.get-size(padding, xs);
-  }
-}
-@media (max-width: 600px) {
-  .container,
-  .app-title {
-    margin: 0;
-    padding: ut.get-size(padding, xs);
-  }
+  padding: ut.get-size(padding, xl);
 }
 
 mat-sidenav-container {

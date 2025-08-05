@@ -36,7 +36,7 @@ $font-size: (
 
 $font-weight: (
   bold: 700,
-  semi-bold:500,
+  semi-bold: 500,
   medium: 400,
   regular: 200,
 );
@@ -47,12 +47,11 @@ $font-weight: (
 
 .page-title {
   font-size: get-font-size(headline, medium);
-  font-weight: get-font-weight(bold);
-  text-align: center;
+  text-align: left;
 }
 
 .page-subtitle {
-    font-size: get-font-size(headline, medium);
-    font-weight: get-font-weight(medium);
-    text-align: left;
-  }
+  font-size: get-font-size(headline, medium);
+  font-weight: get-font-weight(medium);
+  text-align: left;
+}
