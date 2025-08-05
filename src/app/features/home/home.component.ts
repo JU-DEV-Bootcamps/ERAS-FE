@@ -89,7 +89,7 @@ export class HomeComponent implements OnInit {
   loadCount() {
     this.reportService
       .getCountSummary()
-      .subscribe(res => (this.count = res.body));
+      .subscribe(response => (this.count = response.body));
   }
 
   loadEvaluations() {
@@ -107,8 +107,8 @@ export class HomeComponent implements OnInit {
   }
 
   loadEvalDetails(evalId: number) {
-    this.evalService.getEvalProcDetails(evalId).subscribe(res => {
-      this.selEval = res.body;
+    this.evalService.getEvalProcDetails(evalId).subscribe(response => {
+      this.selEval = response.body;
       if (this.selEval?.polls && this.selEval?.polls.length > 0) {
         this.selPoll = this.selEval.polls[0];
         this.loadPollDetails(this.selPoll.uuid);
@@ -127,8 +127,8 @@ export class HomeComponent implements OnInit {
         })
       )
       .subscribe({
-        next: res => {
-          const body = res.body;
+        next: response => {
+          const body = response.body;
           this.riskLevelAvg = body.averageRisk.toFixed(2);
           this.riskLevels =
             this.reportService.getBMSeriesFromSummaryReport(body);

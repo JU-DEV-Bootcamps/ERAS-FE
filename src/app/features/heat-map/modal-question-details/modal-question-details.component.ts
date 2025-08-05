@@ -120,8 +120,8 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
       pollInstanceUUID,
       [this.inputQuestion.componentName.toLowerCase()],
       true
-    ).subscribe(res => {
-      const variable = res.find(
+    ).subscribe(response => {
+      const variable = response.find(
         variable => variable.name == this.inputQuestion.question.question
       );
       if (!variable) return;

@@ -64,7 +64,7 @@ export class PollFiltersComponent implements OnInit {
 
   ngOnInit(): void {
     this.pollsService.getAllPolls().subscribe({
-      next: res => (this.polls = res),
+      next: response => (this.polls = response),
       error: () => (this.polls = null),
     });
   }
@@ -76,10 +76,10 @@ export class PollFiltersComponent implements OnInit {
     if (newSelectedPoll) {
       this.cohortsService
         .getCohorts(newSelectedPoll.uuid, !!this.filterForm.value.lastVersion)
-        .subscribe(res => {
-          this.cohorts = res.body;
+        .subscribe(response => {
+          this.cohorts = response.body;
           this.filterForm.controls.cohortIds.setValue(
-            this.cohorts.map(c => c.id)
+            this.cohorts.map(cohort => cohort.id)
           );
           this.handleCohortSelect(false);
         });
