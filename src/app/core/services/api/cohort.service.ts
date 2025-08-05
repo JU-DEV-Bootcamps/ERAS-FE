@@ -12,8 +12,11 @@ import { Pagination } from '../interfaces/server.type';
 export class CohortService extends BaseApiService {
   protected resource = 'cohorts';
 
-  getCohorts(pollUuid: string | null = null) {
-    const params = new HttpParams().set('pollUuid', pollUuid || '');
+  getCohorts(pollUuid: string | null = null, lastVersion = true) {
+    const params = new HttpParams()
+      .set('pollUuid', pollUuid || '')
+      .set('lastVersion', lastVersion);
+
     return this.get<ApiResponse<CohortModel[]>>('', params);
   }
 

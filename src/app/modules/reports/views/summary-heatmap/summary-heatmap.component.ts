@@ -106,9 +106,9 @@ export class SummaryHeatmapComponent {
           pollUuid: this.pollUuid,
           lastVersion: this.lastVersion,
         })
-        .subscribe(res => {
-          this.students = res.items;
-          this.totalStudents = res.count;
+        .subscribe(response => {
+          this.students = response.items;
+          this.totalStudents = response.count;
           this.isLoading = false;
         });
     }
@@ -119,16 +119,16 @@ export class SummaryHeatmapComponent {
 
     this.reportService
       .getAvgPoolReport(this.pollUuid, this.cohortIds, this.lastVersion)
-      .subscribe(res => {
+      .subscribe(response => {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
-          res.body
+          response.body
         );
         const series = this.reportService.regroupSummaryByColor(reportSeries);
         this.chartOptions = GetChartOptions(`${this.title}`, series, (x, y) => {
           const component = series[y];
           const serieQuestion = series[y].data[x];
           const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
-            res.body,
+            response.body,
             component.description,
             serieQuestion
           );

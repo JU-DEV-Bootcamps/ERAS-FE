@@ -47,10 +47,10 @@ export class SummaryHeatmapComponent implements OnInit {
 
     this.reportService
       .getAvgPoolReport(this.pollUuid, this.cohortId, true)
-      .subscribe(res => {
+      .subscribe(response => {
         this.isLoading = false;
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
-          res.body
+          response.body
         );
         const serie = this.reportService.regroupSummaryByColor(reportSeries);
         this.chartOptions = GetChartOptions(
