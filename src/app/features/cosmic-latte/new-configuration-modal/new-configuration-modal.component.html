@@ -7,12 +7,27 @@
         matInput
         formControlName="configurationName"
         placeholder="Enter configuration name"
-        maxlength="50"
+        maxlength="20"
+        minlength="3"
       />
       <mat-error
         *ngIf="configurationForm.get('configurationName')?.hasError('required')"
       >
         Configuration name is required.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('minlength')
+        "
+      >
+        Configuration name must be at least 3 characters long.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('maxlength')
+        "
+      >
+        Configuration name must not exceed 20 characters.
       </mat-error>
     </mat-form-field>
 
