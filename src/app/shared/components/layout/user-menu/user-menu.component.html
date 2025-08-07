@@ -1,14 +1,26 @@
-<mat-toolbar class="custom-navbar">
+<mat-toolbar>
   @if (user) {
     <div class="user-info">
-      <button [matMenuTriggerFor]="beforeMenu" class="avatar-button">
+      <button
+        [matMenuTriggerFor]="beforeMenu"
+        #menuTrigger="matMenuTrigger"
+        (mouseenter)="menuTrigger.openMenu()"
+        (mouseleave)="mouseLeave(menuTrigger)"
+      >
         <mat-icon>person</mat-icon>
       </button>
+      <mat-menu #beforeMenu="matMenu" xPosition="before" hasBackdrop="false">
+        <button
+          mat-menu-item
+          class="menu-button"
+          (click)="logout()"
+          (mouseenter)="mouseEnter(menuTrigger)"
+          (mouseleave)="mouseLeave(menuTrigger)"
+        >
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
     </div>
   }
-  <mat-menu #beforeMenu="matMenu" xPosition="before" class="avatar-menu">
-    <button mat-menu-item (click)="logout()" class="menu-button">
-      <mat-icon>logout</mat-icon>Logout
-    </button>
-  </mat-menu>
 </mat-toolbar>

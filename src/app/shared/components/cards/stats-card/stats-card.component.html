@@ -1,0 +1,17 @@
+<mat-card routerLink="{{ url() }}">
+  <mat-icon class="icon">
+    <ng-content select="[icon]">disabled_by_default</ng-content>
+  </mat-icon>
+  <div>
+    <mat-card-header>
+      <mat-card-title-group>
+        <mat-card-title>
+          <ng-content select="[title]">Default Stat</ng-content>
+        </mat-card-title>
+      </mat-card-title-group>
+    </mat-card-header>
+    <mat-card-content>
+      <ng-content select="[stat]">100</ng-content>
+    </mat-card-content>
+  </div>
+</mat-card>

@@ -2,24 +2,28 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   inject,
+  linkedSignal,
   OnInit,
 } from '@angular/core';
+import { DatePipe, NgClass } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
-import { EvaluationsService } from '../../core/services/api/evaluations.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { finalize } from 'rxjs';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
-import { DatePipe, NgClass } from '@angular/common';
-import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
-import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+
+import { EvaluationsService } from '../../core/services/api/evaluations.service';
 import { ReportService } from '../../core/services/api/report.service';
-import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { finalize } from 'rxjs';
+
 import { CountSummaryModel } from '../../core/models/summary.model';
 import { EvaluationModel } from '../../core/models/evaluation.model';
+import { PollModel } from '../../core/models/poll.model';
+
 import {
   Alpha3CountryNamePipe,
   Alpha3FlagPipe,
@@ -28,7 +32,10 @@ import {
   getEvalClass,
   getStatusForEvaluationProcess,
 } from '../../modules/lists/utils/evaluations.util';
-import { PollModel } from '../../core/models/poll.model';
+
+import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
+import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
+import { SummaryDetailsComponent } from './summary-details/summary-details.component';
 
 register();
 
@@ -41,7 +48,6 @@ interface SwiperEventTarget extends EventTarget {
     MatCardModule,
     MatButtonModule,
     MatIcon,
-    RouterLink,
     DatePipe,
     NgApexchartsModule,
     EmptyDataComponent,
@@ -50,6 +56,7 @@ interface SwiperEventTarget extends EventTarget {
     Alpha3CountryNamePipe,
     Alpha3FlagPipe,
     NgClass,
+    SummaryDetailsComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -76,14 +83,13 @@ export class HomeComponent implements OnInit {
   evalService = inject(EvaluationsService);
   reportService = inject(ReportService);
 
-  healthCheckStatus = false;
-
   chartOptions: ApexOptions = {};
+
+  query = linkedSignal(() => this.count);
 
   async ngOnInit(): Promise<void> {
     this.loadCount();
     this.loadEvaluations();
-    // this.healthCheck();
   }
 
   loadCount() {
