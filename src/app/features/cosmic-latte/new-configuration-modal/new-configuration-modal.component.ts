@@ -60,7 +60,7 @@ export class NewConfigurationModalComponent implements OnInit {
         '',
         [Validators.required, forbiddenCharsValidator, noWhitespaceValidator],
       ],
-      baseURL: ['', Validators.required],
+      baseURL: ['', [Validators.required, noWhitespaceValidator]],
       apiKey: [
         '',
         [
