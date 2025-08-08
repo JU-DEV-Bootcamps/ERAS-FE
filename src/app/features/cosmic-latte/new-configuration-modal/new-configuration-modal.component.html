@@ -36,6 +36,14 @@
       >
         Configuration name contains forbidden characters.
       </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('whitespace') &&
+          configurationForm.get('configurationName')?.touched
+        "
+      >
+        This field cannot contain only spaces.
+      </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
@@ -43,6 +51,14 @@
       <input matInput formControlName="baseURL" placeholder="Enter base URL" />
       <mat-error *ngIf="configurationForm.get('baseURL')?.hasError('required')">
         Base URL is required.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('baseURL')?.hasError('whitespace') &&
+          configurationForm.get('baseURL')?.touched
+        "
+      >
+        This field cannot contain only spaces.
       </mat-error>
     </mat-form-field>
 
