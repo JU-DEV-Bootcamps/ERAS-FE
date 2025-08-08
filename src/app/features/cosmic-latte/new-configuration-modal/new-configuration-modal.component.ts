@@ -21,6 +21,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { ConfigurationsModel } from '../../../core/models/configurations.model';
 import { forbiddenCharsValidator } from '../../../shared/validators/forbiden-chars.validator';
+import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
 
 @Component({
   selector: 'app-new-configuration-modal',
@@ -55,7 +56,10 @@ export class NewConfigurationModalComponent implements OnInit {
     this.existingConfiguration = this.data?.existingConfiguration;
 
     this.configurationForm = this.fb.group({
-      configurationName: ['', [Validators.required, forbiddenCharsValidator]],
+      configurationName: [
+        '',
+        [Validators.required, forbiddenCharsValidator, noWhitespaceValidator],
+      ],
       baseURL: ['', Validators.required],
       apiKey: [
         '',

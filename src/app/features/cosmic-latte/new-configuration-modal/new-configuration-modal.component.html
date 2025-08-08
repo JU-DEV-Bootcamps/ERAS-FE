@@ -36,6 +36,14 @@
       >
         Configuration name contains forbidden characters.
       </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('whitespace') &&
+          configurationForm.get('configurationName')?.touched
+        "
+      >
+        This field cannot contain only spaces.
+      </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
