@@ -164,4 +164,46 @@ export class PollFiltersComponent implements OnInit {
   private resetField(controlName: string) {
     this.filterForm.get(controlName)!.reset();
   }
+
+  getCohortsDisplay() {
+    const cohortIds = this.filterForm.value.cohortIds?.filter(
+      cohortId => !!cohortId
+    );
+
+    return cohortIds?.length === this.cohorts.length
+      ? 'Select all'
+      : cohortIds
+          ?.map(
+            cohortId =>
+              this.cohorts.find(cohort => cohort.id === cohortId)?.name
+          )
+          ?.join(', ');
+  }
+
+  getComponentsDisplay() {
+    const componentNames = this.filterForm.value.componentNames?.filter(
+      componentName => !!componentName
+    );
+
+    return componentNames?.length === this.componentNames.length
+      ? 'Select all'
+      : componentNames
+          ?.map(componentName =>
+            this.componentNames.find(cN => cN === componentName)
+          )
+          ?.join(', ');
+  }
+
+  getVariablesDisplay() {
+    const variables = this.filterForm.value.variables?.filter(
+      variable => !!variable
+    );
+    console.log(variables?.length);
+    console.log(this.variables.length);
+    return variables?.length === this.variables.length
+      ? 'Select all'
+      : variables
+          ?.map(id => this.variables.find(v => v.id === id)?.name)
+          ?.join(', ');
+  }
 }

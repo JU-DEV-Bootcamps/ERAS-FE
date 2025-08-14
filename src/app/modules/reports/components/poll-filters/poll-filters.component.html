@@ -51,6 +51,9 @@
           formControlName="cohortIds"
           (openedChange)="handleCohortSelect($event)"
         >
+          <mat-select-trigger>
+            {{ getCohortsDisplay() }}
+          </mat-select-trigger>
           @if (cohorts.length > 0) {
             <mat-option appSelectAll [allValues]="cohorts"
               >Select all</mat-option
@@ -78,6 +81,9 @@
           (openedChange)="handleUpdateComponents($event)"
           formControlName="componentNames"
         >
+          <mat-select-trigger>
+            {{ getComponentsDisplay() }}
+          </mat-select-trigger>
           @if (!!componentNames.length) {
             <mat-option appSelectAll [allValues]="componentNames"
               >Select all</mat-option
@@ -107,6 +113,9 @@
           (openedChange)="handleVariableSelect($event)"
           formControlName="variables"
         >
+          <mat-select-trigger>
+            {{ getVariablesDisplay() }}
+          </mat-select-trigger>
           @if (!!variableGroups.length) {
             <mat-option appSelectAll [allValues]="variables"
               >Select all</mat-option
