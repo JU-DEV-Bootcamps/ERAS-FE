@@ -5,3 +5,10 @@ export interface Filter {
   variableIds: number[];
   lastVersion: boolean;
 }
+
+export type FormKey =
+  | 'selectedPoll'
+  | 'lastVersion'
+  | 'cohortIds'
+  | 'componentNames'
+  | 'variables';
