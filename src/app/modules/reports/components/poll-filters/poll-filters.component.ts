@@ -198,8 +198,7 @@ export class PollFiltersComponent implements OnInit {
     const variables = this.filterForm.value.variables?.filter(
       variable => !!variable
     );
-    console.log(variables?.length);
-    console.log(this.variables.length);
+
     return variables?.length === this.variables.length
       ? 'Select all'
       : variables
