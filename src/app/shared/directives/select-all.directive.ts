@@ -41,6 +41,7 @@ export class SelectAllDirective<T extends SelectAllValue>
             : item
         )
       : [];
+    console.log(allIds.length === selectedIds.length);
     return allIds.length === selectedIds.length;
   }
 
