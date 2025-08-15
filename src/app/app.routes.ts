@@ -17,6 +17,7 @@ import { LayoutComponent } from './shared/components/layout/layout.component';
 import { StudentMonitoringPollsComponent } from './features/student/student-monitoring-polls/student-monitoring-polls.component';
 import { StudentMonitoringCohortsComponent } from './features/student/student-monitoring-cohorts/student-monitoring-cohorts.component';
 import { StudentMonitoringDetailsComponent } from './features/student/student-monitoring-details/student-monitoring-details.component';
+import { referralsResolver } from './features/home/referrals/referrals.resolver';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -26,6 +27,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: HomeComponent },
+      {
+        path: 'home/referrals',
+        loadComponent: () =>
+          import('./features/home/referrals/referrals.component'),
+        resolve: { referrals: referralsResolver },
+      },
       {
         path: 'reports/summary-heatmap',
         component: SummaryHeatmapComponent,
