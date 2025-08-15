@@ -1,0 +1,14 @@
+<h1 class="page-title">Referrals</h1>
+
+@if (!referrals().length) {
+  <app-empty-data-message description="There are no referrals created yet.">
+  </app-empty-data-message>
+
+  <section class="referrals mrg-top-20">
+    <eras-button [textButton]="'Let\'s create a new one!'"></eras-button>
+  </section>
+} @else {
+  <section class="referrals">
+    <h2>TODO: Here should go the Referral's list grid.</h2>
+  </section>
+}

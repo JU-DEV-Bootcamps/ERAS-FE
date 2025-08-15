@@ -28,6 +28,18 @@
         [collapseSignal]="!collapsed()"
       ></app-menu-item>
       <app-menu-section
+        title="Supports and Referrals"
+        icon="groups"
+        [collapseSignal]="!collapsed()"
+      >
+        <app-menu-item
+          title="My referrals"
+          icon="group_add"
+          redirectUrl="supports-referrals"
+          [collapseSignal]="!collapsed()"
+        ></app-menu-item>
+      </app-menu-section>
+      <app-menu-section
         title="Reports"
         icon="pie_chart_outline"
         [collapseSignal]="!collapsed()"
