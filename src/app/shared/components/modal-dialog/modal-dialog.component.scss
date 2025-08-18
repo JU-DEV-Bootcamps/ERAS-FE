@@ -5,7 +5,7 @@ rmdc-dialog__surface {
   border: solid rgb(30, 255, 0) 1px;
 }
 mat-dialog-content {
-  padding: 12px !important;
+  padding: 0.75em !important;
   max-height: 80vh;
 }
 .modal {
@@ -24,7 +24,7 @@ mat-dialog-content {
     padding-top: 0;
 
     @media (min-width: 500px) {
-      padding: 24px;
+      padding: 1.5em;
     }
     .title {
       font-size: main-styles.get-font-size(headline, small);
@@ -40,17 +40,17 @@ mat-dialog-content {
       font-weight: 500;
       font-size: main-styles.get-font-size(title, medium);
       line-height: 20px;
-      margin: 16px;
+      margin: 1em;
       padding: 0;
 
       @media (min-width: 500px) {
         font-size: main-styles.get-font-size(title, large);
-        line-height: 28px;
+        line-height: 1.75em;
         margin: 0;
       }
     }
     .detailsContainer {
-      margin: 16px;
+      margin: 1em;
       .title {
         font-weight: semibold;
       }
@@ -69,7 +69,7 @@ mat-dialog-content {
 
       .subtitle {
         font-size: main-styles.get-font-size(title, medium);
-        margin: 16px;
+        margin: 1em;
         margin-bottom: 0px;
       }
       .error-subtitle {
@@ -95,7 +95,7 @@ mat-dialog-content {
         color: main-styles.get-color(neutral, 35);
         p {
           font-weight: 400;
-          margin: 4px;
+          margin: 0.25em;
           font-size: main-styles.get-font-size(label, medium);
           @media (min-width: 500px) {
             font-size: main-styles.get-font-size(title, small);
@@ -114,7 +114,7 @@ mat-dialog-content {
       .icon {
         height: auto;
         width: auto;
-        font-size: 75px;
+        font-size: 5em;
       }
 
       .success-icon {
@@ -152,7 +152,7 @@ mat-dialog-content {
     padding-top: 0;
     padding-bottom: 0;
     @media (min-width: 500px) {
-      margin: 16px;
+      margin: 1em;
     }
     button {
       flex-direction: column;
@@ -161,15 +161,15 @@ mat-dialog-content {
       background-color: main-styles.get-color(primary, 50);
       color: white;
       border: none;
-      border-radius: 100px;
+      border-radius: 6em;
       font-size: main-styles.get-font-size(body, large);
       font-weight: 500;
       line-height: 125%;
-      height: 40px;
-      width: 180px;
-      padding: 10px 16px;
+      height: 2.5em;
+      width: 11em;
+      padding: 0.66em 1em;
       @media (min-width: 500px) {
-        padding: 10px 16px;
+        padding: 0.66em 1em;
         width: 250px;
       }
     }
@@ -178,14 +178,14 @@ mat-dialog-content {
     display: flex;
     justify-content: space-around;
     .modalMainButton {
-      width: 100px;
+      width: 8em;
       background-color: main-styles.get-color(neutral, 70);
       &:hover {
         background-color: main-styles.get-color(neutral, 50);
       }
     }
     .modalDeleteButton {
-      width: 100px;
+      width: 8em;
       background-color: main-styles.get-color(error, 50);
       &:hover {
         background-color: main-styles.get-color(error, 30);
