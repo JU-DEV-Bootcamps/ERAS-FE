@@ -87,16 +87,79 @@ cp src/environments/environment.development.sample.ts src/environments/environme
 
 ## Install dependencies
 
-Use nodejs 22.12.0 (LTS) to install dependencies (`nvm use 22.12.0`)
+Use nodejs 22.12.0 (LTS) to install dependencies
 
 ```bash
 npm install
 ```
 
-# Run project
+# Development Environment Configuration
 
-## Development
+This section will help you properly configure the ERAS Frontend project for local development.
+
+## Configuration Files
+
+Development mode uses `src/environments/environment.development.ts`:
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost',           // Backend URL
+  keycloak: {
+    url: 'http://localhost:18080',      // Keycloak server URL
+    realm: 'ERAS',                      // Realm name in Keycloak
+    clientId: 'public-client'           // Client ID in Keycloak
+  },
+};
+```
+
+## Run Development Server
 
 ```bash
 npm run start:dev
 ```
+
+The application will run on **port 4200** (Angular's default port).
+
+
+## Initial System Setup
+
+After running the application, you need to configure the system with a service provider and configuration:
+
+### Step 1: Create Service Provider
+
+Go to Swagger UI at `http://localhost/swagger` and create a service provider:
+
+**POST** `/api/v1/service-providers`
+
+```json
+{
+  "serviceProviderName": "Cosmic Latte",
+  "serviceProviderLogo": "https://i.imgur.com/cDQU1M7.png"
+}
+```
+
+### Step 2: Create Configuration
+
+After creating the service provider, create a configuration:
+
+**POST** `/api/v1/configurations`
+
+```json
+{
+  "configurationName": "<Your choice>",
+  "baseURL": "https://staging.cosmic-latte.com/api/1.0/",
+  "encryptedKey": "[ask team member]",
+  "serviceProviderId": 1,
+  "userId": "<Your user ID>"
+}
+```
+
+> **Note**: The `serviceProviderId` should match the ID returned from Step 1, and `userId` should be your authenticated user ID.
+
+## Important Notes
+
+- **No .env file needed** - This project uses TypeScript files for configuration  
+- **Port 4200 is automatic** - Angular CLI handles it for you  
+
+
