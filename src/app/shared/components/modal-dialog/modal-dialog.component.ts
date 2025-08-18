@@ -1,4 +1,4 @@
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass, NgFor, TitleCasePipe } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -8,22 +8,9 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
+import { DialogData, DialogType } from './types/dialog';
+import { TYPE_ICON } from '../../../core/constants/messages';
 
-export interface DialogData {
-  title: string;
-  message: string;
-  isSuccess: boolean;
-  success: {
-    details: string;
-  };
-  error: {
-    title: string;
-    message: string;
-    showMessage: boolean;
-    details: string[];
-  };
-  deleteConfirmFunction?: () => void;
-}
 @Component({
   selector: 'app-modal',
   imports: [
@@ -33,6 +20,7 @@ export interface DialogData {
     MatIcon,
     NgFor,
     NgClass,
+    TitleCasePipe,
   ],
   templateUrl: './modal-dialog.component.html',
   styleUrl: './modal-dialog.component.scss',
@@ -43,15 +31,19 @@ export class ModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {}
 
-  delete() {
-    if (this.data.deleteConfirmFunction) {
-      this.data.deleteConfirmFunction();
+  doAction() {
+    if (this.data.action) {
+      this.data.action.action();
     } else {
-      console.warn('No delete confirm function provided');
+      console.warn('No action function provided');
     }
     this.dialogRef.close();
   }
   closeDialog(): void {
     this.dialogRef.close();
+  }
+
+  getTypeIcon(type: DialogType): string {
+    return TYPE_ICON[type] ?? '';
   }
 }

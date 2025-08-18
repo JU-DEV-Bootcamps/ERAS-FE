@@ -19,8 +19,13 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NewConfigurationModalComponent } from '../new-configuration-modal/new-configuration-modal.component';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
-import { GENERAL_MESSAGES } from '../../../core/constants/messages';
+import { TYPE_TITLE } from '../../../core/constants/messages';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  DialogData,
+  DialogType,
+} from '../../../shared/components/modal-dialog/types/dialog';
+import { MODAL_DEFAULT_CONF } from '../../../core/constants/modal';
 
 @Component({
   selector: 'app-configuration-card',
@@ -105,31 +110,26 @@ export class ConfigurationCardComponent implements OnInit {
   }
   openAlertDialog(
     descriptionMessage: string,
-    isSuccess: boolean,
+    type: DialogType,
     deleteConfirmFunction?: () => void
   ): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
-      width: '450px',
-      height: 'auto',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
+      ...MODAL_DEFAULT_CONF,
       data: {
-        isSuccess: isSuccess,
-        title: isSuccess
-          ? GENERAL_MESSAGES.SUCCESS_TITLE
-          : GENERAL_MESSAGES.ERROR_TITLE,
-        success: {
-          details: descriptionMessage,
-        },
-        error: {
-          title: GENERAL_MESSAGES.ERROR_TITLE,
+        type,
+        title: TYPE_TITLE[type],
+        data: {
+          title: TYPE_TITLE[type],
           details: [descriptionMessage],
           message: descriptionMessage,
         },
-        deleteConfirmFunction: deleteConfirmFunction,
-      },
+        action: {
+          label: 'Delete',
+          action: deleteConfirmFunction,
+        },
+      } as DialogData,
     });
   }
 
@@ -137,7 +137,7 @@ export class ConfigurationCardComponent implements OnInit {
     if (id) {
       this.openAlertDialog(
         `Are you sure you want to delete the configuration?`,
-        false,
+        'success',
         () => this.deleteConfiguration(id)
       );
     } else {

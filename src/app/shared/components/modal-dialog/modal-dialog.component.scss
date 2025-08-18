@@ -1,6 +1,6 @@
 @use './../../../../styles/utils/index.scss' as main-styles;
 
-.mdc-dialog__surface {
+rmdc-dialog__surface {
   border-radius: 0 !important;
   border: solid rgb(30, 255, 0) 1px;
 }
@@ -51,28 +51,49 @@ mat-dialog-content {
     }
     .detailsContainer {
       margin: 16px;
-      .error-style {
-        color: main-styles.get-color(error, 35);
+      .title {
         font-weight: semibold;
       }
-      .success-style {
-        color: main-styles.get-color(primary, 35);
-        font-weight: semibold;
+      .error-title {
+        color: main-styles.get-color(error, 40);
       }
+      .success-title {
+        color: main-styles.get-color(primary, 40);
+      }
+      .info-title {
+        color: main-styles.get-color(info, 40);
+      }
+      .warning-title {
+        color: main-styles.get-color(warning, 25);
+      }
+
       .subtitle {
-        color: main-styles.get-color(neutral, 20);
-        font-size: main-styles.get-font-size(label, large);
+        font-size: main-styles.get-font-size(title, medium);
         margin: 16px;
         margin-bottom: 0px;
       }
+      .error-subtitle {
+        color: main-styles.get-color(error, 35);
+      }
+      .success-subtitle {
+        color: main-styles.get-color(primary, 35);
+      }
+      .info-subtitle {
+        color: main-styles.get-color(info, 35);
+      }
+      .warning-subtitle {
+        color: main-styles.get-color(warning, 35);
+      }
+
       ul {
         padding: 0;
         margin-top: 0;
       }
+
       .details {
         list-style: none;
+        color: main-styles.get-color(neutral, 35);
         p {
-          color: main-styles.get-color(neutral, 20);
           font-weight: 400;
           margin: 4px;
           font-size: main-styles.get-font-size(label, medium);
@@ -81,21 +102,38 @@ mat-dialog-content {
           }
         }
       }
+      .error-details {
+      }
+      .success-details {
+      }
+      .info-details {
+      }
+      .warning-details {
+      }
+
+      .icon {
+        height: auto;
+        width: auto;
+        font-size: 75px;
+      }
+
       .success-icon {
         color: main-styles.get-color(primary, 40);
-        height: auto;
-        width: auto;
-        font-size: 75px;
       }
 
-      .failed-icon {
-        color: main-styles.get-color(error, 35);
-        height: auto;
-        width: auto;
-        font-size: 75px;
+      .error-icon {
+        color: main-styles.get-color(error, 40);
       }
 
-      .detailsSuccess {
+      .warning-icon {
+        color: main-styles.get-color(warning, 25);
+      }
+
+      .info-icon {
+        color: main-styles.get-color(info, 40);
+      }
+
+      .details-success {
         color: main-styles.get-color(neutral, 20);
         font-family: Roboto;
         font-size: main-styles.get-font-size(title, medium);
@@ -136,20 +174,20 @@ mat-dialog-content {
       }
     }
   }
-  .deleteContainer{
+  .deleteContainer {
     display: flex;
     justify-content: space-around;
-    .modalMainButton{
+    .modalMainButton {
       width: 100px;
       background-color: main-styles.get-color(neutral, 70);
-      &:hover{
+      &:hover {
         background-color: main-styles.get-color(neutral, 50);
       }
     }
-    .modalDeleteButton{
+    .modalDeleteButton {
       width: 100px;
       background-color: main-styles.get-color(error, 50);
-      &:hover{
+      &:hover {
         background-color: main-styles.get-color(error, 30);
       }
     }

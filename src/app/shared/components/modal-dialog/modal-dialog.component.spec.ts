@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ModalComponent } from './modal-dialog.component';
+import { DialogData, ModalComponent } from './modal-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -28,17 +28,13 @@ describe('ModalComponent', () => {
           useValue: {
             title: 'Test Title',
             message: 'Test Message',
-            isSuccess: true,
-            success: {
-              details: 'Test Success Details',
-            },
-            error: {
+            type: 'error',
+            data: {
               title: 'Error Title',
               message: 'Error Message',
-              showMessage: true,
               details: ['Error detail 1', 'Error detail 2'],
             },
-          },
+          } as DialogData,
         },
       ],
     }).compileComponents();

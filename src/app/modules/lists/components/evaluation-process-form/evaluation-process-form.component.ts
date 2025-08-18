@@ -35,6 +35,7 @@ import { ServiceProvidersService } from '../../../../core/services/api/service-p
 import { ServiceProviderModel } from '../../../../core/models/service-providers.model';
 import Keycloak from 'keycloak-js';
 import { noWhitespaceValidator } from '../../../../shared/validators/no-whitespace.validator';
+import { MODAL_DEFAULT_CONF } from '../../../../core/constants/modal';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -195,10 +196,7 @@ export class EvaluationProcessFormComponent implements OnInit {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
-      width: '450px',
-      height: 'auto',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
+      ...MODAL_DEFAULT_CONF,
       data: {
         isSuccess: isSuccess,
         title: isSuccess

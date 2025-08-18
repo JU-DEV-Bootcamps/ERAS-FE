@@ -24,6 +24,7 @@ import { ListComponent } from '../../../../shared/components/list/list.component
 import { EventAction, EventLoad } from '../../../../shared/events/load';
 import { RangeTimestampPipe } from '../../../../shared/pipes/range-timestamp.pipe';
 import { BadgeStatusComponent } from './badge-status/badge-status.component';
+import { MODAL_DEFAULT_CONF } from '../../../../core/constants/modal';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -245,10 +246,7 @@ export class EvaluationProcessListComponent implements OnInit {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
-      width: '450px',
-      height: 'auto',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
+      ...MODAL_DEFAULT_CONF,
       data: {
         isSuccess: isSuccess,
         title: isSuccess
