@@ -25,10 +25,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import {
-  GENERAL_MESSAGES,
-  IMPORT_MESSAGES,
-} from '../../core/constants/messages';
+import { IMPORT_MESSAGES, TYPE_TITLE } from '../../core/constants/messages';
 
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
@@ -40,6 +37,11 @@ import Keycloak from 'keycloak-js';
 import { ConfigurationsModel } from '../../core/models/configurations.model';
 import { ServiceProvidersService } from '../../core/services/api/service-providers.service';
 import { ServiceProviderModel } from '../../core/models/service-providers.model';
+import { MODAL_DEFAULT_CONF } from '../../core/constants/modal';
+import {
+  DialogData,
+  DialogType,
+} from '../../shared/components/modal-dialog/types/dialog';
 
 @Component({
   selector: 'app-import-answers',
@@ -128,30 +130,20 @@ export class ImportAnswersComponent implements OnInit {
 
   private openDialog(
     descriptionMessage: string,
-    isSuccess: boolean,
+    type: DialogType,
     extraMessage?: string
   ): void {
     const buttonElement = document.activeElement as HTMLElement;
+    const dialogData: DialogData = {
+      type,
+      title: TYPE_TITLE[type],
+      message: extraMessage,
+      details: [descriptionMessage],
+    };
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
-      width: '450px',
-      height: 'auto',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-      data: {
-        isSuccess: isSuccess,
-        title: isSuccess
-          ? GENERAL_MESSAGES.SUCCESS_TITLE
-          : GENERAL_MESSAGES.ERROR_TITLE,
-        success: {
-          details: descriptionMessage,
-        },
-        error: {
-          title: GENERAL_MESSAGES.ERROR_TITLE,
-          details: [descriptionMessage],
-          message: extraMessage,
-        },
-      },
+      ...MODAL_DEFAULT_CONF,
+      data: dialogData,
     });
   }
   onSubmit() {
@@ -178,16 +170,16 @@ export class ImportAnswersComponent implements OnInit {
           this.loadingSubject.next(false);
           this.resetForm();
           if (data.length < 1) {
-            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY, true);
+            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY, 'success');
           } else {
-            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_OK, true);
+            this.openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_OK, 'success');
           }
         },
         error: err => {
           this.loadingSubject.next(false);
           this.openDialog(
             IMPORT_MESSAGES.ANSWERS_ERROR,
-            false,
+            'error',
             err?.error?.message
           );
           this.resetForm();
@@ -202,10 +194,10 @@ export class ImportAnswersComponent implements OnInit {
       this.loadingSubject.next(false);
       this.importedPollData = [];
       this.resetForm();
-      this.openDialog('Polls saved successfully!', true);
+      this.openDialog('Polls saved successfully!', 'success');
     } else {
       this.loadingSubject.next(false);
-      this.openDialog('Error saving polls. Please try again.', false);
+      this.openDialog('Error saving polls. Please try again.', 'error');
     }
   }
   getPollDetails(configurationId: number) {
@@ -216,7 +208,7 @@ export class ImportAnswersComponent implements OnInit {
       },
       error: err => {
         this.loadingSubject.next(false);
-        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err.message);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, 'error', err.message);
         this.resetForm();
       },
     });
@@ -229,7 +221,7 @@ export class ImportAnswersComponent implements OnInit {
       },
       error: err => {
         this.loadingSubject.next(false);
-        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err.message);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, 'error', err.message);
         this.resetForm();
       },
     });
@@ -242,7 +234,7 @@ export class ImportAnswersComponent implements OnInit {
       },
       error: err => {
         this.loadingSubject.next(false);
-        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, false, err.message);
+        this.openDialog(IMPORT_MESSAGES.ANSWERS_ERROR, 'error', err.message);
         this.resetForm();
       },
     });

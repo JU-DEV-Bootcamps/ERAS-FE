@@ -4,39 +4,35 @@
   </span>
   <mat-dialog-content class="textContainer">
     <span class="detailsContainer">
-      @if (!data.isSuccess) {
-        <mat-icon class="failed-icon">error</mat-icon>
-        <p class="title" [ngClass]="'error-style'">
-          {{ data.title }}
-        </p>
-        <p class="subtitle" [ngClass]="'error-style'">
-          {{ data.error.message }}
-        </p>
-        <ul>
-          <li *ngFor="let detail of data.error.details" class="details">
-            <p>{{ detail }}</p>
-          </li>
-        </ul>
-      } @else {
-        <mat-icon class="success-icon">done</mat-icon>
-        <p class="title" [ngClass]="'success-style'">
-          {{ data.title }}
-        </p>
-        <p class="subtitle" [ngClass]="'success-style'"></p>
-        <p class="detailsSuccess">{{ data.success.details }}</p>
-      }
+      <mat-icon [class]="data.type + '-icon icon'">{{
+        getTypeIcon(data.type)
+      }}</mat-icon>
+      <p class="title" [ngClass]="data.type + '-title title'">
+        {{ data.title }}
+      </p>
+      <p class="subtitle" [ngClass]="data.type + '-subtitle subtitle'">
+        {{ data.message }}
+      </p>
+      <ul>
+        <li
+          *ngFor="let detail of data.details || []; details"
+          [class]="data.type + '-details details'"
+        >
+          <p>{{ detail }}</p>
+        </li>
+      </ul>
     </span>
   </mat-dialog-content>
   <mat-dialog-actions
     class="buttonContainer"
-    [ngClass]="{ deleteContainer: data.deleteConfirmFunction }"
+    [ngClass]="{ deleteContainer: data.action?.action }"
   >
-    @if (data.deleteConfirmFunction) {
+    @if (data.action) {
       <button class="modalMainButton" type="button" (click)="closeDialog()">
         Cancel
       </button>
-      <button class="modalDeleteButton" type="button" (click)="delete()">
-        Delete
+      <button class="modalDeleteButton" type="button" (click)="doAction()">
+        {{ data.action.label | titlecase }}
       </button>
     } @else {
       <button class="modalMainButton" (click)="closeDialog()">Ok</button>

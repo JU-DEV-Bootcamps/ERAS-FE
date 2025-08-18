@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogData } from './types/dialog';
 
 describe('ModalComponent', () => {
   let component: ModalComponent;
@@ -28,17 +29,9 @@ describe('ModalComponent', () => {
           useValue: {
             title: 'Test Title',
             message: 'Test Message',
-            isSuccess: true,
-            success: {
-              details: 'Test Success Details',
-            },
-            error: {
-              title: 'Error Title',
-              message: 'Error Message',
-              showMessage: true,
-              details: ['Error detail 1', 'Error detail 2'],
-            },
-          },
+            type: 'error',
+            details: ['Error detail 1', 'Error detail 2'],
+          } as DialogData,
         },
       ],
     }).compileComponents();

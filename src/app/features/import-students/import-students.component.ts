@@ -18,6 +18,7 @@ import {
 } from '../../core/services/interfaces/student.interface';
 import { CsvCheckerService } from '../../core/services/csv-checker.service';
 import { StudentService } from '../../core/services/api/student.service';
+import { MODAL_DEFAULT_CONF } from '../../core/constants/modal';
 
 @Component({
   selector: 'app-import-students',
@@ -54,10 +55,7 @@ export class ImportStudentsComponent {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
     this.dialog.open(ModalComponent, {
-      width: '450px',
-      height: 'auto',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
+      ...MODAL_DEFAULT_CONF,
       data: {
         isSuccess: isSuccess,
         title: isSuccess
