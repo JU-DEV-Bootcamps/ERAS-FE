@@ -68,9 +68,13 @@ export class DynamicHeatmapComponent {
     this.reportService
       .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
       .subscribe(data => {
-        this.generateSeries(data.body);
-        this.isGeneratingPDF = false;
-        this.isLoading = false;
+        if (data) {
+          this.generateSeries(data.body);
+          this.isGeneratingPDF = false;
+          this.isLoading = false;
+        } else {
+          this.chartsOptions = [];
+        }
       });
   }
 

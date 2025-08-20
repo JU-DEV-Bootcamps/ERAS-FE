@@ -2,8 +2,10 @@ import {
   AfterViewInit,
   Directive,
   inject,
-  input,
+  Input,
   OnDestroy,
+  SimpleChanges,
+  OnChanges,
 } from '@angular/core';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { Subscription } from 'rxjs';
@@ -15,17 +17,24 @@ type SelectAllValue = { id: number } | number | string;
   standalone: true,
 })
 export class SelectAllDirective<T extends SelectAllValue>
-  implements AfterViewInit, OnDestroy
+  implements AfterViewInit, OnDestroy, OnChanges
 {
-  allValues = input.required<T[]>();
+  @Input() allValues: T[] = [];
+  private _allValues: T[] = [];
 
   private _matSelect = inject(MatSelect);
   private _matOption = inject(MatOption);
 
   private _subscriptions: Subscription[] = [];
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['allValues']) {
+      this._allValues = changes['allValues'].currentValue || [];
+    }
+  }
   private getAllIds(): number[] | string[] {
-    const all = this.allValues();
+    const all = this._allValues;
+
     if (typeof all[0] === 'object' && all[0] !== null && 'id' in all[0]) {
       return (all as { id: number }[]).map(item => item.id);
     }
@@ -33,6 +42,7 @@ export class SelectAllDirective<T extends SelectAllValue>
   }
 
   private isAllSelected(selected: T[]): boolean {
+    selected = selected.filter(s => s);
     const allIds = this.getAllIds();
     const selectedIds = Array.isArray(selected)
       ? selected.map((item: T) =>

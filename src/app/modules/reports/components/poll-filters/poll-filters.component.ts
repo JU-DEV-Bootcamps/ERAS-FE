@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, inject, output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  inject,
+  output,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -36,6 +43,7 @@ export class PollFiltersComponent implements OnInit {
 
   pollsService = inject(PollService);
   cohortsService = inject(CohortService);
+  cdRef: ChangeDetectorRef = inject(ChangeDetectorRef);
   polls: PollModel[] | null = [];
   cohorts: CohortModel[] = [];
   componentNames: string[] = [];
@@ -110,6 +118,7 @@ export class PollFiltersComponent implements OnInit {
         this.filterForm.controls.variables.setValue(
           this.variables.map(v => v.pollVariableId)
         );
+        this.cdRef.detectChanges();
         this.sendFilters();
       });
   }
@@ -119,10 +128,14 @@ export class PollFiltersComponent implements OnInit {
     this.handleCohortSelect(false);
   }
 
-  handleUpdateComponents(isOpen: boolean) {
+  handleComponentsSelect(isOpen: boolean) {
     if (isOpen) return;
-    if (this.filterForm.value.selectedPoll?.uuid === null) return;
-    if (this.filterForm.value.componentNames!.length === 0) {
+    if (!this.filterForm.value.selectedPoll?.uuid) return;
+    if (!this.filterForm.value.cohortIds?.length) {
+      this.sendFilters();
+      return;
+    }
+    if (!this.filterForm.value.componentNames?.length) {
       this.variableGroups = [];
       this.resetField('variables');
       this.sendFilters();
@@ -133,7 +146,7 @@ export class PollFiltersComponent implements OnInit {
         this.variables.filter(v => v.componentName === c)
       ) || [];
     this.filterForm.controls.variables.setValue(
-      this.variableGroups.flat().map(v => v.id)
+      this.variableGroups.flat().map(v => v.pollVariableId)
     );
     this.sendFilters();
   }
@@ -143,7 +156,6 @@ export class PollFiltersComponent implements OnInit {
     if (!this.filterForm.value.variables?.length) {
       this.resetField('variables');
     }
-
     this.sendFilters();
   }
 
@@ -156,8 +168,9 @@ export class PollFiltersComponent implements OnInit {
     const title = `Poll: ${poll?.name} V${poll?.lastVersion} - Cohort(s): ${cohorts.map(cohortId => this.cohorts.find(c => c.id == cohortId)?.name)}`;
     const uuid = this.filterForm.value.selectedPoll?.uuid || '';
     const cohortIds = this.filterForm.value.cohortIds!;
-    const variableIds = this.filterForm.value.variables!;
+    const variableIds = this.filterForm.value.variables || [];
     const lastVersion = this.filterForm.value.lastVersion!;
+
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
   }
 
@@ -202,7 +215,11 @@ export class PollFiltersComponent implements OnInit {
     return variables?.length === this.variables.length
       ? 'Select all'
       : variables
-          ?.map(id => this.variables.find(v => v.id === id)?.name)
+          ?.map(id => this.variables.find(v => v.pollVariableId === id)?.name)
           ?.join(', ');
+  }
+
+  getAllVariableIds() {
+    return this.variables.map(variable => variable.pollVariableId);
   }
 }

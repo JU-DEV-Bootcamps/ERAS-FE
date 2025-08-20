@@ -20,6 +20,7 @@ import {
   DynamicReport,
   SummaryReport,
 } from '../../models/reports/reports-data.model';
+import { Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -65,7 +66,9 @@ export class ReportService extends BaseApiService {
     cohortIds: number[] | null,
     variableIds: number[],
     lastVersion: boolean
-  ) {
+  ): Observable<GetQueryResponse<PollCountReport> | null> {
+    if (!variableIds || !variableIds.length) return of(null);
+
     let params = new HttpParams().set(
       'variableIds',
       this.arrayAsStringParams(variableIds)
