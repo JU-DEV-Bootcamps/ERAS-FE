@@ -1,13 +1,4 @@
-import {
-  Component,
-  computed,
-  ElementRef,
-  HostListener,
-  inject,
-  signal,
-  ViewChild,
-  OnInit,
-} from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -61,18 +52,6 @@ export class LayoutComponent implements OnInit {
   sidenavWidth = computed(() =>
     this.collapsed() ? Sidenav.shrink : Sidenav.expand
   );
-
-  @ViewChild('sidenav', { read: ElementRef }) sidenavRef!: ElementRef;
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (
-      !this.collapsed() &&
-      this.sidenavRef &&
-      !this.sidenavRef.nativeElement.contains(event.target)
-    ) {
-      this.collapsed.set(!this.collapsed());
-    }
-  }
 
   ngOnInit() {
     this.breakpointObserver
