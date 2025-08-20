@@ -25,3 +25,18 @@ mat-card-actions {
 .row-info {
     margin-bottom: 0.25em;
 }
+.menu-button {
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+
+.mat-mdc-icon-button:hover {
+  background-color: #f5f5f5;
+}
+
+.wrapper-content {
+  display: flex;
+  align-items: anchor-center;
+}

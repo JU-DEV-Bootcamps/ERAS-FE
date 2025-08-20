@@ -1,5 +1,15 @@
 @if (item && actionData && actionData.label) {
-  <button mat-button color="primary" (click)="onButtonClick($event)">
-    <ng-content> Execute </ng-content>
-  </button>
+  @if (actionData.hasOwnProperty('text') && actionData.text) {
+    <button mat-menu-item (click)="onButtonClick($event)">
+      <ng-container *ngTemplateOutlet="loadContent"></ng-container>
+    </button>
+  } @else {
+    <button mat-button color="primary" (click)="onButtonClick($event)">
+      <ng-container *ngTemplateOutlet="loadContent"></ng-container>
+    </button>
+  }
 }
+
+<ng-template #loadContent>
+  <ng-content> Execute </ng-content>
+</ng-template>

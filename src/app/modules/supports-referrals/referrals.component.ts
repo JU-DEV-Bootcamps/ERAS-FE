@@ -1,4 +1,3 @@
-import { ActivatedRoute } from '@angular/router';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -6,14 +5,16 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
-import { Referral } from './referrals.interfaces';
+import { Referral } from './models/referrals.interfaces';
 import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
 import { ErasButtonComponent } from '../../shared/components/buttons/eras-button/eras-button.component';
+import { ReferralsGridComponent } from './components/referrals-grid/referrals-grid.component';
 
 @Component({
   selector: 'app-referrals',
-  imports: [EmptyDataComponent, ErasButtonComponent],
+  imports: [EmptyDataComponent, ErasButtonComponent, ReferralsGridComponent],
   templateUrl: './referrals.component.html',
   styleUrl: './referrals.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

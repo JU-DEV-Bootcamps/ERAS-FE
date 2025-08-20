@@ -1,4 +1,4 @@
-import { TitleCasePipe } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import {
   Component,
   HostListener,
@@ -7,15 +7,18 @@ import {
   Output,
   EventEmitter,
   TemplateRef,
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
+
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
-import { ActionButtonComponent } from '../action-button/action-button.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltip } from '@angular/material/tooltip';
+
 import {
   ActionData,
   ActionDatas,
@@ -23,8 +26,9 @@ import {
 } from '../list/types/action';
 import { EventAction } from '../../events/load';
 import { Column } from '../list/types/column';
-import { MatTooltip } from '@angular/material/tooltip';
 import { MapClass } from '../list/types/class';
+
+import { ActionButtonComponent } from '../action-button/action-button.component';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -40,9 +44,13 @@ import { MapClass } from '../list/types/class';
     MatProgressSpinnerModule,
     MatTableModule,
     MatTooltip,
+    MatMenu,
+    MatMenuTrigger,
+    MatMenuModule,
   ],
   templateUrl: './table-with-actions.component.html',
   styleUrls: ['./table-with-actions.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class TableWithActionsComponent<T extends object> implements OnInit {
   @Input() items: T[] = [];
@@ -137,5 +145,11 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
       !actionDataWC.isVisible || actionDataWC.isVisible(item);
 
     return isValidWithCondition;
+  }
+
+  hasTextAttribute() {
+    return this.actionDatas.some(
+      (actionData: ActionData) => 'text' in actionData
+    );
   }
 }
