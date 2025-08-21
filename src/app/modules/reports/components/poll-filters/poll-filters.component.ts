@@ -89,6 +89,7 @@ export class PollFiltersComponent implements OnInit {
           this.filterForm.controls.cohortIds.setValue(
             this.cohorts.map(cohort => cohort.id)
           );
+          this.componentNames = [];
           this.handleCohortSelect(false);
         });
     } else {
