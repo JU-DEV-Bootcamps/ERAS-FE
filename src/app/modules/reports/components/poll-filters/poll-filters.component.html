@@ -78,7 +78,7 @@
           required
           id="sl-components"
           multiple
-          (openedChange)="handleUpdateComponents($event)"
+          (openedChange)="handleComponentsSelect($event)"
           formControlName="componentNames"
         >
           <mat-select-trigger>
@@ -116,8 +116,8 @@
           <mat-select-trigger>
             {{ getVariablesDisplay() }}
           </mat-select-trigger>
-          @if (!!variableGroups.length) {
-            <mat-option appSelectAll [allValues]="variables"
+          @if (!!variables.length) {
+            <mat-option appSelectAll [allValues]="getAllVariableIds()"
               >Select all</mat-option
             >
           }
