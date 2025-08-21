@@ -3,6 +3,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+			"@styles/*": ["src/styles/*"],
+			"@shared/*": ["src/app/shared/*"],
+			"@core/*": ["src/app/core/*"],
+			"@modules/*": ["src/app/modules/*"],
+		},
     "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,
