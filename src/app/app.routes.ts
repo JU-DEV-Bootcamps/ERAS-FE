@@ -18,6 +18,7 @@ import { StudentMonitoringPollsComponent } from './features/student/student-moni
 import { StudentMonitoringCohortsComponent } from './features/student/student-monitoring-cohorts/student-monitoring-cohorts.component';
 import { StudentMonitoringDetailsComponent } from './features/student/student-monitoring-details/student-monitoring-details.component';
 import { referralsResolver } from './modules/supports-referrals/resolvers/referrals.resolver';
+import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/referrals-details.resolver';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -108,7 +109,17 @@ export const routes: Routes = [
               import('./modules/supports-referrals/referrals.component'),
             resolve: { referrals: referralsResolver },
           },
+          {
+            path: 'details/:id',
+            loadComponent: () =>
+              import(
+                './modules/supports-referrals/components/referral-detail/referral-detail.component'
+              ),
+            resolve: { referral: referralDetailsResolver },
+            data: { breadcrumb: 'Referral Details' },
+          },
         ],
+        data: { breadcrumb: 'Referrals' },
       },
       //Example to use guard with role
       {

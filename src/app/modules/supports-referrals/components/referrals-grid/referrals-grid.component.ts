@@ -1,25 +1,33 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  input,
+  output,
+} from '@angular/core';
 
 import {
   ActionDatas,
   ActionDataText,
-} from '../../../../shared/components/list/types/action';
-import { Column } from '../../../../shared/components/list/types/column';
-import { Referral } from '../../models/referrals.interfaces';
+} from '@shared/components/list/types/action';
+import { Column } from '@shared/components/list/types/column';
+import { EventAction } from '@shared/events/load';
+import { Referral } from '@modules/supports-referrals/models/referrals.interfaces';
 
-import { TimestampToDatePipe } from '../../../../shared/pipes/timestamp-to-date.pipe';
-import { ListComponent } from '../../../../shared/components/list/list.component';
-import { ErasButtonComponent } from '../../../../shared/components/buttons/eras-button/eras-button.component';
+import { TimestampToDatePipe } from '@shared/pipes/timestamp-to-date.pipe';
+
+import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
+import { ListComponent } from '@shared/components/list/list.component';
 
 @Component({
   selector: 'referrals-grid',
   imports: [ListComponent, ErasButtonComponent],
   templateUrl: './referrals-grid.component.html',
-  styleUrl: './referrals-grid.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ReferralsGridComponent {
   referrals = input<Referral[]>([]);
+  gridAction = output<EventAction>();
+
   transformPipe = new TimestampToDatePipe();
 
   columns: Column<Referral>[] = [
@@ -58,7 +66,7 @@ export class ReferralsGridComponent {
   actionDatas: ActionDatas<ActionDataText> = [
     {
       columnId: 'actions',
-      id: 'openStudentDetails',
+      id: 'deleteReferral',
       label: 'Actions',
       ngIconName: 'delete',
       tooltip: 'Delete referral',
@@ -66,7 +74,7 @@ export class ReferralsGridComponent {
     },
     {
       columnId: 'actions',
-      id: 'goImport',
+      id: 'editReferral',
       label: 'Actions',
       ngIconName: 'edit',
       tooltip: 'Edit referral',
@@ -74,11 +82,11 @@ export class ReferralsGridComponent {
     },
     {
       columnId: 'actions',
-      id: 'goImport',
+      id: 'openDetails',
       label: 'Actions',
       ngIconName: 'notes',
       tooltip: 'Open details',
-      text: 'Detail',
+      text: 'Details',
     },
   ];
 }
