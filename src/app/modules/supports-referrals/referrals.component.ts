@@ -5,11 +5,13 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
+import { EventAction } from '@shared/events/load';
 import { Referral } from './models/referrals.interfaces';
-import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
-import { ErasButtonComponent } from '../../shared/components/buttons/eras-button/eras-button.component';
+
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
+import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
 import { ReferralsGridComponent } from './components/referrals-grid/referrals-grid.component';
 
 @Component({
@@ -22,10 +24,23 @@ import { ReferralsGridComponent } from './components/referrals-grid/referrals-gr
 export default class ReferralsComponent implements OnInit {
   referrals = signal<Referral[]>([]);
   activatedRoute = inject(ActivatedRoute);
+  router = inject(Router);
 
   ngOnInit() {
     this.activatedRoute.data.subscribe(({ referrals }) =>
       this.referrals.set(referrals)
     );
+  }
+
+  handleGridAction(event: EventAction) {
+    const actions: Record<string, (referral: Referral) => void> = {
+      openDetails: (referral: Referral) => {
+        this.router.navigate(['/supports-referrals/details', referral.id]);
+      },
+    };
+
+    if (actions[event.data.id]) {
+      actions[event.data.id](event.item as Referral);
+    }
   }
 }

@@ -1,10 +1,25 @@
 import { Injectable } from '@angular/core';
+import { map, Observable, of } from 'rxjs';
 
-import { map, of } from 'rxjs';
 import { Referral } from '../models/referrals.interfaces';
-import { ApiResponse } from '../../../core/models/api-response.model';
-import { PagedResult } from '../../../core/services/interfaces/page.type';
-import { BaseApiService } from '../../../core/services/api/base-api.service';
+import { ApiResponse } from '@core/models/api-response.model';
+import { PagedResult } from '@core/services/interfaces/page.type';
+
+import { BaseApiService } from '@core/services/api/base-api.service';
+
+const referralsMock: Referral[] = [
+  {
+    id: 1,
+    date: '2025-07-17T16:01:06.351633Z',
+    submitter: 'Pablo',
+    service: 'Student Services',
+    professional: 'Master',
+    student: 'Jane doe',
+    comment:
+      'Se realizó evaluación inicial. Se programan 3 sesiones y seguimiento quincenal.',
+    status: 'created',
+  },
+];
 
 @Injectable({
   providedIn: 'root',
@@ -17,18 +32,7 @@ export class ReferralsService extends BaseApiService {
     return of<ApiResponse<PagedResult<Referral>>>({
       body: {
         count: 1,
-        items: [
-          {
-            id: 1,
-            date: '2025-07-17T16:01:06.351633Z',
-            submitter: 'Pablo',
-            service: 'Student Services',
-            professional: 'Master',
-            student: 'Jane doe',
-            comment: 'a Comment',
-            status: 'created',
-          },
-        ],
+        items: referralsMock,
       },
       success: true,
       message: 'Success',
@@ -38,5 +42,10 @@ export class ReferralsService extends BaseApiService {
         response => response.body.items || []
       )
     );
+  }
+
+  getReferralById(referralId: number): Observable<Referral> {
+    const referral = referralsMock.find(referral => referral.id === referralId);
+    return of(referral as Referral);
   }
 }

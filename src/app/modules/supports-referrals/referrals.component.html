@@ -8,7 +8,10 @@
     <eras-button [textButton]="'Let\'s create a new one!'"></eras-button>
   </section>
 } @else {
-  <section class="referrals">
-    <referrals-grid [referrals]="referrals()"></referrals-grid>
+  <section>
+    <referrals-grid
+      (gridAction)="handleGridAction($event)"
+      [referrals]="referrals()"
+    ></referrals-grid>
   </section>
 }
