@@ -1,10 +1,14 @@
-<nav>
-  <ng-container *ngFor="let breadcrumb of breadcrumbs; let last = last">
-    <ng-container *ngIf="!last">
-      <a [routerLink]="breadcrumb.url">{{ breadcrumb.label }}</a> &gt;
-    </ng-container>
-    <ng-container *ngIf="last">
-      {{ breadcrumb.label }}
-    </ng-container>
-  </ng-container>
+<nav class="breadcrumb">
+  @for (breadcrumb of breadcrumbs(); track $index; let last = $last) {
+    @if (!last) {
+      <a [routerLink]="breadcrumb.url" class="breadcrumb-link">
+        <span>{{ breadcrumb.label }}</span>
+      </a>
+      <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    } @else {
+      <span class="breadcrumb-active">
+        {{ breadcrumb.label }}
+      </span>
+    }
+  }
 </nav>
