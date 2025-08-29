@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BreadcrumbComponent } from './breadcrumb.component';
-import { BreadcrumbsService } from '../../../core/services/breadcrumbs.service';
 import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import { BreadcrumbComponent } from './breadcrumb.component';
 
 describe('BreadcrumbComponent', () => {
   let component: BreadcrumbComponent;
@@ -11,13 +9,7 @@ describe('BreadcrumbComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BreadcrumbComponent],
-      providers: [
-        BreadcrumbsService,
-        {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: of({}) } },
-        },
-      ],
+      providers: [{ provide: ActivatedRoute, useValue: {} }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BreadcrumbComponent);

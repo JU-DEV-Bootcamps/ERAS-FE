@@ -1,20 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { BreadcrumbsService } from '../../../core/services/breadcrumbs.service';
-import { NgFor, NgIf } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
+import { BreadcrumbsService } from '@core/services/breadcrumbs.service';
+import { Breadcrumb } from '@core/services/interfaces/breadcrumb.interface';
+
 @Component({
-  selector: 'app-breadcrumb',
-  imports: [NgFor, NgIf, RouterLink],
+  selector: 'eras-breadcrumb',
+  imports: [RouterLink, MatIconModule],
   templateUrl: './breadcrumb.component.html',
-  styleUrl: './breadcrumb.component.css',
+  styleUrl: './breadcrumb.component.scss',
 })
 export class BreadcrumbComponent implements OnInit {
-  breadcrumbs: { label: string; url: string }[] = [];
+  breadcrumbs = signal<Breadcrumb[]>([]);
+  breadcrumbService = inject(BreadcrumbsService);
 
-  constructor(private breadcrumbService: BreadcrumbsService) {}
-
-  ngOnInit(): void {
-    this.breadcrumbs = this.breadcrumbService.breadcrumbs;
+  ngOnInit() {
+    this.breadcrumbService.breadcrumbs.subscribe(breadcrumb => {
+      this.breadcrumbs.set(breadcrumb);
+    });
   }
 }

@@ -1,29 +1,40 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+
+import { BehaviorSubject, filter } from 'rxjs';
+import { Breadcrumb } from './interfaces/breadcrumb.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BreadcrumbsService {
-  breadcrumbs: { label: string; url: string }[] = [];
+  private breadcrumbs$ = new BehaviorSubject<Breadcrumb[]>([]);
+
+  get breadcrumbs() {
+    return this.breadcrumbs$.asObservable();
+  }
 
   constructor(
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private route: ActivatedRoute
   ) {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        this.breadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
+        const breadcrumbs = this.buildBreadCrumb(this.route.root);
+        this.breadcrumbs$.next(breadcrumbs);
       });
   }
 
-  private createBreadcrumbs(
+  initializer() {
+    this.breadcrumbs$.next(this.buildBreadCrumb(this.route.root));
+  }
+
+  private buildBreadCrumb(
     route: ActivatedRoute,
     url = '',
-    breadcrumbs: { label: string; url: string }[] = []
-  ): { label: string; url: string }[] {
+    breadcrumbs: Breadcrumb[] = []
+  ): Breadcrumb[] {
     const children: ActivatedRoute[] = route.children;
 
     if (children.length === 0) {
@@ -34,11 +45,17 @@ export class BreadcrumbsService {
       const routeURL: string = child.snapshot.url
         .map(segment => segment.path)
         .join('/');
-      if (routeURL !== '') {
+
+      if (routeURL) {
         url += `/${routeURL}`;
       }
-      breadcrumbs.push({ label: child.snapshot.data['breadcrumb'], url: url });
-      this.createBreadcrumbs(child, url, breadcrumbs);
+
+      const label = child.snapshot.data['breadcrumb'];
+      if (label) {
+        breadcrumbs.push({ label, url });
+      }
+
+      return this.buildBreadCrumb(child, url, breadcrumbs);
     }
 
     return breadcrumbs;

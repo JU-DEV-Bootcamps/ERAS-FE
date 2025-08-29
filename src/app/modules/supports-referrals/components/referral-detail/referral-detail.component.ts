@@ -18,17 +18,19 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Referral } from '@modules/supports-referrals/models/referrals.interfaces';
 
 import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
+import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
 
 @Component({
   imports: [
+    CommonModule,
     MatCard,
     MatCardModule,
     MatIconModule,
     MatChipsModule,
-    CommonModule,
     MatDivider,
-    ErasButtonComponent,
     MatIcon,
+    BreadcrumbComponent,
+    ErasButtonComponent,
   ],
   templateUrl: './referral-detail.component.html',
   styleUrl: './referral-detail.component.scss',
@@ -47,7 +49,7 @@ export default class ReferralDetailComponent {
 
   getStatusColor(status: string): string {
     const statusColor: Record<string, string> = {
-      created: '165,42,42', //brown
+      created: '128, 128, 0', //olive
       submitted: '0,0,255', //blue
       'on-hold': '255,255,0', //yellow
       'in-progress': '255,165,0', //orange
