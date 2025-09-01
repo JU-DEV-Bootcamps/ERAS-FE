@@ -98,6 +98,7 @@ export class ReportService extends BaseApiService {
                   `${ans.answerPercentage}% = ${this.addAnswerSeparator(ans.answerText)}: ${this.arrayAsStringParams(ans.studentsEmails)}`
               )
               .join('; </br>'),
+            position: question.position,
           };
         }),
       };
@@ -212,6 +213,7 @@ export class ReportService extends BaseApiService {
             x: '',
             y: -1,
             z: '',
+            position: undefined,
           }));
 
         newData.push(...items, ...fillers);

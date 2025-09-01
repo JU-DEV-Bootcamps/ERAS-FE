@@ -55,6 +55,7 @@ export interface PollAvgComponent {
 export interface BasePollQuestion {
   question: string;
   averageRisk: number;
+  position: number;
 }
 
 export interface PollAvgQuestion extends BasePollQuestion {
