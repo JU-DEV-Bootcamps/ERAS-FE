@@ -130,19 +130,21 @@ export class ReportService extends BaseApiService {
   }
 
   getHMSeriesFromCountComponent(component: PollCountComponent) {
-    const series = component.questions.map(question => {
-      return {
-        text: `${question.question}`,
-        description: `${question.question}`,
-        name: `${question.question}`,
-        data: question.answers.map(a => {
-          return {
-            x: Math.trunc(a.answerRisk),
-            y: a.answerRisk,
-          };
-        }),
-      };
-    });
+    const series = component.questions
+      .sort((q1, q2) => q2.position - q1.position)
+      .map(question => {
+        return {
+          text: `${question.question}`,
+          description: `${question.question}`,
+          name: `${question.question}`,
+          data: question.answers.map(a => {
+            return {
+              x: Math.trunc(a.answerRisk),
+              y: a.answerRisk,
+            };
+          }),
+        };
+      });
     return series;
   }
   getRiskCountPollReport(pollUuiD: string) {
