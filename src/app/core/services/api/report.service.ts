@@ -215,7 +215,6 @@ export class ReportService extends BaseApiService {
             x: '',
             y: -1,
             z: '',
-            position: undefined,
           }));
 
         newData.push(...items, ...fillers);
