@@ -9,9 +9,13 @@
   </section>
 } @else {
   <section>
-    <referrals-grid
+    <div align="end">
+      <eras-button [textButton]="'New'"></eras-button>
+    </div>
+    <app-referrals-grid
       (gridAction)="handleGridAction($event)"
+      (paginatorAction)="handlePaginatorAction($event)"
       [referrals]="referrals()"
-    ></referrals-grid>
+    ></app-referrals-grid>
   </section>
 }

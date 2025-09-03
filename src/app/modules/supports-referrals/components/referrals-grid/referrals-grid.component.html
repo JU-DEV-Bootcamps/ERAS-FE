@@ -1,9 +1,6 @@
-<section align="end">
-  <eras-button [textButton]="'New'"></eras-button>
-</section>
-
 <app-list
   (actionCalled)="gridAction.emit($event)"
+  (loadCalled)="paginatorAction.emit($event)"
   [columns]="columns"
   [items]="referrals()"
   [totalItems]="1"

@@ -6,6 +6,7 @@ import { ApiResponse } from '@core/models/api-response.model';
 import { PagedResult } from '@core/services/interfaces/page.type';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
+import { HttpParams } from '@angular/common/http';
 
 const referralsMock: Referral[] = [
   {
@@ -25,21 +26,13 @@ const referralsMock: Referral[] = [
   providedIn: 'root',
 })
 export class ReferralsService extends BaseApiService {
-  protected resource = 'referrals';
+  protected resource = 'remissions';
 
-  getReferrals() {
-    // TODO: Remove fake response and return the right call to referrals API.
-    return of<ApiResponse<PagedResult<Referral>>>({
-      body: {
-        count: 1,
-        items: referralsMock,
-      },
-      success: true,
-      message: 'Success',
-      validationErrors: [],
-    }).pipe(
+  getReferrals({ page = 0, pageSize = 10 }) {
+    const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
+    return this.get<ApiResponse<PagedResult<Referral>>>('', params).pipe(
       map<ApiResponse<PagedResult<Referral>>, Referral[]>(
-        response => response.body.items || []
+        response => response.body?.items || []
       )
     );
   }

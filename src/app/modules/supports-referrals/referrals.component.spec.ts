@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
+import { ReferralsService } from './services/referrals.service';
 import ReferralsComponent from './referrals.component';
 
 describe('ReferralsComponent', () => {
@@ -20,6 +21,7 @@ describe('ReferralsComponent', () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
+        { provide: ReferralsService, useValue: {} },
       ],
     }).compileComponents();
 

@@ -6,5 +6,5 @@ import { ReferralsService } from '../services/referrals.service';
 
 export const referralsResolver: ResolveFn<Referral[]> = () => {
   const referralService = inject(ReferralsService);
-  return referralService.getReferrals();
+  return referralService.getReferrals({ page: 0, pageSize: 10 });
 };

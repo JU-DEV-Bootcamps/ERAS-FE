@@ -10,23 +10,23 @@ import {
   ActionDataText,
 } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
-import { EventAction } from '@shared/events/load';
+import { EventAction, EventLoad } from '@shared/events/load';
 import { Referral } from '@modules/supports-referrals/models/referrals.interfaces';
 
 import { TimestampToDatePipe } from '@shared/pipes/timestamp-to-date.pipe';
 
-import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
 import { ListComponent } from '@shared/components/list/list.component';
 
 @Component({
-  selector: 'referrals-grid',
-  imports: [ListComponent, ErasButtonComponent],
+  selector: 'app-referrals-grid',
+  imports: [ListComponent],
   templateUrl: './referrals-grid.component.html',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ReferralsGridComponent {
   referrals = input<Referral[]>([]);
   gridAction = output<EventAction>();
+  paginatorAction = output<EventLoad>();
 
   transformPipe = new TimestampToDatePipe();
 
