@@ -43,6 +43,7 @@ import { MODAL_DEFAULT_CONF } from '../../../core/constants/modal';
 })
 export class ConfigurationCardComponent implements OnInit {
   @Input() configuration!: ConfigurationsModel;
+  @Input() configurations!: ConfigurationsModel[];
   @Input() serviceProviders: ServiceProviderModel[] = [];
   @Output() updateList = new EventEmitter<boolean>();
   isLoading = false;
@@ -81,7 +82,10 @@ export class ConfigurationCardComponent implements OnInit {
     const dialogRef = this.dialog.open(NewConfigurationModalComponent, {
       width: '400px',
       disableClose: true,
-      data: { existingConfiguration: configuration },
+      data: {
+        existingConfiguration: configuration,
+        configurations: this.configurations,
+      },
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
