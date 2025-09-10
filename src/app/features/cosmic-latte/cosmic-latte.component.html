@@ -29,6 +29,7 @@
     <app-configuration-card
       *ngFor="let configuration of configurations"
       [configuration]="configuration"
+      [configurations]="configurations"
       [serviceProviders]="serviceProviders"
       (updateList)="onConfigurationUpdate($event)"
     ></app-configuration-card>

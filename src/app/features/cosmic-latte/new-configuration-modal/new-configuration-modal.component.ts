@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ConfigurationsModel } from '../../../core/models/configurations.model';
 import { forbiddenCharsValidator } from '../../../shared/validators/forbiden-chars.validator';
 import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
+import { duplicatePropertyValidator } from '../../../shared/validators/duplicateProperty.validator';
 
 @Component({
   selector: 'app-new-configuration-modal',
@@ -49,7 +50,10 @@ export class NewConfigurationModalComponent implements OnInit {
     private serviceProvidersService: ServiceProvidersService,
     public dialogRef: MatDialogRef<NewConfigurationModalComponent>,
     @Inject(MAT_DIALOG_DATA)
-    public data: { existingConfiguration?: ConfigurationsModel }
+    public data: {
+      existingConfiguration?: ConfigurationsModel;
+      configurations?: ConfigurationsModel[];
+    }
   ) {}
 
   ngOnInit(): void {
@@ -58,7 +62,15 @@ export class NewConfigurationModalComponent implements OnInit {
     this.configurationForm = this.fb.group({
       configurationName: [
         '',
-        [Validators.required, forbiddenCharsValidator, noWhitespaceValidator],
+        [
+          Validators.required,
+          forbiddenCharsValidator,
+          noWhitespaceValidator,
+          duplicatePropertyValidator(
+            this.data?.configurations ?? [],
+            'configurationName'
+          ),
+        ],
       ],
       baseURL: ['', [Validators.required, noWhitespaceValidator]],
       apiKey: [

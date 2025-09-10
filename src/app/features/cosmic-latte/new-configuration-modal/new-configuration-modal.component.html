@@ -44,6 +44,14 @@
       >
         This field cannot contain only spaces.
       </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('duplicate') &&
+          configurationForm.get('configurationName')?.touched
+        "
+      >
+        Configuration name must be unique.
+      </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
