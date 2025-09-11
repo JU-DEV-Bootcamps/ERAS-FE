@@ -96,7 +96,7 @@ export class SummaryHeatmapComponent {
   constructor(private snackBar: MatSnackBar) {}
 
   getStudentsByCohortAndPoll(event: EventLoad) {
-    if (this.cohortIds && this.pollUuid) {
+    if (this.cohortIds.length && this.pollUuid) {
       this.isLoading = true;
       this.studentService
         .getAllAverageByCohortsAndPoll({
@@ -111,11 +111,17 @@ export class SummaryHeatmapComponent {
           this.totalStudents = response.count;
           this.isLoading = false;
         });
+    } else {
+      this.students = [];
+      this.totalStudents = 0;
     }
   }
 
   getHeatMap() {
-    if (!this.pollUuid) return;
+    if (!this.pollUuid || !this.cohortIds.length) {
+      this.chartOptions = {};
+      return;
+    }
 
     this.reportService
       .getAvgPoolReport(this.pollUuid, this.cohortIds, this.lastVersion)
