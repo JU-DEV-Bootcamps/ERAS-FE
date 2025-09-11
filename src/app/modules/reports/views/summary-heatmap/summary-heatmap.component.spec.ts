@@ -122,11 +122,12 @@ describe('SummaryHeatmapComponent', () => {
     reportServiceSpy.regroupSummaryByColor.and.returnValue(mockSeries);
 
     component.pollUuid = 'poll-uuid';
+    component.cohortIds = [1];
     component.getHeatMap();
 
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
       'poll-uuid',
-      [],
+      [1],
       true
     );
     expect(component.chartOptions).toBeDefined();
