@@ -53,6 +53,7 @@ export class NewConfigurationModalComponent implements OnInit {
     public data: {
       existingConfiguration?: ConfigurationsModel;
       configurations?: ConfigurationsModel[];
+      action: string;
     }
   ) {}
 
@@ -60,9 +61,8 @@ export class NewConfigurationModalComponent implements OnInit {
     this.existingConfiguration = this.data?.existingConfiguration;
 
     this.configurationForm = this.fb.group({
-      configurationName: [
-        '',
-        [
+      configurationName: this.fb.control('', {
+        validators: [
           Validators.required,
           forbiddenCharsValidator,
           noWhitespaceValidator,
@@ -71,7 +71,8 @@ export class NewConfigurationModalComponent implements OnInit {
             'configurationName'
           ),
         ],
-      ],
+        updateOn: 'blur',
+      }),
       baseURL: ['', [Validators.required, noWhitespaceValidator]],
       apiKey: [
         '',

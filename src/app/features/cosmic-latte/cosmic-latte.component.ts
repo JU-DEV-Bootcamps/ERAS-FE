@@ -48,7 +48,7 @@ export class CosmicLatteComponent implements OnInit {
     const dialogRef = this.dialog.open(NewConfigurationModalComponent, {
       width: '400px',
       disableClose: true,
-      data: { configurations: this.configurations },
+      data: { configurations: this.configurations, action: 'create' },
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
