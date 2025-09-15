@@ -163,7 +163,9 @@ export class SummaryHeatmapComponent {
     const question = reportComponent?.questions.find(
       question =>
         question.question === serieQuestion.x &&
-        question.averageRisk === serieQuestion.y
+        question.averageRisk === serieQuestion.y &&
+        (question.position === undefined ||
+          question.position === serieQuestion.position)
     );
 
     return question ?? null;

@@ -122,7 +122,9 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
       true
     ).subscribe(response => {
       const variable = response.find(
-        variable => variable.name == this.inputQuestion.question.question
+        variable =>
+          variable.name == this.inputQuestion.question.question &&
+          variable.position === this.inputQuestion.question.position
       );
       if (!variable) return;
       this.variableId = variable.id;

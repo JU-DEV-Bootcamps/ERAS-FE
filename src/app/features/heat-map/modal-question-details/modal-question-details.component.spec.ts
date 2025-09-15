@@ -31,6 +31,7 @@ describe('ModalQuestionDetailsComponent', () => {
     question: 'Test Question',
     averageRisk: 3,
     averageAnswer: 'Test Answer',
+    position: 1,
     answersDetails: [
       {
         answerText: 'Test answer',
