@@ -1,5 +1,4 @@
-@use '@angular/material' as mat;
-@use '../../../../../styles/utils' as ut;
+@use 'index.scss' as main-styles;
 
 mat-toolbar {
   height: auto;
@@ -9,16 +8,16 @@ mat-toolbar {
   display: flex;
   align-items: center;
   margin-left: auto;
-  margin-right: ut.get-size(margin, lg);
+  margin-right: main-styles.get-size(margin, lg);
 }
 
 .user-info button {
-  width: ut.get-size(icon-size, extra-large);
-  height: ut.get-size(icon-size, extra-large);
-  margin: ut.get-size(margin, xs);
+  width: main-styles.get-size(icon-size, extra-large);
+  height: main-styles.get-size(icon-size, extra-large);
+  margin: main-styles.get-size(margin, xs);
   border-radius: 50%;
   border: none;
-  background-color: ut.get-color('neutral', 100);
+  background-color: main-styles.get-color('neutral', 100);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +31,7 @@ mat-toolbar {
 .menu-button {
   background-color: transparent;
   border: none;
-  color: ut.get-color('primary', 30);
+  color: main-styles.get-color('primary', 30);
   display: flex;
   align-items: center;
   width: 100%;
