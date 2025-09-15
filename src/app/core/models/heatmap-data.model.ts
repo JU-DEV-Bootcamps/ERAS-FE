@@ -7,6 +7,7 @@ export interface SummarySerie {
   x: string;
   y: number;
   z: string;
+  position?: number;
 }
 
 export interface DynamicHeatMapData {
