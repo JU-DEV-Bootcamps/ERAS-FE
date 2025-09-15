@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
+import { ReferralsService } from './services/referrals.service';
 import ReferralsComponent from './referrals.component';
 
 describe('ReferralsComponent', () => {
@@ -9,7 +10,15 @@ describe('ReferralsComponent', () => {
   let fixture: ComponentFixture<ReferralsComponent>;
 
   const mockActivatedRoute = {
-    data: of({ referrals: [] }),
+    snapshot: {
+      data: {
+        referrals: { items: [], count: 0 },
+      },
+    },
+  };
+
+  const mockReferralsService = {
+    getReferralsPagination: () => of({ items: [], count: 0 }),
   };
 
   beforeEach(async () => {
@@ -20,6 +29,7 @@ describe('ReferralsComponent', () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
+        { provide: ReferralsService, useValue: mockReferralsService },
       ],
     }).compileComponents();
 

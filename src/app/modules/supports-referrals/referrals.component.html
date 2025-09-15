@@ -1,6 +1,6 @@
 <h1 class="page-title">Referrals</h1>
 
-@if (!referrals().length) {
+@if (!referrals()?.items.length) {
   <app-empty-data-message description="There are no referrals created yet.">
   </app-empty-data-message>
 
@@ -9,9 +9,14 @@
   </section>
 } @else {
   <section>
-    <referrals-grid
+    <div align="end">
+      <eras-button [textButton]="'New'"></eras-button>
+    </div>
+    <app-referrals-grid
       (gridAction)="handleGridAction($event)"
-      [referrals]="referrals()"
-    ></referrals-grid>
+      (paginatorAction)="handlePaginatorAction($event)"
+      [referrals]="referrals()?.items"
+      [totalReferrals]="referrals()?.count"
+    ></app-referrals-grid>
   </section>
 }

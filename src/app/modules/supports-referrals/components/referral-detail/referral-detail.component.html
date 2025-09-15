@@ -44,19 +44,19 @@
           <span class="label">Status</span>
           <mat-chip-set aria-label="Referral Status">
             <mat-chip [style.--status]="statusColor()">
-              <mat-icon *ngIf="referral()!.status === 'created'">
+              <mat-icon *ngIf="referral()!.status === 'Created'">
                 engineering
               </mat-icon>
-              <mat-icon *ngIf="referral()!.status === 'submitted'">
+              <mat-icon *ngIf="referral()!.status === 'Submitted'">
                 send
               </mat-icon>
-              <mat-icon *ngIf="referral()!.status === 'on-hold'">
-                pause
+              <mat-icon *ngIf="referral()!.status === 'On Hold'">
+                front_hand
               </mat-icon>
-              <mat-icon *ngIf="referral()!.status === 'in-progress'">
+              <mat-icon *ngIf="referral()!.status === 'In Progress'">
                 loop
               </mat-icon>
-              <mat-icon *ngIf="referral()!.status === 'completed'">
+              <mat-icon *ngIf="referral()!.status === 'Completed'">
                 check
               </mat-icon>
               {{ referral()!.status | titlecase }}
