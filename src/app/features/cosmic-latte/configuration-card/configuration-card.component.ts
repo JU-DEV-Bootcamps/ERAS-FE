@@ -84,7 +84,11 @@ export class ConfigurationCardComponent implements OnInit {
       disableClose: true,
       data: {
         existingConfiguration: configuration,
-        configurations: this.configurations,
+        configurations: this.configurations.filter(
+          config =>
+            config.configurationName !== this.configuration.configurationName
+        ),
+        action: 'edit',
       },
     });
     dialogRef.afterClosed().subscribe(result => {
