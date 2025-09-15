@@ -1,6 +1,6 @@
-@use '@angular/material' as mat;
-@use '../../../../../styles/utils' as ut;
-.icon-arrow mat-icon{
+@use 'index.scss' as main-styles;
+
+.icon-arrow mat-icon {
   background-color: transparent;
 }
 
@@ -8,11 +8,11 @@
   padding-left: 14px;
 }
 
-p{
+p {
   padding: 0;
   margin: 0;
 }
 
-.submenu{
-  background-color: ut.get-color(primary, 20);
+.submenu {
+  background-color: main-styles.get-color(primary, 20);
 }

@@ -1,20 +1,19 @@
-@use '@angular/material' as mat;
-@use '../../../../styles/utils' as ut;
+@use 'index.scss' as main-styles;
 
 .container {
   width: 100%;
   max-width: 1200px;
   box-sizing: border-box;
   height: 90%;
-  padding: ut.get-size(padding, xl);
+  padding: main-styles.get-size(padding, xl);
 }
 
 mat-sidenav-container {
   height: 100%;
 }
 mat-sidenav {
-  background-color: ut.get-color('primary', 25); //neutral 30
-  color: ut.get-color('neutral', 70);
+  background-color: main-styles.get-color('primary', 25); //neutral 30
+  color: main-styles.get-color('neutral', 70);
   width: 70px;
   height: 110%;
   border-radius: 0%;
@@ -28,7 +27,7 @@ mat-sidenav.sidenav-expanded {
   width: 250px;
 }
 .sidenav-expanded .menu-label {
-  color: ut.get-color('neutral', 70);
+  color: main-styles.get-color('neutral', 70);
 }
 .mat-drawer-inner-container {
   display: block;
@@ -47,7 +46,7 @@ mat-sidenav-content::-webkit-scrollbar,
 .app-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: ut.get-color('primary', 30);
+  color: main-styles.get-color('primary', 30);
 }
 mat-toolbar {
   display: flex;
@@ -64,17 +63,17 @@ button {
   cursor: pointer;
   width: 100%;
   height: 50px;
-  color: ut.get-color('neutral', 70);
+  color: main-styles.get-color('neutral', 70);
 }
 .menu-button.active,
 .menu-button:hover {
-  color: ut.get-color('neutral', 100);
-  background: ut.get-color('primary', 70);
+  color: main-styles.get-color('neutral', 100);
+  background: main-styles.get-color('primary', 70);
   transition:
     color 0.2s,
     background 0.2s;
   .menu-label {
-    color: ut.get-color('neutral', 100);
+    color: main-styles.get-color('neutral', 100);
   }
 }
 .menu-icon {
@@ -87,13 +86,13 @@ button {
 }
 .expand-button {
   width: auto;
-  color: ut.get-color('neutral', 50);
+  color: main-styles.get-color('neutral', 50);
   height: 50px;
 }
 .menu-label {
   position: absolute;
   left: 75px;
-  font-size: ut.get-font-size(title, medium);
+  font-size: main-styles.get-font-size(title, medium);
   font-weight: 500;
   white-space: nowrap;
 }

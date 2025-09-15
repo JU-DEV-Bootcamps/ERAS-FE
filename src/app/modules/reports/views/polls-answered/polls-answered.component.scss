@@ -1,4 +1,4 @@
-@use '../../../../../styles/utils/theme-colors' as theme-colors;
+@use 'index.scss' as main-styles;
 
 .form-container {
   display: flex;
@@ -30,7 +30,7 @@
   flex-grow: 1;
 }
 .button-extended {
-  background-color: theme-colors.get-color('primary', 70);
+  background-color: main-styles.get-color('primary', 70);
   color: #fff;
 }
 .card-container {
@@ -99,7 +99,7 @@
 mat-spinner {
   margin: 0 auto;
   display: block;
-  color: theme-colors.get-color('primary', 70);
+  color: main-styles.get-color('primary', 70);
   width: 50px;
   height: 50px;
 }

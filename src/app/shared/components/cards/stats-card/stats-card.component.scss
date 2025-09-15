@@ -1,5 +1,5 @@
+@use 'index.scss' as main-styles;
 @use '@angular/material' as mat;
-@use '../../../../../styles/utils' as ut;
 
 mat-card {
   align-items: center;
@@ -12,7 +12,7 @@ mat-card {
   @include mat.elevation(8);
 }
 mat-card:hover {
-  color: ut.get-color('primary', 40);
+  color: main-styles.get-color('primary', 40);
 }
 
 mat-card-content {
@@ -20,7 +20,7 @@ mat-card-content {
 }
 
 .icon {
-  color: ut.get-color('primary', 40);
+  color: main-styles.get-color('primary', 40);
   width: 60px;
   height: 60px;
   font-size: 60px;

@@ -1,38 +1,38 @@
-@use '../../../styles/utils/index.scss' as ut;
+@use 'index.scss' as main-styles;
 
 .login-container {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    max-height: 400px;
-    max-width: 400px;
-    margin: auto;
-    border: 1px solid ut.get-color('neutral', 95);
-    border-radius: 10%;
-    padding-top: 5%;
-  }
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-height: 400px;
+  max-width: 400px;
+  margin: auto;
+  border: 1px solid main-styles.get-color('neutral', 95);
+  border-radius: 10%;
+  padding-top: 5%;
+}
 
-  .app-title {
-    font-size: var(--mat-sys-display-large-size);
-    font-weight: 500;
-    color: ut.get-color('primary', 40);
-  }
+.app-title {
+  font-size: var(--mat-sys-display-large-size);
+  font-weight: 500;
+  color: main-styles.get-color('primary', 40);
+}
 
-  .login-icon {
-    margin:auto;
-    height: auto;
-    width: auto;
-    display: flex;
-    align-items: center;
-    border-radius: 20%;
-    font-size: 150px;
-    color: ut.get-color('primary', 40);
-    background-color: ut.get-color('neutral', 95);
-  }
+.login-icon {
+  margin: auto;
+  height: auto;
+  width: auto;
+  display: flex;
+  align-items: center;
+  border-radius: 20%;
+  font-size: 150px;
+  color: main-styles.get-color('primary', 40);
+  background-color: main-styles.get-color('neutral', 95);
+}
 
-  .login-button {
-    width:100%;
-    display: flex;
-    margin: 5%;
-    font-size: larger;
-  }
+.login-button {
+  width: 100%;
+  display: flex;
+  margin: 5%;
+  font-size: larger;
+}

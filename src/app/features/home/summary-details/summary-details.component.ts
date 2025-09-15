@@ -18,7 +18,7 @@ import { CountSummaryModel } from '../../../core/models/summary.model';
 import { StatsCardComponent } from '../../../shared/components/cards/stats-card/stats-card.component';
 
 @Component({
-  selector: 'summary-details',
+  selector: 'app-summary-details',
   imports: [
     MatIconModule,
     MatCardModule,
