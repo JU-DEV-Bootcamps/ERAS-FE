@@ -49,11 +49,11 @@ export default class ReferralDetailComponent {
 
   getStatusColor(status: string): string {
     const statusColor: Record<string, string> = {
-      created: '128, 128, 0', //olive
-      submitted: '0,0,255', //blue
-      'on-hold': '255,255,0', //yellow
-      'in-progress': '255,165,0', //orange
-      completed: '0,128,0', //green
+      Created: '128, 128, 0', //olive
+      Submitted: '0,0,255', //blue
+      'On Hold': '255,255,0', //yellow
+      'In Progress': '255,165,0', //orange
+      Completed: '0,128,0', //green
     };
     return statusColor[status];
   }
