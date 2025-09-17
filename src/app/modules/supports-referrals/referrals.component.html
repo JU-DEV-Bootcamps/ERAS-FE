@@ -5,12 +5,14 @@
   </app-empty-data-message>
 
   <section class="referrals mrg-top-20">
-    <eras-button [textButton]="'Let\'s create a new one!'"></eras-button>
+    <app-eras-button
+      [textButton]="'Let\'s create a new one!'"
+    ></app-eras-button>
   </section>
 } @else {
   <section>
     <div align="end">
-      <eras-button [textButton]="'New'"></eras-button>
+      <app-eras-button [textButton]="'New'"></app-eras-button>
     </div>
     <app-referrals-grid
       (gridAction)="handleGridAction($event)"
