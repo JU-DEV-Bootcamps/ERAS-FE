@@ -6,7 +6,7 @@ import { BreadcrumbsService } from '@core/services/breadcrumbs.service';
 import { Breadcrumb } from '@core/services/interfaces/breadcrumb.interface';
 
 @Component({
-  selector: 'eras-breadcrumb',
+  selector: 'app-breadcrumb',
   imports: [RouterLink, MatIconModule],
   templateUrl: './breadcrumb.component.html',
   styleUrl: './breadcrumb.component.scss',

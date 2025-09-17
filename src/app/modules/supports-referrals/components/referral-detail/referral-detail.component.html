@@ -1,12 +1,12 @@
 <div class="referral-details-page">
-  <eras-breadcrumb></eras-breadcrumb>
+  <app-breadcrumb></app-breadcrumb>
   <mat-card>
     <mat-card-header>
       <div mat-card-avatar class="avatar">
-        {{ (referral()!.submitter || 'N')[0] }}
+        {{ (referral()!.submitter || 'N')[0] | titlecase }}
       </div>
       <mat-card-title>
-        {{ referral()!.service || 'Service' }}
+        {{ referral()!.service || 'Service' | titlecase }}
       </mat-card-title>
       <mat-card-subtitle>Referral #{{ referral()!.id }}</mat-card-subtitle>
     </mat-card-header>
@@ -22,12 +22,12 @@
 
         <div class="field">
           <span class="label">Submitter</span>
-          <span class="value">{{ referral()!.submitter }}</span>
+          <span class="value">{{ referral()!.submitter | titlecase }}</span>
         </div>
 
         <div class="field">
           <span class="label">Service</span>
-          <span class="value">{{ referral()!.service }}</span>
+          <span class="value">{{ referral()!.service | titlecase }}</span>
         </div>
 
         <div class="field">
@@ -76,7 +76,7 @@
     <mat-divider></mat-divider>
 
     <mat-card-actions align="end" class="actions">
-      <eras-button [textButton]="'Create Intervention'"></eras-button>
+      <app-eras-button [textButton]="'Create Intervention'"></app-eras-button>
     </mat-card-actions>
   </mat-card>
 </div>

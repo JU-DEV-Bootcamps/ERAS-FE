@@ -3,47 +3,47 @@ import { CohortModel } from '@core/models/cohort.model';
 import { StudentDetailModel } from '@core/models/student-detail.model';
 
 export interface Referral {
-  id: number;
-  date: string;
-  submitter?: string;
-  service: string;
-  professional: string;
-  student: string;
   comment: string;
+  date: string;
+  id: number;
+  professional: string;
+  service: string;
   status: string;
+  student: string;
+  submitter?: string;
 }
 
 export interface RESTReferral {
-  id: number;
-  submitterUuid: string;
-  juService: JuService;
+  assignedProfessional: AssignedProfessional;
+  audit: AuditModel;
   comment: string;
   date: string;
+  id: number;
+  juService: JuService;
   status: number;
   studentIds: number[];
-  audit: AuditModel;
-  assignedProfessional: AssignedProfessional;
+  submitterUuid: string;
 }
 
 export interface JuService {
-  name: string;
   audit: AuditModel;
+  name: string;
 }
 
 export interface Student {
-  id: number;
-  uuid: string;
-  name: string;
-  email: string;
-  isImported: boolean;
-  studentDetail: StudentDetailModel;
-  cohort: CohortModel;
   audit: AuditModel;
+  cohort: CohortModel;
+  email: string;
+  id: number;
+  isImported: boolean;
+  name: string;
+  studentDetail: StudentDetailModel;
+  uuid: string;
 }
 
 export interface AssignedProfessional {
-  name: string;
-  uuid: string;
   audit: AuditModel;
   id: number;
+  name: string;
+  uuid: string;
 }

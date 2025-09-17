@@ -9,7 +9,7 @@ describe('ReferralDetailComponent', () => {
   let fixture: ComponentFixture<ReferralDetailComponent>;
 
   const mockActivatedRoute = {
-    data: of({ referral: [] }),
+    data: of({ referral: [{}] }),
   };
 
   beforeEach(async () => {
