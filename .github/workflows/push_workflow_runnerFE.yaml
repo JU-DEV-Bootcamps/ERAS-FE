@@ -1,4 +1,4 @@
-name: Push_main workflow
+name: Push_main workflow on runnerFE
 
 on:
   push:
@@ -9,6 +9,9 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
+      - name: Set CHROME_BIN
+        run: echo "CHROME_BIN=/home/ubuntu/actions-runner-erasFE/_work/_tool/setup-chrome/chromium/1517494/x64/chrome" >> $GITHUB_ENV
+
       - name: Checkout code
         uses: actions/checkout@v2
 
