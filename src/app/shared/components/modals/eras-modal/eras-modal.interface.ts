@@ -6,6 +6,7 @@ export interface ErasModalData<T extends InnerComponent = InnerComponent> {
   form?: FormGroup;
   actions?: ErasModalAction[];
   closeButton?: boolean;
+  title?: string;
 }
 
 export interface ErasModalAction {

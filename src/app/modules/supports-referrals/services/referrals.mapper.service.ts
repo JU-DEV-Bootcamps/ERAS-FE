@@ -2,11 +2,13 @@ import { inject, Injectable } from '@angular/core';
 
 import { forkJoin, map, Observable, of } from 'rxjs';
 
-import { Profile } from '@core/models/profile.model';
-import { StudentResponse } from '@core/models/student-request.model';
-import { StudentService } from '@core/services/api/student.service';
 import { PagedResult } from '@core/services/interfaces/page.type';
+import { Profile } from '@core/models/profile.model';
 import { Referral, RESTReferral } from '../models/referrals.interfaces';
+import { StudentResponse } from '@core/models/student-request.model';
+
+import { idGenerator } from '@core/utilities/helpers/id-generator';
+import { StudentService } from '@core/services/api/student.service';
 
 enum StatusCode {
   'Created',
@@ -47,7 +49,29 @@ export class ReferralsMapperService {
     return this._getStudents(referral, profile);
   }
 
-  _getStudents(referral: RESTReferral, profile: Profile): Observable<Referral> {
+  mapPostReferral(referral: Referral) {
+    return {
+      assignedProfessionalId: referral.professional,
+      audit: {
+        createdBy: '',
+        modifiedBy: '',
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+      },
+      comment: referral.comment,
+      date: referral.date,
+      id: idGenerator(),
+      juServiceId: referral.service,
+      status: 0,
+      studentIds: referral.student,
+      submitterUuid: referral.submitter,
+    };
+  }
+
+  private _getStudents(
+    referral: RESTReferral,
+    profile: Profile
+  ): Observable<Referral> {
     const studentRequests = referral.studentIds.map((studentId: number) =>
       this.studentService.getStudentDetailsById(studentId, {
         page: 0,
@@ -69,7 +93,7 @@ export class ReferralsMapperService {
     );
   }
 
-  _getStudentsNames(students: StudentResponse[]): string {
+  private _getStudentsNames(students: StudentResponse[]): string {
     return students
       .map((student: StudentResponse) => student.entity.name)
       .join(', ');

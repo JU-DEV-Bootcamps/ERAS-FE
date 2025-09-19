@@ -28,7 +28,7 @@ export class StudentService extends BaseApiService {
   }
 
   getAllStudents() {
-    return this.get<StudentModel[]>('');
+    return this.get<PagedResult<StudentModel[]>>('');
   }
 
   getAllAverageByCohortsAndPoll({
