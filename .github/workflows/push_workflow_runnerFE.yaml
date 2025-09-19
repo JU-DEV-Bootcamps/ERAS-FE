@@ -9,9 +9,6 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
-      - name: Set CHROME_BIN
-        run: echo "CHROME_BIN=/home/ubuntu/actions-runner-erasFE/_work/_tool/setup-chrome/chromium/1517494/x64/chrome" >> $GITHUB_ENV
-
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -22,12 +19,19 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
+      
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v2
+        id: setup-chrome
         with:
-          chrome-version: 'latest'
+          chrome-version: latest
+          install-dependencies: false
+          install-chromedriver: false
+          no-sudo: true
 
+      - name: Set CHROME_BIN
+        run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+      
       - name: Run tests
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
