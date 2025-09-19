@@ -59,7 +59,7 @@ export class ReferralsMapperService {
         modifiedAt: new Date(),
       },
       comment: referral.comment,
-      date: referral.date,
+      date: new Date(),
       id: idGenerator(),
       juServiceId: referral.service,
       status: 0,
