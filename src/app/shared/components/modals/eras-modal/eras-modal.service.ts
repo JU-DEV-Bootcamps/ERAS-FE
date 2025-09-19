@@ -1,20 +1,30 @@
-import { Injectable, Type } from '@angular/core';
+import { inject, Injectable, Type } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ErasModalAction } from './eras-modal.interface';
 import { ErasModalComponent } from './eras-modal.component';
 
-@Injectable({ providedIn: 'root' })
-export class ErasModalService<T> {
-  constructor(private dialog: MatDialog) {}
+interface ErasModalConfig<P, T> {
+  component: Type<T>;
+  data?: P;
+  actions?: ErasModalAction[];
+  title?: string;
+  closeButton?: boolean;
+}
 
-  openComponent(
-    component: Type<T>,
-    actions: ErasModalAction[] = [],
-    closeButton = true
-  ) {
+@Injectable({ providedIn: 'root' })
+export class ErasModalService {
+  dialog = inject(MatDialog);
+
+  openComponent<P, T>(config: ErasModalConfig<P, T>) {
     return this.dialog.open(ErasModalComponent, {
-      data: { component, actions, closeButton },
+      data: {
+        component: config.component,
+        data: config.data,
+        actions: config.actions ?? [],
+        closeButton: config.closeButton ?? true,
+        title: config.title ?? 'Eras Modal',
+      },
       panelClass: 'eras-modal-component',
     });
   }

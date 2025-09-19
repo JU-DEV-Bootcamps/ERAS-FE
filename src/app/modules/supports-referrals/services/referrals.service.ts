@@ -4,7 +4,11 @@ import { inject, Injectable } from '@angular/core';
 import { forkJoin, Observable, switchMap } from 'rxjs';
 import Keycloak from 'keycloak-js';
 
-import { Referral, RESTReferral } from '../models/referrals.interfaces';
+import {
+  Referral,
+  ReferralResponse,
+  RESTReferral,
+} from '../models/referrals.interfaces';
 import { PagedResult } from '@core/services/interfaces/page.type';
 import { Pagination } from '@core/services/interfaces/server.type';
 
@@ -48,5 +52,9 @@ export class ReferralsService extends BaseApiService {
         this.referralsMapperService.mapReferral(referral, profile)
       )
     );
+  }
+
+  postReferral(referral: Referral): Observable<ReferralResponse> {
+    return this.post('', this.referralsMapperService.mapPostReferral(referral));
   }
 }

@@ -6,13 +6,15 @@
 
 .modal-header {
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  font-weight: main-styles.get-font-weight(semi-bold);
 }
 
 .modal-header button.close {
   display: flex;
-  justify-content: end;
-
   background-color: transparent;
   border: none;
   cursor: pointer;

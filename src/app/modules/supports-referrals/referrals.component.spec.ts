@@ -12,7 +12,9 @@ describe('ReferralsComponent', () => {
   const mockActivatedRoute = {
     snapshot: {
       data: {
-        referrals: { items: [], count: 0 },
+        referrals: {
+          referrals: { items: [], count: 0 },
+        },
       },
     },
   };
