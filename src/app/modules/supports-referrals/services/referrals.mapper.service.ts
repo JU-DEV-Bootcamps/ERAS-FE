@@ -32,9 +32,9 @@ export class ReferralsMapperService {
         profile: {},
       });
     }
-    const referralRequests = referrals.items.map((referral: RESTReferral) =>
-      this._getStudents(referral, profile)
-    );
+    const referralRequests = referrals.items
+      .filter((referral: RESTReferral) => referral.submitterUuid === profile.id)
+      .map((referral: RESTReferral) => this._getStudents(referral, profile));
 
     return forkJoin(referralRequests).pipe(
       map(referralsPopulated => ({
