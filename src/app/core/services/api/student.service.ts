@@ -28,7 +28,7 @@ export class StudentService extends BaseApiService {
   }
 
   getAllStudents() {
-    const params = new HttpParams().set('PageSize', 0).set('Page', 9999);
+    const params = new HttpParams().set('PageSize', 9999).set('Page', 0);
     return this.get<PagedResult<StudentModel[]>>('', params);
   }
 
