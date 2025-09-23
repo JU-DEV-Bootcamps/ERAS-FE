@@ -1,4 +1,4 @@
-import { ServiceProvidersService } from './../../../core/services/api/service-providers.service';
+import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -15,11 +15,11 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ServiceProviderModel } from '../../../core/models/service-providers.model';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
 import { CommonModule } from '@angular/common';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { ConfigurationsModel } from '../../../core/models/configurations.model';
+import { ConfigurationsModel } from '@core/models/configurations.model';
 import { forbiddenCharsValidator } from '../../../shared/validators/forbiden-chars.validator';
 import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
 import { duplicatePropertyValidator } from '../../../shared/validators/duplicateProperty.validator';

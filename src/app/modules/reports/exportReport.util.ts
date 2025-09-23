@@ -1,6 +1,6 @@
 import { ElementRef, inject, Injectable } from '@angular/core';
-import { generateFileName } from '../../core/utilities/file/file-name';
-import { PdfService } from '../../core/services/exports/pdf.service';
+import { generateFileName } from '@core/utilities/file/file-name';
+import { PdfService } from '@core/services/exports/pdf.service';
 import { ExportArgs } from './views/summary-heatmap/types/export';
 import {
   DEFAULT_VALUES,

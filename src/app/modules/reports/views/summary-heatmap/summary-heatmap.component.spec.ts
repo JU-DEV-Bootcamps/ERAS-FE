@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SummaryHeatmapComponent } from './summary-heatmap.component';
-import { StudentService } from '../../../../core/services/api/student.service';
-import { ReportService } from '../../../../core/services/api/report.service';
-import { PdfService } from '../../../../core/services/exports/pdf.service';
+import { StudentService } from '@core/services/api/student.service';
+import { ReportService } from '@core/services/api/report.service';
+import { PdfService } from '@core/services/exports/pdf.service';
 import { MatDialog } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { NO_ERRORS_SCHEMA, ElementRef } from '@angular/core';
@@ -10,17 +10,17 @@ import {
   GetQueryResponse,
   PollAvgQuestion,
   PollAvgReport,
-} from '../../../../core/models/summary.model';
-import { CohortModel } from '../../../../core/models/cohort.model';
-import { SummarySerie } from '../../../../core/models/heatmap-data.model';
+} from '@core/models/summary.model';
+import { CohortModel } from '@core/models/cohort.model';
+import { SummarySerie } from '@core/models/heatmap-data.model';
 import { Filter } from '../../components/poll-filters/types/filters';
-import { StudentRiskAverage } from '../../../../core/services/interfaces/student.interface';
+import { StudentRiskAverage } from '@core/services/interfaces/student.interface';
 import { ListComponent } from '../../../../shared/components/list/list.component';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PdfHelper } from '../../exportReport.util';
-import { PagedResult } from '../../../../core/services/interfaces/page.type';
+import { PagedResult } from '@core/services/interfaces/page.type';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
 describe('SummaryHeatmapComponent', () => {

@@ -1,4 +1,4 @@
-import { EvaluationModel } from '../../../core/models/evaluation.model';
+import { EvaluationModel } from '@core/models/evaluation.model';
 
 export const getStatusForEvaluationProcess = (evaluation: EvaluationModel) => {
   if (

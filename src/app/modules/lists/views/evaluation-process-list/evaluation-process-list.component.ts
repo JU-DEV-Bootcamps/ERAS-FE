@@ -9,14 +9,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { GENERAL_MESSAGES } from '../../../../core/constants/messages';
-import { PagedReadEvaluationProcess } from '../../../../core/models/evaluation-request.model';
-import { EvaluationModel } from '../../../../core/models/evaluation.model';
+import { GENERAL_MESSAGES } from '@core/constants/messages';
+import { PagedReadEvaluationProcess } from '@core/models/evaluation-request.model';
+import { EvaluationModel } from '@core/models/evaluation.model';
 import { ModalComponent } from '../../../../shared/components/modal-dialog/modal-dialog.component';
 import { EvaluationProcessFormComponent } from '../../components/evaluation-process-form/evaluation-process-form.component';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
-import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
-import { Status } from '../../../../core/constants/common';
+import { EvaluationsService } from '@core/services/api/evaluations.service';
+import { Status } from '@core/constants/common';
 import { getStatusForEvaluationProcess } from '../../utils/evaluations.util';
 import { Column } from '../../../../shared/components/list/types/column';
 import { ActionDatas } from '../../../../shared/components/list/types/action';
@@ -24,7 +24,7 @@ import { ListComponent } from '../../../../shared/components/list/list.component
 import { EventAction, EventLoad } from '../../../../shared/events/load';
 import { RangeTimestampPipe } from '../../../../shared/pipes/range-timestamp.pipe';
 import { BadgeStatusComponent } from './badge-status/badge-status.component';
-import { MODAL_DEFAULT_CONF } from '../../../../core/constants/modal';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({
   selector: 'app-evaluation-process-list',

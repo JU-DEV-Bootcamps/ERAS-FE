@@ -12,8 +12,8 @@ import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../heat-map/modal-question-details/modal-question-details.component';
-import { PollAvgQuestion } from '../../../core/models/summary.model';
-import { ReportService } from '../../../core/services/api/report.service';
+import { PollAvgQuestion } from '@core/models/summary.model';
+import { ReportService } from '@core/services/api/report.service';
 import { ComponentValueType } from '../../heat-map/types/risk-students-detail.type';
 
 @Component({

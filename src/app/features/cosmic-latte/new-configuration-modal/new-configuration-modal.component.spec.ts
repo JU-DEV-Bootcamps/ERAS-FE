@@ -3,8 +3,8 @@ import { NewConfigurationModalComponent } from './new-configuration-modal.compon
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
-import { ServiceProvidersService } from '../../../core/services/api/service-providers.service';
-import { ConfigurationsModel } from '../../../core/models/configurations.model';
+import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+import { ConfigurationsModel } from '@core/models/configurations.model';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 

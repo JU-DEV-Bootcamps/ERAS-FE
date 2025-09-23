@@ -7,9 +7,9 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
-import { PollAvgQuestion } from '../../../core/models/summary.model';
-import { ReportService } from '../../../core/services/api/report.service';
-import { PollService } from '../../../core/services/api/poll.service';
+import { PollAvgQuestion } from '@core/models/summary.model';
+import { ReportService } from '@core/services/api/report.service';
+import { PollService } from '@core/services/api/poll.service';
 import { ActivatedRoute } from '@angular/router';
 import { ComponentValueType } from '../types/risk-students-detail.type';
 

@@ -1,6 +1,6 @@
 import { Component, input, OnInit } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { RISK_COLORS, RISK_LABELS } from '../../../../core/constants/riskLevel';
+import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 import { ChartBase } from '../abstract-chart';
 
 @Component({

@@ -7,17 +7,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { BarChartComponent } from '../charts/bar-chart/bar-chart.component';
 import { PieChartComponent } from '../charts/pie-chart/pie-chart.component';
-import { ReportService } from '../../../core/services/api/report.service';
-import {
-  CohortsSummaryModel,
-  PollTopReport,
-} from '../../../core/models/summary.model';
-import { CohortService } from '../../../core/services/api/cohort.service';
+import { ReportService } from '@core/services/api/report.service';
+import { CohortsSummaryModel, PollTopReport } from '@core/models/summary.model';
+import { CohortService } from '@core/services/api/cohort.service';
 import { ListComponent } from '../list/list.component';
 import { BadgeRiskComponent } from '../badge-risk-level/badge-risk-level.component';
 import { Column } from '../list/types/column';
 import { EventLoad } from '../../events/load';
-import { Pagination } from '../../../core/services/interfaces/server.type';
+import { Pagination } from '@core/services/interfaces/server.type';
 
 interface StudentSummary {
   studentUuid: string;

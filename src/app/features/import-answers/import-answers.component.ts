@@ -25,19 +25,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { IMPORT_MESSAGES, TYPE_TITLE } from '../../core/constants/messages';
+import { IMPORT_MESSAGES, TYPE_TITLE } from '@core/constants/messages';
 
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
-import { PollName } from '../../core/models/poll-request.model';
-import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
-import { PollInstance } from '../../core/models/poll-instance.model';
-import { ConfigurationsService } from '../../core/services/api/configurations.service';
+import { PollName } from '@core/models/poll-request.model';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { PollInstance } from '@core/models/poll-instance.model';
+import { ConfigurationsService } from '@core/services/api/configurations.service';
 import Keycloak from 'keycloak-js';
-import { ConfigurationsModel } from '../../core/models/configurations.model';
-import { ServiceProvidersService } from '../../core/services/api/service-providers.service';
-import { ServiceProviderModel } from '../../core/models/service-providers.model';
-import { MODAL_DEFAULT_CONF } from '../../core/constants/modal';
+import { ConfigurationsModel } from '@core/models/configurations.model';
+import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 import {
   DialogData,
   DialogType,

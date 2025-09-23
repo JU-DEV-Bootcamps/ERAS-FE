@@ -8,12 +8,12 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
-import { ConfigurationsService } from '../../core/services/api/configurations.service';
-import { ServiceProvidersService } from '../../core/services/api/service-providers.service';
-import { AuditModel } from '../../core/models/common/audit.model';
-import { PollInstance } from '../../core/models/poll-instance.model';
-import { ConfigurationsModel } from '../../core/models/configurations.model';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ConfigurationsService } from '@core/services/api/configurations.service';
+import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+import { AuditModel } from '@core/models/common/audit.model';
+import { PollInstance } from '@core/models/poll-instance.model';
+import { ConfigurationsModel } from '@core/models/configurations.model';
 
 describe('ImportAnswersComponent', () => {
   let component: ImportAnswersComponent;

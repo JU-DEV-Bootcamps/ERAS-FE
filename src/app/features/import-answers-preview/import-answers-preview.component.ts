@@ -25,15 +25,15 @@ import {
   MatSlideToggle,
   MatSlideToggleChange,
 } from '@angular/material/slide-toggle';
-import { PollService } from '../../core/services/api/poll.service';
-import { CosmicLatteService } from '../../core/services/api/cosmic-latte.service';
-import { PollInstance } from '../../core/models/poll-instance.model';
+import { PollService } from '@core/services/api/poll.service';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { PollInstance } from '@core/models/poll-instance.model';
 import { PollPreview, StudentPreview } from '../interfaces/preview';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   isFieldEmailValid,
   isFieldNameValid,
-} from '../../core/utilities/validators/fields.util';
+} from '@core/utilities/validators/fields.util';
 
 @Component({
   selector: 'app-import-answers-preview',

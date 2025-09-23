@@ -21,11 +21,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { debounceTime, filter, tap } from 'rxjs';
-import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
-import { CohortModel } from '../../../core/models/cohort.model';
+import { RISK_COLORS, RiskColorType } from '@core/constants/riskLevel';
+import { CohortModel } from '@core/models/cohort.model';
 import { RiskStudentDetailType } from '../types/risk-students-detail.type';
-import { HeatMapService } from '../../../core/services/api/heat-map.service';
-import { CohortService } from '../../../core/services/api/cohort.service';
+import { HeatMapService } from '@core/services/api/heat-map.service';
+import { CohortService } from '@core/services/api/cohort.service';
 
 @Component({
   selector: 'app-modal-risk-students-cohort',

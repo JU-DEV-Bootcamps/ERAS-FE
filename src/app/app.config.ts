@@ -6,7 +6,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { keycloakHttpInterceptor } from './core/utilities/keycloak-interceptor';
+import { keycloakHttpInterceptor } from '@core/utilities/keycloak-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [

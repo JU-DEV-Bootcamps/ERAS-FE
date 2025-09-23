@@ -4,7 +4,7 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
+import { RISK_COLORS, RiskColorType } from '@core/constants/riskLevel';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatIcon } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';

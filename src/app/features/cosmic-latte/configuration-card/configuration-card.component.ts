@@ -6,26 +6,26 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { ConfigurationsModel } from '../../../core/models/configurations.model';
-import { ServiceProviderModel } from '../../../core/models/service-providers.model';
+import { ConfigurationsModel } from '@core/models/configurations.model';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HealthCheckResponse } from '../../../core/models/cosmic-latte-request.model';
-import { CosmicLatteService } from '../../../core/services/api/cosmic-latte.service';
-import { ConfigurationsService } from '../../../core/services/api/configurations.service';
+import { HealthCheckResponse } from '@core/models/cosmic-latte-request.model';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NewConfigurationModalComponent } from '../new-configuration-modal/new-configuration-modal.component';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
-import { TYPE_TITLE } from '../../../core/constants/messages';
+import { TYPE_TITLE } from '@core/constants/messages';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DialogData,
   DialogType,
 } from '../../../shared/components/modal-dialog/types/dialog';
-import { MODAL_DEFAULT_CONF } from '../../../core/constants/modal';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({
   selector: 'app-configuration-card',

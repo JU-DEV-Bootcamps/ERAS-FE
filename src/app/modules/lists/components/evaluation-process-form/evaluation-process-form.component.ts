@@ -1,4 +1,4 @@
-import { ConfigurationsService } from './../../../../core/services/api/configurations.service';
+import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { Component, Inject, inject, OnInit } from '@angular/core';
 import {
@@ -13,7 +13,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject } from 'rxjs';
-import { GENERAL_MESSAGES } from '../../../../core/constants/messages';
+import { GENERAL_MESSAGES } from '@core/constants/messages';
 import { MatIcon } from '@angular/material/icon';
 import {
   MAT_DIALOG_DATA,
@@ -24,18 +24,18 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { ModalComponent } from '../../../../shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
-import { countries } from '../../../../core/constants/countries';
-import { CreateEvaluationModel } from '../../../../core/models/evaluation-request.model';
-import { EvaluationModel } from '../../../../core/models/evaluation.model';
-import { PollName } from '../../../../core/models/poll-request.model';
-import { CosmicLatteService } from '../../../../core/services/api/cosmic-latte.service';
-import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
-import { ConfigurationsModel } from '../../../../core/models/configurations.model';
-import { ServiceProvidersService } from '../../../../core/services/api/service-providers.service';
-import { ServiceProviderModel } from '../../../../core/models/service-providers.model';
+import { countries } from '@core/constants/countries';
+import { CreateEvaluationModel } from '@core/models/evaluation-request.model';
+import { EvaluationModel } from '@core/models/evaluation.model';
+import { PollName } from '@core/models/poll-request.model';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { EvaluationsService } from '@core/services/api/evaluations.service';
+import { ConfigurationsModel } from '@core/models/configurations.model';
+import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
 import Keycloak from 'keycloak-js';
 import { noWhitespaceValidator } from '../../../../shared/validators/no-whitespace.validator';
-import { MODAL_DEFAULT_CONF } from '../../../../core/constants/modal';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({
   selector: 'app-evaluation-process-form',

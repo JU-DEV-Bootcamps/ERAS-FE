@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
-import { PollInstanceService } from '../../../../core/services/api/poll-instance.service';
-import { CohortService } from '../../../../core/services/api/cohort.service';
-import { PollService } from '../../../../core/services/api/poll.service';
+import { PollInstanceService } from '@core/services/api/poll-instance.service';
+import { CohortService } from '@core/services/api/cohort.service';
+import { PollService } from '@core/services/api/poll.service';
 import { PollsAnsweredComponent } from './polls-answered.component';
 
 describe('PollsAnsweredComponent', () => {

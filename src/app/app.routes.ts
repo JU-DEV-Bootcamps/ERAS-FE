@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
-import { EvaluationProcessListComponent } from './modules/lists/views/evaluation-process-list/evaluation-process-list.component';
+import { EvaluationProcessListComponent } from '@modules/lists/views/evaluation-process-list/evaluation-process-list.component';
 import { HomeComponent } from './features/home/home.component';
 import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
 import { ImportStudentsComponent } from './features/import-students/import-students.component';
@@ -10,14 +10,14 @@ import { ProfileComponent } from './features/profile/profile.component';
 import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
 import { canActivateAuthRole } from './shared/guards/auth-role.guard';
 import { authGuard } from './shared/guards/auth.guard';
-import { SummaryHeatmapComponent } from './modules/reports/views/summary-heatmap/summary-heatmap.component';
-import { DynamicHeatmapComponent } from './modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
-import { PollsAnsweredComponent } from './modules/reports/views/polls-answered/polls-answered.component';
+import { SummaryHeatmapComponent } from '@modules/reports/views/summary-heatmap/summary-heatmap.component';
+import { DynamicHeatmapComponent } from '@modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
+import { PollsAnsweredComponent } from '@modules/reports/views/polls-answered/polls-answered.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { StudentMonitoringPollsComponent } from './features/student/student-monitoring-polls/student-monitoring-polls.component';
 import { StudentMonitoringCohortsComponent } from './features/student/student-monitoring-cohorts/student-monitoring-cohorts.component';
 import { StudentMonitoringDetailsComponent } from './features/student/student-monitoring-details/student-monitoring-details.component';
-import { referralsResolver } from './modules/supports-referrals/resolvers/referrals.resolver';
+import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
 import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/referrals-details.resolver';
 
 export const routes: Routes = [
@@ -106,14 +106,14 @@ export const routes: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import('./modules/supports-referrals/referrals.component'),
+              import('@modules/supports-referrals/referrals.component'),
             resolve: { referrals: referralsResolver },
           },
           {
             path: 'details/:id',
             loadComponent: () =>
               import(
-                './modules/supports-referrals/components/referral-detail/referral-detail.component'
+                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
               ),
             resolve: { referral: referralDetailsResolver },
             data: { breadcrumb: 'Referral Details' },
