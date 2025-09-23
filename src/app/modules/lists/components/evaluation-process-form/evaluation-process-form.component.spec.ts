@@ -5,8 +5,8 @@ import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { CosmicLatteService } from '../../../../core/services/api/cosmic-latte.service';
-import { EvaluationsService } from '../../../../core/services/api/evaluations.service';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { EvaluationsService } from '@core/services/api/evaluations.service';
 import Keycloak from 'keycloak-js';
 
 describe('EvaluationProcessFormComponent', () => {

@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ImportStudentsComponent } from './import-students.component';
-import { VALIDATION_MESSAGES } from '../../core/constants/messages';
+import { VALIDATION_MESSAGES } from '@core/constants/messages';
 import { of } from 'rxjs';
-import { StudentService } from '../../core/services/api/student.service';
+import { StudentService } from '@core/services/api/student.service';
 import { ActivatedRoute } from '@angular/router';
 
 describe('ImportStudentsComponent', () => {

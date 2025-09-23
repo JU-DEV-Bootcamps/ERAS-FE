@@ -20,12 +20,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
-import { RISK_COLORS, RiskColorType } from '../../../core/constants/riskLevel';
+import { RISK_COLORS, RiskColorType } from '@core/constants/riskLevel';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { debounceTime, filter, tap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
-import { HeatMapService } from '../../../core/services/api/heat-map.service';
+import { HeatMapService } from '@core/services/api/heat-map.service';
 
 @Component({
   selector: 'app-modal-risk-students-detail',

@@ -9,7 +9,7 @@ import {
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { DialogData, DialogType } from './types/dialog';
-import { TYPE_ICON } from '../../../core/constants/messages';
+import { TYPE_ICON } from '@core/constants/messages';
 
 @Component({
   selector: 'app-modal',

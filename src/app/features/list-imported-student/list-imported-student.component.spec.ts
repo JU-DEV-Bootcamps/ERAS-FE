@@ -5,7 +5,7 @@ import { ListImportedStudentComponent } from './list-imported-student.component'
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
-import { StudentService } from '../../core/services/api/student.service';
+import { StudentService } from '@core/services/api/student.service';
 import { ActivatedRoute } from '@angular/router';
 
 describe('ListImportedStudentComponent', () => {

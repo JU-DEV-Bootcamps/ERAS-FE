@@ -2,11 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
-import { StudentReportAnswerRiskLevel } from '../../../core/models/summary.model';
-import {
-  getRiskColor,
-  getRiskTextColor,
-} from '../../../core/constants/riskLevel';
+import { StudentReportAnswerRiskLevel } from '@core/models/summary.model';
+import { getRiskColor, getRiskTextColor } from '@core/constants/riskLevel';
 
 @Component({
   selector: 'app-person-imported',

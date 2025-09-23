@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ConfigurationCardComponent } from './configuration-card.component';
-import { CosmicLatteService } from '../../../core/services/api/cosmic-latte.service';
-import { ConfigurationsService } from '../../../core/services/api/configurations.service';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ConfigurationsModel } from '../../../core/models/configurations.model';
-import { ServiceProviderModel } from '../../../core/models/service-providers.model';
+import { ConfigurationsModel } from '@core/models/configurations.model';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
 import { of } from 'rxjs';
-import { HealthCheckResponse } from '../../../core/models/cosmic-latte-request.model';
+import { HealthCheckResponse } from '@core/models/cosmic-latte-request.model';
 
 describe('ConfigurationCardComponent', () => {
   let component: ConfigurationCardComponent;

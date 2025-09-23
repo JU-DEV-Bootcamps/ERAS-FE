@@ -17,12 +17,12 @@ import { finalize } from 'rxjs';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
 
-import { EvaluationsService } from '../../core/services/api/evaluations.service';
-import { ReportService } from '../../core/services/api/report.service';
+import { EvaluationsService } from '@core/services/api/evaluations.service';
+import { ReportService } from '@core/services/api/report.service';
 
-import { CountSummaryModel } from '../../core/models/summary.model';
-import { EvaluationModel } from '../../core/models/evaluation.model';
-import { PollModel } from '../../core/models/poll.model';
+import { CountSummaryModel } from '@core/models/summary.model';
+import { EvaluationModel } from '@core/models/evaluation.model';
+import { PollModel } from '@core/models/poll.model';
 
 import {
   Alpha3CountryNamePipe,
@@ -31,7 +31,7 @@ import {
 import {
   getEvalClass,
   getStatusForEvaluationProcess,
-} from '../../modules/lists/utils/evaluations.util';
+} from '@modules/lists/utils/evaluations.util';
 
 import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
 import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { countries } from '../../core/constants/countries';
+import { countries } from '@core/constants/countries';
 
 // Pipe to get the English name from alpha-3 code
 @Pipe({

@@ -15,8 +15,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { PollModel } from '../../../core/models/poll.model';
-import { PollService } from '../../../core/services/api/poll.service';
+import { PollModel } from '@core/models/poll.model';
+import { PollService } from '@core/services/api/poll.service';
 import { Router } from '@angular/router';
 
 @Component({

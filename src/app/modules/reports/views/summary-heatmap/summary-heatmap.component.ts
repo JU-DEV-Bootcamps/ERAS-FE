@@ -8,23 +8,20 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { CohortModel } from '../../../../core/models/cohort.model';
-import { StudentRiskAverage } from '../../../../core/services/interfaces/student.interface';
+import { CohortModel } from '@core/models/cohort.model';
+import { StudentRiskAverage } from '@core/services/interfaces/student.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../../../features/heat-map/modal-question-details/modal-question-details.component';
-import {
-  PollAvgQuestion,
-  PollAvgReport,
-} from '../../../../core/models/summary.model';
-import { StudentService } from '../../../../core/services/api/student.service';
-import { ReportService } from '../../../../core/services/api/report.service';
+import { PollAvgQuestion, PollAvgReport } from '@core/models/summary.model';
+import { StudentService } from '@core/services/api/student.service';
+import { ReportService } from '@core/services/api/report.service';
 import { ListComponent } from '../../../../shared/components/list/list.component';
 import { Column } from '../../../../shared/components/list/types/column';
-import { SummarySerie } from '../../../../core/models/heatmap-data.model';
+import { SummarySerie } from '@core/models/heatmap-data.model';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { PdfHelper } from '../../exportReport.util';

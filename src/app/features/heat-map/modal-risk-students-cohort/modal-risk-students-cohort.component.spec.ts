@@ -3,8 +3,8 @@ import { ModalRiskStudentsCohortComponent } from './modal-risk-students-cohort.c
 import { of } from 'rxjs';
 import { MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { HeatMapService } from '../../../core/services/api/heat-map.service';
-import { CohortService } from '../../../core/services/api/cohort.service';
+import { HeatMapService } from '@core/services/api/heat-map.service';
+import { CohortService } from '@core/services/api/cohort.service';
 
 describe('ModalRiskStudentsCohortComponent', () => {
   let component: ModalRiskStudentsCohortComponent;

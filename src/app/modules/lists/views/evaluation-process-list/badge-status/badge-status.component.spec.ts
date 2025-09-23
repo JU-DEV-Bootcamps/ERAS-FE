@@ -4,7 +4,7 @@ import { EmptyDataComponent } from '../../../../../shared/components/empty-data/
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';
-import { EvaluationModel } from '../../../../../core/models/evaluation.model';
+import { EvaluationModel } from '@core/models/evaluation.model';
 
 describe('BadgeStatusComponent', () => {
   let component: BadgeStatusComponent;

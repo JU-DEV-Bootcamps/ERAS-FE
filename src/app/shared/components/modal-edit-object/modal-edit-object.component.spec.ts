@@ -5,9 +5,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { By } from '@angular/platform-browser';
-import { StudentModel } from '../../../core/models/student.model';
+import { StudentModel } from '@core/models/student.model';
 import { EditObjectModalComponent } from './modal-edit-object.component';
-import { StudentDetailModel } from '../../../core/models/student-detail.model';
+import { StudentDetailModel } from '@core/models/student-detail.model';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 describe('EditObjectModalComponent', () => {

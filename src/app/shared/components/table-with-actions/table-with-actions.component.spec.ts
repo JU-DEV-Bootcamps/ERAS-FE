@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TitleCasePipe } from '@angular/common';
 import { By } from '@angular/platform-browser';
-import { PollName } from '../../../core/models/poll-request.model';
+import { PollName } from '@core/models/poll-request.model';
 import { Column } from '../list/types/column';
 import { ActionDatas } from '../list/types/action';
 

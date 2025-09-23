@@ -14,7 +14,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map, Observable } from 'rxjs';
 
-import { CountSummaryModel } from '../../../core/models/summary.model';
+import { CountSummaryModel } from '@core/models/summary.model';
 import { StatsCardComponent } from '../../../shared/components/cards/stats-card/stats-card.component';
 
 @Component({

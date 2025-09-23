@@ -15,11 +15,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { PollModel } from '../../../core/models/poll.model';
-import { CohortComponents } from '../../../core/models/cohort-components.model';
+import { PollModel } from '@core/models/poll.model';
+import { CohortComponents } from '@core/models/cohort-components.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PollService } from '../../../core/services/api/poll.service';
-import { PollInstanceService } from '../../../core/services/api/poll-instance.service';
+import { PollService } from '@core/services/api/poll.service';
+import { PollInstanceService } from '@core/services/api/poll-instance.service';
 import { ApexOptions } from 'ng-apexcharts';
 
 @Component({

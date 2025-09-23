@@ -7,18 +7,18 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   GENERAL_MESSAGES,
   VALIDATION_MESSAGES,
-} from '../../core/constants/messages';
+} from '@core/constants/messages';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
 import { ListImportedStudentComponent } from '../list-imported-student/list-imported-student.component';
-import { ServerResponse } from '../../core/services/interfaces/server.type';
+import { ServerResponse } from '@core/services/interfaces/server.type';
 import {
   isStudentImportKey,
   StudentImport,
-} from '../../core/services/interfaces/student.interface';
-import { CsvCheckerService } from '../../core/services/csv-checker.service';
-import { StudentService } from '../../core/services/api/student.service';
-import { MODAL_DEFAULT_CONF } from '../../core/constants/modal';
+} from '@core/services/interfaces/student.interface';
+import { CsvCheckerService } from '@core/services/csv-checker.service';
+import { StudentService } from '@core/services/api/student.service';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({
   selector: 'app-import-students',

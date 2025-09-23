@@ -3,19 +3,16 @@ import { PollFiltersComponent } from '../../components/poll-filters/poll-filters
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfHelper } from '../../exportReport.util';
 import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
-import { HeatMapService } from '../../../../core/services/api/heat-map.service';
+import { HeatMapService } from '@core/services/api/heat-map.service';
 import { MatIcon } from '@angular/material/icon';
-import { ReportService } from '../../../../core/services/api/report.service';
+import { ReportService } from '@core/services/api/report.service';
 import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../../../features/heat-map/modal-question-details/modal-question-details.component';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  PollCountQuestion,
-  PollCountReport,
-} from '../../../../core/models/summary.model';
+import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { MatTooltipModule } from '@angular/material/tooltip';
