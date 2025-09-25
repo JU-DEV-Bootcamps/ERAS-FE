@@ -4,6 +4,7 @@ import {
   RISK_LABELS,
   RISK_TEXT_COLORS,
 } from '@core/constants/riskLevel';
+import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
 
 export function GetChartOptions(
   title: string,
@@ -93,16 +94,18 @@ export function GetChartOptions(
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
 
-            return `<div class="apexcharts-tooltip-x" style="font-size: 13px; margin: 4px"><b>Question: </b>${xValue}</div>
-        <div style="border-top: 1px solid #ccc;"></div>
-        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px"><b>Answer: </b>${yValue}</div>
-        <div style="border-top: 1px solid #ccc;"><b>Details:</b></div>
-        <div class="apexcharts-tooltip-y" style="font-size: 13px; margin: 4px">${formattedZValue}</div>`;
+            return customTooltip(xValue, yValue, formattedZValue);
           }
         };
         const wrap = (content: string) => {
           return `
-            <div class="apex-tooltip-container">
+            <div style="
+              padding: 15px;
+              border-radius: 15px;
+              max-width: 300px;
+              white-space: normal;
+              word-wrap: break-word;
+            ">
               ${content}
             </div>
             `;

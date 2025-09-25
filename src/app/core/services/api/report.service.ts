@@ -11,7 +11,7 @@ import {
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
-import { fixedColorRange } from '../../../features/cohort/util/heat-map-config';
+import { fixedColorRange } from '../../utilities/apex-chart/heat-map-config';
 import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
@@ -95,7 +95,7 @@ export class ReportService extends BaseApiService {
             z: question.answersDetails
               .map(
                 ans =>
-                  `${ans.answerPercentage}% = ${this.addAnswerSeparator(ans.answerText)}: ${this.arrayAsStringParams(ans.studentsEmails)}`
+                  `<span style="font-weight: bold;">${this.addAnswerSeparator(ans.answerText)} = ${ans.answerPercentage}%:<span/><br>${this.arrayAsStringParams(ans.studentsEmails)}`
               )
               .join('; </br>'),
             position: question.position,

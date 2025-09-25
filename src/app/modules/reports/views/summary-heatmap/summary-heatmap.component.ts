@@ -11,7 +11,7 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { CohortModel } from '@core/models/cohort.model';
 import { StudentRiskAverage } from '@core/services/interfaces/student.interface';
 import { MatDialog } from '@angular/material/dialog';
-import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
+import { GetChartOptions } from '@core/utilities/apex-chart/heat-map-config';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
