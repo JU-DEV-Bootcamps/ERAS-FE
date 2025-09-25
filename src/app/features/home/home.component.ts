@@ -24,17 +24,14 @@ import { CountSummaryModel } from '@core/models/summary.model';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { PollModel } from '@core/models/poll.model';
 
-import {
-  Alpha3CountryNamePipe,
-  Alpha3FlagPipe,
-} from '../../shared/pipes/flag.pipe';
+import { Alpha3CountryNamePipe, Alpha3FlagPipe } from '@shared/pipes/flag.pipe';
 import {
   getEvalClass,
   getStatusForEvaluationProcess,
 } from '@modules/lists/utils/evaluations.util';
 
-import { EmptyDataComponent } from '../../shared/components/empty-data/empty-data.component';
-import { BarChartComponent } from '../../shared/components/charts/bar-chart/bar-chart.component';
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
+import { BarChartComponent } from '@shared/components/charts/bar-chart/bar-chart.component';
 import { SummaryDetailsComponent } from './summary-details/summary-details.component';
 
 register();

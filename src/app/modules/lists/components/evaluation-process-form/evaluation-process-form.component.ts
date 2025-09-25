@@ -22,7 +22,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { ModalComponent } from '../../../../shared/components/modal-dialog/modal-dialog.component';
+import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
 import { countries } from '@core/constants/countries';
 import { CreateEvaluationModel } from '@core/models/evaluation-request.model';
@@ -34,7 +34,7 @@ import { ConfigurationsModel } from '@core/models/configurations.model';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { ServiceProviderModel } from '@core/models/service-providers.model';
 import Keycloak from 'keycloak-js';
-import { noWhitespaceValidator } from '../../../../shared/validators/no-whitespace.validator';
+import { noWhitespaceValidator } from '@shared/validators/no-whitespace.validator';
 import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({

@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { IMPORT_MESSAGES, TYPE_TITLE } from '@core/constants/messages';
 
-import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
+import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
 import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
 import { PollName } from '@core/models/poll-request.model';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
@@ -41,7 +41,7 @@ import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 import {
   DialogData,
   DialogType,
-} from '../../shared/components/modal-dialog/types/dialog';
+} from '@shared/components/modal-dialog/types/dialog';
 
 @Component({
   selector: 'app-import-answers',

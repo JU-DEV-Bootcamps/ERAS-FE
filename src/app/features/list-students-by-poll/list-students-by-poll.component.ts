@@ -9,14 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { StudentModel } from '@core/models/student.model';
 import { StudentService } from '@core/services/api/student.service';
-import { EventAction, EventLoad } from '../../shared/events/load';
+import { EventAction, EventLoad } from '@shared/events/load';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalStudentDetailComponent } from '../modal-student-detail/modal-student-detail.component';
 import { Pagination } from '@core/services/interfaces/server.type';
-import { ListComponent } from '../../shared/components/list/list.component';
-import { Column } from '../../shared/components/list/types/column';
-import { ActionDatas } from '../../shared/components/list/types/action';
+import { ListComponent } from '@shared/components/list/list.component';
+import { Column } from '@shared/components/list/types/column';
+import { ActionDatas } from '@shared/components/list/types/action';
 import { BadgeImportedComponent } from './badge-imported/badge-imported.component';
 
 @Component({
