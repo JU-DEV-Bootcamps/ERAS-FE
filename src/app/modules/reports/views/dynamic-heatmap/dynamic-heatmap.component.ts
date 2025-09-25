@@ -6,7 +6,7 @@ import { EmptyDataComponent } from '../../../../shared/components/empty-data/emp
 import { HeatMapService } from '@core/services/api/heat-map.service';
 import { MatIcon } from '@angular/material/icon';
 import { ReportService } from '@core/services/api/report.service';
-import { GetChartOptions } from '../../../../features/cohort/util/heat-map-config';
+import { GetChartOptions } from '@core/utilities/apex-chart/heat-map-config';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
