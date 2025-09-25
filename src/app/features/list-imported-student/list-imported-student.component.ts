@@ -5,9 +5,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { StudentModel } from '@core/models/student.model';
 import { StudentService } from '@core/services/api/student.service';
-import { ListComponent } from '../../shared/components/list/list.component';
-import { Column } from '../../shared/components/list/types/column';
-import { EventLoad } from '../../shared/events/load';
+import { ListComponent } from '@shared/components/list/list.component';
+import { Column } from '@shared/components/list/types/column';
+import { EventLoad } from '@shared/events/load';
 import { finalize } from 'rxjs';
 
 @Component({

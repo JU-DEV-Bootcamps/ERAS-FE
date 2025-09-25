@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BadgeStatusComponent } from './badge-status.component';
-import { EmptyDataComponent } from '../../../../../shared/components/empty-data/empty-data.component';
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { By } from '@angular/platform-browser';

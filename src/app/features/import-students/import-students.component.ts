@@ -9,7 +9,7 @@ import {
   VALIDATION_MESSAGES,
 } from '@core/constants/messages';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ModalComponent } from '../../shared/components/modal-dialog/modal-dialog.component';
+import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
 import { ListImportedStudentComponent } from '../list-imported-student/list-imported-student.component';
 import { ServerResponse } from '@core/services/interfaces/server.type';
 import {

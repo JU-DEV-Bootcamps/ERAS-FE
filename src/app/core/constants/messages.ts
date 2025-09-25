@@ -1,4 +1,4 @@
-import { DialogType } from '../../shared/components/modal-dialog/types/dialog';
+import { DialogType } from '@shared/components/modal-dialog/types/dialog';
 
 export const IMPORT_MESSAGES = {
   ANSWERS_SUCCESS:

@@ -21,7 +21,7 @@ import { PollModel } from '@core/models/poll.model';
 import { CohortModel } from '@core/models/cohort.model';
 import { VariableModel } from '@core/models/variable.model';
 import { CommonModule } from '@angular/common';
-import { SelectAllDirective } from '../../../../shared/directives/select-all.directive';
+import { SelectAllDirective } from '@shared/directives/select-all.directive';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({

@@ -24,11 +24,11 @@ import { getRiskColor, getRiskTextColor } from '@core/constants/riskLevel';
 import { ReportService } from '@core/services/api/report.service';
 import { PollService } from '@core/services/api/poll.service';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
-import { Column } from '../../../shared/components/list/types/column';
-import { ActionDatas } from '../../../shared/components/list/types/action';
-import { EventAction, EventLoad } from '../../../shared/events/load';
-import { ListComponent } from '../../../shared/components/list/list.component';
-import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
+import { Column } from '@shared/components/list/types/column';
+import { ActionDatas } from '@shared/components/list/types/action';
+import { EventAction, EventLoad } from '@shared/events/load';
+import { ListComponent } from '@shared/components/list/list.component';
+import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { Pagination } from '@core/services/interfaces/server.type';
 import { ComponentValueType } from '../types/risk-students-detail.type';
 

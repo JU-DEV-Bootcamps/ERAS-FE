@@ -18,13 +18,13 @@ import { ConfigurationsService } from '@core/services/api/configurations.service
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NewConfigurationModalComponent } from '../new-configuration-modal/new-configuration-modal.component';
 import { CommonModule } from '@angular/common';
-import { ModalComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
+import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
 import { TYPE_TITLE } from '@core/constants/messages';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DialogData,
   DialogType,
-} from '../../../shared/components/modal-dialog/types/dialog';
+} from '@shared/components/modal-dialog/types/dialog';
 import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({

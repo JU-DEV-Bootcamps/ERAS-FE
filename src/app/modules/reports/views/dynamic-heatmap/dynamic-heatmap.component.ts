@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfHelper } from '../../exportReport.util';
-import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import { HeatMapService } from '@core/services/api/heat-map.service';
 import { MatIcon } from '@angular/material/icon';
 import { ReportService } from '@core/services/api/report.service';

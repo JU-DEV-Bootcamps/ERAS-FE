@@ -20,9 +20,9 @@ import { CommonModule } from '@angular/common';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { ConfigurationsModel } from '@core/models/configurations.model';
-import { forbiddenCharsValidator } from '../../../shared/validators/forbiden-chars.validator';
-import { noWhitespaceValidator } from '../../../shared/validators/no-whitespace.validator';
-import { duplicatePropertyValidator } from '../../../shared/validators/duplicateProperty.validator';
+import { forbiddenCharsValidator } from '@shared/validators/forbiden-chars.validator';
+import { noWhitespaceValidator } from '@shared/validators/no-whitespace.validator';
+import { duplicatePropertyValidator } from '@shared/validators/duplicateProperty.validator';
 
 @Component({
   selector: 'app-new-configuration-modal',

@@ -19,15 +19,15 @@ import {
 import { PollAvgQuestion, PollAvgReport } from '@core/models/summary.model';
 import { StudentService } from '@core/services/api/student.service';
 import { ReportService } from '@core/services/api/report.service';
-import { ListComponent } from '../../../../shared/components/list/list.component';
-import { Column } from '../../../../shared/components/list/types/column';
+import { ListComponent } from '@shared/components/list/list.component';
+import { Column } from '@shared/components/list/types/column';
 import { SummarySerie } from '@core/models/heatmap-data.model';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { PdfHelper } from '../../exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EventLoad } from '../../../../shared/events/load';
-import { EmptyDataComponent } from '../../../../shared/components/empty-data/empty-data.component';
+import { EventLoad } from '@shared/events/load';
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 
 @Component({

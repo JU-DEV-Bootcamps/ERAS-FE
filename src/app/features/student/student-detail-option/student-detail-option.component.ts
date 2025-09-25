@@ -36,11 +36,11 @@ import { PollInstanceService } from '@core/services/api/poll-instance.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { ModalStudentDetailComponent } from '../../modal-student-detail/modal-student-detail.component';
 import { PollModel } from '@core/models/poll.model';
-import { ListComponent } from '../../../shared/components/list/list.component';
-import { Column } from '../../../shared/components/list/types/column';
-import { EventAction } from '../../../shared/events/load';
-import { MapClass } from '../../../shared/components/list/types/class';
-import { BadgeRiskComponent } from '../../../shared/components/badge-risk-level/badge-risk-level.component';
+import { ListComponent } from '@shared/components/list/list.component';
+import { Column } from '@shared/components/list/types/column';
+import { EventAction } from '@shared/events/load';
+import { MapClass } from '@shared/components/list/types/class';
+import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 
 @Component({
   selector: 'app-student-detail-option',
