@@ -21,6 +21,7 @@ import {
   SummaryReport,
 } from '../../models/reports/reports-data.model';
 import { Observable, of } from 'rxjs';
+import { addCountPercentages } from '@core/utilities/apex-chart/customTooltip';
 
 @Injectable({
   providedIn: 'root',
@@ -137,10 +138,13 @@ export class ReportService extends BaseApiService {
           text: `${question.question}`,
           description: `${question.question}`,
           name: `${question.question}`,
-          data: question.answers.map(a => {
+          data: addCountPercentages(question.answers).map(a => {
             return {
               x: Math.trunc(a.answerRisk),
               y: a.answerRisk,
+              z: `<span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br> ${a.students
+                .map(ans => `${this.arrayAsStringParams([ans.email])}`)
+                .join(';')}`,
             };
           }),
         };

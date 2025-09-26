@@ -19,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
+import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -101,12 +102,13 @@ export class DynamicHeatmapComponent {
           const question = component.questions[x];
           const totalFillers = regroupSeries[x].data[y].totalFillers || 0;
           const riskLevel = question.answers[y - totalFillers];
+          const zValue = regroupSeries[x].data[y];
 
-          return `
-          <b>${riskLevel.count} students answered with a risk Level of ${riskLevel.answerRisk}</b>
-          <b>Componente:</b> ${component.description} </br>
-          <b>Question:</b> ${question.question} </br>
-          `;
+          return customTooltip(
+            question.question,
+            `${riskLevel.count}`,
+            zValue.z
+          );
         }
       );
     });
