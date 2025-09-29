@@ -1,3 +1,5 @@
+import { PollCountAnswer } from '@core/models/summary.model';
+
 export function customTooltip(
   xValue: string,
   yValue: string,
@@ -15,6 +17,18 @@ export function customTooltip(
       ${_formatEmailsList(formattedZValue)}
     </div>
   `;
+}
+
+export function addCountPercentages(
+  answers: PollCountAnswer[]
+): PollCountAnswer[] {
+  const total = answers.reduce((sum, item) => sum + item.count, 0);
+
+  return answers.map(item => ({
+    ...item,
+    countPercentage:
+      total > 0 ? parseFloat(((item.count / total) * 100).toFixed(2)) : 0,
+  }));
 }
 
 function _formatEmailsList(textToFormat: string): string {

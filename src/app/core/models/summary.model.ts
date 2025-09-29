@@ -117,9 +117,11 @@ export interface PollCountAnswer {
   answerRisk: number;
   count: number;
   students: PollCountStudent[];
+  countPercentage?: number;
 }
 
 export interface PollCountStudent {
+  answerText: string;
   name: string;
   email: string;
   cohortId: number;

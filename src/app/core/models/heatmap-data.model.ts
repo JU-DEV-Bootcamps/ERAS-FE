@@ -18,5 +18,6 @@ export interface DynamicHeatMapData {
 export interface DynamicSerie {
   x: number;
   y: number;
+  z: string;
   totalFillers?: number;
 }
