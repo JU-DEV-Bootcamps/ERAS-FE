@@ -257,7 +257,7 @@ export class ReportService extends BaseApiService {
 
     for (const color of colorList) {
       maxByColor[color] = Math.max(
-        ...groupedByRow.map(row => row.colorGroups[color]?.length || 0)
+        ...groupedByRow.map(row => row.colorGroups[color]?.length || 1)
       );
     }
 
