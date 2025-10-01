@@ -49,6 +49,7 @@ export class PollFiltersComponent implements OnInit {
   componentNames: string[] = [];
   variables: VariableModel[] = [];
   variableGroups: VariableModel[][] = [];
+  private lastLoadedKey: string | null = null;
 
   filters = output<{
     title: string;
@@ -78,24 +79,31 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handlePollSelect(isOpen: boolean) {
-    const newSelectedPoll = this.filterForm.value.selectedPoll;
-
     if (isOpen) return;
-    if (newSelectedPoll) {
-      this.cohortsService
-        .getCohorts(newSelectedPoll.uuid, !!this.filterForm.value.lastVersion)
-        .subscribe(response => {
-          this.cohorts = response.body;
-          this.filterForm.controls.cohortIds.setValue(
-            this.cohorts.map(cohort => cohort.id)
-          );
-          this.componentNames = [];
-          this.handleCohortSelect(false);
-        });
-    } else {
-      console.warn('selectedPoll is null');
-    }
+    const newSelectedPoll = this.filterForm.value.selectedPoll;
+    const lastVersion = !!this.filterForm.value.lastVersion;
+
+    if (!newSelectedPoll) return;
+
+    const newKey = `${newSelectedPoll.uuid}_${lastVersion}`;
+
+    if (this.lastLoadedKey === newKey) return;
+
+    this.lastLoadedKey = newKey;
+
+    this.cohorts = [];
+    this.cohortsService
+      .getCohorts(newSelectedPoll.uuid, lastVersion)
+      .subscribe(response => {
+        this.cohorts = response.body;
+        this.filterForm.controls.cohortIds.setValue(
+          this.cohorts.map(cohort => cohort.id)
+        );
+        this.componentNames = [];
+        this.handleCohortSelect(false);
+      });
   }
+
   handleCohortSelect(isOpen: boolean) {
     if (isOpen) return;
     if (!this.filterForm.value.selectedPoll?.uuid) return;
