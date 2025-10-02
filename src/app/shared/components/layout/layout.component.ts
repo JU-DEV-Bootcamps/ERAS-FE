@@ -17,6 +17,8 @@ import {
 import { MenuSectionComponent } from './menu-section/menu-section.component';
 import { MenuItemComponent } from './menu-item/menu-item.component';
 import { UserMenuComponent } from './user-menu/user-menu.component';
+//TODO: REMOVE THIS WHEN DECIDED TO GO UP WITH SUPPORT AND REFERRALS
+import { environment } from 'src/environments/environment';
 
 enum Sidenav {
   shrink = '70px',
@@ -52,6 +54,8 @@ export class LayoutComponent implements OnInit {
   sidenavWidth = computed(() =>
     this.collapsed() ? Sidenav.shrink : Sidenav.expand
   );
+  //TODO: REMOVE THIS WHEN DECIDED TO GO UP WITH SUPPORT AND REFERRALS
+  enableForProductionMode = environment.production;
 
   ngOnInit() {
     this.breakpointObserver
