@@ -167,6 +167,7 @@ export class EvaluationProcessFormComponent implements OnInit {
 
   public onCountrySelected(country: Country): void {
     this.selectedCountry = country.alpha3;
+    this.form.markAsDirty();
   }
 
   onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
@@ -263,7 +264,7 @@ export class EvaluationProcessFormComponent implements OnInit {
                 pollName: this.form.value.pollName,
               }
             : {}),
-          country: this.selectedCountry,
+          country: this.selectedCountry ?? this.form.value.country.alpha3,
         } as EvaluationModel;
 
         this.evaluationsService.updateEvaluationProcess(updateEval).subscribe({
