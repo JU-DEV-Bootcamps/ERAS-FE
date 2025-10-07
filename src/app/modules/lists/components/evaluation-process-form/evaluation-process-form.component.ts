@@ -230,7 +230,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           endDate: this.form.value.endDate,
           pollName: this.form.value.pollName,
           configurationId: this.selectedConfiguration?.id,
-          country: this.selectedCountry,
+          country: this.selectedCountry || this.form.value.country.alpha3,
         } as CreateEvaluationModel;
         if (this.form.value.pollName === 'null') {
           delete newProcess.pollName;
@@ -264,7 +264,7 @@ export class EvaluationProcessFormComponent implements OnInit {
                 pollName: this.form.value.pollName,
               }
             : {}),
-          country: this.selectedCountry ?? this.form.value.country.alpha3,
+          country: this.selectedCountry || this.form.value.country.alpha3,
         } as EvaluationModel;
 
         this.evaluationsService.updateEvaluationProcess(updateEval).subscribe({
