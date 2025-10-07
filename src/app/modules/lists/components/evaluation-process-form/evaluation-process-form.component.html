@@ -179,8 +179,10 @@
       <button
         class="modalMainButton"
         type="submit"
-        [ngClass]="{ disabledButton: form.invalid && !pollDataSelected }"
-        [disabled]="form.invalid && !pollDataSelected"
+        [ngClass]="{
+          disabledButton: (form.invalid && !pollDataSelected) || form.pristine,
+        }"
+        [disabled]="(form.invalid && !pollDataSelected) || form.pristine"
       >
         {{ buttonText }}
       </button>
