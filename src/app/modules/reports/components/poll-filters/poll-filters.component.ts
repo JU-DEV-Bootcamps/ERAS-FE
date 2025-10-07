@@ -178,7 +178,7 @@ export class PollFiltersComponent implements OnInit {
     const cohorts = this.filterForm.value.cohortIds || [];
     const title = `Poll: ${poll?.name} V${poll?.lastVersion} - Cohort(s): ${cohorts.map(cohortId => this.cohorts.find(c => c.id == cohortId)?.name)}`;
     const uuid = this.filterForm.value.selectedPoll?.uuid || '';
-    const cohortIds = this.filterForm.value.cohortIds!;
+    const cohortIds = this.filterForm.value.cohortIds!.filter(Boolean);
     const variableIds = this.filterForm.value.variables || [];
     const lastVersion = this.filterForm.value.lastVersion!;
 
