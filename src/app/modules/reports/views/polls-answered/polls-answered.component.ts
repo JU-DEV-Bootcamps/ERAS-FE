@@ -1,32 +1,38 @@
-import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+
 import { Router } from '@angular/router';
-import { CohortModel } from '@core/models/cohort.model';
-import { TimestampToDatePipe } from '@shared/pipes/timestamp-to-date.pipe';
-import { PollModel } from '@core/models/poll.model';
-import { PollInstanceModel } from '@core/models/poll-instance.model';
-import { MatDialog } from '@angular/material/dialog';
-import { ModalStudentDetailComponent } from '../../../../features/modal-student-detail/modal-student-detail.component';
-import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { PollService } from '@core/services/api/poll.service';
-import { PollInstanceService } from '@core/services/api/poll-instance.service';
-import { CohortService } from '@core/services/api/cohort.service';
-import { Column } from '@shared/components/list/types/column';
+
 import { ActionDatas } from '@shared/components/list/types/action';
-import { ListComponent } from '@shared/components/list/list.component';
-import { flattenArray } from '@core/utilities/object/flatten';
+import { CohortModel } from '@core/models/cohort.model';
+import { Column } from '@shared/components/list/types/column';
 import { EventAction, EventLoad } from '@shared/events/load';
 import { Filter } from '../../components/poll-filters/types/filters';
+import { PollInstanceModel } from '@core/models/poll-instance.model';
+import { PollModel } from '@core/models/poll.model';
+
+import { flattenArray } from '@core/utilities/object/flatten';
 import { sortArray } from '@core/utilities/sort';
+import { TimestampToDatePipe } from '@shared/pipes/timestamp-to-date.pipe';
+
+import { CohortService } from '@core/services/api/cohort.service';
+import { PollInstanceService } from '@core/services/api/poll-instance.service';
+import { PollService } from '@core/services/api/poll.service';
+
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
+import { ListComponent } from '@shared/components/list/list.component';
+import { ModalStudentDetailComponent } from '../../../../features/modal-student-detail/modal-student-detail.component';
+import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
@@ -35,15 +41,15 @@ interface DynamicPollInstance
 @Component({
   selector: 'app-polls-answered',
   imports: [
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatCardModule,
     FormsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
     MatInputModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
+    MatTableModule,
     ReactiveFormsModule,
     EmptyDataComponent,
     ListComponent,
@@ -191,18 +197,6 @@ export class PollsAnsweredComponent implements OnInit {
         this.totalPollInstances = data.body.count;
         this.loading = false;
       });
-  }
-
-  generateHeatMap(): void {
-    const url = this.router
-      .createUrlTree(['/heatmap-summary'], {
-        queryParams: {
-          cohortId: this.selectedCohortIds,
-          pollUuid: this.selectedPollUuid,
-        },
-      })
-      .toString();
-    window.open(url, '_blank');
   }
 
   goToDetails(event: EventAction): void {
