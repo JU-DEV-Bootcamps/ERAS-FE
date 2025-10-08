@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { GENERAL_MESSAGES } from '@core/constants/messages';
+import { TYPE_TITLE } from '@core/constants/messages';
 import { PagedReadEvaluationProcess } from '@core/models/evaluation-request.model';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
@@ -25,6 +25,7 @@ import { EventAction, EventLoad } from '@shared/events/load';
 import { RangeTimestampPipe } from '@shared/pipes/range-timestamp.pipe';
 import { BadgeStatusComponent } from './badge-status/badge-status.component';
 import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+import { DialogType } from '@shared/components/modal-dialog/types/dialog';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -141,7 +142,7 @@ export class EvaluationProcessListComponent implements OnInit {
     if (id) {
       this.openAlertDialog(
         `Are you sure you want to delete the evaluation?`,
-        false,
+        'warning',
         () => this.deleteEvaluation(id)
       );
     } else {
@@ -153,14 +154,14 @@ export class EvaluationProcessListComponent implements OnInit {
       .deleteEvaluationProcess(id.toString())
       .subscribe({
         next: () => {
-          this.openAlertDialog('Evaluation deleted! ', true);
+          this.openAlertDialog('Evaluation deleted! ', 'success');
           this.getEvaluationProcess();
         },
         error: err => {
           this.openAlertDialog(
             'Error: An error occurred while trying to delete the new evaluation process : ' +
               err.message,
-            false
+            'error'
           );
         },
       });
@@ -193,7 +194,7 @@ export class EvaluationProcessListComponent implements OnInit {
           this.openAlertDialog(
             'Error: An error occurred while trying to access information : ' +
               err.message,
-            false
+            'error'
           );
           this.isLoading = false;
         },
@@ -240,28 +241,31 @@ export class EvaluationProcessListComponent implements OnInit {
   }
   openAlertDialog(
     descriptionMessage: string,
-    isSuccess: boolean,
+    type: DialogType,
     deleteConfirmFunction?: () => void
   ): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
+    const title = TYPE_TITLE[type];
+    const data = {
+      type,
+      title,
+      details: [descriptionMessage],
+      data: {
+        title,
+        message: descriptionMessage,
+      },
+      ...(deleteConfirmFunction && {
+        action: {
+          label: 'Delete',
+          action: deleteConfirmFunction,
+        },
+      }),
+    };
+
     this.dialog.open(ModalComponent, {
       ...MODAL_DEFAULT_CONF,
-      data: {
-        isSuccess: isSuccess,
-        title: isSuccess
-          ? GENERAL_MESSAGES.SUCCESS_TITLE
-          : GENERAL_MESSAGES.ERROR_TITLE,
-        success: {
-          details: descriptionMessage,
-        },
-        error: {
-          title: GENERAL_MESSAGES.ERROR_TITLE,
-          details: [descriptionMessage],
-          message: descriptionMessage,
-        },
-        deleteConfirmFunction: deleteConfirmFunction,
-      },
+      data,
     });
   }
   normalizeData(data: EvaluationModel[]): EvaluationModel[] {
