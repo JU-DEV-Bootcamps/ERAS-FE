@@ -199,6 +199,7 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.dialog.open(ModalComponent, {
       ...MODAL_DEFAULT_CONF,
       data: {
+        type: isSuccess ? 'success' : 'error',
         isSuccess: isSuccess,
         title: isSuccess
           ? GENERAL_MESSAGES.SUCCESS_TITLE
@@ -211,6 +212,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           details: [descriptionMessage],
           message: descriptionMessage,
         },
+        details: [descriptionMessage],
       },
     });
   }
@@ -246,11 +248,7 @@ export class EvaluationProcessFormComponent implements OnInit {
             }
           },
           error: err => {
-            this.openDialog(
-              'Error: An error occurred while trying to create the new evaluation process : ' +
-                err.message,
-              false
-            );
+            this.openDialog(err.error.message, false);
           },
         });
       } else {
