@@ -1,49 +1,49 @@
-import { NgIf } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
-import { TYPE_TITLE } from '@core/constants/messages';
-import { PagedReadEvaluationProcess } from '@core/models/evaluation-request.model';
-import { EvaluationModel } from '@core/models/evaluation.model';
-import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
-import { EvaluationProcessFormComponent } from '../../components/evaluation-process-form/evaluation-process-form.component';
-import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { EvaluationsService } from '@core/services/api/evaluations.service';
-import { Status } from '@core/constants/common';
-import { getStatusForEvaluationProcess } from '../../utils/evaluations.util';
-import { Column } from '@shared/components/list/types/column';
+
 import { ActionDatas } from '@shared/components/list/types/action';
-import { ListComponent } from '@shared/components/list/list.component';
-import { EventAction, EventLoad } from '@shared/events/load';
-import { RangeTimestampPipe } from '@shared/pipes/range-timestamp.pipe';
-import { BadgeStatusComponent } from './badge-status/badge-status.component';
-import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+import { Column } from '@shared/components/list/types/column';
 import { DialogType } from '@shared/components/modal-dialog/types/dialog';
+import { EvaluationModel } from '@core/models/evaluation.model';
+import { EventAction, EventLoad } from '@shared/events/load';
+import { PagedReadEvaluationProcess } from '@core/models/evaluation-request.model';
+import { Status } from '@core/constants/common';
+import { TYPE_TITLE } from '@core/constants/messages';
+
+import { getStatusForEvaluationProcess } from '../../utils/evaluations.util';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+import { RangeTimestampPipe } from '@shared/pipes/range-timestamp.pipe';
+
+import { EvaluationsService } from '@core/services/api/evaluations.service';
+
+import { BadgeStatusComponent } from './badge-status/badge-status.component';
+import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
+import { EvaluationProcessFormComponent } from '../../components/evaluation-process-form/evaluation-process-form.component';
+import { ListComponent } from '@shared/components/list/list.component';
+import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
 
 @Component({
   selector: 'app-evaluation-process-list',
   imports: [
+    BadgeStatusComponent,
+    ErasButtonComponent,
+    ListComponent,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatCardModule,
-    NgIf,
-    MatChipsModule,
-    MatButtonModule,
-    MatIcon,
     MatTooltipModule,
-    EmptyDataComponent,
-    ListComponent,
-    BadgeStatusComponent,
   ],
   templateUrl: './evaluation-process-list.component.html',
-  styleUrl: './evaluation-process-list.component.scss',
 })
 export class EvaluationProcessListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
