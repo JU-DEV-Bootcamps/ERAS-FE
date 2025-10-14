@@ -1,46 +1,35 @@
-<span>
-  <h1 class="page-title">Evaluation Processes</h1>
-  <span
-    class="floatingButtonContainer"
-    *ngIf="evaluationProcessList.length !== 0"
-  >
-    <button
-      type="button"
-      class="addNewButton"
-      mat-flat-button
-      (click)="openModalNewEvaluationProcess()"
-    >
-      <mat-icon>add</mat-icon>
-      Add new
-    </button>
-  </span>
+<h1 class="page-title">Evaluation Processes</h1>
 
-  <app-list
-    (loadCalled)="handleLoadCalled($event)"
-    (actionCalled)="handleActionCalled($event)"
-    [columns]="columns"
-    [columnTemplates]="columnTemplates"
-    [items]="evaluationProcessList"
-    [totalItems]="totalEvaluations"
-    [title]="'Students by Poll'"
-    [actionDatas]="actionDatas"
-  >
-    <ng-template #status let-element>
-      <app-badge-status [element]="element" />
-    </ng-template>
-  </app-list>
-  @if (evaluationProcessList.length === 0) {
-    <span class="noEvalsContainer">
-      <app-empty-data-message
-        description="There are no process created yet."
-      ></app-empty-data-message>
-      <button
-        mat-flat-button
-        type="button"
-        (click)="openModalNewEvaluationProcess()"
-      >
-        Let's create a new one!
-      </button>
-    </span>
-  }
-</span>
+@if (!!evaluationProcessList.length) {
+  <div align="end">
+    <app-eras-button
+      [textButton]="'Add new'"
+      [iconButton]="'add'"
+      (clickButton)="openModalNewEvaluationProcess()"
+    ></app-eras-button>
+  </div>
+}
+
+<app-list
+  (loadCalled)="handleLoadCalled($event)"
+  (actionCalled)="handleActionCalled($event)"
+  [columns]="columns"
+  [columnTemplates]="columnTemplates"
+  [items]="evaluationProcessList"
+  [totalItems]="totalEvaluations"
+  [title]="'Students by Poll'"
+  [actionDatas]="actionDatas"
+>
+  <ng-template #status let-element>
+    <app-badge-status [element]="element" />
+  </ng-template>
+</app-list>
+
+@if (evaluationProcessList.length === 0) {
+  <section align="center">
+    <app-eras-button
+      [textButton]="'Let\'s create a new one!'"
+      (clickButton)="openModalNewEvaluationProcess()"
+    ></app-eras-button>
+  </section>
+}
