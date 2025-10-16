@@ -155,6 +155,7 @@ export class EvaluationProcessListComponent implements OnInit {
       .subscribe({
         next: () => {
           this.openAlertDialog('Evaluation deleted! ', 'success');
+          this._updatePaginator();
           this.getEvaluationProcess();
         },
         error: err => {
@@ -292,5 +293,14 @@ export class EvaluationProcessListComponent implements OnInit {
 
   isVisible(item: EvaluationModel) {
     return !this.importPollsDisabled.includes(item.status);
+  }
+
+  private _updatePaginator() {
+    this.totalEvaluations = Math.max(0, this.totalEvaluations - 1);
+    const totalPages = Math.ceil(this.totalEvaluations / this.pageSize);
+
+    if (this.currentPage >= totalPages && this.currentPage > 0) {
+      this.currentPage -= 1;
+    }
   }
 }
