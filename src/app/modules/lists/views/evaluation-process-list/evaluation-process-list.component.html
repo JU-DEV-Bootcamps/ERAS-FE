@@ -1,6 +1,6 @@
 <h1 class="page-title">Evaluation Processes</h1>
 
-@if (!!evaluationProcessList.length) {
+@if (this.totalEvaluations !== 0) {
   <div align="end">
     <app-eras-button
       [textButton]="'Add new'"
@@ -19,13 +19,14 @@
   [totalItems]="totalEvaluations"
   [title]="'Students by Poll'"
   [actionDatas]="actionDatas"
+  [pageIndex]="currentPage"
 >
   <ng-template #status let-element>
     <app-badge-status [element]="element" />
   </ng-template>
 </app-list>
 
-@if (evaluationProcessList.length === 0) {
+@if (this.totalEvaluations === 0) {
   <section align="center">
     <app-eras-button
       [textButton]="'Let\'s create a new one!'"

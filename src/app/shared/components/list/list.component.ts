@@ -82,6 +82,7 @@ export class ListComponent<T extends object>
   @ContentChildren(TemplateRef) templates!: QueryList<TemplateRef<unknown>>;
   @Input() columnTemplates: Column<T>[] = [];
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+  @Input() pageIndex = 0;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 
