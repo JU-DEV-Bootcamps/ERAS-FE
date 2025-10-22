@@ -139,8 +139,13 @@ jobs:
           push: true
           tags: ${{ inputs.dockerhub_username }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
 
-      - name: Update the env file    
+      - name: Save FE tag as JSON
         run: |
-          TAG_FE="${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
-          sed -i "s/^FE_VERSION=.*/FE_VERSION=$TAG_FE/" app/.env
-          ``    
+          TAG="${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
+          echo "{\"ERAS-FE\": \"$TAG\"}" > fe_tag.json
+
+      - name: Upload FE tag artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: eras-fe-tag
+          path: fe_tag.json
