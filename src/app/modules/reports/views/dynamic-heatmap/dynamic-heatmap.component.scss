@@ -1,0 +1,12 @@
+.action-section {
+  text-align: right;
+}
+
+.export-button {
+  border: none;
+  border-radius: 50%;
+  &:hover {
+    background-color: #bbbbbb;
+    cursor: pointer;
+  }
+}
