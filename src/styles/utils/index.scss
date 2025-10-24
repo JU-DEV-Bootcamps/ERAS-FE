@@ -3,6 +3,7 @@
 @use 'theme-colors.scss' as theme-colors;
 @use 'theme-fonts.scss' as theme-fonts;
 
+@forward './apex-charts';
 @forward './theme-breakpoints';
 @forward './theme-colors';
 @forward './theme-sizes';
@@ -36,10 +37,6 @@ mat-icon {
 .apexcharts-canvas
   .apexcharts-heatmap-rect[val='-1']
   + .apexcharts-data-labels {
-  display: none !important;
-}
-
-line.apexcharts-gridline {
   display: none !important;
 }
 

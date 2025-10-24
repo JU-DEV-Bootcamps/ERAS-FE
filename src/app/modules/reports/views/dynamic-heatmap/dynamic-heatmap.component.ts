@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfHelper } from '../../exportReport.util';
@@ -20,6 +26,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
+import { ColumnChartsComponent } from '@modules/reports/components/column-charts/column-charts.component';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -30,9 +37,10 @@ import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
     MatTooltipModule,
     MatProgressBarModule,
     NgApexchartsModule,
+    ColumnChartsComponent,
   ],
   templateUrl: './dynamic-heatmap.component.html',
-  styleUrl: './dynamic-heatmap.component.css',
+  styleUrl: './dynamic-heatmap.component.scss',
 })
 export class DynamicHeatmapComponent {
   private readonly dialog = inject(MatDialog);
@@ -47,6 +55,7 @@ export class DynamicHeatmapComponent {
 
   isGeneratingPDF = false;
   isLoading = false;
+  components = signal<PollCountReport | null>(null);
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -67,6 +76,7 @@ export class DynamicHeatmapComponent {
       .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
       .subscribe(data => {
         if (data) {
+          this.components.set(data.body);
           this.generateSeries(data.body);
           this.isGeneratingPDF = false;
           this.isLoading = false;
