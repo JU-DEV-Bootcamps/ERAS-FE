@@ -39,9 +39,9 @@ export const routes: Routes = [
         data: { breadcrumb: 'Polls Answered' },
       },
       {
-        path: 'reports/dynamic-heatmap',
+        path: 'reports/dynamic-charts',
         component: DynamicHeatmapComponent,
-        data: { breadcrumb: 'Dynamic Heatmap' },
+        data: { breadcrumb: 'Dynamic Charts' },
       },
       {
         path: 'profile',
