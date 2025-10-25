@@ -1,4 +1,4 @@
-<h1 class="page-title">Dynamic Chart</h1>
+<h1 class="page-title">Dynamic Charts</h1>
 <h2 class="page-subtitle">{{ title }}</h2>
 <app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
 
@@ -16,9 +16,47 @@
       >
         <mat-icon>print</mat-icon>
       </button>
+      <button
+        matButton
+        [matMenuTriggerFor]="beforeMenu"
+        class="export-button"
+        matTooltip="Charts"
+        mat-icon-button
+        color="primary"
+        [disabled]="!chartsOptions.length || isGeneratingPDF"
+      >
+        <mat-icon>bar_chart</mat-icon>
+      </button>
+      <mat-menu #beforeMenu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="toggleChart('heatmap')">
+          Heatmap Chart
+        </button>
+        <button mat-menu-item (click)="toggleChart('chart')">
+          Column Chart
+        </button>
+      </mat-menu>
     </div>
   </ng-container>
-  @if (components()) {
+
+  @if (heatmapChart) {
+    <div #contentToExport>
+      @for (chartOption of chartsOptions; track $index) {
+        <div class="chart-container">
+          <apx-chart
+            [series]="chartOption.series!"
+            [chart]="chartOption.chart!"
+            [xaxis]="chartOption.xaxis!"
+            [yaxis]="chartOption.yaxis!"
+            [colors]="chartOption.colors!"
+            [plotOptions]="chartOption.plotOptions!"
+            [title]="chartOption.title!"
+            [tooltip]="chartOption.tooltip!"
+          >
+          </apx-chart>
+        </div>
+      }
+    </div>
+  } @else {
     <div #contentToExport>
       <app-column-charts
         [components]="components()!"

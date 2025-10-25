@@ -27,6 +27,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
 import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
 import { ColumnChartsComponent } from '@modules/reports/components/column-charts/column-charts.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -38,6 +39,7 @@ import { ColumnChartsComponent } from '@modules/reports/components/column-charts
     MatProgressBarModule,
     NgApexchartsModule,
     ColumnChartsComponent,
+    MatMenuModule,
   ],
   templateUrl: './dynamic-heatmap.component.html',
   styleUrl: './dynamic-heatmap.component.scss',
@@ -56,6 +58,7 @@ export class DynamicHeatmapComponent {
   isGeneratingPDF = false;
   isLoading = false;
   components = signal<PollCountReport | null>(null);
+  heatmapChart = true;
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -172,5 +175,9 @@ export class DynamicHeatmapComponent {
       panelClass: 'border-modalbox-dialog',
       data,
     });
+  }
+
+  toggleChart(chart: string) {
+    this.heatmapChart = chart === 'heatmap';
   }
 }
