@@ -144,6 +144,10 @@ jobs:
           TAG="${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
           echo "{\"ERAS-FE\": \"$TAG\"}" > fe_tag.json
 
+      - name: Build project
+        run: |
+          mkdir -p build-output
+          
       - name: Verify files before zipping
         run: |
           test -f fe_tag.json || (echo "fe_tag.json not found" && exit 1)
