@@ -141,7 +141,7 @@ jobs:
 
       - name: Save FE tag as JSON
         run: |
-          TAG="${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
+          TAG="${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
           echo "{\"ERAS-FE\": \"$TAG\"}" > fe_tag.json
 
       - name: Build project
