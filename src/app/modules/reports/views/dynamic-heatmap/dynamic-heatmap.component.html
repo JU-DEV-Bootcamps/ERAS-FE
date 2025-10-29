@@ -58,10 +58,10 @@
     </div>
   } @else {
     <div #contentToExport>
-      <app-column-charts
+      <app-dynamic-column-chart
         [components]="components()!"
         [identifier]="uuid!"
-      ></app-column-charts>
+      ></app-dynamic-column-chart>
     </div>
   }
 } @loading {

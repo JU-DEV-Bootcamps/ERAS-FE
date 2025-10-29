@@ -7,7 +7,7 @@ import { Component, Input } from '@angular/core';
   templateUrl: './tooltip-chart.component.html',
 })
 export class TooltipChartComponent {
-  @Input() value!: number;
+  @Input() value!: string;
   @Input() category!: string;
-  @Input() emails!: string;
+  @Input() emails!: string[];
 }

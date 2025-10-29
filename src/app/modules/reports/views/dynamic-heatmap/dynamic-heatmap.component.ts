@@ -1,33 +1,39 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   inject,
   signal,
   ViewChild,
 } from '@angular/core';
-import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { PdfHelper } from '../../exportReport.util';
-import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { HeatMapService } from '@core/services/api/heat-map.service';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+
 import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { MatDialog } from '@angular/material/dialog';
+
+import { HeatMapService } from '@core/services/api/heat-map.service';
 import { ReportService } from '@core/services/api/report.service';
+
+import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
 import { GetChartOptions } from '@core/utilities/apex-chart/heat-map-config';
+import { PdfHelper } from '../../exportReport.util';
+
+import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
+import { Filter } from '../../components/poll-filters/types/filters';
+import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
+
+import { DynamicColumnChartComponent } from '@modules/reports/components/dynamic-column-chart/dynamic-column-chart.component';
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '../../../../features/heat-map/modal-question-details/modal-question-details.component';
-import { MatDialog } from '@angular/material/dialog';
-import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
-import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { Filter } from '../../components/poll-filters/types/filters';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ChangeDetectorRef } from '@angular/core';
-import { ComponentValueType } from '../../../../features/heat-map/types/risk-students-detail.type';
-import { customTooltip } from '@core/utilities/apex-chart/customTooltip';
-import { ColumnChartsComponent } from '@modules/reports/components/column-charts/column-charts.component';
-import { MatMenuModule } from '@angular/material/menu';
+import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 
 @Component({
   selector: 'app-dynamic-heatmap',
@@ -38,8 +44,8 @@ import { MatMenuModule } from '@angular/material/menu';
     MatTooltipModule,
     MatProgressBarModule,
     NgApexchartsModule,
-    ColumnChartsComponent,
     MatMenuModule,
+    DynamicColumnChartComponent,
   ],
   templateUrl: './dynamic-heatmap.component.html',
   styleUrl: './dynamic-heatmap.component.scss',

@@ -36,6 +36,7 @@ import {
   SelectedHMData,
 } from 'src/app/features/heat-map/modal-question-details/modal-question-details.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
+import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 
 export interface ChartOptions {
   chart: ApexChart;
@@ -52,11 +53,11 @@ export interface ChartOptions {
 }
 
 @Component({
-  selector: 'app-column-charts',
+  selector: 'app-dynamic-column-chart',
   imports: [NgApexchartsModule],
-  templateUrl: './column-charts.component.html',
+  templateUrl: './dynamic-column-chart.component.html',
 })
-export class ColumnChartsComponent {
+export class DynamicColumnChartComponent {
   components = input<PollCountReport>();
   identifier = input<string>();
 
@@ -94,37 +95,15 @@ export class ColumnChartsComponent {
     onSelect?: (x: number, y: number) => void
   ): Partial<ChartOptions> {
     return {
-      title: {
-        text: title,
-        margin: 0,
-        offsetY: 0,
-      },
-      chart: this._createChartBase(onSelect),
+      title: ColumnChartUtils.createTitle(title),
+      chart: ColumnChartUtils.createChartBase(onSelect),
       series: this._createSeries(questions),
-      plotOptions: { bar: { horizontal: false } },
-      xaxis: this._createXAxis(questions),
-      fill: { opacity: 0.8 },
-      legend: this._createLegend(),
+      plotOptions: ColumnChartUtils.createPlotOptions(),
+      xaxis: ColumnChartUtils.createXAxis(questions.map(q => q.question)),
+      fill: ColumnChartUtils.createFill(),
+      legend: ColumnChartUtils.createLegend(),
       tooltip: this._createTooltip(),
-      responsive: this._createResponsive(),
-    };
-  }
-
-  private _createChartBase(
-    onSelect?: (x: number, y: number) => void
-  ): ApexChart {
-    return {
-      type: 'bar',
-      height: 650,
-      stacked: true,
-      stackType: '100%',
-      toolbar: { show: false },
-      zoom: { enabled: false },
-      events: {
-        dataPointSelection: (_event, _ctx, cfg) => {
-          if (onSelect) onSelect(cfg.dataPointIndex, cfg.seriesIndex);
-        },
-      },
+      responsive: ColumnChartUtils.createResponsive(),
     };
   }
 
@@ -141,32 +120,12 @@ export class ColumnChartsComponent {
       });
   }
 
-  private _createXAxis(questions: PollCountQuestion[]): ApexXAxis {
-    return {
-      categories: questions.map(q => q.question),
-      labels: {
-        trim: true,
-        hideOverlappingLabels: false,
-        maxHeight: 100,
-      },
-    };
-  }
-
-  private _createLegend(): ApexLegend {
-    return {
-      position: 'top',
-      horizontalAlign: 'left',
-      height: 50,
-      onItemClick: { toggleDataSeries: true },
-    };
-  }
-
   private _createTooltip(): ApexTooltip {
     return {
       followCursor: true,
       custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-        const value = series[seriesIndex][dataPointIndex];
-        const category = w.globals.labels[dataPointIndex];
+        const value = `<b>Student Answers:<b> ${series[seriesIndex][dataPointIndex]}`;
+        const category = `Q: ${w.globals.labels[dataPointIndex]}`;
         const emails = w.config.series[seriesIndex].data[dataPointIndex].meta;
 
         const compRef = createComponent(TooltipChartComponent, {
@@ -187,44 +146,6 @@ export class ColumnChartsComponent {
         return html;
       },
     };
-  }
-
-  private _createResponsive() {
-    return [
-      {
-        breakpoint: 1000,
-        options: {
-          plotOptions: { bar: { horizontal: true } },
-          categories: [],
-          yaxis: {
-            labels: {
-              show: true,
-              formatter: function (val: string) {
-                const maxLength = 4;
-                return val.length > maxLength
-                  ? val.substring(0, maxLength) + '…'
-                  : val;
-              },
-              style: {
-                fontSize: 10,
-              },
-            },
-          },
-          xaxis: {
-            labels: {
-              show: true,
-              style: {
-                fontSize: 10,
-              },
-            },
-          },
-          legend: {
-            horizontalAlign: 'center',
-            fontSize: 10,
-          },
-        },
-      },
-    ];
   }
 
   private _getAnswersRisks(questions: PollCountQuestion[], riskLevel: number) {
