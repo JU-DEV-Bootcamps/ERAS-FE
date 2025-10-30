@@ -1,8 +1,8 @@
 <div class="column-chart-tooltip">
   <div class="cct-title">
-    <b>Q: {{ category }}</b>
+    <b>{{ category }}</b>
   </div>
-  <div class="cct-subtitle"><b>Student Answers: </b>{{ value }}</div>
+  <div class="cct-subtitle" [innerHTML]="value"></div>
   <div class="cct-divider"></div>
   <div class="cct-content">
     <ul class="custom-markers">

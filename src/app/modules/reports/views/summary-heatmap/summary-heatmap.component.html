@@ -17,24 +17,50 @@
       >
         <mat-icon>print</mat-icon>
       </button>
+      <button
+        matButton
+        [matMenuTriggerFor]="beforeMenu"
+        class="export-button"
+        matTooltip="Charts"
+        mat-icon-button
+        color="primary"
+        [disabled]="!students.length || isGeneratingPDF"
+      >
+        <mat-icon>bar_chart</mat-icon>
+      </button>
+      <mat-menu #beforeMenu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="toggleChart('heatmap')">
+          Heatmap Chart
+        </button>
+        <button mat-menu-item (click)="toggleChart('chart')">
+          Column Chart
+        </button>
+      </mat-menu>
     </div>
   </ng-container>
   @if (chartOptions && students.length) {
     <div class="table-container" #contentToExport>
-      <div class="chart-container">
-        <apx-chart
-          id="heatmap"
-          [series]="chartOptions.series!"
-          [chart]="chartOptions.chart!"
-          [xaxis]="chartOptions.xaxis!"
-          [yaxis]="chartOptions.yaxis!"
-          [colors]="chartOptions.colors!"
-          [plotOptions]="chartOptions.plotOptions!"
-          [title]="chartOptions.title!"
-          [tooltip]="chartOptions.tooltip!"
-        >
-        </apx-chart>
-      </div>
+      @if (heatmapChart) {
+        <div class="chart-container">
+          <apx-chart
+            id="heatmap"
+            [series]="chartOptions.series!"
+            [chart]="chartOptions.chart!"
+            [xaxis]="chartOptions.xaxis!"
+            [yaxis]="chartOptions.yaxis!"
+            [colors]="chartOptions.colors!"
+            [plotOptions]="chartOptions.plotOptions!"
+            [title]="chartOptions.title!"
+            [tooltip]="chartOptions.tooltip!"
+          >
+          </apx-chart>
+        </div>
+      } @else {
+        <app-summary-column-charts
+          [components]="components()!"
+          [data]="title"
+        ></app-summary-column-charts>
+      }
 
       <div id="table-container">
         <app-list
