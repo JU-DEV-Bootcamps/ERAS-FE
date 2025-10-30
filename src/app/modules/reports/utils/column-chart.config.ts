@@ -25,6 +25,9 @@ export class ColumnChartUtils {
       stackType: '100%',
       toolbar: { show: false },
       zoom: { enabled: false },
+      animations: {
+        enabled: false,
+      },
       events: {
         dataPointSelection: (_event, _ctx, cfg) => {
           if (onSelect) onSelect(cfg.dataPointIndex, cfg.seriesIndex);

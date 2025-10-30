@@ -91,6 +91,7 @@ export class DynamicHeatmapComponent {
           this.isLoading = false;
         } else {
           this.chartsOptions = [];
+          this.components.set(null);
         }
       });
   }
@@ -151,6 +152,7 @@ export class DynamicHeatmapComponent {
     this.uuid = filters.uuid;
     if (!filters.cohortIds || !filters.variableIds || !filters.lastVersion) {
       this.chartsOptions = [];
+      this.components.set(null);
       return;
     }
     this.generateHeatMap(
