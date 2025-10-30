@@ -12,9 +12,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+
+import { BehaviorSubject } from 'rxjs';
+import Keycloak from 'keycloak-js';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,25 +26,35 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
-import { IMPORT_MESSAGES, TYPE_TITLE } from '@core/constants/messages';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
-import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
-import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
-import { PollName } from '@core/models/poll-request.model';
-import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
-import { PollInstance } from '@core/models/poll-instance.model';
-import { ConfigurationsService } from '@core/services/api/configurations.service';
-import Keycloak from 'keycloak-js';
 import { ConfigurationsModel } from '@core/models/configurations.model';
-import { ServiceProvidersService } from '@core/services/api/service-providers.service';
-import { ServiceProviderModel } from '@core/models/service-providers.model';
-import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 import {
   DialogData,
   DialogType,
 } from '@shared/components/modal-dialog/types/dialog';
+import { PollInstance } from '@core/models/poll-instance.model';
+import { PollName } from '@core/models/poll-request.model';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
+
+import { IMPORT_MESSAGES, TYPE_TITLE } from '@core/constants/messages';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+
+import { isEmpty } from '@core/utilities/helpers/is-empty';
+
+import { ConfigurationsService } from '@core/services/api/configurations.service';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+
+import { ImportAnswersPreviewComponent } from '../import-answers-preview/import-answers-preview.component';
+import { ModalComponent } from '@shared/components/modal-dialog/modal-dialog.component';
+
+interface PreselectedPoll {
+  configuration: ConfigurationsModel;
+  surveyName: string;
+  start: string;
+  end: string;
+}
 
 @Component({
   selector: 'app-import-answers',
@@ -79,7 +92,7 @@ export class ImportAnswersComponent implements OnInit {
   importedPollData: PollInstance[] = [];
   columns = ['#', 'name', 'email', 'cohort', 'actions'];
   students = [];
-  preselectedPollState;
+  preselectedPollState: PreselectedPoll | null = null;
 
   isMobile = false;
 
@@ -90,21 +103,8 @@ export class ImportAnswersComponent implements OnInit {
     private configurationsService: ConfigurationsService,
     private serviceProvidersService: ServiceProvidersService,
     private readonly keycloak: Keycloak,
-    private datePipe: DatePipe,
-    private router: Router
+    private datePipe: DatePipe
   ) {
-    const state = history.state as {
-      pollName?: string;
-      endDate?: string;
-      startDate?: string;
-    };
-    if (state?.pollName) {
-      this.preselectedPollState = {
-        surveyName: state.pollName,
-        start: state.startDate,
-        end: state.endDate,
-      };
-    }
     this.form = this.fb.group({
       configuration: '',
       surveyName: [
@@ -217,6 +217,12 @@ export class ImportAnswersComponent implements OnInit {
     this.configurationsService.getConfigurationsByUserId(userId).subscribe({
       next: data => {
         this.userConfigurations = data;
+        if (!isEmpty(this.userConfigurations)) {
+          this.selectedConfiguration = this.userConfigurations[0];
+          this.getPollDetails(this.selectedConfiguration.id);
+          this._fillUpState(this.selectedConfiguration);
+          this._fillPollsForm();
+        }
         this.loadingSubject.next(false);
       },
       error: err => {
@@ -263,5 +269,32 @@ export class ImportAnswersComponent implements OnInit {
     this.form.reset();
     this.form.markAsPristine();
     this.form.markAsUntouched();
+  }
+
+  private _fillUpState(configuration: ConfigurationsModel) {
+    const state = history.state as {
+      pollName?: string;
+      endDate?: string;
+      startDate?: string;
+    };
+    if (state?.pollName) {
+      this.preselectedPollState = {
+        configuration: configuration,
+        surveyName: state.pollName,
+        start: state.startDate!,
+        end: state.endDate!,
+      };
+    }
+  }
+
+  private _fillPollsForm() {
+    this.form
+      .get('configuration')
+      ?.setValue(this.preselectedPollState?.configuration);
+    this.form
+      .get('surveyName')
+      ?.setValue(this.preselectedPollState?.surveyName);
+    this.form.get('start')?.setValue(this.preselectedPollState?.start);
+    this.form.get('end')?.setValue(this.preselectedPollState?.end ?? '');
   }
 }
