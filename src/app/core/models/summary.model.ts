@@ -2,7 +2,7 @@ import { UUID } from 'crypto';
 import { PollModel } from './poll.model';
 import { PollInstanceModel } from './poll-instance.model';
 import { BaseModel } from './common/base.model';
-import { ComponentValueType } from '../../features/heat-map/types/risk-students-detail.type';
+import { ComponentValueType } from './types/risk-students-detail.type';
 
 export const ENTITY_NAMES = [
   'Students',

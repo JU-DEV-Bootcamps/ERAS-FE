@@ -10,7 +10,7 @@ import {
   ActionDataText,
 } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
-import { EventAction, EventLoad } from '@shared/events/load';
+import { EventAction, EventLoad } from '@core/models/load';
 import { Referral } from '@modules/supports-referrals/models/referrals.interfaces';
 
 import { TimestampToDatePipe } from '@shared/pipes/timestamp-to-date.pipe';

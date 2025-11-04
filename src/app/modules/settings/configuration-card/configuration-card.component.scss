@@ -1,0 +1,43 @@
+.services-card {
+  padding: 15px;
+  color: #008581;
+  text-align: center;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.title-status {
+  color: #144d4d;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: medium;
+}
+.check {
+  color: #07cb07;
+}
+.close {
+  color: #f13636;
+}
+.ligth {
+  margin: 5px;
+  padding: 0;
+  color: #144d4d;
+  font-family: 'Roboto', sans-serif; /* Tipo de fuente */
+  font-size: 12px; /* Tamaño de fuente */
+  font-weight: lighter;
+}
+
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}

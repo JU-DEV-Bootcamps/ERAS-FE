@@ -7,7 +7,7 @@ import { Profile } from '@core/models/profile.model';
 import { Referral, RESTReferral } from '../models/referrals.interfaces';
 import { StudentResponse } from '@core/models/student-request.model';
 
-import { idGenerator } from '@core/utilities/helpers/id-generator';
+import { idGenerator } from '@core/utils/helpers/id-generator';
 import { StudentService } from '@core/services/api/student.service';
 
 enum StatusCode {

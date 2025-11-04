@@ -7,7 +7,7 @@ import { ChartBase } from '../abstract-chart';
   selector: 'app-bar-chart',
   imports: [NgApexchartsModule],
   templateUrl: './bar-chart.component.html',
-  styleUrl: './bar-chart.component.css',
+  styleUrl: './bar-chart.component.scss',
 })
 export class BarChartComponent extends ChartBase {
   public chartOptions: ApexOptions = {};

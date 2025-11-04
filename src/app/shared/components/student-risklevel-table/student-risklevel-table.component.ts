@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
     MatDialogContent,
   ],
   templateUrl: './student-risklevel-table.component.html',
-  styleUrl: './student-risklevel-table.component.css',
+  styleUrl: './student-risklevel-table.component.scss',
 })
 export class StudentRisklevelTableComponent {
   readonly dialogRef = inject(MatDialogRef<StudentRisklevelTableComponent>);

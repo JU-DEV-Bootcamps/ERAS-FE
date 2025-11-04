@@ -6,7 +6,7 @@ import { BaseApiService } from './base-api.service';
 import { HealthCheckResponse } from '../../models/cosmic-latte-request.model';
 import { PollName } from '../../models/poll-request.model';
 import { PollInstance } from '../../models/poll-instance.model';
-import { sortArray } from '../../utilities/sort';
+import { sortArray } from '../../utils/helpers/sort';
 
 @Injectable({
   providedIn: 'root',

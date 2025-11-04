@@ -8,7 +8,7 @@ import { getRiskColor, getRiskTextColor } from '@core/constants/riskLevel';
 @Component({
   selector: 'app-person-imported',
   templateUrl: './badge-person.component.html',
-  styleUrl: './badge-person.component.css',
+  styleUrl: './badge-person.component.scss',
   imports: [MatIconModule, CommonModule, EmptyDataComponent],
 })
 export class BadgeImportedComponent {

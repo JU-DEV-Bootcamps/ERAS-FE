@@ -13,7 +13,7 @@ import { CohortService } from '@core/services/api/cohort.service';
 import { ListComponent } from '../list/list.component';
 import { BadgeRiskComponent } from '../badge-risk-level/badge-risk-level.component';
 import { Column } from '../list/types/column';
-import { EventLoad } from '../../events/load';
+import { EventLoad } from '../../../core/models/load';
 import { Pagination } from '@core/services/interfaces/server.type';
 
 interface StudentSummary {
