@@ -6,7 +6,7 @@ import { PollModel } from '../../models/poll.model';
 import { PollVariableModel } from '../../models/poll-variable.model';
 import { VariableModel } from '../../models/variable.model';
 
-import { sortArray } from '@core/utilities/sort';
+import { sortArray } from '@core/utils/helpers/sort';
 import { BaseApiService } from './base-api.service';
 
 @Injectable({

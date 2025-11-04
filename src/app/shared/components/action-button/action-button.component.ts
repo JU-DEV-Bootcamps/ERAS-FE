@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
 import { ActionData } from '../list/types/action';
-import { EventAction } from '../../events/load';
+import { EventAction } from '../../../core/models/load';
 
 @Component({
   selector: 'app-action-button',
@@ -18,7 +18,7 @@ import { EventAction } from '../../events/load';
     MatButtonModule,
   ],
   templateUrl: './action-button.component.html',
-  styleUrl: './action-button.component.css',
+  styleUrl: './action-button.component.scss',
 })
 export class ActionButtonComponent {
   @Input() actionData: ActionData = {

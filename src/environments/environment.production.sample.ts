@@ -5,7 +5,7 @@
  */
 
 export const environment = {
-  production: true,
+  production: false,
   apiUrl: '__API_URL__',
   keycloak: {
     url: '__KEYCLOAK_URL__',

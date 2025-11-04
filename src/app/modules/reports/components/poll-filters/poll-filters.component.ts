@@ -36,7 +36,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatProgressSpinner,
   ],
   templateUrl: './poll-filters.component.html',
-  styleUrl: './poll-filters.component.css',
+  styleUrl: './poll-filters.component.scss',
 })
 export class PollFiltersComponent implements OnInit {
   @Input() showVariables = true;

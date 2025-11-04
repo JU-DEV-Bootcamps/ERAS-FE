@@ -1,4 +1,4 @@
-import { ComponentValueType } from '../../../features/heat-map/types/risk-students-detail.type';
+import { ComponentValueType } from '../types/risk-students-detail.type';
 import { DynamicSerie, SummarySerie } from '../heatmap-data.model';
 
 export interface DynamicReport {

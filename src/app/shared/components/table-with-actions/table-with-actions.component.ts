@@ -24,7 +24,7 @@ import {
   ActionDatas,
   ActionDataWithCondition,
 } from '../list/types/action';
-import { EventAction } from '../../events/load';
+import { EventAction } from '../../../core/models/load';
 import { Column } from '../list/types/column';
 import { MapClass } from '../list/types/class';
 
@@ -49,7 +49,7 @@ import { ActionButtonComponent } from '../action-button/action-button.component'
     MatMenuModule,
   ],
   templateUrl: './table-with-actions.component.html',
-  styleUrls: ['./table-with-actions.component.css'],
+  styleUrls: ['./table-with-actions.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class TableWithActionsComponent<T extends object> implements OnInit {

@@ -22,7 +22,7 @@ import {
 
 import { MatDialog } from '@angular/material/dialog';
 
-import { ComponentValueType } from 'src/app/features/heat-map/types/risk-students-detail.type';
+import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import {
   PollCountAnswer,
   PollCountComponent,
@@ -34,7 +34,7 @@ import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
-} from 'src/app/features/heat-map/modal-question-details/modal-question-details.component';
+} from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 

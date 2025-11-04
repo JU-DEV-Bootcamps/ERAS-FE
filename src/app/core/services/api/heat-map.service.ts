@@ -1,11 +1,11 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
-import { PollData } from '../../../features/reports/types/data.adapter';
+import { PollData } from '../../../modules/reports/models/data.adapter';
 import {
   ComponentValueType,
   RiskStudentDetailType,
-} from '../../../features/heat-map/types/risk-students-detail.type';
+} from '../../models/types/risk-students-detail.type';
 import { DEFAULT_LIMIT } from '../../constants/pagination';
 import { GetQueryResponse } from '../../models/summary.model';
 import { HeatmapSummaryModel } from '../../models/heatmap-summary.model';

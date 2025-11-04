@@ -11,7 +11,7 @@ import {
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
-import { fixedColorRange } from '../../utilities/apex-chart/heat-map-config';
+import { fixedColorRange } from '@core/utils/apex-chart/heat-map-config';
 import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
@@ -21,7 +21,7 @@ import {
   SummaryReport,
 } from '../../models/reports/reports-data.model';
 import { Observable, of } from 'rxjs';
-import { addCountPercentages } from '@core/utilities/apex-chart/customTooltip';
+import { addCountPercentages } from '@core/utils/apex-chart/customTooltip';
 
 @Injectable({
   providedIn: 'root',

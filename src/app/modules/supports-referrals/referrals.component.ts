@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { EventAction, EventLoad } from '@shared/events/load';
+import { EventAction, EventLoad } from '@core/models/load';
 import { Pagination } from '@core/services/interfaces/server.type';
 import { Referral, ResolverReferral } from './models/referrals.interfaces';
 

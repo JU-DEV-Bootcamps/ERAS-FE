@@ -7,7 +7,7 @@ import { ChartBase } from '../abstract-chart';
   selector: 'app-pie-chart',
   imports: [NgApexchartsModule],
   templateUrl: './pie-chart.component.html',
-  styleUrl: './pie-chart.component.css',
+  styleUrl: './pie-chart.component.scss',
 })
 export class PieChartComponent extends ChartBase implements OnInit {
   public chartOptions: ApexOptions = {};

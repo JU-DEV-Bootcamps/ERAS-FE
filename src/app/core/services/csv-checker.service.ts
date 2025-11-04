@@ -3,7 +3,7 @@ import Papa from 'papaparse';
 import {
   isFieldEmailValid,
   isFieldNameValid,
-} from '../utilities/validators/fields.util';
+} from '../utils/validators/fields.util';
 @Injectable({
   providedIn: 'root',
 })
