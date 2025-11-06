@@ -1,7 +1,9 @@
 import { CommonModule, DecimalPipe } from '@angular/common';
 import {
   Component,
+  createComponent,
   ElementRef,
+  EnvironmentInjector,
   inject,
   signal,
   ViewChild,
@@ -42,6 +44,7 @@ import {
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-column-charts/summary-column-charts.component';
+import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
 
 @Component({
   selector: 'app-students-risk',
@@ -69,6 +72,7 @@ export class SummaryHeatmapComponent {
   pdfHelper = inject(PdfHelper);
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
+  private injector = inject(EnvironmentInjector);
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
@@ -145,26 +149,54 @@ export class SummaryHeatmapComponent {
         const reportSeries = this.reportService.getHMSeriesFromAvgReport(
           response.body
         );
-        const series = this.reportService.regroupSummaryByColor(reportSeries);
-        this.chartOptions = GetChartOptions(`${this.title}`, series, (x, y) => {
-          const component = series[y];
-          const serieQuestion = series[y].data[x];
-          const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
-            response.body,
-            component.description,
-            serieQuestion
-          );
 
-          if (!pollAvgQuestion) {
-            console.error('Error getting question from report.');
-          } else {
-            this.openDetailsModal(
-              pollAvgQuestion,
-              component.description as ComponentValueType,
-              component.text
+        const series = this.reportService.regroupSummaryByColor(reportSeries);
+        this.chartOptions = GetChartOptions(
+          `${this.title}`,
+          series,
+          (x, y) => {
+            const component = series[y];
+            const serieQuestion = series[y].data[x];
+            const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
+              response.body,
+              component.description,
+              serieQuestion
             );
+
+            if (!pollAvgQuestion) {
+              console.error('Error getting question from report.');
+            } else {
+              this.openDetailsModal(
+                pollAvgQuestion,
+                component.description as ComponentValueType,
+                component.text
+              );
+            }
+          },
+          undefined,
+          (x, y) => {
+            const category = `Q: ${series[x].data[y].x}`;
+            const value = `Answer: ${series[x].data[y].y}`;
+            const answers = series[x].data[y].z;
+
+            const compRef = createComponent(TooltipChartComponent, {
+              environmentInjector: this.injector,
+            });
+
+            compRef.instance.value = value;
+            compRef.instance.category = category;
+            compRef.instance.answers = answers;
+
+            const container = document.createElement('div');
+            container.appendChild(compRef.location.nativeElement);
+            compRef.changeDetectorRef.detectChanges();
+
+            const html = container.innerHTML;
+            compRef.destroy();
+
+            return html;
           }
-        });
+        );
       });
   }
 

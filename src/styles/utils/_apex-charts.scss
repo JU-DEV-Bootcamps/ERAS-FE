@@ -1,10 +1,10 @@
 .column-chart-tooltip {
   background: #faf9f6;
-  border: 1px solid #ddd;
-  padding: 20px;
   border-radius: 10px;
+  border: 1px solid #ddd;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   max-width: 300px;
+  padding: 20px;
   white-space: normal;
   word-wrap: break-word;
 }
@@ -15,8 +15,8 @@
 }
 
 .cct-subtitle {
-  font-size: 16px;
   color: #797676;
+  font-size: 16px;
   margin-bottom: 10px;
 }
 
@@ -36,16 +36,21 @@ ul.custom-markers {
 }
 
 .custom-markers li {
+  color: #747272;
   list-style-type: none;
-  position: relative;
+  margin-left: 5px;
 }
 
-.custom-markers li::before {
-  position: absolute;
-  left: 0;
+.custom-markers li:last-child {
+  margin-bottom: 10px;
+}
+
+.cct-answer {
+  color: #535252;
+  font-weight: 500;
 }
 
 .cct-icon {
-  font-size: 20px;
   color: green;
+  font-size: 12px;
 }
