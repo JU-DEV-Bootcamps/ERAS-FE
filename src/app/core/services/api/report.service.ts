@@ -93,12 +93,7 @@ export class ReportService extends BaseApiService {
           return {
             x: question.question,
             y: question.averageRisk,
-            z: question.answersDetails
-              .map(
-                ans =>
-                  `<span style="font-weight: bold;">${this.addAnswerSeparator(ans.answerText)} = ${ans.answerPercentage}%:<span/><br>${this.arrayAsStringParams(ans.studentsEmails)}`
-              )
-              .join('; </br>'),
+            z: question.answersDetails,
             position: question.position,
           };
         }),
@@ -218,7 +213,7 @@ export class ReportService extends BaseApiService {
           .map(() => ({
             x: '',
             y: -1,
-            z: '',
+            z: [],
           }));
 
         newData.push(...items, ...fillers);

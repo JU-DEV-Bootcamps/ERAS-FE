@@ -98,17 +98,7 @@ export function GetChartOptions(
           }
         };
         const wrap = (content: string) => {
-          return `
-            <div style="
-              padding: 15px;
-              border-radius: 15px;
-              max-width: 300px;
-              white-space: normal;
-              word-wrap: break-word;
-            ">
-              ${content}
-            </div>
-            `;
+          return `<div>${content}</div>`;
         };
         return wrap(content());
       },

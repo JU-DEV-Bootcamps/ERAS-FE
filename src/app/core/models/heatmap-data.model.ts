@@ -1,3 +1,5 @@
+import { AnswerDetail } from './summary.model';
+
 export interface SummaryHeatMapData {
   name: string;
   data: SummarySerie[];
@@ -6,7 +8,7 @@ export interface SummaryHeatMapData {
 export interface SummarySerie {
   x: string;
   y: number;
-  z: string;
+  z: AnswerDetail[];
   position?: number;
 }
 
