@@ -52,7 +52,9 @@
           (openedChange)="handleCohortSelect($event)"
         >
           <mat-select-trigger>
-            {{ getCohortsDisplay() }}
+            <app-selected-items
+              [items]="getCohortsDisplay()"
+            ></app-selected-items>
           </mat-select-trigger>
           @if (cohorts.length > 0) {
             <mat-option appSelectAll [allValues]="cohorts"
@@ -82,7 +84,9 @@
           formControlName="componentNames"
         >
           <mat-select-trigger>
-            {{ getComponentsDisplay() }}
+            <app-selected-items
+              [items]="getComponentsDisplay()"
+            ></app-selected-items>
           </mat-select-trigger>
           @if (!!componentNames.length) {
             <mat-option appSelectAll [allValues]="componentNames"
@@ -114,7 +118,9 @@
           formControlName="variables"
         >
           <mat-select-trigger>
-            {{ getVariablesDisplay() }}
+            <app-selected-items
+              [items]="getVariablesDisplay()"
+            ></app-selected-items>
           </mat-select-trigger>
           @if (!!variables.length) {
             <mat-option appSelectAll [allValues]="getAllVariableIds()"

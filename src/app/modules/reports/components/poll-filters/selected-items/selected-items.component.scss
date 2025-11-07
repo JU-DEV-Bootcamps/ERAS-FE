@@ -1,0 +1,16 @@
+.selected-items {
+  display: flex;
+}
+
+.si-texts {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.si-selection {
+  opacity: 0.75;
+  font-size: 0.75em;
+  margin: 0 0.5rem 0 0.5rem;
+}

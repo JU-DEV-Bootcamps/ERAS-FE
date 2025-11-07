@@ -23,6 +23,7 @@ import { VariableModel } from '@core/models/variable.model';
 import { CommonModule } from '@angular/common';
 import { SelectAllDirective } from '@shared/directives/select-all.directive';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { SelectedItemsComponent } from './selected-items/selected-items.component';
 
 @Component({
   selector: 'app-poll-filters',
@@ -34,6 +35,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     CommonModule,
     SelectAllDirective,
     MatProgressSpinner,
+    SelectedItemsComponent,
   ],
   templateUrl: './poll-filters.component.html',
   styleUrl: './poll-filters.component.scss',
@@ -195,13 +197,10 @@ export class PollFiltersComponent implements OnInit {
     );
 
     return cohortIds?.length === this.cohorts.length
-      ? 'Select all'
-      : cohortIds
-          ?.map(
-            cohortId =>
-              this.cohorts.find(cohort => cohort.id === cohortId)?.name
-          )
-          ?.join(', ');
+      ? ['Select all']
+      : cohortIds?.map(
+          cohortId => this.cohorts.find(cohort => cohort.id === cohortId)?.name
+        );
   }
 
   getComponentsDisplay() {
@@ -210,12 +209,10 @@ export class PollFiltersComponent implements OnInit {
     );
 
     return componentNames?.length === this.componentNames.length
-      ? 'Select all'
-      : componentNames
-          ?.map(componentName =>
-            this.componentNames.find(cN => cN === componentName)
-          )
-          ?.join(', ');
+      ? ['Select all']
+      : componentNames?.map(componentName =>
+          this.componentNames.find(cN => cN === componentName)
+        );
   }
 
   getVariablesDisplay() {
@@ -224,10 +221,10 @@ export class PollFiltersComponent implements OnInit {
     );
 
     return variables?.length === this.variables.length
-      ? 'Select all'
-      : variables
-          ?.map(id => this.variables.find(v => v.pollVariableId === id)?.name)
-          ?.join(', ');
+      ? ['Select all']
+      : variables?.map(
+          id => this.variables.find(v => v.pollVariableId === id)?.name
+        );
   }
 
   getAllVariableIds() {
