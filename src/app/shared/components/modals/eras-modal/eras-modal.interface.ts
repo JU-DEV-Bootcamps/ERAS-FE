@@ -16,6 +16,5 @@ export interface ErasModalAction {
 }
 
 export interface InnerComponent {
-  form?: FormGroup;
-  formReady?: EventEmitter<FormGroup>;
+  formInstance?: EventEmitter<FormGroup>;
 }
