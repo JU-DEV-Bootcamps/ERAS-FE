@@ -230,36 +230,38 @@ export class EvaluationProcessFormComponent implements OnInit {
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          pollName: this.form.value.pollName,
+          pollName: this.form.value.pollName.name,
           configurationId: this.selectedConfiguration?.id,
           country: this.selectedCountry || this.form.value.country.alpha3,
         } as CreateEvaluationModel;
-        if (this.form.value.pollName === 'null') {
+        if (this.form.value.pollName.name === 'null') {
           delete newProcess.pollName;
         }
-        this.evaluationsService.createEvalProc(newProcess).subscribe({
-          next: () => {
-            this.closeAndResetDialog();
-            this.openDialog('Sucess: Process created!', true);
-            if (this.data.updateFunction) {
-              this.data.updateFunction();
-            } else {
-              console.warn('No update function provided');
-            }
-          },
-          error: err => {
-            this.openDialog(err.error.message, false);
-          },
-        });
+        this.evaluationsService
+          .createEvalProc(newProcess, this.form.value.pollName._id)
+          .subscribe({
+            next: () => {
+              this.closeAndResetDialog();
+              this.openDialog('Sucess: Process created!', true);
+              if (this.data.updateFunction) {
+                this.data.updateFunction();
+              } else {
+                console.warn('No update function provided');
+              }
+            },
+            error: err => {
+              this.openDialog(err.error.message, false);
+            },
+          });
       } else {
         const updateEval: EvaluationModel = {
           id: this.data.evaluation.id,
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          ...(this.form.value.pollName !== 'null'
+          ...(this.form.value.pollName.name !== 'null'
             ? {
-                pollName: this.form.value.pollName,
+                pollName: this.form.value.pollName.name,
               }
             : {}),
           country: this.selectedCountry || this.form.value.country.alpha3,
