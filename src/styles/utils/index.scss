@@ -4,6 +4,7 @@
 @use 'theme-fonts.scss' as theme-fonts;
 
 @forward './apex-charts';
+@forward './forms';
 @forward './theme-breakpoints';
 @forward './theme-colors';
 @forward './theme-sizes';
@@ -81,14 +82,6 @@ body {
   font-size: 0.9em;
   white-space: normal;
   word-wrap: break-word;
-}
-
-mat-form-field {
-  margin-left: 0px !important;
-}
-
-mat-option[appselectall] {
-  background-color: #c698f1 !important;
 }
 
 .swipe-icon {

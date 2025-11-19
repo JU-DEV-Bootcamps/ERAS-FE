@@ -1,0 +1,14 @@
+<mat-form-field class="w-full" appearance="outline">
+  <mat-label>{{ field().label }}</mat-label>
+  <mat-select
+    [formControlName]="field().name"
+    [multiple]="field().multipleSelect"
+  >
+    @for (option of field().options; track $index) {
+      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    }
+  </mat-select>
+  @if (formUtils.isValidField(form(), field().name)) {
+    <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
+  }
+</mat-form-field>

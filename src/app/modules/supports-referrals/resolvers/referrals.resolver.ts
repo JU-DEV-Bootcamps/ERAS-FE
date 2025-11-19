@@ -8,6 +8,7 @@ import {
   ReferralStudent,
   ResolverReferralData,
 } from '../models/referrals.interfaces';
+import { mapFields } from '../utils/fieldMapper';
 
 import { JuServicesService } from '../services/juServices.service';
 import { ProfessionalsService } from '../services/professionals.service';
@@ -37,10 +38,14 @@ export const referralsResolver: ResolveFn<
       return {
         referrals,
         lookups: {
-          profiles: [profiles],
-          services: services.items,
-          professionals: professionals.items,
-          students: students.items as ReferralStudent[],
+          profiles: mapFields([profiles], 'firstName', 'id'),
+          services: mapFields(services.items, 'name', 'id'),
+          professionals: mapFields(professionals.items, 'name', 'id'),
+          students: mapFields(
+            students.items as ReferralStudent[],
+            'name',
+            'id'
+          ),
         },
       };
     })

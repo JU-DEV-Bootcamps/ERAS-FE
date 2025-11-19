@@ -47,11 +47,9 @@ export class ErasModalComponent implements AfterViewInit {
 
     // Link the FormGroup if the inner component has a form.
     const instComp = componentReference.instance;
-    if (!this.data.form && instComp?.form instanceof FormGroup) {
-      this.data.form = instComp.form;
-    }
-    if (instComp.formReady instanceof EventEmitter) {
-      instComp.formReady.subscribe(
+
+    if (instComp.formInstance instanceof EventEmitter) {
+      instComp.formInstance.subscribe(
         (formGroup: FormGroup) => (this.data.form = formGroup)
       );
     }
@@ -63,7 +61,10 @@ export class ErasModalComponent implements AfterViewInit {
         this.data.form.markAllAsTouched();
         return;
       }
-      this.dialogRef.close({ type: 'save', data: this.data.form.value });
+      this.dialogRef.close({
+        type: 'save',
+        data: this.data.form.getRawValue(),
+      });
       return;
     }
     this.dialogRef.close(action.value);

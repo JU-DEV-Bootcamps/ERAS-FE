@@ -1,66 +1,61 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
-  CUSTOM_ELEMENTS_SCHEMA,
   EventEmitter,
   inject,
-  OnInit,
   Output,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
-import { provideNativeDateAdapter } from '@angular/material/core';
+
+import {
+  DynamicField,
+  FormCreation,
+} from '@core/factories/forms/form-factory.interface';
+import { FormFactoryComponent } from '@core/factories/forms/form-factory.component';
 
 @Component({
   selector: 'app-referral-form',
-  providers: [provideNativeDateAdapter()],
-  imports: [
-    CommonModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRadioModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-  ],
+  imports: [FormFactoryComponent],
   templateUrl: './referral-form.component.html',
-  styleUrl: './referral-form.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ReferralFormComponent implements OnInit {
-  @Output() formReady = new EventEmitter<FormGroup>();
+export class ReferralFormComponent implements FormCreation {
+  @Output() formInstance = new EventEmitter<FormGroup>();
 
-  //Services
   matDialogData = inject(MAT_DIALOG_DATA);
-  fb = inject(FormBuilder);
+  lookups = computed(() => this.matDialogData.data);
 
-  //Signals
-  lookups = computed(() => {
-    return this.matDialogData.data;
-  });
-
-  //Variables
-  form!: FormGroup;
-  ngOnInit() {
-    this.form = this.fb.group({
-      comment: [''],
-      date: [{ value: new Date(), disabled: true }, Validators.required],
-      professional: [null, Validators.required],
-      service: [null, Validators.required],
-      student: [null, Validators.required],
-      submitter: [this.lookups().profiles[0]?.id, Validators.required],
-    });
-    this.formReady.emit(this.form);
-  }
+  formFields: DynamicField[] = [
+    { type: 'date', name: 'date', label: 'Date', validators: ['required'] },
+    {
+      type: 'select',
+      name: 'submitter',
+      label: 'Submitter',
+      validators: ['required'],
+      options: this.lookups().profiles,
+    },
+    {
+      type: 'select',
+      name: 'service',
+      label: 'Service',
+      validators: ['required'],
+      options: this.lookups().services,
+    },
+    {
+      type: 'select',
+      name: 'professional',
+      label: 'Professional',
+      validators: ['required'],
+      options: this.lookups().professionals,
+    },
+    {
+      type: 'select',
+      name: 'student',
+      label: 'Student',
+      multipleSelect: true,
+      validators: ['required'],
+      options: this.lookups().students,
+    },
+    { type: 'textarea', name: 'comment', label: 'Professinal comment' },
+  ];
 }

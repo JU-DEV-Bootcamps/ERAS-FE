@@ -1,5 +1,5 @@
 import { AuditModel } from '@core/models/common/audit.model';
-import { Profile } from '@core/models/profile.model';
+import { Lookup } from '@core/models/lookup';
 import { KeycloakProfile } from 'keycloak-js';
 
 export interface Referral {
@@ -41,6 +41,7 @@ export interface PostReferral {
 export interface JuService {
   audit: AuditModel;
   name: string;
+  id: number;
 }
 
 export interface AssignedProfessional {
@@ -53,10 +54,10 @@ export interface AssignedProfessional {
 export interface ResolverReferralData {
   referrals: ResolverReferral;
   lookups: {
-    profiles: Profile[];
-    services: JuService[];
-    professionals: AssignedProfessional[];
-    students: ReferralStudent[];
+    profiles: Lookup[];
+    services: Lookup[];
+    professionals: Lookup[];
+    students: Lookup[];
   };
 }
 
