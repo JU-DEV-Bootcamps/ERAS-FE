@@ -259,9 +259,9 @@ export class EvaluationProcessFormComponent implements OnInit {
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          ...(this.form.value.pollName.name !== 'null'
+          ...(this.data.evaluation.pollName !== 'null'
             ? {
-                pollName: this.form.value.pollName.name,
+                pollName: this.data.evaluation.pollName,
               }
             : {}),
           country: this.selectedCountry || this.form.value.country.alpha3,
