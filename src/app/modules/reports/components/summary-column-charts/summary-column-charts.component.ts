@@ -79,16 +79,11 @@ export class SummaryColumnChartsComponent {
       const filteredQuestions = component.questions.filter(
         question => Math.round(question.averageRisk) === riskLevel
       );
-
-      const totalCount = filteredQuestions.reduce(
-        (sum, ans) => sum + Math.round(ans.averageRisk),
-        0
-      );
       const emails = this._extractEmails(filteredQuestions);
 
       return {
         x: '',
-        y: totalCount,
+        y: filteredQuestions.length,
         meta: [...new Set(emails)],
       };
     });
