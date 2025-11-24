@@ -31,7 +31,7 @@ export const routes: Routes = [
       {
         path: 'reports/summary-heatmap',
         component: SummaryHeatmapComponent,
-        data: { breadcrumb: 'Summary Heatmap' },
+        data: { breadcrumb: 'Summary Charts' },
       },
       {
         path: 'reports/polls-answered',
