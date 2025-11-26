@@ -127,3 +127,17 @@ export interface PollCountStudent {
   cohortId: number;
   cohortName: string;
 }
+
+export interface ComponentRisk {
+  name: string;
+  color: string;
+  data: ComponentRiskDatum[];
+  group: string;
+}
+
+export interface ComponentRiskDatum {
+  x: string;
+  y: number;
+  meta: string[];
+  data: PollAvgQuestion[];
+}

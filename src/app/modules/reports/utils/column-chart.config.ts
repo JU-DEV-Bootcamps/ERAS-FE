@@ -1,3 +1,4 @@
+import { ComponentRisk } from '@core/models/summary.model';
 import {
   ApexChart,
   ApexFill,
@@ -17,7 +18,9 @@ export class ColumnChartUtils {
     };
   }
 
-  static createChartBase(onSelect?: (x: number, y: number) => void): ApexChart {
+  static createChartBase(
+    onSelect?: (x: number, y: number, series: ComponentRisk[]) => void
+  ): ApexChart {
     return {
       type: 'bar',
       height: 650,
@@ -30,7 +33,8 @@ export class ColumnChartUtils {
       },
       events: {
         dataPointSelection: (_event, _ctx, cfg) => {
-          if (onSelect) onSelect(cfg.dataPointIndex, cfg.seriesIndex);
+          if (onSelect)
+            onSelect(cfg.dataPointIndex, cfg.seriesIndex, cfg.w.config.series);
         },
       },
     };

@@ -10,6 +10,7 @@ import { ApexTooltip, NgApexchartsModule } from 'ng-apexcharts';
 
 import { ChartOptions } from '@modules/reports/models/apexchart.model';
 import {
+  ComponentRisk,
   PollAvgComponent,
   PollAvgQuestion,
   PollAvgReport,
@@ -17,7 +18,9 @@ import {
 import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
+import { ErasModalService } from '@shared/components/modals/eras-modal/eras-modal.service';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
+import RiskDetailsComponent from '../summary-heatmap/risk-details/risk-details.component';
 
 @Component({
   selector: 'app-summary-column-charts',
@@ -26,10 +29,11 @@ import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component'
 })
 export class SummaryColumnChartsComponent {
   components = input<PollAvgReport>();
-  identifier = input<string>();
+  pollUuid = input<string>();
   data = input();
 
   private injector = inject(EnvironmentInjector);
+  erasModalService = inject(ErasModalService);
   chartOptions = computed<Partial<ChartOptions>>(() => {
     const data = this.components();
     return data
@@ -38,13 +42,33 @@ export class SummaryColumnChartsComponent {
   });
 
   private _buildChart(components: PollAvgComponent[]): Partial<ChartOptions> {
-    return this._createChart(this.data() as string, components);
+    return this._createChart(
+      this.data() as string,
+      components,
+      (x, y, series) => this._showRiskDetails(x, y, series)
+    );
+  }
+
+  private _showRiskDetails(x: number, y: number, series: ComponentRisk[]) {
+    const componentName: string =
+      this.components()?.components[x].description || '';
+    const modalData = {
+      component: RiskDetailsComponent,
+      data: {
+        riskGroup: series[y].data[x],
+        pollUuid: this.pollUuid(),
+        componentName,
+      },
+      title: `${componentName}: ${series[y].name} Details`,
+    };
+
+    this.erasModalService.openComponent(modalData);
   }
 
   private _createChart(
     title: string,
     components: PollAvgComponent[],
-    onSelect?: (x: number, y: number) => void
+    onSelect?: (x: number, y: number, series: ComponentRisk[]) => void
   ): Partial<ChartOptions> {
     return {
       title: ColumnChartUtils.createTitle(title),
@@ -85,6 +109,7 @@ export class SummaryColumnChartsComponent {
         x: '',
         y: filteredQuestions.length,
         meta: [...new Set(emails)],
+        data: filteredQuestions,
       };
     });
   }
