@@ -1,0 +1,36 @@
+@for (risk of data.data.riskGroup.data; track $index) {
+  <div class="risk-group">
+    <section>
+      <h3 class="risk-title">Q: {{ risk.question }}</h3>
+      <p>
+        <span class="highlighted-title">Most answered option: </span
+        >{{ risk.averageAnswer }}
+      </p>
+      <div class="answer-risk">
+        <h4 class="highlighted-title">Average Answer Risk:</h4>
+        <app-badge-risk-level [riskLevel]="risk.averageRisk" />
+      </div>
+    </section>
+
+    <section class="answer-details">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>Answer Details</mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+          <app-list
+            (loadCalled)="handleLoadCalled($event, risk)"
+            (actionCalled)="handleActionCalled($event)"
+            [columns]="columns"
+            [columnTemplates]="columnTemplates"
+            [items]="riskStudentData.get(risk.position)?.items ?? []"
+            [totalItems]="riskStudentData.get(risk.position)?.total ?? 0"
+            [actionDatas]="actionDatas"
+          >
+            <ng-template #answerRisk let-item>
+              <app-badge-risk-level [riskLevel]="item.answerRisk" />
+            </ng-template>
+          </app-list>
+        </ng-template>
+      </mat-expansion-panel>
+    </section>
+  </div>
+}
