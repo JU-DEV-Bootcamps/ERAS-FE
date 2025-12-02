@@ -1,27 +1,25 @@
 import { Routes } from '@angular/router';
+import { authGuard } from '@core/auth/guards/auth.guard';
+
+import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/referrals-details.resolver';
+import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
+
 import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
+import { DynamicHeatmapComponent } from '@modules/reports/components/dynamic-heatmap/dynamic-heatmap.component';
 import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
 import { HomeComponent } from '@modules/home/home.component';
 import { ImportAnswersComponent } from '@modules/imports/components/import-answers/import-answers.component';
 import { ImportStudentsComponent } from '@modules/imports/components/import-students/import-students.component';
-import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
-import { LoginComponent } from './core/auth/login/login.component';
-import { ProfileComponent } from './core/auth/profile/profile.component';
-import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
-import { canActivateAuthRole } from '@core/auth/guards/auth-role.guard';
-import { authGuard } from '@core/auth/guards/auth.guard';
-import { SummaryHeatmapComponent } from '@modules/reports/components/summary-heatmap/summary-heatmap.component';
-import { DynamicHeatmapComponent } from '@modules/reports/components/dynamic-heatmap/dynamic-heatmap.component';
-import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
 import { LayoutComponent } from '@core/layout/layout.component';
-import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
+import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
+import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
+import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
 import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
 import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
-import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
-import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/referrals-details.resolver';
+import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
+import { SummaryHeatmapComponent } from '@modules/reports/components/summary-heatmap/summary-heatmap.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
   {
     path: '',
     component: LayoutComponent,
@@ -42,11 +40,6 @@ export const routes: Routes = [
         path: 'reports/dynamic-charts',
         component: DynamicHeatmapComponent,
         data: { breadcrumb: 'Dynamic Charts' },
-      },
-      {
-        path: 'profile',
-        component: ProfileComponent,
-        data: { breadcrumb: 'Profile' },
       },
       {
         path: 'cosmic-latte',
@@ -120,13 +113,6 @@ export const routes: Routes = [
           },
         ],
         data: { breadcrumb: 'Referrals' },
-      },
-      //Example to use guard with role
-      {
-        path: 'forbidden',
-        component: ProfileComponent,
-        canActivate: [canActivateAuthRole],
-        data: { role: 'admin' },
       },
     ],
   },
