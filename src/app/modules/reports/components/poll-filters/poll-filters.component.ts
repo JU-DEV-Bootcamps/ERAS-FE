@@ -15,7 +15,6 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 import { CohortModel } from '@core/models/cohort.model';
@@ -39,7 +38,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatIconModule,
     CommonModule,
     SelectAllDirective,
-    MatProgressSpinner,
     SelectedItemsComponent,
   ],
   templateUrl: './poll-filters.component.html',
