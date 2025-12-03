@@ -1,7 +1,5 @@
 <form [formGroup]="filterForm">
-  @if (polls?.length === 0) {
-    <mat-spinner></mat-spinner>
-  } @else if (polls === null) {
+  @if (polls === null) {
     <p class="error-message">
       There was an error looking for polls. Please contact support
     </p>
