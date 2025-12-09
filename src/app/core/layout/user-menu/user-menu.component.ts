@@ -1,8 +1,11 @@
 import { Component, inject } from '@angular/core';
+
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
+
 import Keycloak from 'keycloak-js';
+import { UserDataService } from '@core/services/access/user-data.service';
 
 @Component({
   selector: 'app-user-menu',
@@ -11,18 +14,12 @@ import Keycloak from 'keycloak-js';
   imports: [MatMenu, MatIcon, MatToolbar, MatMenuTrigger],
 })
 export class UserMenuComponent {
-  user?: { name: string; email: string };
   timedOutCloser: ReturnType<typeof setTimeout> | null = null;
   private readonly keycloak = inject(Keycloak);
-
-  constructor() {
-    this.user = {
-      name: this.keycloak.clientId || 'NameNot Found',
-      email: 'userInfo.email',
-    };
-  }
+  private readonly userData = inject(UserDataService);
 
   logout() {
+    this.userData.clear();
     this.keycloak.logout();
   }
 

@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ImportAnswersComponent } from './import-answers.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
-import Keycloak from 'keycloak-js';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,12 +13,13 @@ import { ServiceProvidersService } from '@core/services/api/service-providers.se
 import { AuditModel } from '@core/models/common/audit.model';
 import { PollInstance } from '@core/models/poll-instance.model';
 import { ConfigurationsModel } from '@core/models/configurations.model';
+import { UserDataService } from '@core/services/access/user-data.service';
 
 describe('ImportAnswersComponent', () => {
   let component: ImportAnswersComponent;
   let fixture: ComponentFixture<ImportAnswersComponent>;
   let mockService: jasmine.SpyObj<CosmicLatteService>;
-  let mockKeycloak: jasmine.SpyObj<Keycloak>;
+  let mockUserData: jasmine.SpyObj<UserDataService>;
 
   beforeEach(async () => {
     mockService = jasmine.createSpyObj('CosmicLatteService', [
@@ -32,12 +32,15 @@ describe('ImportAnswersComponent', () => {
     const mockSPService = jasmine.createSpyObj('ServiceProvidersService', [
       'getAllServiceProviders',
     ]);
-    mockKeycloak = jasmine.createSpyObj('Keycloak', ['loadUserProfile']);
     const mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
     const mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
+    mockUserData = jasmine.createSpyObj('UserDataService', ['user']);
+    mockUserData.user.and.returnValue({ id: 'user123' });
+
     mockService.getPollNames.and.returnValue(of([]));
-    mockKeycloak.loadUserProfile.and.resolveTo({ id: 'user123' });
+    mockConfigService.getConfigurationsByUserId.and.returnValue(of([]));
+    mockSPService.getAllServiceProviders.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [ImportAnswersComponent, ReactiveFormsModule],
@@ -45,10 +48,10 @@ describe('ImportAnswersComponent', () => {
         { provide: CosmicLatteService, useValue: mockService },
         { provide: ConfigurationsService, useValue: mockConfigService },
         { provide: ServiceProvidersService, useValue: mockSPService },
-        { provide: Keycloak, useValue: mockKeycloak },
         { provide: MatDialog, useValue: mockDialog },
         { provide: Router, useValue: mockRouter },
         { provide: DatePipe, useClass: DatePipe },
+        { provide: UserDataService, useValue: mockUserData },
         provideNoopAnimations(),
         provideHttpClient(),
       ],

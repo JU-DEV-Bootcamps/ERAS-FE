@@ -2,7 +2,6 @@ import { HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { forkJoin, Observable, switchMap } from 'rxjs';
-import Keycloak from 'keycloak-js';
 
 import {
   Referral,
@@ -14,6 +13,7 @@ import { Pagination } from '@core/services/interfaces/server.type';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
 import { ReferralsMapperService } from './referrals.mapper.service';
+import { UserDataService } from '@core/services/access/user-data.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,15 +21,15 @@ import { ReferralsMapperService } from './referrals.mapper.service';
 export class ReferralsService extends BaseApiService {
   protected resource = 'remissions';
 
-  keycloak = inject(Keycloak);
+  private readonly userData = inject(UserDataService);
   referralsMapperService = inject(ReferralsMapperService);
 
   getReferralsPagination({ page = 0, pageSize = 10 }: Pagination) {
+    const profile = this.userData.user()!;
     return forkJoin({
       referrals: this.getReferrals({ page, pageSize }),
-      profile: this.keycloak.loadUserProfile(),
     }).pipe(
-      switchMap(({ referrals, profile }) =>
+      switchMap(({ referrals }) =>
         this.referralsMapperService.mapReferrals(referrals, profile)
       )
     );
@@ -44,11 +44,11 @@ export class ReferralsService extends BaseApiService {
   }
 
   getReferralById(referralId: number): Observable<Referral> {
+    const profile = this.userData.user()!;
     return forkJoin({
       referral: this.get<RESTReferral>(referralId),
-      profile: this.keycloak.loadUserProfile(),
     }).pipe(
-      switchMap(({ referral, profile }) =>
+      switchMap(({ referral }) =>
         this.referralsMapperService.mapReferral(referral, profile)
       )
     );
