@@ -206,6 +206,7 @@ export class PollFiltersComponent implements OnInit {
         this.filterForm.controls.cohortIds.setValue(
           this.cohorts.map(cohort => cohort.id)
         );
+        this.prevCohortIds = this.filterForm.value.cohortIds || [];
         this.componentNames = [];
         this.variables = [];
         this.filterForm.controls.variables.reset();
@@ -238,6 +239,7 @@ export class PollFiltersComponent implements OnInit {
         this.filterForm.controls.variables.setValue(
           this.variables.map(v => v.pollVariableId)
         );
+        this.prevVariablesSelections = this.filterForm.value.variables || [];
         this._sendFilters();
       });
   }
