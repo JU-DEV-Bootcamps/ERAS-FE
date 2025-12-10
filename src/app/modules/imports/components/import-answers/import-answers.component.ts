@@ -14,7 +14,6 @@ import {
 } from '@angular/forms';
 
 import { BehaviorSubject } from 'rxjs';
-import Keycloak from 'keycloak-js';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -45,6 +44,7 @@ import { isEmpty } from '@core/utils/helpers/is-empty';
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+import { UserDataService } from '@core/services/access/user-data.service';
 
 import { ImportAnswersPreviewComponent } from './import-answers-preview/import-answers-preview.component';
 import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
@@ -102,7 +102,7 @@ export class ImportAnswersComponent implements OnInit {
     private cosmicLatteService: CosmicLatteService,
     private configurationsService: ConfigurationsService,
     private serviceProvidersService: ServiceProvidersService,
-    private readonly keycloak: Keycloak,
+    private readonly userData: UserDataService,
     private datePipe: DatePipe
   ) {
     this.form = this.fb.group({
@@ -116,8 +116,8 @@ export class ImportAnswersComponent implements OnInit {
     });
   }
 
-  async ngOnInit() {
-    const profile = await this.keycloak.loadUserProfile();
+  ngOnInit() {
+    const profile = this.userData.user()!;
     this.getUserConfigurations(profile.id || '');
     this.checkScreenSize();
     this.getServiceProviders();

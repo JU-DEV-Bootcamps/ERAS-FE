@@ -1,17 +1,21 @@
-import Keycloak from 'keycloak-js';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { ConfigurationsModel } from '@core/models/configurations.model';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
+
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
-import { MatCardModule } from '@angular/material/card';
-import { ServiceProviderModel } from '@core/models/service-providers.model';
-import { ConfigurationsModel } from '@core/models/configurations.model';
-import { MatDialog } from '@angular/material/dialog';
-import { NewConfigurationModalComponent } from '../../shared/components/modals/new-configuration-modal/new-configuration-modal.component';
+import { UserDataService } from '@core/services/access/user-data.service';
+
 import { ConfigurationCardComponent } from './configuration-card/configuration-card.component';
+import { NewConfigurationModalComponent } from '../../shared/components/modals/new-configuration-modal/new-configuration-modal.component';
 
 @Component({
   selector: 'app-cosmic-latte',
@@ -33,13 +37,13 @@ export class CosmicLatteComponent implements OnInit {
   serviceProvidersService = inject(ServiceProvidersService);
   serviceProviders: ServiceProviderModel[] = [];
   readonly dialog = inject(MatDialog);
+  private readonly userData = inject(UserDataService);
   healthCheckStatus = true;
   userId = '';
-  constructor(private readonly keycloak: Keycloak) {}
 
-  async ngOnInit() {
+  ngOnInit() {
+    const profile = this.userData.user()!;
     this.loadServiceProviders();
-    const profile = await this.keycloak.loadUserProfile();
     this.userId = profile.id || '';
     this.loadConfigurations(this.userId);
   }
