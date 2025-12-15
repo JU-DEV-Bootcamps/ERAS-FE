@@ -25,7 +25,7 @@ import { CohortModel } from '@core/models/cohort.model';
 import { Column } from '@shared/components/list/types/column';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { EventLoad } from '@core/models/load';
-import { Filter } from '../../components/poll-filters/types/filters';
+import { Filter } from '../poll-filters/types/filters';
 import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config';
 import { MatDialog } from '@angular/material/dialog';
 import { PollAvgQuestion, PollAvgReport } from '@core/models/summary.model';
@@ -42,8 +42,8 @@ import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
-import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
-import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-column-charts/summary-column-charts.component';
+import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-charts/summary-column-charts/summary-column-charts.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
 
 @Component({
@@ -64,10 +64,10 @@ import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component'
     MatMenuModule,
     SummaryColumnChartsComponent,
   ],
-  templateUrl: './summary-heatmap.component.html',
-  styleUrl: './summary-heatmap.component.scss',
+  templateUrl: './summary-charts.component.html',
+  styleUrl: './summary-charts.component.scss',
 })
-export class SummaryHeatmapComponent {
+export class SummaryChartsComponent {
   studentService = inject(StudentService);
   pdfHelper = inject(PdfHelper);
   reportService = inject(ReportService);
