@@ -1,0 +1,29 @@
+<mat-sidenav-container>
+  <mat-sidenav
+    #sidenav
+    [mode]="'side'"
+    [opened]="true"
+    [style.width]="sidenavWidth()"
+  >
+    <button
+      class="expand-button"
+      mat-icon-button
+      (click)="collapsed.set(!collapsed())"
+    >
+      <mat-icon class="menu-icon">{{
+        collapsed() ? 'menu' : 'menu_open'
+      }}</mat-icon>
+    </button>
+    <app-sidebar [(collapsed)]="collapsed"></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content [style.margin-left]="sidenavWidth()">
+    <mat-toolbar>
+      <h1 class="app-title">ERAS</h1>
+      <app-user-menu></app-user-menu>
+    </mat-toolbar>
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
