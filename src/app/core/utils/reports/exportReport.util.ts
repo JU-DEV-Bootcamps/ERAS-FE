@@ -1,12 +1,12 @@
 import { ElementRef, inject, Injectable } from '@angular/core';
 import { generateFileName } from '@core/utils/file/file-name';
 import { PdfService } from '@core/services/exports/pdf.service';
-import { ExportArgs } from '../../../modules/reports/components/summary-heatmap/types/export';
+import { ExportArgs } from '../../../modules/reports/components/summary-charts/types/export';
 import {
   DEFAULT_VALUES,
   SNACKBAR_CONF,
   STYLE_CONF,
-} from '../../../modules/reports/components/summary-heatmap/constants/export-conf';
+} from '../../../modules/reports/components/summary-charts/constants/export-conf';
 
 @Injectable({ providedIn: 'root' })
 export class PdfHelper {

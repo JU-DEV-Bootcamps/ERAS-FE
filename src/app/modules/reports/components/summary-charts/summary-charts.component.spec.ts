@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SummaryHeatmapComponent } from './summary-heatmap.component';
+import { SummaryChartsComponent as SummaryChartsComponent } from './summary-charts.component';
 import { StudentService } from '@core/services/api/student.service';
 import { ReportService } from '@core/services/api/report.service';
 import { PdfService } from '@core/services/exports/pdf.service';
@@ -13,19 +13,19 @@ import {
 } from '@core/models/summary.model';
 import { CohortModel } from '@core/models/cohort.model';
 import { SummarySerie } from '@core/models/heatmap-data.model';
-import { Filter } from '../../components/poll-filters/types/filters';
+import { Filter } from '../poll-filters/types/filters';
 import { StudentRiskAverage } from '@core/services/interfaces/student.interface';
 import { ListComponent } from '@shared/components/list/list.component';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
+import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PdfHelper } from '../../../../core/utils/reports/exportReport.util';
 import { PagedResult } from '@core/services/interfaces/page.type';
 import { ComponentValueType } from '../../../../core/models/types/risk-students-detail.type';
 
-describe('SummaryHeatmapComponent', () => {
-  let component: SummaryHeatmapComponent;
-  let fixture: ComponentFixture<SummaryHeatmapComponent>;
+describe('SummaryChartsComponent', () => {
+  let component: SummaryChartsComponent;
+  let fixture: ComponentFixture<SummaryChartsComponent>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
   let pdfHelperSpy: jasmine.SpyObj<PdfHelper>;
   let reportServiceSpy: jasmine.SpyObj<ReportService>;
@@ -48,7 +48,7 @@ describe('SummaryHeatmapComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        SummaryHeatmapComponent,
+        SummaryChartsComponent,
         ListComponent,
         EmptyDataComponent,
         PollFiltersComponent,
@@ -63,7 +63,7 @@ describe('SummaryHeatmapComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SummaryHeatmapComponent);
+    fixture = TestBed.createComponent(SummaryChartsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -19,8 +19,8 @@ import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 import { ErasModalService } from '@shared/components/modals/eras-modal/eras-modal.service';
-import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
-import RiskDetailsComponent from '../summary-heatmap/risk-details/risk-details.component';
+import { TooltipChartComponent } from '../../tooltip-chart/tooltip-chart.component';
+import RiskDetailsComponent from '../risk-details/risk-details.component';
 
 @Component({
   selector: 'app-summary-column-charts',

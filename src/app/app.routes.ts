@@ -17,7 +17,7 @@ import { RiskStudentsComponent } from '@modules/risk-students/risk-students.comp
 import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
 import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
-import { SummaryHeatmapComponent } from '@modules/reports/components/summary-heatmap/summary-heatmap.component';
+import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 
 export const routes: Routes = [
   {
@@ -27,8 +27,8 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       {
-        path: 'reports/summary-heatmap',
-        component: SummaryHeatmapComponent,
+        path: 'reports/summary-charts',
+        component: SummaryChartsComponent,
         data: { breadcrumb: 'Summary Charts' },
       },
       {
@@ -45,11 +45,6 @@ export const routes: Routes = [
         path: 'cosmic-latte',
         component: CosmicLatteComponent,
         data: { breadcrumb: 'Cosmic Latte' },
-      },
-      {
-        path: 'heatmap-summary',
-        component: SummaryHeatmapComponent,
-        data: { breadcrumb: 'Heatmap Summary' },
       },
       {
         path: 'evaluation-process',
