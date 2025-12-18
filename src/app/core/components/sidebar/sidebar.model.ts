@@ -42,7 +42,7 @@ export const SIDEBAR_MENUS: Menu[] = [
       {
         label: 'Summary Charts',
         icon: 'find_in_page',
-        route: '/reports/summary-heatmap',
+        route: '/reports/summary-charts',
       },
       {
         label: 'Polls Answered',
