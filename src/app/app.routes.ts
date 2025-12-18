@@ -10,7 +10,7 @@ import { EvaluationProcessListComponent } from '@modules/lists/components/evalua
 import { HomeComponent } from '@modules/home/home.component';
 import { ImportAnswersComponent } from '@modules/imports/components/import-answers/import-answers.component';
 import { ImportStudentsComponent } from '@modules/imports/components/import-students/import-students.component';
-import { LayoutComponent } from '@core/layout/layout.component';
+import { LayoutComponent } from '@core/components/layout/layout.component';
 import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
 import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
 import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
@@ -25,7 +25,12 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', component: HomeComponent },
+      {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full',
+      },
+      { path: 'home', component: HomeComponent },
       {
         path: 'reports/summary-charts',
         component: SummaryChartsComponent,

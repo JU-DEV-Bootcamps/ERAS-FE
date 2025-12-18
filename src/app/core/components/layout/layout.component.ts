@@ -1,24 +1,23 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, model } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
 import {
   BreakpointObserver,
   BreakpointState,
   Breakpoints,
 } from '@angular/cdk/layout';
 
-import { MenuSectionComponent } from './menu-section/menu-section.component';
-import { MenuItemComponent } from './menu-item/menu-item.component';
+import { SidebarComponent } from '@core/components/sidebar/sidebar.component';
 import { UserMenuComponent } from './user-menu/user-menu.component';
-//TODO: REMOVE THIS WHEN DECIDED TO GO UP WITH SUPPORT AND REFERRALS
-import { environment } from 'src/environments/environment';
 
 enum Sidenav {
   shrink = '70px',
@@ -31,8 +30,6 @@ enum Sidenav {
     CommonModule,
     MatSidenavModule,
     MatToolbarModule,
-    MenuSectionComponent,
-    MenuItemComponent,
     RouterOutlet,
     CommonModule,
     MatSidenavModule,
@@ -44,18 +41,17 @@ enum Sidenav {
     MatToolbarModule,
     MatMenuModule,
     UserMenuComponent,
+    SidebarComponent,
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
   breakpointObserver = inject(BreakpointObserver);
-  collapsed = signal(false);
+  collapsed = model<boolean>(false);
   sidenavWidth = computed(() =>
     this.collapsed() ? Sidenav.shrink : Sidenav.expand
   );
-  //TODO: REMOVE THIS WHEN DECIDED TO GO UP WITH SUPPORT AND REFERRALS
-  enableForProductionMode = environment.production;
 
   ngOnInit() {
     this.breakpointObserver
