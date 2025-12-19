@@ -30,13 +30,13 @@ import {
   PollCountReport,
 } from '@core/models/summary.model';
 import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
+import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
-import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
-import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
+import { TooltipChartComponent } from '../../tooltip-chart/tooltip-chart.component';
 
 export interface ChartOptions {
   chart: ApexChart;

@@ -5,7 +5,7 @@ import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/r
 import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
 
 import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
-import { DynamicHeatmapComponent } from '@modules/reports/components/dynamic-heatmap/dynamic-heatmap.component';
+import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
 import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
 import { HomeComponent } from '@modules/home/home.component';
 import { ImportAnswersComponent } from '@modules/imports/components/import-answers/import-answers.component';
@@ -43,7 +43,7 @@ export const routes: Routes = [
       },
       {
         path: 'reports/dynamic-charts',
-        component: DynamicHeatmapComponent,
+        component: DynamicChartsComponent,
         data: { breadcrumb: 'Dynamic Charts' },
       },
       {
