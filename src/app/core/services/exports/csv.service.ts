@@ -3,7 +3,7 @@ import { CSV_CONFIG } from '../../constants/csv';
 import Papa, { UnparseObject } from 'papaparse';
 import { BaseExportService } from './base-export.service';
 import { BreadcrumbsService } from '../breadcrumbs.service';
-import { generateFileName } from '../../utilities/file/file-name';
+import { generateFileName } from '../../utils/file/file-name';
 
 @Injectable({
   providedIn: 'root',

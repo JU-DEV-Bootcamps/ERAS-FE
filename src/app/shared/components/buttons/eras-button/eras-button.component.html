@@ -1,0 +1,6 @@
+<button mat-flat-button type="button" (click)="clickButton.emit(true)">
+  @if (iconButton()) {
+    <mat-icon>{{ iconButton() }}</mat-icon>
+  }
+  {{ textButton() }}
+</button>

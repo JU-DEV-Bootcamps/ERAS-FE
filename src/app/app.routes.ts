@@ -1,35 +1,40 @@
 import { Routes } from '@angular/router';
-import { CosmicLatteComponent } from './features/cosmic-latte/cosmic-latte.component';
-import { EvaluationProcessListComponent } from './modules/lists/views/evaluation-process-list/evaluation-process-list.component';
-import { HomeComponent } from './features/home/home.component';
-import { ImportAnswersComponent } from './features/import-answers/import-answers.component';
-import { ImportStudentsComponent } from './features/import-students/import-students.component';
-import { ListStudentsByPollComponent } from './features/list-students-by-poll/list-students-by-poll.component';
-import { LoginComponent } from './features/login/login.component';
-import { ProfileComponent } from './features/profile/profile.component';
-import { RiskStudentsComponent } from './features/risk-students/risk-students.component';
-import { canActivateAuthRole } from './shared/guards/auth-role.guard';
-import { authGuard } from './shared/guards/auth.guard';
-import { SummaryHeatmapComponent } from './modules/reports/views/summary-heatmap/summary-heatmap.component';
-import { DynamicHeatmapComponent } from './modules/reports/views/dynamic-heatmap/dynamic-heatmap.component';
-import { PollsAnsweredComponent } from './modules/reports/views/polls-answered/polls-answered.component';
-import { LayoutComponent } from './shared/components/layout/layout.component';
-import { StudentMonitoringPollsComponent } from './features/student/student-monitoring-polls/student-monitoring-polls.component';
-import { StudentMonitoringCohortsComponent } from './features/student/student-monitoring-cohorts/student-monitoring-cohorts.component';
-import { StudentMonitoringDetailsComponent } from './features/student/student-monitoring-details/student-monitoring-details.component';
+import { authGuard } from '@core/auth/guards/auth.guard';
+
+import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/referrals-details.resolver';
+import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
+
+import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
+import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
+import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
+import { HomeComponent } from '@modules/home/home.component';
+import { ImportAnswersComponent } from '@modules/imports/components/import-answers/import-answers.component';
+import { ImportStudentsComponent } from '@modules/imports/components/import-students/import-students.component';
+import { LayoutComponent } from '@core/components/layout/layout.component';
+import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
+import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
+import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
+import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
+import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
+import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
+import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
   {
     path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', component: HomeComponent },
       {
-        path: 'reports/summary-heatmap',
-        component: SummaryHeatmapComponent,
-        data: { breadcrumb: 'Summary Heatmap' },
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full',
+      },
+      { path: 'home', component: HomeComponent },
+      {
+        path: 'reports/summary-charts',
+        component: SummaryChartsComponent,
+        data: { breadcrumb: 'Summary Charts' },
       },
       {
         path: 'reports/polls-answered',
@@ -37,24 +42,14 @@ export const routes: Routes = [
         data: { breadcrumb: 'Polls Answered' },
       },
       {
-        path: 'reports/dynamic-heatmap',
-        component: DynamicHeatmapComponent,
-        data: { breadcrumb: 'Dynamic Heatmap' },
-      },
-      {
-        path: 'profile',
-        component: ProfileComponent,
-        data: { breadcrumb: 'Profile' },
+        path: 'reports/dynamic-charts',
+        component: DynamicChartsComponent,
+        data: { breadcrumb: 'Dynamic Charts' },
       },
       {
         path: 'cosmic-latte',
         component: CosmicLatteComponent,
         data: { breadcrumb: 'Cosmic Latte' },
-      },
-      {
-        path: 'heatmap-summary',
-        component: SummaryHeatmapComponent,
-        data: { breadcrumb: 'Heatmap Summary' },
       },
       {
         path: 'evaluation-process',
@@ -98,13 +93,26 @@ export const routes: Routes = [
         component: StudentMonitoringDetailsComponent,
         data: { breadcrumb: 'Student Monitoring Details' },
       },
-
-      //Example to use guard with role
       {
-        path: 'forbidden',
-        component: ProfileComponent,
-        canActivate: [canActivateAuthRole],
-        data: { role: 'admin' },
+        path: 'supports-referrals',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@modules/supports-referrals/referrals.component'),
+            resolve: { referrals: referralsResolver },
+          },
+          {
+            path: 'details/:id',
+            loadComponent: () =>
+              import(
+                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
+              ),
+            resolve: { referral: referralDetailsResolver },
+            data: { breadcrumb: 'Referral Details' },
+          },
+        ],
+        data: { breadcrumb: 'Referrals' },
       },
     ],
   },

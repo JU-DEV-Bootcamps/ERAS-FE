@@ -12,7 +12,7 @@ import { PagedResult } from '../interfaces/page.type';
 import { map, Observable } from 'rxjs';
 import { StudentRiskResponse } from '../../models/cohort.model';
 import { AnswerResponse } from '../../models/answer-request.model';
-import { sortArray } from '../../utilities/sort';
+import { sortArray } from '../../utils/helpers/sort';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +28,8 @@ export class StudentService extends BaseApiService {
   }
 
   getAllStudents() {
-    return this.get<StudentModel[]>('');
+    const params = new HttpParams().set('PageSize', 9999).set('Page', 0);
+    return this.get<PagedResult<StudentModel[]>>('', params);
   }
 
   getAllAverageByCohortsAndPoll({

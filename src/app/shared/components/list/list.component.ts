@@ -22,16 +22,16 @@ import {
   EventLoad,
   EventRemove,
   EventUpdate,
-} from '../../events/load';
+} from '../../../core/models/load';
 import { TableWithActionsComponent } from '../table-with-actions/table-with-actions.component';
 import { Column, ComponentColumn } from './types/column';
 import { ActionDatas } from './types/action';
-import { CsvService } from '../../../core/services/exports/csv.service';
+import { CsvService } from '@core/services/exports/csv.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PdfHelper } from '../../../modules/reports/exportReport.util';
+import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MapClass } from './types/class';
@@ -53,7 +53,7 @@ import { EmptyDataComponent } from '../empty-data/empty-data.component';
     EmptyDataComponent,
   ],
   templateUrl: './list.component.html',
-  styleUrl: './list.component.css',
+  styleUrl: './list.component.scss',
 })
 export class ListComponent<T extends object>
   implements OnInit, AfterContentInit
@@ -82,6 +82,7 @@ export class ListComponent<T extends object>
   @ContentChildren(TemplateRef) templates!: QueryList<TemplateRef<unknown>>;
   @Input() columnTemplates: Column<T>[] = [];
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+  @Input() pageIndex = 0;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 

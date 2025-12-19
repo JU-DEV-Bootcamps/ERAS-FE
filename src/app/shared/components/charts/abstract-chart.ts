@@ -1,4 +1,4 @@
-import { RISK_COLORS } from '../../../core/constants/riskLevel';
+import { RISK_COLORS } from '@core/constants/riskLevel';
 
 export abstract class ChartBase {
   protected loadDataFromInput(

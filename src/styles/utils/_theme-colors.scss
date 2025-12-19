@@ -2,7 +2,6 @@
 // Proceed with caution if making changes to this file.
 
 @use 'sass:map';
-@use '@angular/material' as mat;
 
 // Note: Color palettes are generated from primary: 19BFB9, secondary: 89427A, neutral: 939090
 $palettes: (
@@ -115,6 +114,35 @@ $palettes: (
     95: #ffedea,
     98: #fff8f7,
     99: #fffbff,
+    100: #ffffff,
+  ),
+  info: (
+    0: #000000,
+    10: #e3f2fd,
+    20: #bbdefb,
+    25: #90caf9,
+    30: #64b5f6,
+    35: #42a5f5,
+    40: #2196f3,
+    50: #1e88e5,
+    60: #1976d2,
+    70: #1565c0,
+    80: #0d47a1,
+    100: #ffffff,
+  ),
+  warning: (
+    0: #000000,
+    10: #eec609,
+    20: #ffd819,
+    25: #ffd400,
+    30: #ffdd32,
+    35: #ffe14c,
+    40: #ffe566,
+    50: #ffe97f,
+    60: #ffee99,
+    70: #fff2b2,
+    80: #fff6cc,
+    90: #fffae5,
     100: #ffffff,
   ),
 );

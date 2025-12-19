@@ -1,0 +1,27 @@
+<mat-grid-list
+  [cols]="cardsGridColumns$ | async"
+  rowHeight="200px"
+  gutterSize="30px"
+>
+  <mat-grid-tile>
+    <app-stats-card [url]="'list-students-by-poll'">
+      <ng-container icon>group</ng-container>
+      <ng-container title>Students</ng-container>
+      <ng-container stat>{{ summary()?.Students || 0 }}</ng-container>
+    </app-stats-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <app-stats-card [url]="'reports/polls-answered'">
+      <ng-container icon>file_copy</ng-container>
+      <ng-container title>Polls Answered</ng-container>
+      <ng-container stat>{{ summary()?.PollInstances || 0 }}</ng-container>
+    </app-stats-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <app-stats-card [url]="'evaluation-process'">
+      <ng-container icon>insert_chart</ng-container>
+      <ng-container title>Evaluations</ng-container>
+      <ng-container stat>{{ summary()?.Evaluations || 0 }}</ng-container>
+    </app-stats-card>
+  </mat-grid-tile>
+</mat-grid-list>

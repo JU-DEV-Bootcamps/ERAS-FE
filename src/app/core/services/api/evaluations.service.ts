@@ -17,8 +17,8 @@ export class EvaluationsService extends BaseApiService {
   getEvalProcDetails(id: number) {
     return this.get<GetQueryResponse<EvaluationModel>>(id);
   }
-  createEvalProc(data: CreateEvaluationModel) {
-    return this.post('', data);
+  createEvalProc(data: CreateEvaluationModel, parentId: string) {
+    return this.post(parentId, data);
   }
   getAllEvalProc({ page = 1, pageSize = 10 }) {
     const params = new HttpParams().set('PageSize', pageSize).set('Page', page);

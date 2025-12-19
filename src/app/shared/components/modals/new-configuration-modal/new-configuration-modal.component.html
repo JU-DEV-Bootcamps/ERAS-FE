@@ -1,0 +1,124 @@
+<h2 mat-dialog-title>{{ data.action | titlecase }} configuration</h2>
+<form [formGroup]="configurationForm">
+  <mat-dialog-content>
+    <mat-form-field appearance="fill">
+      <mat-label>Configuration Name</mat-label>
+      <input
+        matInput
+        formControlName="configurationName"
+        placeholder="Enter configuration name"
+        maxlength="20"
+        minlength="3"
+      />
+      <mat-error
+        *ngIf="configurationForm.get('configurationName')?.hasError('required')"
+      >
+        Configuration name is required.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('minlength')
+        "
+      >
+        Configuration name must be at least 3 characters long.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('maxlength')
+        "
+      >
+        Configuration name must not exceed 20 characters.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('forbiddenChars')
+        "
+      >
+        Configuration name contains forbidden characters.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('whitespace') &&
+          configurationForm.get('configurationName')?.touched
+        "
+      >
+        This field cannot contain only spaces.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('configurationName')?.hasError('duplicate') &&
+          configurationForm.get('configurationName')?.touched
+        "
+      >
+        Configuration name must be unique.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Base URL</mat-label>
+      <input matInput formControlName="baseURL" placeholder="Enter base URL" />
+      <mat-error *ngIf="configurationForm.get('baseURL')?.hasError('required')">
+        Base URL is required.
+      </mat-error>
+      <mat-error
+        *ngIf="
+          configurationForm.get('baseURL')?.hasError('whitespace') &&
+          configurationForm.get('baseURL')?.touched
+        "
+      >
+        This field cannot contain only spaces.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>API Key</mat-label>
+      <input
+        matInput
+        formControlName="apiKey"
+        placeholder="Enter API key"
+        (copy)="preventAction($event)"
+        type="password"
+      />
+      <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('required')">
+        API Key is required.
+      </mat-error>
+      <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('minlength')">
+        API Key must be at least 32 characters long.
+      </mat-error>
+      <mat-error *ngIf="configurationForm.get('apiKey')?.hasError('maxlength')">
+        API Key must not exceed 32 characters.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Service Provider</mat-label>
+      <mat-select formControlName="serviceProvider">
+        <mat-option
+          *ngFor="let provider of serviceProviders"
+          [value]="provider.id"
+        >
+          {{ provider.serviceProviderName }}
+        </mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="configurationForm.get('serviceProvider')?.hasError('required')"
+      >
+        Service provider is required.
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="warn" type="button" (click)="close()">
+      Close
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      (click)="saveConfiguration()"
+    >
+      Save Configuration
+    </button>
+  </mat-dialog-actions>
+</form>

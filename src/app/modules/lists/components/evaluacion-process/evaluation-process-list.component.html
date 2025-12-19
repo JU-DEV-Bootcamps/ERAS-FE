@@ -1,0 +1,36 @@
+<h1 class="page-title">Evaluation Processes</h1>
+
+@if (this.totalEvaluations !== 0) {
+  <div align="end">
+    <app-eras-button
+      [textButton]="'Add new'"
+      [iconButton]="'add'"
+      (clickButton)="openModalNewEvaluationProcess()"
+    ></app-eras-button>
+  </div>
+}
+
+<app-list
+  (loadCalled)="handleLoadCalled($event)"
+  (actionCalled)="handleActionCalled($event)"
+  [columns]="columns"
+  [columnTemplates]="columnTemplates"
+  [items]="evaluationProcessList"
+  [totalItems]="totalEvaluations"
+  [title]="'Students by Poll'"
+  [actionDatas]="actionDatas"
+  [pageIndex]="currentPage"
+>
+  <ng-template #status let-element>
+    <app-badge-status [element]="element" />
+  </ng-template>
+</app-list>
+
+@if (this.totalEvaluations === 0) {
+  <section align="center">
+    <app-eras-button
+      [textButton]="'Let\'s create a new one!'"
+      (clickButton)="openModalNewEvaluationProcess()"
+    ></app-eras-button>
+  </section>
+}

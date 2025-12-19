@@ -1,7 +1,5 @@
 <form [formGroup]="filterForm">
-  @if (polls?.length === 0) {
-    <mat-spinner></mat-spinner>
-  } @else if (polls === null) {
+  @if (polls === null) {
     <p class="error-message">
       There was an error looking for polls. Please contact support
     </p>
@@ -13,7 +11,7 @@
         <mat-select
           id="sl-poll"
           formControlName="selectedPoll"
-          (openedChange)="handlePollSelect($event)"
+          (selectionChange)="handlePollSelect($event)"
         >
           @for (poll of polls; track $index) {
             <mat-option class="versioned-option" [value]="poll">
@@ -31,7 +29,7 @@
         <mat-label for="sl-version">Version</mat-label>
         <mat-select
           formControlName="lastVersion"
-          (openedChange)="handlePollSelect($event)"
+          (selectionChange)="handleVersionSelect($event)"
         >
           <mat-option [value]="false">Older Versions</mat-option>
           <mat-option [value]="true">
@@ -43,28 +41,31 @@
         </mat-select>
       </mat-form-field>
 
-      @if ((filterForm.value.cohortIds || []).length > 0) {
-        <mat-form-field appearance="fill">
-          <mat-label for="sl-cohort">Cohort</mat-label>
-          <mat-select
-            id="sl-cohort"
-            multiple
-            formControlName="cohortIds"
-            (openedChange)="handleCohortSelect($event)"
-          >
-            @if (cohorts.length > 0) {
-              <mat-option appSelectAll [allValues]="cohorts"
-                >Select all</mat-option
-              >
-            }
-            @for (cohort of cohorts; track $index) {
-              <mat-option [value]="cohort.id">
-                {{ cohort.name }}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      }
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-cohort">Cohort</mat-label>
+        <mat-select
+          id="sl-cohort"
+          multiple
+          formControlName="cohortIds"
+          (openedChange)="handleCohortSelect($event)"
+        >
+          <mat-select-trigger>
+            <app-selected-items
+              [items]="getCohortsSelection()"
+            ></app-selected-items>
+          </mat-select-trigger>
+          @if (cohorts.length > 0) {
+            <mat-option appSelectAll [allValues]="cohorts"
+              >Select all</mat-option
+            >
+          }
+          @for (cohort of cohorts; track $index) {
+            <mat-option [value]="cohort.id">
+              {{ cohort.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     }
     @if (
       filterForm.value.cohortIds &&
@@ -77,12 +78,19 @@
           required
           id="sl-components"
           multiple
-          (openedChange)="handleUpdateComponents($event)"
+          (openedChange)="handleComponentsSelect($event)"
           formControlName="componentNames"
         >
-          <mat-option appSelectAll [allValues]="componentNames"
-            >Select all</mat-option
-          >
+          <mat-select-trigger>
+            <app-selected-items
+              [items]="getComponentsSelection()"
+            ></app-selected-items>
+          </mat-select-trigger>
+          @if (!!componentNames.length) {
+            <mat-option appSelectAll [allValues]="componentNames"
+              >Select all</mat-option
+            >
+          }
           @for (component of componentNames; track $index) {
             <mat-option [value]="component">
               {{ component }}
@@ -96,30 +104,39 @@
     }
     @if (
       filterForm.value.cohortIds &&
-      filterForm.value.cohortIds.length > 0 &&
+      filterForm.value.cohortIds.length &&
       showVariables
     ) {
       <mat-form-field appearance="fill">
         <mat-label for="variables">Variables</mat-label>
         <mat-select
           id="sl-variables"
-          formControlName="variables"
           multiple
           (openedChange)="handleVariableSelect($event)"
+          formControlName="variables"
         >
-          @if (!!variableGroups.length) {
-            <mat-option appSelectAll [allValues]="variables"
+          <mat-select-trigger>
+            <app-selected-items
+              [items]="getVariablesSelection()"
+            ></app-selected-items>
+          </mat-select-trigger>
+          @if (!!variables.length) {
+            <mat-option appSelectAll [allValues]="getAllVariableIds()"
               >Select all</mat-option
             >
           }
           @for (group of variableGroups; track group) {
-            <mat-optgroup [label]="group[0].componentName | uppercase">
-              @for (variable of group; track variable) {
-                <mat-option class="group-option" [value]="variable.id">{{
-                  variable.name
-                }}</mat-option>
-              }
-            </mat-optgroup>
+            @if (!!group.length) {
+              <mat-optgroup [label]="group[0].componentName | uppercase">
+                @for (variable of group; track variable.pollVariableId) {
+                  <mat-option
+                    class="group-option"
+                    [value]="variable.pollVariableId"
+                    >{{ variable.name }}</mat-option
+                  >
+                }
+              </mat-optgroup>
+            }
           }
         </mat-select>
       </mat-form-field>

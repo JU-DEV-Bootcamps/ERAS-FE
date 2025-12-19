@@ -3,6 +3,8 @@
 @use 'theme-colors.scss' as theme-colors;
 @use 'theme-fonts.scss' as theme-fonts;
 
+@forward './apex-charts';
+@forward './forms';
 @forward './theme-breakpoints';
 @forward './theme-colors';
 @forward './theme-sizes';
@@ -36,10 +38,6 @@ mat-icon {
 .apexcharts-canvas
   .apexcharts-heatmap-rect[val='-1']
   + .apexcharts-data-labels {
-  display: none !important;
-}
-
-line.apexcharts-gridline {
   display: none !important;
 }
 
@@ -86,14 +84,6 @@ body {
   word-wrap: break-word;
 }
 
-mat-form-field {
-  margin-left: 0px !important;
-}
-
-mat-option[appselectall] {
-  background-color: #c698f1 !important;
-}
-
 .swipe-icon {
   color: #a85d97;
   position: absolute;
@@ -104,11 +94,4 @@ mat-option[appselectall] {
   width: 3rem;
   height: 3rem;
   cursor: grab;
-}
-
-.apex-tooltip-container {
-  padding: 4px 8px;
-  max-width: 300px;
-  white-space: normal;
-  word-wrap: break-word;
 }

@@ -1,0 +1,82 @@
+<div class="referral-details-page">
+  <app-breadcrumb></app-breadcrumb>
+  <mat-card>
+    <mat-card-header>
+      <div mat-card-avatar class="avatar">
+        {{ (referral()!.submitter || 'N')[0] | titlecase }}
+      </div>
+      <mat-card-title>
+        {{ referral()!.service || 'Service' | titlecase }}
+      </mat-card-title>
+      <mat-card-subtitle>Referral #{{ referral()!.id }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content class="content">
+      <div class="grid">
+        <div class="field">
+          <span class="label">Date</span>
+          <span class="value">{{ referral()!.date | date: 'shortDate' }}</span>
+        </div>
+
+        <div class="field">
+          <span class="label">Submitter</span>
+          <span class="value">{{ referral()!.submitter | titlecase }}</span>
+        </div>
+
+        <div class="field">
+          <span class="label">Service</span>
+          <span class="value">{{ referral()!.service | titlecase }}</span>
+        </div>
+
+        <div class="field">
+          <span class="label">Professional</span>
+          <span class="value">{{ referral()!.professional }}</span>
+        </div>
+
+        <div class="field">
+          <span class="label">Student</span>
+          <span class="value">{{ referral()!.student }}</span>
+        </div>
+
+        <div class="field status">
+          <span class="label">Status</span>
+          <mat-chip-set aria-label="Referral Status">
+            <mat-chip [style.--status]="statusColor()">
+              <mat-icon *ngIf="referral()!.status === 'Created'">
+                engineering
+              </mat-icon>
+              <mat-icon *ngIf="referral()!.status === 'Submitted'">
+                send
+              </mat-icon>
+              <mat-icon *ngIf="referral()!.status === 'On Hold'">
+                front_hand
+              </mat-icon>
+              <mat-icon *ngIf="referral()!.status === 'In Progress'">
+                loop
+              </mat-icon>
+              <mat-icon *ngIf="referral()!.status === 'Completed'">
+                check
+              </mat-icon>
+              {{ referral()!.status | titlecase }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <div class="field field-full">
+          <span class="label">Comment</span>
+          <p class="comment">
+            {{ referral()!.comment || 'Sin comentarios.' }}
+          </p>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-actions align="end" class="actions">
+      <app-eras-button [textButton]="'Create Intervention'"></app-eras-button>
+    </mat-card-actions>
+  </mat-card>
+</div>

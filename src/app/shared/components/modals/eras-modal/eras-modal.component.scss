@@ -1,0 +1,26 @@
+@use 'index.scss' as main-styles;
+
+::ng-deep .eras-modal-component {
+  border-radius: 15px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  font-weight: main-styles.get-font-weight(semi-bold);
+}
+
+.modal-header button.close {
+  display: flex;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.4;
+  padding: 15px 15px 0px 0px;
+  &:hover {
+    opacity: 0.8;
+  }
+}

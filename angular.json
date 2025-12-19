@@ -33,7 +33,12 @@
             ],
             "scripts": [
               "node_modules/apexcharts/dist/apexcharts.min.js"
-            ]
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles/utils"
+              ]
+            }
           },
           "configurations": {
             "production": {
@@ -106,7 +111,12 @@
             "styles": [
               "src/styles/utils/index.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles/utils"
+              ]
+            }
           }
         },
         "lint": {

@@ -1,0 +1,61 @@
+@use 'index.scss' as main-styles;
+
+mat-sidenav-container {
+  height: 100%;
+}
+
+mat-sidenav {
+  background-color: main-styles.get-color('primary', 25);
+  color: main-styles.get-color('neutral', 70);
+  width: 70px;
+  height: 100vh;
+  border-radius: 0px 8px 8px 0px;
+  transform-origin: left;
+}
+
+button.expand-button {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+  color: main-styles.get-color('neutral', 50);
+  height: 50px;
+  &:hover .menu-icon {
+    color: main-styles.get-color('neutral', 100);
+  }
+}
+
+mat-icon.menu-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  padding-left: 18px;
+  margin: 0;
+  vertical-align: middle;
+  color: #bebbbc;
+}
+
+mat-sidenav,
+mat-sidenav-content {
+  transition: all 500ms ease-in-out !important;
+}
+
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+  height: 50px;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: main-styles.get-color('primary', 30);
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  height: 90%;
+  padding: main-styles.get-size(padding, xl);
+}

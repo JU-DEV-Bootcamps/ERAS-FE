@@ -2,7 +2,7 @@ import { UUID } from 'crypto';
 import { PollModel } from './poll.model';
 import { PollInstanceModel } from './poll-instance.model';
 import { BaseModel } from './common/base.model';
-import { ComponentValueType } from '../../features/heat-map/types/risk-students-detail.type';
+import { ComponentValueType } from './types/risk-students-detail.type';
 
 export const ENTITY_NAMES = [
   'Students',
@@ -55,6 +55,7 @@ export interface PollAvgComponent {
 export interface BasePollQuestion {
   question: string;
   averageRisk: number;
+  position: number;
 }
 
 export interface PollAvgQuestion extends BasePollQuestion {
@@ -116,11 +117,27 @@ export interface PollCountAnswer {
   answerRisk: number;
   count: number;
   students: PollCountStudent[];
+  countPercentage?: number;
 }
 
 export interface PollCountStudent {
+  answerText: string;
   name: string;
   email: string;
   cohortId: number;
   cohortName: string;
+}
+
+export interface ComponentRisk {
+  name: string;
+  color: string;
+  data: ComponentRiskDatum[];
+  group: string;
+}
+
+export interface ComponentRiskDatum {
+  x: string;
+  y: number;
+  meta: string[];
+  data: PollAvgQuestion[];
 }

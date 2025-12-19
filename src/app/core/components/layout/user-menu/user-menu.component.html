@@ -1,0 +1,24 @@
+<mat-toolbar>
+  <div class="user-info">
+    <button
+      [matMenuTriggerFor]="beforeMenu"
+      #menuTrigger="matMenuTrigger"
+      (mouseenter)="menuTrigger.openMenu()"
+      (mouseleave)="mouseLeave(menuTrigger)"
+    >
+      <mat-icon>person</mat-icon>
+    </button>
+    <mat-menu #beforeMenu="matMenu" xPosition="before" hasBackdrop="false">
+      <button
+        mat-menu-item
+        class="menu-button"
+        (click)="logout()"
+        (mouseenter)="mouseEnter(menuTrigger)"
+        (mouseleave)="mouseLeave(menuTrigger)"
+      >
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

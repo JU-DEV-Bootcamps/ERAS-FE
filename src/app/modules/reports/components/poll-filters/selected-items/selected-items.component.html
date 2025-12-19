@@ -1,0 +1,6 @@
+<div class="selected-items">
+  <span class="si-texts">{{ items() }}</span>
+  @if ((items()?.length || 0) > 1) {
+    <span class="si-selection">({{ items()?.length || 0 }} selected)</span>
+  }
+</div>

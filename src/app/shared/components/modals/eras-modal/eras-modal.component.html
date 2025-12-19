@@ -1,0 +1,20 @@
+@if (data.closeButton) {
+  <div class="modal-header">
+    <h2 align="start" mat-dialog-title>{{ data.title }}</h2>
+    <button align="end" class="close" mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}
+
+<mat-dialog-content>
+  <ng-template #erasModalContainer></ng-template>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @for (action of data.actions; track $index) {
+    <button mat-button (click)="onAction(action)">
+      {{ action.label }}
+    </button>
+  }
+</mat-dialog-actions>

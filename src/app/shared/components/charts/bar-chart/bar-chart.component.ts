@@ -1,23 +1,26 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, effect, input } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { RISK_COLORS, RISK_LABELS } from '../../../../core/constants/riskLevel';
+import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 import { ChartBase } from '../abstract-chart';
 
 @Component({
   selector: 'app-bar-chart',
   imports: [NgApexchartsModule],
   templateUrl: './bar-chart.component.html',
-  styleUrl: './bar-chart.component.css',
+  styleUrl: './bar-chart.component.scss',
 })
-export class BarChartComponent extends ChartBase implements OnInit {
+export class BarChartComponent extends ChartBase {
   public chartOptions: ApexOptions = {};
   seriesY = input([1]);
   colors = input(Object.values(RISK_COLORS));
   categoriesX = input(Object.values(RISK_LABELS).map(rl => rl.toString()));
+
   constructor() {
     super();
+    effect(() => this._updateChart());
   }
-  ngOnInit(): void {
+
+  private _updateChart() {
     this.chartOptions = {
       chart: {
         type: 'bar',

@@ -1,13 +1,13 @@
 import { Component, input, OnInit } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { RISK_COLORS, RISK_LABELS } from '../../../../core/constants/riskLevel';
+import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 import { ChartBase } from '../abstract-chart';
 
 @Component({
   selector: 'app-pie-chart',
   imports: [NgApexchartsModule],
   templateUrl: './pie-chart.component.html',
-  styleUrl: './pie-chart.component.css',
+  styleUrl: './pie-chart.component.scss',
 })
 export class PieChartComponent extends ChartBase implements OnInit {
   public chartOptions: ApexOptions = {};

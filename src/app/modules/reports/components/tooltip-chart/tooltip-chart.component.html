@@ -1,0 +1,26 @@
+<div class="column-chart-tooltip">
+  <div class="cct-title">
+    <b>{{ category }}</b>
+  </div>
+  <div class="cct-subtitle" [innerHTML]="value"></div>
+  <div class="cct-divider"></div>
+  <div class="cct-content">
+    @if (emails) {
+      <ul class="custom-markers">
+        @for (email of emails; track $index) {
+          <li><span class="cct-icon">&#10003;</span> {{ email }}</li>
+        }
+      </ul>
+    } @else if (answers) {
+      @for (answer of answers; track $index) {
+        <span class="cct-answer">{{ answer.answerText }} = </span
+        ><b>{{ answer.answerPercentage }} %:</b>
+        <ul class="custom-markers">
+          @for (email of answer.studentsEmails; track $index) {
+            <li><span class="cct-icon">&#10003;</span> {{ email }}</li>
+          }
+        </ul>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<mat-nav-list class="sidebar">
+  <ng-container *ngFor="let item of menuItems">
+    <mat-list-item
+      class="menu-item"
+      [matTooltip]="item.label"
+      [matTooltipPosition]="'after'"
+      [class.active-parent]="isParentActive(item)"
+      (click)="onMenuClick(item)"
+      [routerLink]="item.route || null"
+    >
+      <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+      <span matListItemTitle>{{ item.label }}</span>
+      <div matListItemMeta>
+        <mat-icon *ngIf="item.children" class="expand-icon">
+          {{ getExpandedMenu() === item.label ? 'expand_less' : 'expand_more' }}
+        </mat-icon>
+      </div>
+    </mat-list-item>
+
+    <div
+      *ngIf="item.children && getExpandedMenu() === item.label"
+      class="submenu"
+    >
+      <a
+        class="submenu-item"
+        *ngFor="let child of item.children"
+        [routerLink]="child.route"
+        routerLinkActive="active-submenu"
+        [matTooltip]="child.label"
+        [matTooltipPosition]="'after'"
+      >
+        <span class="subtitle">{{ child.label }}</span>
+      </a>
+    </div>
+  </ng-container>
+</mat-nav-list>

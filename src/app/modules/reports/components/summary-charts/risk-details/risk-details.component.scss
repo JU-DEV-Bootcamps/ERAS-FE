@@ -1,0 +1,21 @@
+@use 'index.scss' as main-styles;
+
+.risk-group:first-child .risk-title {
+  margin-top: 0;
+}
+
+.highlighted-title {
+  font-weight: main-styles.get-font-weight(bold);
+  color: main-styles.get-color('neutral', 50);
+}
+
+.answer-risk {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+mat-expansion-panel {
+  border-radius: 0 !important;
+  margin-bottom: 3px;
+}

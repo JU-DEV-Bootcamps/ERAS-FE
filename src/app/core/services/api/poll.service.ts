@@ -1,10 +1,13 @@
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BaseApiService } from './base-api.service';
+import { map, Observable } from 'rxjs';
+
 import { PollModel } from '../../models/poll.model';
 import { PollVariableModel } from '../../models/poll-variable.model';
-import { HttpParams } from '@angular/common/http';
 import { VariableModel } from '../../models/variable.model';
-import { Observable } from 'rxjs';
+
+import { sortArray } from '@core/utils/helpers/sort';
+import { BaseApiService } from './base-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +22,12 @@ export class PollService extends BaseApiService {
 
   getAllPolls() {
     if (this.pollsCache$) return this.pollsCache$;
-    return (this.pollsCache$ = this.get<PollModel[]>(''));
+
+    this.pollsCache$ = this.get<PollModel[]>('').pipe(
+      map(polls => sortArray(polls, 'name'))
+    );
+
+    return this.pollsCache$;
   }
 
   getPollsByCohortId(cohortId: number) {

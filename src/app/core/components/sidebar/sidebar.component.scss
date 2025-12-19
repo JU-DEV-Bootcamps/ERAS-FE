@@ -1,0 +1,80 @@
+@use 'index.scss' as main-styles;
+
+//VARIABLES
+$neutral-color: main-styles.get-color('neutral', 70);
+$primary-bg: main-styles.get-color('primary', 50);
+$primary-text: main-styles.get-color('primary', 100);
+
+//PARENT MENU
+.menu-item {
+  width: 95%;
+  margin: auto;
+  border-radius: initial !important;
+
+  mat-icon {
+    display: flex;
+    opacity: 0.9;
+    color: $neutral-color;
+
+    &.expand-icon {
+      justify-content: center;
+    }
+  }
+
+  span {
+    color: $neutral-color;
+  }
+
+  &:hover {
+    background-color: $primary-bg;
+
+    mat-icon,
+    span {
+      color: $primary-text;
+    }
+  }
+
+  &.active-parent {
+    background-color: $primary-bg;
+
+    mat-icon,
+    span {
+      color: $primary-text;
+    }
+  }
+}
+
+//SUBMENU
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: auto;
+  overflow: hidden;
+  padding: 15px 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 95%;
+}
+
+.submenu-item {
+  text-decoration: none;
+
+  &:hover {
+    .subtitle {
+      color: $primary-text;
+    }
+  }
+
+  &.active-submenu {
+    .subtitle {
+      color: $primary-text;
+      font-weight: 500;
+    }
+  }
+}
+
+.subtitle {
+  color: $neutral-color;
+  margin-left: 56px;
+}

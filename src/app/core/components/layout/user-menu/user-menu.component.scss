@@ -1,0 +1,44 @@
+@use 'index.scss' as main-styles;
+
+mat-toolbar {
+  height: auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: main-styles.get-size(margin, lg);
+}
+
+.user-info button {
+  width: main-styles.get-size(icon-size, extra-large);
+  height: main-styles.get-size(icon-size, extra-large);
+  margin: main-styles.get-size(margin, xs);
+  border-radius: 50%;
+  border: none;
+  background-color: main-styles.get-color('neutral', 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.user-info button:hover {
+  box-shadow: 1px 2px 2px var(--mat-sys-primary);
+}
+
+.menu-button {
+  background-color: transparent;
+  border: none;
+  color: main-styles.get-color('primary', 30);
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.menu-button:hover {
+  text-decoration: underline;
+}
+button {
+  cursor: pointer;
+}

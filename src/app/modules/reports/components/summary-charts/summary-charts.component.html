@@ -1,0 +1,83 @@
+<h1 class="page-title">Summary Charts</h1>
+<h2 class="page-subtitle">{{ title }}</h2>
+<app-poll-filters
+  class="expanded"
+  [showVariables]="false"
+  (filters)="handleFilterSelect($event)"
+></app-poll-filters>
+
+@defer (when isLoading) {
+  <ng-container>
+    <div class="action-section">
+      <button
+        mat-icon-button
+        [disabled]="!students.length || isGeneratingPDF"
+        matTooltip="Download pdf"
+        (click)="exportReportPdf()"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        matButton
+        [matMenuTriggerFor]="beforeMenu"
+        class="export-button"
+        matTooltip="Charts"
+        mat-icon-button
+        color="primary"
+        [disabled]="!students.length || isGeneratingPDF"
+      >
+        <mat-icon>bar_chart</mat-icon>
+      </button>
+      <mat-menu #beforeMenu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="toggleChart('heatmap')">
+          Heatmap Chart
+        </button>
+        <button mat-menu-item (click)="toggleChart('chart')">
+          Column Chart
+        </button>
+      </mat-menu>
+    </div>
+  </ng-container>
+  @if (chartOptions && students.length) {
+    <div class="table-container" #contentToExport>
+      @if (heatmapChart) {
+        <div class="chart-container">
+          <apx-chart
+            id="heatmap"
+            [series]="chartOptions.series!"
+            [chart]="chartOptions.chart!"
+            [xaxis]="chartOptions.xaxis!"
+            [yaxis]="chartOptions.yaxis!"
+            [colors]="chartOptions.colors!"
+            [plotOptions]="chartOptions.plotOptions!"
+            [title]="chartOptions.title!"
+            [tooltip]="chartOptions.tooltip!"
+          >
+          </apx-chart>
+        </div>
+      } @else {
+        <app-summary-column-charts
+          [components]="components()!"
+          [pollUuid]="pollUuid"
+          [data]="title"
+        ></app-summary-column-charts>
+      }
+
+      <div id="table-container">
+        <app-list
+          (actionCalled)="(null)"
+          (loadCalled)="getStudentsByCohortAndPoll($event)"
+          [items]="students"
+          [totalItems]="totalStudents"
+          [columns]="columns"
+          [actionDatas]="[]"
+          [title]="'Students Risk'"
+        />
+      </div>
+    </div>
+  }
+} @loading {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @placeholder {
+  <app-empty-data-message description="Select a cohort and poll" />
+}

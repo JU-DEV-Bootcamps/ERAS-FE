@@ -11,7 +11,7 @@ import {
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
-import { fixedColorRange } from '../../../features/cohort/util/heat-map-config';
+import { fixedColorRange } from '@core/utils/apex-chart/heat-map-config';
 import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
 import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
@@ -20,6 +20,8 @@ import {
   DynamicReport,
   SummaryReport,
 } from '../../models/reports/reports-data.model';
+import { Observable, of } from 'rxjs';
+import { addCountPercentages } from '@core/utils/apex-chart/customTooltip';
 
 @Injectable({
   providedIn: 'root',
@@ -65,7 +67,9 @@ export class ReportService extends BaseApiService {
     cohortIds: number[] | null,
     variableIds: number[],
     lastVersion: boolean
-  ) {
+  ): Observable<GetQueryResponse<PollCountReport> | null> {
+    if (!variableIds || !variableIds.length) return of(null);
+
     let params = new HttpParams().set(
       'variableIds',
       this.arrayAsStringParams(variableIds)
@@ -89,12 +93,8 @@ export class ReportService extends BaseApiService {
           return {
             x: question.question,
             y: question.averageRisk,
-            z: question.answersDetails
-              .map(
-                ans =>
-                  `${ans.answerPercentage}% = ${this.addAnswerSeparator(ans.answerText)}: ${this.arrayAsStringParams(ans.studentsEmails)}`
-              )
-              .join('; </br>'),
+            z: question.answersDetails,
+            position: question.position,
           };
         }),
       };
@@ -126,19 +126,24 @@ export class ReportService extends BaseApiService {
   }
 
   getHMSeriesFromCountComponent(component: PollCountComponent) {
-    const series = component.questions.map(question => {
-      return {
-        text: `${question.question}`,
-        description: `${question.question}`,
-        name: `${question.question}`,
-        data: question.answers.map(a => {
-          return {
-            x: Math.trunc(a.answerRisk),
-            y: a.answerRisk,
-          };
-        }),
-      };
-    });
+    const series = component.questions
+      .sort((q1, q2) => q2.position - q1.position)
+      .map(question => {
+        return {
+          text: `${question.question}`,
+          description: `${question.question}`,
+          name: `${question.question}`,
+          data: addCountPercentages(question.answers).map(a => {
+            return {
+              x: Math.trunc(a.answerRisk),
+              y: a.answerRisk,
+              z: `<span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br> ${a.students
+                .map(ans => `${this.arrayAsStringParams([ans.email])}`)
+                .join(';')}`,
+            };
+          }),
+        };
+      });
     return series;
   }
   getRiskCountPollReport(pollUuiD: string) {
@@ -208,7 +213,7 @@ export class ReportService extends BaseApiService {
           .map(() => ({
             x: '',
             y: -1,
-            z: '',
+            z: [],
           }));
 
         newData.push(...items, ...fillers);
@@ -247,7 +252,7 @@ export class ReportService extends BaseApiService {
 
     for (const color of colorList) {
       maxByColor[color] = Math.max(
-        ...groupedByRow.map(row => row.colorGroups[color]?.length || 0)
+        ...groupedByRow.map(row => row.colorGroups[color]?.length || 1)
       );
     }
 

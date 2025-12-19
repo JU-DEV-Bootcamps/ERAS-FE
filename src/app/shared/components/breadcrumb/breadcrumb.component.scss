@@ -1,0 +1,32 @@
+@use 'index.scss' as main-styles;
+
+.breadcrumb {
+  display: flex;
+  font-size: main-styles.get-font-size(label, large);
+}
+
+.breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  color: main-styles.get-color(primary, 40);
+  font-weight: main-styles.get-font-weight(semi-bold);
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: main-styles.get-color(primary, 50);
+    text-decoration: underline;
+  }
+}
+
+.breadcrumb-separator {
+  font-size: 24px;
+  color: main-styles.get-color(neutral, 60);
+}
+
+.breadcrumb-active {
+  display: inline-flex;
+  align-items: center;
+  font-weight: main-styles.get-font-weight(semi-bold);
+  color: main-styles.get-color(neutral, 40);
+}

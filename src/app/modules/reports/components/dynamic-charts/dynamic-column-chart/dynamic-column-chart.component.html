@@ -1,0 +1,13 @@
+@for (chartOption of chartOptions(); track $index) {
+  <apx-chart
+    [chart]="chartOption.chart!"
+    [fill]="chartOption.fill!"
+    [legend]="chartOption.legend!"
+    [plotOptions]="chartOption.plotOptions!"
+    [responsive]="chartOption.responsive!"
+    [series]="chartOption.series!"
+    [title]="chartOption.title!"
+    [tooltip]="chartOption.tooltip!"
+    [xaxis]="chartOption.xaxis!"
+  ></apx-chart>
+}

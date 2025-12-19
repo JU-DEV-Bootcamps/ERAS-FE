@@ -1,0 +1,106 @@
+<div>
+  <h1 class="page-title">Home</h1>
+  <h2 class="page-subtitle">Overview</h2>
+  @if (EvaluationsError) {
+    <p>Could not load all summary details.</p>
+  }
+
+  <app-summary-details [summary]="count"></app-summary-details>
+
+  <h2 class="page-subtitle">Evaluation Processes</h2>
+  @if (evaluations && evaluations.length > 0) {
+    <div #mainContainer>
+      <section id="chart-student-detail">
+        <swiper-container
+          id="swiper-container"
+          class="swiper"
+          effect="cards"
+          grab-cursor="true"
+          (swiperslidechange)="onSlideChange($event)"
+        >
+          @for (evaluation of evaluations; track $index) {
+            <swiper-slide>
+              <div class="evaluation-details">
+                <mat-icon class="swipe-icon">swipe</mat-icon>
+                <h2>Evaluation: {{ evaluations[idxChosenEval].name }}</h2>
+                <p>
+                  Country:
+                  <span>{{
+                    evaluations[idxChosenEval].country | alpha3CountryName
+                  }}</span>
+                  {{ evaluations[idxChosenEval].country | alpha3Flag }}
+                </p>
+                <p>
+                  Period:
+                  {{ evaluations[idxChosenEval].startDate | date: 'shortDate' }}
+                  to
+                  {{ evaluations[idxChosenEval].endDate | date: 'shortDate' }}
+                </p>
+                <p
+                  class="statusRow"
+                  [ngClass]="getEvalClass(evaluations[idxChosenEval])"
+                >
+                  Status: {{ getEvalStatus(evaluations[idxChosenEval]) }}
+                </p>
+              </div>
+              <!-- Poll Information -->
+              <div class="poll-details">
+                @if (selPoll) {
+                  <p>
+                    Poll:
+                    {{ evaluations[idxChosenEval].pollName }} V{{
+                      selPoll.lastVersion || 0
+                    }}
+                  </p>
+                  @if (selEval?.pollInstances) {
+                    <p>
+                      Polls answered:
+                      {{ selEval?.pollInstances?.length || 0 }}
+                    </p>
+                  }
+                  <p>Risk average: {{ riskLevelAvg }}</p>
+
+                  <p class="details">
+                    Created by: {{ selPoll.audit?.createdBy }}
+                  </p>
+                  <p class="details">
+                    Version Created:
+                    {{ selPoll.lastVersionDate | date: 'shortDate' }}
+                  </p>
+                  <p class="details">Unique Id: {{ selPoll.uuid }}</p>
+
+                  <div class="chart-container" #chart>
+                    @if (isLoadingPollInstances) {
+                      <mat-spinner />
+                    } @else if (
+                      riskLevels.risks.length > 0 &&
+                      riskLevels.levels.length > 0
+                    ) {
+                      <app-bar-chart
+                        [seriesY]="riskLevels.risks"
+                        [categoriesX]="riskLevels.levels"
+                        [colors]="riskLevels.colors"
+                      ></app-bar-chart>
+                    } @else {
+                      <app-empty-data-message
+                        description="No poll instance data found."
+                      ></app-empty-data-message>
+                    }
+                  </div>
+                }
+              </div>
+            </swiper-slide>
+          }
+        </swiper-container>
+      </section>
+    </div>
+  } @else {
+    @if (isLoadingEvaluations) {
+      <mat-spinner />
+    } @else {
+      <app-empty-data-message
+        description="No evaluation process with polls answered yet."
+      ></app-empty-data-message>
+    }
+  }
+</div>
