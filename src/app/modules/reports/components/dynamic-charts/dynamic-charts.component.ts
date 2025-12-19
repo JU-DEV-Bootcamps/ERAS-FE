@@ -27,7 +27,7 @@ import { ComponentValueType } from '@core/models/types/risk-students-detail.type
 import { Filter } from '../poll-filters/types/filters';
 import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
 
-import { DynamicColumnChartComponent } from '@modules/reports/components/dynamic-column-chart/dynamic-column-chart.component';
+import { DynamicColumnChartComponent } from './dynamic-column-chart/dynamic-column-chart.component';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import {
   ModalQuestionDetailsComponent,
@@ -36,21 +36,21 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 
 @Component({
-  selector: 'app-dynamic-heatmap',
+  selector: 'app-dynamic-charts',
   imports: [
-    PollFiltersComponent,
+    DynamicColumnChartComponent,
     EmptyDataComponent,
     MatIcon,
-    MatTooltipModule,
-    MatProgressBarModule,
-    NgApexchartsModule,
     MatMenuModule,
-    DynamicColumnChartComponent,
+    MatProgressBarModule,
+    MatTooltipModule,
+    NgApexchartsModule,
+    PollFiltersComponent,
   ],
-  templateUrl: './dynamic-heatmap.component.html',
-  styleUrl: './dynamic-heatmap.component.scss',
+  templateUrl: './dynamic-charts.component.html',
+  styleUrl: './dynamic-charts.component.scss',
 })
-export class DynamicHeatmapComponent {
+export class DynamicChartsComponent {
   private readonly dialog = inject(MatDialog);
 
   title = '';
