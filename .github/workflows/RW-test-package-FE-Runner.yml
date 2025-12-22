@@ -18,8 +18,13 @@ on:
         default: 'https://dev.login.jala-one.com/auth'
         required: true
         type: string
+      keycloak_realm:
+        description: 'ERAS keycloak target realm'
+        default: 'jalasoft'
+        required: true
+        type: string
       client_id:
-        description: 'client id'
+        description: 'keycloak client id'
         default: 'eras-stage'
         required: true
         type: string
@@ -59,8 +64,13 @@ on:
         default: 'https://dev.login.jala-one.com/auth'
         required: true
         type: string
+      keycloak_realm:
+        description: 'ERAS keycloak target realm'
+        default: 'jalasoft'
+        required: true
+        type: string
       client_id:
-        description: 'client id'
+        description: 'keycloak client id'
         default: 'eras'
         required: true
         type: string
@@ -125,6 +135,7 @@ jobs:
           cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
           sed -i "s|__API_URL__|${{ inputs.api_url }}|g" src/environments/environment.production.ts
           sed -i "s|__KEYCLOAK_URL__|${{ inputs.keycloak_url }}|g" src/environments/environment.production.ts
+          sed -i "s|__KEYCLOAK_REALM__|${{ inputs.keycloak_realm }}|g" src/environments/environment.production.ts
           sed -i "s|__CLIENT_ID__|${{ inputs.client_id }}|g" src/environments/environment.production.ts
           sed -i "s|__WEB_URL__|${{ inputs.web_url }}|g" src/environments/environment.production.ts
       - name: Login to Docker Hub
