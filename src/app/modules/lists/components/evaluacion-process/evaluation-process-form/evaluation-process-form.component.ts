@@ -32,6 +32,7 @@ import { EvaluationModel } from '@core/models/evaluation.model';
 import { PollName } from '@core/models/poll-request.model';
 import { ServiceProviderModel } from '@core/models/service-providers.model';
 
+import { isEmpty } from '@core/utils/helpers/is-empty';
 import { noWhitespaceValidator } from '@core/utils/validators/no-whitespace.validator';
 
 import { ConfigurationsService } from '@core/services/api/configurations.service';
@@ -239,9 +240,9 @@ export class EvaluationProcessFormComponent implements OnInit {
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          ...(this.data.evaluation.pollName !== 'null'
+          ...(!isEmpty(this.form.value.pollName.name)
             ? {
-                pollName: this.data.evaluation.pollName,
+                pollName: this.form.value.pollName.name,
               }
             : {}),
           country: this.selectedCountry || this.form.value.country.alpha3,
