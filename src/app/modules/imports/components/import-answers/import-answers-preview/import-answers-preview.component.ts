@@ -142,7 +142,10 @@ export class ImportAnswersPreviewComponent implements OnChanges {
 
     this.saveCompleted.emit({ state: 'pending', data: null });
     this.clService
-      .savePollsCosmicLattePreview(pollsToSave as unknown as PollInstance[])
+      .savePollsCosmicLattePreview(
+        pollsToSave as unknown as PollInstance[],
+        history.state.evaluationId
+      )
       .subscribe({
         next: data => {
           this.saveCompleted.emit({ state: 'true', data: data });

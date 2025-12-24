@@ -220,6 +220,7 @@ export class EvaluationProcessListComponent implements OnInit {
         country: data.country,
         endDate: data.endDate,
         startDate: data.startDate,
+        evaluationId: data.id,
       },
     });
   }
