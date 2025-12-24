@@ -54,7 +54,7 @@ export class CosmicLatteService extends BaseApiService {
     );
   }
 
-  savePollsCosmicLattePreview(data: PollInstance[]) {
-    return this.post<PollInstance[]>('polls', data);
+  savePollsCosmicLattePreview(data: PollInstance[], evaluationId: number) {
+    return this.post<PollInstance[]>(`polls/${evaluationId}`, data);
   }
 }
