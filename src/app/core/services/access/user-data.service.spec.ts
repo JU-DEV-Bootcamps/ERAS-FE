@@ -47,7 +47,7 @@ describe('UserDataService', () => {
   });
 
   it('Should fill user, if current user is null, at initUser method.', async () => {
-    const profile: Profile = { id: '2', name: 'Another User' } as Profile;
+    const profile: Profile = { firstName: 'user1', id: '2' } as Profile;
     mockKeycloak.loadUserProfile.and.returnValue(Promise.resolve(profile));
     service = TestBed.inject(UserDataService);
     await service.initUser();
@@ -60,7 +60,7 @@ describe('UserDataService', () => {
   });
 
   it('Should not fill again the user if it was already loaded, at initUser method', async () => {
-    const profile: Profile = { id: '3', name: 'Current User' } as Profile;
+    const profile: Profile = { firstName: 'user1', id: '3' } as Profile;
     sessionStorage.setItem('erasUserProfile', JSON.stringify(profile));
     service = TestBed.inject(UserDataService);
     await service.initUser();
@@ -69,7 +69,7 @@ describe('UserDataService', () => {
   });
 
   it('Should clean up user and session storage, when clear method is trigger.', async () => {
-    const profile: Profile = { id: '4', name: 'User To Clear' } as Profile;
+    const profile: Profile = { firstName: 'user1', id: '4' } as Profile;
     mockKeycloak.loadUserProfile.and.returnValue(Promise.resolve(profile));
     service = TestBed.inject(UserDataService);
     await service.initUser();
