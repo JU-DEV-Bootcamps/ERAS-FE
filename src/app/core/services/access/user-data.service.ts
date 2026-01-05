@@ -23,9 +23,10 @@ export class UserDataService {
     this.saveToSession(profile as Profile);
   }
 
-  private saveToSession(profile: Profile) {
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(profile));
-    this._user.set(profile);
+  private saveToSession({ firstName, id }: Profile) {
+    const sessionProfile: Profile = { firstName, id };
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(sessionProfile));
+    this._user.set(sessionProfile);
   }
 
   private loadFromSession() {
