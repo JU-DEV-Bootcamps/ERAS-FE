@@ -17,13 +17,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import {
   MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
 
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
-import Keycloak from 'keycloak-js';
 
 import { ConfigurationsModel } from '@core/models/configurations.model';
 import { countries } from '@core/constants/countries';
@@ -40,6 +38,7 @@ import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { NotifyService } from '@core/services/notify.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
+import { UserDataService } from '@core/services/access/user-data.service';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -96,9 +95,8 @@ export class EvaluationProcessFormComponent implements OnInit {
       updateFunction?: () => void;
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
-    private dialog: MatDialog,
     private fb: FormBuilder,
-    private readonly keycloak: Keycloak
+    private readonly userData: UserDataService
   ) {
     this.form = this.fb.group({
       name: [
@@ -163,7 +161,7 @@ export class EvaluationProcessFormComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const profile = await this.keycloak.loadUserProfile();
+    const profile = this.userData.user()!;
     this.userId = profile.id || '';
     this.getConfigurations();
     this.getServiceProviders();
