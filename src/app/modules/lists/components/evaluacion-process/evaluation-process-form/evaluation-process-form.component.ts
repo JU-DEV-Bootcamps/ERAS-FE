@@ -30,6 +30,7 @@ import { EvaluationModel } from '@core/models/evaluation.model';
 import { PollName } from '@core/models/poll-request.model';
 import { ServiceProviderModel } from '@core/models/service-providers.model';
 
+import { isEmpty } from '@core/utils/helpers/is-empty';
 import { noWhitespaceValidator } from '@core/utils/validators/no-whitespace.validator';
 
 import { ConfigurationsService } from '@core/services/api/configurations.service';
@@ -66,9 +67,9 @@ export class EvaluationProcessFormComponent implements OnInit {
   selectedCountry = '';
   prefereToChooseLater: PollName = {
     parent: 'null',
-    name: 'null',
+    name: '',
     status: 'null',
-    selectData: 'null',
+    selectData: 'I prefer to choose later',
     country: 'null',
   };
   pollsNames: PollName[] = [this.prefereToChooseLater];
@@ -116,7 +117,7 @@ export class EvaluationProcessFormComponent implements OnInit {
       ],
       pollName: [
         {
-          value: data?.evaluation?.pollName ?? '',
+          value: data?.evaluation?.pollName ? null : this.prefereToChooseLater,
           disabled: !!data?.evaluation?.pollName,
         },
         [Validators.required, Validators.maxLength(50)],
@@ -232,16 +233,17 @@ export class EvaluationProcessFormComponent implements OnInit {
             },
           });
       } else {
+        const pollName: string = !isEmpty(this.data.evaluation.pollName)
+          ? this.data.evaluation.pollName
+          : !isEmpty(this.form.value.pollName.name)
+            ? this.form.value.pollName.name
+            : '';
         const updateEval: EvaluationModel = {
           id: this.data.evaluation.id,
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          ...(this.data.evaluation.pollName !== 'null'
-            ? {
-                pollName: this.data.evaluation.pollName,
-              }
-            : {}),
+          pollName: pollName,
           country: this.selectedCountry || this.form.value.country.alpha3,
         } as EvaluationModel;
 
