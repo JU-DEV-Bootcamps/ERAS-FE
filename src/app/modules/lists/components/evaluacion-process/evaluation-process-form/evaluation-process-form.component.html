@@ -103,7 +103,7 @@
           [value]="pollDataSelected?.selectData || ''"
         >
           @for (poll of pollsNames; track poll) {
-            @if (poll.name === 'null') {
+            @if (!poll.name) {
               <mat-option [value]="poll"
                 >-- I prefer to choose later --</mat-option
               >
