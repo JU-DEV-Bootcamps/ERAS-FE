@@ -162,7 +162,7 @@ export class EvaluationProcessFormComponent implements OnInit {
 
   async ngOnInit() {
     const profile = this.userData.user()!;
-    this.userId = profile.id || '';
+    this.userId = (profile && profile.id) || '';
     this.getConfigurations();
     this.getServiceProviders();
   }
@@ -262,6 +262,7 @@ export class EvaluationProcessFormComponent implements OnInit {
         });
       }
     }
+    this.form.reset();
   }
 
   getServiceProviders() {
