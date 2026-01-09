@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ImportAnswersComponent } from './import-answers.component';
+import { ImportPreviewComponent } from './import-preview.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { DatePipe } from '@angular/common';
@@ -16,8 +16,8 @@ import { ConfigurationsModel } from '@core/models/configurations.model';
 import { UserDataService } from '@core/services/access/user-data.service';
 
 describe('ImportAnswersComponent', () => {
-  let component: ImportAnswersComponent;
-  let fixture: ComponentFixture<ImportAnswersComponent>;
+  let component: ImportPreviewComponent;
+  let fixture: ComponentFixture<ImportPreviewComponent>;
   let mockService: jasmine.SpyObj<CosmicLatteService>;
   let mockUserData: jasmine.SpyObj<UserDataService>;
 
@@ -43,7 +43,7 @@ describe('ImportAnswersComponent', () => {
     mockSPService.getAllServiceProviders.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [ImportAnswersComponent, ReactiveFormsModule],
+      imports: [ImportPreviewComponent, ReactiveFormsModule],
       providers: [
         { provide: CosmicLatteService, useValue: mockService },
         { provide: ConfigurationsService, useValue: mockConfigService },
@@ -57,7 +57,7 @@ describe('ImportAnswersComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ImportAnswersComponent);
+    fixture = TestBed.createComponent(ImportPreviewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -92,7 +92,7 @@ describe('ImportAnswersComponent', () => {
       serviceProviderId: 1,
     } as ConfigurationsModel;
 
-    component.form.controls['surveyName'].setValue('Test Survey');
+    component.form.controls['pollName'].setValue('Test Survey');
 
     mockService.importAnswerBySurvey.and.returnValue(of(poll));
 
@@ -105,7 +105,7 @@ describe('ImportAnswersComponent', () => {
       null
     );
 
-    expect(component.form.controls['surveyName'].value).toBeNull();
+    expect(component.form.controls['pollName'].value).toBeNull();
     expect(component.form.pristine).toBeTrue();
     expect(component.form.untouched).toBeTrue();
   });
@@ -116,7 +116,7 @@ describe('ImportAnswersComponent', () => {
       serviceProviderId: 1,
     } as ConfigurationsModel;
 
-    component.form.controls['surveyName'].setValue('Test Survey');
+    component.form.controls['pollName'].setValue('Test Survey');
 
     mockService.importAnswerBySurvey.and.returnValue(
       throwError(() => ({ error: { message: 'Server error' } }))
@@ -125,6 +125,6 @@ describe('ImportAnswersComponent', () => {
     component.onSubmit();
 
     expect(mockService.importAnswerBySurvey).toHaveBeenCalled();
-    expect(component.form.controls['surveyName'].value).toBeNull();
+    expect(component.form.controls['pollName'].value).toBeNull();
   });
 });
