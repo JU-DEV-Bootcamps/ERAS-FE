@@ -131,12 +131,20 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
 
   loadStudentList(): void {
     const pollInstanceUUID: string = this.inputQuestion.pollUuid;
+    const selectedCohorts: string = this.inputQuestion.cohortId;
     if (this.variableId === 0) return;
+    const cohortIdsArray = selectedCohorts
+      .split(',')
+      .map(id => Number(id.trim()));
     this.reportService
       .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
       .subscribe(data => {
-        this.studentRisks.set(data.body.items || []);
-        this.totalStudentRisks.set(data.body.count || 0);
+        const allItems: StudentReportAnswerRiskLevel[] = data.body.items || [];
+        const filteredItems = allItems.filter(student =>
+          cohortIdsArray.includes(student.cohortId)
+        );
+        this.studentRisks.set(filteredItems);
+        this.totalStudentRisks.set(filteredItems.length);
       });
   }
 
