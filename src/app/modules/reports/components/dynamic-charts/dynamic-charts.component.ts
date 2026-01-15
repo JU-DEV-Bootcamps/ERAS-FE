@@ -65,6 +65,7 @@ export class DynamicChartsComponent {
   isLoading = false;
   components = signal<PollCountReport | null>(null);
   heatmapChart = true;
+  cohortIds = '';
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -103,31 +104,56 @@ export class DynamicChartsComponent {
     );
     this.chartsOptions = hmSeries.map((series, index) => {
       const regroupSeries = this.reportService.regroupDynamicByColor(series);
+      const component = report.components[index];
 
       return GetChartOptions(
-        `Reporte: ${report.components[index].description}`,
+        `Reporte: ${component.description}`,
         regroupSeries,
-        (_x, y) => {
-          this.openDetailsModal(
-            this.uuid!,
-            1,
-            report.components[index].questions[y],
-            report.components[index].description,
-            report.components[index].text
-          );
+        (x: number, y: number) => {
+          const questionIndex = y;
+          const answerIndex = x;
+
+          const question = component.questions[questionIndex];
+
+          if (question) {
+            const dataAtPoint = regroupSeries[questionIndex]?.data[
+              answerIndex
+            ] as unknown as { z: string; totalFillers?: number };
+            const totalFillers = dataAtPoint?.totalFillers ?? 0;
+            const realAnswerIndex = answerIndex - totalFillers;
+
+            const selectedAnswer = question.answers[realAnswerIndex];
+
+            if (selectedAnswer) {
+              const selectedQuestionOnly: PollCountQuestion = {
+                ...question,
+                answers: [selectedAnswer],
+              };
+
+              this.openDetailsModal(
+                this.uuid!,
+                1,
+                selectedQuestionOnly,
+                component.description,
+                component.text
+              );
+            }
+          }
         },
         undefined,
-        (x, y) => {
-          const component = report.components[index];
+        (x: number, y: number) => {
           const question = component.questions[x];
-          const totalFillers = regroupSeries[x].data[y].totalFillers || 0;
+          const dataAtPoint = regroupSeries[x]?.data[y] as unknown as {
+            z: string;
+            totalFillers?: number;
+          };
+          const totalFillers = dataAtPoint?.totalFillers ?? 0;
           const riskLevel = question.answers[y - totalFillers];
-          const zValue = regroupSeries[x].data[y];
 
           return customTooltip(
             question.question,
             `${riskLevel.count}`,
-            zValue.z
+            dataAtPoint.z
           );
         }
       );
@@ -150,6 +176,7 @@ export class DynamicChartsComponent {
   handleFilterSelect(filters: Filter) {
     this.title = filters.title;
     this.uuid = filters.uuid;
+    this.cohortIds = filters.cohortIds.join(',');
     if (!filters.cohortIds || !filters.variableIds || !filters.lastVersion) {
       this.chartsOptions = [];
       this.components.set(null);
@@ -170,7 +197,7 @@ export class DynamicChartsComponent {
     text?: string
   ): void {
     const data: SelectedHMData = {
-      cohortId: cohortId.toString(),
+      cohortId: this.cohortIds,
       pollUuid,
       componentName,
       text,

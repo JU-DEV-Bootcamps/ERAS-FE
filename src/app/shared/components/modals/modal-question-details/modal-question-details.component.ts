@@ -31,6 +31,10 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { Pagination } from '@core/services/interfaces/server.type';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
+import {
+  isPollAvgQuestion,
+  isPollCountQuestion,
+} from '@core/utils/helpers/type-check';
 
 export interface SelectedHMData {
   cohortId: string;
@@ -130,13 +134,37 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   }
 
   loadStudentList(): void {
-    const pollInstanceUUID: string = this.inputQuestion.pollUuid;
+    const { pollUuid, cohortId, question } = this.inputQuestion;
+
     if (this.variableId === 0) return;
+
+    let selectedRisk: number | undefined;
+
+    if (isPollCountQuestion(question)) {
+      selectedRisk = question.answers[0]?.answerRisk;
+    } else if (isPollAvgQuestion(question)) {
+      console.log('PollAvgQuestion type:', question.averageAnswer);
+    }
+
+    const cohortIdsArray = cohortId.split(',').map(id => Number(id.trim()));
+
     this.reportService
-      .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
+      .getTopPollReport([this.variableId], pollUuid, this.pagination)
       .subscribe(data => {
-        this.studentRisks.set(data.body.items || []);
-        this.totalStudentRisks.set(data.body.count || 0);
+        const allItems: StudentReportAnswerRiskLevel[] = data.body.items || [];
+
+        const filteredItems = allItems.filter(student => {
+          const matchesCohort = cohortIdsArray.includes(student.cohortId);
+
+          if (selectedRisk !== undefined) {
+            return matchesCohort && student.answerRisk === selectedRisk;
+          }
+
+          return matchesCohort;
+        });
+
+        this.studentRisks.set(filteredItems);
+        this.totalStudentRisks.set(filteredItems.length);
       });
   }
 
