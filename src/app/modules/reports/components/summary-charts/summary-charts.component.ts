@@ -238,7 +238,7 @@ export class SummaryChartsComponent {
   ): void {
     if (!this.pollUuid) return;
     const data: SelectedHMData = {
-      cohortId: this.cohortIds?.toString() || '0',
+      cohortId: this.cohortIds.join(','),
       pollUuid: this.pollUuid,
       componentName,
       text: text ?? componentName,
