@@ -1,5 +1,4 @@
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -29,6 +28,9 @@ import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras
 import { EvaluationProcessFormComponent } from './evaluation-process-form/evaluation-process-form.component';
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RouteDataService } from '@core/services/route-data.service';
+import { ModalImportAnswersFormComponent } from '@modules/lists/components/modal-import-answers-form/modal-import-answers-form.component';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -46,7 +48,11 @@ import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dia
   templateUrl: './evaluation-process-list.component.html',
 })
 export class EvaluationProcessListComponent implements OnInit {
-  readonly dialog = inject(MatDialog);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
+  private routeDataService = inject(RouteDataService);
+
   evaluationProcessService = inject(EvaluationsService);
   columns: Column<EvaluationModel>[] = [
     {
@@ -101,8 +107,6 @@ export class EvaluationProcessListComponent implements OnInit {
   isMobile = false;
   isLoading = false;
   importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED];
-
-  router = inject(Router);
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -214,15 +218,28 @@ export class EvaluationProcessListComponent implements OnInit {
   }
 
   goToImport(data: EvaluationModel) {
-    this.router.navigate(['import-answers'], {
-      state: {
-        pollName: data.pollName,
-        country: data.country,
-        endDate: data.endDate,
-        startDate: data.startDate,
-        evaluationId: data.id,
-      },
-    });
+    this.dialog
+      .open(ModalImportAnswersFormComponent, {
+        ...MODAL_DEFAULT_CONF,
+        panelClass: 'border-modalbox-dialog',
+        data: {
+          pollName: data.pollName,
+          endDate: data.endDate,
+          startDate: data.startDate,
+        },
+      })
+      .afterClosed()
+      .subscribe(result => {
+        this.routeDataService.updateRouteData({
+          configuration: result.configuration,
+          pollName: result.pollName,
+          startDate: result.startDate,
+          endDate: result.endDate,
+        });
+        this.router.navigate(['import-preview'], {
+          relativeTo: this.route,
+        });
+      });
   }
 
   openModalDetails(data: EvaluationModel): void {

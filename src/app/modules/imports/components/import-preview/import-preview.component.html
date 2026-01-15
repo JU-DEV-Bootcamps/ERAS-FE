@@ -1,0 +1,8 @@
+<h2 class="page-title">Import Polls</h2>
+<app-import-answers-preview
+  [importedPollData]="importedPollData"
+  (saveCompleted)="handleSavePollState($event)"
+></app-import-answers-preview>
+<div *ngIf="isLoading$ | async" class="spinner-container">
+  <mat-spinner></mat-spinner>
+</div>
