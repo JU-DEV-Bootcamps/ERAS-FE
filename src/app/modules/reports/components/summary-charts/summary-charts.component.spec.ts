@@ -97,7 +97,7 @@ describe('SummaryChartsComponent', () => {
       pollUuid: 'poll-uuid',
       page: 0,
       pageSize: 10,
-      lastVersion: true,
+      // lastVersion: true,
     });
     expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);

@@ -7,6 +7,7 @@ import { EvaluationModel } from '../../models/evaluation.model';
 import { BaseApiService } from './base-api.service';
 import { HttpParams } from '@angular/common/http';
 import { GetQueryResponse } from '../../models/summary.model';
+import { Pagination } from '../interfaces/server.type';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +21,14 @@ export class EvaluationsService extends BaseApiService {
   createEvalProc(data: CreateEvaluationModel, parentId: string) {
     return this.post(parentId, data);
   }
-  getAllEvalProc({ page = 1, pageSize = 10 }) {
-    const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
+  getAllEvalProc(pagination?: Pagination) {
+    let params = undefined;
+
+    if (pagination && pagination.page && pagination.pageSize) {
+      params = new HttpParams()
+        .set('PageSize', pagination.pageSize)
+        .set('Page', pagination.page);
+    }
     return this.get<PagedReadEvaluationProcess>('', params);
   }
   updateEvaluationProcess(evaluation: EvaluationModel) {
