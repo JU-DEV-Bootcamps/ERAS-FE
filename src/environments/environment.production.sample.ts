@@ -12,4 +12,5 @@ export const environment = {
     realm: '__KEYCLOAK_REALM__',
     clientId: '__CLIENT_ID__',
   },
+  featureFlags: {},
 };

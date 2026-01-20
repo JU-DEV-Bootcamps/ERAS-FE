@@ -6,4 +6,5 @@ export const environment = {
     realm: '',
     clientId: '',
   },
+  featureFlags: {},
 };

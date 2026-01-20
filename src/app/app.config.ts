@@ -14,7 +14,7 @@ export const appConfig: ApplicationConfig = {
       config: environment.keycloak,
       initOptions: {
         onLoad: 'login-required',
-        redirectUri: window.location.origin + '/',
+        redirectUri: environment.production ? window.location.origin + '/' : '',
         checkLoginIframe: false,
       },
     }),

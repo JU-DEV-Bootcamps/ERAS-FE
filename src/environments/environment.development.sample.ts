@@ -6,4 +6,5 @@ export const environment = {
     realm: 'your-keycloak-realm',
     clientId: 'your-keycloak-public-client',
   },
+  featureFlags: {},
 };
