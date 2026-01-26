@@ -42,6 +42,7 @@ export class ImportPreviewComponent implements OnInit {
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
 
+  evaluationId: number | null = null;
   selectedConfiguration: ConfigurationsModel | null = null;
   loadingSubject = new BehaviorSubject<boolean>(true);
   isLoading$ = this.loadingSubject.asObservable();
@@ -59,8 +60,10 @@ export class ImportPreviewComponent implements OnInit {
       this.router.navigate(['../'], { relativeTo: this.route });
       return;
     }
-    const { pollName, startDate, endDate, configuration } = routeData;
+    const { evaluationId, pollName, startDate, endDate, configuration } =
+      routeData;
 
+    this.evaluationId = evaluationId;
     this.selectedConfiguration = configuration;
     this.checkScreenSize();
     this.loadingSubject.next(true);
@@ -104,7 +107,11 @@ export class ImportPreviewComponent implements OnInit {
     } else if (event.state == 'true') {
       this.loadingSubject.next(false);
       this.importedPollData = [];
-      this.dialogService.openDialog('Polls saved successfully!', 'success');
+      this.dialogService
+        .openDialog('Polls saved successfully!', 'success')
+        .subscribe(() => {
+          this.router.navigate(['evaluation-process']);
+        });
     } else {
       this.loadingSubject.next(false);
       this.dialogService.openDialog(

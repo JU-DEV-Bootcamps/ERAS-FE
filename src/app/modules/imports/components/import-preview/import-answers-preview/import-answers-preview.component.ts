@@ -78,6 +78,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
   clService = inject(CosmicLatteService);
 
   @Input() importedPollData: PollInstance[] = [];
+  @Input({ required: true }) evaluationId!: number;
 
   @Output() saveCompleted = new EventEmitter<{
     state: string;
@@ -144,7 +145,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     this.clService
       .savePollsCosmicLattePreview(
         pollsToSave as unknown as PollInstance[],
-        history.state.evaluationId
+        this.evaluationId
       )
       .subscribe({
         next: data => {

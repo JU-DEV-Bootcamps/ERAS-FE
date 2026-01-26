@@ -192,7 +192,9 @@ export class PollFiltersComponent implements OnInit {
       .getAllPolls()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: polls => (this.polls = polls),
+        next: polls => {
+          this.polls = polls;
+        },
         error: () => (this.polls = null),
       });
   }
