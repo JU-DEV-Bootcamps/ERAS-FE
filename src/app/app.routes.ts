@@ -5,7 +5,7 @@ import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/r
 import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
 
 import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
-import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
+import { DynamicChartsContainerComponent } from '@modules/reports/components/dynamic-charts-v2/dynamic-charts-container.component';
 import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
 import { HomeComponent } from '@modules/home/home.component';
 import { ImportPreviewComponent } from '@modules/imports/components/import-preview/import-preview.component';
@@ -43,7 +43,7 @@ export const routes: Routes = [
       },
       {
         path: 'reports/dynamic-charts',
-        component: DynamicChartsComponent,
+        component: DynamicChartsContainerComponent,
         data: { breadcrumb: 'Dynamic Charts' },
       },
       {
@@ -82,7 +82,6 @@ export const routes: Routes = [
         canActivate: [authGuard],
         data: { breadcrumb: 'Risk Students' },
       },
-
       {
         path: 'student-option',
         component: StudentMonitoringPollsComponent,
