@@ -1,7 +1,7 @@
 import { AuditModel } from './common/audit.model';
+import { BaseModel } from './common/base.model';
 
-export interface ConfigurationsModel {
-  id: number;
+export interface ConfigurationsModel extends BaseModel {
   userId: string;
   configurationName: string;
   baseURL: string;
