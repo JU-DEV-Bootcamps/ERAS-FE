@@ -138,6 +138,7 @@ export class EvaluationProcessListComponent implements OnInit {
   getClassName(value: string): string {
     return value ? value.replace(/\s+/g, '_') : '';
   }
+
   deleteEvaluationConfirmation(id: number) {
     if (id) {
       this.openAlertDialog(
@@ -149,6 +150,7 @@ export class EvaluationProcessListComponent implements OnInit {
       console.warn("id wasn't provided");
     }
   }
+
   deleteEvaluation(id: number) {
     this.evaluationProcessService
       .deleteEvaluationProcess(id.toString())
@@ -201,6 +203,7 @@ export class EvaluationProcessListComponent implements OnInit {
         },
       });
   }
+
   openModalNewEvaluationProcess(): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
@@ -269,10 +272,12 @@ export class EvaluationProcessListComponent implements OnInit {
       data,
     });
   }
+
   normalizeData(data: EvaluationModel[]): EvaluationModel[] {
     const statusTransformed = this.transformStatus(data);
     return this.adaptDataToColumNames(statusTransformed);
   }
+
   adaptDataToColumNames(data: EvaluationModel[]): EvaluationModel[] {
     data.forEach((evaluation: EvaluationModel) => {
       evaluation.country = evaluation.country.toUpperCase();
@@ -280,6 +285,7 @@ export class EvaluationProcessListComponent implements OnInit {
     });
     return data;
   }
+
   transformStatus(data: EvaluationModel[]): EvaluationModel[] {
     data.forEach((evaluation: EvaluationModel) => {
       evaluation.status = getStatusForEvaluationProcess(evaluation);
