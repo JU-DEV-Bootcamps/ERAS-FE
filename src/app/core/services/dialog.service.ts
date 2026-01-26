@@ -8,6 +8,7 @@ import {
   DialogData,
   DialogType,
 } from '@shared/components/modals/modal-dialog/types/dialog';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class DialogService {
     descriptionMessage: string,
     type: DialogType,
     extraMessage?: string
-  ): void {
+  ): Observable<MatDialog> {
     const buttonElement = document.activeElement as HTMLElement;
     const dialogData: DialogData = {
       type,
@@ -28,9 +29,12 @@ export class DialogService {
       details: [descriptionMessage],
     };
     buttonElement.blur(); // Remove focus from the button - avoid console warning
-    this.dialog.open(ModalComponent, {
-      ...MODAL_DEFAULT_CONF,
-      data: dialogData,
-    });
+
+    return this.dialog
+      .open(ModalComponent, {
+        ...MODAL_DEFAULT_CONF,
+        data: dialogData,
+      })
+      .afterClosed();
   }
 }
