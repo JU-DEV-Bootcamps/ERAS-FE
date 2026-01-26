@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -12,7 +12,11 @@ import { UserDataService } from '@core/services/access/user-data.service';
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogContent,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTableModule } from '@angular/material/table';
@@ -29,13 +33,13 @@ import { DialogService } from '@core/services/dialog.service';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { NewConfigurationModalComponent } from '@shared/components/modals/new-configuration-modal/new-configuration-modal.component';
-import { PreselectedPoll } from '@modules/imports/models/preselected-poll';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-modal-import-answers-form',
   imports: [
+    AsyncPipe,
     FormsModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatTableModule,
     MatPaginatorModule,
@@ -44,6 +48,9 @@ import { PreselectedPoll } from '@modules/imports/models/preselected-poll';
     MatButtonModule,
     MatCardModule,
     MatSelectModule,
+    MatDialogContent,
+    ReactiveFormsModule,
+    RouterLink,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './modal-import-answers-form.component.html',
@@ -60,13 +67,15 @@ export class ModalImportAnswersFormComponent implements OnInit {
   );
   private datePipe: DatePipe = inject(DatePipe);
   private readonly userData: UserDataService = inject(UserDataService);
-  private preselectedPollState: PreselectedPoll = inject(MAT_DIALOG_DATA);
+  private preselectedPollState = inject(MAT_DIALOG_DATA);
   private dialogService: DialogService = inject(DialogService);
   private cosmicLatteService: CosmicLatteService = inject(CosmicLatteService);
-  private dialogRef: MatDialogRef<NewConfigurationModalComponent> = inject(
+
+  dialogRef: MatDialogRef<NewConfigurationModalComponent> = inject(
     MatDialogRef<NewConfigurationModalComponent>
   );
 
+  providersUrl = '/cosmic-latte';
   pollsNames: PollName[] = [];
   userConfigurations: ConfigurationsModel[] = [];
   serviceProviders: ServiceProviderModel[] = [];
@@ -126,7 +135,20 @@ export class ModalImportAnswersFormComponent implements OnInit {
       next: data => {
         this.userConfigurations = data;
         if (!isEmpty(this.userConfigurations)) {
-          this.selectedConfiguration = this.userConfigurations[0];
+          const configurationId = this.preselectedPollState.configurationId;
+
+          this.selectedConfiguration =
+            this.userConfigurations.find(
+              userConfiguration => userConfiguration.id === configurationId
+            ) || null;
+
+          if (this.selectedConfiguration === null) {
+            // TODO: change this workaround when implementing the new role scheme
+            console.warn(
+              `No user configuration with id ${configurationId} was found. Using first user configuration`
+            );
+            this.selectedConfiguration = this.userConfigurations[0];
+          }
           this.form.get('configuration')?.setValue(this.selectedConfiguration);
           this.getPollDetails(this.selectedConfiguration.id);
           this._fillUpState(this.selectedConfiguration);
