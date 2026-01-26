@@ -1,22 +1,28 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideKeycloak } from 'keycloak-angular';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from '@core/interceptors/keycloak-interceptor';
+import { AuthService } from '@core/services/access/access.service';
+import Keycloak from 'keycloak-js';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideKeycloak({
-      config: environment.keycloak,
-      initOptions: {
-        onLoad: 'login-required',
-        redirectUri: environment.production ? window.location.origin + '/' : '',
-        checkLoginIframe: false,
-      },
+    {
+      provide: Keycloak,
+      useFactory: () => new Keycloak(environment.keycloak),
+    },
+    provideAppInitializer(async () => {
+      const authService = inject(AuthService);
+      return await authService.init();
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
