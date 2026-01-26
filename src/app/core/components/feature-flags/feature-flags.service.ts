@@ -22,7 +22,7 @@ export class FeatureFlagsService {
 
     // PROD: Restricts use of feature flags on Production.
     if (environment.production) {
-      return param === 'false';
+      return false;
     }
 
     // NON-PROD: Works with query params, only available for testing mode.
