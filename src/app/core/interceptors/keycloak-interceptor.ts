@@ -1,16 +1,33 @@
-import { HttpHeaders, HttpInterceptorFn } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpInterceptorFn,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
-import Keycloak from 'keycloak-js';
+import { AuthService } from '@core/services/access/access.service';
+import { catchError, throwError } from 'rxjs';
+
 export const keycloakHttpInterceptor: HttpInterceptorFn = (req, next) => {
-  const keycloak = inject(Keycloak);
-  const token = keycloak.token;
+  const authService = inject(AuthService);
+  const token = authService.getAccessToken();
+
+  let authReq = req;
+
   if (token) {
-    const authReq = req.clone({
+    authReq = req.clone({
       headers: new HttpHeaders({
         Authorization: `Bearer ${token}`,
       }),
     });
     return next(authReq);
   }
-  return next(req);
+
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        return authService.handleRefresh(authReq, next);
+      }
+      return throwError(() => error);
+    })
+  );
 };
