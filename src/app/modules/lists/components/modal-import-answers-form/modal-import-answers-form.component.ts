@@ -1,6 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { ConfigurationsModel } from '@core/models/configurations.model';
 import { ServiceProviderModel } from '@core/models/service-providers.model';
 import { UserDataService } from '@core/services/access/user-data.service';
@@ -70,11 +75,14 @@ export class ModalImportAnswersFormComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
-      configuration: '',
-      pollName: [
-        this.preselectedPollState?.pollName ?? '',
-        [Validators.pattern(/^(?!\s*$).+/)],
-      ],
+      configuration: new FormControl({ value: '', disabled: true }),
+      pollName: new FormControl(
+        {
+          value: this.preselectedPollState?.pollName ?? '',
+          disabled: true,
+        },
+        [Validators.pattern(/^(?!\s*$).+/)]
+      ),
       start: this.preselectedPollState?.startDate ?? '',
       end: this.preselectedPollState?.endDate ?? '',
     });
@@ -112,12 +120,14 @@ export class ModalImportAnswersFormComponent implements OnInit {
       sp => sp.id === configuration.serviceProviderId
     )?.serviceProviderName;
   }
+
   getUserConfigurations(userId: string) {
     this.configurationsService.getConfigurationsByUserId(userId).subscribe({
       next: data => {
         this.userConfigurations = data;
         if (!isEmpty(this.userConfigurations)) {
           this.selectedConfiguration = this.userConfigurations[0];
+          this.form.get('configuration')?.setValue(this.selectedConfiguration);
           this.getPollDetails(this.selectedConfiguration.id);
           this._fillUpState(this.selectedConfiguration);
           this._fillPollsForm();
@@ -155,12 +165,14 @@ export class ModalImportAnswersFormComponent implements OnInit {
 
   onSubmit() {
     if (this.form.invalid) return;
-    const pollName = this.form.value.pollName.trim();
-    const startDate = this.form.value.start
-      ? this.formatDate(new Date(this.form.value.start))
+
+    const rawValue = this.form.getRawValue();
+    const pollName = rawValue.pollName.trim();
+    const startDate = rawValue.start
+      ? this.formatDate(new Date(rawValue.start))
       : null;
-    const endDate = this.form.value.end
-      ? this.formatDate(new Date(this.form.value.end))
+    const endDate = rawValue.end
+      ? this.formatDate(new Date(rawValue.end))
       : null;
     const data = {
       configuration: this.selectedConfiguration,
@@ -186,9 +198,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
   }
 
   private _fillPollsForm() {
-    this.form
-      .get('configuration')
-      ?.setValue(this.preselectedPollState?.configuration);
+    this.form.get('configuration')?.setValue(this.selectedConfiguration);
     this.form.get('pollName')?.setValue(this.preselectedPollState?.pollName);
     this.form.get('start')?.setValue(this.preselectedPollState?.startDate);
     this.form.get('end')?.setValue(this.preselectedPollState?.endDate ?? '');
