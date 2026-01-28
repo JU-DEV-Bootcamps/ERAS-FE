@@ -231,20 +231,24 @@ export class EvaluationProcessListComponent implements OnInit {
           pollName: data.pollName,
           endDate: data.endDate,
           startDate: data.startDate,
+          configurationId: data.configurationId,
         },
       })
       .afterClosed()
       .subscribe((result: PreselectedPoll) => {
-        this.routeDataService.updateRouteData({
-          evaluationId: data.id,
-          configuration: result.configuration,
-          pollName: result.pollName,
-          startDate: result.startDate,
-          endDate: result.endDate,
-        });
-        this.router.navigate(['import-preview'], {
-          relativeTo: this.route,
-        });
+        if (result) {
+          this.routeDataService.updateRouteData({
+            evaluationId: data.id,
+            configuration: result.configuration,
+            pollName: result.pollName,
+            startDate: result.startDate,
+            endDate: result.endDate,
+          });
+
+          this.router.navigate(['import-preview'], {
+            relativeTo: this.route,
+          });
+        }
       });
   }
 
@@ -264,6 +268,7 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
+
   openAlertDialog(
     descriptionMessage: string,
     type: DialogType,
