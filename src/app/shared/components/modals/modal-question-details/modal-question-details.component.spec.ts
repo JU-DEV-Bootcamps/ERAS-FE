@@ -12,6 +12,7 @@ import { ReportService } from '@core/services/api/report.service';
 import { PollService } from '@core/services/api/poll.service';
 import { ActivatedRoute } from '@angular/router';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
+import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
@@ -58,6 +59,13 @@ describe('ModalQuestionDetailsComponent', () => {
       'getVariablesByPollUuid',
     ]);
 
+    const evaluationServiceSpy = jasmine.createSpyObj(
+      'EvaluationDetailsService',
+      ['getStudentsByFilters']
+    );
+
+    evaluationServiceSpy.getStudentsByFilters.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [
         ReactiveFormsModule,
@@ -75,6 +83,7 @@ describe('ModalQuestionDetailsComponent', () => {
         },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: PollService, useValue: variableServiceSpy },
+        { provide: EvaluationDetailsService, useValue: evaluationServiceSpy },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
       teardown: { destroyAfterEach: false },
@@ -99,7 +108,7 @@ describe('ModalQuestionDetailsComponent', () => {
     // Ensure variableId is 0
     component.variableId = 0;
 
-    component.loadStudentList();
+    component.loadStudents();
 
     expect(reportService.getTopPollReport).not.toHaveBeenCalled();
   });
@@ -119,9 +128,9 @@ describe('ModalQuestionDetailsComponent', () => {
 
     reportService.getTopPollReport.and.returnValue(of(mockResponse));
 
-    component.loadStudentList();
+    component.loadStudents();
 
-    expect(component.studentRisks()).toEqual([]);
+    expect(component.studentList()).toEqual([]);
   });
 
   it('should get correct risk color based on risk level', () => {

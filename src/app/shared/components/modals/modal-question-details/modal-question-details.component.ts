@@ -14,12 +14,7 @@ import {
   MAT_DIALOG_DATA,
   MatDialog,
 } from '@angular/material/dialog';
-import {
-  PollAvgQuestion,
-  PollCountQuestion,
-  PollTopReport,
-  StudentReportAnswerRiskLevel,
-} from '@core/models/summary.model';
+import { PollAvgQuestion, PollCountQuestion } from '@core/models/summary.model';
 import { getRiskColor, getRiskTextColor } from '@core/constants/riskLevel';
 import { ReportService } from '@core/services/api/report.service';
 import { PollService } from '@core/services/api/poll.service';
@@ -31,10 +26,8 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { Pagination } from '@core/services/interfaces/server.type';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
-import {
-  isPollAvgQuestion,
-  isPollCountQuestion,
-} from '@core/utils/helpers/type-check';
+import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
+import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
 
 export interface SelectedHMData {
   cohortId: string;
@@ -42,6 +35,7 @@ export interface SelectedHMData {
   componentName: ComponentValueType;
   text?: string;
   question: PollAvgQuestion | PollCountQuestion;
+  riskLevel?: number;
 }
 
 @Component({
@@ -69,13 +63,14 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   public variableId = 0;
   private reportService = inject(ReportService);
   private PollService = inject(PollService);
+  private evaluationDetailsService = inject(EvaluationDetailsService);
 
-  studentRisks = signal<PollTopReport>([]);
+  studentList = signal<EvaluationDetailsStudentResponse[]>([]);
   totalStudentRisks = signal(0);
 
-  columns: Column<StudentReportAnswerRiskLevel>[] = [
+  columns: Column<EvaluationDetailsStudentResponse>[] = [
     {
-      key: 'studentName',
+      key: 'name',
       label: 'Name',
     },
     {
@@ -83,9 +78,9 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
       label: 'Answer',
     },
   ];
-  columnTemplates: Column<StudentReportAnswerRiskLevel>[] = [
+  columnTemplates: Column<EvaluationDetailsStudentResponse>[] = [
     {
-      key: 'answerRisk',
+      key: 'riskLevel',
       label: 'Risk Level',
     },
   ];
@@ -129,42 +124,29 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
       );
       if (!variable) return;
       this.variableId = variable.id;
-      this.loadStudentList();
+      this.loadStudents();
     });
   }
 
-  loadStudentList(): void {
-    const { pollUuid, cohortId, question } = this.inputQuestion;
-
-    if (this.variableId === 0) return;
-
-    let selectedRisk: number | undefined;
-
-    if (isPollCountQuestion(question)) {
-      selectedRisk = question.answers[0]?.answerRisk;
-    } else if (isPollAvgQuestion(question)) {
-      console.log('PollAvgQuestion type:', question.averageAnswer);
+  loadStudents(): void {
+    let selectedRisks: number[] = [];
+    if (this.inputQuestion.riskLevel !== undefined) {
+      const risk = this.inputQuestion.riskLevel;
+      selectedRisks =
+        risk % 1 !== 0 ? [Math.floor(risk), Math.ceil(risk)] : [risk];
     }
 
-    const cohortIdsArray = cohortId.split(',').map(id => Number(id.trim()));
-
-    this.reportService
-      .getTopPollReport([this.variableId], pollUuid, this.pagination)
+    this.evaluationDetailsService
+      .getStudentsByFilters(
+        this.inputQuestion.pollUuid,
+        [this.inputQuestion.componentName.toLowerCase()],
+        this.inputQuestion.cohortId.split(',').map(id => Number(id.trim())),
+        [this.variableId],
+        selectedRisks
+      )
       .subscribe(data => {
-        const allItems: StudentReportAnswerRiskLevel[] = data.body.items || [];
-
-        const filteredItems = allItems.filter(student => {
-          const matchesCohort = cohortIdsArray.includes(student.cohortId);
-
-          if (selectedRisk !== undefined) {
-            return matchesCohort && student.answerRisk === selectedRisk;
-          }
-
-          return matchesCohort;
-        });
-
-        this.studentRisks.set(filteredItems);
-        this.totalStudentRisks.set(filteredItems.length);
+        this.studentList.set(data);
+        this.totalStudentRisks.set(data.length);
       });
   }
 
@@ -201,15 +183,15 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   handleActionCalled(event: EventAction) {
     const actions: Record<
       string,
-      (item: StudentReportAnswerRiskLevel) => void
+      (item: EvaluationDetailsStudentResponse) => void
     > = {
-      openStudentDetails: (element: StudentReportAnswerRiskLevel) => {
-        this.openStudentDetails(element.studentId);
+      openStudentDetails: (element: EvaluationDetailsStudentResponse) => {
+        this.openStudentDetails(element.id);
       },
     };
 
     if (actions[event.data.id]) {
-      actions[event.data.id](event.item as StudentReportAnswerRiskLevel);
+      actions[event.data.id](event.item as EvaluationDetailsStudentResponse);
     }
   }
 }

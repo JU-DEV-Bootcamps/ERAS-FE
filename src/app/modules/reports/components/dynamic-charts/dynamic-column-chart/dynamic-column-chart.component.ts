@@ -60,6 +60,7 @@ export interface ChartOptions {
 export class DynamicColumnChartComponent {
   components = input<PollCountReport>();
   identifier = input<string>();
+  cohortsIds = input<string>();
 
   private injector = inject(EnvironmentInjector);
   private dialog = inject(MatDialog);
@@ -76,13 +77,14 @@ export class DynamicColumnChartComponent {
       return this._createChart(
         `Reporte: ${component.description}`,
         component.questions,
-        xIndex => {
+        (xIndex, sIndex) => {
           this._openDetailsModal(
             this.identifier()!,
-            1,
+            this.cohortsIds()!,
             components[index].questions[xIndex],
             components[index].description,
-            components[index].text
+            components[index].text,
+            sIndex
           );
         }
       );
@@ -96,7 +98,9 @@ export class DynamicColumnChartComponent {
   ): Partial<ChartOptions> {
     return {
       title: ColumnChartUtils.createTitle(title),
-      chart: ColumnChartUtils.createChartBase(onSelect),
+      chart: ColumnChartUtils.createChartBase((xIndex, sIndex) => {
+        if (onSelect) onSelect(xIndex, sIndex);
+      }),
       series: this._createSeries(questions),
       plotOptions: ColumnChartUtils.createPlotOptions(),
       xaxis: ColumnChartUtils.createXAxis(questions.map(q => q.question)),
@@ -174,10 +178,11 @@ export class DynamicColumnChartComponent {
 
   private _openDetailsModal(
     pollUuid: string,
-    cohortId: number,
+    cohortId: string,
     question: PollCountQuestion,
     componentName: ComponentValueType,
-    text?: string
+    text?: string,
+    riskLevel?: number
   ) {
     const data: SelectedHMData = {
       cohortId: cohortId.toString(),
@@ -185,6 +190,7 @@ export class DynamicColumnChartComponent {
       componentName,
       text,
       question,
+      riskLevel,
     };
 
     this.dialog.open(ModalQuestionDetailsComponent, {
