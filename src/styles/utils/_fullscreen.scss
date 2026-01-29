@@ -1,0 +1,27 @@
+.app-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  width: 100vw;
+  height: 100vh;
+
+  background: var(--app-background, #fff);
+  display: flex;
+  flex-direction: column;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+body.app-fullscreen-active mat-sidenav,
+body.app-fullscreen-active .sidebar,
+body.app-fullscreen-active .side-nav {
+  display: none !important;
+}
+
+body.app-fullscreen-active .main-content {
+  margin-left: 0 !important;
+  width: 100vw;
+}
