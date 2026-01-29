@@ -28,7 +28,7 @@ import { EventAction } from '../../../core/models/load';
 import { Column } from '../list/types/column';
 import { MapClass } from '../list/types/class';
 
-import { ActionButtonComponent } from '../action-button/action-button.component';
+import { ActionButtonComponent } from '../buttons/action-button/action-button.component';
 
 @Component({
   selector: 'app-table-with-actions',

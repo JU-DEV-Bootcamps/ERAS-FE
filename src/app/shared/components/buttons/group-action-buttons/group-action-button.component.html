@@ -1,0 +1,12 @@
+<div class="group-action-button">
+  @for (action of actions; track $index) {
+    <button
+      mat-icon-button
+      [disabled]="action.disabled"
+      [matTooltip]="action.tooltip"
+      (click)="onActionClick(action)"
+    >
+      <mat-icon>{{ action.icon }}</mat-icon>
+    </button>
+  }
+</div>

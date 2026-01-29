@@ -1,13 +1,18 @@
 @use 'index.scss' as main-styles;
 
 section header {
+  align-items: center;
   background-color: main-styles.get-color('neutral', 90);
   border-radius: 5px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   font-weight: main-styles.get-font-weight(semi-bold);
   height: 50px;
-  justify-content: center;
+  justify-content: space-between;
   text-indent: 15px;
   width: 100%;
+}
+
+app-group-action-button {
+  margin-right: 12px;
 }

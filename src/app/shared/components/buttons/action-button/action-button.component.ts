@@ -5,8 +5,8 @@ import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
-import { ActionData } from '../list/types/action';
-import { EventAction } from '../../../core/models/load';
+import { ActionData } from '../../list/types/action';
+import { EventAction } from '../../../../core/models/load';
 
 @Component({
   selector: 'app-action-button',

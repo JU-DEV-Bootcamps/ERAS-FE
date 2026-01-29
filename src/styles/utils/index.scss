@@ -3,13 +3,15 @@
 @use 'theme-colors.scss' as theme-colors;
 @use 'theme-fonts.scss' as theme-fonts;
 
+@forward './_theme-components';
 @forward './apex-charts';
+@forward './buttons';
 @forward './forms';
+@forward './fullscreen';
 @forward './theme-breakpoints';
 @forward './theme-colors';
-@forward './theme-sizes';
 @forward './theme-fonts';
-@forward './_theme-components';
+@forward './theme-sizes';
 
 :root {
   --font-family-plain: 'Roboto', sans-serif;
