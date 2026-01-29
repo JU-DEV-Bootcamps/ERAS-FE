@@ -142,18 +142,17 @@ export class ModalImportAnswersFormComponent implements OnInit {
               userConfiguration => userConfiguration.id === configurationId
             ) || null;
 
-          if (this.selectedConfiguration !== null) {
-            this.form
-              .get('configuration')
-              ?.setValue(this.selectedConfiguration);
-            this.getPollDetails(this.selectedConfiguration.id);
-            this._fillUpState(this.selectedConfiguration);
-            this._fillPollsForm();
-          } else {
-            console.error(
-              `No configuration with id ${configurationId} was found.`
+          if (this.selectedConfiguration === null) {
+            // TODO: change this workaround when implementing the new role scheme
+            console.warn(
+              `No user configuration with id ${configurationId} was found. Using first user configuration`
             );
+            this.selectedConfiguration = this.userConfigurations[0];
           }
+          this.form.get('configuration')?.setValue(this.selectedConfiguration);
+          this.getPollDetails(this.selectedConfiguration.id);
+          this._fillUpState(this.selectedConfiguration);
+          this._fillPollsForm();
         }
         this.loadingSubject.next(false);
       },
