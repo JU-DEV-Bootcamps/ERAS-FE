@@ -4,8 +4,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbar } from '@angular/material/toolbar';
 
-import Keycloak from 'keycloak-js';
 import { UserDataService } from '@core/services/access/user-data.service';
+import { AuthService } from '@core/services/access/access.service';
 
 @Component({
   selector: 'app-user-menu',
@@ -15,12 +15,12 @@ import { UserDataService } from '@core/services/access/user-data.service';
 })
 export class UserMenuComponent {
   timedOutCloser: ReturnType<typeof setTimeout> | null = null;
-  private readonly keycloak = inject(Keycloak);
+  private readonly authService = inject(AuthService);
   private readonly userData = inject(UserDataService);
 
   logout() {
     this.userData.clear();
-    this.keycloak.logout();
+    this.authService.logout();
   }
 
   mouseEnter(trigger: MatMenuTrigger) {

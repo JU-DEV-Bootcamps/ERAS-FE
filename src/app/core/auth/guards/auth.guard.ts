@@ -1,8 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateChildFn } from '@angular/router';
-import Keycloak from 'keycloak-js';
+import { AuthService } from '@core/services/access/access.service';
 
-export const authGuard: CanActivateChildFn = () => {
-  const keycloak = inject(Keycloak);
-  return !!keycloak.authenticated; // Replace with actual logic to check if user is logged in
+export const authGuard: CanActivateChildFn = async () => {
+  const authService = inject(AuthService);
+
+  if (!authService.isAuthenticated()) {
+    await authService.login();
+  }
+
+  return authService.isAuthenticated();
 };

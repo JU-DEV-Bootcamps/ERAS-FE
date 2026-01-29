@@ -74,7 +74,6 @@ export const routes: Routes = [
       {
         path: 'risk-students',
         component: RiskStudentsComponent,
-        canActivate: [authGuard],
         data: { breadcrumb: 'Risk Students' },
       },
 
