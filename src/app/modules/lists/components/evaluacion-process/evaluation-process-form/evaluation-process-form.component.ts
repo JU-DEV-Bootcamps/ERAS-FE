@@ -1,4 +1,3 @@
-import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { Component, Inject, inject, OnInit } from '@angular/core';
 import {
@@ -28,6 +27,10 @@ import { countries } from '@core/constants/countries';
 import { CreateEvaluationModel } from '@core/models/evaluation-request.model';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { PollName } from '@core/models/poll-request.model';
+
+import { isEmpty } from '@core/utils/helpers/is-empty';
+
+import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { ConfigurationsModel } from '@core/models/configurations.model';
@@ -64,9 +67,9 @@ export class EvaluationProcessFormComponent implements OnInit {
   selectedCountry = '';
   prefereToChooseLater: PollName = {
     parent: 'null',
-    name: 'null',
+    name: '',
     status: 'null',
-    selectData: 'null',
+    selectData: 'I prefer to choose later',
     country: 'null',
   };
   pollsNames: PollName[] = [this.prefereToChooseLater];
@@ -115,7 +118,7 @@ export class EvaluationProcessFormComponent implements OnInit {
       ],
       pollName: [
         {
-          value: data?.evaluation?.pollName ?? '',
+          value: data?.evaluation?.pollName ? null : this.prefereToChooseLater,
           disabled: !!data?.evaluation?.pollName,
         },
         [Validators.required, Validators.maxLength(50)],
@@ -254,16 +257,17 @@ export class EvaluationProcessFormComponent implements OnInit {
             },
           });
       } else {
+        const pollName: string = !isEmpty(this.data.evaluation.pollName)
+          ? this.data.evaluation.pollName
+          : !isEmpty(this.form.value.pollName.name)
+            ? this.form.value.pollName.name
+            : '';
         const updateEval: EvaluationModel = {
           id: this.data.evaluation.id,
           name: this.form.value.name,
           startDate: this.form.value.startDate,
           endDate: this.form.value.endDate,
-          ...(this.form.value.pollName.name !== 'null'
-            ? {
-                pollName: this.form.value.pollName.name,
-              }
-            : {}),
+          pollName: pollName,
           country: this.selectedCountry || this.form.value.country.alpha3,
         } as EvaluationModel;
 
