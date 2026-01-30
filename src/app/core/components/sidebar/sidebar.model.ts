@@ -72,11 +72,6 @@ export const SIDEBAR_MENUS: Menu[] = [
     icon: 'drive_folder_upload',
     children: [
       {
-        label: 'Import Polls',
-        icon: 'insert_chart_outlined',
-        route: '/import-answers',
-      },
-      {
         label: 'Import Students',
         icon: 'person_add',
         route: '/import-students',

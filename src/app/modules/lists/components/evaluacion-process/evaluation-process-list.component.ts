@@ -1,5 +1,4 @@
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -29,6 +28,10 @@ import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras
 import { EvaluationProcessFormComponent } from './evaluation-process-form/evaluation-process-form.component';
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RouteDataService } from '@core/services/route-data.service';
+import { ModalImportAnswersFormComponent } from '@modules/lists/components/modal-import-answers-form/modal-import-answers-form.component';
+import { PreselectedPoll } from '@modules/imports/models/preselected-poll';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -46,7 +49,11 @@ import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dia
   templateUrl: './evaluation-process-list.component.html',
 })
 export class EvaluationProcessListComponent implements OnInit {
-  readonly dialog = inject(MatDialog);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
+  private routeDataService = inject(RouteDataService);
+
   evaluationProcessService = inject(EvaluationsService);
   columns: Column<EvaluationModel>[] = [
     {
@@ -102,8 +109,6 @@ export class EvaluationProcessListComponent implements OnInit {
   isLoading = false;
   importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED];
 
-  router = inject(Router);
-
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
     const target = event.target as Window;
@@ -138,6 +143,7 @@ export class EvaluationProcessListComponent implements OnInit {
   getClassName(value: string): string {
     return value ? value.replace(/\s+/g, '_') : '';
   }
+
   deleteEvaluationConfirmation(id: number) {
     if (id) {
       this.openAlertDialog(
@@ -149,6 +155,7 @@ export class EvaluationProcessListComponent implements OnInit {
       console.warn("id wasn't provided");
     }
   }
+
   deleteEvaluation(id: number) {
     this.evaluationProcessService
       .deleteEvaluationProcess(id.toString())
@@ -201,6 +208,7 @@ export class EvaluationProcessListComponent implements OnInit {
         },
       });
   }
+
   openModalNewEvaluationProcess(): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
@@ -214,14 +222,30 @@ export class EvaluationProcessListComponent implements OnInit {
   }
 
   goToImport(data: EvaluationModel) {
-    this.router.navigate(['import-answers'], {
-      state: {
-        pollName: data.pollName,
-        country: data.country,
-        endDate: data.endDate,
-        startDate: data.startDate,
-      },
-    });
+    this.dialog
+      .open(ModalImportAnswersFormComponent, {
+        ...MODAL_DEFAULT_CONF,
+        panelClass: 'border-modalbox-dialog',
+        data: {
+          evaluationId: data.id,
+          pollName: data.pollName,
+          endDate: data.endDate,
+          startDate: data.startDate,
+        },
+      })
+      .afterClosed()
+      .subscribe((result: PreselectedPoll) => {
+        this.routeDataService.updateRouteData({
+          evaluationId: data.id,
+          configuration: result.configuration,
+          pollName: result.pollName,
+          startDate: result.startDate,
+          endDate: result.endDate,
+        });
+        this.router.navigate(['import-preview'], {
+          relativeTo: this.route,
+        });
+      });
   }
 
   openModalDetails(data: EvaluationModel): void {
@@ -269,10 +293,12 @@ export class EvaluationProcessListComponent implements OnInit {
       data,
     });
   }
+
   normalizeData(data: EvaluationModel[]): EvaluationModel[] {
     const statusTransformed = this.transformStatus(data);
     return this.adaptDataToColumNames(statusTransformed);
   }
+
   adaptDataToColumNames(data: EvaluationModel[]): EvaluationModel[] {
     data.forEach((evaluation: EvaluationModel) => {
       evaluation.country = evaluation.country.toUpperCase();
@@ -280,6 +306,7 @@ export class EvaluationProcessListComponent implements OnInit {
     });
     return data;
   }
+
   transformStatus(data: EvaluationModel[]): EvaluationModel[] {
     data.forEach((evaluation: EvaluationModel) => {
       evaluation.status = getStatusForEvaluationProcess(evaluation);
