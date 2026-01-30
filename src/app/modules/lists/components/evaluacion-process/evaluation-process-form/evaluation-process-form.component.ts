@@ -1,6 +1,5 @@
-import { Component, Inject, inject, OnInit } from '@angular/core';
 import { DatePipe, NgClass, NgIf } from '@angular/common';
-
+import { Component, Inject, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,37 +7,38 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIcon } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { BehaviorSubject } from 'rxjs';
+import { GENERAL_MESSAGES } from '@core/constants/messages';
+import { MatIcon } from '@angular/material/icon';
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-
+import { MatInputModule } from '@angular/material/input';
+import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
 import { CountrySelectComponent, Country } from '@wlucha/ng-country-select';
-
-import { ConfigurationsModel } from '@core/models/configurations.model';
 import { countries } from '@core/constants/countries';
 import { CreateEvaluationModel } from '@core/models/evaluation-request.model';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { PollName } from '@core/models/poll-request.model';
-import { ServiceProviderModel } from '@core/models/service-providers.model';
 
 import { isEmpty } from '@core/utils/helpers/is-empty';
-import { noWhitespaceValidator } from '@core/utils/validators/no-whitespace.validator';
 
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
-import { NotifyService } from '@core/services/notify.service';
+import { ConfigurationsModel } from '@core/models/configurations.model';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
-import { UserDataService } from '@core/services/access/user-data.service';
+import { ServiceProviderModel } from '@core/models/service-providers.model';
+import Keycloak from 'keycloak-js';
+import { noWhitespaceValidator } from '@core/utils/validators/no-whitespace.validator';
+import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -76,11 +76,11 @@ export class EvaluationProcessFormComponent implements OnInit {
   cosmicLatteService = inject(CosmicLatteService);
   evaluationsService = inject(EvaluationsService);
   configurationsService = inject(ConfigurationsService);
-  serviceProvidersService = inject(ServiceProvidersService);
-  private readonly notify = inject(NotifyService);
-
   configurations: ConfigurationsModel[] = [];
+  serviceProvidersService = inject(ServiceProvidersService);
   serviceProviders: ServiceProviderModel[] = [];
+  loadingSubject = new BehaviorSubject<boolean>(true);
+  isLoading$ = this.loadingSubject.asObservable();
   pollDataSelected: PollName | null = null;
   selectedConfiguration: ConfigurationsModel | null = null;
   userId = '';
@@ -95,8 +95,9 @@ export class EvaluationProcessFormComponent implements OnInit {
       updateFunction?: () => void;
     },
     private dialogRef: MatDialogRef<EvaluationProcessFormComponent>,
+    private dialog: MatDialog,
     private fb: FormBuilder,
-    private readonly userData: UserDataService
+    private readonly keycloak: Keycloak
   ) {
     this.form = this.fb.group({
       name: [
@@ -161,7 +162,7 @@ export class EvaluationProcessFormComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const profile = this.userData.user()!;
+    const profile = await this.keycloak.loadUserProfile();
     this.userId = profile.id || '';
     this.getConfigurations();
     this.getServiceProviders();
@@ -195,6 +196,29 @@ export class EvaluationProcessFormComponent implements OnInit {
       this.closeAndResetDialog();
     }
   }
+  openDialog(descriptionMessage: string, isSuccess: boolean): void {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+    this.dialog.open(ModalComponent, {
+      ...MODAL_DEFAULT_CONF,
+      data: {
+        type: isSuccess ? 'success' : 'error',
+        isSuccess: isSuccess,
+        title: isSuccess
+          ? GENERAL_MESSAGES.SUCCESS_TITLE
+          : GENERAL_MESSAGES.ERROR_TITLE,
+        success: {
+          details: descriptionMessage,
+        },
+        error: {
+          title: GENERAL_MESSAGES.ERROR_TITLE,
+          details: [descriptionMessage],
+          message: descriptionMessage,
+        },
+        details: [descriptionMessage],
+      },
+    });
+  }
 
   resetForm() {
     this.form.reset();
@@ -221,15 +245,15 @@ export class EvaluationProcessFormComponent implements OnInit {
           .subscribe({
             next: () => {
               this.closeAndResetDialog();
-              this.notify.success('Sucess: Process created!');
+              this.openDialog('Sucess: Process created!', true);
               if (this.data.updateFunction) {
                 this.data.updateFunction();
               } else {
                 console.warn('No update function provided');
               }
             },
-            error: ({ error }) => {
-              this.notify.error(error);
+            error: err => {
+              this.openDialog(err.error.message, false);
             },
           });
       } else {
@@ -250,15 +274,19 @@ export class EvaluationProcessFormComponent implements OnInit {
         this.evaluationsService.updateEvaluationProcess(updateEval).subscribe({
           next: () => {
             this.closeAndResetDialog();
-            this.notify.success('Sucess: Process updated!');
+            this.openDialog('Sucess: Process updated!', true);
             if (this.data.updateFunction) {
               this.data.updateFunction();
             } else {
               console.warn('No update function provided');
             }
           },
-          error: ({ error }) => {
-            this.notify.error(error);
+          error: err => {
+            this.openDialog(
+              'Error: An error occurred while trying to update the new evaluation process : ' +
+                err.message,
+              false
+            );
           },
         });
       }
@@ -269,11 +297,14 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.serviceProvidersService.getAllServiceProviders().subscribe({
       next: (data: ServiceProviderModel[]) => {
         this.serviceProviders = data;
+        this.loadingSubject.next(false);
       },
       error: err => {
-        this.notify.error(
+        this.loadingSubject.next(false);
+        this.openDialog(
           'Error: An error occurred while trying to get the service providers :' +
-            err.message
+            err.message,
+          false
         );
       },
     });
@@ -296,9 +327,11 @@ export class EvaluationProcessFormComponent implements OnInit {
             }
           },
           error: err => {
-            this.notify.error(
+            this.loadingSubject.next(false);
+            this.openDialog(
               'Error: An error occurred while trying to get the configurations :' +
-                err.message
+                err.message,
+              false
             );
           },
         });
@@ -308,6 +341,7 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.configurationsService.getAllConfigurations().subscribe({
       next: (data: ConfigurationsModel[]) => {
         this.configurations = data;
+        this.loadingSubject.next(false);
         if (this.data.evaluation?.configurationId) {
           const configuration = this.configurations.find(
             c => c.id === this.data.evaluation?.configurationId
@@ -320,9 +354,11 @@ export class EvaluationProcessFormComponent implements OnInit {
         }
       },
       error: err => {
-        this.notify.error(
+        this.loadingSubject.next(false);
+        this.openDialog(
           'Error: An error occurred while trying to get the configurations :' +
-            err.message
+            err.message,
+          false
         );
       },
     });
@@ -332,11 +368,14 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: (data: PollName[]) => {
         this.pollsNames = [this.prefereToChooseLater, ...data];
+        this.loadingSubject.next(false);
       },
       error: err => {
-        this.notify.error(
+        this.loadingSubject.next(false);
+        this.openDialog(
           'Error: An error occurred while trying to get the survey names :' +
-            err.message
+            err.message,
+          false
         );
       },
     });
