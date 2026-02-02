@@ -130,9 +130,15 @@ jobs:
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
           echo "LAST_TAG=${LAST_TAG}" >> $GITHUB_ENV
+          if [[ "${{ inputs.environment_tag }}" == "production" ]]; then
+            echo "type=true" >> "$GITHUB_OUTPUT" 
+          else
+            echo "type=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Replace environment variables
         run: |
           cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
+          sed -i "s|__TYPE__|${{ steps.set-vars.outputs.type }}|g" src/environments/environment.production.ts
           sed -i "s|__API_URL__|${{ inputs.api_url }}|g" src/environments/environment.production.ts
           sed -i "s|__KEYCLOAK_URL__|${{ inputs.keycloak_url }}|g" src/environments/environment.production.ts
           sed -i "s|__KEYCLOAK_REALM__|${{ inputs.keycloak_realm }}|g" src/environments/environment.production.ts
