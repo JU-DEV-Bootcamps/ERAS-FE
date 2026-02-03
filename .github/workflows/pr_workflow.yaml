@@ -44,4 +44,5 @@ jobs:
       - name: Build Docker image
         run: |
           cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
+          sed -i "s|__TYPE__|true|g" src/environments/environment.production.ts
           docker build -t test-build-image .
