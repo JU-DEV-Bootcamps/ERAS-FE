@@ -90,14 +90,14 @@ export class EvaluationProcessListComponent implements OnInit {
       id: 'openModalDetails',
       label: 'Actions',
       ngIconName: 'edit',
-      tooltip: 'Edit evaluation',
+      text: 'Edit evaluation',
     },
     {
       columnId: 'actions',
       id: 'goImport',
       label: 'Actions',
       ngIconName: 'drive_file_move',
-      tooltip: 'Go to import',
+      text: 'Go to import',
       isVisible: this.isVisible.bind(this),
     },
   ];

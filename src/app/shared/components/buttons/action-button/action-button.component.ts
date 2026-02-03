@@ -2,21 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
 import { MatButton, MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-
-import { ActionData } from '../../list/types/action';
-import { EventAction } from '../../../../core/models/load';
+import { EventAction } from '@core/models/load';
+import { ActionData } from '@shared/components/list/types/action';
 
 @Component({
   selector: 'app-action-button',
-  imports: [
-    MatMenuModule,
-    MatButton,
-    NgTemplateOutlet,
-    MatIconModule,
-    MatButtonModule,
-  ],
+  imports: [MatButton, NgTemplateOutlet, MatButtonModule],
   templateUrl: './action-button.component.html',
   styleUrl: './action-button.component.scss',
 })

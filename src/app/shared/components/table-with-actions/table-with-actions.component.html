@@ -44,9 +44,9 @@
             </span>
           </div>
         </mat-card-content>
-        @if (getTotalActionDatas() > 0) {
+        @if (actionDatas().length > 0) {
           <mat-card-actions [class]="mapClass?.card?.actions ?? ''">
-            @for (actionData of getActionDatas(); track $index) {
+            @for (actionData of actionDatas(); track $index) {
               @if (isVisible(actionData, item) && actionData.ngIconName) {
                 <app-action-button
                   [matTooltip]="actionData.tooltip ?? 'action'"
@@ -125,71 +125,111 @@
         </td>
       </ng-container>
 
-      <ng-container *ngIf="getTotalActionDatas() > 0" matColumnDef="Actions">
-        <th
-          mat-header-cell
-          [class]="mapClass?.table?.header ?? ''"
-          *matHeaderCellDef
-          class="action-column-header"
-        >
-          <b>Actions</b>
-        </th>
-        <td
-          mat-cell
-          [class]="mapClass?.table?.cell ?? ''"
-          *matCellDef="let item"
-          class="action-column-cell"
-        >
-          <!-- TODO: Refactor this when decide to change all grids. -->
-          @if (!hasTextAttribute()) {
-            <span *ngFor="let actionData of getActionDatas()">
-              <app-action-button
-                *ngIf="isVisible(actionData, item)"
-                [item]="item"
-                [actionData]="actionData"
-                (actionCalled)="handleAction($event)"
-              >
-                <mat-icon
-                  *ngIf="!actionData.text && actionData.ngIconName"
-                  [matTooltip]="actionData.tooltip ?? 'action'"
-                >
-                  {{ actionData.ngIconName }}
-                </mat-icon>
-                <span *ngIf="actionData.text && !actionData.ngIconName">{{
-                  actionData.text
-                }}</span>
-              </app-action-button>
-            </span>
-          } @else {
-            <button
-              matIconButton
-              class="mat-mdc-icon-button"
-              [matMenuTriggerFor]="menu"
-              aria-label="Actions"
-            >
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <app-action-button
-                *ngFor="let actionData of getActionDatas()"
-                [item]="item"
-                [actionData]="actionData"
-                (actionCalled)="handleAction($event)"
-              >
-                <div class="wrapper-content">
-                  <mat-icon
-                    *ngIf="actionData.ngIconName"
-                    [matTooltip]="actionData.tooltip ?? 'action'"
+      @if (actionDatas().length > 0) {
+        <ng-container matColumnDef="Actions">
+          <th
+            mat-header-cell
+            [class]="mapClass?.table?.header ?? ''"
+            *matHeaderCellDef
+            class="action-column-header"
+          >
+            <b>Actions</b>
+          </th>
+          <td
+            mat-cell
+            [class]="mapClass?.table?.cell ?? ''"
+            *matCellDef="let item"
+            class="action-column-cell"
+          >
+            @if (actionDatas().length === 1) {
+              @let actionData = actionDatas()[0];
+
+              @if (isVisible(actionData, item)) {
+                @if (!hasTextAttribute()) {
+                  <app-action-button
+                    [item]="item"
+                    [actionData]="actionData"
+                    (actionCalled)="handleAction($event)"
                   >
-                    {{ actionData.ngIconName }}
-                  </mat-icon>
-                  <span *ngIf="actionData.text">{{ actionData.text }}</span>
+                    @if (!actionData.text && actionData.ngIconName) {
+                      <mat-icon [matTooltip]="actionData.tooltip ?? 'action'">
+                        {{ actionData.ngIconName }}
+                      </mat-icon>
+                    }
+                    @if (actionData.text && !actionData.ngIconName) {
+                      <span>{{ actionData.text }}</span>
+                    }
+                  </app-action-button>
+                } @else {
+                  <app-action-button
+                    [item]="item"
+                    [actionData]="actionData"
+                    (actionCalled)="handleAction($event)"
+                  >
+                    <div class="wrapper-content">
+                      @if (actionData.ngIconName) {
+                        <mat-icon [matTooltip]="actionData.tooltip ?? 'action'">
+                          {{ actionData.ngIconName }}
+                        </mat-icon>
+                      }
+                      <span>{{ actionData.text }}</span>
+                    </div>
+                  </app-action-button>
+                }
+              }
+            } @else {
+              <button mat-icon-button [matMenuTriggerFor]="actionMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #actionMenu="matMenu">
+                <div mat-menu-content>
+                  @for (actionData of actionDatas(); track actionData.id) {
+                    @if (isVisible(actionData, item)) {
+                      <a mat-menu-item>
+                        @if (!hasTextAttribute()) {
+                          <app-action-button
+                            [item]="item"
+                            [actionData]="actionData"
+                            (actionCalled)="handleAction($event)"
+                          >
+                            @if (!actionData.text && actionData.ngIconName) {
+                              <mat-icon
+                                [matTooltip]="actionData.tooltip ?? 'action'"
+                              >
+                                {{ actionData.ngIconName }}
+                              </mat-icon>
+                            }
+                            @if (actionData.text && !actionData.ngIconName) {
+                              <span>{{ actionData.text }}</span>
+                            }
+                          </app-action-button>
+                        } @else {
+                          <app-action-button
+                            [item]="item"
+                            [actionData]="actionData"
+                            (actionCalled)="handleAction($event)"
+                          >
+                            <div class="wrapper-content">
+                              @if (actionData.ngIconName) {
+                                <mat-icon
+                                  [matTooltip]="actionData.tooltip ?? 'action'"
+                                >
+                                  {{ actionData.ngIconName }}
+                                </mat-icon>
+                              }
+                              <span>{{ actionData.text }}</span>
+                            </div>
+                          </app-action-button>
+                        }
+                      </a>
+                    }
+                  }
                 </div>
-              </app-action-button>
-            </mat-menu>
-          }
-        </td>
-      </ng-container>
+              </mat-menu>
+            }
+          </td>
+        </ng-container>
+      }
 
       <tr
         mat-header-row

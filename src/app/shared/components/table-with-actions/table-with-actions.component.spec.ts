@@ -72,7 +72,7 @@ describe('TableWithActionsComponent', () => {
 
     component.items = mockItems;
     component.columns = mockColumns;
-    component.actionDatas = mockActionDatas;
+    fixture.componentRef.setInput('actionDatas', mockActionDatas);
 
     fixture.detectChanges();
   });
