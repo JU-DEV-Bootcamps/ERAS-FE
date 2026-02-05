@@ -16,10 +16,12 @@ import {
 
 import { PollService } from '@core/services/api/poll.service';
 import { ReportService } from '@core/services/api/report.service';
+import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
+import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
 
 @Component({
   selector: 'app-risk-details',
@@ -38,6 +40,7 @@ export default class RiskDetailsComponent {
 
   private PollService = inject(PollService);
   private reportService = inject(ReportService);
+  private evaluationDetailsService = inject(EvaluationDetailsService);
   public variableId = 0;
   readonly dialog = inject(MatDialog);
 
@@ -49,12 +52,12 @@ export default class RiskDetailsComponent {
   totalStudentRisks = signal(0);
   riskStudentData = new Map<
     number,
-    { items: StudentReportAnswerRiskLevel[]; total: number }
+    { items: EvaluationDetailsStudentResponse[]; total: number }
   >();
 
-  columns: Column<StudentReportAnswerRiskLevel>[] = [
+  columns: Column<EvaluationDetailsStudentResponse>[] = [
     {
-      key: 'studentName',
+      key: 'name',
       label: 'Name',
     },
     {
@@ -62,9 +65,9 @@ export default class RiskDetailsComponent {
       label: 'Answer',
     },
   ];
-  columnTemplates: Column<StudentReportAnswerRiskLevel>[] = [
+  columnTemplates: Column<EvaluationDetailsStudentResponse>[] = [
     {
-      key: 'answerRisk',
+      key: 'riskLevel',
       label: 'Risk Level',
     },
   ];
@@ -106,13 +109,19 @@ export default class RiskDetailsComponent {
   loadStudentList(risk: PollAvgQuestion) {
     const pollInstanceUUID: string = this.data.data.pollUuid;
     if (this.variableId === 0) return;
-    this.reportService
-      .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
+    this.evaluationDetailsService
+      .getStudentsByFilters(
+        pollInstanceUUID,
+        [this.data.data.componentName.toLowerCase()],
+        this.data.data.cohorts,
+        [this.variableId]
+      )
       .subscribe(data => {
         this.riskStudentData.set(risk.position, {
-          items: data.body.items || [],
-          total: data.body.count || 0,
+          items: data || [],
+          total: data.length || 0,
         });
+        this.totalStudentRisks.set(data.length);
       });
   }
 

@@ -30,10 +30,12 @@ import RiskDetailsComponent from '../risk-details/risk-details.component';
 export class SummaryColumnChartsComponent {
   components = input<PollAvgReport>();
   pollUuid = input<string>();
+  cohortsIds = input<number[]>();
   data = input();
 
   private injector = inject(EnvironmentInjector);
-  erasModalService = inject(ErasModalService);
+  private erasModalService = inject(ErasModalService);
+
   chartOptions = computed<Partial<ChartOptions>>(() => {
     const data = this.components();
     return data
@@ -57,6 +59,7 @@ export class SummaryColumnChartsComponent {
       data: {
         riskGroup: series[y].data[x],
         pollUuid: this.pollUuid(),
+        cohorts: this.cohortsIds(),
         componentName,
       },
       title: `${componentName}: ${series[y].name} Details`,
