@@ -22,7 +22,6 @@ import { Component, Input } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'apx-chart',
   standalone: true,
   template: '<div></div>',

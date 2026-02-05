@@ -5,58 +5,141 @@
     </p>
   }
   <div class="form-container">
-    @if (polls !== null) {
-      <app-select-virtual-scroll
-        [items]="pollsToScroll()"
-        [control]="filterForm.controls.selectedPoll"
-        [id]="'sl-poll'"
-        [label]="'Poll'"
-        (selectionChange)="handlePollSelect($event)"
-      />
+    @if (polls !== null && polls.length > 0) {
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-poll">Poll</mat-label>
+        <mat-select
+          id="sl-poll"
+          formControlName="selectedPoll"
+          (selectionChange)="handlePollSelect($event)"
+        >
+          @for (poll of polls; track $index) {
+            <mat-option class="versioned-option" [value]="poll">
+              <p>{{ poll.name }}</p>
+            </mat-option>
+          }
+        </mat-select>
+        @if (filterForm.get('selectedPoll')?.errors) {
+          <mat-error>This field is required</mat-error>
+        }
+      </mat-form-field>
     }
-
     @if (filterForm.value.selectedPoll) {
-      <app-select-virtual-scroll
-        [items]="pollVersionsToScroll()"
-        [control]="filterForm.controls.lastVersion"
-        [id]="'sl-version'"
-        [label]="'Version'"
-        (selectionChange)="handleVersionSelect($event)"
-      />
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-version">Version</mat-label>
+        <mat-select
+          formControlName="lastVersion"
+          (selectionChange)="handleVersionSelect($event)"
+        >
+          <mat-option [value]="false">Older Versions</mat-option>
+          <mat-option [value]="true">
+            Last Version V{{ filterForm.value.selectedPoll.lastVersion }} -
+            {{
+              filterForm.value.selectedPoll.lastVersionDate | date: 'shortDate'
+            }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
 
-      <app-select-multiple-virtual-scroll
-        [items]="cohortsToScroll()"
-        [control]="filterForm.controls.cohortIds"
-        [id]="'sl-cohort'"
-        [label]="'Cohorts'"
-        (openedChange)="handleCohortSelect($event)"
-      />
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-cohort">Cohort</mat-label>
+        <mat-select
+          id="sl-cohort"
+          multiple
+          formControlName="cohortIds"
+          (openedChange)="handleCohortSelect($event)"
+        >
+          <mat-select-trigger>
+            <app-selected-items
+              [items]="getCohortsSelection()"
+            ></app-selected-items>
+          </mat-select-trigger>
+          @if (cohorts.length > 0) {
+            <mat-option appSelectAll [allValues]="cohorts"
+              >Select all</mat-option
+            >
+          }
+          @for (cohort of cohorts; track $index) {
+            <mat-option [value]="cohort.id">
+              {{ cohort.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     }
     @if (
       filterForm.value.cohortIds &&
       filterForm.value.cohortIds.length &&
       showVariables
     ) {
-      <app-select-multiple-virtual-scroll
-        [items]="componentsToScroll()"
-        [control]="filterForm.controls.componentNames"
-        [id]="'sl-components'"
-        [label]="'Components'"
-        (openedChange)="handleComponentsSelect($event)"
-      />
+      <mat-form-field appearance="fill">
+        <mat-label for="sl-component">Components</mat-label>
+        <mat-select
+          required
+          id="sl-components"
+          multiple
+          (openedChange)="handleComponentsSelect($event)"
+          formControlName="componentNames"
+        >
+          <mat-select-trigger>
+            <app-selected-items
+              [items]="getComponentsSelection()"
+            ></app-selected-items>
+          </mat-select-trigger>
+          @if (!!componentNames.length) {
+            <mat-option appSelectAll [allValues]="componentNames"
+              >Select all</mat-option
+            >
+          }
+          @for (component of componentNames; track $index) {
+            <mat-option [value]="component">
+              {{ component }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (filterForm.get('componentNames')?.errors) {
+          <mat-error>This field is required</mat-error>
+        }
+      </mat-form-field>
     }
     @if (
       filterForm.value.cohortIds &&
       filterForm.value.cohortIds.length &&
       showVariables
     ) {
-      <app-select-multiple-virtual-scroll
-        [control]="filterForm.controls.variables"
-        [id]="'sl-variables'"
-        [label]="'Variables'"
-        [groups]="variableSelectGroups()"
-        (openedChange)="handleVariableSelect($event)"
-      />
+      <mat-form-field appearance="fill">
+        <mat-label for="variables">Variables</mat-label>
+        <mat-select
+          id="sl-variables"
+          multiple
+          (openedChange)="handleVariableSelect($event)"
+          formControlName="variables"
+        >
+          <mat-select-trigger>
+            <app-selected-items
+              [items]="getVariablesSelection()"
+            ></app-selected-items>
+          </mat-select-trigger>
+          @if (!!variables.length) {
+            <mat-option appSelectAll [allValues]="getAllVariableIds()"
+              >Select all</mat-option
+            >
+          }
+          @for (group of variableGroups; track group) {
+            @if (!!group.length) {
+              <mat-optgroup [label]="group[0].componentName | uppercase">
+                @for (variable of group; track variable.pollVariableId) {
+                  <mat-option
+                    class="group-option"
+                    [value]="variable.pollVariableId"
+                    >{{ variable.name }}</mat-option
+                  >
+                }
+              </mat-optgroup>
+            }
+          }
+        </mat-select>
+      </mat-form-field>
     }
   </div>
 </form>
