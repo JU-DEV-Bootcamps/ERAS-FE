@@ -9,7 +9,8 @@ import {
 } from '@angular/core';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { Subscription } from 'rxjs';
-import { SelectAllValue } from './select-all-value';
+
+type SelectAllValue = { id: number } | number | string;
 
 @Directive({
   selector: 'mat-option[appSelectAll]',
@@ -71,7 +72,6 @@ export class SelectAllDirective<T extends SelectAllValue>
         }
       })
     );
-
     // For changing select all based on other option selection
     this._subscriptions.push(
       parentSelect.optionSelectionChanges.subscribe(v => {
@@ -86,7 +86,6 @@ export class SelectAllDirective<T extends SelectAllValue>
         }
       })
     );
-
     // If user has kept all values selected in select's form-control from the beginning
     setTimeout(() => {
       if (this.isAllSelected(parentFormControl?.value || [])) {
