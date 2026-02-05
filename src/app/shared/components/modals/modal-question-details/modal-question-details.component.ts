@@ -129,20 +129,13 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   }
 
   loadStudents(): void {
-    let selectedRisks: number[] = [];
-    if (this.inputQuestion.riskLevel !== undefined) {
-      const risk = this.inputQuestion.riskLevel;
-      selectedRisks =
-        risk % 1 !== 0 ? [Math.floor(risk), Math.ceil(risk)] : [risk];
-    }
-
     this.evaluationDetailsService
       .getStudentsByFilters(
         this.inputQuestion.pollUuid,
         [this.inputQuestion.componentName.toLowerCase()],
         this.inputQuestion.cohortId.split(',').map(id => Number(id.trim())),
         [this.variableId],
-        selectedRisks
+        [this.inputQuestion.riskLevel!]
       )
       .subscribe(data => {
         this.studentList.set(data);
