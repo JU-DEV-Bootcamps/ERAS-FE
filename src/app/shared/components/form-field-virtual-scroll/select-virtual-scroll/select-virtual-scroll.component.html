@@ -1,0 +1,27 @@
+<mat-form-field appearance="fill">
+  <mat-label [attr.for]="id()">{{ label() }}</mat-label>
+
+  <mat-select
+    [id]="id()"
+    [formControl]="control()"
+    (selectionChange)="selectionChange.emit($event)"
+  >
+    <cdk-virtual-scroll-viewport [itemSize]="itemSize" class="viewport">
+      <mat-option
+        *cdkVirtualFor="let item of items(); templateCacheSize: 50"
+        class="versioned-option"
+        [value]="item.value"
+      >
+        <p>{{ item.label }}</p>
+      </mat-option>
+    </cdk-virtual-scroll-viewport>
+  </mat-select>
+
+  @if (control().invalid) {
+    <mat-error>
+      @if (control().hasError('required')) {
+        This field is required
+      }
+    </mat-error>
+  }
+</mat-form-field>
