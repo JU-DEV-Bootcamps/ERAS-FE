@@ -33,6 +33,7 @@ import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { getRiskColor } from '@core/constants/riskLevel';
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 
 register();
 
@@ -50,6 +51,7 @@ interface SwiperEventTarget extends EventTarget {
     CommonModule,
     ListComponent,
     MatTooltipModule,
+    EmptyDataComponent,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
