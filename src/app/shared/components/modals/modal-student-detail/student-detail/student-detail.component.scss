@@ -245,3 +245,9 @@ mat-table {
     cursor: pointer;
   }
 }
+
+app-empty-data-message {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
