@@ -65,8 +65,7 @@ export class ReportService extends BaseApiService {
   getCountPoolReport(
     pollInstanceUuid: string,
     cohortIds: number[] | null,
-    variableIds: number[],
-    lastVersion: boolean
+    variableIds: number[]
   ): Observable<GetQueryResponse<PollCountReport> | null> {
     if (!variableIds || !variableIds.length) return of(null);
 
@@ -74,7 +73,7 @@ export class ReportService extends BaseApiService {
       'variableIds',
       this.arrayAsStringParams(variableIds)
     );
-    params = params.set('lastVersion', lastVersion);
+    params = params.set('lastVersion', true);
     if (cohortIds != null)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
     return this.get<GetQueryResponse<PollCountReport>>(

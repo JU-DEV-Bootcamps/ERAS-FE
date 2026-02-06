@@ -122,7 +122,7 @@ export class SummaryChartsComponent {
           pageSize: event.pageSize,
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
-          lastVersion: this.lastVersion,
+          // lastVersion: this.lastVersion,
         })
         .subscribe(response => {
           this.students = response.items;
@@ -251,7 +251,7 @@ export class SummaryChartsComponent {
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
     this.pollUuid = filters.uuid;
-    this.lastVersion = filters.lastVersion;
+    // this.lastVersion = filters.lastVersion;
     this.getStudentsByCohortAndPoll({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
