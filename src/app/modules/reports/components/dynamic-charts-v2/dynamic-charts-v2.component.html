@@ -1,6 +1,16 @@
-<section class="panel-container" appActionContext>
+<section appActionContext>
   <header>
     Dynamic Charts
     <app-group-action-button [actions]="actions" />
   </header>
+
+  <section class="evaluations">
+    <app-eras-select
+      label="Evaluation Process"
+      placeholder="Select an evaluation process"
+      [options]="evaluationOptions()"
+      [value]="selectedEvaluation()"
+      (valueChange)="selectedEvaluation.set($event)"
+    ></app-eras-select>
+  </section>
 </section>
