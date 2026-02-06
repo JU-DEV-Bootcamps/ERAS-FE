@@ -1,4 +1,5 @@
 @use 'index.scss' as main-styles;
+@use '@angular/material' as mat;
 
 section header {
   align-items: center;
@@ -15,4 +16,12 @@ section header {
 
 app-group-action-button {
   margin-right: 12px;
+}
+
+section.evaluations {
+  margin-top: 15px;
+  background-color: main-styles.get-color('neutral', 100);
+  @include mat.elevation(1);
+  padding: 15px;
+  border-radius: 5px;
 }

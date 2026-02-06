@@ -18,6 +18,7 @@ import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/s
 import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
+import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
 
 export const routes: Routes = [
   {
@@ -45,6 +46,7 @@ export const routes: Routes = [
         path: 'reports/dynamic-charts',
         component: DynamicChartsContainerComponent,
         data: { breadcrumb: 'Dynamic Charts' },
+        resolve: { evaluations: evaluationProcessesResolver },
       },
       {
         path: 'cosmic-latte',

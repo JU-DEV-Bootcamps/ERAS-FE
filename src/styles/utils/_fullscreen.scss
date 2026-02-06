@@ -3,10 +3,10 @@
   inset: 0;
   z-index: 1000;
 
-  width: 100vw;
+  padding: 10px;
+  width: auto;
   height: 100vh;
 
-  background: var(--app-background, #fff);
   display: flex;
   flex-direction: column;
 }

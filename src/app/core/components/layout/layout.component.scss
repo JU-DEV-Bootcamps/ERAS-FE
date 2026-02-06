@@ -40,6 +40,9 @@ mat-sidenav-content {
   transition: all 500ms ease-in-out !important;
 }
 
+mat-sidenav-content {
+  background-color: main-styles.get-color('neutral', 95);
+}
 mat-toolbar {
   display: flex;
   justify-content: space-between;
