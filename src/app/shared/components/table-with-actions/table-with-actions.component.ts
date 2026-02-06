@@ -8,6 +8,7 @@ import {
   EventEmitter,
   TemplateRef,
   CUSTOM_ELEMENTS_SCHEMA,
+  input,
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +28,6 @@ import {
 import { EventAction } from '../../../core/models/load';
 import { Column } from '../list/types/column';
 import { MapClass } from '../list/types/class';
-
 import { ActionButtonComponent } from '../buttons/action-button/action-button.component';
 
 @Component({
@@ -60,7 +60,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     TemplateRef<unknown>
   >();
   @Input() columnTemplates: Column<T>[] = [];
-  @Input() actionDatas: ActionDatas = [];
+  actionDatas = input.required<ActionDatas>();
   @Input() mapClass?: MapClass;
 
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -98,19 +98,11 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
       columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));
     }
 
-    if (this.getTotalActionDatas() > 0) {
+    if (this.actionDatas().length > 0) {
       columnKeys = columnKeys.concat(this.actionColumns);
     }
 
     return columnKeys;
-  }
-
-  getActionDatas() {
-    return this.actionDatas;
-  }
-
-  getTotalActionDatas() {
-    return this.getActionDatas().length;
   }
 
   getTotalTemplateColumns() {
@@ -148,7 +140,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   }
 
   hasTextAttribute() {
-    return this.actionDatas.some(
+    return this.actionDatas().some(
       (actionData: ActionData) => 'text' in actionData
     );
   }

@@ -1,6 +1,6 @@
 @if (item && actionData && actionData.label) {
   @if (actionData.hasOwnProperty('text') && actionData.text) {
-    <button mat-menu-item (click)="onButtonClick($event)">
+    <button mat-button (click)="onButtonClick($event)">
       <ng-container *ngTemplateOutlet="loadContent"></ng-container>
     </button>
   } @else {
