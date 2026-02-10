@@ -39,6 +39,12 @@ export function GetChartOptions(
         },
       },
     },
+    legend: {
+      show: true,
+      showForSingleSeries: true,
+      position: 'top',
+      horizontalAlign: 'center',
+    },
     title: {
       text: title,
     },
@@ -54,6 +60,7 @@ export function GetChartOptions(
     plotOptions: {
       heatmap: {
         distributed: false,
+        // enableShades: false,
         ...(fixColors && {
           colorScale: {
             inverse: false,
