@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { HttpParams } from '@angular/common/http';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
+import { PagedResult } from '../interfaces/page.type';
 
 @Injectable({
   providedIn: 'root',
@@ -14,9 +15,14 @@ export class EvaluationDetailsService extends BaseApiService {
     componentNames: string[],
     cohortIds: number[],
     variableIds: number[],
+    pageSize: number,
+    page: number,
     riskLevels?: number[]
   ) {
-    let params = new HttpParams().set('PollUuid', pollUuid);
+    let params = new HttpParams()
+      .set('PollUuid', pollUuid)
+      .set('PageSize', pageSize.toString())
+      .set('Page', page.toString());
 
     const appendArray = (name: string, items: (string | number)[]) => {
       if (items && items.length > 0) {
@@ -37,7 +43,7 @@ export class EvaluationDetailsService extends BaseApiService {
       appendArray('RiskLevels', riskLevels);
     }
 
-    return this.get<EvaluationDetailsStudentResponse[]>(
+    return this.get<PagedResult<EvaluationDetailsStudentResponse>>(
       `StudentsByFilters`,
       params
     );

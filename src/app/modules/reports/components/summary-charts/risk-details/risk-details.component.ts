@@ -106,13 +106,20 @@ export default class RiskDetailsComponent {
   loadStudentList(risk: PollAvgQuestion) {
     const pollInstanceUUID: string = this.data.data.pollUuid;
     if (this.variableId === 0) return;
-    this.reportService
-      .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
+    this.evaluationDetailsService
+      .getStudentsByFilters(
+        pollInstanceUUID,
+        [this.data.data.componentName.toLowerCase()],
+        this.data.data.cohorts,
+        [this.variableId],
+        this.pagination.pageSize,
+        this.pagination.page
+      )
       .subscribe(data => {
-        this.riskStudentData.set(risk.position, {
-          items: data.body.items || [],
-          total: data.body.count || 0,
-        });
+        const items = data?.items ?? [];
+        const total = data?.count ?? 0;
+        this.riskStudentData.set(risk.position, { items, total });
+        this.totalStudentRisks.set(total);
       });
   }
 

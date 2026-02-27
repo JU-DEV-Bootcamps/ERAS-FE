@@ -135,11 +135,15 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
         [this.inputQuestion.componentName.toLowerCase()],
         this.inputQuestion.cohortId.split(',').map(id => Number(id.trim())),
         [this.variableId],
+        this.pagination.pageSize,
+        this.pagination.page,
         [this.inputQuestion.riskLevel!]
       )
       .subscribe(data => {
-        this.studentList.set(data);
-        this.totalStudentRisks.set(data.length);
+        const items = data?.items ?? [];
+        const total = data?.count ?? items.length;
+        this.studentList.set(items);
+        this.totalStudentRisks.set(total);
       });
   }
 
