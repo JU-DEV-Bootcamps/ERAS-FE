@@ -74,16 +74,12 @@ export class DynamicChartsComponent {
     private cdr: ChangeDetectorRef
   ) {}
 
-  generateHeatMap(
-    cohortIds: number[],
-    variablesIds: number[],
-    lastVersion: boolean
-  ) {
+  generateHeatMap(cohortIds: number[], variablesIds: number[]) {
     if (this.uuid === null) return;
 
     this.isLoading = true;
     this.reportService
-      .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds)
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
@@ -178,16 +174,12 @@ export class DynamicChartsComponent {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
-    if (!filters.cohortIds || !filters.variableIds || !filters.lastVersion) {
+    if (!filters.cohortIds || !filters.variableIds) {
       this.chartsOptions = [];
       this.components.set(null);
       return;
     }
-    this.generateHeatMap(
-      filters.cohortIds,
-      filters.variableIds,
-      filters.lastVersion
-    );
+    this.generateHeatMap(filters.cohortIds, filters.variableIds);
   }
 
   openDetailsModal(

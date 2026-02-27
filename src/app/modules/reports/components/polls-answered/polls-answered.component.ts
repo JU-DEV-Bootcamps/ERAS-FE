@@ -131,7 +131,7 @@ export class PollsAnsweredComponent implements OnInit {
 
   loadCohortsList(): void {
     this.cohortService
-      .getCohorts(this.selectedPollUuid, this.lastVersion)
+      .getCohorts(this.selectedPollUuid /*, this.lastVersion*/)
       .subscribe(data => {
         const defaultOpt: CohortModel = {
           name: 'All Cohorts',
@@ -216,7 +216,7 @@ export class PollsAnsweredComponent implements OnInit {
   handleFilterSelect(filters: Filter) {
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
-    this.lastVersion = filters.lastVersion;
+    // this.lastVersion = filters.lastVersion;
     this.loading = true;
     this.load();
   }
