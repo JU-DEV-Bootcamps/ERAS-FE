@@ -155,7 +155,7 @@ export class DynamicColumnChartComponent {
   private _getAnswersRisks(questions: PollCountQuestion[], riskLevel: number) {
     return questions.map(question => {
       const filteredAnswers = question.answers.filter(
-        answer => Math.trunc(answer.answerRisk) === riskLevel
+        answer => Math.floor(answer.answerRisk) === riskLevel
       );
 
       const totalCount = filteredAnswers.reduce(
