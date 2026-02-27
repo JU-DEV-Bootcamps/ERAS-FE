@@ -25,11 +25,12 @@ import { PollService } from '@core/services/api/poll.service';
 import { PollInstanceService } from '@core/services/api/poll-instance.service';
 import { StudentService } from '@core/services/api/student.service';
 import { toSentenceCase } from '@core/utils/helpers/string-utils';
-import { EventAction } from '@core/models/load';
+import { EventAction, EventLoad } from '@core/models/load';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { MapClass } from '@shared/components/list/types/class';
 import { ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Pagination } from '@core/services/interfaces/server.type';
 
 @Component({
   selector: 'app-student-monitoring-details',
@@ -67,7 +68,7 @@ export class StudentMonitoringDetailsComponent implements OnInit {
   riskStudentsDetail: StudentRiskResponse[] = [];
   filteredStudents: StudentRiskResponse[] = [];
   studentRisk: StudentRiskResponse[] = [];
-
+  private listInitialized = false;
   public chartOptions: ApexOptions = {
     chart: {
       type: 'donut',
@@ -127,6 +128,11 @@ export class StudentMonitoringDetailsComponent implements OnInit {
   quantities = [3, 5, 10, 15, 20];
   selectedQuantity = 3;
   polls: PollModel[] = [];
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
+  totalStudents = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -215,9 +221,16 @@ export class StudentMonitoringDetailsComponent implements OnInit {
     const cohortId = this.cohortSelected?.cohortId;
     if (!uuid || cohortId === undefined) return;
     this.studentService
-      .getPollTopStudents(uuid, cohortId, this.lastVersion)
+      .getPollTopStudents(
+        uuid,
+        cohortId,
+        this.lastVersion,
+        this.pagination.pageSize,
+        this.pagination.page
+      )
       .subscribe(data => {
-        this.riskStudentsDetail = data;
+        this.riskStudentsDetail = data.items;
+        this.totalStudents = data.count;
         this.updateTable();
       });
   }
@@ -248,34 +261,55 @@ export class StudentMonitoringDetailsComponent implements OnInit {
         this.pollSelected.uuid,
         componentKey,
         this.cohortSelected.cohortId,
-        this.lastVersion
+        this.lastVersion,
+        10,
+        0
       )
       .subscribe(data => {
-        this.componentStudentRisk[componentKey] = data;
+        this.componentStudentRisk[componentKey] = data.items;
         this.cdr.detectChanges();
       });
   }
-
-  handleLoad(): void {
+  handleLoad(event: EventLoad): void {
     if (!this.pollSelected || !this.cohortSelected) return;
-
+    if (!this.listInitialized) {
+      this.listInitialized = true;
+      return;
+    }
+    this.pagination = { page: event.page, pageSize: event.pageSize };
     this.studentService
       .getPollTopStudents(
         this.pollSelected.uuid,
         this.cohortSelected.cohortId,
-        this.lastVersion
+        this.lastVersion,
+        this.pagination.pageSize,
+        this.pagination.page
       )
       .subscribe(data => {
-        this.riskStudentsDetail = data;
+        this.riskStudentsDetail = data.items;
+        this.totalStudents = data.count;
         this.updateTable();
       });
   }
 
+  handleLoadComponent(event: EventLoad, componentKey: string): void {
+    this.studentService
+      .getPollComponentTopStudents(
+        this.pollSelected!.uuid,
+        componentKey,
+        this.cohortSelected!.cohortId,
+        this.lastVersion,
+        event.pageSize,
+        event.page
+      )
+      .subscribe(data => {
+        this.componentStudentRisk[componentKey] = data.items;
+        this.cdr.detectChanges();
+      });
+  }
+
   updateTable(): void {
-    this.filteredStudents = this.riskStudentsDetail.slice(
-      0,
-      this.selectedQuantity
-    );
+    this.filteredStudents = this.riskStudentsDetail;
   }
 
   handleActionCalled(event: EventAction) {

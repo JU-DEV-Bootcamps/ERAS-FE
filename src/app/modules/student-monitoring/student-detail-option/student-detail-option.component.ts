@@ -92,6 +92,8 @@ export class StudentDetailOptionComponent implements OnInit {
   polls: PollModel[] = [];
   studentRisk: StudentRiskResponse[] = [];
   cohorts: CohortComponents[] = [];
+  pagination = { page: 0, pageSize: 10 };
+  totalStudents = 0;
   readonly panelOpenState = signal(false);
   riskStudentsDetail: StudentRiskResponse[] = [];
   filteredStudents = [...this.riskStudentsDetail];
@@ -220,10 +222,12 @@ export class StudentDetailOptionComponent implements OnInit {
         this.pollSelected.uuid,
         componentKey,
         this.cohortSelected.cohortId,
-        this.lastVersion
+        this.lastVersion,
+        this.pagination.pageSize,
+        this.pagination.page
       )
       .subscribe(data => {
-        this.componentStudentRisk[componentKey] = data;
+        this.componentStudentRisk[componentKey] = data.items;
         this.cdr.detectChanges();
       });
   }
@@ -269,11 +273,14 @@ export class StudentDetailOptionComponent implements OnInit {
       .getPollTopStudents(
         this.pollSelected.uuid,
         this.cohortSelected.cohortId,
-        this.lastVersion
+        this.lastVersion,
+        this.pagination.pageSize,
+        this.pagination.page
       )
       .subscribe({
         next: data => {
-          this.riskStudentsDetail = data;
+          this.riskStudentsDetail = data.items;
+          this.totalStudents = data.count;
           this.updateTable();
         },
         error: error => {
@@ -298,11 +305,14 @@ export class StudentDetailOptionComponent implements OnInit {
         .getPollTopStudents(
           this.pollSelected.uuid,
           this.cohortSelected.cohortId,
-          this.lastVersion
+          this.lastVersion,
+          this.pagination.pageSize,
+          this.pagination.page
         )
         .subscribe({
           next: data => {
-            this.riskStudentsDetail = data;
+            this.riskStudentsDetail = data.items;
+            this.totalStudents = data.count;
             this.updateTable();
           },
           error: error => {
