@@ -94,6 +94,7 @@ export class StudentDetailOptionComponent implements OnInit {
   cohorts: CohortComponents[] = [];
   pagination = { page: 0, pageSize: 10 };
   totalStudents = 0;
+  totalStudentsComponent = 0;
   readonly panelOpenState = signal(false);
   riskStudentsDetail: StudentRiskResponse[] = [];
   filteredStudents = [...this.riskStudentsDetail];
@@ -228,6 +229,7 @@ export class StudentDetailOptionComponent implements OnInit {
       )
       .subscribe(data => {
         this.componentStudentRisk[componentKey] = data.items;
+        this.totalStudentsComponent = data.count;
         this.cdr.detectChanges();
       });
   }

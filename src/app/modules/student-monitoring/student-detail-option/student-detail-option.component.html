@@ -173,10 +173,7 @@
                 [items]="
                   componentStudentRisk[component.key.toLowerCase()] || []
                 "
-                [totalItems]="
-                  (componentStudentRisk[component.key.toLowerCase()] || [])
-                    .length
-                "
+                [totalItems]="totalStudentsComponent"
               >
                 <ng-template #riskSum let-item>
                   <app-badge-risk-level [riskLevel]="item.riskSum" />
