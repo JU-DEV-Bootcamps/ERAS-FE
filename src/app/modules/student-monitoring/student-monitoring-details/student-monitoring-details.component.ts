@@ -133,6 +133,7 @@ export class StudentMonitoringDetailsComponent implements OnInit {
     pageSize: 10,
   };
   totalStudents = 0;
+  totalStudentsComponent = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -267,6 +268,7 @@ export class StudentMonitoringDetailsComponent implements OnInit {
       )
       .subscribe(data => {
         this.componentStudentRisk[componentKey] = data.items;
+        this.totalStudentsComponent = data.count;
         this.cdr.detectChanges();
       });
   }
@@ -304,6 +306,7 @@ export class StudentMonitoringDetailsComponent implements OnInit {
       )
       .subscribe(data => {
         this.componentStudentRisk[componentKey] = data.items;
+        this.totalStudentsComponent = data.count;
         this.cdr.detectChanges();
       });
   }
