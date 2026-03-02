@@ -29,13 +29,13 @@
         <div class="custom-divider"></div>
         <app-list
           [mapClass]="mapClass"
-          (loadCalled)="handleLoad()"
+          (loadCalled)="handleLoad($event)"
           (actionCalled)="handleActionCalled($event)"
           [columns]="columns"
           [columnTemplates]="columnTemplates"
           [actionDatas]="actionDatas"
           [items]="filteredStudents"
-          [totalItems]="filteredStudents.length"
+          [totalItems]="totalStudents"
           [title]="'Top Risk Students'"
         >
           <ng-template #riskSum let-item>
@@ -67,16 +67,16 @@
 
           <div>
             <app-list
-              (loadCalled)="handleLoad()"
+              (loadCalled)="
+                handleLoadComponent($event, component.key.toLowerCase())
+              "
               (actionCalled)="handleActionCalled($event)"
               [mapClass]="mapClass"
               [columns]="columns"
               [columnTemplates]="columnTemplates"
               [actionDatas]="actionDatas"
               [items]="componentStudentRisk[component.key.toLowerCase()] || []"
-              [totalItems]="
-                (componentStudentRisk[component.key.toLowerCase()] || []).length
-              "
+              [totalItems]="totalStudentsComponent"
             >
               <ng-template #riskSum let-item>
                 <app-badge-risk-level [riskLevel]="item.riskSum" />
