@@ -34,6 +34,7 @@ import {
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { getRiskGroup } from '@core/constants/riskLevel';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -136,7 +137,7 @@ export class DynamicChartsComponent {
                 selectedQuestionOnly,
                 component.description,
                 component.text,
-                selectedAnswer.answerRisk
+                getRiskGroup(selectedAnswer.answerRisk)
               );
             }
           }
