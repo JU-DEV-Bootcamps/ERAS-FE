@@ -260,7 +260,7 @@ export class PollFiltersComponent implements OnInit {
     const uuid = this.filterForm.value.selectedPoll?.uuid || '';
     const cohortIds = this.filterForm.value.cohortIds!.filter(Boolean);
     const variableIds = this.filterForm.value.variables || [];
-    const lastVersion = this.filterForm.value.lastVersion!;
+    const lastVersion = true;
 
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
   }
