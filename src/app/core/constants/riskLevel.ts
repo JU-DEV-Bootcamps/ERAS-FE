@@ -51,6 +51,15 @@ export type RiskColorType = keyof typeof RISK_COLORS;
 const roundRiskLevel = (riskLevel: number) =>
   riskLevel > 5 ? 5 : Math.round(riskLevel);
 
+export const getRiskGroup = (risk: number): number => {
+  if (risk < 1) return 0;
+  if (risk < 1.5) return 1;
+  if (risk < 2.5) return 2;
+  if (risk < 3.5) return 3;
+  if (risk < 4.5) return 4;
+  return 5;
+};
+
 export const getRiskColor = (riskLevel: number) =>
   RISK_COLORS[roundRiskLevel(riskLevel)];
 

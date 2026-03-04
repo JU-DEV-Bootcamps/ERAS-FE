@@ -3,6 +3,7 @@ import {
   RISK_COLORS,
   RISK_LABELS,
   RISK_TEXT_COLORS,
+  getRiskGroup,
 } from '@core/constants/riskLevel';
 import { customTooltip } from '@core/utils/apex-chart/customTooltip';
 
@@ -82,7 +83,7 @@ export function GetChartOptions(
           if (grid[rowIdx][colIdx] === -1) {
             return '';
           }
-          return val.toString();
+          return getRiskGroup(val).toString();
         },
         title: {
           formatter: function (): string {
