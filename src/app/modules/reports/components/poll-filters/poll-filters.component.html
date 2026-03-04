@@ -13,6 +13,7 @@
           id="sl-evaluation"
           formControlName="selectedEvaluation"
           (selectionChange)="handleEvaluationSelect($event)"
+          (openedChange)="$event && onDropdownScroll()"
         >
           @for (evaluation of evaluations; track $index) {
             <mat-option class="versioned-option" [value]="evaluation">

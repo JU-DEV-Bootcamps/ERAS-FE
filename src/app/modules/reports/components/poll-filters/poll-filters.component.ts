@@ -30,6 +30,7 @@ import { SelectedItemsComponent } from './selected-items/selected-items.componen
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { EvaluationModel } from '@core/models/evaluation.model';
+import { Pagination } from '@core/services/interfaces/server.type';
 
 @Component({
   selector: 'app-poll-filters',
@@ -63,6 +64,13 @@ export class PollFiltersComponent implements OnInit {
   variableGroups: VariableModel[][] = [];
   variables: VariableModel[] = [];
   variablesClone: VariableModel[] = [];
+
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
+  isLoadingMore = false;
+  totalEvaluations = 0;
 
   filters = output<{
     title: string;
@@ -195,11 +203,13 @@ export class PollFiltersComponent implements OnInit {
 
   private _loadEvaluations() {
     this.evaluationsService
-      .getAllEvalProc()
+      .getAllEvalProc(this.pagination)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: evaluations => {
-          this.evaluations = evaluations.items;
+        next: result => {
+          this.evaluations = [...(this.evaluations ?? []), ...result.items];
+          this.totalEvaluations = result.count;
+          this.isLoadingMore = false;
         },
         error: () => (this.evaluations = null),
       });
@@ -271,5 +281,15 @@ export class PollFiltersComponent implements OnInit {
     const lastVersion = true;
 
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
+  }
+
+  onDropdownScroll() {
+    if (this.isLoadingMore) return;
+    const hasMore = (this.evaluations?.length ?? 0) < this.totalEvaluations;
+    if (!hasMore) return;
+
+    this.isLoadingMore = true;
+    this.pagination = { page: this.pagination.page + 1, pageSize: 5 };
+    this._loadEvaluations();
   }
 }
