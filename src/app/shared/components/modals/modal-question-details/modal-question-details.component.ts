@@ -137,10 +137,17 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
         [this.variableId],
         this.pagination.pageSize,
         this.pagination.page,
-        [this.inputQuestion.riskLevel!]
+        this.inputQuestion.riskLevel
+          ? [this.inputQuestion.riskLevel]
+          : undefined
       )
       .subscribe(data => {
-        const items = data?.items ?? [];
+        const items = (data?.items ?? []).sort((a, b) => {
+          if (b.riskLevel !== a.riskLevel) {
+            return b.riskLevel - a.riskLevel;
+          }
+          return a.answerText.localeCompare(b.answerText);
+        });
         const total = data?.count ?? items.length;
         this.studentList.set(items);
         this.totalStudentRisks.set(total);

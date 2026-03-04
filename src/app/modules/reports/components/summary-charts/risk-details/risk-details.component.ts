@@ -119,7 +119,12 @@ export default class RiskDetailsComponent {
         this.pagination.page
       )
       .subscribe(data => {
-        const items = data?.items ?? [];
+        const items = (data?.items ?? []).sort((a, b) => {
+          if (b.riskLevel !== a.riskLevel) {
+            return b.riskLevel - a.riskLevel;
+          }
+          return a.answerText.localeCompare(b.answerText);
+        });
         const total = data?.count ?? 0;
         this.riskStudentData.set(risk.position, { items, total });
         this.totalStudentRisks.set(total);
