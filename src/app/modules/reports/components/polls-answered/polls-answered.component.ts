@@ -216,7 +216,7 @@ export class PollsAnsweredComponent implements OnInit {
   handleFilterSelect(filters: Filter) {
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
-    // this.lastVersion = filters.lastVersion;
+    this.lastVersion = filters.lastVersion;
     this.loading = true;
     this.load();
   }

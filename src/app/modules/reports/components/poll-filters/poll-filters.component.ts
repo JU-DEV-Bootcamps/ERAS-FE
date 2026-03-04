@@ -69,6 +69,7 @@ export class PollFiltersComponent implements OnInit {
     uuid: string;
     cohortIds: number[];
     variableIds: number[];
+    lastVersion: boolean;
   }>();
 
   filterForm = new FormGroup({
@@ -267,7 +268,8 @@ export class PollFiltersComponent implements OnInit {
     const uuid = this.filterForm.value.selectedPoll?.uuid || '';
     const cohortIds = this.filterForm.value.cohortIds!.filter(Boolean);
     const variableIds = this.filterForm.value.variables || [];
+    const lastVersion = true;
 
-    this.filters.emit({ title, uuid, cohortIds, variableIds });
+    this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
   }
 }
