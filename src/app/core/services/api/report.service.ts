@@ -134,6 +134,15 @@ export class ReportService extends BaseApiService {
       .sort((q1, q2) => q2.position - q1.position)
       .map(question => {
         const grouped = new Map<number, PollCountAnswer>();
+        console.log('Question:', question.question);
+        console.log(
+          'Raw answers from backend:',
+          question.answers.map(a => ({
+            answerText: a.answerText,
+            answerRisk: a.answerRisk,
+            count: a.count,
+          }))
+        );
         for (const answer of question.answers) {
           const group = getRiskGroup(answer.answerRisk);
           if (grouped.has(group)) {
@@ -158,6 +167,7 @@ export class ReportService extends BaseApiService {
             return {
               x: a.answerRisk,
               y: a.answerRisk,
+              count: a.count,
               z: `<span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br> ${a.students
                 .map(ans => `${this.arrayAsStringParams([ans.email])}`)
                 .join(';')}`,
