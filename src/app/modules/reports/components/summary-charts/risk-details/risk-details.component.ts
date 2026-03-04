@@ -8,11 +8,7 @@ import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
 import { EventAction, EventLoad } from '@core/models/load';
 import { Pagination } from '@core/services/interfaces/server.type';
-import {
-  PollAvgQuestion,
-  PollTopReport,
-  StudentReportAnswerRiskLevel,
-} from '@core/models/summary.model';
+import { PollAvgQuestion, PollTopReport } from '@core/models/summary.model';
 
 import { PollService } from '@core/services/api/poll.service';
 import { ReportService } from '@core/services/api/report.service';
@@ -134,15 +130,15 @@ export default class RiskDetailsComponent {
   handleActionCalled(event: EventAction) {
     const actions: Record<
       string,
-      (item: StudentReportAnswerRiskLevel) => void
+      (item: EvaluationDetailsStudentResponse) => void
     > = {
-      openStudentDetails: (element: StudentReportAnswerRiskLevel) => {
-        this.openStudentDetails(element.studentId);
+      openStudentDetails: (element: EvaluationDetailsStudentResponse) => {
+        this.openStudentDetails(element.id);
       },
     };
 
     if (actions[event.data.id]) {
-      actions[event.data.id](event.item as StudentReportAnswerRiskLevel);
+      actions[event.data.id](event.item as EvaluationDetailsStudentResponse);
     }
   }
 
