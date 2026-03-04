@@ -34,7 +34,6 @@ import {
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
-import { getRiskGroup } from '@core/constants/riskLevel';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -114,21 +113,22 @@ export class DynamicChartsComponent {
           const questionIndex = y;
           const answerIndex = x;
 
+          const groupedQuestion = series[questionIndex];
           const question = component.questions[questionIndex];
 
-          if (question) {
+          if (question && groupedQuestion) {
             const dataAtPoint = regroupSeries[questionIndex]?.data[
               answerIndex
             ] as unknown as { z: string; totalFillers?: number };
             const totalFillers = dataAtPoint?.totalFillers ?? 0;
             const realAnswerIndex = answerIndex - totalFillers;
 
-            const selectedAnswer = question.answers[realAnswerIndex];
+            const selectedAnswer = groupedQuestion.data[realAnswerIndex];
 
             if (selectedAnswer) {
               const selectedQuestionOnly: PollCountQuestion = {
                 ...question,
-                answers: [selectedAnswer],
+                answers: question.answers,
               };
 
               this.openDetailsModal(
@@ -137,24 +137,29 @@ export class DynamicChartsComponent {
                 selectedQuestionOnly,
                 component.description,
                 component.text,
-                getRiskGroup(selectedAnswer.answerRisk)
+                selectedAnswer.y as number
               );
             }
           }
         },
         undefined,
         (x: number, y: number) => {
-          const question = component.questions[x];
+          const groupedQuestion = series[x];
           const dataAtPoint = regroupSeries[x]?.data[y] as unknown as {
             z: string;
+            count?: number;
             totalFillers?: number;
           };
           const totalFillers = dataAtPoint?.totalFillers ?? 0;
-          const riskLevel = question.answers[y - totalFillers];
+          const groupedAnswer = groupedQuestion?.data[y - totalFillers] as {
+            count?: number;
+            x: number;
+          };
+          const question = component.questions[x];
 
           return customTooltip(
-            question.question,
-            `${riskLevel.count}`,
+            question?.question ?? '',
+            `${groupedAnswer?.count ?? 0}`,
             dataAtPoint.z
           );
         }
