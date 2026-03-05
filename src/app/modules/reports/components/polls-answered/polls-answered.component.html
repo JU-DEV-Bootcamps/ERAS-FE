@@ -9,22 +9,19 @@
   ></app-poll-filters>
 </div>
 
-@if (loading) {
+@if (showEmpty) {
+  <app-empty-data-message
+    description="Please select the required fields to list Polls Answered."
+  ></app-empty-data-message>
+} @else if (loading) {
   <mat-spinner></mat-spinner>
 } @else {
-  @if (!pollInstances.length) {
-    <app-empty-data-message
-      title="No data loaded."
-      description="Select a Cohort and Poll to list Polls Answered."
-    ></app-empty-data-message>
-  } @else {
-    <app-list
-      (actionCalled)="goToDetails($event)"
-      (loadCalled)="loadPollInstances($event)"
-      [items]="pollInstances"
-      [totalItems]="totalPollInstances"
-      [columns]="columns"
-      [actionDatas]="actionDatas"
-    />
-  }
+  <app-list
+    (actionCalled)="goToDetails($event)"
+    (loadCalled)="loadPollInstances($event)"
+    [items]="pollInstances"
+    [totalItems]="totalPollInstances"
+    [columns]="columns"
+    [actionDatas]="actionDatas"
+  />
 }
