@@ -103,6 +103,13 @@ export class PollFiltersComponent implements OnInit {
     this._resetField('selectedPoll');
     this._resetField('cohortIds');
     this._getPolls(newSelectedEvaluation);
+    this.filters.emit({
+      title: '',
+      uuid: '',
+      cohortIds: [],
+      variableIds: [],
+      lastVersion: false,
+    });
   }
 
   handlePollSelect(itemSelected: MatSelectChange) {
