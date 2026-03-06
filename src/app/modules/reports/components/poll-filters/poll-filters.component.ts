@@ -84,9 +84,6 @@ export class PollFiltersComponent implements OnInit {
     selectedEvaluation: new FormControl<EvaluationModel | null>(null, [
       Validators.required,
     ]),
-    selectedPoll: new FormControl<PollModel | null>(null, [
-      Validators.required,
-    ]),
     cohortIds: new FormControl<number[] | null>([], null),
     componentNames: new FormControl<string[] | null>(null, [
       Validators.required,
@@ -100,20 +97,10 @@ export class PollFiltersComponent implements OnInit {
 
   handleEvaluationSelect(itemSelected: MatSelectChange) {
     const newSelectedEvaluation: EvaluationModel = itemSelected.value;
-    this._resetField('selectedPoll');
     this._resetField('cohortIds');
     this._getPolls(newSelectedEvaluation);
-    this.filters.emit({
-      title: '',
-      uuid: '',
-      cohortIds: [],
-      variableIds: [],
-      lastVersion: false,
-    });
-  }
-
-  handlePollSelect(itemSelected: MatSelectChange) {
-    const newSelectedPoll = itemSelected.value;
+    const newSelectedPoll = this.polls[0];
+    if (!newSelectedPoll) return;
     this._getCohorts(newSelectedPoll.uuid);
   }
 
@@ -242,14 +229,14 @@ export class PollFiltersComponent implements OnInit {
   }
 
   private _getVariables() {
-    if (!this.filterForm.value.selectedPoll?.uuid) return;
+    if (!this.polls[0]?.uuid) return;
     this.componentNames = [];
     this.variables = [];
     this._resetField('variables');
 
     this.pollsService
       .getVariablesByComponents(
-        this.filterForm.value.selectedPoll.uuid,
+        this.polls[0].uuid,
         [...this.componentNames],
         true
       )
@@ -277,12 +264,10 @@ export class PollFiltersComponent implements OnInit {
 
   private _sendFilters() {
     if (!this.polls) return;
-    const poll = this.polls.find(
-      p => p.uuid === this.filterForm.value.selectedPoll?.uuid
-    );
+    const poll = this.polls.find(p => p.uuid === this.polls[0]?.uuid);
     const cohorts = this.filterForm.value.cohortIds || [];
     const title = `Poll: ${poll?.name} - Cohort(s): ${cohorts.map(cohortId => this.cohorts.find(c => c.id == cohortId)?.name)}`;
-    const uuid = this.filterForm.value.selectedPoll?.uuid || '';
+    const uuid = this.polls[0]?.uuid || '';
     const cohortIds = this.filterForm.value.cohortIds!.filter(Boolean);
     const variableIds = this.filterForm.value.variables || [];
     const lastVersion = true;

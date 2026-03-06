@@ -16,9 +16,11 @@
           (openedChange)="$event && onDropdownScroll()"
         >
           @for (evaluation of evaluations; track $index) {
-            <mat-option class="versioned-option" [value]="evaluation">
-              <p>{{ `${evaluation.name} - ${evaluation.status}`}}</p>
-            </mat-option>
+            @if (evaluation.status === 'Completed') {
+              <mat-option class="versioned-option" [value]="evaluation">
+                <p>{{ `${evaluation.name} - ${evaluation.status}`}}</p>
+              </mat-option>
+            }
           }
         </mat-select>
         @if (filterForm.get('selectedEvaluation')?.errors) {
@@ -26,26 +28,7 @@
         }
       </mat-form-field>
     }
-    @if (polls.length > 0) {
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-poll">Poll</mat-label>
-        <mat-select
-          id="sl-poll"
-          formControlName="selectedPoll"
-          (selectionChange)="handlePollSelect($event)"
-        >
-          @for (poll of polls; track $index) {
-            <mat-option class="versioned-option" [value]="poll">
-              <p>{{ poll.name }}</p>
-            </mat-option>
-          }
-        </mat-select>
-        @if (filterForm.get('selectedPoll')?.errors) {
-          <mat-error>This field is required</mat-error>
-        }
-      </mat-form-field>
-    }
-    @if (filterForm.value.selectedPoll) {
+    @if (polls[0]) {
       <mat-form-field appearance="fill">
         <mat-label for="sl-cohort">Cohort</mat-label>
         <mat-select
