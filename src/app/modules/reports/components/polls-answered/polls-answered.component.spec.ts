@@ -65,4 +65,18 @@ describe('PollsAnsweredComponent', () => {
     expect(component.getWidth('email')).toBe('20%');
     expect(component.getWidth('uuid')).toBe('');
   });
+
+  describe('showEmpty', () => {
+    it('should return true when pollUuid is empty', () => {
+      component.selectedPollUuid = '';
+
+      expect(component.showEmpty).toBeTrue();
+    });
+
+    it('should return false when pollUuid exists', () => {
+      component.selectedPollUuid = 'poll-123';
+
+      expect(component.showEmpty).toBeFalse();
+    });
+  });
 });
