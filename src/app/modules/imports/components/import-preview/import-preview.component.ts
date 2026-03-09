@@ -120,4 +120,7 @@ export class ImportPreviewComponent implements OnInit {
       );
     }
   }
+  handleCancel() {
+    this.router.navigate(['evaluation-process']);
+  }
 }
