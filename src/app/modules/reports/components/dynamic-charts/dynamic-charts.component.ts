@@ -183,6 +183,7 @@ export class DynamicChartsComponent {
     if (!filters.cohortIds || !filters.variableIds) {
       this.chartsOptions = [];
       this.components.set(null);
+      this.uuid = null;
       return;
     }
     this.generateHeatMap(filters.cohortIds, filters.variableIds);
@@ -215,5 +216,9 @@ export class DynamicChartsComponent {
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+  }
+
+  get showEmpty(): boolean {
+    return !this.uuid;
   }
 }

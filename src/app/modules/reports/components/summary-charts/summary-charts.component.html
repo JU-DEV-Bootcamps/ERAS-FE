@@ -6,7 +6,11 @@
   (filters)="handleFilterSelect($event)"
 ></app-poll-filters>
 
-@defer (when isLoading()) {
+@if (showEmpty) {
+  <app-empty-data-message
+    description="Please select the required fields to generate the charts."
+  />
+} @else {
   <ng-container>
     <div class="action-section">
       <button
@@ -38,49 +42,39 @@
       </mat-menu>
     </div>
   </ng-container>
-  @if (chartOptions && students.length) {
-    <div class="table-container" #contentToExport>
-      @if (heatmapChart) {
-        <div class="chart-container">
-          <apx-chart
-            id="heatmap"
-            [series]="chartOptions.series!"
-            [chart]="chartOptions.chart!"
-            [xaxis]="chartOptions.xaxis!"
-            [yaxis]="chartOptions.yaxis!"
-            [colors]="chartOptions.colors!"
-            [plotOptions]="chartOptions.plotOptions!"
-            [title]="chartOptions.title!"
-            [tooltip]="chartOptions.tooltip!"
-          >
-          </apx-chart>
-        </div>
-      } @else {
-        <app-summary-column-charts
-          [components]="components()!"
-          [pollUuid]="pollUuid"
-          [cohortsIds]="cohortIds"
-          [data]="title"
-        ></app-summary-column-charts>
-      }
-
-      <div id="table-container">
-        <app-list
-          (actionCalled)="(null)"
-          (loadCalled)="getStudentsByCohortAndPoll($event)"
-          [items]="students"
-          [totalItems]="totalStudents"
-          [columns]="columns"
-          [actionDatas]="[]"
-          [title]="'Students Risk'"
-        />
-      </div>
+  @if (heatmapChart) {
+    <div class="chart-container">
+      <apx-chart
+        id="heatmap"
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [colors]="chartOptions.colors!"
+        [plotOptions]="chartOptions.plotOptions!"
+        [title]="chartOptions.title!"
+        [tooltip]="chartOptions.tooltip!"
+      >
+      </apx-chart>
     </div>
+  } @else {
+    <app-summary-column-charts
+      [components]="components()!"
+      [pollUuid]="pollUuid"
+      [cohortsIds]="cohortIds"
+      [data]="title"
+    ></app-summary-column-charts>
   }
-} @loading {
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-} @placeholder {
-  <app-empty-data-message
-    description="Please select the required fields to generate the charts."
-  />
+
+  <div id="table-container">
+    <app-list
+      (actionCalled)="(null)"
+      (loadCalled)="getStudentsByCohortAndPoll($event)"
+      [items]="students"
+      [totalItems]="totalStudents"
+      [columns]="columns"
+      [actionDatas]="[]"
+      [title]="'Students Risk'"
+    />
+  </div>
 }

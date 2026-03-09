@@ -24,7 +24,7 @@ export class EvaluationsService extends BaseApiService {
   getAllEvalProc(pagination?: Pagination) {
     let params = undefined;
 
-    if (pagination && pagination.page && pagination.pageSize) {
+    if (pagination) {
       params = new HttpParams()
         .set('PageSize', pagination.pageSize)
         .set('Page', pagination.page);
