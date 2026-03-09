@@ -4,6 +4,7 @@
     [evaluationId]="evaluationId"
     [importedPollData]="importedPollData"
     (saveCompleted)="handleSavePollState($event)"
+    (cancelImport)="handleCancel()"
   />
 }
 <div *ngIf="isLoading$ | async" class="spinner-container">
