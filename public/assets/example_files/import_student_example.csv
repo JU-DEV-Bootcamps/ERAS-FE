@@ -1,4 +1,4 @@
-,Name,Email,SISId,EnrolledCourses,GradedCourses,TimelySubmissions,AverageScore,CoursesBelowAverage,RawScoreDifference,StandardScoreDifference,DaysSinceLastAccess
+Id,Name,Email,SISId,EnrolledCourses,GradedCourses,TimelySubmissions,AverageScore,CoursesBelowAverage,RawScoreDifference,StandardScoreDifference,DaysSinceLastAccess
 1,Nombre de estudiante 1,estudiante1@jala.university,STU-000,1,1,20,91.25,0,6.26,86.27,479
 2,Nombre de estudiante 2,estudiante2@jala.university,STU-111,1,1,16,91.25,0,6.26,86.27,396
 3,Nombre de estudiante 3,estudiante3@jala.university,STU-222,1,1,17,91.25,0,6.26,86.27,232
