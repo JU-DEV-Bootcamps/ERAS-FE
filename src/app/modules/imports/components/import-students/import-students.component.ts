@@ -82,8 +82,9 @@ export class ImportStudentsComponent {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-
+    console.log('bug');
     if (input.files && input.files.length > 0) {
+      console.log('arrive here');
       this.selectedFile = input.files[0];
       this.csvErrors = [];
       this.validateFile(this.selectedFile);
@@ -92,7 +93,7 @@ export class ImportStudentsComponent {
 
   private async validateFile(file: File): Promise<void> {
     const maxFileSize = 5 * 1024 * 1024;
-
+    console.log('patg');
     if (file.size > maxFileSize) {
       this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
       this.selectedFile = null;

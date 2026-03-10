@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import Papa from 'papaparse';
+import * as Papa from 'papaparse';
 import {
   isFieldEmailValid,
   isFieldNameValid,
@@ -8,10 +8,9 @@ import {
   providedIn: 'root',
 })
 export class CsvCheckerService {
+  requiredHeaders: string[] = ['Name', 'Email', 'SISId'];
   expectedHeaders: string[] = [
-    'Name',
-    'Email',
-    'SISId',
+    ...this.requiredHeaders,
     'EnrolledCourses',
     'GradedCourses',
     'TimelySubmissions',
@@ -30,6 +29,9 @@ export class CsvCheckerService {
       this.csvData = data;
       this.validationErrors = this.validateData(data, fields);
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to parse CSV file.';
+      this.validationErrors = [message];
       console.error('Error parsing file:', error);
     }
   }
@@ -49,7 +51,13 @@ export class CsvCheckerService {
       Papa.parse(csv, {
         header: true,
         skipEmptyLines: true,
+        delimiter: ',',
+        encoding: 'UTF-8',
         complete: result => {
+          if (result.errors.length > 0) {
+            reject(result.errors);
+            return;
+          }
           const data = result.data as Record<string, string>[];
           const fields = result.meta.fields || [];
           const sanitizedData = this.sanitizeData(data);
@@ -75,7 +83,7 @@ export class CsvCheckerService {
   }
 
   private validateHeaders(headers: string[]): void {
-    const missingHeaders = this.expectedHeaders.filter(
+    const missingHeaders = this.requiredHeaders.filter(
       header => !headers.includes(header)
     );
     if (missingHeaders.length > 0) {
@@ -129,6 +137,7 @@ export class CsvCheckerService {
       'DaysSinceLastAccess',
     ];
     numericFields.forEach(field => {
+      if (!(field in row)) return;
       if (!this.validateNumeric(row[field])) {
         rowErrors.push(`Field "${field}" must be a number`);
       }
