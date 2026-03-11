@@ -1,5 +1,9 @@
 <!-- TODO: Remove this conditional when user roles and access are defined -->
-@if ((loadingSubject | async) === false && userConfigurations.length === 0) {
+@if (
+  (loadingSubject | async) === false &&
+  userConfigurations.length === 0 &&
+  !connectionError
+) {
   <mat-dialog-content class="modal">
     <mat-error
       >You don't have active configurations. Please go to
@@ -40,6 +44,14 @@
               }
             </mat-select>
           </mat-form-field>
+          @if (!configurationIsValid) {
+            <p class="configuration-warning">
+              No polls found. Invalid or expired API key. Please check your
+              <a [routerLink]="providersUrl" (click)="dialogRef.close()"
+                >Configuration</a
+              >.
+            </p>
+          }
         </div>
         <div class="row">
           <mat-form-field class="input">
@@ -65,7 +77,11 @@
             class="button"
             mat-flat-button
             type="submit"
-            [disabled]="form.invalid || !form.get('pollName')?.value"
+            [disabled]="
+              form.invalid ||
+              !form.get('pollName')?.value ||
+              !configurationIsValid
+            "
           >
             Import Answers
           </button>
