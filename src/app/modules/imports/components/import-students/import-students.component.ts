@@ -83,38 +83,45 @@ export class ImportStudentsComponent {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
 
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-      this.csvErrors = [];
-      this.validateFile(this.selectedFile);
-    }
+    if (!file) return;
+
+    this.selectedFile = file;
+    this.csvErrors = [];
+    this.validateFile(this.selectedFile);
+  }
+
+  private rejectFile(msg: string): void {
+    this.fileError = msg;
+    this.selectedFile = null;
+    this.openDialog(GENERAL_MESSAGES.DETAILS, false);
   }
 
   private async validateFile(file: File): Promise<void> {
     const maxFileSize = 5 * 1024 * 1024;
     if (file.type !== 'text/csv') {
-      this.fileError = VALIDATION_MESSAGES.INVALID_FILE_TYPE + '(.csv)';
-      this.selectedFile = null;
-      this.openDialog(GENERAL_MESSAGES.DETAILS, false);
+      this.rejectFile(VALIDATION_MESSAGES.INVALID_FILE_TYPE + '(.csv)');
       return;
     }
 
     if (file.size > maxFileSize) {
-      this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
-      this.selectedFile = null;
-      this.openDialog(GENERAL_MESSAGES.DETAILS, false);
+      this.rejectFile(VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)');
       return;
     }
 
-    await this.csvCheckerService.validateCSV(file);
+    try {
+      await this.csvCheckerService.validateCSV(file);
+    } catch (err) {
+      console.error(err);
+      this.rejectFile(VALIDATION_MESSAGES.CSV_SCAN_ERROR);
+      return;
+    }
     this.csvErrors = this.csvCheckerService.getErrors();
 
     if (this.csvErrors.length > 0) {
-      this.fileError = VALIDATION_MESSAGES.CSV_SCAN_ERROR;
       this.csvErrors = this.processErrors(this.csvErrors);
-      this.openDialog(GENERAL_MESSAGES.DETAILS, false);
-
+      this.rejectFile(VALIDATION_MESSAGES.CSV_SCAN_ERROR);
       return;
     }
     this.fileError = null;
