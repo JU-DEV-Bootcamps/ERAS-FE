@@ -61,6 +61,7 @@ export class ImportStudentsComponent {
         title: isSuccess
           ? GENERAL_MESSAGES.SUCCESS_IMPORT_TITLE
           : GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
+        message: this.csvErrors.length > 0 ? this.csvErrors : this.fileError,
         success: {
           details: text,
         },
@@ -92,17 +93,20 @@ export class ImportStudentsComponent {
 
   private async validateFile(file: File): Promise<void> {
     const maxFileSize = 5 * 1024 * 1024;
-    if (file.size > maxFileSize) {
-      this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
-      this.selectedFile = null;
-      return;
-    }
-
     if (file.type !== 'text/csv') {
       this.fileError = VALIDATION_MESSAGES.INVALID_FILE_TYPE + '(.csv)';
       this.selectedFile = null;
+      this.openDialog(GENERAL_MESSAGES.DETAILS, false);
       return;
     }
+
+    if (file.size > maxFileSize) {
+      this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
+      this.selectedFile = null;
+      this.openDialog(GENERAL_MESSAGES.DETAILS, false);
+      return;
+    }
+
     await this.csvCheckerService.validateCSV(file);
     this.csvErrors = this.csvCheckerService.getErrors();
 
