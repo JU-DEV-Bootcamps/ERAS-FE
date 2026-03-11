@@ -167,11 +167,15 @@ export class ModalImportAnswersFormComponent implements OnInit {
         this.loadingSubject.next(false);
         if (!this.errorShown) {
           this.errorShown = true;
-          this.dialogService.openDialog(
-            IMPORT_MESSAGES.ANSWERS_ERROR,
-            'error',
-            IMPORT_MESSAGES.ANSWERS_ERROR_DETAILS
-          );
+          this.dialogService
+            .openDialog(
+              IMPORT_MESSAGES.ANSWERS_ERROR,
+              'error',
+              IMPORT_MESSAGES.ANSWERS_ERROR_DETAILS
+            )
+            .subscribe(() => {
+              this.dialogRef.close();
+            });
         }
         this.resetForm();
       },
