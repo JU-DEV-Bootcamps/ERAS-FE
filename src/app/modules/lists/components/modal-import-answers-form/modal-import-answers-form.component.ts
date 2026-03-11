@@ -70,6 +70,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
   private preselectedPollState = inject(MAT_DIALOG_DATA);
   private dialogService: DialogService = inject(DialogService);
   private cosmicLatteService: CosmicLatteService = inject(CosmicLatteService);
+  private errorShown = false;
 
   dialogRef: MatDialogRef<NewConfigurationModalComponent> = inject(
     MatDialogRef<NewConfigurationModalComponent>
@@ -81,6 +82,8 @@ export class ModalImportAnswersFormComponent implements OnInit {
   serviceProviders: ServiceProviderModel[] = [];
   loadingSubject = new BehaviorSubject<boolean>(true);
   selectedConfiguration: ConfigurationsModel | null = null;
+  configurationIsValid = false;
+  connectionError = false;
 
   constructor() {
     this.form = this.fb.group({
@@ -110,13 +113,16 @@ export class ModalImportAnswersFormComponent implements OnInit {
         this.serviceProviders = data;
         this.loadingSubject.next(false);
       },
-      error: err => {
+      error: () => {
         this.loadingSubject.next(false);
-        this.dialogService.openDialog(
-          IMPORT_MESSAGES.ANSWERS_ERROR,
-          'error',
-          err.message
-        );
+        if (!this.errorShown) {
+          this.errorShown = true;
+          this.dialogService.openDialog(
+            IMPORT_MESSAGES.ANSWERS_ERROR,
+            'error',
+            IMPORT_MESSAGES.ANSWERS_ERROR_DETAILS
+          );
+        }
         this.resetForm();
       },
     });
@@ -156,13 +162,17 @@ export class ModalImportAnswersFormComponent implements OnInit {
         }
         this.loadingSubject.next(false);
       },
-      error: err => {
+      error: () => {
+        this.connectionError = true;
         this.loadingSubject.next(false);
-        this.dialogService.openDialog(
-          IMPORT_MESSAGES.ANSWERS_ERROR,
-          'error',
-          err.message
-        );
+        if (!this.errorShown) {
+          this.errorShown = true;
+          this.dialogService.openDialog(
+            IMPORT_MESSAGES.ANSWERS_ERROR,
+            'error',
+            IMPORT_MESSAGES.ANSWERS_ERROR_DETAILS
+          );
+        }
         this.resetForm();
       },
     });
@@ -230,9 +240,11 @@ export class ModalImportAnswersFormComponent implements OnInit {
     this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: data => {
         this.pollsNames = data;
+        this.configurationIsValid = data.length > 0;
         this.loadingSubject.next(false);
       },
       error: err => {
+        this.configurationIsValid = false;
         this.loadingSubject.next(false);
         this.dialogService.openDialog(
           IMPORT_MESSAGES.ANSWERS_ERROR,
