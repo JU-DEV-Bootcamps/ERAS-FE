@@ -26,7 +26,7 @@ export class ListImportedStudentComponent {
   columns: Column<StudentModel>[] = [
     {
       key: 'id',
-      label: '#',
+      label: 'Id',
     },
     {
       key: 'name',
@@ -35,6 +35,10 @@ export class ListImportedStudentComponent {
     {
       key: 'email',
       label: 'Email',
+    },
+    {
+      key: 'uuid',
+      label: 'SISId',
     },
   ];
 
