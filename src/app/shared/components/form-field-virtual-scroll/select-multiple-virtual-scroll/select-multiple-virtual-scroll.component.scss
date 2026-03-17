@@ -1,0 +1,21 @@
+.viewport {
+  /* Show 5 mat-option on select */
+  height: calc(5 * 48px);
+  max-height: calc(5 * 48px);
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+::ng-deep {
+  .mat-mdc-option.group-header {
+    .mat-pseudo-checkbox {
+      display: none !important;
+    }
+
+    .mdc-list-item__primary-text {
+      opacity: 1 !important;
+    }
+  }
+}

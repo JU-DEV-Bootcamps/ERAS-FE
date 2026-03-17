@@ -9,8 +9,7 @@ import {
 } from '@angular/core';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { Subscription } from 'rxjs';
-
-type SelectAllValue = { id: number } | number | string;
+import { SelectAllValue } from './select-all-value';
 
 @Directive({
   selector: 'mat-option[appSelectAll]',

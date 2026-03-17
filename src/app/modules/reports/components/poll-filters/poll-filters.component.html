@@ -13,12 +13,13 @@
           id="sl-evaluation"
           formControlName="selectedEvaluation"
           (selectionChange)="handleEvaluationSelect($event)"
-          (openedChange)="$event && onDropdownScroll()"
+          #evaluationSelect
+          (openedChange)="handleEvaluationDropdownOpen($event)"
         >
           @for (evaluation of evaluations; track $index) {
             @if (evaluation.status === 'Completed') {
               <mat-option class="versioned-option" [value]="evaluation">
-                <p>{{ `${evaluation.name} - ${evaluation.status}`}}</p>
+                <p>{{ `${evaluation.name} - ${evaluation.status}` }}</p>
               </mat-option>
             }
           }
