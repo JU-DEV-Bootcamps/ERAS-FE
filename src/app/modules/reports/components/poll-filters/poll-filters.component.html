@@ -13,7 +13,8 @@
           id="sl-evaluation"
           formControlName="selectedEvaluation"
           (selectionChange)="handleEvaluationSelect($event)"
-          (openedChange)="$event && onDropdownScroll()"
+          #evaluationSelect
+          (openedChange)="handleEvaluationDropdownOpen($event)"
         >
           @for (evaluation of evaluations; track $index) {
             @if (evaluation.status === 'Completed') {

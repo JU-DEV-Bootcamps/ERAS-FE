@@ -3,6 +3,7 @@ import {
   DestroyRef,
   Input,
   OnInit,
+  ViewChild,
   inject,
   output,
 } from '@angular/core';
@@ -15,7 +16,11 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import {
+  MatSelect,
+  MatSelectChange,
+  MatSelectModule,
+} from '@angular/material/select';
 
 import { CohortModel } from '@core/models/cohort.model';
 import { PollModel } from '@core/models/poll.model';
@@ -48,6 +53,7 @@ import { Pagination } from '@core/services/interfaces/server.type';
 })
 export class PollFiltersComponent implements OnInit {
   @Input() showVariables = true;
+  @ViewChild('evaluationSelect') evaluationSelect!: MatSelect;
 
   private cohortsService = inject(CohortService);
   private destroyRef = inject(DestroyRef);
@@ -93,6 +99,15 @@ export class PollFiltersComponent implements OnInit {
 
   ngOnInit() {
     this._loadEvaluations();
+  }
+
+  handleEvaluationDropdownOpen(isOpen: boolean) {
+    if (!isOpen) return;
+    setTimeout(() => {
+      const panel = this.evaluationSelect.panel?.nativeElement;
+      if (!panel) return;
+      panel.addEventListener('scroll', () => this._onPanelScroll(panel));
+    });
   }
 
   handleEvaluationSelect(itemSelected: MatSelectChange) {
@@ -275,13 +290,15 @@ export class PollFiltersComponent implements OnInit {
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
   }
 
-  onDropdownScroll() {
-    if (this.isLoadingMore) return;
+  private _onPanelScroll(panel: HTMLElement) {
+    const nearBottom =
+      panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 50;
+    if (!nearBottom || this.isLoadingMore) return;
     const hasMore = (this.evaluations?.length ?? 0) < this.totalEvaluations;
     if (!hasMore) return;
 
     this.isLoadingMore = true;
-    this.pagination = { page: this.pagination.page + 1, pageSize: 5 };
+    this.pagination = { page: this.pagination.page + 1, pageSize: 10 };
     this._loadEvaluations();
   }
 }
