@@ -1,34 +1,19 @@
 <form [formGroup]="filterForm">
-  @if (!evaluations) {
+  @if (evaluations() === null) {
     <p class="error-message">
       There was an error looking for evaluation processes. Please contact
       support.
     </p>
   }
   <div class="form-container">
-    @if (evaluations && evaluations.length > 0) {
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-evaluation">Evaluation</mat-label>
-        <mat-select
-          id="sl-evaluation"
-          formControlName="selectedEvaluation"
-          (selectionChange)="handleEvaluationSelect($event)"
-          #evaluationSelect
-          (openedChange)="handleEvaluationDropdownOpen($event)"
-        >
-          @for (evaluation of evaluations; track $index) {
-            @if (evaluation.status === 'Completed') {
-              <mat-option class="versioned-option" [value]="evaluation">
-                <p>{{ `${evaluation.name} - ${evaluation.status}` }}</p>
-              </mat-option>
-            }
-          }
-        </mat-select>
-        @if (filterForm.get('selectedEvaluation')?.errors) {
-          <mat-error>This field is required</mat-error>
-        }
-      </mat-form-field>
-    }
+    <app-select-virtual-scroll
+      [items]="evaluationsToScroll()"
+      [control]="filterForm.controls.selectedEvaluation"
+      [id]="'sl-evaluation'"
+      [label]="'Evaluation'"
+      (selectionChange)="handleEvaluationSelect($event)"
+    />
+
     @if (polls[0]) {
       <app-select-multiple-virtual-scroll
         [items]="cohortsToScroll()"

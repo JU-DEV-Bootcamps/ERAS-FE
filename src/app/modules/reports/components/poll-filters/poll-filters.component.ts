@@ -3,7 +3,6 @@ import {
   DestroyRef,
   Input,
   OnInit,
-  ViewChild,
   inject,
   output,
   computed,
@@ -18,11 +17,7 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatSelect,
-  MatSelectChange,
-  MatSelectModule,
-} from '@angular/material/select';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 import { CohortModel } from '@core/models/cohort.model';
 import { PollModel } from '@core/models/poll.model';
@@ -37,13 +32,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { Pagination } from '@core/services/interfaces/server.type';
-// import { SelectVirtualScrollComponent } from '@shared/components/form-field-virtual-scroll/select-virtual-scroll/select-virtual-scroll.component';
+import { SelectVirtualScrollComponent } from '@shared/components/form-field-virtual-scroll/select-virtual-scroll/select-virtual-scroll.component';
 import { SelectMultipleVirtualScrollComponent } from '@shared/components/form-field-virtual-scroll/select-multiple-virtual-scroll/select-multiple-virtual-scroll.component';
 import {
   MultipleSelectCommonItem,
   MultipleSelectItem,
   SelectGroup,
+  SingleSelectItem,
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-poll-filters',
@@ -54,6 +51,7 @@ import {
     MatIconModule,
     CommonModule,
     SelectMultipleVirtualScrollComponent,
+    SelectVirtualScrollComponent,
   ],
   providers: [DatePipe],
   templateUrl: './poll-filters.component.html',
@@ -61,7 +59,6 @@ import {
 })
 export class PollFiltersComponent implements OnInit {
   @Input() showVariables = true;
-  @ViewChild('evaluationSelect') evaluationSelect!: MatSelect;
 
   private cohortsService = inject(CohortService);
   private destroyRef = inject(DestroyRef);
@@ -70,7 +67,7 @@ export class PollFiltersComponent implements OnInit {
 
   cohorts = signal<CohortModel[]>([]);
   componentNames = signal<string[]>([]);
-  evaluations: EvaluationModel[] | null = [];
+  evaluations = signal<EvaluationModel[] | null>([]);
   polls: PollModel[] = [];
   prevCohortIds: number[] = [];
   prevComponentSelections: string[] = [];
@@ -84,8 +81,6 @@ export class PollFiltersComponent implements OnInit {
     page: 0,
     pageSize: 10,
   };
-  isLoadingMore = false;
-  totalEvaluations = 0;
 
   filters = output<{
     title: string;
@@ -104,6 +99,15 @@ export class PollFiltersComponent implements OnInit {
       Validators.required,
     ]),
     variables: new FormControl<number[] | null>(null, [Validators.required]),
+  });
+
+  readonly evaluationsToScroll = computed<SingleSelectItem[]>(() => {
+    return (this.evaluations() ?? [])
+      .filter(e => e.status === 'Completed')
+      .map(e => ({
+        label: `${e.name} - ${e.status}`,
+        value: e,
+      }));
   });
 
   readonly cohortsToScroll = computed<MultipleSelectCommonItem[]>(() => {
@@ -137,15 +141,6 @@ export class PollFiltersComponent implements OnInit {
 
   ngOnInit() {
     this._loadEvaluations();
-  }
-
-  handleEvaluationDropdownOpen(isOpen: boolean) {
-    if (!isOpen) return;
-    setTimeout(() => {
-      const panel = this.evaluationSelect.panel?.nativeElement;
-      if (!panel) return;
-      panel.addEventListener('scroll', () => this._onPanelScroll(panel));
-    });
   }
 
   handleEvaluationSelect(itemSelected: MatSelectChange) {
@@ -263,14 +258,17 @@ export class PollFiltersComponent implements OnInit {
   private _loadEvaluations() {
     this.evaluationsService
       .getAllEvalProc(this.pagination)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(({ count }) =>
+          this.evaluationsService.getAllEvalProc({ page: 0, pageSize: count })
+        )
+      )
       .subscribe({
         next: result => {
-          this.evaluations = [...(this.evaluations ?? []), ...result.items];
-          this.totalEvaluations = result.count;
-          this.isLoadingMore = false;
+          this.evaluations.set(result.items);
         },
-        error: () => (this.evaluations = null),
+        error: () => this.evaluations.set(null),
       });
   }
 
@@ -351,17 +349,5 @@ export class PollFiltersComponent implements OnInit {
     const lastVersion = true;
 
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
-  }
-
-  private _onPanelScroll(panel: HTMLElement) {
-    const nearBottom =
-      panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 50;
-    if (!nearBottom || this.isLoadingMore) return;
-    const hasMore = (this.evaluations?.length ?? 0) < this.totalEvaluations;
-    if (!hasMore) return;
-
-    this.isLoadingMore = true;
-    this.pagination = { page: this.pagination.page + 1, pageSize: 10 };
-    this._loadEvaluations();
   }
 }
