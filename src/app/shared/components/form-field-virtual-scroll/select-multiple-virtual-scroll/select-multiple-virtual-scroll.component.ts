@@ -59,13 +59,14 @@ export class SelectMultipleVirtualScrollComponent {
       .map(scrollItem => scrollItem.value)
   );
   readonly openedChange = output<boolean>();
+  readonly autoSelect = input<boolean>(true);
 
   constructor() {
     effect(() => {
       const currentItems = this.scrollItems();
       const defaultValue = this.scrollItemsValues();
 
-      if (currentItems && currentItems.length > 0) {
+      if (currentItems && currentItems.length > 0 && this.autoSelect()) {
         this.control().patchValue(defaultValue);
         this.openedChange.emit(false);
       }
