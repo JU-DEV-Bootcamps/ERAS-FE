@@ -6,10 +6,10 @@
     [formControl]="control()"
     (selectionChange)="selectionChange.emit($event)"
   >
-    <cdk-virtual-scroll-viewport itemSize="48" class="viewport">
+    <cdk-virtual-scroll-viewport [itemSize]="itemSize" class="viewport">
       <mat-option
         *cdkVirtualFor="let item of items(); templateCacheSize: 50"
-        class="versioned-option virtual-scroll-option"
+        class="versioned-option"
         [value]="item.value"
       >
         <p>{{ item.label }}</p>

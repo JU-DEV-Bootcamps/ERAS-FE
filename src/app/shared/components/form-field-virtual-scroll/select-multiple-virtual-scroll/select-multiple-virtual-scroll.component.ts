@@ -11,7 +11,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { CommonItem, GroupItem, Item, SelectGroup } from '../interfaces/select';
+import {
+  MultipleSelectCommonItem,
+  MultipleSelectGroup,
+  MultipleSelectItem,
+  SelectGroup,
+} from '../interfaces/select';
 import { SelectAllDirective } from '@shared/directives/select-all.directive';
 import { SelectedItemsComponent } from '@modules/reports/components/poll-filters/selected-items/selected-items.component';
 import { SelectAllValue } from '@shared/directives/select-all-value';
@@ -36,27 +41,32 @@ import { UpperCasePipe } from '@angular/common';
 })
 export class SelectMultipleVirtualScrollComponent {
   readonly templateCacheSize = 10;
-  readonly itemSize = 1;
+  readonly itemSize = 48;
   readonly label = input<string>('');
   readonly id = input<string>('');
   readonly control = input.required<FormControl>();
-  readonly items = input<Item[]>([]);
+  readonly items = input<MultipleSelectItem[]>([]);
   readonly groups = input<SelectGroup[]>([]);
-  readonly scrollItems = computed<Item[]>(() => this.buildScrollItems());
+  readonly scrollItems = computed<MultipleSelectItem[]>(() =>
+    this.buildScrollItems()
+  );
   readonly scrollItemsValues = computed<SelectAllValue[]>(() =>
     this.scrollItems()
-      .filter((item): item is CommonItem => !this.isGroupItem(item))
+      .filter(
+        (item): item is MultipleSelectCommonItem => !this.isGroupItem(item)
+      )
 
       .map(scrollItem => scrollItem.value)
   );
   readonly openedChange = output<boolean>();
+  readonly autoSelect = input<boolean>(true);
 
   constructor() {
     effect(() => {
       const currentItems = this.scrollItems();
       const defaultValue = this.scrollItemsValues();
 
-      if (currentItems && currentItems.length > 0) {
+      if (currentItems && currentItems.length > 0 && this.autoSelect()) {
         this.control().patchValue(defaultValue);
         this.openedChange.emit(false);
       }
@@ -64,7 +74,7 @@ export class SelectMultipleVirtualScrollComponent {
   }
 
   buildScrollItems() {
-    let scrollItems: Item[] = this.items ? this.items() : [];
+    let scrollItems: MultipleSelectItem[] = this.items ? this.items() : [];
 
     if (!scrollItems || scrollItems.length === 0) {
       const groups = this.groups ? this.groups() : [];
@@ -86,8 +96,8 @@ export class SelectMultipleVirtualScrollComponent {
     let toReturn = [''];
 
     if (value) {
-      // SelectAllValue directive adds an option with value undefined
-      const selectedItems = value.filter((item: Item) => !!item);
+      // SelectAll directive adds an option with value undefined
+      const selectedItems = value.filter((item: MultipleSelectItem) => !!item);
       const scrollItems = this.scrollItems().filter(
         scrollItem => !scrollItem.type || scrollItem.type !== 'group'
       );
@@ -97,7 +107,7 @@ export class SelectMultipleVirtualScrollComponent {
       } else {
         toReturn = selectedItems?.map((selectedItem: unknown) => {
           const match = scrollItems.find(
-            (item: Item) =>
+            (item: MultipleSelectItem) =>
               !this.isGroupItem(item) && item.value === selectedItem
           );
 
@@ -109,7 +119,7 @@ export class SelectMultipleVirtualScrollComponent {
     return toReturn;
   }
 
-  isGroupItem(item: Item): item is GroupItem {
+  isGroupItem(item: MultipleSelectItem): item is MultipleSelectGroup {
     return !!(item.type && item.type === 'group');
   }
 }

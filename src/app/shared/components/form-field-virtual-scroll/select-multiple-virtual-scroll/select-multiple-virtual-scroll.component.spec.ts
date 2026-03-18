@@ -2,13 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SelectMultipleVirtualScrollComponent } from './select-multiple-virtual-scroll.component';
-import { Item, SelectGroup } from '../interfaces/select';
+import { MultipleSelectItem, SelectGroup } from '../interfaces/select';
 
 describe('SelectMultipleVirtualScrollComponent', () => {
   let component: SelectMultipleVirtualScrollComponent;
   let fixture: ComponentFixture<SelectMultipleVirtualScrollComponent>;
 
-  const mockItems: Item[] = [
+  const mockItems: MultipleSelectItem[] = [
     { label: 'Option 1', value: 1 },
     { label: 'Option 2', value: 2 },
   ];
@@ -63,7 +63,7 @@ describe('SelectMultipleVirtualScrollComponent', () => {
       { label: 'Item A1', value: 'a1' },
       { label: 'Item A2', value: 'a2' },
     ];
-    expect(component.scrollItems()).toEqual(expected as Item[]);
+    expect(component.scrollItems()).toEqual(expected as MultipleSelectItem[]);
   });
 
   it('should calculate scrollItemsValues', () => {
@@ -106,12 +106,12 @@ describe('SelectMultipleVirtualScrollComponent', () => {
   });
 
   it('should return true when type is group', () => {
-    const item: Item = { label: 'Test', type: 'group' };
+    const item: MultipleSelectItem = { label: 'Test', type: 'group' };
     expect(component.isGroupItem(item)).toBeTrue();
   });
 
   it('should return false when type is not group', () => {
-    const item: Item = { label: 'Test', value: 1 };
+    const item: MultipleSelectItem = { label: 'Test', value: 1 };
     expect(component.isGroupItem(item)).toBeFalse();
   });
 });

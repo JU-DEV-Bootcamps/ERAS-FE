@@ -2,20 +2,24 @@ import { SelectAllValue } from '@shared/directives/select-all-value';
 
 export interface SelectGroup {
   label: string;
-  items: Item[];
+  items: MultipleSelectItem[];
 }
 
 export interface BaseItem {
   label: string;
 }
 
-export interface CommonItem extends BaseItem {
+export interface SingleSelectItem extends BaseItem {
+  value: string | number | boolean | { id: number };
+}
+
+export interface MultipleSelectCommonItem extends BaseItem {
   type?: 'common';
   value: SelectAllValue;
 }
 
-export interface GroupItem extends BaseItem {
+export interface MultipleSelectGroup extends BaseItem {
   type: 'group';
 }
 
-export type Item = CommonItem | GroupItem;
+export type MultipleSelectItem = MultipleSelectCommonItem | MultipleSelectGroup;

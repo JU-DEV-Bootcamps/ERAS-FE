@@ -3,9 +3,10 @@ import {
   DestroyRef,
   Input,
   OnInit,
-  computed,
+  ViewChild,
   inject,
   output,
+  computed,
   signal,
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -17,7 +18,11 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import {
+  MatSelect,
+  MatSelectChange,
+  MatSelectModule,
+} from '@angular/material/select';
 
 import { CohortModel } from '@core/models/cohort.model';
 import { PollModel } from '@core/models/poll.model';
@@ -27,25 +32,28 @@ import { areArraysEqual } from '@core/utils/helpers/are-arrays-equal';
 
 import { CohortService } from '@core/services/api/cohort.service';
 import { PollService } from '@core/services/api/poll.service';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SelectVirtualScrollComponent } from '@shared/components/form-field-virtual-scroll/select-virtual-scroll/select-virtual-scroll.component';
+import { EvaluationsService } from '@core/services/api/evaluations.service';
+import { EvaluationModel } from '@core/models/evaluation.model';
+import { Pagination } from '@core/services/interfaces/server.type';
+// import { SelectVirtualScrollComponent } from '@shared/components/form-field-virtual-scroll/select-virtual-scroll/select-virtual-scroll.component';
 import { SelectMultipleVirtualScrollComponent } from '@shared/components/form-field-virtual-scroll/select-multiple-virtual-scroll/select-multiple-virtual-scroll.component';
 import {
-  CommonItem,
-  Item,
+  MultipleSelectCommonItem,
+  MultipleSelectItem,
   SelectGroup,
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
 
 @Component({
   selector: 'app-poll-filters',
   imports: [
-    SelectVirtualScrollComponent,
-    SelectMultipleVirtualScrollComponent,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
     CommonModule,
+    SelectMultipleVirtualScrollComponent,
   ],
   providers: [DatePipe],
   templateUrl: './poll-filters.component.html',
@@ -53,22 +61,31 @@ import {
 })
 export class PollFiltersComponent implements OnInit {
   @Input() showVariables = true;
+  @ViewChild('evaluationSelect') evaluationSelect!: MatSelect;
 
   private cohortsService = inject(CohortService);
   private destroyRef = inject(DestroyRef);
   private pollsService = inject(PollService);
-  private datePipe = inject(DatePipe);
+  private evaluationsService = inject(EvaluationsService);
 
   cohorts = signal<CohortModel[]>([]);
   componentNames = signal<string[]>([]);
-  polls = signal<PollModel[] | null>([]);
-  variableSelectGroups = signal<SelectGroup[]>([]);
+  evaluations: EvaluationModel[] | null = [];
+  polls: PollModel[] = [];
   prevCohortIds: number[] = [];
   prevComponentSelections: string[] = [];
   prevVariablesSelections: number[] = [];
   variableGroups: VariableModel[][] = [];
   variables = signal<VariableModel[]>([]);
   variablesClone: VariableModel[] = [];
+  variableSelectGroups = signal<SelectGroup[]>([]);
+
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
+  isLoadingMore = false;
+  totalEvaluations = 0;
 
   filters = output<{
     title: string;
@@ -79,10 +96,9 @@ export class PollFiltersComponent implements OnInit {
   }>();
 
   filterForm = new FormGroup({
-    selectedPoll: new FormControl<PollModel | null>(null, [
+    selectedEvaluation: new FormControl<EvaluationModel | null>(null, [
       Validators.required,
     ]),
-    lastVersion: new FormControl<boolean>(true, [Validators.required]),
     cohortIds: new FormControl<number[] | null>([], null),
     componentNames: new FormControl<string[] | null>(null, [
       Validators.required,
@@ -90,36 +106,7 @@ export class PollFiltersComponent implements OnInit {
     variables: new FormControl<number[] | null>(null, [Validators.required]),
   });
 
-  readonly pollsToScroll = computed<CommonItem[]>(() => {
-    const polls = this.polls();
-
-    return polls
-      ? polls.map(poll => {
-          return { label: poll.name, value: poll };
-        })
-      : [];
-  });
-
-  readonly pollVersionsToScroll = computed<CommonItem[]>(() => {
-    if (!this.filterForm.value || !this.filterForm.value.selectedPoll) {
-      return [];
-    }
-
-    const dateFormatted = this.datePipe.transform(
-      this.filterForm.value.selectedPoll.lastVersionDate,
-      'shortDate'
-    );
-
-    return [
-      { label: 'Older Versions', value: 'false' },
-      {
-        label: `Last Version V${this.filterForm.value.selectedPoll.lastVersion} - ${dateFormatted}`,
-        value: 'true',
-      },
-    ];
-  });
-
-  readonly cohortsToScroll = computed<Item[]>(() => {
+  readonly cohortsToScroll = computed<MultipleSelectCommonItem[]>(() => {
     const cohorts = this.cohorts();
 
     return cohorts
@@ -129,9 +116,8 @@ export class PollFiltersComponent implements OnInit {
       : [];
   });
 
-  readonly componentsToScroll = computed<Item[]>(() => {
+  readonly componentsToScroll = computed<MultipleSelectItem[]>(() => {
     const componentNames = this.componentNames();
-
     return componentNames
       ? componentNames.map(componentName => {
           return { label: componentName, value: componentName };
@@ -139,30 +125,36 @@ export class PollFiltersComponent implements OnInit {
       : [];
   });
 
-  readonly variablesToScroll = computed<Item[]>(() => {
+  readonly variablesGroupsToScroll = computed<MultipleSelectItem[]>(() => {
     const variables = this.variables();
 
     return variables
       ? variables.map(variable => {
-          return { label: variable.name, value: variable.id };
+          return { label: variable.name, value: variable.pollVariableId };
         })
       : [];
   });
 
   ngOnInit() {
-    this._loadPolls();
+    this._loadEvaluations();
   }
 
-  handlePollSelect(itemSelected: MatSelectChange) {
-    const newSelectedPoll = itemSelected.value;
-    const lastVersion = !!this.filterForm.value.lastVersion;
-    this._getCohorts(newSelectedPoll.uuid, lastVersion);
+  handleEvaluationDropdownOpen(isOpen: boolean) {
+    if (!isOpen) return;
+    setTimeout(() => {
+      const panel = this.evaluationSelect.panel?.nativeElement;
+      if (!panel) return;
+      panel.addEventListener('scroll', () => this._onPanelScroll(panel));
+    });
   }
 
-  handleVersionSelect(itemSelected: MatSelectChange) {
-    const newSelectedPoll = this.filterForm.value.selectedPoll;
-    const lastVersion = itemSelected.value;
-    this._getCohorts(newSelectedPoll!.uuid, lastVersion);
+  handleEvaluationSelect(itemSelected: MatSelectChange) {
+    const newSelectedEvaluation: EvaluationModel = itemSelected.value;
+    this._resetField('cohortIds');
+    this._getPolls(newSelectedEvaluation);
+    const newSelectedPoll = this.polls[0];
+    if (!newSelectedPoll) return;
+    this._getCohorts(newSelectedPoll.uuid);
   }
 
   handleCohortSelect(isOpen: boolean) {
@@ -182,43 +174,37 @@ export class PollFiltersComponent implements OnInit {
 
     if (!this.filterForm.value.componentNames?.length) {
       this.variableGroups = [];
-      this.variableSelectGroups.set([]);
       this._resetField('variables');
       this.variables.set([]);
       this._sendFilters();
       return;
     }
 
-    setTimeout(() => {
-      this.variableGroups =
-        this.filterForm.value.componentNames
-          ?.filter(c => !!c)
-          .map(c =>
-            this.variablesClone.filter(v => !!v && v.componentName === c)
-          ) || [];
-      const variableGroupsFlat = this.variableGroups.flat();
-
-      this.variables.set(variableGroupsFlat);
-      this.filterForm.controls.variables.setValue(
-        variableGroupsFlat.map(v => !!v && v.pollVariableId)
-      );
-      const result = this.variableGroups.flatMap(variableGroup => [
-        {
-          label: variableGroup[0].componentName.toLocaleUpperCase(),
-          items: [
-            ...variableGroup.map(g => ({
-              label: g.name,
-              value: g.pollVariableId,
-            })),
-          ],
-        },
-      ]);
-      this.variableSelectGroups.set(result);
-      this.prevVariablesSelections = this.variables().map(
-        v => v.pollVariableId
-      );
-      this._sendFilters();
-    });
+    this.variableGroups =
+      this.filterForm.value.componentNames
+        ?.filter(c => !!c)
+        .map(c =>
+          this.variablesClone.filter(v => !!v && v.componentName === c)
+        ) || [];
+    const variableGroupsFlat = this.variableGroups.flat();
+    this.variables.set(variableGroupsFlat);
+    this.filterForm.controls.variables.setValue(
+      variableGroupsFlat.map(v => !!v && v.pollVariableId)
+    );
+    const result = this.variableGroups.flatMap(variableGroup => [
+      {
+        label: variableGroup[0].componentName.toLocaleUpperCase(),
+        items: [
+          ...variableGroup.map(g => ({
+            label: g.name,
+            value: g.pollVariableId,
+          })),
+        ],
+      },
+    ]);
+    this.variableSelectGroups.set(result);
+    this.prevVariablesSelections = this.variables().map(v => v.pollVariableId);
+    this._sendFilters();
   }
 
   handleVariableSelect(isOpen: boolean) {
@@ -233,31 +219,77 @@ export class PollFiltersComponent implements OnInit {
     this._sendFilters();
   }
 
+  getCohortsSelection() {
+    const cohortIds = this.filterForm.value.cohortIds?.filter(
+      cohortId => !!cohortId
+    );
+
+    return cohortIds?.length === this.cohorts.length
+      ? ['Select all']
+      : cohortIds?.map(
+          cohortId =>
+            this.cohorts().find(cohort => cohort.id === cohortId)?.name
+        );
+  }
+
+  getComponentsSelection() {
+    const componentNames = this.filterForm.value.componentNames?.filter(
+      componentName => !!componentName
+    );
+
+    return componentNames?.length === this.componentNames.length
+      ? ['Select all']
+      : componentNames?.map(componentName =>
+          this.componentNames().find(cN => cN === componentName)
+        );
+  }
+
   getAllVariableIds() {
     return this.variables().map(variable => variable.pollVariableId);
   }
 
-  private _loadPolls() {
-    this.pollsService
-      .getAllPolls()
+  getVariablesSelection() {
+    const variables = this.filterForm.value.variables?.filter(
+      variable => !!variable
+    );
+
+    return variables?.length === this.variables.length
+      ? ['Select all']
+      : variables?.map(
+          id => this.variables().find(v => v.pollVariableId === id)?.name
+        );
+  }
+
+  private _loadEvaluations() {
+    this.evaluationsService
+      .getAllEvalProc(this.pagination)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: polls => this.polls.set(polls),
-        error: () => this.polls.set(null),
+        next: result => {
+          this.evaluations = [...(this.evaluations ?? []), ...result.items];
+          this.totalEvaluations = result.count;
+          this.isLoadingMore = false;
+        },
+        error: () => (this.evaluations = null),
       });
   }
 
-  private _getCohorts(pollUuid: string, lastVersion: boolean) {
-    this.cohortsService.getCohorts(pollUuid, lastVersion).subscribe({
+  private _getPolls(evaluation: EvaluationModel) {
+    this.polls = evaluation.polls;
+  }
+
+  private _getCohorts(pollUuid: string) {
+    this.cohorts.set([]);
+    this.variables.set([]);
+    this._resetField('cohortIds');
+    this._resetField('variables');
+    this.cohortsService.getCohorts(pollUuid).subscribe({
       next: response => {
         this.cohorts.set(response.body);
         this.filterForm.controls.cohortIds.setValue(
           response.body.map(cohort => cohort.id)
         );
         this.prevCohortIds = this.filterForm.value.cohortIds || [];
-        this.componentNames.set([]);
-        this.variables.set([]);
-        this.filterForm.controls.variables.reset();
         this._getVariables();
       },
       error: () => this.cohorts.set([]),
@@ -265,38 +297,39 @@ export class PollFiltersComponent implements OnInit {
   }
 
   private _getVariables() {
-    if (!this.filterForm.value.selectedPoll?.uuid) return;
+    if (!this.polls[0]?.uuid) return;
     const componentNames = this.componentNames();
-    this.variables.set([]);
-    this._resetField('variables');
 
     this.pollsService
-      .getVariablesByComponents(
-        this.filterForm.value.selectedPoll.uuid,
-        [...componentNames],
-        !!this.filterForm.value.lastVersion
-      )
+      .getVariablesByComponents(this.polls[0].uuid, [...componentNames], true)
       .subscribe({
         next: variables => {
+          const newComponentNames = [
+            ...new Set(variables.map(v => v.componentName)),
+          ];
           this.variables.set(variables);
           this.variablesClone = [...variables];
-          this.filterForm.controls.variables.setValue(variables.map(v => v.id));
-          this.componentNames.set([
-            ...new Set(variables.map(v => v.componentName)),
-          ]);
-          this.prevComponentSelections = [...componentNames];
+          this.componentNames.set(newComponentNames);
 
-          this.variableGroups = componentNames.map(c =>
+          this.variableGroups = newComponentNames.map(c =>
             variables.filter(v => v.componentName === c)
           );
-          this.filterForm.controls.componentNames.setValue(componentNames);
+          const groups = this.variableGroups.flatMap(variableGroup => [
+            {
+              label: variableGroup[0].componentName.toLocaleUpperCase(),
+              items: variableGroup.map(g => ({
+                label: g.name,
+                value: g.pollVariableId,
+              })),
+            },
+          ]);
+          this.variableSelectGroups.set(groups);
           this.filterForm.controls.variables.setValue(
             variables.map(v => v.pollVariableId)
           );
           this.prevVariablesSelections = this.filterForm.value.variables || [];
           this._sendFilters();
         },
-        error: () => this.componentNames.set([]),
       });
   }
 
@@ -305,21 +338,30 @@ export class PollFiltersComponent implements OnInit {
   }
 
   private _sendFilters() {
-    const polls = this.polls();
-    if (!polls) return;
-    const poll = polls.find(
-      p => p.uuid === this.filterForm.value.selectedPoll?.uuid
-    );
+    if (!this.polls) return;
+    const poll = this.polls.find(p => p.uuid === this.polls[0]?.uuid);
     const cohorts = this.filterForm.value.cohortIds || [];
     const cohortNames = cohorts.map(
       cohortId => this.cohorts().find(c => c.id == cohortId)?.name
     );
-    const title = `Poll: ${poll?.name} V${poll?.lastVersion} - Cohort(s): ${cohortNames}`;
-    const uuid = this.filterForm.value.selectedPoll?.uuid || '';
+    const title = `Poll: ${poll?.name} - Cohort(s): ${cohortNames}`;
+    const uuid = this.polls[0]?.uuid || '';
     const cohortIds = this.filterForm.value.cohortIds!.filter(Boolean);
     const variableIds = this.filterForm.value.variables || [];
-    const lastVersion = this.filterForm.value.lastVersion!;
+    const lastVersion = true;
 
     this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
+  }
+
+  private _onPanelScroll(panel: HTMLElement) {
+    const nearBottom =
+      panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 50;
+    if (!nearBottom || this.isLoadingMore) return;
+    const hasMore = (this.evaluations?.length ?? 0) < this.totalEvaluations;
+    if (!hasMore) return;
+
+    this.isLoadingMore = true;
+    this.pagination = { page: this.pagination.page + 1, pageSize: 10 };
+    this._loadEvaluations();
   }
 }
