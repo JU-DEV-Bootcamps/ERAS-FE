@@ -26,7 +26,6 @@ import { SingleSelectItem } from '../interfaces/select';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectVirtualScrollComponent {
-  readonly itemSize = 48;
   readonly label = input<string>('');
   readonly items = input<SingleSelectItem[]>([]);
   readonly id = input<string>('');

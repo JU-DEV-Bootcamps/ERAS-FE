@@ -6,7 +6,7 @@
     [formControl]="control()"
     (selectionChange)="selectionChange.emit($event)"
   >
-    <cdk-virtual-scroll-viewport [itemSize]="itemSize" class="viewport">
+    <cdk-virtual-scroll-viewport [itemSize]="35" class="viewport">
       <mat-option
         *cdkVirtualFor="let item of items(); templateCacheSize: 50"
         class="versioned-option"
