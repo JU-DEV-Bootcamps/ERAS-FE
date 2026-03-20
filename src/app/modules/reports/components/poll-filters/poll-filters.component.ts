@@ -17,7 +17,7 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 
 import { CohortModel } from '@core/models/cohort.model';
 import { PollModel } from '@core/models/poll.model';
@@ -41,6 +41,7 @@ import {
   SingleSelectItem,
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
 import { switchMap } from 'rxjs';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-poll-filters',
@@ -102,12 +103,10 @@ export class PollFiltersComponent implements OnInit {
   });
 
   readonly evaluationsToScroll = computed<SingleSelectItem[]>(() => {
-    return (this.evaluations() ?? [])
-      .filter(e => e.status === 'Completed')
-      .map(e => ({
-        label: `${e.name} - ${e.status}`,
-        value: e,
-      }));
+    return (this.evaluations() ?? []).map(e => ({
+      label: `${e.name} - ${e.status}`,
+      value: e,
+    }));
   });
 
   readonly cohortsToScroll = computed<MultipleSelectCommonItem[]>(() => {
@@ -143,8 +142,8 @@ export class PollFiltersComponent implements OnInit {
     this._loadEvaluations();
   }
 
-  handleEvaluationSelect(itemSelected: MatSelectChange) {
-    const newSelectedEvaluation: EvaluationModel = itemSelected.value;
+  handleEvaluationSelect(itemSelected: MatAutocompleteSelectedEvent) {
+    const newSelectedEvaluation: EvaluationModel = itemSelected.option.value;
     this._resetField('cohortIds');
     this._getPolls(newSelectedEvaluation);
     const newSelectedPoll = this.polls[0];
@@ -266,7 +265,8 @@ export class PollFiltersComponent implements OnInit {
       )
       .subscribe({
         next: result => {
-          this.evaluations.set(result.items);
+          const completed = result.items.filter(e => e.status === 'Completed');
+          this.evaluations.set(completed);
         },
         error: () => this.evaluations.set(null),
       });

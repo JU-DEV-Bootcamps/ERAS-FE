@@ -1,21 +1,42 @@
 <mat-form-field appearance="fill">
   <mat-label [attr.for]="id()">{{ label() }}</mat-label>
-
-  <mat-select
+  <input
+    matInput
     [id]="id()"
     [formControl]="control()"
-    (selectionChange)="selectionChange.emit($event)"
+    [matAutocomplete]="auto"
+    (input)="onInput($event)"
+  />
+  <mat-icon matSuffix>
+    {{ auto.isOpen ? 'arrow_drop_up' : 'arrow_drop_down' }}
+  </mat-icon>
+
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    [displayWith]="displayFn"
+    (optionSelected)="selectionChange.emit($event)"
   >
-    <cdk-virtual-scroll-viewport [itemSize]="35" class="viewport">
-      <mat-option
-        *cdkVirtualFor="let item of items(); templateCacheSize: 50"
-        class="versioned-option"
-        [value]="item.value"
-      >
-        <p>{{ item.label }}</p>
-      </mat-option>
-    </cdk-virtual-scroll-viewport>
-  </mat-select>
+    @if (useVirtualScroll()) {
+      <cdk-virtual-scroll-viewport [itemSize]="itemSize" class="viewport">
+        <mat-option
+          *cdkVirtualFor="
+            let item of filteredItems();
+            trackBy: trackByFn;
+            templateCacheSize: 50
+          "
+          [value]="item.value"
+        >
+          {{ item.label }}
+        </mat-option>
+      </cdk-virtual-scroll-viewport>
+    } @else {
+      @for (item of filteredItems(); track item.value) {
+        <mat-option [value]="item.value">
+          {{ item.label }}
+        </mat-option>
+      }
+    }
+  </mat-autocomplete>
 
   @if (control().invalid) {
     <mat-error>
