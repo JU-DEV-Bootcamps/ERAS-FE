@@ -21,6 +21,7 @@ import { SelectAllDirective } from '@shared/directives/select-all.directive';
 import { SelectedItemsComponent } from '@modules/reports/components/poll-filters/selected-items/selected-items.component';
 import { SelectAllValue } from '@shared/directives/select-all-value';
 import { UpperCasePipe } from '@angular/common';
+import { VIRTUAL_SCROLL_THRESHOLD } from '@core/constants/select';
 
 @Component({
   selector: 'app-select-multiple-virtual-scroll',
@@ -122,4 +123,8 @@ export class SelectMultipleVirtualScrollComponent {
   isGroupItem(item: MultipleSelectItem): item is MultipleSelectGroup {
     return !!(item.type && item.type === 'group');
   }
+
+  readonly useVirtualScroll = computed(
+    () => this.scrollItems().length > VIRTUAL_SCROLL_THRESHOLD
+  );
 }
