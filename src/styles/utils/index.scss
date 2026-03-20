@@ -19,10 +19,16 @@
   --font-weight-bold: theme-fonts.get-font-weight('bold');
   --font-weight-medium: theme-fonts.get-font-weight('medium');
   --font-weight-regular: theme-fonts.get-font-weight('regular');
-}
-
-mat-icon {
-  font-family: 'Material Icons', sans-serif;
+  --color-neutral-50: #484646;
+  --color-neutral-100: #484646;
+  --color-neutral-200: #484646;
+  --color-neutral-300: #484646;
+  --color-neutral-400: #484646;
+  --color-neutral-500: #484646;
+  --color-neutral-600: #484646;
+  --color-neutral-700: #484646;
+  --color-neutral-800: #484646;
+  --color-neutral-900: #484646;
 }
 
 // Override Material Design Components
