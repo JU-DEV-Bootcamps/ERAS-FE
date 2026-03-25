@@ -101,7 +101,6 @@ export class SelectMultipleVirtualScrollComponent {
     let toReturn = [''];
 
     if (value) {
-      // SelectAll directive adds an option with value undefined
       const selectedItems = value.filter((item: MultipleSelectItem) => !!item);
       const scrollItems = this.scrollItems().filter(
         scrollItem => !scrollItem.type || scrollItem.type !== 'group'
@@ -134,7 +133,6 @@ export class SelectMultipleVirtualScrollComponent {
     const search = this.searchText().toLowerCase().trim();
     if (!search) return this.scrollItems();
 
-    // When filtering, skip group headers that have no matching children
     const items = this.scrollItems();
     const result: MultipleSelectItem[] = [];
 
@@ -142,7 +140,6 @@ export class SelectMultipleVirtualScrollComponent {
       const item = items[i];
 
       if (this.isGroupItem(item)) {
-        // Peek ahead: include group only if it has matching children
         const hasMatch = items
           .slice(i + 1)
           .some(
