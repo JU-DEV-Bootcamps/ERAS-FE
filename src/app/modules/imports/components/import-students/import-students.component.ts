@@ -54,25 +54,45 @@ export class ImportStudentsComponent {
   private openDialog(text: string, isSuccess: boolean): void {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
+    const errorDetails =
+      this.csvErrors.length > 0 ? this.csvErrors : [GENERAL_MESSAGES.ERROR_500];
+
     this.dialog.open(ModalComponent, {
       ...MODAL_DEFAULT_CONF,
       data: {
         isSuccess: isSuccess,
+        type: isSuccess ? 'success' : 'error',
         title: isSuccess
           ? GENERAL_MESSAGES.SUCCESS_IMPORT_TITLE
           : GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
-        message: this.csvErrors.length > 0 ? this.csvErrors : this.fileError,
-        success: {
-          details: text,
-        },
-        error: {
-          title: this.fileError != null ? this.fileError : text,
-          details:
-            this.csvErrors.length > 0
-              ? this.csvErrors
-              : [GENERAL_MESSAGES.ERROR_500],
-          message: `${text} ${this.selectedFile?.name}`,
-        },
+        message: isSuccess ? text : this.fileError,
+        details: isSuccess ? text : errorDetails,
+        action: isSuccess
+          ? null
+          : {
+              label: 'See details',
+              action: () => this.openDetailsDialog(),
+            },
+      },
+    });
+  }
+
+  private openDetailsDialog() {
+    const buttonElement = document.activeElement as HTMLElement;
+    buttonElement.blur(); // Remove focus from the button - avoid console warning
+
+    this.csvErrors = this.csvCheckerService.getErrors();
+    console.log('Got errors => ', this.csvErrors);
+    this.dialog.open(ModalComponent, {
+      width: 'auto',
+      height: 'auto',
+      maxWidth: '80vw',
+      maxHeight: '90vh',
+      data: {
+        type: 'error',
+        title: GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
+        message: this.fileError,
+        details: this.csvErrors,
       },
     });
   }
@@ -117,7 +137,8 @@ export class ImportStudentsComponent {
       this.rejectFile(VALIDATION_MESSAGES.CSV_SCAN_ERROR);
       return;
     }
-    this.csvErrors = this.csvCheckerService.getErrors();
+
+    this.csvErrors = this.csvCheckerService.getSummarizedErrors();
 
     if (this.csvErrors.length > 0) {
       this.csvErrors = this.processErrors(this.csvErrors);
@@ -129,7 +150,7 @@ export class ImportStudentsComponent {
   }
 
   private processErrors(errors: string[]): string[] {
-    const maxErrorsToShow = 3;
+    const maxErrorsToShow = 5;
     const maxLength = 100;
     const processedErrors = errors.slice(0, maxErrorsToShow).map(error => {
       if (error.length > maxLength) {
@@ -140,7 +161,8 @@ export class ImportStudentsComponent {
 
     if (errors.length > maxErrorsToShow) {
       processedErrors.push(
-        `And ${errors.length - maxErrorsToShow} more rows with errors...`
+        `And ${errors.length - maxErrorsToShow} more rows with errors.`,
+        'See details for more information.'
       );
     }
 
