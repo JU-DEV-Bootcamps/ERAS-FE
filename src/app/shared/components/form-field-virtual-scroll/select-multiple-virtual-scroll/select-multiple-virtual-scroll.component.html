@@ -1,4 +1,4 @@
-<mat-form-field appearance="outline">
+<mat-form-field appearance="outline" class="compact-select">
   <mat-label [attr.for]="id()">{{ label() }}</mat-label>
 
   <mat-select
@@ -6,6 +6,7 @@
     [id]="id()"
     [formControl]="control()"
     (openedChange)="openedChange.emit($event)"
+    panelClass="compact-select-panel"
   >
     <mat-select-trigger>
       <app-selected-items [items]="getItemSelection()" />
