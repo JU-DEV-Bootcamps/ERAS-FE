@@ -34,6 +34,7 @@ import {
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { ExpandableCardComponent } from '@shared/components/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -46,6 +47,7 @@ import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
     MatTooltipModule,
     NgApexchartsModule,
     PollFiltersComponent,
+    ExpandableCardComponent,
   ],
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
@@ -66,6 +68,7 @@ export class DynamicChartsComponent {
   components = signal<PollCountReport | null>(null);
   heatmapChart = true;
   cohortIds = '';
+  expandedId: string | null = null;
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -187,6 +190,10 @@ export class DynamicChartsComponent {
       return;
     }
     this.generateHeatMap(filters.cohortIds, filters.variableIds);
+  }
+
+  onToggle(id: string): void {
+    this.expandedId = this.expandedId === id ? null : id;
   }
 
   openDetailsModal(

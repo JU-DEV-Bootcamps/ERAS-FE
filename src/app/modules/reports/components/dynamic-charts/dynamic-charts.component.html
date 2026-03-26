@@ -46,9 +46,14 @@
     </ng-container>
 
     @if (heatmapChart) {
-      <div #contentToExport>
+      <div #contentToExport class="charts-grid">
         @for (chartOption of chartsOptions; track $index) {
-          <div class="chart-container">
+          <app-expandable-card
+            [cardId]="'chart-' + $index"
+            [expanded]="expandedId === 'chart-' + $index"
+            [dimmed]="expandedId !== null && expandedId !== 'chart-' + $index"
+            (toggleExpand)="onToggle($event)"
+          >
             <apx-chart
               [series]="chartOption.series!"
               [chart]="chartOption.chart!"
@@ -61,7 +66,7 @@
               [legend]="chartOption.legend!"
             >
             </apx-chart>
-          </div>
+          </app-expandable-card>
         }
       </div>
     } @else {
