@@ -4,6 +4,10 @@ import {
   isFieldEmailValid,
   isFieldNameValid,
 } from '../utils/validators/fields.util';
+import {
+  isCSVParserError,
+  CSVParserError,
+} from '@core/utils/helpers/type-check';
 @Injectable({
   providedIn: 'root',
 })
@@ -35,7 +39,12 @@ export class CsvCheckerService {
       this.summarizedValidationErrors = [
         'Failed to parse CSV file. Please see details',
       ];
-      this.validationErrors = [message];
+      this.validationErrors =
+        Array.isArray(error) && isCSVParserError(error as object[])
+          ? (error as CSVParserError[]).map(
+              error => `Row ${error.row + 1}: ${error.message}`
+            )
+          : [message];
       console.error('Error parsing file:', error);
     }
   }
@@ -63,7 +72,7 @@ export class CsvCheckerService {
         encoding: 'UTF-8',
         complete: result => {
           if (result.errors.length > 0) {
-            reject(result.errors);
+            reject(result.errors.map(err => ({ ...err, parserError: true })));
             return;
           }
           const data = result.data as Record<string, string>[];

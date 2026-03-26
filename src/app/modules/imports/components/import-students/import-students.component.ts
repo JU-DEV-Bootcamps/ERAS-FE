@@ -82,10 +82,11 @@ export class ImportStudentsComponent {
     buttonElement.blur(); // Remove focus from the button - avoid console warning
 
     this.csvErrors = this.csvCheckerService.getErrors();
-    console.log('Got errors => ', this.csvErrors);
+
     this.dialog.open(ModalComponent, {
       width: 'auto',
       height: 'auto',
+      minWidth: '50vw',
       maxWidth: '80vw',
       maxHeight: '90vh',
       data: {
