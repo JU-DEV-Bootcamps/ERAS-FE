@@ -4,6 +4,10 @@ import {
   isFieldEmailValid,
   isFieldNameValid,
 } from '../utils/validators/fields.util';
+import {
+  isCSVParserError,
+  CSVParserError,
+} from '@core/utils/helpers/type-check';
 @Injectable({
   providedIn: 'root',
 })
@@ -22,6 +26,7 @@ export class CsvCheckerService {
   ];
   csvData: Record<string, string>[] = [];
   validationErrors: string[] = [];
+  private summarizedValidationErrors: string[] = [];
 
   async validateCSV(csv: File): Promise<void> {
     try {
@@ -31,7 +36,15 @@ export class CsvCheckerService {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Failed to parse CSV file.';
-      this.validationErrors = [message];
+      this.summarizedValidationErrors = [
+        'Failed to parse CSV file. Please see details',
+      ];
+      this.validationErrors =
+        Array.isArray(error) && isCSVParserError(error as object[])
+          ? (error as CSVParserError[]).map(
+              error => `Row ${error.row + 1}: ${error.message}`
+            )
+          : [message];
       console.error('Error parsing file:', error);
     }
   }
@@ -42,6 +55,10 @@ export class CsvCheckerService {
 
   getCSVData(): Record<string, string>[] {
     return this.csvData;
+  }
+
+  getSummarizedErrors(): string[] {
+    return this.summarizedValidationErrors;
   }
 
   private async parseCSV(
@@ -55,7 +72,7 @@ export class CsvCheckerService {
         encoding: 'UTF-8',
         complete: result => {
           if (result.errors.length > 0) {
-            reject(result.errors);
+            reject(result.errors.map(err => ({ ...err, parserError: true })));
             return;
           }
           const data = result.data as Record<string, string>[];
@@ -76,8 +93,11 @@ export class CsvCheckerService {
     headers: string[]
   ): string[] {
     this.validationErrors = [];
+    this.summarizedValidationErrors = [];
+
     this.validateHeaders(headers);
     if (this.validationErrors.length > 0) return this.validationErrors;
+
     this.validateRows(data);
     return this.validationErrors;
   }
@@ -87,6 +107,9 @@ export class CsvCheckerService {
       header => !headers.includes(header)
     );
     if (missingHeaders.length > 0) {
+      this.summarizedValidationErrors.push(
+        'There are missing headers. Please see the details'
+      );
       this.validationErrors.push(
         `Missing headers: ${missingHeaders.join(', ')}`
       );
@@ -117,6 +140,9 @@ export class CsvCheckerService {
       this.validateNumericFields(row, rowErrors);
 
       if (rowErrors.length > 0) {
+        this.summarizedValidationErrors.push(
+          `Row ${index + 1} has ${rowErrors.length} validation errors.`
+        );
         this.validationErrors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
       }
     });
