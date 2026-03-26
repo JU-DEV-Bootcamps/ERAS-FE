@@ -10,3 +10,50 @@ mat-form-field {
 mat-option[appselectall] {
   background-color: #c698f1 !important;
 }
+
+.compact-select-panel,
+.compact-autocomplete-panel {
+  .mat-mdc-option,
+  .mdc-list-item {
+    min-height: 36px !important;
+    height: 36px !important;
+  }
+
+  .mat-mdc-option .mdc-list-item__primary-text {
+    color: var(--color-neutral-800);
+    font-size: 14px !important;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+  }
+
+  .mat-mdc-option .mat-icon,
+  .mat-mdc-option .mat-pseudo-checkbox-full {
+    margin-inline-end: 8px !important;
+  }
+}
+
+.mat-mdc-form-field-flex {
+  display: inline-flex;
+  align-items: center !important;
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px !important;
+}
+
+.compact-select {
+  --mat-form-field-container-height: 36px;
+
+  .mat-mdc-form-field-infix {
+    min-height: 36px;
+    padding-bottom: 4px;
+    display: flex;
+  }
+
+  .mat-mdc-input-element {
+    height: 100%;
+  }
+  .mat-mdc-floating-label {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

@@ -6,6 +6,7 @@ import {
   effect,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -61,6 +62,9 @@ export class SelectMultipleVirtualScrollComponent {
   );
   readonly openedChange = output<boolean>();
   readonly autoSelect = input<boolean>(true);
+  readonly useVirtualScroll = computed(
+    () => this.scrollItems().length > VIRTUAL_SCROLL_THRESHOLD
+  );
 
   constructor() {
     effect(() => {
@@ -97,7 +101,6 @@ export class SelectMultipleVirtualScrollComponent {
     let toReturn = [''];
 
     if (value) {
-      // SelectAll directive adds an option with value undefined
       const selectedItems = value.filter((item: MultipleSelectItem) => !!item);
       const scrollItems = this.scrollItems().filter(
         scrollItem => !scrollItem.type || scrollItem.type !== 'group'
@@ -124,7 +127,46 @@ export class SelectMultipleVirtualScrollComponent {
     return !!(item.type && item.type === 'group');
   }
 
-  readonly useVirtualScroll = computed(
-    () => this.scrollItems().length > VIRTUAL_SCROLL_THRESHOLD
-  );
+  private readonly searchText = signal('');
+
+  readonly filteredScrollItems = computed(() => {
+    const search = this.searchText().toLowerCase().trim();
+    if (!search) return this.scrollItems();
+
+    const items = this.scrollItems();
+    const result: MultipleSelectItem[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (this.isGroupItem(item)) {
+        const hasMatch = items
+          .slice(i + 1)
+          .some(
+            next =>
+              !this.isGroupItem(next) &&
+              next.label.toLowerCase().includes(search)
+          );
+        if (hasMatch) result.push(item);
+      } else {
+        if (item.label.toLowerCase().includes(search)) {
+          result.push(item);
+        }
+      }
+    }
+
+    return result;
+  });
+
+  onSearch(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchText.set(value);
+  }
+
+  handleOpenedChange(isOpen: boolean): void {
+    if (!isOpen) {
+      this.searchText.set('');
+    }
+    this.openedChange.emit(isOpen);
+  }
 }

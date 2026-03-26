@@ -19,10 +19,7 @@
   --font-weight-bold: theme-fonts.get-font-weight('bold');
   --font-weight-medium: theme-fonts.get-font-weight('medium');
   --font-weight-regular: theme-fonts.get-font-weight('regular');
-}
-
-mat-icon {
-  font-family: 'Material Icons', sans-serif;
+  --color-neutral-800: #484646;
 }
 
 // Override Material Design Components

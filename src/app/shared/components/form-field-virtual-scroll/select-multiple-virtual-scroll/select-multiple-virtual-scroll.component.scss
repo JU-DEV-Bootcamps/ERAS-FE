@@ -12,10 +12,29 @@ mat-form-field {
   .mat-mdc-option.group-header {
     .mat-pseudo-checkbox {
       display: none !important;
+      background-color: pink;
     }
 
     .mdc-list-item__primary-text {
       opacity: 1 !important;
     }
+  }
+}
+
+.select-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 16px;
+  background: var(--mat-select-panel-background-color, white);
+  border-bottom: 1px solid var(--mat-divider-color, #e0e0e0);
+
+  input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+    color: inherit;
   }
 }

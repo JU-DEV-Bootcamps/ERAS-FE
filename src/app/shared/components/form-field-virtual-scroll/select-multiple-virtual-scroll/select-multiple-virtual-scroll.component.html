@@ -1,4 +1,4 @@
-<mat-form-field appearance="fill">
+<mat-form-field appearance="outline" class="compact-select">
   <mat-label [attr.for]="id()">{{ label() }}</mat-label>
 
   <mat-select
@@ -6,10 +6,22 @@
     [id]="id()"
     [formControl]="control()"
     (openedChange)="openedChange.emit($event)"
+    panelClass="compact-select-panel"
   >
     <mat-select-trigger>
       <app-selected-items [items]="getItemSelection()" />
     </mat-select-trigger>
+
+    <div class="select-search">
+      <input
+        #searchInput
+        matInput
+        placeholder="Search..."
+        (input)="onSearch($event)"
+        (keydown.space)="$event.stopPropagation()"
+        (keydown)="$event.stopPropagation()"
+      />
+    </div>
 
     <mat-option appSelectAll [allValues]="scrollItemsValues()">
       Select all
@@ -17,7 +29,7 @@
 
     @if (useVirtualScroll()) {
       <cdk-virtual-scroll-viewport [itemSize]="itemSize" class="viewport">
-        <ng-container *cdkVirtualFor="let item of scrollItems()">
+        <ng-container *cdkVirtualFor="let item of filteredScrollItems()">
           @if (isGroupItem(item)) {
             <mat-option disabled class="group-header">
               {{ item.label | uppercase }}
@@ -33,7 +45,7 @@
         </ng-container>
       </cdk-virtual-scroll-viewport>
     } @else {
-      @for (item of scrollItems(); track item.label) {
+      @for (item of filteredScrollItems(); track item.label) {
         @if (isGroupItem(item)) {
           <mat-option disabled class="group-header">
             {{ item.label | uppercase }}
