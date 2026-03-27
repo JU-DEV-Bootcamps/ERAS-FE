@@ -35,6 +35,7 @@ import {
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { ExpandableCardComponent } from '@shared/components/expandable-card/expandable-card.component';
+import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -48,6 +49,7 @@ import { ExpandableCardComponent } from '@shared/components/expandable-card/expa
     NgApexchartsModule,
     PollFiltersComponent,
     ExpandableCardComponent,
+    ApexTooltipDirective,
   ],
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
@@ -227,5 +229,32 @@ export class DynamicChartsComponent {
 
   get showEmpty(): boolean {
     return !this.uuid;
+  }
+
+  getTooltipFn(chartIndex: number): (x: number, y: number) => string {
+    return (seriesIndex: number, dataPointIndex: number) => {
+      const report = this.components();
+      if (!report) return '';
+
+      const component = report.components[chartIndex];
+      const series =
+        this.reportService.getHMSeriesFromCountComponent(component);
+      const regroupSeries = this.reportService.regroupDynamicByColor(series);
+
+      const groupedQuestion = series[seriesIndex];
+      const dataAtPoint = regroupSeries[seriesIndex]?.data[dataPointIndex];
+
+      const totalFillers = dataAtPoint?.totalFillers ?? 0;
+      const groupedAnswer =
+        groupedQuestion?.data[dataPointIndex - totalFillers];
+
+      const question = component.questions[seriesIndex];
+
+      return customTooltip(
+        question?.question ?? '',
+        `${groupedAnswer?.count ?? 0}`,
+        dataAtPoint?.z ?? ''
+      );
+    };
   }
 }

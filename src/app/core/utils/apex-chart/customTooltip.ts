@@ -6,15 +6,17 @@ export function customTooltip(
   formattedZValue: string
 ): string {
   return `
-    <div class="apexcharts-tooltip-x" style="font-size: 18px; margin-bottom: 10px;">
-      <b>Q: ${xValue}</b>
-    </div>
-    <div class="apexcharts-tooltip-y" style="font-size: 16px; color: #797676; margin-bottom: 10px;">
-      <b>Answer: </b>${yValue}
-    </div>
-    <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"></div>
-    <div class="apexcharts-tooltip-z" style="font-size: 14px; margin: 4px">
-      ${_formatEmailsList(formattedZValue)}
+    <div style="z-index: 100001; padding: 10px;">
+      <div class="apexcharts-tooltip-x" style="font-size: 18px; margin-bottom: 10px;">
+        <b>Q: ${xValue}</b>
+      </div>
+      <div class="apexcharts-tooltip-y" style="font-size: 16px; color: #797676; margin-bottom: 10px;">
+        <b>Answer: </b>${yValue}
+      </div>
+      <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"></div>
+      <div class="apexcharts-tooltip-z" style="font-size: 14px; margin: 4px">
+        ${_formatEmailsList(formattedZValue)}
+      </div>
     </div>
   `;
 }

@@ -54,18 +54,20 @@
             [dimmed]="expandedId !== null && expandedId !== 'chart-' + $index"
             (toggleExpand)="onToggle($event)"
           >
-            <apx-chart
-              [series]="chartOption.series!"
-              [chart]="chartOption.chart!"
-              [xaxis]="chartOption.xaxis!"
-              [yaxis]="chartOption.yaxis!"
-              [colors]="chartOption.colors!"
-              [plotOptions]="chartOption.plotOptions!"
-              [title]="chartOption.title!"
-              [tooltip]="chartOption.tooltip!"
-              [legend]="chartOption.legend!"
-            >
-            </apx-chart>
+            <div [appApexTooltip]="getTooltipFn($index)">
+              <apx-chart
+                [series]="chartOption.series!"
+                [chart]="chartOption.chart!"
+                [xaxis]="chartOption.xaxis!"
+                [yaxis]="chartOption.yaxis!"
+                [colors]="chartOption.colors!"
+                [plotOptions]="chartOption.plotOptions!"
+                [title]="chartOption.title!"
+                [tooltip]="chartOption.tooltip!"
+                [legend]="chartOption.legend!"
+              >
+              </apx-chart>
+            </div>
           </app-expandable-card>
         }
       </div>
