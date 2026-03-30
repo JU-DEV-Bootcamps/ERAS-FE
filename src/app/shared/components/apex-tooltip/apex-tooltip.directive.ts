@@ -24,7 +24,6 @@ export class ApexTooltipDirective implements OnDestroy {
   private overlayRef: OverlayRef | null = null;
   private compRef: ComponentRef<ApexTooltipComponent> | null = null;
 
-  // Guardamos los handlers para poder removerlos
   private boundMouseMove = this.onMouseMove.bind(this);
   private boundMouseLeave = this.onMouseLeave.bind(this);
 
@@ -33,7 +32,6 @@ export class ApexTooltipDirective implements OnDestroy {
     private overlay: Overlay,
     private positionBuilder: OverlayPositionBuilder
   ) {
-    // Escuchamos en el host (el div que envuelve apx-chart)
     this.el.nativeElement.addEventListener('mousemove', this.boundMouseMove);
     this.el.nativeElement.addEventListener('mouseleave', this.boundMouseLeave);
   }
@@ -46,8 +44,6 @@ export class ApexTooltipDirective implements OnDestroy {
       this.boundMouseLeave
     );
   }
-
-  // ── Eventos ───────────────────────────────────────────────────────────────
 
   private onMouseMove(event: MouseEvent): void {
     const cell = this.getHeatmapCellAt(event);
@@ -70,24 +66,18 @@ export class ApexTooltipDirective implements OnDestroy {
     this.hide();
   }
 
-  // ── Leer la celda activa del heatmap ──────────────────────────────────────
-
   private getHeatmapCellAt(
     event: MouseEvent
   ): { seriesIndex: number; dataPointIndex: number } | null {
     const target = event.target as SVGElement;
-    // ApexCharts pone data-* en cada rect del heatmap
     const rect =
       target.closest<SVGElement>('[data\\:value]') ??
       target.closest<SVGElement>('.apexcharts-heatmap-rect');
 
     if (!rect) return null;
 
-    // Leer índices desde los atributos del elemento SVG
-    const j = rect.getAttribute('j'); // dataPointIndex
-    const i = rect.getAttribute('i'); // seriesIndex (ApexCharts usa 'i' en algunos builds)
-
-    // Fallback: buscar en el parent series group
+    const j = rect.getAttribute('j');
+    const i = rect.getAttribute('i');
     const seriesGroup =
       rect.closest<SVGElement>('[data\\:realindex]') ??
       rect.closest<SVGElement>('.apexcharts-series');
@@ -106,20 +96,16 @@ export class ApexTooltipDirective implements OnDestroy {
     return { seriesIndex, dataPointIndex };
   }
 
-  // ── Mostrar / ocultar ─────────────────────────────────────────────────────
-
   private show(html: string, event: MouseEvent): void {
     if (!this.overlayRef) {
       this.createOverlay();
     }
 
-    // Actualizar contenido
     if (this.compRef) {
       this.compRef.instance.html = html;
       this.compRef.instance.cdr.detectChanges();
     }
 
-    // Seguir el mouse
     this.updatePosition(event);
 
     if (!this.overlayRef!.hasAttached()) {
@@ -140,7 +126,7 @@ export class ApexTooltipDirective implements OnDestroy {
     this.overlayRef = this.overlay.create({
       hasBackdrop: false,
       scrollStrategy: this.overlay.scrollStrategies.reposition(),
-      positionStrategy: this.overlay.position().global(), // posición manual via updatePosition
+      positionStrategy: this.overlay.position().global(),
     });
   }
 
@@ -149,8 +135,6 @@ export class ApexTooltipDirective implements OnDestroy {
 
     const offsetX = 16;
     const offsetY = -8;
-
-    // Usa global strategy para posicionar exactamente donde está el mouse
     const strategy = this.overlay
       .position()
       .global()

@@ -106,7 +106,6 @@ export class DynamicChartsComponent {
     this.chartsOptions = hmSeries.map((series, index) => {
       const regroupSeries = this.reportService.regroupDynamicByColor(series);
       const component = report.components[index];
-
       return GetChartOptions(
         `Reporte: ${component.description}`,
         regroupSeries,
@@ -156,13 +155,8 @@ export class DynamicChartsComponent {
             count?: number;
             x: number;
           };
-          const question = component.questions[x];
 
-          return customTooltip(
-            question?.question ?? '',
-            `${groupedAnswer?.count ?? 0}`,
-            dataAtPoint.z
-          );
+          return customTooltip(`${groupedAnswer?.count ?? 0}`, dataAtPoint.z);
         }
       );
     });
@@ -248,10 +242,7 @@ export class DynamicChartsComponent {
       const groupedAnswer =
         groupedQuestion?.data[dataPointIndex - totalFillers];
 
-      const question = component.questions[seriesIndex];
-
       return customTooltip(
-        question?.question ?? '',
         `${groupedAnswer?.count ?? 0}`,
         dataAtPoint?.z ?? ''
       );

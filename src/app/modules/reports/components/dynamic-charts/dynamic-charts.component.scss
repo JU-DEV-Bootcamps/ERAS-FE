@@ -5,6 +5,7 @@
 .export-button {
   border: none;
   border-radius: 50%;
+
   &:hover {
     background-color: #bbbbbb;
     cursor: pointer;
@@ -18,4 +19,27 @@
   gap: 1rem;
   position: relative;
   width: 100%;
+}
+
+::ng-deep .item-tooltip {
+  padding: 8px 16px;
+}
+
+::ng-deep .mail-list {
+  margin: 0;
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    position: relative;
+    padding: 8px 16px 8px 29px;
+  }
+
+  li::before {
+    content: 'mail_outline';
+    font-family: 'Material Icons';
+    font-size: 16px;
+    position: absolute;
+    left: 0;
+  }
 }

@@ -61,7 +61,6 @@ export function GetChartOptions(
     plotOptions: {
       heatmap: {
         distributed: false,
-        // enableShades: false,
         ...(fixColors && {
           colorScale: {
             inverse: false,
@@ -97,12 +96,11 @@ export function GetChartOptions(
             return tooltipCustomFunction(seriesIndex, dataPointIndex);
           } else {
             const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-            const xValue = dataPoint.x;
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
 
-            return customTooltip(xValue, yValue, formattedZValue);
+            return customTooltip(yValue, formattedZValue);
           }
         };
         const wrap = (content: string) => {

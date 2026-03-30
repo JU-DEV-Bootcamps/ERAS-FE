@@ -1,0 +1,47 @@
+:host {
+  display: block;
+  pointer-events: none;
+}
+
+.apex-cdk-tooltip {
+  background-color: var(----color-neutral-5);
+  border: var(--outline-neutral-200);
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  max-width: 282px;
+  font-size: 14px;
+  color: var(----color-neutral-800);
+  overflow: hidden;
+
+  ::ng-deep .apexcharts-tooltip-x {
+    // padding: 10px 14px 4px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .apexcharts-tooltip-y {
+    padding: 6px 14px;
+    font-size: 14px;
+    color: var(----color-neutral-800);
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .apexcharts-tooltip-z {
+    padding: 0 14px;
+    font-size: 14px;
+    color: var(----color-neutral-800);
+  }
+
+  ::ng-deep [style*='padding: 10px'] {
+    padding: 0 !important;
+  }
+
+  ::ng-deep [style*='font-size: 18px'] {
+    font-size: 14px !important;
+  }
+
+  ::ng-deep [style*='font-size: 16px'] {
+    font-size: 14px !important;
+  }
+}
