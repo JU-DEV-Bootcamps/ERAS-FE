@@ -56,7 +56,7 @@ export class ColumnChartUtils {
   }
 
   static createFill(): ApexFill {
-    return { opacity: 0.8 };
+    return { opacity: 1 };
   }
 
   static createLegend(): ApexLegend {

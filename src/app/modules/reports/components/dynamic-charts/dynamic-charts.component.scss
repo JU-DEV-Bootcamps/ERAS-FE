@@ -22,7 +22,7 @@
 }
 
 ::ng-deep .item-tooltip {
-  padding: 8px 16px;
+  padding: 8px 8px;
 }
 
 ::ng-deep .mail-list {
@@ -42,4 +42,33 @@
     position: absolute;
     left: 0;
   }
+}
+
+::ng-deep [class*='point-tooltip-color'] {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  margin-left: 8px;
+  border-radius: 5px;
+}
+
+::ng-deep .point-tooltip-color-1 {
+  background-color: #43a047;
+}
+
+::ng-deep .point-tooltip-color-2 {
+  background-color: #66bb6a;
+}
+
+::ng-deep .point-tooltip-color-3 {
+  background-color: #fdd835;
+}
+
+::ng-deep .point-tooltip-color-4 {
+  background-color: #ffb74d;
+}
+
+::ng-deep .point-tooltip-color-5 {
+  background-color: #ef5350;
 }

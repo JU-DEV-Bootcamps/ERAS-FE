@@ -96,11 +96,13 @@ export function GetChartOptions(
             return tooltipCustomFunction(seriesIndex, dataPointIndex);
           } else {
             const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+            const color = w.globals.colors[seriesIndex];
+            console.log('aqui el color:', color);
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
 
-            return customTooltip(yValue, formattedZValue);
+            return customTooltip(yValue, formattedZValue, color);
           }
         };
         const wrap = (content: string) => {

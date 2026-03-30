@@ -36,6 +36,7 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { ExpandableCardComponent } from '@shared/components/expandable-card/expandable-card.component';
 import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
+import { RISK_COLORS } from '@core/constants/riskLevel';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -155,8 +156,12 @@ export class DynamicChartsComponent {
             count?: number;
             x: number;
           };
-
-          return customTooltip(`${groupedAnswer?.count ?? 0}`, dataAtPoint.z);
+          const color = RISK_COLORS[regroupSeries[x]?.data[y].x];
+          return customTooltip(
+            `${groupedAnswer?.count ?? 0}`,
+            dataAtPoint.z,
+            color
+          );
         }
       );
     });
@@ -242,9 +247,12 @@ export class DynamicChartsComponent {
       const groupedAnswer =
         groupedQuestion?.data[dataPointIndex - totalFillers];
 
+      const color = RISK_COLORS[dataPointIndex];
+
       return customTooltip(
         `${groupedAnswer?.count ?? 0}`,
-        dataAtPoint?.z ?? ''
+        dataAtPoint?.z ?? '',
+        color
       );
     };
   }

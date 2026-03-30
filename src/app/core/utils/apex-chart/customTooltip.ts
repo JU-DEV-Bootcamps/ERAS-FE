@@ -1,13 +1,21 @@
+import { RISK_COLORS } from '@core/constants/riskLevel';
 import { PollCountAnswer } from '@core/models/summary.model';
 
-export function customTooltip(yValue: string, formattedZValue: string): string {
+export function customTooltip(
+  yValue: string,
+  formattedZValue: string,
+  color: string
+): string {
   return `
-      <div class="apexcharts-tooltip-y item-tooltip">
-        ${yValue} Students
-      </div>
-      <div class="apexcharts-tooltip-z">
-        ${_formatEmailsList(formattedZValue)}
-      </div>
+  <div>
+    <div class="apexcharts-tooltip-y item-tooltip" >
+      ${_formatStudentItem(color)}
+      <span>${yValue} Students</span>
+    </div>
+    <div class="apexcharts-tooltip-z">
+      ${_formatEmailsList(formattedZValue)}
+    </div>
+  </div>
   `;
 }
 
@@ -46,4 +54,11 @@ function _formatEmailsList(textToFormat: string): string {
   );
 
   return htmlText;
+}
+
+function _formatStudentItem(color: string): string {
+  const indexColor = Object.entries(RISK_COLORS).find(
+    ([value]) => value === color
+  )?.[0];
+  return `<div class="point-tooltip-color-${indexColor}"></div>`;
 }
