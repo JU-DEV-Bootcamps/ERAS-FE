@@ -15,6 +15,8 @@ export function GetChartOptions(
   tooltipCustomFunction?: (x: number, y: number) => string,
   fixColors = true
 ): ApexOptions {
+  const rowCount = series.length;
+  const chartHeight = Math.min(600, Math.max(300, rowCount * 45));
   const options: ApexOptions = {
     series: series,
     chart: {
@@ -22,6 +24,7 @@ export function GetChartOptions(
         enabled: false,
       },
       type: 'heatmap',
+      height: chartHeight,
       toolbar: {
         show: false,
       },
@@ -61,7 +64,6 @@ export function GetChartOptions(
     plotOptions: {
       heatmap: {
         distributed: false,
-        // enableShades: false,
         ...(fixColors && {
           colorScale: {
             inverse: false,
@@ -97,12 +99,12 @@ export function GetChartOptions(
             return tooltipCustomFunction(seriesIndex, dataPointIndex);
           } else {
             const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-            const xValue = dataPoint.x;
+            const color = w.globals.colors[seriesIndex];
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
 
-            return customTooltip(xValue, yValue, formattedZValue);
+            return customTooltip(yValue, formattedZValue, color);
           }
         };
         const wrap = (content: string) => {

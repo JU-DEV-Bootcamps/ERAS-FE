@@ -5,8 +5,123 @@
 .export-button {
   border: none;
   border-radius: 50%;
+
   &:hover {
     background-color: #bbbbbb;
     cursor: pointer;
   }
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+.charts-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: stretch;
+  width: 100%;
+
+  &.panel-open {
+    grid-template-columns: 1fr 1fr 380px;
+  }
+}
+
+.charts-area {
+  flex: 1;
+  min-width: 0;
+  transition: flex 0.3s ease;
+}
+
+.charts-area-wrapper {
+  grid-column: 1 / 3;
+  position: relative;
+  min-height: 0;
+}
+
+.details-aside {
+  width: 380px;
+  align-self: stretch;
+  grid-column: 3;
+  flex-shrink: 0;
+  height: auto;
+  border-radius: 8px;
+  min-height: 100%;
+  position: sticky;
+  overflow-y: auto;
+  border-left: var(--color-white);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+::ng-deep .item-tooltip {
+  padding: 8px 8px;
+}
+
+::ng-deep .mail-list {
+  margin: 0;
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    position: relative;
+    padding: 8px 16px 8px 29px;
+  }
+
+  li::before {
+    content: 'mail_outline';
+    font-family: 'Material Icons';
+    font-size: 16px;
+    position: absolute;
+    left: 0;
+  }
+}
+
+::ng-deep [class*='point-tooltip-color'] {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  margin-left: 8px;
+  border-radius: 5px;
+}
+
+::ng-deep .point-tooltip-color-1 {
+  background-color: #43a047;
+}
+
+::ng-deep .point-tooltip-color-2 {
+  background-color: #66bb6a;
+}
+
+::ng-deep .point-tooltip-color-3 {
+  background-color: #fdd835;
+}
+
+::ng-deep .point-tooltip-color-4 {
+  background-color: #ffb74d;
+}
+
+::ng-deep .point-tooltip-color-5 {
+  background-color: #ef5350;
+}
+
+::ng-deep app-expandable-card.expanded {
+  position: relative;
+  z-index: 1;
 }
