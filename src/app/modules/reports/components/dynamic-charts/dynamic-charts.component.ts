@@ -29,14 +29,14 @@ import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
 
 import { DynamicColumnChartComponent } from './dynamic-column-chart/dynamic-column-chart.component';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import {
-  ModalQuestionDetailsComponent,
-  SelectedHMData,
-} from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
-import { ExpandableCardComponent } from '@shared/components/expandable-card/expandable-card.component';
+import { ExpandableCardComponent } from '@shared/components/expandable-card-v2/expandable-card.component';
 import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
 import { RISK_COLORS } from '@core/constants/riskLevel';
+import {
+  DetailsPanelData,
+  DetailsPanelComponent,
+} from '@shared/components/panels/details-panel-v2/details-panel.component';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -51,6 +51,7 @@ import { RISK_COLORS } from '@core/constants/riskLevel';
     PollFiltersComponent,
     ExpandableCardComponent,
     ApexTooltipDirective,
+    DetailsPanelComponent,
   ],
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
@@ -72,6 +73,9 @@ export class DynamicChartsComponent {
   heatmapChart = true;
   cohortIds = '';
   expandedId: string | null = null;
+
+  selectedPanelData = signal<DetailsPanelData | null>(null);
+  isPanelOpen = signal(false);
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -197,6 +201,30 @@ export class DynamicChartsComponent {
     this.expandedId = this.expandedId === id ? null : id;
   }
 
+  // openDetailsModal(
+  //   pollUuid: string,
+  //   cohortId: string,
+  //   question: PollCountQuestion,
+  //   componentName: ComponentValueType,
+  //   text?: string,
+  //   riskLevel?: number
+  // ): void {
+  //   const data: SelectedHMData = {
+  //     cohortId: cohortId,
+  //     pollUuid,
+  //     componentName,
+  //     text,
+  //     question,
+  //     riskLevel,
+  //   };
+  //   this.dialog.open(ModalQuestionDetailsComponent, {
+  //     width: 'clamp(320px, 50vw, 580px)',
+  //     maxWidth: '60vw',
+  //     maxHeight: '60vh',
+  //     panelClass: 'border-modalbox-dialog',
+  //     data,
+  //   });
+  // }
   openDetailsModal(
     pollUuid: string,
     cohortId: string,
@@ -205,21 +233,20 @@ export class DynamicChartsComponent {
     text?: string,
     riskLevel?: number
   ): void {
-    const data: SelectedHMData = {
-      cohortId: cohortId,
+    this.selectedPanelData.set({
+      cohortId,
       pollUuid,
       componentName,
       text,
       question,
       riskLevel,
-    };
-    this.dialog.open(ModalQuestionDetailsComponent, {
-      width: 'clamp(320px, 50vw, 580px)',
-      maxWidth: '60vw',
-      maxHeight: '60vh',
-      panelClass: 'border-modalbox-dialog',
-      data,
     });
+    this.isPanelOpen.set(true);
+  }
+
+  closePanel(): void {
+    this.isPanelOpen.set(false);
+    this.selectedPanelData.set(null);
   }
 
   toggleChart(chart: string) {

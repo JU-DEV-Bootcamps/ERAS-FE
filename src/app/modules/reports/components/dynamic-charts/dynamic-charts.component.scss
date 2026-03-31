@@ -14,11 +14,48 @@
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-  grid-template-rows: auto;
+  // grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, minmax(350px, 1fr));
+  // grid-template-rows: auto;
+  overflow-x: auto;
   gap: 1rem;
   position: relative;
   width: 100%;
+}
+
+.charts-layout {
+  display: flex;
+  gap: 0;
+  transition: all 0.3s ease;
+  align-items: stretch;
+}
+
+.charts-area {
+  flex: 1;
+  min-width: 0;
+  transition: flex 0.3s ease;
+}
+
+.details-aside {
+  width: 480px;
+  flex-shrink: 0;
+  height: auto;
+  max-height: 100%;
+  position: sticky;
+  overflow-y: auto;
+  border-left: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 ::ng-deep .item-tooltip {

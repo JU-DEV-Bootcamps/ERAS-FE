@@ -22,6 +22,7 @@ export function GetChartOptions(
         enabled: false,
       },
       type: 'heatmap',
+      height: Math.max(300, series.length * 32),
       toolbar: {
         show: false,
       },
@@ -97,7 +98,6 @@ export function GetChartOptions(
           } else {
             const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
             const color = w.globals.colors[seriesIndex];
-            console.log('aqui el color:', color);
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;

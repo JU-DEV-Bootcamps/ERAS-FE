@@ -57,8 +57,9 @@ function _formatEmailsList(textToFormat: string): string {
 }
 
 function _formatStudentItem(color: string): string {
-  const indexColor = Object.entries(RISK_COLORS).find(
-    ([value]) => value === color
-  )?.[0];
+  const indexColor = Object.entries(RISK_COLORS).find(([k, value]) => {
+    void k;
+    return value === color;
+  })?.[0];
   return `<div class="point-tooltip-color-${indexColor}"></div>`;
 }
