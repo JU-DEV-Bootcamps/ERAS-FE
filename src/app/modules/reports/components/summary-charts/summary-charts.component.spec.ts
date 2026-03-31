@@ -127,7 +127,8 @@ describe('SummaryChartsComponent', () => {
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
       'poll-uuid',
       [1],
-      true
+      true,
+      undefined
     );
     expect(component.chartOptions).toBeDefined();
   });

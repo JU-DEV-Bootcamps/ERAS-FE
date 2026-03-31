@@ -88,6 +88,7 @@ export class PollFiltersComponent implements OnInit {
     cohortIds: number[];
     variableIds: number[];
     lastVersion: boolean;
+    evaluationId?: string | number;
   }>();
 
   filterForm = new FormGroup({
@@ -336,6 +337,9 @@ export class PollFiltersComponent implements OnInit {
 
   private _sendFilters() {
     if (!this.polls) return;
+    const selectedEval = this.filterForm.value.selectedEvaluation;
+    const evaluationId = selectedEval?.id;
+
     const poll = this.polls.find(p => p.uuid === this.polls[0]?.uuid);
     const cohorts = this.filterForm.value.cohortIds || [];
     const cohortNames = cohorts.map(
@@ -347,6 +351,13 @@ export class PollFiltersComponent implements OnInit {
     const variableIds = this.filterForm.value.variables || [];
     const lastVersion = true;
 
-    this.filters.emit({ title, uuid, cohortIds, variableIds, lastVersion });
+    this.filters.emit({
+      title,
+      uuid,
+      cohortIds,
+      variableIds,
+      lastVersion,
+      evaluationId,
+    });
   }
 }

@@ -17,7 +17,8 @@ export class EvaluationDetailsService extends BaseApiService {
     variableIds: number[],
     pageSize: number,
     page: number,
-    riskLevels?: number[]
+    riskLevels?: number[],
+    evaluationId?: number | string
   ) {
     let params = new HttpParams()
       .set('PollUuid', pollUuid)
@@ -41,6 +42,10 @@ export class EvaluationDetailsService extends BaseApiService {
 
     if (riskLevels && riskLevels.length > 0) {
       appendArray('RiskLevels', riskLevels);
+    }
+
+    if (evaluationId) {
+      params = params.set('evaluationId', evaluationId.toString());
     }
 
     return this.get<PagedResult<EvaluationDetailsStudentResponse>>(
