@@ -15,6 +15,8 @@ export function GetChartOptions(
   tooltipCustomFunction?: (x: number, y: number) => string,
   fixColors = true
 ): ApexOptions {
+  const rowCount = series.length;
+  const chartHeight = Math.min(600, Math.max(300, rowCount * 45));
   const options: ApexOptions = {
     series: series,
     chart: {
@@ -22,7 +24,7 @@ export function GetChartOptions(
         enabled: false,
       },
       type: 'heatmap',
-      height: Math.max(300, series.length * 32),
+      height: chartHeight,
       toolbar: {
         show: false,
       },

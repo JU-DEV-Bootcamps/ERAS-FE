@@ -10,46 +10,47 @@
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 } @else {
   @defer {
+    <div class="charts-area">
+      <div class="action-section">
+        <ng-container>
+          <div class="action-section">
+            <button
+              id="print-button"
+              class="export-button"
+              matTooltip="Download pdf"
+              mat-icon-button
+              color="primary"
+              [disabled]="!chartsOptions.length || isGeneratingPDF"
+              (click)="exportReportPdf()"
+            >
+              <mat-icon>print</mat-icon>
+            </button>
+            <button
+              matButton
+              [matMenuTriggerFor]="beforeMenu"
+              class="export-button"
+              matTooltip="Charts"
+              mat-icon-button
+              color="primary"
+              [disabled]="!chartsOptions.length || isGeneratingPDF"
+            >
+              <mat-icon>bar_chart</mat-icon>
+            </button>
+            <mat-menu #beforeMenu="matMenu" xPosition="before">
+              <button mat-menu-item (click)="toggleChart('heatmap')">
+                Heatmap Chart
+              </button>
+              <button mat-menu-item (click)="toggleChart('chart')">
+                Column Chart
+              </button>
+            </mat-menu>
+          </div>
+        </ng-container>
+      </div>
+    </div>
     <div class="charts-layout" [class.panel-open]="isPanelOpen()">
-      <div class="charts-area">
-        <div class="action-section">
-          <ng-container>
-            <div class="action-section">
-              <button
-                id="print-button"
-                class="export-button"
-                matTooltip="Download pdf"
-                mat-icon-button
-                color="primary"
-                [disabled]="!chartsOptions.length || isGeneratingPDF"
-                (click)="exportReportPdf()"
-              >
-                <mat-icon>print</mat-icon>
-              </button>
-              <button
-                matButton
-                [matMenuTriggerFor]="beforeMenu"
-                class="export-button"
-                matTooltip="Charts"
-                mat-icon-button
-                color="primary"
-                [disabled]="!chartsOptions.length || isGeneratingPDF"
-              >
-                <mat-icon>bar_chart</mat-icon>
-              </button>
-              <mat-menu #beforeMenu="matMenu" xPosition="before">
-                <button mat-menu-item (click)="toggleChart('heatmap')">
-                  Heatmap Chart
-                </button>
-                <button mat-menu-item (click)="toggleChart('chart')">
-                  Column Chart
-                </button>
-              </mat-menu>
-            </div>
-          </ng-container>
-        </div>
-
-        @if (heatmapChart) {
+      @if (heatmapChart) {
+        <div class="charts-area-wrapper">
           <div #contentToExport class="charts-grid">
             @for (chartOption of chartsOptions; track $index) {
               <app-expandable-card
@@ -77,17 +78,17 @@
               </app-expandable-card>
             }
           </div>
-        } @else {
-          <div #contentToExport>
-            <app-dynamic-column-chart
-              [components]="components()!"
-              [identifier]="uuid!"
-              [cohortsIds]="cohortIds"
-            >
-            </app-dynamic-column-chart>
-          </div>
-        }
-      </div>
+        </div>
+      } @else {
+        <div #contentToExport>
+          <app-dynamic-column-chart
+            [components]="components()!"
+            [identifier]="uuid!"
+            [cohortsIds]="cohortIds"
+          >
+          </app-dynamic-column-chart>
+        </div>
+      }
       @if (isPanelOpen()) {
         <aside class="details-aside">
           <app-details-panel

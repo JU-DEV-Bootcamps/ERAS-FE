@@ -7,9 +7,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--mat-sys-surface, #fff);
-  // background-color: violet;
-  border-left: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+  background-color: var(--color-white);
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -18,7 +17,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+  border-bottom: var(--outline-neutral-200);
   flex-shrink: 0;
 
   .panel-title {
@@ -28,7 +27,7 @@
   }
 
   .close-btn {
-    color: var(--mat-sys-on-surface-variant);
+    color: var(--color-neutral-500);
   }
 }
 
@@ -67,7 +66,7 @@
   .field-label {
     font-weight: 600;
     font-size: 0.85rem;
-    color: var(--mat-sys-on-surface-variant);
+    color: var(--color-neutral-800);
   }
 
   .field-value {
