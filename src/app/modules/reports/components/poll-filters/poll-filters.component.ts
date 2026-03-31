@@ -144,10 +144,16 @@ export class PollFiltersComponent implements OnInit {
 
   handleEvaluationSelect(itemSelected: MatAutocompleteSelectedEvent) {
     const newSelectedEvaluation: EvaluationModel = itemSelected.option.value;
+    if (!newSelectedEvaluation) return;
+
     this._resetField('cohortIds');
     this._getPolls(newSelectedEvaluation);
+
     const newSelectedPoll = this.polls[0];
-    if (!newSelectedPoll) return;
+    if (!newSelectedPoll) {
+      this.cohorts.set([]);
+      return;
+    }
     this._getCohorts(newSelectedPoll.uuid);
   }
 
@@ -295,32 +301,43 @@ export class PollFiltersComponent implements OnInit {
   }
 
   private _getVariables() {
-    if (!this.polls[0]?.uuid) return;
-    const componentNames = this.componentNames();
+    if (!this.polls || !this.polls[0]?.uuid) return;
+
+    const componentNames = this.componentNames() || [];
 
     this.pollsService
       .getVariablesByComponents(this.polls[0].uuid, [...componentNames], true)
       .subscribe({
         next: variables => {
+          if (!variables || variables.length === 0) {
+            this.variables.set([]);
+            return;
+          }
+
           const newComponentNames = [
-            ...new Set(variables.map(v => v.componentName)),
+            ...new Set(variables.map(v => v?.componentName).filter(Boolean)),
           ];
+
           this.variables.set(variables);
           this.variablesClone = [...variables];
           this.componentNames.set(newComponentNames);
 
           this.variableGroups = newComponentNames.map(c =>
-            variables.filter(v => v.componentName === c)
+            variables.filter(v => v && v.componentName === c)
           );
-          const groups = this.variableGroups.flatMap(variableGroup => [
-            {
-              label: variableGroup[0].componentName.toLocaleUpperCase(),
-              items: variableGroup.map(g => ({
-                label: g.name,
-                value: g.pollVariableId,
-              })),
-            },
-          ]);
+
+          const groups = this.variableGroups
+            .filter(group => group.length > 0)
+            .flatMap(variableGroup => [
+              {
+                label: variableGroup[0].componentName.toLocaleUpperCase(),
+                items: variableGroup.map(g => ({
+                  label: g.name,
+                  value: g.pollVariableId,
+                })),
+              },
+            ]);
+
           this.variableSelectGroups.set(groups);
           this.filterForm.controls.variables.setValue(
             variables.map(v => v.pollVariableId)

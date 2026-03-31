@@ -44,7 +44,7 @@ export class EvaluationDetailsService extends BaseApiService {
       appendArray('RiskLevels', riskLevels);
     }
 
-    if (evaluationId) {
+    if (evaluationId !== undefined && evaluationId !== null) {
       params = params.set('evaluationId', evaluationId.toString());
     }
 

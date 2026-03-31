@@ -98,6 +98,7 @@ describe('SummaryChartsComponent', () => {
       page: 0,
       pageSize: 10,
       lastVersion: true,
+      evaluationId: undefined,
     });
     expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);

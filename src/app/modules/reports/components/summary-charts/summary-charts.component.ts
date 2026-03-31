@@ -264,6 +264,7 @@ export class SummaryChartsComponent {
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
           lastVersion: this.lastVersion,
+          evaluationId: this.evaluationId,
         })
         .subscribe(response => {
           this.students = response.items;

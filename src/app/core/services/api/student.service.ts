@@ -38,19 +38,34 @@ export class StudentService extends BaseApiService {
     cohortIds,
     pollUuid,
     lastVersion,
+    evaluationId,
   }: {
     cohortIds: number[];
     page: number;
     pageSize: number;
     pollUuid: string;
     lastVersion: boolean;
+    evaluationId?: number | string;
   }) {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('cohortIds', this.arrayAsStringParams(cohortIds))
       .set('pollUuid', pollUuid)
       .set('page', page)
       .set('pageSize', pageSize)
       .set('lastVersion', lastVersion);
+
+    if (cohortIds && cohortIds.length > 0) {
+      params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
+    }
+
+    if (
+      evaluationId !== undefined &&
+      evaluationId !== null &&
+      evaluationId !== ''
+    ) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
+
     return this.get<PagedResult<StudentRiskAverage>>('average', params).pipe(
       map(result => {
         result.items = sortArray(result.items, 'studentName');
