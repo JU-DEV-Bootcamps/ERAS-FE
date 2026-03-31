@@ -12,7 +12,7 @@ import {
   providedIn: 'root',
 })
 export class CsvCheckerService {
-  requiredHeaders: string[] = ['Name', 'Email', 'SISId'];
+  requiredHeaders: string[] = ['Name', 'Email', 'SISId', 'Id'];
   expectedHeaders: string[] = [
     ...this.requiredHeaders,
     'EnrolledCourses',
@@ -37,7 +37,7 @@ export class CsvCheckerService {
       const message =
         error instanceof Error ? error.message : 'Failed to parse CSV file.';
       this.summarizedValidationErrors = [
-        'Failed to parse CSV file. Please see details',
+        'Failed to parse CSV file. Please see the details.',
       ];
       this.validationErrors =
         Array.isArray(error) && isCSVParserError(error as object[])
@@ -108,7 +108,7 @@ export class CsvCheckerService {
     );
     if (missingHeaders.length > 0) {
       this.summarizedValidationErrors.push(
-        'There are missing headers. Please see the details'
+        'There are missing headers. Please see the details.'
       );
       this.validationErrors.push(
         `Missing headers: ${missingHeaders.join(', ')}`
@@ -161,6 +161,7 @@ export class CsvCheckerService {
       'RawScoreDifference',
       'StandardScoreDifference',
       'DaysSinceLastAccess',
+      'Id',
     ];
     numericFields.forEach(field => {
       if (!(field in row)) return;
