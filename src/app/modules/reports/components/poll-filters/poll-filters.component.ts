@@ -168,6 +168,7 @@ export class PollFiltersComponent implements OnInit {
     if (!this.filterForm.value.componentNames?.length) {
       this.variableGroups = [];
       this._resetField('variables');
+      this.filterForm.controls.variables.markAsTouched();
       this.variables.set([]);
       this._sendFilters();
       return;
@@ -208,6 +209,7 @@ export class PollFiltersComponent implements OnInit {
 
     if (!this.filterForm.value.variables?.length) {
       this._resetField('variables');
+      this.filterForm.controls.variables.markAsTouched();
     }
     this._sendFilters();
   }
@@ -246,7 +248,8 @@ export class PollFiltersComponent implements OnInit {
       variable => !!variable
     );
 
-    return variables?.length === this.variables.length
+    return variables?.length === this.variables.length &&
+      this.componentNames?.length > 0
       ? ['Select all']
       : variables?.map(
           id => this.variables().find(v => v.pollVariableId === id)?.name

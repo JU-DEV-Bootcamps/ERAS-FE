@@ -188,7 +188,8 @@ export class DynamicChartsComponent {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
-    if (!filters.cohortIds || !filters.variableIds) {
+
+    if (!filters.cohortIds || filters.variableIds.length === 0) {
       this.chartsOptions = [];
       this.components.set(null);
       this.uuid = null;
@@ -201,30 +202,6 @@ export class DynamicChartsComponent {
     this.expandedId = this.expandedId === id ? null : id;
   }
 
-  // openDetailsModal(
-  //   pollUuid: string,
-  //   cohortId: string,
-  //   question: PollCountQuestion,
-  //   componentName: ComponentValueType,
-  //   text?: string,
-  //   riskLevel?: number
-  // ): void {
-  //   const data: SelectedHMData = {
-  //     cohortId: cohortId,
-  //     pollUuid,
-  //     componentName,
-  //     text,
-  //     question,
-  //     riskLevel,
-  //   };
-  //   this.dialog.open(ModalQuestionDetailsComponent, {
-  //     width: 'clamp(320px, 50vw, 580px)',
-  //     maxWidth: '60vw',
-  //     maxHeight: '60vh',
-  //     panelClass: 'border-modalbox-dialog',
-  //     data,
-  //   });
-  // }
   openDetailsModal(
     pollUuid: string,
     cohortId: string,

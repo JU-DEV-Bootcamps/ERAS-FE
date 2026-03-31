@@ -9,25 +9,25 @@
   border-radius: 4px;
   box-shadow: 0 8px 8px rgba(0, 0, 0, 0.5);
   min-width: 282px;
-  font-size: 14px;
+  font-size: var(--font-size-medium);
   color: var(----color-neutral-800);
   overflow: hidden;
 
   ::ng-deep .apexcharts-tooltip-x {
-    font-size: 14px;
+    font-size: var(--font-size-medium);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     margin-bottom: 0;
   }
 
   ::ng-deep .apexcharts-tooltip-y {
-    font-size: 14px;
+    font-size: var(--font-size-medium);
     color: var(----color-neutral-800);
     margin-bottom: 0;
   }
 
   ::ng-deep .apexcharts-tooltip-z {
     padding: 0 14px;
-    font-size: 14px;
+    font-size: var(--font-size-medium);
     color: var(----color-neutral-800);
   }
 
@@ -36,10 +36,10 @@
   }
 
   ::ng-deep [style*='font-size: 18px'] {
-    font-size: 14px !important;
+    font-size: var(--font-size-medium) !important;
   }
 
   ::ng-deep [style*='font-size: 16px'] {
-    font-size: 14px !important;
+    font-size: var(--font-size-medium) !important;
   }
 }
