@@ -1,0 +1,18 @@
+<div
+  class="card"
+  [class.card--expanded]="expanded"
+  [class.card--dimmed]="dimmed"
+>
+  <button
+    class="card__toggle-btn"
+    [attr.aria-label]="expanded ? 'Colapsar' : 'Expandir'"
+    (click)="onToggle()"
+    type="button"
+  >
+    <mat-icon>{{ expanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+  </button>
+
+  <div class="card__body">
+    <ng-content></ng-content>
+  </div>
+</div>

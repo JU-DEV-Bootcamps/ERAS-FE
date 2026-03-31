@@ -1,21 +1,21 @@
+import { RISK_COLORS } from '@core/constants/riskLevel';
 import { PollCountAnswer } from '@core/models/summary.model';
 
 export function customTooltip(
-  xValue: string,
   yValue: string,
-  formattedZValue: string
+  formattedZValue: string,
+  color: string
 ): string {
   return `
-    <div class="apexcharts-tooltip-x" style="font-size: 18px; margin-bottom: 10px;">
-      <b>Q: ${xValue}</b>
+  <div>
+    <div class="apexcharts-tooltip-y item-tooltip" >
+      ${_formatStudentItem(color)}
+      <span>${yValue} Students</span>
     </div>
-    <div class="apexcharts-tooltip-y" style="font-size: 16px; color: #797676; margin-bottom: 10px;">
-      <b>Answer: </b>${yValue}
-    </div>
-    <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"></div>
-    <div class="apexcharts-tooltip-z" style="font-size: 14px; margin: 4px">
+    <div class="apexcharts-tooltip-z">
       ${_formatEmailsList(formattedZValue)}
     </div>
+  </div>
   `;
 }
 
@@ -49,9 +49,17 @@ function _formatEmailsList(textToFormat: string): string {
         .filter(Boolean);
 
       const listItems = emails.map(email => `<li>${email}</li>`).join('');
-      return `<ul style="padding: 0 0 0 15px; color: #797676;">${listItems}</ul>`;
+      return `<ul class="mail-list">${listItems}</ul>`;
     }
   );
 
   return htmlText;
+}
+
+function _formatStudentItem(color: string): string {
+  const indexColor = Object.entries(RISK_COLORS).find(([k, value]) => {
+    void k;
+    return value === color;
+  })?.[0];
+  return `<div class="point-tooltip-color-${indexColor}"></div>`;
 }
