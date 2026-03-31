@@ -1,11 +1,11 @@
 export const RISK_COLORS: Record<number | 'default', string> = {
-  0: '#939090',
-  1: '#008000',
-  2: '#3CB371',
-  3: '#F0D722',
-  4: '#FFA500',
-  5: '#FF0000',
-  default: '#FF0000',
+  0: '#BDBDBD',
+  1: '#43A047',
+  2: '#66BB6A',
+  3: '#FDD835',
+  4: '#FFB74D',
+  5: '#EF5350',
+  default: '#EF5350',
 };
 
 export const RISK_TEXT_COLORS: Record<number | 'default', string> = {
@@ -20,20 +20,20 @@ export const RISK_TEXT_COLORS: Record<number | 'default', string> = {
 
 export type RiskLevel =
   | 'No Answer'
-  | 'Low Risk'
-  | 'Low-Medium Risk'
-  | 'Medium Risk'
-  | 'Medium-High Risk'
-  | 'High Risk';
+  | 'Low'
+  | 'Low-Medium'
+  | 'Medium'
+  | 'Medium-High'
+  | 'High';
 
 export const RISK_LABELS: Record<number | 'default', RiskLevel> = {
   0: 'No Answer',
-  1: 'Low Risk',
-  2: 'Low-Medium Risk',
-  3: 'Medium Risk',
-  4: 'Medium-High Risk',
-  5: 'High Risk',
-  default: 'High Risk',
+  1: 'Low',
+  2: 'Low-Medium',
+  3: 'Medium',
+  4: 'Medium-High',
+  5: 'High',
+  default: 'High',
 };
 
 export const RISK_LEVEL: Record<number | 'default', string> = {

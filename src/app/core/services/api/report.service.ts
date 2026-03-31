@@ -161,6 +161,7 @@ export class ReportService extends BaseApiService {
         }
         const groupedAnswers = Array.from(grouped.values());
 
+        // in order to reach V2 in z attribute returned, it was removed: <span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br>
         return {
           text: `${question.question}`,
           description: `${question.question}`,
@@ -170,7 +171,7 @@ export class ReportService extends BaseApiService {
               x: a.answerRisk,
               y: a.answerRisk,
               count: a.count,
-              z: `<span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br> ${a.students
+              z: `${a.students
                 .map(ans => `${this.arrayAsStringParams([ans.email])}`)
                 .join(';')}`,
             };
