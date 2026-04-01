@@ -190,7 +190,7 @@ export class DynamicChartsComponent {
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
-    if (!filters.cohortIds || !filters.variableIds) {
+    if (!filters.cohortIds || filters.variableIds.length === 0) {
       this.chartsOptions = [];
       this.components.set(null);
       this.uuid = null;
