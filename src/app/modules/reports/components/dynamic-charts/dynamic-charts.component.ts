@@ -63,6 +63,7 @@ export class DynamicChartsComponent {
   uuid: string | null = null;
   cohorTitle: string | null = null;
   chartsOptions: ApexOptions[] = [];
+  evaluationId?: number | string;
   pdfHelper = inject(PdfHelper);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
@@ -89,7 +90,7 @@ export class DynamicChartsComponent {
 
     this.isLoading = true;
     this.reportService
-      .getCountPoolReport(this.uuid, cohortIds, variablesIds)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds, this.evaluationId)
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
@@ -188,7 +189,7 @@ export class DynamicChartsComponent {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
-
+    this.evaluationId = filters.evaluationId;
     if (!filters.cohortIds || filters.variableIds.length === 0) {
       this.chartsOptions = [];
       this.components.set(null);
@@ -217,6 +218,7 @@ export class DynamicChartsComponent {
       text,
       question,
       riskLevel,
+      evaluationId: this.evaluationId,
     });
     this.isPanelOpen.set(true);
   }

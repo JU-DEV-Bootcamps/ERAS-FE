@@ -98,6 +98,7 @@ describe('SummaryChartsComponent', () => {
       page: 0,
       pageSize: 10,
       lastVersion: true,
+      evaluationId: undefined,
     });
     expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);
@@ -127,7 +128,8 @@ describe('SummaryChartsComponent', () => {
     expect(reportServiceSpy.getAvgPoolReport).toHaveBeenCalledWith(
       'poll-uuid',
       [1],
-      true
+      true,
+      undefined
     );
     expect(component.chartOptions).toBeDefined();
   });

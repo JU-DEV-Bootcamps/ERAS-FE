@@ -55,12 +55,16 @@ export class ReportService extends BaseApiService {
   getAvgPoolReport(
     pollInstanceUUID: string,
     cohortIds: number[],
-    lastVersion: boolean
+    lastVersion: boolean,
+    evaluationId?: number | string
   ) {
     let params = new HttpParams();
     params = params.set('lastVersion', lastVersion);
     if (cohortIds.length > 0)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
+    if (evaluationId) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
     return this.get<GetQueryResponse<PollAvgReport>>(
       `polls/${pollInstanceUUID}/avg`,
       params
@@ -70,7 +74,8 @@ export class ReportService extends BaseApiService {
   getCountPoolReport(
     pollInstanceUuid: string,
     cohortIds: number[] | null,
-    variableIds: number[]
+    variableIds: number[],
+    evaluationId?: number | string
   ): Observable<GetQueryResponse<PollCountReport> | null> {
     if (!variableIds || !variableIds.length) return of(null);
 
@@ -79,8 +84,14 @@ export class ReportService extends BaseApiService {
       this.arrayAsStringParams(variableIds)
     );
     params = params.set('lastVersion', true);
+
     if (cohortIds != null)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
+
+    if (evaluationId) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
+
     return this.get<GetQueryResponse<PollCountReport>>(
       `polls/${pollInstanceUuid}/count`,
       params
