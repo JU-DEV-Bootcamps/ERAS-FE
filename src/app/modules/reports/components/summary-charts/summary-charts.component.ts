@@ -102,6 +102,7 @@ export class SummaryChartsComponent {
   selectedCohort?: CohortModel;
   lastVersion = true;
   pollUuid = '';
+  evaluationId?: number | string;
 
   students: StudentRiskAverage[] = [];
   totalStudents = 0;
@@ -125,7 +126,12 @@ export class SummaryChartsComponent {
     }
 
     this.reportService
-      .getAvgPoolReport(this.pollUuid, this.cohortIds, this.lastVersion)
+      .getAvgPoolReport(
+        this.pollUuid,
+        this.cohortIds,
+        this.lastVersion,
+        this.evaluationId
+      )
       .subscribe(response => {
         this.components.set(response.body);
 
@@ -225,6 +231,7 @@ export class SummaryChartsComponent {
       componentName,
       text: text ?? componentName,
       question,
+      evaluationId: this.evaluationId,
     };
     this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
@@ -234,6 +241,7 @@ export class SummaryChartsComponent {
     this.title = filters.title;
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
+    this.evaluationId = filters.evaluationId;
     this._loadStudents({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
@@ -256,6 +264,7 @@ export class SummaryChartsComponent {
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
           lastVersion: this.lastVersion,
+          evaluationId: this.evaluationId,
         })
         .subscribe(response => {
           this.students = response.items;

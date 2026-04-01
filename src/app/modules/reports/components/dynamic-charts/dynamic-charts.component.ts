@@ -63,6 +63,7 @@ export class DynamicChartsComponent {
   uuid: string | null = null;
   cohorTitle: string | null = null;
   chartsOptions: ApexOptions[] = [];
+  evaluationId?: number | string;
   pdfHelper = inject(PdfHelper);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
@@ -89,7 +90,7 @@ export class DynamicChartsComponent {
 
     this.isLoading = true;
     this.reportService
-      .getCountPoolReport(this.uuid, cohortIds, variablesIds)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds, this.evaluationId)
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
@@ -188,6 +189,7 @@ export class DynamicChartsComponent {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
+    this.evaluationId = filters.evaluationId;
     if (!filters.cohortIds || !filters.variableIds) {
       this.chartsOptions = [];
       this.components.set(null);
@@ -201,30 +203,6 @@ export class DynamicChartsComponent {
     this.expandedId = this.expandedId === id ? null : id;
   }
 
-  // openDetailsModal(
-  //   pollUuid: string,
-  //   cohortId: string,
-  //   question: PollCountQuestion,
-  //   componentName: ComponentValueType,
-  //   text?: string,
-  //   riskLevel?: number
-  // ): void {
-  //   const data: SelectedHMData = {
-  //     cohortId: cohortId,
-  //     pollUuid,
-  //     componentName,
-  //     text,
-  //     question,
-  //     riskLevel,
-  //   };
-  //   this.dialog.open(ModalQuestionDetailsComponent, {
-  //     width: 'clamp(320px, 50vw, 580px)',
-  //     maxWidth: '60vw',
-  //     maxHeight: '60vh',
-  //     panelClass: 'border-modalbox-dialog',
-  //     data,
-  //   });
-  // }
   openDetailsModal(
     pollUuid: string,
     cohortId: string,
@@ -240,6 +218,7 @@ export class DynamicChartsComponent {
       text,
       question,
       riskLevel,
+      evaluationId: this.evaluationId,
     });
     this.isPanelOpen.set(true);
   }

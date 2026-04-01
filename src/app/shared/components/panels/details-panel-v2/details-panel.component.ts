@@ -32,6 +32,7 @@ export interface DetailsPanelData {
   text?: string;
   question: PollAvgQuestion | PollCountQuestion;
   riskLevel?: number;
+  evaluationId?: number | string;
 }
 
 @Component({
@@ -118,7 +119,8 @@ export class DetailsPanelComponent implements OnChanges {
         [this.variableId],
         this.pagination.pageSize,
         this.pagination.page,
-        panelData.riskLevel ? [panelData.riskLevel] : undefined
+        panelData.riskLevel ? [panelData.riskLevel] : undefined,
+        panelData.evaluationId
       )
       .subscribe(data => {
         const items = (data?.items ?? []).sort((a, b) => {
