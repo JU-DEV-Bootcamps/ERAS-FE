@@ -54,6 +54,7 @@
           <div #contentToExport class="charts-grid">
             @for (chartOption of chartsOptions; track $index) {
               <app-expandable-card
+                #chartsGrid
                 [cardId]="'chart-' + $index"
                 [expanded]="expandedId === 'chart-' + $index"
                 [dimmed]="

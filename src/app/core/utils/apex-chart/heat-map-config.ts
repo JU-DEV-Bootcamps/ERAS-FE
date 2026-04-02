@@ -7,16 +7,35 @@ import {
 } from '@core/constants/riskLevel';
 import { customTooltip } from '@core/utils/apex-chart/customTooltip';
 
+interface ChartContext {
+  el: HTMLElement;
+}
+
 export function GetChartOptions(
   title: string,
   series: ApexAxisChartSeries,
   dataPointSelection?: (x: number, y: number) => void,
   baseChartOptions?: ApexOptions,
   tooltipCustomFunction?: (x: number, y: number) => string,
-  fixColors = true
+  fixColors = true,
+  columnCount = 6,
+  availableWidth = 6
 ): ApexOptions {
+  console.log('here available', availableWidth);
+  console.log('here data', series);
+  console.log('here points', dataPointSelection);
+
+  const isExpandedChart = availableWidth > 1200;
+  const FIXED_CELL_WIDTH = isExpandedChart
+    ? availableWidth / 12
+    : availableWidth / 10;
+  const CELL_HEIGHT = isExpandedChart ? 80 : 40;
+  const percentageToView = isExpandedChart ? 45 : 30;
   const rowCount = series.length;
-  const chartHeight = Math.min(600, Math.max(300, rowCount * 45));
+  const chartHeight = Math.max(240, rowCount * CELL_HEIGHT + 96);
+  const questionSection = (percentageToView * availableWidth) / 100;
+  const chartWidth = 0.98 * availableWidth;
+
   const options: ApexOptions = {
     series: series,
     chart: {
@@ -28,10 +47,19 @@ export function GetChartOptions(
       toolbar: {
         show: false,
       },
+      offsetX: 0,
+      offsetY: 0,
       animations: {
         enabled: false,
       },
+      width: chartWidth,
       events: {
+        mounted: chartContext => {
+          fixCellWidths(chartContext, columnCount, FIXED_CELL_WIDTH);
+        },
+        updated: chartContext => {
+          fixCellWidths(chartContext, columnCount, FIXED_CELL_WIDTH);
+        },
         dataPointSelection: (
           event: Event,
           chartContext: unknown,
@@ -61,9 +89,22 @@ export function GetChartOptions(
         enabled: false,
       },
     },
+    yaxis: {
+      labels: {
+        maxWidth: questionSection,
+        offsetX: 0,
+      },
+    },
+    grid: {
+      padding: {
+        left: 0,
+        right: 0,
+      },
+    },
     plotOptions: {
       heatmap: {
         distributed: false,
+        useFillColorAsStroke: false,
         ...(fixColors && {
           colorScale: {
             inverse: false,
@@ -74,7 +115,7 @@ export function GetChartOptions(
     },
     tooltip: {
       x: {
-        show: true,
+        show: false,
       },
       y: {
         formatter: function (val: number, opts?): string {
@@ -162,3 +203,33 @@ export const fixedColorRange = [
     name: RISK_LABELS[5], //'High Risk',
   },
 ];
+
+export function fixCellWidths(
+  chartContext: ChartContext,
+  columnCount: number,
+  cellWidth: number
+) {
+  const el = chartContext.el as HTMLElement;
+  const seriesGroups = el.querySelectorAll<SVGGElement>('.apexcharts-series');
+
+  // to adjust each rect and its text in the middle
+  seriesGroups.forEach(seriesGroup => {
+    const rects = seriesGroup.querySelectorAll<SVGRectElement>(
+      '.apexcharts-heatmap-rect'
+    );
+    const texts = seriesGroup.querySelectorAll<SVGTextElement>(
+      '.apexcharts-data-labels text'
+    );
+
+    rects.forEach((rect, index) => {
+      const j = parseInt(rect.getAttribute('j') ?? '0', 10);
+      const newX = j * cellWidth;
+      rect.setAttribute('width', String(cellWidth - 1));
+      rect.setAttribute('x', String(newX));
+      const text = texts[index];
+      if (text) {
+        text.setAttribute('x', String(newX + cellWidth / 2));
+      }
+    });
+  });
+}

@@ -5,6 +5,7 @@ import {
   inject,
   signal,
   ViewChild,
+  AfterViewInit,
 } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 
@@ -37,6 +38,7 @@ import {
   DetailsPanelData,
   DetailsPanelComponent,
 } from '@shared/components/panels/details-panel-v2/details-panel.component';
+import { debounceTime, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -56,7 +58,7 @@ import {
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
 })
-export class DynamicChartsComponent {
+export class DynamicChartsComponent implements AfterViewInit {
   private readonly dialog = inject(MatDialog);
 
   title = '';
@@ -80,10 +82,32 @@ export class DynamicChartsComponent {
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
+  private cardWidth = signal<number>(0);
+
+  ngAfterViewInit() {
+    this._updateCardWidth();
+
+    fromEvent(window, 'resize')
+      .pipe(debounceTime(450)) //, takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._updateCardWidth();
+        const report = this.components();
+        if (report) this.generateSeries(report);
+      });
+  }
+
   constructor(
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    // effect(() => {
+    //   console.log('maybe');
+    //   this.isPanelOpen();
+    //   this._updateCardWidth();
+    //   const report = this.components();
+    //   if (report) this.generateSeries(report);
+    // });
+  }
 
   generateHeatMap(cohortIds: number[], variablesIds: number[]) {
     if (this.uuid === null) return;
@@ -105,6 +129,20 @@ export class DynamicChartsComponent {
   }
 
   generateSeries(report: PollCountReport) {
+    const availableWidth = this.cardWidth();
+    console.log('cardwidth', this.cardWidth());
+    console.log('avaialableWidth', availableWidth);
+
+    const totalWidth = this.cardWidth();
+    const isAnyExpanded = this.expandedId !== null; // 👈 ya tienes este signal
+
+    const cardWidth =
+      totalWidth > 0
+        ? isAnyExpanded
+          ? totalWidth - 16 // 👈 ancho completo cuando está expandido
+          : totalWidth / 2 - 16 // 👈 mitad cuando están en grid de 2 columnas
+        : 400;
+
     this.chartsOptions = [];
     const hmSeries = report.components.map(c =>
       this.reportService.getHMSeriesFromCountComponent(c)
@@ -167,7 +205,10 @@ export class DynamicChartsComponent {
             dataAtPoint.z,
             color
           );
-        }
+        },
+        true,
+        6,
+        cardWidth
       );
     });
     this.cdr.detectChanges();
@@ -200,7 +241,12 @@ export class DynamicChartsComponent {
   }
 
   onToggle(id: string): void {
+    console.log('interest');
+
     this.expandedId = this.expandedId === id ? null : id;
+    this._updateCardWidth(); // 👈 recalcula primero
+    const report = this.components();
+    if (report) this.generateSeries(report);
   }
 
   openDetailsModal(
@@ -220,10 +266,21 @@ export class DynamicChartsComponent {
       riskLevel,
       evaluationId: this.evaluationId,
     });
+    this._updateCardWidth();
+    const report = this.components();
+    if (report) this.generateSeries(report);
+    console.log('interest');
+
     this.isPanelOpen.set(true);
   }
 
   closePanel(): void {
+    console.log('interest');
+    this._updateCardWidth();
+    const report = this.components();
+    if (report) this.generateSeries(report);
+    console.log('interest');
+
     this.isPanelOpen.set(false);
     this.selectedPanelData.set(null);
   }
@@ -261,5 +318,11 @@ export class DynamicChartsComponent {
         color
       );
     };
+  }
+
+  private _updateCardWidth() {
+    const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
+    this.cardWidth.set(width);
+    console.log('card width:', width);
   }
 }

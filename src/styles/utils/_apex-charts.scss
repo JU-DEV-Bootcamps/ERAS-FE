@@ -54,3 +54,18 @@ ul.custom-markers {
   color: green;
   font-size: 12px;
 }
+
+.apexcharts-canvas {
+  // width: 100% !important;
+  width: auto !important;
+  // overflow-x: auto;
+
+  svg {
+    // width: 100% !important;
+    width: auto !important;
+  }
+}
+
+.apexcharts-inner .apexcharts-graphical {
+  background-color: blueviolet;
+}

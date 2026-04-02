@@ -125,3 +125,7 @@
   position: relative;
   z-index: 1;
 }
+
+::ng-deep .apexcharts-yaxis {
+  width: 30%;
+}
