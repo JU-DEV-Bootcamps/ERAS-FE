@@ -88,7 +88,7 @@ export class DynamicChartsComponent implements AfterViewInit {
     this._updateCardWidth();
 
     fromEvent(window, 'resize')
-      .pipe(debounceTime(450)) //, takeUntilDestroyed(this.destroyRef))
+      .pipe(debounceTime(450))
       .subscribe(() => {
         this._updateCardWidth();
         const report = this.components();
@@ -99,15 +99,7 @@ export class DynamicChartsComponent implements AfterViewInit {
   constructor(
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
-  ) {
-    // effect(() => {
-    //   console.log('maybe');
-    //   this.isPanelOpen();
-    //   this._updateCardWidth();
-    //   const report = this.components();
-    //   if (report) this.generateSeries(report);
-    // });
-  }
+  ) {}
 
   generateHeatMap(cohortIds: number[], variablesIds: number[]) {
     if (this.uuid === null) return;
@@ -129,18 +121,14 @@ export class DynamicChartsComponent implements AfterViewInit {
   }
 
   generateSeries(report: PollCountReport) {
-    const availableWidth = this.cardWidth();
-    console.log('cardwidth', this.cardWidth());
-    console.log('avaialableWidth', availableWidth);
-
     const totalWidth = this.cardWidth();
-    const isAnyExpanded = this.expandedId !== null; // 👈 ya tienes este signal
+    const isAnyExpanded = this.expandedId !== null;
 
     const cardWidth =
       totalWidth > 0
         ? isAnyExpanded
-          ? totalWidth - 16 // 👈 ancho completo cuando está expandido
-          : totalWidth / 2 - 16 // 👈 mitad cuando están en grid de 2 columnas
+          ? totalWidth - 16
+          : totalWidth / 2 - 16
         : 400;
 
     this.chartsOptions = [];
@@ -241,10 +229,8 @@ export class DynamicChartsComponent implements AfterViewInit {
   }
 
   onToggle(id: string): void {
-    console.log('interest');
-
     this.expandedId = this.expandedId === id ? null : id;
-    this._updateCardWidth(); // 👈 recalcula primero
+    this._updateCardWidth();
     const report = this.components();
     if (report) this.generateSeries(report);
   }
@@ -266,23 +252,24 @@ export class DynamicChartsComponent implements AfterViewInit {
       riskLevel,
       evaluationId: this.evaluationId,
     });
-    this._updateCardWidth();
-    const report = this.components();
-    if (report) this.generateSeries(report);
-    console.log('interest');
-
     this.isPanelOpen.set(true);
+
+    setTimeout(() => {
+      this._updateCardWidth();
+      const report = this.components();
+      if (report) this.generateSeries(report);
+    }, 50);
   }
 
   closePanel(): void {
-    console.log('interest');
-    this._updateCardWidth();
-    const report = this.components();
-    if (report) this.generateSeries(report);
-    console.log('interest');
-
     this.isPanelOpen.set(false);
     this.selectedPanelData.set(null);
+
+    setTimeout(() => {
+      this._updateCardWidth();
+      const report = this.components();
+      if (report) this.generateSeries(report);
+    }, 50);
   }
 
   toggleChart(chart: string) {
@@ -323,6 +310,5 @@ export class DynamicChartsComponent implements AfterViewInit {
   private _updateCardWidth() {
     const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
     this.cardWidth.set(width);
-    console.log('card width:', width);
   }
 }
