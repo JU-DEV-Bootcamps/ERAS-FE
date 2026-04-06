@@ -91,7 +91,7 @@ export class PollFiltersComponent implements OnInit {
     selectedEvaluation: new FormControl<EvaluationModel | null>(null, [
       Validators.required,
     ]),
-    cohortIds: new FormControl<number[] | null>([], null),
+    cohortIds: new FormControl<number[] | null>([], [Validators.required]),
     componentNames: new FormControl<string[] | null>(null, [
       Validators.required,
     ]),
