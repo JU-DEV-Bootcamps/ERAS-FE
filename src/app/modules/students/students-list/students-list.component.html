@@ -1,0 +1,14 @@
+<div class="page-header">
+  <h2 class="page-title">Students</h2>
+</div>
+
+<app-list
+  (loadCalled)="handleLoadCalled($event)"
+  (actionCalled)="handleActionCalled($event)"
+  [columns]="columns"
+  [exportColumns]="exportColumns"
+  [items]="students"
+  [totalItems]="totalStudents"
+  [actionDatas]="actionDatas"
+>
+</app-list>
