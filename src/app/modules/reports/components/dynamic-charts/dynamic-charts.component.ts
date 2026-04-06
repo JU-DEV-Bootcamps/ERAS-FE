@@ -87,10 +87,11 @@ export class DynamicChartsComponent implements AfterViewInit {
   private cardWidth = signal<number>(0);
 
   ngAfterViewInit() {
+    const DEFAULT_DEBOUNCE_TIME = 450;
     this._updateCardWidth();
 
     fromEvent(window, 'resize')
-      .pipe(debounceTime(450))
+      .pipe(debounceTime(DEFAULT_DEBOUNCE_TIME))
       .subscribe(() => {
         this._updateCardWidth();
         const report = this.components();
@@ -125,13 +126,18 @@ export class DynamicChartsComponent implements AfterViewInit {
   generateSeries(report: PollCountReport) {
     const totalWidth = this.cardWidth();
     const isAnyExpanded = this.expandedId !== null;
+    const CARD_LAYOUT = {
+      spacing: 16,
+      columns: 2,
+      fallbackWidth: 400,
+    };
 
     const cardWidth =
       totalWidth > 0
         ? isAnyExpanded
-          ? totalWidth - 16
-          : totalWidth / 2 - 16
-        : 400;
+          ? totalWidth - CARD_LAYOUT.spacing
+          : totalWidth / CARD_LAYOUT.columns - CARD_LAYOUT.spacing
+        : CARD_LAYOUT.fallbackWidth;
 
     this.chartsOptions = [];
     const hmSeries = report.components.map(c =>
@@ -196,8 +202,6 @@ export class DynamicChartsComponent implements AfterViewInit {
             color
           );
         },
-        true,
-        6,
         cardWidth
       );
     });
@@ -234,7 +238,6 @@ export class DynamicChartsComponent implements AfterViewInit {
     this.expandedId = this.expandedId === id ? null : id;
     this.isAnyCardExpanded = this.expandedId !== null;
     if (this.expandedId === null) {
-      // Guardamos la altura ANTES de expandir
       this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
     }
     this._updateCardWidth();

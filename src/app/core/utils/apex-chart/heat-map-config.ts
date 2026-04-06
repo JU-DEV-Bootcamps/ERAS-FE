@@ -1,11 +1,7 @@
 import { ApexOptions } from 'ng-apexcharts';
-import {
-  RISK_COLORS,
-  RISK_LABELS,
-  RISK_TEXT_COLORS,
-  getRiskGroup,
-} from '@core/constants/riskLevel';
+import { getRiskGroup } from '@core/constants/riskLevel';
 import { customTooltip } from '@core/utils/apex-chart/customTooltip';
+import { CHART_LAYOUT, fixedColorRange } from './chart.constants';
 
 interface ChartContext {
   el: HTMLElement;
@@ -17,19 +13,25 @@ export function GetChartOptions(
   dataPointSelection?: (x: number, y: number) => void,
   baseChartOptions?: ApexOptions,
   tooltipCustomFunction?: (x: number, y: number) => string,
-  fixColors = true,
-  columnCount = 6,
-  availableWidth = 6
+  availableWidth = 500,
+  fixColors = true
 ): ApexOptions {
-  const isExpandedChart = availableWidth > 1200;
-  const FIXED_CELL_WIDTH = isExpandedChart
-    ? availableWidth / 12.5
-    : availableWidth / 9.5;
-  const CELL_HEIGHT = isExpandedChart ? 56 : 32;
-  const percentageToView = isExpandedChart ? 50 : 30;
+  const CARD_EXPANDED_THRESHOLD_WIDTH = 1200;
+  const CARD_HEADER_WIDTH = 96;
+  const MIN_CHART_HEIGHT = 240;
+  const isExpandedChart = availableWidth > CARD_EXPANDED_THRESHOLD_WIDTH;
+  const chartValues = isExpandedChart
+    ? CHART_LAYOUT.expanded
+    : CHART_LAYOUT.compact;
+  const FIXED_CELL_WIDTH = availableWidth / chartValues.columnDivisor;
+  const CELL_HEIGHT = chartValues.cellHeight;
+  const percentageToView = chartValues.labelPercent;
+  const questionSection = percentageToView * availableWidth;
   const rowCount = series.length;
-  const chartHeight = Math.max(240, rowCount * CELL_HEIGHT + 96);
-  const questionSection = (percentageToView * availableWidth) / 100;
+  const chartHeight = Math.max(
+    MIN_CHART_HEIGHT,
+    rowCount * CELL_HEIGHT + CARD_HEADER_WIDTH
+  );
   const chartWidth = availableWidth;
 
   const options: ApexOptions = {
@@ -51,10 +53,10 @@ export function GetChartOptions(
       width: chartWidth,
       events: {
         mounted: chartContext => {
-          fixCellWidths(chartContext, columnCount, FIXED_CELL_WIDTH);
+          fixCellWidths(chartContext, FIXED_CELL_WIDTH);
         },
         updated: chartContext => {
-          fixCellWidths(chartContext, columnCount, FIXED_CELL_WIDTH);
+          fixCellWidths(chartContext, FIXED_CELL_WIDTH);
         },
         dataPointSelection: (
           event: Event,
@@ -150,56 +152,7 @@ export function GetChartOptions(
   return options;
 }
 
-export const fixedColorRange = [
-  {
-    from: -1,
-    to: 0.49,
-    color: RISK_COLORS[0], //'#FFFFFF',
-    foreColor: RISK_TEXT_COLORS[0],
-    name: RISK_LABELS[0], //No Answer
-  },
-  {
-    from: 0.5,
-    to: 1.49,
-    color: RISK_COLORS[1], //'#008000',
-    foreColor: RISK_TEXT_COLORS[1],
-    name: RISK_LABELS[1], //'Low Risk',
-  },
-  {
-    from: 1.5,
-    to: 2.49,
-    color: RISK_COLORS[2], //'#3CB371',
-    foreColor: RISK_TEXT_COLORS[2],
-    name: RISK_LABELS[2], //'Low-Medium Risk',
-  },
-  {
-    from: 2.5,
-    to: 3.49,
-    color: RISK_COLORS[3], //'#F0D722',
-    foreColor: RISK_TEXT_COLORS[3],
-    name: RISK_LABELS[3], //'Medium Risk',
-  },
-  {
-    from: 3.5,
-    to: 4.49,
-    color: RISK_COLORS[4], //'#FFA500',
-    foreColor: RISK_TEXT_COLORS[4],
-    name: RISK_LABELS[4], //'Medium-High Risk',
-  },
-  {
-    from: 4.5,
-    to: 14,
-    color: RISK_COLORS[5], //'#FF0000',
-    foreColor: RISK_TEXT_COLORS[5],
-    name: RISK_LABELS[5], //'High Risk',
-  },
-];
-
-export function fixCellWidths(
-  chartContext: ChartContext,
-  columnCount: number,
-  cellWidth: number
-) {
+export function fixCellWidths(chartContext: ChartContext, cellWidth: number) {
   const el = chartContext.el as HTMLElement;
   const seriesGroups = el.querySelectorAll<SVGGElement>('.apexcharts-series');
 
@@ -213,13 +166,15 @@ export function fixCellWidths(
     );
 
     rects.forEach((rect, index) => {
-      const j = parseInt(rect.getAttribute('j') ?? '0', 10);
+      const DEFAULT_INDEX = 0;
+      const CELL_MID_WIDTH = cellWidth / 2;
+      const j = parseInt(rect.getAttribute('j') ?? String(DEFAULT_INDEX), 10);
       const newX = j * cellWidth;
       rect.setAttribute('width', String(cellWidth - 1));
       rect.setAttribute('x', String(newX));
       const text = texts[index];
       if (text) {
-        text.setAttribute('x', String(newX + cellWidth / 2));
+        text.setAttribute('x', String(newX + CELL_MID_WIDTH));
       }
     });
   });
