@@ -1,10 +1,6 @@
 <h1 class="page-title">Summary Charts</h1>
 <h2 class="page-subtitle">{{ title }}</h2>
-<app-poll-filters
-  class="expanded"
-  [showVariables]="false"
-  (filters)="handleFilterSelect($event)"
-></app-poll-filters>
+<app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
 
 @if (showEmpty) {
   <app-empty-data-message

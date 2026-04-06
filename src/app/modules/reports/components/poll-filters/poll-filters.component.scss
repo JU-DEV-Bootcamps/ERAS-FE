@@ -1,12 +1,40 @@
 .form-container {
-  display: grid;
-  width: 90%;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
 }
 
-.form-container > *:nth-child(n + 3) {
-  grid-column: 1 / -1; /* Span both columns */
+.form-container > app-select-virtual-scroll,
+.form-container > app-select-multiple-virtual-scroll {
+  flex: 1;
+  min-width: 180px;
+}
+
+.variable-field {
+  flex: 1.5 !important;
+}
+
+.button-container {
+  margin-top: -4px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.btn-apply {
+  background-color: #157375 !important;
+  color: white !important;
+  border-radius: 25px !important;
+  padding: 0 25px !important;
+  height: 48px !important;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.btn-apply:disabled {
+  background-color: #cccccc !important;
 }
 
 .versioned-option span {

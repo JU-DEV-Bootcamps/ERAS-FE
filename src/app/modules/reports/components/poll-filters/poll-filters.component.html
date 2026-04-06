@@ -5,49 +5,56 @@
       support.
     </p>
   }
+
   <div class="form-container">
     <app-select-virtual-scroll
       [items]="evaluationsToScroll()"
       [control]="filterForm.controls.selectedEvaluation"
       [id]="'sl-evaluation'"
-      [label]="'Evaluation'"
+      [label]="'Evaluation Process'"
       (selectionChange)="handleEvaluationSelect($event)"
     />
+
+    @if (filterForm.value.selectedEvaluation && showVariables) {
+      <app-select-multiple-virtual-scroll
+        [items]="componentsToScroll()"
+        [control]="filterForm.controls.componentNames"
+        [id]="'sl-components'"
+        [label]="'Component'"
+        (openedChange)="handleComponentsSelect($event)"
+      />
+    }
 
     @if (polls[0]) {
       <app-select-multiple-virtual-scroll
         [items]="cohortsToScroll()"
         [control]="filterForm.controls.cohortIds"
         [id]="'sl-cohort'"
-        [label]="'Cohorts'"
+        [label]="'Cohort'"
         (openedChange)="handleCohortSelect($event)"
       />
     }
-    @if (
-      filterForm.value.cohortIds &&
-      filterForm.value.cohortIds.length &&
-      showVariables
-    ) {
+
+    @if (filterForm.value.cohortIds?.length && showVariables) {
       <app-select-multiple-virtual-scroll
-        [items]="componentsToScroll()"
-        [control]="filterForm.controls.componentNames"
-        [id]="'sl-components'"
-        [label]="'Components'"
-        (openedChange)="handleComponentsSelect($event)"
-      />
-    }
-    @if (
-      filterForm.value.cohortIds &&
-      filterForm.value.cohortIds.length &&
-      showVariables
-    ) {
-      <app-select-multiple-virtual-scroll
+        class="variable-field"
         [control]="filterForm.controls.variables"
         [id]="'sl-variables'"
-        [label]="'Variables'"
+        [label]="'Variable'"
         [groups]="variableSelectGroups()"
         (openedChange)="handleVariableSelect($event)"
       />
     }
+
+    <div class="button-container">
+      <button
+        mat-flat-button
+        class="btn-apply"
+        [disabled]="filterForm.invalid || !filterForm.value.cohortIds?.length"
+        (click)="onApply()"
+      >
+        Apply
+      </button>
+    </div>
   </div>
 </form>
