@@ -10,7 +10,12 @@ import { BaseExportService } from './base-export.service';
 export class PdfService extends BaseExportService {
   protected extension = 'pdf';
 
-  exportToPDF(element: HTMLElement, name: string, callback?: () => void) {
+  exportToPDF(
+    element: HTMLElement,
+    name: string,
+    callback?: () => void,
+    title?: string
+  ) {
     html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -25,13 +30,21 @@ export class PdfService extends BaseExportService {
         const marginRight = PDF_CONFIG.margin.right;
         const marginBottom = PDF_CONFIG.margin.bottom;
 
+        let contentOffsetTop = marginTop;
+        if (title) {
+          pdf.setFontSize(14);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(title, marginLeft, marginTop);
+          contentOffsetTop = marginTop + 8;
+        }
+
         const pageWidth = pdf.internal.pageSize.width;
         const pageHeight = pdf.internal.pageSize.height;
 
         const imgWidth = pageWidth - marginLeft - marginRight;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        const usableHeight = pageHeight - marginTop - marginBottom;
+        const usableHeight = pageHeight - contentOffsetTop - marginBottom;
 
         let currentHeight = 0;
 
@@ -62,7 +75,7 @@ export class PdfService extends BaseExportService {
             fragmentImgData,
             'JPEG',
             marginLeft,
-            marginTop,
+            contentOffsetTop,
             imgWidth,
             sectionHeight
           );

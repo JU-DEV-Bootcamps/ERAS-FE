@@ -6,4 +6,5 @@ export interface ExportArgs {
   container: ElementRef;
   snackBar?: MatSnackBar;
   preProcess?: string;
+  title?: string;
 }

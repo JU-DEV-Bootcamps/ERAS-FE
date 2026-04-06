@@ -153,4 +153,45 @@ export class PdfHelper {
       }
     });
   }
+
+  async exportCardToPdf(args: ExportArgs) {
+    const element = args.container?.nativeElement;
+    const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
+
+    const clonedCard = element.cloneNode(true) as HTMLElement;
+    const collapsibleContent = clonedCard.querySelector<HTMLElement>(
+      '.card, .card__body, [class*="content"]'
+    );
+    if (collapsibleContent) {
+      collapsibleContent.style.display = 'block';
+      collapsibleContent.style.overflow = 'visible';
+      collapsibleContent.style.maxHeight = 'none';
+      collapsibleContent.style.height = 'auto';
+      collapsibleContent.style.visibility = 'visible';
+      collapsibleContent.style.opacity = '1';
+    }
+    const uiControls = clonedCard.querySelectorAll<HTMLElement>(
+      '.pdf-export, .expand-toggle, .change-to-column,.card-actions, [class*="export"], [class*="toggle"]'
+    );
+    uiControls.forEach(el => (el.style.display = 'none'));
+
+    clonedCard.style.position = 'fixed';
+    clonedCard.style.top = '0';
+    clonedCard.style.left = '-9999px';
+    clonedCard.style.width = element.offsetWidth + 'px';
+    clonedCard.style.zIndex = '-1';
+    clonedCard.style.height = 'auto';
+    clonedCard.style.overflow = 'visible';
+
+    document.body.appendChild(clonedCard);
+
+    return this.pdfService.exportToPDF(
+      clonedCard,
+      fileName,
+      () => {
+        document.body.removeChild(clonedCard);
+      },
+      args.title
+    );
+  }
 }

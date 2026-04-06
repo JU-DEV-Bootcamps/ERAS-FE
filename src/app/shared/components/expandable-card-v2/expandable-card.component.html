@@ -2,7 +2,12 @@
   class="card"
   [class.card--expanded]="expanded"
   [class.card--dimmed]="dimmed"
+  #cardRef
 >
+  <button class="pdf-export" (click)="onExportPdf()">Export</button>
+  <button class="change-to-column" (click)="changeToColumn()">
+    <mat-icon>bar_chart</mat-icon>
+  </button>
   <button
     class="card__toggle-btn"
     [attr.aria-label]="expanded ? 'Colapsar' : 'Expandir'"

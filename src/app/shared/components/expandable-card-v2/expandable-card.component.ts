@@ -7,8 +7,12 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
+  inject,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { PdfHelper } from '@core/utils/reports/exportReport.util';
 
 @Component({
   selector: 'app-expandable-card',
@@ -30,6 +34,8 @@ export class ExpandableCardComponent implements OnChanges {
   @HostBinding('class.is-dimmed') get hostDimmed() {
     return this.dimmed;
   }
+  pdfHelper = inject(PdfHelper);
+  @ViewChild('cardRef') cardRef!: ElementRef<HTMLElement>;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['expanded']) {
@@ -39,5 +45,17 @@ export class ExpandableCardComponent implements OnChanges {
 
   onToggle(): void {
     this.toggleExpand.emit(this.cardId);
+  }
+
+  onExportPdf(): void {
+    this.pdfHelper.exportCardToPdf({
+      container: this.cardRef,
+      fileName: 'card',
+      title: 'something',
+    });
+  }
+
+  changeToColumn(): void {
+    console.log('column');
   }
 }
