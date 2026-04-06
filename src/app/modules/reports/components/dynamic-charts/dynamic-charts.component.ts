@@ -77,6 +77,7 @@ export class DynamicChartsComponent {
 
   selectedPanelData = signal<DetailsPanelData | null>(null);
   isPanelOpen = signal(false);
+  hasNoResults = false;
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -95,11 +96,14 @@ export class DynamicChartsComponent {
         if (data) {
           this.components.set(data.body);
           this.generateSeries(data.body);
+          this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
           this.isLoading = false;
         } else {
           this.chartsOptions = [];
           this.components.set(null);
+          this.hasNoResults = true;
+          this.isLoading = false;
         }
       });
   }
@@ -186,6 +190,7 @@ export class DynamicChartsComponent {
   }
 
   handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');

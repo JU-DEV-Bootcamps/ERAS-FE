@@ -119,6 +119,7 @@ export class PollsAnsweredComponent implements OnInit {
   currentPage = 0;
 
   isMobile = false;
+  hasNoResults = false;
 
   ngOnInit(): void {
     this.loadCohortsList();
@@ -199,6 +200,7 @@ export class PollsAnsweredComponent implements OnInit {
         this.pollInstances = sortArray(flatedArray, 'student.name');
 
         this.totalPollInstances = data.body.count;
+        this.hasNoResults = data.body.count === 0;
         this.loading = false;
       });
   }
@@ -218,6 +220,7 @@ export class PollsAnsweredComponent implements OnInit {
   }
 
   handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
     this.lastVersion = filters.lastVersion;

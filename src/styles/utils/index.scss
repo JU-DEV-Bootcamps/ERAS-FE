@@ -46,6 +46,9 @@ mat-icon {
 .cdk-overlay-pane {
   background-color: white !important;
 }
+.cdk-overlay-pane:has(.compact-select-panel) {
+  min-width: 540px !important;
+}
 
 // Rewrite apexcharts styles
 .apexcharts-canvas .apexcharts-heatmap-rect[val='-1'],

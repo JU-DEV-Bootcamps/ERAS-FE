@@ -11,6 +11,10 @@
   ></app-empty-data-message>
 } @else if (loading) {
   <mat-spinner></mat-spinner>
+} @else if (hasNoResults) {
+  <app-empty-data-message
+    description="No poll instances found for the selected filters. Try adjusting your selection."
+  ></app-empty-data-message>
 } @else {
   <app-list
     (actionCalled)="goToDetails($event)"
