@@ -189,10 +189,6 @@ export class DynamicColumnChartComponent {
     text?: string,
     riskLevel?: number
   ) {
-    console.log(
-      'Abriendo modal desde ColumnChart con ID:',
-      this.evaluationId()
-    );
     const data: SelectedHMData = {
       cohortId: cohortId.toString(),
       pollUuid,

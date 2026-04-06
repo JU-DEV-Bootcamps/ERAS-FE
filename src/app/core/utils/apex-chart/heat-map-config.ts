@@ -21,20 +21,16 @@ export function GetChartOptions(
   columnCount = 6,
   availableWidth = 6
 ): ApexOptions {
-  console.log('here available', availableWidth);
-  console.log('here data', series);
-  console.log('here points', dataPointSelection);
-
   const isExpandedChart = availableWidth > 1200;
   const FIXED_CELL_WIDTH = isExpandedChart
-    ? availableWidth / 12
-    : availableWidth / 10;
-  const CELL_HEIGHT = isExpandedChart ? 80 : 40;
-  const percentageToView = isExpandedChart ? 45 : 30;
+    ? availableWidth / 12.5
+    : availableWidth / 9.5;
+  const CELL_HEIGHT = isExpandedChart ? 56 : 32;
+  const percentageToView = isExpandedChart ? 50 : 30;
   const rowCount = series.length;
   const chartHeight = Math.max(240, rowCount * CELL_HEIGHT + 96);
   const questionSection = (percentageToView * availableWidth) / 100;
-  const chartWidth = 0.98 * availableWidth;
+  const chartWidth = availableWidth;
 
   const options: ApexOptions = {
     series: series,
@@ -88,17 +84,12 @@ export function GetChartOptions(
       tooltip: {
         enabled: false,
       },
+      crosshairs: { show: false },
     },
     yaxis: {
       labels: {
         maxWidth: questionSection,
         offsetX: 0,
-      },
-    },
-    grid: {
-      padding: {
-        left: 0,
-        right: 0,
       },
     },
     plotOptions: {

@@ -79,6 +79,8 @@ export class DynamicChartsComponent implements AfterViewInit {
 
   selectedPanelData = signal<DetailsPanelData | null>(null);
   isPanelOpen = signal(false);
+  isAnyCardExpanded = false;
+  gridHeight = 0;
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
 
@@ -230,6 +232,11 @@ export class DynamicChartsComponent implements AfterViewInit {
 
   onToggle(id: string): void {
     this.expandedId = this.expandedId === id ? null : id;
+    this.isAnyCardExpanded = this.expandedId !== null;
+    if (this.expandedId === null) {
+      // Guardamos la altura ANTES de expandir
+      this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
+    }
     this._updateCardWidth();
     const report = this.components();
     if (report) this.generateSeries(report);
@@ -305,6 +312,10 @@ export class DynamicChartsComponent implements AfterViewInit {
         color
       );
     };
+  }
+
+  onCardExpand(expanded: boolean) {
+    this.isAnyCardExpanded = expanded;
   }
 
   private _updateCardWidth() {
