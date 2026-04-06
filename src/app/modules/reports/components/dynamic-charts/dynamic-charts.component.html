@@ -50,10 +50,18 @@
     </div>
     <div class="charts-layout" [class.panel-open]="isPanelOpen()">
       @if (heatmapChart) {
-        <div class="charts-area-wrapper">
-          <div #contentToExport class="charts-grid">
+        <div
+          class="charts-area-wrapper"
+          [class.has-expanded-card]="isAnyCardExpanded"
+        >
+          <div
+            #contentToExport
+            class="charts-grid"
+            [style.height.px]="isAnyCardExpanded ? gridHeight : null"
+          >
             @for (chartOption of chartsOptions; track $index) {
               <app-expandable-card
+                #chartsGrid
                 [cardId]="'chart-' + $index"
                 [expanded]="expandedId === 'chart-' + $index"
                 [dimmed]="
