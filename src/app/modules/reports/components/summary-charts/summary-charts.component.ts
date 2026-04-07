@@ -73,6 +73,7 @@ export class SummaryChartsComponent {
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
   private injector = inject(EnvironmentInjector);
+  hasNoResults = false;
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
@@ -122,6 +123,7 @@ export class SummaryChartsComponent {
   getHeatMap() {
     if (!this.pollUuid || !this.cohortIds.length) {
       this.chartOptions = {};
+      this.isLoading = false;
       return;
     }
 
@@ -132,59 +134,67 @@ export class SummaryChartsComponent {
         this.lastVersion,
         this.evaluationId
       )
-      .subscribe(response => {
-        this.components.set(response.body);
+      .subscribe({
+        next: response => {
+          this.components.set(response.body);
+          this.hasNoResults = !response.body?.components?.length;
 
-        const reportSeries = this.reportService.getHMSeriesFromAvgReport(
-          response.body
-        );
+          const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+            response.body
+          );
+          const series = this.reportService.regroupSummaryByColor(reportSeries);
 
-        const series = this.reportService.regroupSummaryByColor(reportSeries);
-        this.chartOptions = GetChartOptions(
-          `${this.title}`,
-          series,
-          (x, y) => {
-            const component = series[y];
-            const serieQuestion = series[y].data[x];
-            const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
-              response.body,
-              component.description,
-              serieQuestion
-            );
-            if (!pollAvgQuestion) {
-              console.error('Error getting question from report.');
-            } else {
-              this.openDetailsModal(
-                pollAvgQuestion,
-                component.description as ComponentValueType,
-                component.text
+          this.chartOptions = GetChartOptions(
+            `${this.title}`,
+            series,
+            (x, y) => {
+              const component = series[y];
+              const serieQuestion = series[y].data[x];
+              const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
+                response.body,
+                component.description,
+                serieQuestion
               );
+              if (!pollAvgQuestion) {
+                console.error('Error getting question from report.');
+              } else {
+                this.openDetailsModal(
+                  pollAvgQuestion,
+                  component.description as ComponentValueType,
+                  component.text
+                );
+              }
+            },
+            undefined,
+            (x, y) => {
+              const category = `Q: ${series[x].data[y].x}`;
+              const value = `Answer: ${series[x].data[y].y}`;
+              const answers = series[x].data[y].z;
+
+              const compRef = createComponent(TooltipChartComponent, {
+                environmentInjector: this.injector,
+              });
+
+              compRef.instance.value = value;
+              compRef.instance.category = category;
+              compRef.instance.answers = answers;
+
+              const container = document.createElement('div');
+              container.appendChild(compRef.location.nativeElement);
+              compRef.changeDetectorRef.detectChanges();
+
+              const html = container.innerHTML;
+              compRef.destroy();
+
+              return html;
             }
-          },
-          undefined,
-          (x, y) => {
-            const category = `Q: ${series[x].data[y].x}`;
-            const value = `Answer: ${series[x].data[y].y}`;
-            const answers = series[x].data[y].z;
-
-            const compRef = createComponent(TooltipChartComponent, {
-              environmentInjector: this.injector,
-            });
-
-            compRef.instance.value = value;
-            compRef.instance.category = category;
-            compRef.instance.answers = answers;
-
-            const container = document.createElement('div');
-            container.appendChild(compRef.location.nativeElement);
-            compRef.changeDetectorRef.detectChanges();
-
-            const html = container.innerHTML;
-            compRef.destroy();
-
-            return html;
-          }
-        );
+          );
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.hasNoResults = true;
+        },
       });
   }
 
@@ -237,11 +247,20 @@ export class SummaryChartsComponent {
   }
 
   handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
     this.evaluationId = filters.evaluationId;
+
+    if (!filters.uuid || !filters.cohortIds?.length) {
+      this.chartOptions = {};
+      this.students = [];
+      return;
+    }
+
+    this.isLoading = true;
     this._loadStudents({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
@@ -256,7 +275,6 @@ export class SummaryChartsComponent {
 
   private _loadStudents(event: EventLoad) {
     if (this.cohortIds.length && this.pollUuid) {
-      this.isLoading = true;
       this.studentService
         .getAllAverageByCohortsAndPoll({
           page: event.page,
@@ -266,14 +284,22 @@ export class SummaryChartsComponent {
           lastVersion: this.lastVersion,
           evaluationId: this.evaluationId,
         })
-        .subscribe(response => {
-          this.students = response.items;
-          this.totalStudents = response.count;
-          this.isLoading = false;
+        .subscribe({
+          next: response => {
+            this.students = response.items;
+            this.totalStudents = response.count;
+            this.hasNoResults =
+              response.count === 0 && !this.components()?.components?.length;
+            this.isLoading = false;
+          },
+          error: () => {
+            this.isLoading = false;
+          },
         });
     } else {
       this.students = [];
       this.totalStudents = 0;
+      this.isLoading = false;
     }
   }
 }

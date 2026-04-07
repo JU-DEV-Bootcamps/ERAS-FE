@@ -1,7 +1,6 @@
 <h1 class="page-title">Summary Charts</h1>
 <h2 class="page-subtitle">{{ title }}</h2>
 <app-poll-filters
-  class="expanded"
   [showVariables]="false"
   (filters)="handleFilterSelect($event)"
 ></app-poll-filters>
@@ -9,6 +8,12 @@
 @if (showEmpty) {
   <app-empty-data-message
     description="Please select the required fields to generate the charts."
+  />
+} @else if (isLoading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (hasNoResults) {
+  <app-empty-data-message
+    description="No data found for the selected filters. Try adjusting your selection."
   />
 } @else {
   <ng-container>

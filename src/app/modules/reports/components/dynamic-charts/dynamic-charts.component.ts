@@ -79,6 +79,7 @@ export class DynamicChartsComponent implements AfterViewInit {
 
   selectedPanelData = signal<DetailsPanelData | null>(null);
   isPanelOpen = signal(false);
+  hasNoResults = false;
   isAnyCardExpanded = false;
   gridHeight = 0;
 
@@ -114,11 +115,14 @@ export class DynamicChartsComponent implements AfterViewInit {
         if (data) {
           this.components.set(data.body);
           this.generateSeries(data.body);
+          this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
           this.isLoading = false;
         } else {
           this.chartsOptions = [];
           this.components.set(null);
+          this.hasNoResults = true;
+          this.isLoading = false;
         }
       });
   }
@@ -221,6 +225,7 @@ export class DynamicChartsComponent implements AfterViewInit {
   }
 
   handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
