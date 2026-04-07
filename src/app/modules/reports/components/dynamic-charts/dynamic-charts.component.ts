@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 
-import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -45,7 +44,6 @@ import { debounceTime, fromEvent } from 'rxjs';
   imports: [
     DynamicColumnChartComponent,
     EmptyDataComponent,
-    MatIcon,
     MatMenuModule,
     MatProgressBarModule,
     MatTooltipModule,
@@ -210,18 +208,6 @@ export class DynamicChartsComponent implements AfterViewInit {
       );
     });
     this.cdr.detectChanges();
-  }
-
-  async exportReportPdf() {
-    if (this.isGeneratingPDF) return;
-
-    this.isGeneratingPDF = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-    });
-    this.isGeneratingPDF = false;
   }
 
   handleFilterSelect(filters: Filter) {
