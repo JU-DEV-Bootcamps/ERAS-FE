@@ -92,10 +92,8 @@ export class PollFiltersComponent implements OnInit {
       Validators.required,
     ]),
     cohortIds: new FormControl<number[] | null>([], [Validators.required]),
-    componentNames: new FormControl<string[] | null>(null, [
-      Validators.required,
-    ]),
-    variables: new FormControl<number[] | null>(null, [Validators.required]),
+    componentNames: new FormControl<string[] | null>(null),
+    variables: new FormControl<number[] | null>(null),
   });
 
   readonly evaluationsToScroll = computed<SingleSelectItem[]>(() => {
@@ -136,6 +134,7 @@ export class PollFiltersComponent implements OnInit {
 
   ngOnInit() {
     this._loadEvaluations();
+    this._setupDynamicValidators();
   }
 
   handleEvaluationSelect(itemSelected: MatAutocompleteSelectedEvent) {
@@ -155,7 +154,7 @@ export class PollFiltersComponent implements OnInit {
   }
 
   handleCohortSelect(isOpen: boolean) {
-    if (isOpen) return;
+    if (isOpen || !this.showVariables) return;
     const cohortIds = this.filterForm.value.cohortIds || [];
     if (areArraysEqual(this['prevCohortIds'], cohortIds)) return;
     this.prevCohortIds = [...cohortIds];
@@ -279,6 +278,20 @@ export class PollFiltersComponent implements OnInit {
     this.polls = evaluation.polls;
   }
 
+  private _setupDynamicValidators() {
+    if (this.showVariables) {
+      this.filterForm.controls.componentNames.setValidators([
+        Validators.required,
+      ]);
+      this.filterForm.controls.variables.setValidators([Validators.required]);
+    } else {
+      this.filterForm.controls.componentNames.clearValidators();
+      this.filterForm.controls.variables.clearValidators();
+    }
+    this.filterForm.controls.componentNames.updateValueAndValidity();
+    this.filterForm.controls.variables.updateValueAndValidity();
+  }
+
   private _getCohorts(pollUuid: string) {
     this.cohorts.set([]);
     this.variables.set([]);
@@ -290,7 +303,10 @@ export class PollFiltersComponent implements OnInit {
         const allIds = response.body.map(c => c.id);
         this.filterForm.controls.cohortIds.setValue(allIds);
         this.prevCohortIds = allIds;
-        this._getVariables();
+
+        if (this.showVariables) {
+          this._getVariables();
+        }
       },
       error: () => this.cohorts.set([]),
     });
@@ -353,7 +369,7 @@ export class PollFiltersComponent implements OnInit {
       title,
       uuid: this.polls[0].uuid,
       cohortIds: cohorts.filter((id): id is number => !!id),
-      variableIds: formVal.variables || [],
+      variableIds: this.showVariables ? formVal.variables || [] : [],
       lastVersion: true,
       evaluationId,
     });

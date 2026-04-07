@@ -1,6 +1,9 @@
 <h1 class="page-title">Dynamic Charts</h1>
 <h2 class="page-subtitle">{{ title }}</h2>
-<app-poll-filters (filters)="handleFilterSelect($event)"></app-poll-filters>
+<app-poll-filters
+  [showVariables]="true"
+  (filters)="handleFilterSelect($event)"
+></app-poll-filters>
 
 @if (showEmpty) {
   <app-empty-data-message
