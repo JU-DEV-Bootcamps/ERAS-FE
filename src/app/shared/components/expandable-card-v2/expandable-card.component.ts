@@ -25,6 +25,7 @@ export class ExpandableCardComponent implements OnChanges {
   @Input() cardId!: string;
   @Input() expanded = false;
   @Input() dimmed = false;
+  @Input() title = '';
 
   @Output() toggleExpand = new EventEmitter<string>();
 
@@ -51,11 +52,11 @@ export class ExpandableCardComponent implements OnChanges {
     this.pdfHelper.exportCardToPdf({
       container: this.cardRef,
       fileName: 'card',
-      title: 'something',
+      title: this.title,
     });
   }
 
   changeToColumn(): void {
-    console.log('column');
+    //it will be implemented on the #793 feature
   }
 }

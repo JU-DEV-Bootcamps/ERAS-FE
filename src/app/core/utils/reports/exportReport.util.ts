@@ -160,7 +160,7 @@ export class PdfHelper {
 
     const clonedCard = element.cloneNode(true) as HTMLElement;
     const collapsibleContent = clonedCard.querySelector<HTMLElement>(
-      '.card, .card__body, [class*="content"]'
+      '.card, .card-body, [class*="content"]'
     );
     if (collapsibleContent) {
       collapsibleContent.style.display = 'block';

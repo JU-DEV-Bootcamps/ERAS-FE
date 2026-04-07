@@ -77,6 +77,10 @@ export function GetChartOptions(
     },
     title: {
       text: title,
+      style: {
+        fontSize: '22px',
+        fontWeight: '600',
+      },
     },
     xaxis: {
       type: 'category',

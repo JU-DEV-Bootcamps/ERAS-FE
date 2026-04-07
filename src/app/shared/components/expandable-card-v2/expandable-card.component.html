@@ -9,7 +9,7 @@
     <mat-icon>bar_chart</mat-icon>
   </button>
   <button
-    class="card__toggle-btn"
+    class="toggle-btn"
     [attr.aria-label]="expanded ? 'Colapsar' : 'Expandir'"
     (click)="onToggle()"
     type="button"
@@ -17,7 +17,7 @@
     <mat-icon>{{ expanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
   </button>
 
-  <div class="card__body">
+  <div class="card-body">
     <ng-content></ng-content>
   </div>
 </div>

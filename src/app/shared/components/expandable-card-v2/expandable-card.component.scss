@@ -23,7 +23,7 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
     min-height: 100%;
     border-radius: 14px;
     box-shadow:
-      1px 1px 0 1px var(--accent, rgba(194, 194, 194, 0.686)),
+      1px 1px 0 1px var(--color-neutral-100, rgba(194, 194, 194, 0.686)),
       0 12px 18px rgba(144, 144, 144, 0.586);
 
     &::before {
@@ -32,7 +32,7 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
 
     .card__toggle-btn {
       background: rgba(153, 153, 153, 0.2);
-      color: var(--accent, #66666f);
+      color: var(--primary-700, #66666f);
     }
   }
 }
@@ -79,10 +79,11 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
   }
 }
 
-.card__toggle-btn {
+.toggle-btn,
+.change-to-column,
+.pdf-export {
   position: absolute;
   top: 0.6rem;
-  right: 0.6rem;
   z-index: 20;
   display: grid;
   place-items: center;
@@ -91,7 +92,7 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
   border: none;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.06);
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--primary-700);
   cursor: pointer;
   transition:
     background var(--card-transition),
@@ -112,7 +113,22 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
   }
 }
 
-.card__body {
+.toggle-btn {
+  right: 0.6rem;
+}
+
+.change-to-column {
+  right: 2.5rem;
+}
+
+.pdf-export {
+  top: 0.7rem;
+  right: 6rem;
+  font-size: var(--font-size-small);
+  font-weight: 450;
+}
+
+.card-body {
   padding: 8px 0;
   flex: 1;
   display: flex;

@@ -74,6 +74,7 @@
                 [dimmed]="
                   expandedId !== null && expandedId !== 'chart-' + $index
                 "
+                [title]="title"
                 (toggleExpand)="onToggle($event)"
               >
                 <div [appApexTooltip]="getTooltipFn($index)">
