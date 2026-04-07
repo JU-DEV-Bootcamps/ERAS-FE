@@ -1,0 +1,5 @@
+@if (element) {
+  <mat-checkbox (change)="onChange($event)"></mat-checkbox>
+} @else {
+  <app-empty-data-message description="No student found" />
+}

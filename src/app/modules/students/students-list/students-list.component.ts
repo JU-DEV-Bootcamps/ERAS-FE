@@ -10,10 +10,11 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
+import { SelectedCheckboxComponent } from './selected-checkbox/selected-checkbox.component';
 
 @Component({
   selector: 'app-students-list',
-  imports: [ListComponent],
+  imports: [ListComponent, SelectedCheckboxComponent],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
 })
@@ -32,10 +33,6 @@ export class StudentsListComponent implements OnInit {
 
   columns: Column<StudentModel>[] = [
     {
-      key: 'id',
-      label: 'Id',
-    },
-    {
       key: 'name',
       label: 'Name',
     },
@@ -44,10 +41,10 @@ export class StudentsListComponent implements OnInit {
       label: 'Email',
     },
   ];
-  exportColumns: Column<StudentModel>[] = [
+  columnTemplates: Column<StudentModel>[] = [
     {
-      key: 'uuid',
-      label: 'SISId',
+      key: 'isSelected',
+      label: '',
     },
   ];
   actionDatas: ActionDatas = [
@@ -55,7 +52,7 @@ export class StudentsListComponent implements OnInit {
       columnId: 'actions',
       id: 'checkDetails',
       label: 'Actions',
-      ngIconName: 'analytics',
+      ngIconName: 'remove_red_eye',
       tooltip: 'See more details',
     },
   ];
@@ -69,7 +66,17 @@ export class StudentsListComponent implements OnInit {
     this.studentService.getData(this.pagination).subscribe({
       next: data => {
         this.dataStudents = new MatTableDataSource(data.items);
-        this.students = data.items;
+        const existingStudents = [...this.students];
+        this.students = data.items.map(student => {
+          const existingStudent = existingStudents.find(
+            existingStudent => existingStudent.id === student.id
+          );
+
+          return {
+            ...student,
+            isSelected: existingStudent ? existingStudent.isSelected : false,
+          };
+        });
         this.totalStudents = data.count;
         this.isLoading = false;
       },

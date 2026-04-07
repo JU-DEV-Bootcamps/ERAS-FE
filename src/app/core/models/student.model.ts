@@ -10,6 +10,7 @@ export interface StudentModel extends BaseModel {
   studentDetail: StudentDetailModel;
   cohortId: number;
   cohort?: CohortModel;
+  isSelected?: boolean;
 }
 
 export interface Student extends BaseModel {
