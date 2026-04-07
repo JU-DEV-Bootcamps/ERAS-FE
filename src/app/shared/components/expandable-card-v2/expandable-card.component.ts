@@ -28,6 +28,7 @@ export class ExpandableCardComponent implements OnChanges {
   @Input() title = '';
 
   @Output() toggleExpand = new EventEmitter<string>();
+  @Output() exporting = new EventEmitter<boolean>();
 
   @HostBinding('class.is-expanded') get hostExpanded() {
     return this.expanded;
@@ -48,12 +49,18 @@ export class ExpandableCardComponent implements OnChanges {
     this.toggleExpand.emit(this.cardId);
   }
 
-  onExportPdf(): void {
-    this.pdfHelper.exportCardToPdf({
-      container: this.cardRef,
-      fileName: 'card',
-      title: this.title,
-    });
+  async onExportPdf() {
+    this.exporting.emit(true);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await this.pdfHelper
+      .exportCardToPdf({
+        container: this.cardRef,
+        fileName: 'card',
+        title: this.title,
+      })
+      .finally(() => {
+        this.exporting.emit(false);
+      });
   }
 
   changeToColumn(): void {

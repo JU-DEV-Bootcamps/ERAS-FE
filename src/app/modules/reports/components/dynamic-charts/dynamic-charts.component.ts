@@ -6,6 +6,8 @@ import {
   signal,
   ViewChild,
   AfterViewInit,
+  QueryList,
+  ViewChildren,
 } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 
@@ -38,6 +40,7 @@ import {
   DetailsPanelComponent,
 } from '@shared/components/panels/details-panel-v2/details-panel.component';
 import { debounceTime, fromEvent } from 'rxjs';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -52,6 +55,7 @@ import { debounceTime, fromEvent } from 'rxjs';
     ExpandableCardComponent,
     ApexTooltipDirective,
     DetailsPanelComponent,
+    MatProgressSpinner,
   ],
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
@@ -80,8 +84,10 @@ export class DynamicChartsComponent implements AfterViewInit {
   hasNoResults = false;
   isAnyCardExpanded = false;
   gridHeight = 0;
+  isExporting = signal(false);
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+  @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
 
   private cardWidth = signal<number>(0);
 
@@ -275,6 +281,14 @@ export class DynamicChartsComponent implements AfterViewInit {
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+  }
+
+  async onExporting(processExport: boolean) {
+    if (processExport) {
+      this.isExporting.set(true);
+    } else {
+      this.isExporting.set(false);
+    }
   }
 
   get showEmpty(): boolean {
