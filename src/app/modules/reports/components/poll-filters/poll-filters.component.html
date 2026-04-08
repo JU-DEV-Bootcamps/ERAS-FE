@@ -15,37 +15,31 @@
       (selectionChange)="handleEvaluationSelect($event)"
     />
 
-    @if (polls[0]) {
-      <app-select-multiple-virtual-scroll
-        [items]="cohortsToScroll()"
-        [control]="filterForm.controls.cohortIds"
-        [id]="'sl-cohort'"
-        [label]="'Cohort'"
-        (openedChange)="handleCohortSelect($event)"
-      />
-    }
+    <app-select-multiple-virtual-scroll
+      [items]="cohortsToScroll()"
+      [control]="filterForm.controls.cohortIds"
+      [id]="'sl-cohort'"
+      [label]="'Cohort'"
+      (openedChange)="handleCohortSelect($event)"
+    />
 
     @if (showVariables) {
-      @if (filterForm.value.selectedEvaluation) {
-        <app-select-multiple-virtual-scroll
-          [items]="componentsToScroll()"
-          [control]="filterForm.controls.componentNames"
-          [id]="'sl-components'"
-          [label]="'Component'"
-          (openedChange)="handleComponentsSelect($event)"
-        />
-      }
+      <app-select-multiple-virtual-scroll
+        [items]="componentsToScroll()"
+        [control]="filterForm.controls.componentNames"
+        [id]="'sl-components'"
+        [label]="'Component'"
+        (openedChange)="handleComponentsSelect($event)"
+      />
 
-      @if (filterForm.value.cohortIds?.length && showVariables) {
-        <app-select-multiple-virtual-scroll
-          class="variable-field"
-          [control]="filterForm.controls.variables"
-          [id]="'sl-variables'"
-          [label]="'Variable'"
-          [groups]="variableSelectGroups()"
-          (openedChange)="handleVariableSelect($event)"
-        />
-      }
+      <app-select-multiple-virtual-scroll
+        class="variable-field"
+        [control]="filterForm.controls.variables"
+        [id]="'sl-variables'"
+        [label]="'Variable'"
+        [groups]="variableSelectGroups()"
+        (openedChange)="handleVariableSelect($event)"
+      />
     }
 
     <div class="button-container">

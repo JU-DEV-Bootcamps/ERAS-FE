@@ -135,6 +135,7 @@ export class PollFiltersComponent implements OnInit {
   ngOnInit() {
     this._loadEvaluations();
     this._setupDynamicValidators();
+    this._disableSecondaryControls();
   }
 
   handleEvaluationSelect(itemSelected: MatAutocompleteSelectedEvent) {
@@ -146,6 +147,12 @@ export class PollFiltersComponent implements OnInit {
       componentNames: [],
       variables: [],
     });
+
+    this.filterForm.controls.cohortIds.enable();
+    if (this.showVariables) {
+      this.filterForm.controls.componentNames.enable();
+      this.filterForm.controls.variables.disable();
+    }
 
     this._getPolls(newSelectedEvaluation);
     if (this.polls[0]) {
@@ -172,9 +179,12 @@ export class PollFiltersComponent implements OnInit {
       this.variableGroups = [];
       this._resetField('variables');
       this.filterForm.controls.variables.markAsTouched();
+      this.filterForm.controls.variables.disable();
       this.variables.set([]);
       return;
     }
+
+    this.filterForm.controls.variables.enable();
 
     this.variableGroups =
       this.filterForm.value.componentNames
@@ -373,5 +383,13 @@ export class PollFiltersComponent implements OnInit {
       lastVersion: true,
       evaluationId,
     });
+  }
+
+  private _disableSecondaryControls() {
+    this.filterForm.controls.cohortIds.disable();
+    if (this.showVariables) {
+      this.filterForm.controls.componentNames.disable();
+      this.filterForm.controls.variables.disable();
+    }
   }
 }
