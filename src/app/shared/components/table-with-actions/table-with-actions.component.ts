@@ -62,6 +62,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   @Input() columnTemplates: Column<T>[] = [];
   actionDatas = input.required<ActionDatas>();
   @Input() mapClass?: MapClass;
+  @Input() itemsAreSelectable = false;
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
@@ -92,7 +93,13 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     });
   }
   getAllColumns() {
-    let columnKeys = this.getColumnKeys();
+    let columnKeys = [] as (keyof T)[];
+
+    if (this.itemsAreSelectable) {
+      columnKeys = columnKeys.concat(['isSelected'] as (keyof T)[]);
+    }
+
+    columnKeys = columnKeys.concat(this.getColumnKeys());
 
     if (this.getTotalTemplateColumns() > 0) {
       columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));

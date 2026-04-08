@@ -6,10 +6,10 @@
   (loadCalled)="handleLoadCalled($event)"
   (actionCalled)="handleActionCalled($event)"
   [columns]="columns"
-  [columnTemplates]="columnTemplates"
   [items]="students"
   [totalItems]="totalStudents"
   [actionDatas]="actionDatas"
+  [itemsAreSelectable]="itemsAreSelectable"
 >
   <ng-template #isSelected let-element>
     <app-selected-checkbox [element]="element" />

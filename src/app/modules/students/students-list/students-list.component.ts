@@ -30,6 +30,7 @@ export class StudentsListComponent implements OnInit {
     page: 0,
   };
   isLoading = true;
+  itemsAreSelectable = true;
 
   columns: Column<StudentModel>[] = [
     {
@@ -39,12 +40,6 @@ export class StudentsListComponent implements OnInit {
     {
       key: 'email',
       label: 'Email',
-    },
-  ];
-  columnTemplates: Column<StudentModel>[] = [
-    {
-      key: 'isSelected',
-      label: '',
     },
   ];
   actionDatas: ActionDatas = [

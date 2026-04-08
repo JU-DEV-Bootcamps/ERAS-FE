@@ -80,6 +80,27 @@
       [class]="mapClass?.table?.table ?? ''"
       [dataSource]="items"
     >
+      <ng-container *ngIf="itemsAreSelectable" [matColumnDef]="'isSelected'">
+        <th
+          mat-header-cell
+          [class]="mapClass?.table?.table ?? ''"
+          *matHeaderCellDef
+        >
+          <mat-checkbox [disabled]="true"></mat-checkbox>
+        </th>
+        <td
+          mat-cell
+          [class]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let item"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              getTemplateForColumn('isSelected');
+              context: { $implicit: item }
+            "
+          ></ng-container>
+        </td>
+      </ng-container>
       <ng-container
         *ngFor="let column of columns"
         [matColumnDef]="column.key.toString()"
