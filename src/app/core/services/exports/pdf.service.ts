@@ -10,7 +10,12 @@ import { BaseExportService } from './base-export.service';
 export class PdfService extends BaseExportService {
   protected extension = 'pdf';
 
-  exportToPDF(element: HTMLElement, name: string, callback?: () => void) {
+  exportToPDF(
+    element: HTMLElement,
+    name: string,
+    callback?: () => void,
+    title?: string
+  ) {
     html2canvas(element, {
       scale: 2,
       useCORS: true,
@@ -25,13 +30,36 @@ export class PdfService extends BaseExportService {
         const marginRight = PDF_CONFIG.margin.right;
         const marginBottom = PDF_CONFIG.margin.bottom;
 
+        let contentOffsetTop = marginTop;
+        if (title) {
+          pdf.setFontSize(12);
+          pdf.setFont('helvetica', 'bold');
+          const maxWidth = 1200;
+          const colonIndex = title.lastIndexOf(':');
+          const firstLine =
+            colonIndex !== -1 ? title.substring(0, colonIndex + 1) : title;
+          const rest =
+            colonIndex !== -1 ? title.substring(colonIndex + 1).trim() : null;
+          const wrappedLines: string[] = [firstLine];
+          if (rest) {
+            const splitRest = pdf.splitTextToSize(rest, maxWidth);
+            wrappedLines.push(...splitRest);
+          }
+          const lineHeight = 5; // mm between lines
+          wrappedLines.forEach((line, index) => {
+            pdf.text(line, marginLeft, marginTop + index * lineHeight);
+          });
+          contentOffsetTop = marginTop + wrappedLines.length * lineHeight + 3;
+        }
+
         const pageWidth = pdf.internal.pageSize.width;
         const pageHeight = pdf.internal.pageSize.height;
 
         const imgWidth = pageWidth - marginLeft - marginRight;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        const usableHeight = pageHeight - marginTop - marginBottom;
+        const usableHeightFirstPage =
+          pageHeight - contentOffsetTop - marginBottom;
 
         let currentHeight = 0;
 
@@ -39,7 +67,7 @@ export class PdfService extends BaseExportService {
           if (currentHeight > 0) pdf.addPage();
 
           const sectionHeight = Math.min(
-            usableHeight,
+            usableHeightFirstPage,
             imgHeight - currentHeight
           );
           const section = canvas
@@ -62,7 +90,7 @@ export class PdfService extends BaseExportService {
             fragmentImgData,
             'JPEG',
             marginLeft,
-            marginTop,
+            contentOffsetTop,
             imgWidth,
             sectionHeight
           );

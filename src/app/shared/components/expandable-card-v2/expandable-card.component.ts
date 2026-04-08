@@ -7,8 +7,12 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
+  inject,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { PdfHelper } from '@core/utils/reports/exportReport.util';
 
 @Component({
   selector: 'app-expandable-card',
@@ -21,8 +25,10 @@ export class ExpandableCardComponent implements OnChanges {
   @Input() cardId!: string;
   @Input() expanded = false;
   @Input() dimmed = false;
+  @Input() title = '';
 
   @Output() toggleExpand = new EventEmitter<string>();
+  @Output() exporting = new EventEmitter<boolean>();
 
   @HostBinding('class.is-expanded') get hostExpanded() {
     return this.expanded;
@@ -30,6 +36,8 @@ export class ExpandableCardComponent implements OnChanges {
   @HostBinding('class.is-dimmed') get hostDimmed() {
     return this.dimmed;
   }
+  pdfHelper = inject(PdfHelper);
+  @ViewChild('cardRef') cardRef!: ElementRef<HTMLElement>;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['expanded']) {
@@ -39,5 +47,23 @@ export class ExpandableCardComponent implements OnChanges {
 
   onToggle(): void {
     this.toggleExpand.emit(this.cardId);
+  }
+
+  async onExportPdf() {
+    this.exporting.emit(true);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await this.pdfHelper
+      .exportCardToPdf({
+        container: this.cardRef,
+        fileName: 'card',
+        title: this.title,
+      })
+      .finally(() => {
+        this.exporting.emit(false);
+      });
+  }
+
+  changeToColumn(): void {
+    //it will be implemented on the #793 feature
   }
 }

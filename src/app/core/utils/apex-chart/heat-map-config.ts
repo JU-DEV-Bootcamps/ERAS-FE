@@ -13,7 +13,7 @@ export function GetChartOptions(
   dataPointSelection?: (x: number, y: number) => void,
   baseChartOptions?: ApexOptions,
   tooltipCustomFunction?: (x: number, y: number) => string,
-  availableWidth = 500,
+  availableWidth = 1500,
   fixColors = true
 ): ApexOptions {
   const CARD_EXPANDED_THRESHOLD_WIDTH = 1200;
@@ -77,6 +77,10 @@ export function GetChartOptions(
     },
     title: {
       text: title,
+      style: {
+        fontSize: '22px',
+        fontWeight: '600',
+      },
     },
     xaxis: {
       type: 'category',

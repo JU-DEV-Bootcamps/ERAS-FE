@@ -5,6 +5,12 @@
   (filters)="handleFilterSelect($event)"
 ></app-poll-filters>
 
+@if (isExporting()) {
+  <div class="export-overlay">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="export-overlay__label">Generating PDF...</p>
+  </div>
+}
 @if (showEmpty) {
   <app-empty-data-message
     description="Please select the required fields to generate the charts."
@@ -17,44 +23,6 @@
   />
 } @else {
   @defer {
-    <div class="charts-area">
-      <div class="action-section">
-        <ng-container>
-          <div class="action-section">
-            <button
-              id="print-button"
-              class="export-button"
-              matTooltip="Download pdf"
-              mat-icon-button
-              color="primary"
-              [disabled]="!chartsOptions.length || isGeneratingPDF"
-              (click)="exportReportPdf()"
-            >
-              <mat-icon>print</mat-icon>
-            </button>
-            <button
-              matButton
-              [matMenuTriggerFor]="beforeMenu"
-              class="export-button"
-              matTooltip="Charts"
-              mat-icon-button
-              color="primary"
-              [disabled]="!chartsOptions.length || isGeneratingPDF"
-            >
-              <mat-icon>bar_chart</mat-icon>
-            </button>
-            <mat-menu #beforeMenu="matMenu" xPosition="before">
-              <button mat-menu-item (click)="toggleChart('heatmap')">
-                Heatmap Chart
-              </button>
-              <button mat-menu-item (click)="toggleChart('chart')">
-                Column Chart
-              </button>
-            </mat-menu>
-          </div>
-        </ng-container>
-      </div>
-    </div>
     <div class="charts-layout" [class.panel-open]="isPanelOpen()">
       @if (heatmapChart) {
         <div
@@ -74,7 +42,9 @@
                 [dimmed]="
                   expandedId !== null && expandedId !== 'chart-' + $index
                 "
+                [title]="title"
                 (toggleExpand)="onToggle($event)"
+                (exporting)="onExporting($event)"
               >
                 <div [appApexTooltip]="getTooltipFn($index)">
                   <apx-chart
