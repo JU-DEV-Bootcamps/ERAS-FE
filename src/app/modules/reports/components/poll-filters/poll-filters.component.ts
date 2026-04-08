@@ -364,6 +364,7 @@ export class PollFiltersComponent implements OnInit {
       .join(', ');
 
     const title = `Poll: ${this.polls[0].name} - Cohort(s): ${cohortNames}`;
+    const selectedComponents = formVal.componentNames || [];
 
     this.filters.emit({
       title,
@@ -372,6 +373,15 @@ export class PollFiltersComponent implements OnInit {
       variableIds: this.showVariables ? formVal.variables || [] : [],
       lastVersion: true,
       evaluationId,
+      selectedComponentIndex: selectedComponents
+        .map(name =>
+          name !== undefined
+            ? this.variableSelectGroups().findIndex(
+                g => g.label === name.toUpperCase()
+              )
+            : -1
+        )
+        .filter(i => i !== -1),
     });
   }
 }

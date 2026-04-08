@@ -83,6 +83,8 @@ export class DynamicChartsComponent implements AfterViewInit {
   isPanelOpen = signal(false);
   hasNoResults = false;
   isAnyCardExpanded = false;
+  expandedIndex: number | null = null;
+
   gridHeight = 0;
   isExporting = signal(false);
 
@@ -126,6 +128,7 @@ export class DynamicChartsComponent implements AfterViewInit {
           this.chartsOptions = [];
           this.components.set(null);
           this.hasNoResults = true;
+          this.isAnyCardExpanded = false;
           this.isLoading = false;
         }
       });
@@ -133,7 +136,7 @@ export class DynamicChartsComponent implements AfterViewInit {
 
   generateSeries(report: PollCountReport) {
     const totalWidth = this.cardWidth();
-    const isAnyExpanded = this.expandedId !== null;
+
     const CARD_LAYOUT = {
       spacing: 16,
       columns: 2,
@@ -142,7 +145,7 @@ export class DynamicChartsComponent implements AfterViewInit {
 
     const cardWidth =
       totalWidth > 0
-        ? isAnyExpanded
+        ? this.isAnyCardExpanded
           ? totalWidth - CARD_LAYOUT.spacing
           : totalWidth / CARD_LAYOUT.columns - CARD_LAYOUT.spacing
         : CARD_LAYOUT.fallbackWidth;
@@ -210,7 +213,8 @@ export class DynamicChartsComponent implements AfterViewInit {
             color
           );
         },
-        cardWidth
+        cardWidth,
+        this.isAnyCardExpanded
       );
     });
     this.cdr.detectChanges();
@@ -222,10 +226,20 @@ export class DynamicChartsComponent implements AfterViewInit {
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
+
+    const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
+    this.expandedIndex = firstIndex;
+    this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
+    this.gridHeight = 0;
+    console.log('expanded id', this.expandedId);
+
     if (!filters.cohortIds || filters.variableIds.length === 0) {
       this.chartsOptions = [];
       this.components.set(null);
       this.uuid = null;
+      this.isAnyCardExpanded = false;
+      this.expandedId = null;
+      this.expandedIndex = null;
       return;
     }
     this.generateHeatMap(filters.cohortIds, filters.variableIds);
@@ -234,6 +248,10 @@ export class DynamicChartsComponent implements AfterViewInit {
   onToggle(id: string): void {
     this.expandedId = this.expandedId === id ? null : id;
     this.isAnyCardExpanded = this.expandedId !== null;
+    this.expandedIndex = this.isAnyCardExpanded
+      ? parseInt(id.replace('chart-', ''))
+      : null;
+
     if (this.expandedId === null) {
       this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
     }
@@ -320,10 +338,6 @@ export class DynamicChartsComponent implements AfterViewInit {
         color
       );
     };
-  }
-
-  onCardExpand(expanded: boolean) {
-    this.isAnyCardExpanded = expanded;
   }
 
   private _updateCardWidth() {

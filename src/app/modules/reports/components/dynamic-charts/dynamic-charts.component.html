@@ -38,9 +38,13 @@
               <app-expandable-card
                 #chartsGrid
                 [cardId]="'chart-' + $index"
-                [expanded]="expandedId === 'chart-' + $index"
+                [expanded]="
+                  expandedId === 'chart-' + $index && isAnyCardExpanded
+                "
                 [dimmed]="
-                  expandedId !== null && expandedId !== 'chart-' + $index
+                  expandedId !== null &&
+                  expandedId !== 'chart-' + $index &&
+                  isAnyCardExpanded
                 "
                 [title]="title"
                 (toggleExpand)="onToggle($event)"

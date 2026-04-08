@@ -5,6 +5,7 @@ export interface Filter {
   variableIds: number[];
   lastVersion: boolean;
   evaluationId?: number | string;
+  selectedComponentIndex?: number[];
 }
 
 export type FormKey =
