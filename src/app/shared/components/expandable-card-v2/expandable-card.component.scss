@@ -101,6 +101,7 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
 
   &:hover {
     color: #414141;
+    filter: grayscale(100%);
   }
 
   &:active {
@@ -115,15 +116,21 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
 
 .toggle-btn {
   right: 0.6rem;
+  * {
+    pointer-events: none;
+  }
+  .hidden {
+    display: none;
+  }
 }
 
 .change-to-column {
-  right: 2.5rem;
+  right: 2.7rem;
 }
 
 .pdf-export {
   top: 0.7rem;
-  right: 6rem;
+  right: 6.6rem;
   font-size: var(--font-size-small);
   font-weight: 450;
 }

@@ -14,12 +14,12 @@ export function GetChartOptions(
   baseChartOptions?: ApexOptions,
   tooltipCustomFunction?: (x: number, y: number) => string,
   availableWidth = 1500,
+  isExpanded = false,
   fixColors = true
 ): ApexOptions {
-  const CARD_EXPANDED_THRESHOLD_WIDTH = 1200;
   const CARD_HEADER_WIDTH = 96;
-  const MIN_CHART_HEIGHT = 240;
-  const isExpandedChart = availableWidth > CARD_EXPANDED_THRESHOLD_WIDTH;
+  const MIN_CHART_HEIGHT = 230;
+  const isExpandedChart = isExpanded;
   const chartValues = isExpandedChart
     ? CHART_LAYOUT.expanded
     : CHART_LAYOUT.compact;
