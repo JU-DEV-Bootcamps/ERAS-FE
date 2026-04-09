@@ -34,12 +34,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
 
 @Component({
   selector: 'app-list',
   imports: [
+    FormsModule,
     MatProgressSpinnerModule,
     MatTableModule,
     MatPaginatorModule,
@@ -76,6 +78,7 @@ export class ListComponent<T extends object>
   @Input() actionDatas: ActionDatas = [];
   @Input() title?: string;
   @Input() mapClass?: MapClass;
+  @Input() showExportDropdown = false;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -86,6 +89,17 @@ export class ListComponent<T extends object>
   @Input() pageIndex = 0;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
+
+  selectedExportFormat: 'csv' | 'pdf' | '' = '';
+
+  exportTable() {
+    if (!this.selectedExportFormat) return;
+    if (this.selectedExportFormat === 'csv') {
+      this.exportToCSV();
+    } else {
+      this.exportToPdf();
+    }
+  }
 
   constructor(private snackBar: MatSnackBar) {}
 
