@@ -20,10 +20,14 @@ export class CohortService extends BaseApiService {
     return this.get<ApiResponse<CohortModel[]>>('', params);
   }
 
-  getCohortsSummary(pagination: Pagination) {
-    const params = new HttpParams()
+  getCohortsSummary(pagination: Pagination, evaluationId?: number) {
+    let params = new HttpParams()
       .set('PageSize', pagination.pageSize)
       .set('Page', pagination.page);
+
+    if (evaluationId != null) {
+      params = params.set('EvaluationId', evaluationId);
+    }
 
     return this.get<CohortsSummaryModel>('summary', params);
   }
