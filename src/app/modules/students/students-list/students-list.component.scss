@@ -1,0 +1,29 @@
+@use '@angular/material' as mat;
+@use 'index.scss' as main-styles;
+
+.buttons-container {
+  display: flex;
+  gap: 16px;
+  justify-content: end;
+  padding-bottom: 24px;
+}
+
+.light-button {
+  border: 1px solid main-styles.get-color('primary', 30);
+  border-radius: 30px;
+
+  @include mat.button-overrides(
+    (
+      filled-container-color: none,
+      filled-label-text-color: main-styles.get-color('primary', 30),
+    )
+  );
+
+  &:hover {
+    @include mat.button-overrides(
+      (
+        filled-container-color: main-styles.get-color('neutral-variant', 95),
+      )
+    );
+  }
+}

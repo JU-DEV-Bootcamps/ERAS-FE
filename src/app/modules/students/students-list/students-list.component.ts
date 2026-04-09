@@ -11,16 +11,19 @@ import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { SelectedCheckboxComponent } from './selected-checkbox/selected-checkbox.component';
+import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-students-list',
-  imports: [ListComponent, SelectedCheckboxComponent],
+  imports: [ErasButtonComponent, ListComponent, SelectedCheckboxComponent],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
 })
 export class StudentsListComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   studentService = inject(StudentService);
+  private router = inject(Router);
 
   dataStudents = new MatTableDataSource<StudentModel>([]);
   students: StudentModel[] = [];
@@ -47,7 +50,7 @@ export class StudentsListComponent implements OnInit {
       columnId: 'actions',
       id: 'checkDetails',
       label: 'Actions',
-      ngIconName: 'remove_red_eye',
+      ngIconName: 'visibility',
       tooltip: 'See more details',
     },
   ];
@@ -124,5 +127,14 @@ export class StudentsListComponent implements OnInit {
       panelClass: 'border-modalbox-dialog',
       data: { studentId: student.id },
     });
+  }
+
+  exportList() {
+    //TODO: Implement logic on next commit
+    console.log('Clicking on exportList');
+  }
+
+  redirectToImport() {
+    this.router.navigate(['import-students']);
   }
 }

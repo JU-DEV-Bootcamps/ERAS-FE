@@ -80,6 +80,7 @@ export class ListComponent<T extends object>
   @Input() mapClass?: MapClass;
   @Input() showExportDropdown = false;
   @Input() itemsAreSelectable = false;
+  @Input() externalExport = false;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
