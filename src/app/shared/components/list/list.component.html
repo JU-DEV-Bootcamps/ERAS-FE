@@ -8,22 +8,38 @@
       }
     </div>
     @if (items.length) {
-      <button mat-button matTooltip="Export table" [matMenuTriggerFor]="menu">
-        <mat-icon>print</mat-icon>
-      </button>
-
-      <mat-menu #menu="matMenu">
-        <button mat-button (click)="exportToCSV()">To CSV</button>
-        <br />
-        <button
-          id="print-button"
-          mat-button
-          [disabled]="isGenerating"
-          (click)="exportToPdf()"
-        >
-          To PDF
+      @if (showExportDropdown) {
+        <div class="export-container">
+          <select class="export-select" [(ngModel)]="selectedExportFormat">
+            <option value="" hidden>Export table to selected format</option>
+            <option value="csv">CSV</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button
+            class="export-btn"
+            [disabled]="!selectedExportFormat || isGenerating"
+            (click)="exportTable()"
+          >
+            Export
+          </button>
+        </div>
+      } @else {
+        <button mat-button matTooltip="Export table" [matMenuTriggerFor]="menu">
+          <mat-icon>print</mat-icon>
         </button>
-      </mat-menu>
+        <mat-menu #menu="matMenu">
+          <button mat-button (click)="exportToCSV()">To CSV</button>
+          <br />
+          <button
+            id="print-button"
+            mat-button
+            [disabled]="isGenerating"
+            (click)="exportToPdf()"
+          >
+            To PDF
+          </button>
+        </mat-menu>
+      }
     }
   </div>
 }
