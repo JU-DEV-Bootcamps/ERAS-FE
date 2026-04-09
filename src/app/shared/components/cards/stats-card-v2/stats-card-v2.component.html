@@ -1,0 +1,11 @@
+<div class="stat-card">
+  <div class="kpi-information">
+    <span class="title">{{ title }}</span>
+    <div class="numeric-section">
+      <span class="value-quantity">{{ value }}</span>
+      <span class="value-percentage">{{ percentage }}</span>
+    </div>
+  </div>
+  <!-- <ng-container></ng-container> -->
+  <ng-content select="[icon]">disabled_by_default</ng-content>
+</div>

@@ -16,6 +16,7 @@ import { map, Observable } from 'rxjs';
 
 import { CountSummaryModel } from '@core/models/summary.model';
 import { StatsCardComponent } from '@shared/components/cards/stats-card/stats-card.component';
+import { StatsCardV2Component } from '@shared/components/cards/stats-card-v2/stats-card-v2.component';
 
 @Component({
   selector: 'app-summary-details',
@@ -25,6 +26,7 @@ import { StatsCardComponent } from '@shared/components/cards/stats-card/stats-ca
     StatsCardComponent,
     MatGridListModule,
     AsyncPipe,
+    StatsCardV2Component,
   ],
   templateUrl: './summary-details.component.html',
   styleUrl: './summary-details.component.scss',

@@ -1,0 +1,41 @@
+.stat-card {
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  padding: 32px;
+  border-radius: 12px;
+}
+
+.kpi-information {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+  width: 310px;
+}
+
+.title {
+  font-size: var(--font-size-medium);
+  letter-spacing: 0.7px;
+  line-height: 20px;
+  text-transform: uppercase;
+}
+
+.value-quantity {
+  font-size: 36px;
+  line-height: 40px;
+  font-weight: bold;
+}
+
+.value-percentage {
+  font-size: var(--font-size-medium);
+  line-height: 20px;
+}
+
+.icon {
+  color: #4ca14c;
+  width: 60px;
+  height: 60px;
+  font-size: 60px;
+  padding-left: 20px;
+}
