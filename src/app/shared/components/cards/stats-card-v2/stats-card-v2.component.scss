@@ -1,9 +1,12 @@
-.stat-card {
+.stat-card,
+mat-card {
   background-color: white;
   display: flex;
   flex-direction: row;
   padding: 32px;
   border-radius: 12px;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .kpi-information {
@@ -11,7 +14,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 8px 0;
-  width: 310px;
+  max-width: 310px;
 }
 
 .title {
@@ -19,6 +22,7 @@
   letter-spacing: 0.7px;
   line-height: 20px;
   text-transform: uppercase;
+  color: #64748b;
 }
 
 .value-quantity {
@@ -33,9 +37,22 @@
 }
 
 .icon {
-  color: #4ca14c;
   width: 60px;
   height: 60px;
   font-size: 60px;
   padding-left: 20px;
+}
+
+.value-percentage {
+  font-size: var(--font-size-medium);
+  line-height: 20px;
+  font-weight: 500;
+
+  &.positive {
+    color: #22c55e; // green
+  }
+
+  &.negative {
+    color: #ef4444; // red
+  }
 }

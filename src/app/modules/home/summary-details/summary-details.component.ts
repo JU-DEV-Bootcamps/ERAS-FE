@@ -1,9 +1,10 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  DestroyRef,
   inject,
-  input,
   OnInit,
+  signal,
 } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 
@@ -12,18 +13,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import { CountSummaryModel } from '@core/models/summary.model';
-import { StatsCardComponent } from '@shared/components/cards/stats-card/stats-card.component';
 import { StatsCardV2Component } from '@shared/components/cards/stats-card-v2/stats-card-v2.component';
+import { DashboardKpiResponse } from '@core/models/dashboard-kpis.model';
+import { DashboardService } from '@core/services/api/dashboard.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-summary-details',
   imports: [
     MatIconModule,
     MatCardModule,
-    StatsCardComponent,
+    // StatsCardComponent,
     MatGridListModule,
     AsyncPipe,
     StatsCardV2Component,
@@ -33,23 +35,25 @@ import { StatsCardV2Component } from '@shared/components/cards/stats-card-v2/sta
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SummaryDetailsComponent implements OnInit {
-  cardsGridColumns$: Observable<number> | undefined;
+  gridColumns = signal(3);
+  kpis$: Observable<DashboardKpiResponse> | undefined;
+  kpi: DashboardKpiResponse | null = null;
+
+  private destroyRef = inject(DestroyRef);
   breakpointObserver = inject(BreakpointObserver);
-  summary = input<CountSummaryModel>();
+  dashboardService = inject(DashboardService);
 
   ngOnInit() {
-    this.cardsGridColumns$ = this.breakpointObserver
-      .observe([Breakpoints.XSmall, Breakpoints.Small])
-      .pipe(
-        map(result => {
-          if (result.breakpoints[Breakpoints.XSmall]) {
-            return 1;
-          }
-          if (result.breakpoints[Breakpoints.Small]) {
-            return 3;
-          }
-          return 3; // Desktop Screen - Default number of columns.
-        })
-      );
+    this.dashboardService.getDashboardKPI().subscribe(response => {
+      console.log('RESPONSE:', response);
+      this.kpi = response;
+    });
+
+    this.breakpointObserver
+      .observe([Breakpoints.XSmall])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        this.gridColumns.set(result.matches ? 1 : 3);
+      });
   }
 }
