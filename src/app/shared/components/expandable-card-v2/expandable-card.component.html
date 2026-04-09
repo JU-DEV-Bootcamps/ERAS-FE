@@ -6,7 +6,7 @@
 >
   <button class="pdf-export" (click)="onExportPdf()">Export</button>
   <button class="change-to-column" (click)="changeToColumn()">
-    <mat-icon>bar_chart</mat-icon>
+    <img src="assets/icons/graphic.svg" alt="bar_chart" />
   </button>
   <button
     class="toggle-btn"
@@ -14,7 +14,12 @@
     (click)="onToggle()"
     type="button"
   >
-    <mat-icon>{{ expanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+    <mat-icon [class.hidden]="!expanded">fullscreen_exit</mat-icon>
+    <img
+      src="assets/icons/expand.svg"
+      alt="expand_icon"
+      [class.hidden]="expanded"
+    />
   </button>
 
   <div class="card-body">

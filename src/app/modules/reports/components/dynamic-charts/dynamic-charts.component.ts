@@ -227,11 +227,12 @@ export class DynamicChartsComponent implements AfterViewInit {
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
 
-    const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
-    this.expandedIndex = firstIndex;
-    this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
+    if (this.isAnyCardExpanded) {
+      const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
+      this.expandedIndex = firstIndex;
+      this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
+    }
     this.gridHeight = 0;
-    console.log('expanded id', this.expandedId);
 
     if (!filters.cohortIds || filters.variableIds.length === 0) {
       this.chartsOptions = [];
