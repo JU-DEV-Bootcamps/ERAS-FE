@@ -31,3 +31,11 @@
 mat-spinner {
   margin: 0 auto;
 }
+
+.export-option-button {
+  border: none;
+  color: main-styles.get-color('primary', 30);
+  display: flex;
+  align-items: center;
+  width: 100%;
+}

@@ -82,6 +82,7 @@
     >
       <ng-container *ngIf="itemsAreSelectable" [matColumnDef]="'isSelected'">
         <th
+          id="isSelectedHeader"
           mat-header-cell
           [class]="mapClass?.table?.table ?? ''"
           *matHeaderCellDef
@@ -89,6 +90,7 @@
           <mat-checkbox [disabled]="true"></mat-checkbox>
         </th>
         <td
+          id="isSelectedCheckbox"
           mat-cell
           [class]="mapClass?.table?.cell ?? ''"
           *matCellDef="let item"

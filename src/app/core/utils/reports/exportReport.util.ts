@@ -51,6 +51,12 @@ export class PdfHelper {
         printButton?.remove();
       },
       list: (clonedElement: HTMLElement) => {
+        const selectedColumnCells = clonedElement.querySelectorAll(
+          '#isSelectedHeader,#isSelectedCheckbox'
+        );
+        selectedColumnCells.forEach(cell => {
+          cell.remove();
+        });
         const actionColumnCells = clonedElement.querySelectorAll(
           '.action-column-header,.action-column-cell'
         );

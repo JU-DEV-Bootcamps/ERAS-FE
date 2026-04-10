@@ -12,12 +12,34 @@
       [iconButton]="'download'"
       (clickButton)="redirectToImport()"
     ></app-eras-button>
-    <app-eras-button
-      class="light-button"
-      [textButton]="'Export'"
-      [iconButton]="'upload'"
-      (clickButton)="exportList()"
-    ></app-eras-button>
+    @if (students.length > 0) {
+      <app-eras-button
+        [matMenuTriggerFor]="menu"
+        class="light-button"
+        [textButton]="'Export'"
+        [iconButton]="'upload'"
+      >
+      </app-eras-button>
+      <mat-menu #menu="matMenu">
+        <button
+          mat-menu-item
+          class="export-option-button"
+          [disabled]="isGenerating"
+          (click)="exportToCSV()"
+        >
+          To CSV
+        </button>
+        <button
+          id="print-button"
+          mat-menu-item
+          class="export-option-button"
+          [disabled]="isGenerating"
+          (click)="exportToPdf()"
+        >
+          To PDF
+        </button>
+      </mat-menu>
+    }
   </div>
 
   <app-list

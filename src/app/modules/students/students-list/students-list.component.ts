@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { SelectedCheckboxComponent } from './selected-checkbox/selected-checkbox
 import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
 import { Router } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-students-list',
@@ -21,15 +22,18 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     ErasButtonComponent,
     ListComponent,
     MatProgressSpinner,
+    MatMenuModule,
     SelectedCheckboxComponent,
   ],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
 })
 export class StudentsListComponent implements OnInit {
-  readonly dialog = inject(MatDialog);
-  studentService = inject(StudentService);
-  private router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly studentService = inject(StudentService);
+
+  private readonly list = viewChild(ListComponent);
 
   dataStudents = new MatTableDataSource<StudentModel>([]);
   students: StudentModel[] = [];
@@ -40,6 +44,7 @@ export class StudentsListComponent implements OnInit {
   };
   isLoading = true;
   itemsAreSelectable = true;
+  isGenerating = false;
 
   columns: Column<StudentModel>[] = [
     {
@@ -132,9 +137,20 @@ export class StudentsListComponent implements OnInit {
     });
   }
 
-  exportList() {
-    //TODO: Implement logic on next commit
-    console.log('Clicking on exportList');
+  exportToCSV() {
+    if (this.isGenerating) return;
+
+    this.isGenerating = true;
+    this.list()?.exportToCSV();
+    this.isGenerating = false;
+  }
+
+  async exportToPdf() {
+    if (this.isGenerating) return;
+
+    this.isGenerating = true;
+    this.list()?.exportToPdf();
+    this.isGenerating = false;
   }
 
   redirectToImport() {

@@ -3,7 +3,7 @@ import {
   MatCheckboxChange,
   MatCheckboxModule,
 } from '@angular/material/checkbox';
-import { StudentModel } from '@core/models/student.model';
+import { SelectableModel } from '@core/models/common/selectable.model';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 
 @Component({
@@ -12,8 +12,8 @@ import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.com
   templateUrl: './selected-checkbox.component.html',
   styleUrl: './selected-checkbox.component.scss',
 })
-export class SelectedCheckboxComponent {
-  @Input() element: StudentModel | undefined;
+export class SelectedCheckboxComponent<T extends SelectableModel> {
+  @Input() element: T | undefined;
 
   public onChange(event: MatCheckboxChange) {
     if (this.element) {

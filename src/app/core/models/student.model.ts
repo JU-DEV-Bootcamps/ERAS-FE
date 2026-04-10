@@ -1,8 +1,9 @@
 import { BaseModel } from './common/base.model';
 import { StudentDetailModel } from './student-detail.model';
 import { CohortModel } from './cohort.model';
+import { SelectableModel } from './common/selectable.model';
 
-export interface StudentModel extends BaseModel {
+export interface StudentModel extends SelectableModel {
   uuid: string;
   name: string;
   email: string;
@@ -10,7 +11,6 @@ export interface StudentModel extends BaseModel {
   studentDetail: StudentDetailModel;
   cohortId: number;
   cohort?: CohortModel;
-  isSelected?: boolean;
 }
 
 export interface Student extends BaseModel {
