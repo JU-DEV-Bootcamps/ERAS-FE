@@ -135,6 +135,10 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
   font-weight: 450;
 }
 
+.mat-mdc-menu-item {
+  min-height: 36px;
+}
+
 .card-body {
   padding: 8px 0;
   flex: 1;

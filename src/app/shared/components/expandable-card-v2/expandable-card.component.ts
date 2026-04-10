@@ -14,10 +14,11 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-expandable-card',
-  imports: [MatIconModule, MatTooltipModule],
+  imports: [MatIconModule, MatTooltipModule, MatMenuModule],
   templateUrl: './expandable-card.component.html',
   styleUrl: './expandable-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,5 +67,9 @@ export class ExpandableCardComponent implements OnChanges {
 
   changeToColumn(): void {
     //it will be implemented on the #793 feature
+  }
+
+  changeToHeatmap(): void {
+    // it will be implemented on the #793 feature
   }
 }
