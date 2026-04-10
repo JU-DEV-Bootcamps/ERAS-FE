@@ -6,7 +6,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,9 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [
     MatIconModule,
     MatCardModule,
-    // StatsCardComponent,
     MatGridListModule,
-    AsyncPipe,
     StatsCardV2Component,
   ],
   templateUrl: './summary-details.component.html',
