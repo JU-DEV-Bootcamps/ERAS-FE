@@ -13,10 +13,11 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-expandable-card',
-  imports: [MatIconModule],
+  imports: [MatIconModule, MatTooltipModule],
   templateUrl: './expandable-card.component.html',
   styleUrl: './expandable-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -4,13 +4,21 @@
   [class.card--dimmed]="dimmed"
   #cardRef
 >
-  <button class="pdf-export" (click)="onExportPdf()">Export</button>
-  <button class="change-to-column" (click)="changeToColumn()">
+  <button class="pdf-export" matTooltip="Download pdf" (click)="onExportPdf()">
+    Export
+  </button>
+  <button
+    class="change-to-column"
+    matTooltip="Charts"
+    mat-icon-button
+    (click)="changeToColumn()"
+  >
     <img src="assets/icons/graphic.svg" alt="bar_chart" />
   </button>
   <button
     class="toggle-btn"
-    [attr.aria-label]="expanded ? 'Colapsar' : 'Expandir'"
+    [matTooltip]="expanded ? 'Collapse' : 'Expand'"
+    [attr.aria-label]="expanded ? 'Collapse' : 'Expand'"
     (click)="onToggle()"
     type="button"
   >
