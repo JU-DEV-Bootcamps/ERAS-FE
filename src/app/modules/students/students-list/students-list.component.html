@@ -2,32 +2,36 @@
   <h2 class="page-title">Students</h2>
 </div>
 
-<div class="buttons-container">
-  <app-eras-button
-    class="light-button"
-    [textButton]="'Import'"
-    [iconButton]="'download'"
-    (clickButton)="redirectToImport()"
-  ></app-eras-button>
-  <app-eras-button
-    class="light-button"
-    [textButton]="'Export'"
-    [iconButton]="'upload'"
-    (clickButton)="exportList()"
-  ></app-eras-button>
-</div>
+@if (isLoading) {
+  <mat-spinner />
+} @else {
+  <div class="buttons-container">
+    <app-eras-button
+      class="light-button"
+      [textButton]="'Import'"
+      [iconButton]="'download'"
+      (clickButton)="redirectToImport()"
+    ></app-eras-button>
+    <app-eras-button
+      class="light-button"
+      [textButton]="'Export'"
+      [iconButton]="'upload'"
+      (clickButton)="exportList()"
+    ></app-eras-button>
+  </div>
 
-<app-list
-  (loadCalled)="handleLoadCalled($event)"
-  (actionCalled)="handleActionCalled($event)"
-  [columns]="columns"
-  [items]="students"
-  [totalItems]="totalStudents"
-  [actionDatas]="actionDatas"
-  [itemsAreSelectable]="itemsAreSelectable"
-  [externalExport]="true"
->
-  <ng-template #isSelected let-element>
-    <app-selected-checkbox [element]="element" />
-  </ng-template>
-</app-list>
+  <app-list
+    (loadCalled)="handleLoadCalled($event)"
+    (actionCalled)="handleActionCalled($event)"
+    [columns]="columns"
+    [items]="students"
+    [totalItems]="totalStudents"
+    [actionDatas]="actionDatas"
+    [itemsAreSelectable]="itemsAreSelectable"
+    [externalExport]="true"
+  >
+    <ng-template #isSelected let-element>
+      <app-selected-checkbox [element]="element" />
+    </ng-template>
+  </app-list>
+}

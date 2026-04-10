@@ -13,10 +13,16 @@ import { ModalStudentDetailComponent } from '@shared/components/modals/modal-stu
 import { SelectedCheckboxComponent } from './selected-checkbox/selected-checkbox.component';
 import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
 import { Router } from '@angular/router';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-students-list',
-  imports: [ErasButtonComponent, ListComponent, SelectedCheckboxComponent],
+  imports: [
+    ErasButtonComponent,
+    ListComponent,
+    MatProgressSpinner,
+    SelectedCheckboxComponent,
+  ],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
 })
@@ -56,7 +62,6 @@ export class StudentsListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.isLoading = true;
     this.loadStudents();
   }
 
@@ -93,7 +98,6 @@ export class StudentsListComponent implements OnInit {
       page: event.page,
       pageSize: event.pageSize,
     };
-    this.isLoading = true;
     this.loadStudents();
   }
 
@@ -115,7 +119,6 @@ export class StudentsListComponent implements OnInit {
       page: pagination.pageIndex,
       pageSize: pagination.pageSize,
     };
-    this.isLoading = true;
     this.loadStudents();
   }
 
