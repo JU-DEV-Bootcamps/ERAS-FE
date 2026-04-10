@@ -110,7 +110,7 @@
           [class]="mapClass?.table?.header ?? ''"
           *matHeaderCellDef
         >
-          <b>{{ column.label | titlecase }}</b>
+          <b>{{ column.label | uppercase }}</b>
         </th>
         <td
           mat-cell
@@ -130,7 +130,7 @@
           [class]="mapClass?.table?.table ?? ''"
           *matHeaderCellDef
         >
-          <b>{{ columnTemplate.label | titlecase }}</b>
+          <b>{{ columnTemplate.label | uppercase }}</b>
         </th>
         <td
           mat-cell
@@ -154,7 +154,7 @@
             *matHeaderCellDef
             class="action-column-header"
           >
-            <b>Details</b>
+            <b>ACTIONS</b>
           </th>
           <td
             mat-cell

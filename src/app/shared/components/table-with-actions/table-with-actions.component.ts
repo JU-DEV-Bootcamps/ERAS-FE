@@ -1,4 +1,4 @@
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   Component,
   HostListener,
@@ -37,7 +37,6 @@ import { ActionButtonComponent } from '../buttons/action-button/action-button.co
     MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
-    TitleCasePipe,
     CommonModule,
     MatCardModule,
     ActionButtonComponent,
