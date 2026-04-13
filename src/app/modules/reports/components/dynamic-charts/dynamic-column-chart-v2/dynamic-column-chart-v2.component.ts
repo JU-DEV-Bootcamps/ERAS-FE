@@ -1,10 +1,10 @@
 import {
   Component,
   computed,
-  createComponent,
   EnvironmentInjector,
   inject,
   input,
+  output,
 } from '@angular/core';
 
 import {
@@ -20,8 +20,6 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 
-import { MatDialog } from '@angular/material/dialog';
-
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import {
   PollCountAnswer,
@@ -34,11 +32,6 @@ import {
   getRiskGroup,
 } from '@core/constants/riskLevel';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
-import {
-  ModalQuestionDetailsComponent,
-  SelectedHMData,
-} from '@shared/components/modals/modal-question-details/modal-question-details.component';
-import { TooltipChartComponent } from '../../tooltip-chart/tooltip-chart.component';
 
 export interface ChartOptions {
   chart?: ApexChart;
@@ -54,6 +47,13 @@ export interface ChartOptions {
   xaxis: ApexXAxis;
 }
 
+export interface SelectPointEvent {
+  question: PollCountQuestion;
+  componentName: ComponentValueType;
+  text?: string;
+  riskLevel: number;
+}
+
 @Component({
   selector: 'app-dynamic-column-chart-v2',
   imports: [NgApexchartsModule],
@@ -64,9 +64,10 @@ export class DynamicColumnChartV2Component {
   identifier = input<string>();
   cohortsIds = input<string>();
   evaluationId = input<number | string | undefined>();
+  tooltipFn = input<(seriesIndex: number, dataPointIndex: number) => string>();
 
+  selectPoint = output<SelectPointEvent>();
   private injector = inject(EnvironmentInjector);
-  private dialog = inject(MatDialog);
 
   chartOption = computed((): Partial<ChartOptions> | null => {
     const data = this.componentData();
@@ -78,14 +79,12 @@ export class DynamicColumnChartV2Component {
       `Reporte: ${component.description}`,
       component.questions,
       (xIndex, sIndex) => {
-        this._openDetailsModal(
-          this.identifier()!,
-          this.cohortsIds()!,
-          component.questions[xIndex],
-          component.description as ComponentValueType,
-          component.text,
-          sIndex
-        );
+        this.selectPoint.emit({
+          question: component.questions[xIndex],
+          componentName: component.description as ComponentValueType,
+          text: component.text,
+          riskLevel: sIndex,
+        });
       }
     );
   }
@@ -125,25 +124,10 @@ export class DynamicColumnChartV2Component {
     return {
       followCursor: true,
       custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-        const value = `<b>Student Answers:</b> ${series[seriesIndex][dataPointIndex]}`;
-        const category = `Q: ${w.globals.labels[dataPointIndex]}`;
-        const emails = w.config.series[seriesIndex].data[dataPointIndex].meta;
-
-        const compRef = createComponent(TooltipChartComponent, {
-          environmentInjector: this.injector,
-        });
-
-        compRef.instance.value = value;
-        compRef.instance.category = category;
-        compRef.instance.emails = emails;
-
-        const container = document.createElement('div');
-        container.appendChild(compRef.location.nativeElement);
-        compRef.changeDetectorRef.detectChanges();
-
-        const html = container.innerHTML;
-        compRef.destroy();
-        return html;
+        void series;
+        void w;
+        const fn = this.tooltipFn();
+        return fn ? fn(dataPointIndex, seriesIndex) : '';
       },
     };
   }
@@ -164,32 +148,5 @@ export class DynamicColumnChartV2Component {
 
   private _extractEmails(answers: PollCountAnswer[]): string[] {
     return answers.flatMap(answer => answer.students.map(s => s.email));
-  }
-
-  private _openDetailsModal(
-    pollUuid: string,
-    cohortId: string,
-    question: PollCountQuestion,
-    componentName: ComponentValueType,
-    text?: string,
-    riskLevel?: number
-  ): void {
-    const data: SelectedHMData = {
-      cohortId: cohortId.toString(),
-      pollUuid,
-      componentName,
-      text,
-      question,
-      riskLevel,
-      evaluationId: this.evaluationId(),
-    };
-
-    this.dialog.open(ModalQuestionDetailsComponent, {
-      width: 'clamp(320px, 50vw, 580px)',
-      maxWidth: '60vw',
-      maxHeight: '60vh',
-      panelClass: 'border-modalbox-dialog',
-      data,
-    });
   }
 }

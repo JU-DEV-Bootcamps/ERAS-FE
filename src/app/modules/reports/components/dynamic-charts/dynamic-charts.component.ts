@@ -219,7 +219,6 @@ export class DynamicChartsComponent implements AfterViewInit {
         this.isAnyCardExpanded
       );
     });
-    console.log('chartsoptons', this.chartsOptions);
     this.cdr.detectChanges();
   }
 
