@@ -63,7 +63,7 @@ export const SIDEBAR_MENUS: Menu[] = [
       {
         label: 'Students List',
         icon: 'school',
-        route: '/list-students-by-poll',
+        route: '/students',
       },
     ],
   },

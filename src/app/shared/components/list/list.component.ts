@@ -79,6 +79,8 @@ export class ListComponent<T extends object>
   @Input() title?: string;
   @Input() mapClass?: MapClass;
   @Input() showExportDropdown = false;
+  @Input() itemsAreSelectable = false;
+  @Input() externalExport = false;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -187,6 +189,9 @@ export class ListComponent<T extends object>
   exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
+    const itemsToExport = this.itemsAreSelectable
+      ? this.getItemsToExport()
+      : this.items;
     const columnsToExport = [
       ...new Set([...this.columns, ...this.exportColumns]),
     ];
@@ -194,7 +199,7 @@ export class ListComponent<T extends object>
     const columnLabels = columnsToExport.map(c => c.label);
 
     this.csvService.exportToCSV(
-      this.items,
+      itemsToExport,
       columnKeys as string[],
       columnLabels
     );
@@ -213,5 +218,18 @@ export class ListComponent<T extends object>
       preProcess: 'list',
     });
     this.isGenerating = false;
+  }
+
+  private getItemsToExport(): T[] {
+    const selectedItems = this.items.filter(
+      item => 'isSelected' in item && item.isSelected
+    );
+
+    // No items selected so export them all
+    if (selectedItems.length === 0) {
+      return this.items;
+    }
+
+    return selectedItems;
   }
 }
