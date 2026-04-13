@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { EventAction, EventLoad } from '@core/models/load';
-import { StudentModel } from '@core/models/student.model';
+import { StudentModel, StudentModelFlat } from '@core/models/student.model';
 import { StudentService } from '@core/services/api/student.service';
 import { Pagination } from '@core/services/interfaces/server.type';
 import { ListComponent } from '@shared/components/list/list.component';
@@ -15,6 +15,7 @@ import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras
 import { Router } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { LastAccessPipe } from '@shared/pipes/last-access.pipe';
 
 @Component({
   selector: 'app-students-list',
@@ -32,11 +33,12 @@ export class StudentsListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
+  private readonly lastAccessPipe = new LastAccessPipe();
 
   private readonly list = viewChild(ListComponent);
 
-  dataStudents = new MatTableDataSource<StudentModel>([]);
-  students: StudentModel[] = [];
+  dataStudents = new MatTableDataSource<StudentModelFlat>([]);
+  students: StudentModelFlat[] = [];
   totalStudents = 0;
   pagination: Pagination = {
     pageSize: 10,
@@ -46,7 +48,7 @@ export class StudentsListComponent implements OnInit {
   itemsAreSelectable = true;
   isGenerating = false;
 
-  columns: Column<StudentModel>[] = [
+  columns: Column<StudentModelFlat>[] = [
     {
       key: 'name',
       label: 'Name',
@@ -54,6 +56,20 @@ export class StudentsListComponent implements OnInit {
     {
       key: 'email',
       label: 'Email',
+    },
+    {
+      key: 'timeDeliveryRate',
+      label: 'Timely Submissions',
+    },
+    {
+      key: 'avgScore',
+      label: 'Avg. Score',
+    },
+    {
+      key: 'lastAccessDays',
+      label: 'Last Access',
+      pipe: this.lastAccessPipe,
+      pipeKey: 'lastAccessDays',
     },
   ];
   actionDatas: ActionDatas = [
@@ -73,9 +89,10 @@ export class StudentsListComponent implements OnInit {
   loadStudents(): void {
     this.studentService.getData(this.pagination).subscribe({
       next: data => {
-        this.dataStudents = new MatTableDataSource(data.items);
+        const flatStudents = this.flattenStudentModel(data.items);
+        this.dataStudents = new MatTableDataSource(flatStudents);
         const existingStudents = [...this.students];
-        this.students = data.items.map(student => {
+        this.students = flatStudents.map(student => {
           const existingStudent = existingStudents.find(
             existingStudent => existingStudent.id === student.id
           );
@@ -127,7 +144,7 @@ export class StudentsListComponent implements OnInit {
     this.loadStudents();
   }
 
-  openStudentDetails(student: StudentModel): void {
+  openStudentDetails(student: StudentModelFlat): void {
     this.dialog.open(ModalStudentDetailComponent, {
       width: 'clamp(520px, 50vw, 980px)',
       maxWidth: '90vw',
@@ -155,5 +172,28 @@ export class StudentsListComponent implements OnInit {
 
   redirectToImport() {
     this.router.navigate(['import-students']);
+  }
+
+  private flattenStudentModel(data: StudentModel[]): StudentModelFlat[] {
+    return data.map(student => ({
+      uuid: student.uuid,
+      name: student.name,
+      email: student.email,
+      isImported: student.isImported,
+      cohortId: student.cohortId,
+      cohort: student.cohort,
+      studentId: student.studentDetail.studentId,
+      enrolledCourses: student.studentDetail.enrolledCourses,
+      gradedCourses: student.studentDetail.gradedCourses,
+      timeDeliveryRate: student.studentDetail.timeDeliveryRate,
+      avgScore: student.studentDetail.avgScore,
+      coursesUnderAvg: student.studentDetail.coursesUnderAvg,
+      pureScoreDiff: student.studentDetail.pureScoreDiff,
+      standardScoreDiff: student.studentDetail.standardScoreDiff,
+      lastAccessDays: student.studentDetail.lastAccessDays,
+      isSelected: student.isSelected,
+      audit: student.audit,
+      id: student.id,
+    }));
   }
 }

@@ -20,3 +20,7 @@ export interface Student extends BaseModel {
   studentDetail: StudentDetailModel | null;
   cohort: CohortModel;
 }
+
+export interface StudentModelFlat
+  extends Omit<StudentModel, 'studentDetail'>,
+    Omit<StudentDetailModel, 'id' | 'audit'> {}
