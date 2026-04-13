@@ -148,14 +148,20 @@ export class PollFiltersComponent implements OnInit {
       variables: [],
     });
 
+    this.componentNames.set([]);
+    this.variables.set([]);
+    this.prevComponentSelections = [];
+    this.prevCohortIds = [];
+    this.prevVariablesSelections = [];
+
     this.filterForm.controls.cohortIds.enable();
     if (this.showVariables) {
-      this.filterForm.controls.componentNames.enable();
+      this.filterForm.controls.componentNames.disable();
       this.filterForm.controls.variables.disable();
     }
 
     this._getPolls(newSelectedEvaluation);
-    if (this.polls[0]) {
+    if (this.polls?.length) {
       this._getCohorts(this.polls[0].uuid);
     }
   }
@@ -171,6 +177,8 @@ export class PollFiltersComponent implements OnInit {
 
   handleComponentsSelect(isOpen: boolean) {
     if (isOpen) return;
+    if (this.filterForm.controls.componentNames.disabled) return;
+
     const componentNames = this.filterForm.value.componentNames || [];
     if (areArraysEqual(this.prevComponentSelections, componentNames)) return;
     this.prevComponentSelections = [...componentNames];
@@ -322,12 +330,14 @@ export class PollFiltersComponent implements OnInit {
     });
   }
 
-  private _getVariables() {
+  private _getVariables(filterNames?: string[]) {
     if (!this.polls || !this.polls[0]?.uuid) return;
-    const componentNames = this.componentNames() || [];
+
+    const namesToQuery =
+      filterNames ?? this.filterForm.value.componentNames ?? [];
 
     this.pollsService
-      .getVariablesByComponents(this.polls[0].uuid, [...componentNames], true)
+      .getVariablesByComponents(this.polls[0].uuid, [...namesToQuery], true)
       .subscribe({
         next: variables => {
           if (!variables) return;
@@ -337,7 +347,18 @@ export class PollFiltersComponent implements OnInit {
           const newComponentNames = [
             ...new Set(variables.map(v => v.componentName).filter(Boolean)),
           ];
+
           this.componentNames.set(newComponentNames);
+
+          if (filterNames) {
+            this.filterForm.controls.componentNames.setValue(newComponentNames);
+            this.prevComponentSelections = [...newComponentNames];
+          }
+
+          if (this.showVariables) {
+            this.filterForm.controls.componentNames.enable();
+            this.filterForm.controls.variables.enable();
+          }
 
           const groups = newComponentNames.map(compName => ({
             label: compName.toUpperCase(),
