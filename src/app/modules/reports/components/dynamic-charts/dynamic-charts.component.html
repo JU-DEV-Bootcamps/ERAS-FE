@@ -48,34 +48,26 @@
               (exporting)="onExporting($event)"
               (changeChart)="onChartTypeChange($index, $event)"
             >
-              <!-- <div [appApexTooltip]="getTooltipFn($index)"> -->
-              <!-- <apx-chart
-                    [series]="chartOption.series!"
-                    [chart]="chartOption.chart!"
-                    [xaxis]="chartOption.xaxis!"
-                    [yaxis]="chartOption.yaxis!"
-                    [colors]="chartOption.colors!"
-                    [plotOptions]="chartOption.plotOptions!"
-                    [title]="chartOption.title!"
-                    [tooltip]="chartOption.tooltip!"
-                    [legend]="chartOption.legend!"
-                  > 
-                  </apx-chart>-->
-              <!-- <app-dynamic-column-chart
-                    [chartOption]="chartOption"
+              @if (getChartType($index) === 'column') {
+                <div [appApexTooltip]="getTooltipFn($index)">
+                  <app-dynamic-column-chart-v2
+                    [componentData]="components()!.components[$index]"
                     [identifier]="uuid!"
                     [cohortsIds]="cohortIds"
                     [evaluationId]="evaluationId"
-                  >
-                  </app-dynamic-column-chart>
-                </div> -->
-              @if (getChartType($index) === 'column') {
-                <app-dynamic-column-chart-v2
-                  [componentData]="components()!.components[$index]"
-                  [identifier]="uuid!"
-                  [cohortsIds]="cohortIds"
-                  [evaluationId]="evaluationId"
-                />
+                    [tooltipFn]="getTooltipFn($index)"
+                    (selectPoint)="
+                      openDetailsModal(
+                        uuid!,
+                        cohortIds,
+                        $event.question,
+                        $event.componentName,
+                        $event.text,
+                        $event.riskLevel
+                      )
+                    "
+                  />
+                </div>
               } @else {
                 <div [appApexTooltip]="getTooltipFn($index)">
                   <apx-chart
@@ -95,17 +87,6 @@
           }
         </div>
       </div>
-      <!-- } @else {
-        <div #contentToExport>
-          <app-dynamic-column-chart
-            [component]="components()!"
-            [identifier]="uuid!"
-            [cohortsIds]="cohortIds"
-            [evaluationId]="evaluationId"
-          >
-          </app-dynamic-column-chart>
-        </div> -->
-      <!-- }  -->
       @if (isPanelOpen()) {
         <aside class="details-aside">
           <app-details-panel
