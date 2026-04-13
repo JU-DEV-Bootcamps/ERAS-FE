@@ -72,7 +72,7 @@ export class SelectMultipleVirtualScrollComponent {
       const defaultValue = this.scrollItemsValues();
       const ctrl = this.control();
 
-      if (currentItems && currentItems.length > 0 && this.autoSelect()) {
+      if (currentItems?.length > 0 && this.autoSelect()) {
         ctrl.patchValue(defaultValue);
         this.openedChange.emit(false);
       }

@@ -70,6 +70,7 @@ export class PollFiltersComponent implements OnInit {
 
   cohorts = signal<CohortModel[]>([]);
   componentNames = signal<string[]>([]);
+  allComponentNames = signal<string[]>([]);
   evaluations = signal<EvaluationModel[] | null>([]);
   polls: PollModel[] = [];
   prevCohortIds: number[] = [];
@@ -114,7 +115,7 @@ export class PollFiltersComponent implements OnInit {
   });
 
   readonly componentsToScroll = computed<MultipleSelectItem[]>(() => {
-    const componentNames = this.componentNames();
+    const componentNames = this.allComponentNames();
     return componentNames
       ? componentNames.map(componentName => {
           return { label: componentName, value: componentName };
@@ -149,6 +150,7 @@ export class PollFiltersComponent implements OnInit {
     });
 
     this.componentNames.set([]);
+    this.allComponentNames.set([]);
     this.variables.set([]);
     this.prevComponentSelections = [];
     this.prevCohortIds = [];
@@ -323,16 +325,15 @@ export class PollFiltersComponent implements OnInit {
         this.prevCohortIds = allIds;
 
         if (this.showVariables) {
-          this._getVariables();
+          this._getVariables(undefined, true);
         }
       },
       error: () => this.cohorts.set([]),
     });
   }
 
-  private _getVariables(filterNames?: string[]) {
+  private _getVariables(filterNames?: string[], isInitialLoad = false) {
     if (!this.polls || !this.polls[0]?.uuid) return;
-
     const namesToQuery =
       filterNames ?? this.filterForm.value.componentNames ?? [];
 
@@ -348,7 +349,12 @@ export class PollFiltersComponent implements OnInit {
             ...new Set(variables.map(v => v.componentName).filter(Boolean)),
           ];
 
-          this.componentNames.set(newComponentNames);
+          if (isInitialLoad) {
+            this.allComponentNames.set(newComponentNames);
+            this.componentNames.set(newComponentNames);
+            this.filterForm.controls.componentNames.setValue(newComponentNames);
+            this.prevComponentSelections = [...newComponentNames];
+          }
 
           if (filterNames) {
             this.filterForm.controls.componentNames.setValue(newComponentNames);
