@@ -24,32 +24,59 @@
 } @else {
   @defer {
     <div class="charts-layout" [class.panel-open]="isPanelOpen()">
-      @if (heatmapChart) {
+      <div
+        class="charts-area-wrapper"
+        [class.has-expanded-card]="isAnyCardExpanded"
+      >
         <div
-          class="charts-area-wrapper"
-          [class.has-expanded-card]="isAnyCardExpanded"
+          #contentToExport
+          class="charts-grid"
+          [style.height.px]="isAnyCardExpanded ? gridHeight : null"
         >
-          <div
-            #contentToExport
-            class="charts-grid"
-            [style.height.px]="isAnyCardExpanded ? gridHeight : null"
-          >
-            @for (chartOption of chartsOptions; track $index) {
-              <app-expandable-card
-                #chartsGrid
-                [cardId]="'chart-' + $index"
-                [expanded]="
-                  expandedId === 'chart-' + $index && isAnyCardExpanded
-                "
-                [dimmed]="
-                  expandedId !== null &&
-                  expandedId !== 'chart-' + $index &&
-                  isAnyCardExpanded
-                "
-                [title]="title"
-                (toggleExpand)="onToggle($event)"
-                (exporting)="onExporting($event)"
-              >
+          @for (chartOption of chartsOptions; track $index) {
+            <app-expandable-card
+              #chartsGrid
+              [cardId]="'chart-' + $index"
+              [expanded]="expandedId === 'chart-' + $index && isAnyCardExpanded"
+              [dimmed]="
+                expandedId !== null &&
+                expandedId !== 'chart-' + $index &&
+                isAnyCardExpanded
+              "
+              [title]="title"
+              (toggleExpand)="onToggle($event)"
+              (exporting)="onExporting($event)"
+              (changeChart)="onChartTypeChange($index, $event)"
+            >
+              <!-- <div [appApexTooltip]="getTooltipFn($index)"> -->
+              <!-- <apx-chart
+                    [series]="chartOption.series!"
+                    [chart]="chartOption.chart!"
+                    [xaxis]="chartOption.xaxis!"
+                    [yaxis]="chartOption.yaxis!"
+                    [colors]="chartOption.colors!"
+                    [plotOptions]="chartOption.plotOptions!"
+                    [title]="chartOption.title!"
+                    [tooltip]="chartOption.tooltip!"
+                    [legend]="chartOption.legend!"
+                  > 
+                  </apx-chart>-->
+              <!-- <app-dynamic-column-chart
+                    [chartOption]="chartOption"
+                    [identifier]="uuid!"
+                    [cohortsIds]="cohortIds"
+                    [evaluationId]="evaluationId"
+                  >
+                  </app-dynamic-column-chart>
+                </div> -->
+              @if (getChartType($index) === 'column') {
+                <app-dynamic-column-chart-v2
+                  [componentData]="components()!.components[$index]"
+                  [identifier]="uuid!"
+                  [cohortsIds]="cohortIds"
+                  [evaluationId]="evaluationId"
+                />
+              } @else {
                 <div [appApexTooltip]="getTooltipFn($index)">
                   <apx-chart
                     [series]="chartOption.series!"
@@ -61,24 +88,24 @@
                     [title]="chartOption.title!"
                     [tooltip]="chartOption.tooltip!"
                     [legend]="chartOption.legend!"
-                  >
-                  </apx-chart>
+                  ></apx-chart>
                 </div>
-              </app-expandable-card>
-            }
-          </div>
+              }
+            </app-expandable-card>
+          }
         </div>
-      } @else {
+      </div>
+      <!-- } @else {
         <div #contentToExport>
           <app-dynamic-column-chart
-            [components]="components()!"
+            [component]="components()!"
             [identifier]="uuid!"
             [cohortsIds]="cohortIds"
             [evaluationId]="evaluationId"
           >
           </app-dynamic-column-chart>
-        </div>
-      }
+        </div> -->
+      <!-- }  -->
       @if (isPanelOpen()) {
         <aside class="details-aside">
           <app-details-panel

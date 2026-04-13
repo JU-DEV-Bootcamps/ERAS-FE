@@ -29,7 +29,6 @@ import { ComponentValueType } from '@core/models/types/risk-students-detail.type
 import { Filter } from '../poll-filters/types/filters';
 import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
 
-import { DynamicColumnChartComponent } from './dynamic-column-chart/dynamic-column-chart.component';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { ExpandableCardComponent } from '@shared/components/expandable-card-v2/expandable-card.component';
@@ -41,11 +40,11 @@ import {
 } from '@shared/components/panels/details-panel-v2/details-panel.component';
 import { debounceTime, fromEvent } from 'rxjs';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic-column-chart-v2.component';
 
 @Component({
   selector: 'app-dynamic-charts',
   imports: [
-    DynamicColumnChartComponent,
     EmptyDataComponent,
     MatMenuModule,
     MatProgressBarModule,
@@ -56,6 +55,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     ApexTooltipDirective,
     DetailsPanelComponent,
     MatProgressSpinner,
+    DynamicColumnChartV2Component,
   ],
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
@@ -87,6 +87,7 @@ export class DynamicChartsComponent implements AfterViewInit {
 
   gridHeight = 0;
   isExporting = signal(false);
+  chartTypeMap = new Map<number, 'heatmap' | 'column'>();
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
   @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
@@ -120,6 +121,7 @@ export class DynamicChartsComponent implements AfterViewInit {
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
+          this.chartTypeMap.clear();
           this.generateSeries(data.body);
           this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
@@ -217,6 +219,7 @@ export class DynamicChartsComponent implements AfterViewInit {
         this.isAnyCardExpanded
       );
     });
+    console.log('chartsoptons', this.chartsOptions);
     this.cdr.detectChanges();
   }
 
@@ -344,5 +347,13 @@ export class DynamicChartsComponent implements AfterViewInit {
   private _updateCardWidth() {
     const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
     this.cardWidth.set(width);
+  }
+
+  getChartType(index: number): 'heatmap' | 'column' {
+    return this.chartTypeMap.get(index) ?? 'heatmap';
+  }
+
+  onChartTypeChange(index: number, type: 'heatmap' | 'column'): void {
+    this.chartTypeMap.set(index, type);
   }
 }

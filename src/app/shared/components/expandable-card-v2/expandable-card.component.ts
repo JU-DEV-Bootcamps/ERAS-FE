@@ -31,6 +31,7 @@ export class ExpandableCardComponent implements OnChanges {
 
   @Output() toggleExpand = new EventEmitter<string>();
   @Output() exporting = new EventEmitter<boolean>();
+  @Output() changeChart = new EventEmitter<'heatmap' | 'column'>();
 
   @HostBinding('class.is-expanded') get hostExpanded() {
     return this.expanded;
@@ -66,10 +67,10 @@ export class ExpandableCardComponent implements OnChanges {
   }
 
   changeToColumn(): void {
-    //it will be implemented on the #793 feature
+    this.changeChart.emit('column');
   }
 
   changeToHeatmap(): void {
-    // it will be implemented on the #793 feature
+    this.changeChart.emit('heatmap');
   }
 }
