@@ -19,6 +19,7 @@ import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/s
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
+import { StudentsListComponent } from '@modules/students/students-list/students-list.component';
 
 export const routes: Routes = [
   {
@@ -77,6 +78,11 @@ export const routes: Routes = [
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
         data: { breadcrumb: 'Students List By Poll' },
+      },
+      {
+        path: 'students',
+        component: StudentsListComponent,
+        data: { breadcrumb: 'Students List' },
       },
       {
         path: 'risk-students',
