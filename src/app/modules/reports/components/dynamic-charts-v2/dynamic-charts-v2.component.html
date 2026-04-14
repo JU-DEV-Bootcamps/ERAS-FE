@@ -56,6 +56,7 @@
                     [cohortsIds]="cohortIds"
                     [evaluationId]="evaluationId"
                     [tooltipFn]="getTooltipFn($index)"
+                    [resizeTrigger]="resizeTick()"
                     (selectPoint)="
                       openDetailsModal(
                         uuid!,

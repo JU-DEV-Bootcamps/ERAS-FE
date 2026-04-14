@@ -88,6 +88,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
   gridHeight = 0;
   isExporting = signal(false);
   chartTypeMap = new Map<number, 'heatmap' | 'column'>();
+  resizeTick = signal(0);
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
   @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
@@ -286,7 +287,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
       this._updateCardWidth();
       const report = this.components();
       if (report) this.generateSeries(report);
-      window.dispatchEvent(new Event('resize'));
+      this.resizeTick.update(v => v + 1);
     }, 50);
   }
 
@@ -298,7 +299,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
       this._updateCardWidth();
       const report = this.components();
       if (report) this.generateSeries(report);
-      window.dispatchEvent(new Event('resize'));
+      this.resizeTick.update(v => v + 1);
     }, 50);
   }
 
