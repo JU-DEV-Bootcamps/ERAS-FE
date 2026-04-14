@@ -286,6 +286,7 @@ export class DynamicChartsComponent implements AfterViewInit {
       this._updateCardWidth();
       const report = this.components();
       if (report) this.generateSeries(report);
+      window.dispatchEvent(new Event('resize'));
     }, 50);
   }
 
@@ -297,6 +298,7 @@ export class DynamicChartsComponent implements AfterViewInit {
       this._updateCardWidth();
       const report = this.components();
       if (report) this.generateSeries(report);
+      window.dispatchEvent(new Event('resize'));
     }, 50);
   }
 
