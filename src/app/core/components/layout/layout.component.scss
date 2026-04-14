@@ -5,12 +5,41 @@ mat-sidenav-container {
 }
 
 mat-sidenav {
-  background-color: #117473;
-  color: white;
   height: 100vh;
   border-radius: 0px 8px 8px 0px;
   transform-origin: left;
-  width: 260px;
+
+  &.new-theme {
+    background-color: #117473;
+    color: white;
+  }
+
+  &.old-theme {
+    background-color: main-styles.get-color('primary', 25);
+    color: main-styles.get-color('neutral', 70);
+  }
+}
+
+button.expand-button {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  width: 100%;
+  color: main-styles.get-color('neutral', 50);
+  height: 50px;
+  &:hover .menu-icon {
+    color: main-styles.get-color('neutral', 100);
+  }
+}
+
+mat-icon.menu-icon {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  padding-left: 18px;
+  margin: 0;
+  vertical-align: middle;
+  color: #bebbbc;
 }
 
 mat-sidenav,
@@ -21,7 +50,6 @@ mat-sidenav-content {
 mat-sidenav-content {
   background-color: main-styles.get-color('neutral', 95);
 }
-
 mat-toolbar {
   display: flex;
   justify-content: space-between;

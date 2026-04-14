@@ -1,4 +1,4 @@
-import { Component, effect, model } from '@angular/core';
+import { Component, effect, model, input, computed } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -8,6 +8,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Menu } from './sidebar.model';
 import { SidebarService } from './sidebar.service';
+
+import { SIDEBAR_MENUS_NEW, SIDEBAR_MENUS_OLD } from './sidebar.model';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,11 +24,15 @@ import { SidebarService } from './sidebar.service';
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
-  readonly menuItems: Menu[];
   collapsed = model<boolean>();
 
+  newSidebar = input<boolean>(false);
+
+  menuItems = computed(() =>
+    this.newSidebar() ? SIDEBAR_MENUS_NEW : SIDEBAR_MENUS_OLD
+  );
+
   constructor(public sidebarService: SidebarService) {
-    this.menuItems = this.sidebarService.getMenus();
     effect(() => {
       if (this.collapsed()) {
         this.sidebarService.closeMenu();

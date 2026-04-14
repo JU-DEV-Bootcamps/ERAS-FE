@@ -1,39 +1,83 @@
-<mat-nav-list class="sidebar">
-  <div class="sidebar-logo">
-    <img src="assets/logo/eras-logo.png" alt="ERAS Logo" class="logo-img" />
-    <div class="logo-text">
-      <span class="logo-brand">ERAS</span>
-      <span class="logo-subtitle">Early Risk Assistance Solution</span>
+<!-- New design -->
+<div *ngIf="newSidebar()" class="new-sidebar-wrapper">
+  <mat-nav-list class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/logo/eras-logo.png" alt="ERAS Logo" class="logo-img" />
+      <div class="logo-text">
+        <span class="logo-brand">ERAS</span>
+        <span class="logo-subtitle">Early Risk Assistance Solution</span>
+      </div>
     </div>
-  </div>
+    <div class="sidebar-divider"></div>
 
-  <div class="sidebar-divider"></div>
-
-  <ng-container *ngFor="let item of menuItems">
-    <mat-list-item
-      class="menu-item"
-      [matTooltip]="item.label"
-      [matTooltipPosition]="'after'"
-      [class.active-parent]="isParentActive(item)"
-      (click)="onMenuClick(item)"
-      [routerLink]="item.route || null"
-    >
-      <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-      <span matListItemTitle>{{ item.label }}</span>
-    </mat-list-item>
-
-    <div
-      *ngIf="item.children && getExpandedMenu() === item.label"
-      class="submenu"
-    >
+    <ng-container *ngFor="let item of menuItems()">
       <mat-list-item
-        class="submenu-item"
-        *ngFor="let child of item.children"
-        [routerLink]="child.route"
-        routerLinkActive="active-submenu"
+        class="menu-item"
+        [matTooltip]="item.label"
+        [matTooltipPosition]="'after'"
+        [class.active-parent]="isParentActive(item)"
+        (click)="onMenuClick(item)"
+        [routerLink]="item.route || null"
       >
-        <span class="subtitle">{{ child.label }}</span>
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
       </mat-list-item>
-    </div>
-  </ng-container>
-</mat-nav-list>
+
+      <div
+        *ngIf="item.children && getExpandedMenu() === item.label"
+        class="submenu"
+      >
+        <mat-list-item
+          class="submenu-item"
+          *ngFor="let child of item.children"
+          [routerLink]="child.route"
+          routerLinkActive="active-submenu"
+        >
+          <span class="subtitle">{{ child.label }}</span>
+        </mat-list-item>
+      </div>
+    </ng-container>
+  </mat-nav-list>
+</div>
+
+<!-- Old design (Legacy) -->
+<div *ngIf="!newSidebar()" class="old-sidebar-wrapper">
+  <mat-nav-list class="sidebar">
+    <ng-container *ngFor="let item of menuItems()">
+      <mat-list-item
+        class="menu-item"
+        [matTooltip]="item.label"
+        [matTooltipPosition]="'after'"
+        [class.active-parent]="isParentActive(item)"
+        (click)="onMenuClick(item)"
+        [routerLink]="item.route || null"
+      >
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
+        <div matListItemMeta>
+          <mat-icon *ngIf="item.children" class="expand-icon">
+            {{
+              getExpandedMenu() === item.label ? 'expand_less' : 'expand_more'
+            }}
+          </mat-icon>
+        </div>
+      </mat-list-item>
+
+      <div
+        *ngIf="item.children && getExpandedMenu() === item.label"
+        class="submenu"
+      >
+        <a
+          class="submenu-item"
+          *ngFor="let child of item.children"
+          [routerLink]="child.route"
+          routerLinkActive="active-submenu"
+          [matTooltip]="child.label"
+          [matTooltipPosition]="'after'"
+        >
+          <span class="subtitle">{{ child.label }}</span>
+        </a>
+      </div>
+    </ng-container>
+  </mat-nav-list>
+</div>

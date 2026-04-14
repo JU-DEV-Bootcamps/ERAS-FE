@@ -1,5 +1,12 @@
-import { Component, computed, inject, OnInit, model } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  model,
+  signal,
+} from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -15,6 +22,7 @@ import {
   BreakpointState,
   Breakpoints,
 } from '@angular/cdk/layout';
+import { filter } from 'rxjs';
 
 import { SidebarComponent } from '@core/components/sidebar/sidebar.component';
 import { UserMenuComponent } from './user-menu/user-menu.component';
@@ -22,23 +30,22 @@ import { UserMenuComponent } from './user-menu/user-menu.component';
 enum Sidenav {
   shrink = '70px',
   expand = '250px',
+  newExpand = '260px',
 }
 
 @Component({
   selector: 'app-layout',
+  standalone: true,
   imports: [
     CommonModule,
     MatSidenavModule,
     MatToolbarModule,
     RouterOutlet,
-    CommonModule,
-    MatSidenavModule,
     MatButtonModule,
     MatRadioModule,
     FormsModule,
     ReactiveFormsModule,
     MatIconModule,
-    MatToolbarModule,
     MatMenuModule,
     UserMenuComponent,
     SidebarComponent,
@@ -47,15 +54,38 @@ enum Sidenav {
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  breakpointObserver = inject(BreakpointObserver);
+  private breakpointObserver = inject(BreakpointObserver);
+  private router = inject(Router);
+
   collapsed = model<boolean>(false);
-  sidenavWidth = computed(() =>
-    this.collapsed() ? Sidenav.shrink : Sidenav.expand
-  );
+  newSidebar = signal<boolean>(true);
+
+  sidenavWidth = computed(() => {
+    if (this.newSidebar()) {
+      return Sidenav.newExpand;
+    }
+    return this.collapsed() ? Sidenav.shrink : Sidenav.expand;
+  });
 
   ngOnInit() {
+    this.readSidebarFlag();
+
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => this.readSidebarFlag());
+
     this.breakpointObserver
       .observe([Breakpoints.Small, '(max-width: 1200px)'])
       .subscribe((state: BreakpointState) => this.collapsed.set(state.matches));
+  }
+
+  private readSidebarFlag(): void {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has('newSidebar')) {
+      this.newSidebar.set(params.get('newSidebar') !== 'false');
+    } else {
+      this.newSidebar.set(true);
+    }
   }
 }

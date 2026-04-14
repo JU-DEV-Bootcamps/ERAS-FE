@@ -1,111 +1,203 @@
 @use 'index.scss' as main-styles;
 
-$hover-bg: rgba(#135b5c, 0.5);
-$selected-bg: #144d4d;
-$text-color: #ffffff;
+// NEW SIDEBAR (Figma #117473)
+.new-sidebar-wrapper {
+  $hover-bg: rgba(#135b5c, 0.5);
+  $selected-bg: #144d4d;
+  $text-color: #ffffff;
 
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 28px 20px 24px;
-  margin-bottom: 8px;
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 20px 24px;
+    margin-bottom: 8px;
 
-  .logo-img {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-    flex-shrink: 0;
+    .logo-img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .logo-brand {
+      display: block;
+      color: $text-color;
+      font-family: 'Roboto', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .logo-subtitle {
+      display: block;
+      color: rgba($text-color, 0.85);
+      font-family: 'Roboto', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
   }
 
-  .logo-brand {
-    display: block;
-    color: $text-color;
-    font-family: 'Roboto', sans-serif;
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: 3px;
-    line-height: 1;
+  .sidebar-divider {
+    height: 1px;
+    background-color: rgba($text-color, 0.25);
+    margin: 0 16px 12px;
+  }
+
+  .menu-item {
+    width: 95%;
+    margin: auto;
+    border-radius: 8px !important;
+    height: 56px !important;
+    cursor: pointer;
+    position: relative;
+
+    mat-icon {
+      font-family: 'Material Symbols Rounded' !important;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24 !important;
+
+      color: $text-color;
+      opacity: 0.9;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    span {
+      color: $text-color;
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    &:hover {
+      background-color: $hover-bg;
+    }
+
+    &.active-parent {
+      background-color: $selected-bg;
+    }
+  }
+
+  .submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: auto;
+    overflow: hidden;
+    padding: 15px 0;
     white-space: nowrap;
+    width: 95%;
   }
 
-  .logo-subtitle {
-    display: block;
-    color: rgba($text-color, 0.85);
+  .submenu-item {
+    text-decoration: none;
+
+    &:hover .subtitle {
+      color: $text-color;
+      opacity: 1;
+    }
+
+    &.active-submenu .subtitle {
+      color: $text-color;
+      font-weight: 500;
+    }
+  }
+
+  .subtitle {
+    color: rgba($text-color, 0.75);
     font-family: 'Roboto', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 1.3;
+    font-size: 13px;
+    margin-left: 56px;
+  }
+}
+
+// OLD SIDEBAR (Legacy)
+.old-sidebar-wrapper {
+  $neutral-color: main-styles.get-color('neutral', 70);
+  $primary-bg: main-styles.get-color('primary', 50);
+  $primary-text: main-styles.get-color('primary', 100);
+
+  .menu-item {
+    width: 95%;
+    margin: auto;
+    border-radius: initial !important;
+
+    mat-icon {
+      display: flex;
+      opacity: 0.9;
+      color: $neutral-color;
+
+      &.expand-icon {
+        justify-content: center;
+      }
+    }
+
+    span {
+      color: $neutral-color;
+    }
+
+    &:hover {
+      background-color: $primary-bg;
+
+      mat-icon,
+      span {
+        color: $primary-text;
+      }
+    }
+
+    &.active-parent {
+      background-color: $primary-bg;
+
+      mat-icon,
+      span {
+        color: $primary-text;
+      }
+    }
+  }
+
+  .submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: auto;
+    overflow: hidden;
+    padding: 15px 0;
+    text-overflow: ellipsis;
     white-space: nowrap;
-  }
-}
-
-.sidebar-divider {
-  height: 1px;
-  background-color: rgba($text-color, 0.25);
-  margin: 0 16px 12px;
-}
-
-.menu-item {
-  width: 95%;
-  margin: auto;
-  border-radius: 8px !important;
-  height: 56px !important;
-  cursor: pointer;
-  position: relative;
-
-  mat-icon {
-    color: $text-color;
-    opacity: 0.9;
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    width: 95%;
   }
 
-  span {
-    color: $text-color;
-    font-family: 'Roboto', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
+  .submenu-item {
+    text-decoration: none;
+
+    &:hover {
+      .subtitle {
+        color: $primary-text;
+      }
+    }
+
+    &.active-submenu {
+      .subtitle {
+        color: $primary-text;
+        font-weight: 500;
+      }
+    }
   }
 
-  &:hover {
-    background-color: $hover-bg;
+  .subtitle {
+    color: $neutral-color;
+    margin-left: 56px;
   }
-
-  &.active-parent {
-    background-color: $selected-bg;
-  }
-}
-
-.submenu {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: auto;
-  overflow: hidden;
-  padding: 15px 0;
-  white-space: nowrap;
-  width: 95%;
-}
-
-.submenu-item {
-  text-decoration: none;
-
-  &:hover .subtitle {
-    color: $text-color;
-    opacity: 1;
-  }
-
-  &.active-submenu .subtitle {
-    color: $text-color;
-    font-weight: 500;
-  }
-}
-
-.subtitle {
-  color: rgba($text-color, 0.75);
-  font-family: 'Roboto', sans-serif;
-  font-size: 13px;
-  margin-left: 56px;
 }
