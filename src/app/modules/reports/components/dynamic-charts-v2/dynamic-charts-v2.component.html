@@ -1,16 +1,101 @@
-<section appActionContext>
-  <header>
-    Dynamic Charts
-    <app-group-action-button [actions]="actions" />
-  </header>
+<h1 class="page-title">Dynamic Charts</h1>
+<h2 class="page-subtitle">{{ title }}</h2>
+<app-poll-filters
+  [showVariables]="true"
+  (filters)="handleFilterSelect($event)"
+></app-poll-filters>
 
-  <section class="evaluations">
-    <app-eras-select
-      label="Evaluation Process"
-      placeholder="Select an evaluation process"
-      [options]="evaluationOptions()"
-      [value]="selectedEvaluation()"
-      (valueChange)="selectedEvaluation.set($event)"
-    ></app-eras-select>
-  </section>
-</section>
+@if (isExporting()) {
+  <div class="export-overlay">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="export-overlay__label">Generating PDF...</p>
+  </div>
+}
+@if (showEmpty) {
+  <app-empty-data-message
+    description="Please select the required fields to generate the charts."
+  />
+} @else if (isLoading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (hasNoResults) {
+  <app-empty-data-message
+    description="No data found for the selected filters. Try adjusting your selection."
+  />
+} @else {
+  @defer {
+    <div class="charts-layout" [class.panel-open]="isPanelOpen()">
+      <div
+        class="charts-area-wrapper"
+        [class.has-expanded-card]="isAnyCardExpanded"
+      >
+        <div
+          #contentToExport
+          class="charts-grid"
+          [style.height.px]="isAnyCardExpanded ? gridHeight : null"
+        >
+          @for (chartOption of chartsOptions; track $index) {
+            <app-expandable-card
+              #chartsGrid
+              [cardId]="'chart-' + $index"
+              [expanded]="expandedId === 'chart-' + $index && isAnyCardExpanded"
+              [dimmed]="
+                expandedId !== null &&
+                expandedId !== 'chart-' + $index &&
+                isAnyCardExpanded
+              "
+              [title]="title"
+              (toggleExpand)="onToggle($event)"
+              (exporting)="onExporting($event)"
+              (changeChart)="onChartTypeChange($index, $event)"
+            >
+              @if (getChartType($index) === 'column') {
+                <div [appApexTooltip]="getTooltipFn($index)">
+                  <app-dynamic-column-chart-v2
+                    [componentData]="components()!.components[$index]"
+                    [identifier]="uuid!"
+                    [cohortsIds]="cohortIds"
+                    [evaluationId]="evaluationId"
+                    [tooltipFn]="getTooltipFn($index)"
+                    [resizeTrigger]="resizeTick()"
+                    (selectPoint)="
+                      openDetailsModal(
+                        uuid!,
+                        cohortIds,
+                        $event.question,
+                        $event.componentName,
+                        $event.text,
+                        $event.riskLevel
+                      )
+                    "
+                  />
+                </div>
+              } @else {
+                <div [appApexTooltip]="getTooltipFn($index)">
+                  <apx-chart
+                    [series]="chartOption.series!"
+                    [chart]="chartOption.chart!"
+                    [xaxis]="chartOption.xaxis!"
+                    [yaxis]="chartOption.yaxis!"
+                    [colors]="chartOption.colors!"
+                    [plotOptions]="chartOption.plotOptions!"
+                    [title]="chartOption.title!"
+                    [tooltip]="chartOption.tooltip!"
+                    [legend]="chartOption.legend!"
+                  ></apx-chart>
+                </div>
+              }
+            </app-expandable-card>
+          }
+        </div>
+      </div>
+      @if (isPanelOpen()) {
+        <aside class="details-aside">
+          <app-details-panel
+            [data]="selectedPanelData()"
+            (closed)="closePanel()"
+          />
+        </aside>
+      }
+    </div>
+  }
+}

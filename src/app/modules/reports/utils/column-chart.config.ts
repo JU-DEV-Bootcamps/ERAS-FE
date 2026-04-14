@@ -14,7 +14,7 @@ export class ColumnChartUtils {
     return {
       text: title,
       margin: 0,
-      offsetY: 0,
+      offsetY: 10,
     };
   }
 
