@@ -65,12 +65,15 @@ export class DynamicColumnChartV2Component {
   cohortsIds = input<string>();
   evaluationId = input<number | string | undefined>();
   tooltipFn = input<(seriesIndex: number, dataPointIndex: number) => string>();
+  resizeTrigger = input<number>(0);
 
   selectPoint = output<SelectPointEvent>();
   private injector = inject(EnvironmentInjector);
 
   chartOption = computed((): Partial<ChartOptions> | null => {
     const data = this.componentData();
+    const trigger = this.resizeTrigger();
+    void trigger;
     return data ? this._buildChart(data) : null;
   });
 
