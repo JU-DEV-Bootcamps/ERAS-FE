@@ -13,80 +13,37 @@ export const SIDEBAR_MENUS: Menu[] = [
     route: '/home',
   },
   {
-    label: 'Student Monitoring',
-    icon: 'groups',
-    route: '/student-option',
-    forProduction: false,
-  },
-  {
-    label: 'Supports and Referrals',
-    icon: 'link',
+    label: 'Students',
+    icon: 'school',
     children: [
       {
-        label: 'Referrals',
-        icon: 'group_add',
-        route: '/supports-referrals',
+        label: 'Student Monitoring',
+        route: '/student-option',
+        forProduction: false,
       },
+      { label: 'Students List', route: '/list-students-by-poll' },
     ],
-    forProduction: false,
   },
   {
     label: 'Reports',
-    icon: 'pie_chart_outline',
+    icon: 'bar_chart',
     children: [
-      {
-        label: 'Dynamic Charts',
-        icon: 'description',
-        route: '/reports/dynamic-charts',
-      },
-      {
-        label: 'Summary Charts',
-        icon: 'find_in_page',
-        route: '/reports/summary-charts',
-      },
-      {
-        label: 'Polls Answered',
-        icon: 'poll',
-        route: '/reports/polls-answered',
-      },
+      { label: 'Dynamic Charts', route: '/reports/dynamic-charts' },
+      { label: 'Summary Charts', route: '/reports/summary-charts' },
+      { label: 'Polls Answered', route: '/reports/polls-answered' },
     ],
   },
   {
-    label: 'Lists',
-    icon: 'view_list',
+    label: 'Assessments',
+    icon: 'link',
     children: [
+      { label: 'Evaluation Processes', route: '/evaluation-process' },
       {
-        label: 'Evaluation Processes',
-        icon: 'fact_check_outline',
-        route: '/evaluation-process',
+        label: 'Supports and Referrals',
+        route: '/supports-referrals',
+        forProduction: false,
       },
-      {
-        label: 'Students List',
-        icon: 'school',
-        route: '/list-students-by-poll',
-      },
-    ],
-  },
-  {
-    label: 'Imports',
-    icon: 'drive_folder_upload',
-    children: [
-      {
-        label: 'Import Students',
-        icon: 'person_add',
-        route: '/import-students',
-      },
-    ],
-  },
-  {
-    label: 'Settings',
-    icon: 'settings',
-    children: [
-      {
-        label: 'Service Providers',
-        icon: 'check_circle',
-        route: '/cosmic-latte',
-      },
+      { label: 'Import Students', route: '/import-students' },
     ],
   },
 ];

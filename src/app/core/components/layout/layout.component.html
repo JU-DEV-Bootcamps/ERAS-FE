@@ -5,18 +5,8 @@
     [opened]="true"
     [style.width]="sidenavWidth()"
   >
-    <button
-      class="expand-button"
-      mat-icon-button
-      (click)="collapsed.set(!collapsed())"
-    >
-      <mat-icon class="menu-icon">{{
-        collapsed() ? 'menu' : 'menu_open'
-      }}</mat-icon>
-    </button>
     <app-sidebar [(collapsed)]="collapsed"></app-sidebar>
   </mat-sidenav>
-
   <mat-sidenav-content [style.margin-left]="sidenavWidth()">
     <mat-toolbar>
       <h1 class="app-title">ERAS</h1>
