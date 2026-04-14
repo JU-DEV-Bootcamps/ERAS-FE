@@ -1,42 +1,360 @@
-import { Component, computed, input, signal } from '@angular/core';
-
-import { ActionButton } from '@core/factories/action-handler/models/action-button.model';
-import { EvaluationModel } from '@core/models/evaluation.model';
-import { ActionType } from '@core/factories/action-handler/models/action-type.enum';
-
-import { ActionContextDirective } from '@shared/directives/actionContextDirective';
-
-import { GroupActionButtonComponent } from '@shared/components/buttons/group-action-buttons/group-action-button.component';
 import {
-  ErasSelectComponent,
-  SelectedOptionModel,
-} from '@shared/components/eras-select/eras-select.component';
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+  AfterViewInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
+import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { MatDialog } from '@angular/material/dialog';
+
+import { HeatMapService } from '@core/services/api/heat-map.service';
+import { ReportService } from '@core/services/api/report.service';
+
+import { customTooltip } from '@core/utils/apex-chart/customTooltip';
+import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config';
+import { PdfHelper } from '@core/utils/reports/exportReport.util';
+
+import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
+import { Filter } from '../poll-filters/types/filters';
+import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
+
+import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
+import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { ExpandableCardComponent } from '@shared/components/expandable-card-v2/expandable-card.component';
+import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
+import { RISK_COLORS } from '@core/constants/riskLevel';
+import {
+  DetailsPanelData,
+  DetailsPanelComponent,
+} from '@shared/components/panels/details-panel-v2/details-panel.component';
+import { debounceTime, fromEvent } from 'rxjs';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic-column-chart-v2.component';
 
 @Component({
-  selector: 'app-dynamic-charts-v2',
+  selector: 'app-dynamic-charts--v2',
+  imports: [
+    EmptyDataComponent,
+    MatMenuModule,
+    MatProgressBarModule,
+    MatTooltipModule,
+    NgApexchartsModule,
+    PollFiltersComponent,
+    ExpandableCardComponent,
+    ApexTooltipDirective,
+    DetailsPanelComponent,
+    MatProgressSpinner,
+    DynamicColumnChartV2Component,
+  ],
   templateUrl: './dynamic-charts-v2.component.html',
   styleUrl: './dynamic-charts-v2.component.scss',
-  imports: [
-    ActionContextDirective,
-    ErasSelectComponent,
-    GroupActionButtonComponent,
-  ],
 })
-export class DynamicChartsV2Component {
-  readonly evaluations = input<EvaluationModel[]>([]);
-  actions: ActionButton[] = [
-    { type: ActionType.FULLSCREEN, icon: 'fullscreen', tooltip: 'Fullscreen' },
-  ];
+export class DynamicChartsV2Component implements AfterViewInit {
+  private readonly dialog = inject(MatDialog);
 
-  readonly evaluationOptions = computed<SelectedOptionModel<number>[]>(() => {
-    const evals = this.evaluations();
+  title = '';
+  uuid: string | null = null;
+  cohorTitle: string | null = null;
+  chartsOptions: ApexOptions[] = [];
+  evaluationId?: number | string;
+  pdfHelper = inject(PdfHelper);
+  heatmapService = inject(HeatMapService);
+  reportService = inject(ReportService);
 
-    return evals
-      ? evals.map(evaluation => {
-          return { label: evaluation.name, value: evaluation.id };
-        })
-      : [];
-  });
+  isGeneratingPDF = false;
+  isLoading = false;
+  components = signal<PollCountReport | null>(null);
+  heatmapChart = true;
+  cohortIds = '';
+  expandedId: string | null = null;
 
-  readonly selectedEvaluation = signal<number | null>(null);
+  selectedPanelData = signal<DetailsPanelData | null>(null);
+  isPanelOpen = signal(false);
+  hasNoResults = false;
+  isAnyCardExpanded = false;
+  expandedIndex: number | null = null;
+
+  gridHeight = 0;
+  isExporting = signal(false);
+  chartTypeMap = new Map<number, 'heatmap' | 'column'>();
+
+  @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+  @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
+
+  private cardWidth = signal<number>(0);
+
+  ngAfterViewInit() {
+    const DEFAULT_DEBOUNCE_TIME = 450;
+    this._updateCardWidth();
+
+    fromEvent(window, 'resize')
+      .pipe(debounceTime(DEFAULT_DEBOUNCE_TIME))
+      .subscribe(() => {
+        this._updateCardWidth();
+        const report = this.components();
+        if (report) this.generateSeries(report);
+      });
+  }
+
+  constructor(
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  generateHeatMap(cohortIds: number[], variablesIds: number[]) {
+    if (this.uuid === null) return;
+
+    this.isLoading = true;
+    this.reportService
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds, this.evaluationId)
+      .subscribe(data => {
+        if (data) {
+          this.components.set(data.body);
+          this.chartTypeMap.clear();
+          this.generateSeries(data.body);
+          this.hasNoResults = data.body.components.length === 0;
+          this.isGeneratingPDF = false;
+          this.isLoading = false;
+        } else {
+          this.chartsOptions = [];
+          this.components.set(null);
+          this.hasNoResults = true;
+          this.isAnyCardExpanded = false;
+          this.isLoading = false;
+        }
+      });
+  }
+
+  generateSeries(report: PollCountReport) {
+    const totalWidth = this.cardWidth();
+
+    const CARD_LAYOUT = {
+      spacing: 16,
+      columns: 2,
+      fallbackWidth: 400,
+    };
+
+    const cardWidth =
+      totalWidth > 0
+        ? this.isAnyCardExpanded
+          ? totalWidth - CARD_LAYOUT.spacing
+          : totalWidth / CARD_LAYOUT.columns - CARD_LAYOUT.spacing
+        : CARD_LAYOUT.fallbackWidth;
+
+    this.chartsOptions = [];
+    const hmSeries = report.components.map(c =>
+      this.reportService.getHMSeriesFromCountComponent(c)
+    );
+    this.chartsOptions = hmSeries.map((series, index) => {
+      const regroupSeries = this.reportService.regroupDynamicByColor(series);
+      const component = report.components[index];
+      return GetChartOptions(
+        `Reporte: ${component.description}`,
+        regroupSeries,
+        (x: number, y: number) => {
+          const questionIndex = y;
+          const answerIndex = x;
+
+          const groupedQuestion = series[questionIndex];
+          const question = component.questions[questionIndex];
+
+          if (question && groupedQuestion) {
+            const dataAtPoint = regroupSeries[questionIndex]?.data[
+              answerIndex
+            ] as unknown as { z: string; totalFillers?: number };
+            const totalFillers = dataAtPoint?.totalFillers ?? 0;
+            const realAnswerIndex = answerIndex - totalFillers;
+
+            const selectedAnswer = groupedQuestion.data[realAnswerIndex];
+
+            if (selectedAnswer) {
+              const selectedQuestionOnly: PollCountQuestion = {
+                ...question,
+                answers: question.answers,
+              };
+
+              this.openDetailsModal(
+                this.uuid!,
+                this.cohortIds,
+                selectedQuestionOnly,
+                component.description,
+                component.text,
+                selectedAnswer.y as number
+              );
+            }
+          }
+        },
+        undefined,
+        (x: number, y: number) => {
+          const groupedQuestion = series[x];
+          const dataAtPoint = regroupSeries[x]?.data[y] as unknown as {
+            z: string;
+            count?: number;
+            totalFillers?: number;
+          };
+          const totalFillers = dataAtPoint?.totalFillers ?? 0;
+          const groupedAnswer = groupedQuestion?.data[y - totalFillers] as {
+            count?: number;
+            x: number;
+          };
+          const color = RISK_COLORS[regroupSeries[x]?.data[y].x];
+          return customTooltip(
+            `${groupedAnswer?.count ?? 0}`,
+            dataAtPoint.z,
+            color
+          );
+        },
+        cardWidth,
+        this.isAnyCardExpanded
+      );
+    });
+    this.cdr.detectChanges();
+  }
+
+  handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
+    this.title = filters.title;
+    this.uuid = filters.uuid;
+    this.cohortIds = filters.cohortIds.join(',');
+    this.evaluationId = filters.evaluationId;
+
+    if (this.isAnyCardExpanded) {
+      const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
+      this.expandedIndex = firstIndex;
+      this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
+    }
+    this.gridHeight = 0;
+
+    if (!filters.cohortIds || filters.variableIds.length === 0) {
+      this.chartsOptions = [];
+      this.components.set(null);
+      this.uuid = null;
+      this.isAnyCardExpanded = false;
+      this.expandedId = null;
+      this.expandedIndex = null;
+      return;
+    }
+    this.generateHeatMap(filters.cohortIds, filters.variableIds);
+  }
+
+  onToggle(id: string): void {
+    this.expandedId = this.expandedId === id ? null : id;
+    this.isAnyCardExpanded = this.expandedId !== null;
+    this.expandedIndex = this.isAnyCardExpanded
+      ? parseInt(id.replace('chart-', ''))
+      : null;
+
+    if (this.expandedId === null) {
+      this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
+    }
+    this._updateCardWidth();
+    const report = this.components();
+    if (report) this.generateSeries(report);
+  }
+
+  openDetailsModal(
+    pollUuid: string,
+    cohortId: string,
+    question: PollCountQuestion,
+    componentName: ComponentValueType,
+    text?: string,
+    riskLevel?: number
+  ): void {
+    this.selectedPanelData.set({
+      cohortId,
+      pollUuid,
+      componentName,
+      text,
+      question,
+      riskLevel,
+      evaluationId: this.evaluationId,
+    });
+    this.isPanelOpen.set(true);
+
+    setTimeout(() => {
+      this._updateCardWidth();
+      const report = this.components();
+      if (report) this.generateSeries(report);
+      window.dispatchEvent(new Event('resize'));
+    }, 50);
+  }
+
+  closePanel(): void {
+    this.isPanelOpen.set(false);
+    this.selectedPanelData.set(null);
+
+    setTimeout(() => {
+      this._updateCardWidth();
+      const report = this.components();
+      if (report) this.generateSeries(report);
+      window.dispatchEvent(new Event('resize'));
+    }, 50);
+  }
+
+  toggleChart(chart: string) {
+    this.heatmapChart = chart === 'heatmap';
+  }
+
+  async onExporting(processExport: boolean) {
+    if (processExport) {
+      this.isExporting.set(true);
+    } else {
+      this.isExporting.set(false);
+    }
+  }
+
+  get showEmpty(): boolean {
+    return !this.uuid;
+  }
+
+  getTooltipFn(chartIndex: number): (x: number, y: number) => string {
+    return (seriesIndex: number, dataPointIndex: number) => {
+      const report = this.components();
+      if (!report) return '';
+
+      const component = report.components[chartIndex];
+      const series =
+        this.reportService.getHMSeriesFromCountComponent(component);
+      const regroupSeries = this.reportService.regroupDynamicByColor(series);
+
+      const groupedQuestion = series[seriesIndex];
+      const dataAtPoint = regroupSeries[seriesIndex]?.data[dataPointIndex];
+
+      const totalFillers = dataAtPoint?.totalFillers ?? 0;
+      const groupedAnswer =
+        groupedQuestion?.data[dataPointIndex - totalFillers];
+
+      const color = RISK_COLORS[dataPointIndex];
+
+      return customTooltip(
+        `${groupedAnswer?.count ?? 0}`,
+        dataAtPoint?.z ?? '',
+        color
+      );
+    };
+  }
+
+  private _updateCardWidth() {
+    const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
+    this.cardWidth.set(width);
+  }
+
+  getChartType(index: number): 'heatmap' | 'column' {
+    return this.chartTypeMap.get(index) ?? 'heatmap';
+  }
+
+  onChartTypeChange(index: number, type: 'heatmap' | 'column'): void {
+    this.chartTypeMap.set(index, type);
+  }
 }
