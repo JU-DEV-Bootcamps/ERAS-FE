@@ -1,24 +1,38 @@
-<mat-toolbar>
-  <div class="user-info">
-    <button
-      [matMenuTriggerFor]="beforeMenu"
-      #menuTrigger="matMenuTrigger"
-      (mouseenter)="menuTrigger.openMenu()"
-      (mouseleave)="mouseLeave(menuTrigger)"
-    >
-      <mat-icon>person</mat-icon>
-    </button>
-    <mat-menu #beforeMenu="matMenu" xPosition="before" hasBackdrop="false">
-      <button
-        mat-menu-item
-        class="menu-button"
-        (click)="logout()"
-        (mouseenter)="mouseEnter(menuTrigger)"
-        (mouseleave)="mouseLeave(menuTrigger)"
-      >
-        <mat-icon>logout</mat-icon>
-        <span>Logout</span>
-      </button>
-    </mat-menu>
+<div class="main-button-container">
+  <button [matMenuTriggerFor]="beforeMenu" class="main-button">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+</div>
+
+<mat-menu #beforeMenu="matMenu" xPosition="before" hasBackdrop="false">
+  <div class="user-info-container">
+    <!-- TODO: Add component/img for profile picture -->
+    <mat-icon class="profile-picture">account_circle</mat-icon>
+    <div class="user-info">
+      <p class="user-name">{{ user()?.firstName }} {{ user()?.lastName }}</p>
+      <p class="user-role">{{ userRole }}</p>
+    </div>
   </div>
-</mat-toolbar>
+  <hr />
+  <div class="options-container">
+    <button mat-menu-item class="menu-button option-button">
+      <mat-icon>person</mat-icon>
+      Account and Information
+    </button>
+    <button
+      mat-menu-item
+      class="menu-button option-button"
+      (click)="redirectToSettings()"
+    >
+      <mat-icon>settings</mat-icon>
+      Platform Settings
+    </button>
+  </div>
+  <hr />
+  <div class="logout-container">
+    <button mat-menu-item class="menu-button logout-button" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Log out
+    </button>
+  </div>
+</mat-menu>

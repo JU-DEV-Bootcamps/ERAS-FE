@@ -1,44 +1,82 @@
+@use '@angular/material' as mat;
 @use 'index.scss' as main-styles;
 
-mat-toolbar {
-  height: auto;
+.logout-button {
+  color: main-styles.get-color('error', 50);
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  margin-right: main-styles.get-size(margin, lg);
-}
-
-.user-info button {
-  width: main-styles.get-size(icon-size, extra-large);
+.main-button-container {
   height: main-styles.get-size(icon-size, extra-large);
-  margin: main-styles.get-size(margin, xs);
-  border-radius: 50%;
-  border: none;
-  background-color: main-styles.get-color('neutral', 100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
+  width: main-styles.get-size(icon-size, extra-large);
 
-.user-info button:hover {
-  box-shadow: 1px 2px 2px var(--mat-sys-primary);
+  .main-button {
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: main-styles.get-color('primary', 30);
+
+    mat-icon {
+      height: main-styles.get-size(icon-size, large);
+      width: main-styles.get-size(icon-size, large);
+      font-size: main-styles.get-size(icon-size, large);
+    }
+  }
 }
 
 .menu-button {
-  background-color: transparent;
-  border: none;
-  color: main-styles.get-color('primary', 30);
   display: flex;
   align-items: center;
   width: 100%;
+  gap: 4px;
+  padding: 8px 16px 8px 16px;
+  background-color: transparent;
+  border: none;
+  font-size: main-styles.get-font-size(label, large);
+
+  &:hover {
+    background-color: main-styles.get-color('neutral', 90);
+  }
 }
-.menu-button:hover {
-  text-decoration: underline;
+
+.user-info-container {
+  cursor: default;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 8px;
+
+  .profile-picture {
+    height: 40px;
+    width: 40px;
+    font-size: 40px;
+  }
+
+  .user-info {
+    font-size: main-styles.get-font-size(label, large);
+
+    p {
+      margin: 0px;
+    }
+
+    .user-name {
+      color: main-styles.get-color('neutral', 4);
+      font-weight: main-styles.get-font-weight(semi-bold);
+    }
+
+    .user-role {
+      color: main-styles.get-color('neutral', 50);
+    }
+  }
 }
+
+.option-button {
+  color: main-styles.get-color('neutral', 10);
+}
+
 button {
   cursor: pointer;
+}
+
+hr {
+  border: 1px solid main-styles.get-color('neutral', 90);
 }
