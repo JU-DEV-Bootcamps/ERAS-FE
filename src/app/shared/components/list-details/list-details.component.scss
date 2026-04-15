@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+
+.container-table-button {
+  display: flex;
+}
+
+.container-table-button div {
+  width: 100%;
+}
+
+.container-title-button {
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  color: #4b5563;
+  font-size: var(--font-size-medium);
+  font-style: normal;
+  font-family: $inter;
+  font-weight: bold;
+  line-height: 20px;
+  letter-spacing: var(--Headline-Small-Tracking, 0px);
+  padding: 0px;
+  margin: 0px;
+}
+
+app-table-with-actions,
+mat-paginator {
+  color: var(
+    --mat-table-row-item-label-text-color,
+    var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87))
+  );
+}

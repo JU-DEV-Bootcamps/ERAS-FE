@@ -20,10 +20,10 @@ import { Column } from '@shared/components/list/types/column';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { EventAction, EventLoad } from '@core/models/load';
 import { Pagination } from '@core/services/interfaces/server.type';
-import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ListDetailsComponent } from '@shared/components/list-details/list-details.component';
 
 export interface DetailsPanelData {
   cohortId: string;
@@ -38,7 +38,12 @@ export interface DetailsPanelData {
 @Component({
   selector: 'app-details-panel',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, ListComponent, BadgeRiskComponent],
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    BadgeRiskComponent,
+    ListDetailsComponent,
+  ],
   templateUrl: './details-panel.component.html',
   styleUrl: './details-panel.component.scss',
 })
@@ -57,7 +62,7 @@ export class DetailsPanelComponent implements OnChanges {
   pagination: Pagination = { page: 0, pageSize: 10 };
 
   columns: Column<EvaluationDetailsStudentResponse>[] = [
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: '' },
     { key: 'answerText', label: 'Answer' },
   ];
   columnTemplates: Column<EvaluationDetailsStudentResponse>[] = [
@@ -68,7 +73,7 @@ export class DetailsPanelComponent implements OnChanges {
       columnId: 'actions',
       id: 'openStudentDetails',
       label: 'Actions',
-      ngIconName: 'visibility',
+      ngIconName: 'open_in_new',
       tooltip: 'View details',
     },
   ];
