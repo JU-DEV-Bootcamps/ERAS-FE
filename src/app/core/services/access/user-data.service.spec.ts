@@ -47,7 +47,11 @@ describe('UserDataService', () => {
   });
 
   it('Should fill user, if current user is null, at initUser method.', async () => {
-    const profile: Profile = { firstName: 'user1', id: '2' } as Profile;
+    const profile: Profile = {
+      firstName: 'user1',
+      id: '2',
+      lastName: 'last1',
+    } as Profile;
     mockKeycloak.loadUserProfile.and.returnValue(Promise.resolve(profile));
     service = TestBed.inject(UserDataService);
     await service.initUser();
