@@ -95,9 +95,8 @@ export class ListDetailsComponent<T extends object>
 
   selectedExportFormat: 'csv' | 'pdf' | '' = '';
 
-  exportTable() {
-    if (!this.selectedExportFormat) return;
-    if (this.selectedExportFormat === 'csv') {
+  exportTable(typeExport: string) {
+    if (typeExport === 'csv') {
       this.exportToCSV();
     } else {
       this.exportToPdf();

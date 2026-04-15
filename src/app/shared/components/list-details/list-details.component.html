@@ -9,7 +9,7 @@
     </div>
   </div>
 }
-<div class="container-table-button">
+<div class="container-table-button" #contentToExport>
   <div>
     @if (!items.length) {
       <app-empty-data-message />
@@ -38,3 +38,12 @@
     }
   </div>
 </div>
+
+<button class="export-btn" [matMenuTriggerFor]="chartMenu">
+  <mat-icon>save_alt</mat-icon>
+  <span class="label">Export Full Report</span>
+</button>
+<mat-menu #chartMenu="matMenu">
+  <button mat-menu-item (click)="exportTable('csv')">Export CSV</button>
+  <button mat-menu-item (click)="exportTable('pdf')">Export PDF</button>
+</mat-menu>

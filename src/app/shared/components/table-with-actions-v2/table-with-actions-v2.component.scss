@@ -21,7 +21,7 @@ mat-card {
 .information {
   font-family: $inter;
   font-size: var(--font-size-medium);
-  font-weight: 400;
+  font-weight: 450;
   line-height: 20px;
 }
 
@@ -68,7 +68,6 @@ mat-card {
   width: fit-content;
   height: 28px;
   padding: 2px;
-  background-color: #d24196;
 
   display: inline-flex;
   align-items: center;
