@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+
 :host {
   display: block;
   height: 100%;
@@ -22,8 +25,10 @@
 
   .panel-title {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--font-size-medium, 14px);
+    line-height: 28px;
+    font-family: $inter;
+    font-weight: Bold;
   }
 
   .close-btn {
@@ -46,8 +51,9 @@
   gap: 8px;
 
   .risk-label {
-    font-weight: 500;
-    font-size: 0.9rem;
+    font-weight: bold;
+    font-family: $inter;
+    font-size: var(--font-size-medium, 14px);
   }
 
   .risk-badge {
@@ -60,16 +66,18 @@
 
 .question-section {
   display: flex;
-  flex-direction: column;
   gap: 4px;
 
   .field-label {
-    font-weight: 600;
-    font-size: 0.85rem;
+    font-weight: bold;
+    font-family: $inter;
+    font-size: var(--font-size-medium, 14px);
     color: var(--color-neutral-800);
   }
 
   .field-value {
-    font-size: 0.95rem;
+    font-family: $inter;
+    font-size: var(--font-size-medium, 14px);
+    font-weight: 300;
   }
 }

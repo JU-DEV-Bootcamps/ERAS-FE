@@ -9,21 +9,16 @@
 
   @if (data(); as panelData) {
     <div class="panel-body">
-      <!-- Average answer risk badge -->
-      @if (isPollAvgQuestion(panelData.question)) {
-        <div class="risk-row">
-          <span class="risk-label">Average answer risk:</span>
-          <span
-            class="risk-badge"
-            [style.backgroundColor]="
-              getRiskColor(panelData.question.averageRisk)
-            "
-            [style.color]="getTextRiskColor(panelData.question.averageRisk)"
-          >
-            {{ panelData.question.averageRisk }}
-          </span>
-        </div>
-      }
+      <div class="risk-row">
+        <span class="risk-label">Average answer risk:</span>
+        <span
+          class="risk-badge"
+          [style.backgroundColor]="getRiskColor(panelData.question.averageRisk)"
+          [style.color]="getTextRiskColor(panelData.question.averageRisk)"
+        >
+          {{ panelData.question.averageRisk }}
+        </span>
+      </div>
 
       <!-- Question -->
       <div class="question-section">
@@ -32,7 +27,7 @@
       </div>
 
       <!-- Student list -->
-      <app-list
+      <app-list-details
         (loadCalled)="handleLoadCalled($event)"
         (actionCalled)="handleActionCalled($event)"
         [columns]="columns"
@@ -45,7 +40,7 @@
         <ng-template #riskLevel let-item>
           <app-badge-risk-level [riskLevel]="item.riskLevel" />
         </ng-template>
-      </app-list>
+      </app-list-details>
     </div>
   }
 </div>
