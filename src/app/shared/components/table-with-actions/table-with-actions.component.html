@@ -80,6 +80,29 @@
       [class]="mapClass?.table?.table ?? ''"
       [dataSource]="items"
     >
+      <ng-container *ngIf="itemsAreSelectable" [matColumnDef]="'isSelected'">
+        <th
+          id="isSelectedHeader"
+          mat-header-cell
+          [class]="mapClass?.table?.table ?? ''"
+          *matHeaderCellDef
+        >
+          <mat-checkbox [disabled]="true"></mat-checkbox>
+        </th>
+        <td
+          id="isSelectedCheckbox"
+          mat-cell
+          [class]="mapClass?.table?.cell ?? ''"
+          *matCellDef="let item"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              getTemplateForColumn('isSelected');
+              context: { $implicit: item }
+            "
+          ></ng-container>
+        </td>
+      </ng-container>
       <ng-container
         *ngFor="let column of columns"
         [matColumnDef]="column.key.toString()"
@@ -89,7 +112,7 @@
           [class]="mapClass?.table?.header ?? ''"
           *matHeaderCellDef
         >
-          <b>{{ column.label | titlecase }}</b>
+          <b>{{ column.label | uppercase }}</b>
         </th>
         <td
           mat-cell
@@ -109,7 +132,7 @@
           [class]="mapClass?.table?.table ?? ''"
           *matHeaderCellDef
         >
-          <b>{{ columnTemplate.label | titlecase }}</b>
+          <b>{{ columnTemplate.label | uppercase }}</b>
         </th>
         <td
           mat-cell
@@ -133,7 +156,7 @@
             *matHeaderCellDef
             class="action-column-header"
           >
-            <b>Details</b>
+            <b>ACTIONS</b>
           </th>
           <td
             mat-cell

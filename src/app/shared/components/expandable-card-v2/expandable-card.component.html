@@ -4,13 +4,29 @@
   [class.card--dimmed]="dimmed"
   #cardRef
 >
-  <button class="pdf-export" (click)="onExportPdf()">Export</button>
-  <button class="change-to-column" (click)="changeToColumn()">
-    <img src="assets/icons/graphic.svg" alt="bar_chart" />
+  <button class="pdf-export" matTooltip="Download pdf" (click)="onExportPdf()">
+    Export
   </button>
   <button
+    class="change-to-column"
+    matTooltip="Charts"
+    mat-icon-button
+    [matMenuTriggerFor]="chartMenu"
+  >
+    <img src="assets/icons/graphic.svg" alt="bar_chart" />
+  </button>
+  <mat-menu #chartMenu="matMenu">
+    <button mat-menu-item disabled="false" (click)="changeToHeatmap()">
+      Heatmap chart
+    </button>
+    <button mat-menu-item disabled="false" (click)="changeToColumn()">
+      Column chart
+    </button>
+  </mat-menu>
+  <button
     class="toggle-btn"
-    [attr.aria-label]="expanded ? 'Colapsar' : 'Expandir'"
+    [matTooltip]="expanded ? 'Collapse' : 'Expand'"
+    [attr.aria-label]="expanded ? 'Collapse' : 'Expand'"
     (click)="onToggle()"
     type="button"
   >

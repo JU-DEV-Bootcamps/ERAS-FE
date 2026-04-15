@@ -1,0 +1,59 @@
+<div class="page-header">
+  <h2 class="page-title">Students</h2>
+</div>
+
+@if (isLoading) {
+  <mat-spinner />
+} @else {
+  <div class="buttons-container">
+    <app-eras-button
+      class="light-button"
+      [textButton]="'Import'"
+      [iconButton]="'download'"
+      (clickButton)="redirectToImport()"
+    ></app-eras-button>
+    @if (students.length > 0) {
+      <app-eras-button
+        [matMenuTriggerFor]="menu"
+        class="light-button"
+        [textButton]="'Export'"
+        [iconButton]="'upload'"
+      >
+      </app-eras-button>
+      <mat-menu #menu="matMenu">
+        <button
+          mat-menu-item
+          class="export-option-button"
+          [disabled]="isGenerating"
+          (click)="exportToCSV()"
+        >
+          To CSV
+        </button>
+        <button
+          id="print-button"
+          mat-menu-item
+          class="export-option-button"
+          [disabled]="isGenerating"
+          (click)="exportToPdf()"
+        >
+          To PDF
+        </button>
+      </mat-menu>
+    }
+  </div>
+
+  <app-list
+    (loadCalled)="handleLoadCalled($event)"
+    (actionCalled)="handleActionCalled($event)"
+    [columns]="columns"
+    [items]="students"
+    [totalItems]="totalStudents"
+    [actionDatas]="actionDatas"
+    [itemsAreSelectable]="itemsAreSelectable"
+    [externalExport]="true"
+  >
+    <ng-template #isSelected let-element>
+      <app-selected-checkbox [element]="element" />
+    </ng-template>
+  </app-list>
+}
