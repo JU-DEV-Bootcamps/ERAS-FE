@@ -1,80 +1,184 @@
 @use 'index.scss' as main-styles;
 
-//VARIABLES
-$neutral-color: main-styles.get-color('neutral', 70);
-$primary-bg: main-styles.get-color('primary', 50);
-$primary-text: main-styles.get-color('primary', 100);
+// NEW SIDEBAR
+.new-sidebar-wrapper {
+  $hover-bg: rgba(#135b5c, 0.5);
+  $selected-bg: #144d4d;
+  $text-color: #ffffff;
 
-//PARENT MENU
-.menu-item {
-  width: 95%;
-  margin: auto;
-  border-radius: initial !important;
-
-  mat-icon {
+  .sidebar-logo {
     display: flex;
-    opacity: 0.9;
-    color: $neutral-color;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px 24px;
+    margin-bottom: -6px;
+    margin-top: -8px;
 
-    &.expand-icon {
+    .logo-img {
+      width: 100%;
+      height: auto;
+      max-height: 100px;
+      object-fit: contain;
+      display: block;
+    }
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background-color: rgba($text-color, 0.25);
+    margin: 0 16px 12px;
+  }
+
+  .menu-item {
+    width: 95%;
+    margin: auto;
+    border-radius: 8px !important;
+    height: 56px !important;
+    cursor: pointer;
+    position: relative;
+
+    mat-icon {
+      font-family: 'Material Symbols Rounded' !important;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24 !important;
+
+      color: $text-color;
+      opacity: 0.9;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
       justify-content: center;
     }
-  }
 
-  span {
-    color: $neutral-color;
-  }
-
-  &:hover {
-    background-color: $primary-bg;
-
-    mat-icon,
     span {
-      color: $primary-text;
+      color: $text-color;
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    &:hover {
+      background-color: $hover-bg;
+    }
+
+    &.active-parent {
+      background-color: $selected-bg;
     }
   }
 
-  &.active-parent {
-    background-color: $primary-bg;
-
-    mat-icon,
-    span {
-      color: $primary-text;
-    }
-  }
-}
-
-//SUBMENU
-.submenu {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: auto;
-  overflow: hidden;
-  padding: 15px 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 95%;
-}
-
-.submenu-item {
-  text-decoration: none;
-
-  &:hover {
-    .subtitle {
-      color: $primary-text;
-    }
+  .submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: auto;
+    overflow: hidden;
+    padding: 15px 0;
+    white-space: nowrap;
+    width: 95%;
   }
 
-  &.active-submenu {
-    .subtitle {
-      color: $primary-text;
+  .submenu-item {
+    text-decoration: none;
+
+    &:hover .subtitle {
+      color: $text-color;
+      opacity: 1;
+    }
+
+    &.active-submenu .subtitle {
+      color: $text-color;
       font-weight: 500;
     }
   }
+
+  .subtitle {
+    color: rgba($text-color, 0.75);
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    margin-left: 56px;
+  }
 }
 
-.subtitle {
-  color: $neutral-color;
-  margin-left: 56px;
+// OLD SIDEBAR (Legacy)
+.old-sidebar-wrapper {
+  $neutral-color: main-styles.get-color('neutral', 70);
+  $primary-bg: main-styles.get-color('primary', 50);
+  $primary-text: main-styles.get-color('primary', 100);
+
+  .menu-item {
+    width: 95%;
+    margin: auto;
+    border-radius: initial !important;
+
+    mat-icon {
+      display: flex;
+      opacity: 0.9;
+      color: $neutral-color;
+
+      &.expand-icon {
+        justify-content: center;
+      }
+    }
+
+    span {
+      color: $neutral-color;
+    }
+
+    &:hover {
+      background-color: $primary-bg;
+
+      mat-icon,
+      span {
+        color: $primary-text;
+      }
+    }
+
+    &.active-parent {
+      background-color: $primary-bg;
+
+      mat-icon,
+      span {
+        color: $primary-text;
+      }
+    }
+  }
+
+  .submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: auto;
+    overflow: hidden;
+    padding: 15px 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 95%;
+  }
+
+  .submenu-item {
+    text-decoration: none;
+
+    &:hover {
+      .subtitle {
+        color: $primary-text;
+      }
+    }
+
+    &.active-submenu {
+      .subtitle {
+        color: $primary-text;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .subtitle {
+    color: $neutral-color;
+    margin-left: 56px;
+  }
 }
