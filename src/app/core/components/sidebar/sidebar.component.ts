@@ -8,8 +8,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Menu } from './sidebar.model';
 import { SidebarService } from './sidebar.service';
-
-import { SIDEBAR_MENUS_NEW, SIDEBAR_MENUS_OLD } from './sidebar.model';
+import { SIDEBAR_MENUS_OLD } from './sidebar.model';
+import { SIDEBAR_MENUS_NEW } from './sidebar v2/sidebar.model-v2';
+import { SidebarV2Component } from './sidebar v2/sidebar.component-v2';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,17 +20,19 @@ import { SIDEBAR_MENUS_NEW, SIDEBAR_MENUS_OLD } from './sidebar.model';
     MatListModule,
     MatIconModule,
     MatTooltipModule,
+    SidebarV2Component,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
   collapsed = model<boolean>();
-
   newSidebar = input<boolean>(false);
 
   menuItems = computed(() =>
-    this.newSidebar() ? SIDEBAR_MENUS_NEW : SIDEBAR_MENUS_OLD
+    this.newSidebar()
+      ? this.sidebarService.getMenus(SIDEBAR_MENUS_NEW)
+      : this.sidebarService.getMenus(SIDEBAR_MENUS_OLD)
   );
 
   constructor(public sidebarService: SidebarService) {
@@ -45,19 +48,14 @@ export class SidebarComponent {
       this.sidebarService.closeMenu();
       return;
     }
-
     if (this.collapsed()) {
       this.collapsed.set(false);
     }
-
     this.sidebarService.toggleMenu(item.label);
   }
 
   isParentActive(item: Menu): boolean {
-    if (item.route) {
-      return this.sidebarService.isRouteActive(item.route);
-    }
-
+    if (item.route) return this.sidebarService.isRouteActive(item.route);
     return !!item.children?.some(child =>
       this.sidebarService.isRouteActive(child.route!)
     );
