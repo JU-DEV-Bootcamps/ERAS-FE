@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { PollAvgQuestion, PollCountQuestion } from '@core/models/summary.model';
 import { getRiskColor, getRiskTextColor } from '@core/constants/riskLevel';
-// import { ReportService } from '@core/services/api/report.service';
 import { PollService } from '@core/services/api/poll.service';
 import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
@@ -62,7 +61,7 @@ export class DetailsPanelComponent implements OnChanges {
   pagination: Pagination = { page: 0, pageSize: 10 };
 
   columns: Column<EvaluationDetailsStudentResponse>[] = [
-    { key: 'name', label: '' },
+    { key: 'name', label: 'Name' },
     { key: 'answerText', label: 'Answer' },
   ];
   columnTemplates: Column<EvaluationDetailsStudentResponse>[] = [

@@ -94,15 +94,4 @@ describe('TableWithActionsComponent', () => {
       mockItems.length * mockActionDatas.length
     );
   });
-
-  it('should render cards instead of a table when in mobile view', () => {
-    component.isMobile = true;
-    fixture.detectChanges();
-
-    const cards = fixture.debugElement.queryAll(By.css('mat-card'));
-    const table = fixture.debugElement.query(By.css('table'));
-
-    expect(cards.length).toBe(mockItems.length);
-    expect(table).toBeNull();
-  });
 });

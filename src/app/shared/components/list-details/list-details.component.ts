@@ -37,7 +37,7 @@ import { defaultOptions, readOnlyColumns } from '../list/constants/list';
 import { Column, ComponentColumn } from '../list/types/column';
 import { ActionDatas } from '../list/types/action';
 import { MapClass } from '../list/types/class';
-import { TableWithActionsComponent } from '../table-with-actions-v2/table-with-actions-v2.component';
+import { MatCardDetailsComponent } from '../mat-card-details/mat-card-details.component';
 
 @Component({
   selector: 'app-list-details',
@@ -53,7 +53,7 @@ import { TableWithActionsComponent } from '../table-with-actions-v2/table-with-a
     MatTooltipModule,
     MatMenuModule,
     EmptyDataComponent,
-    TableWithActionsComponent,
+    MatCardDetailsComponent,
   ],
   templateUrl: './list-details.component.html',
   styleUrl: './list-details.component.scss',

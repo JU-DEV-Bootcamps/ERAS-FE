@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  HostListener,
   Input,
   OnInit,
   Output,
@@ -18,7 +17,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltip } from '@angular/material/tooltip';
 
 import {
   ActionData,
@@ -31,7 +29,7 @@ import { MapClass } from '../list/types/class';
 import { ActionButtonComponent } from '../buttons/action-button/action-button.component';
 
 @Component({
-  selector: 'app-table-with-actions-v2',
+  selector: 'app-mat-card-details',
   standalone: true,
   imports: [
     MatPaginatorModule,
@@ -42,14 +40,13 @@ import { ActionButtonComponent } from '../buttons/action-button/action-button.co
     ActionButtonComponent,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatTooltip,
     MatMenuModule,
   ],
-  templateUrl: './table-with-actions-v2.component.html',
-  styleUrls: ['./table-with-actions-v2.component.scss'],
+  templateUrl: './mat-card-details.component.html',
+  styleUrls: ['./mat-card-details.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class TableWithActionsComponent<T extends object> implements OnInit {
+export class MatCardDetailsComponent<T extends object> implements OnInit {
   @Input() items: T[] = [];
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() templateMap: Map<string, TemplateRef<unknown>> = new Map<
@@ -59,24 +56,15 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   @Input() columnTemplates: Column<T>[] = [];
   actionDatas = input.required<ActionDatas>();
   @Input() mapClass?: MapClass;
-  @Input() itemsAreSelectable = false;
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
   dataSource: T[] = [];
 
-  isMobile = true;
   totalItems = 0;
   actionColumns = ['Actions'] as (keyof T)[];
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event: UIEvent): void {
-    const target = event.target as Window;
-    this.isMobile = target.innerWidth < 768;
-  }
-
   ngOnInit() {
-    this.isMobile = window.innerWidth < 768;
     this.totalItems = this.items.length;
   }
 
@@ -91,10 +79,6 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   }
   getAllColumns() {
     let columnKeys = [] as (keyof T)[];
-
-    if (this.itemsAreSelectable) {
-      columnKeys = columnKeys.concat(['isSelected'] as (keyof T)[]);
-    }
 
     columnKeys = columnKeys.concat(this.getColumnKeys());
 

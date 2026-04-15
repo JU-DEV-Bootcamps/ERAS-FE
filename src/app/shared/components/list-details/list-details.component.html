@@ -14,14 +14,13 @@
     @if (!items.length) {
       <app-empty-data-message />
     } @else {
-      <app-table-with-actions-v2
+      <app-mat-card-details
         [mapClass]="mapClass?.table ? mapClass : undefined"
         [columns]="columns"
         [items]="items"
         [columnTemplates]="columnTemplates"
         [templateMap]="templateMap"
         [actionDatas]="actionDatas"
-        [itemsAreSelectable]="itemsAreSelectable"
         (actionCalled)="handleAction($event)"
       />
       <br />

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TableWithActionsComponent } from './table-with-actions-v2.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,10 +10,11 @@ import { By } from '@angular/platform-browser';
 import { PollName } from '@core/models/poll-request.model';
 import { Column } from '../list/types/column';
 import { ActionDatas } from '../list/types/action';
+import { MatCardDetailsComponent } from './mat-card-details.component';
 
-describe('TableWithActionsComponent', () => {
-  let component: TableWithActionsComponent<PollName>;
-  let fixture: ComponentFixture<TableWithActionsComponent<PollName>>;
+describe('MatCardDetailsComponent', () => {
+  let component: MatCardDetailsComponent<PollName>;
+  let fixture: ComponentFixture<MatCardDetailsComponent<PollName>>;
 
   const mockItems: PollName[] = [
     {
@@ -67,7 +67,7 @@ describe('TableWithActionsComponent', () => {
       providers: [TitleCasePipe],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TableWithActionsComponent<PollName>);
+    fixture = TestBed.createComponent(MatCardDetailsComponent<PollName>);
     component = fixture.componentInstance;
 
     component.items = mockItems;
@@ -96,7 +96,6 @@ describe('TableWithActionsComponent', () => {
   });
 
   it('should render cards instead of a table when in mobile view', () => {
-    component.isMobile = true;
     fixture.detectChanges();
 
     const cards = fixture.debugElement.queryAll(By.css('mat-card'));
