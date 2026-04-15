@@ -51,6 +51,7 @@ describe('UserDataService', () => {
       firstName: 'user1',
       id: '2',
       lastName: 'last1',
+      role: 'User',
     } as Profile;
     mockKeycloak.loadUserProfile.and.returnValue(Promise.resolve(profile));
     service = TestBed.inject(UserDataService);

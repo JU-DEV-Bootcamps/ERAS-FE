@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Profile } from '@core/models/profile.model';
-import keycloak from 'keycloak-js';
+import { isErasRole, Profile } from '@core/models/profile.model';
+import keycloak, { KeycloakProfile } from 'keycloak-js';
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +19,26 @@ export class UserDataService {
   async initUser(): Promise<void> {
     if (this._user()) return;
 
-    const profile = await this.keycloak.loadUserProfile();
-    this.saveToSession(profile as Profile);
+    const keycloakProfile = await this.keycloak.loadUserProfile();
+    const profile = this.mapToProfileModel(keycloakProfile);
+    this.saveToSession(profile);
   }
 
-  private saveToSession({ firstName, id, lastName }: Profile) {
-    const sessionProfile: Profile = { firstName, id, lastName };
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(sessionProfile));
-    this._user.set(sessionProfile);
+  private mapToProfileModel(userProfile: KeycloakProfile): Profile {
+    const userRole = this.keycloak.realmAccess?.roles.find(role =>
+      isErasRole(role)
+    );
+    return {
+      firstName: userProfile.firstName,
+      id: userProfile.id,
+      lastName: userProfile.lastName,
+      role: userRole ? userRole : 'User',
+    };
+  }
+
+  private saveToSession(profile: Profile) {
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(profile));
+    this._user.set(profile);
   }
 
   private loadFromSession() {

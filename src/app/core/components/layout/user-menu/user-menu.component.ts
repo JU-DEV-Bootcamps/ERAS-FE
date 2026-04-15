@@ -19,8 +19,6 @@ export class UserMenuComponent {
   private readonly router = inject(Router);
 
   user = this.userData.user;
-  // TODO: Add logic for userRole when roles are implemented
-  userRole = 'User';
 
   logout() {
     this.userData.clear();
