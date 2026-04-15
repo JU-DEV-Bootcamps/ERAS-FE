@@ -1,39 +1,27 @@
-@if (kpi !== null) {
-  <mat-grid-list [cols]="gridColumns()" rowHeight="200px" gutterSize="30px">
-    <mat-grid-tile>
-      <app-stats-card-v2
-        [title]="'Number of Students'"
-        [value]="kpi.body.totalStudents.value"
-        [percentageChange]="kpi.body.totalStudents.percentageChange"
-      >
-        <ng-container icon>
-          <img src="assets/icons/studentsIcon.svg" alt="students" />
-        </ng-container>
-      </app-stats-card-v2>
-    </mat-grid-tile>
-
-    <mat-grid-tile>
-      <app-stats-card-v2
-        [title]="'Polls Answered'"
-        [value]="kpi.body.totalPollsAnswered.value"
-        [percentageChange]="kpi.body.totalPollsAnswered.percentageChange"
-      >
-        <ng-container icon>
-          <img src="assets/icons/pollsIcon.png" alt="polls" />
-        </ng-container>
-      </app-stats-card-v2>
-    </mat-grid-tile>
-
-    <mat-grid-tile>
-      <app-stats-card-v2
-        [title]="'Evaluations'"
-        [value]="kpi.body.totalEvaluations.value"
-        [percentageChange]="kpi.body.totalEvaluations.percentageChange"
-      >
-        <ng-container icon>
-          <img src="assets/icons/evaluationsIcon.png" alt="evaluations" />
-        </ng-container>
-      </app-stats-card-v2>
-    </mat-grid-tile>
-  </mat-grid-list>
-}
+<mat-grid-list
+  [cols]="cardsGridColumns$ | async"
+  rowHeight="200px"
+  gutterSize="30px"
+>
+  <mat-grid-tile>
+    <app-stats-card [url]="'list-students-by-poll'">
+      <ng-container icon>group</ng-container>
+      <ng-container title>Students</ng-container>
+      <ng-container stat>{{ summary()?.Students || 0 }}</ng-container>
+    </app-stats-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <app-stats-card [url]="'reports/polls-answered'">
+      <ng-container icon>file_copy</ng-container>
+      <ng-container title>Polls Answered</ng-container>
+      <ng-container stat>{{ summary()?.PollInstances || 0 }}</ng-container>
+    </app-stats-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <app-stats-card [url]="'evaluation-process'">
+      <ng-container icon>insert_chart</ng-container>
+      <ng-container title>Evaluations</ng-container>
+      <ng-container stat>{{ summary()?.Evaluations || 0 }}</ng-container>
+    </app-stats-card>
+  </mat-grid-tile>
+</mat-grid-list>
