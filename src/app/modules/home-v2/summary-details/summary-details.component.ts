@@ -4,6 +4,7 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 
@@ -12,7 +13,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable } from 'rxjs';
 
 import { StatsCardV2Component } from '@shared/components/cards/stats-card-v2/stats-card-v2.component';
 import { DashboardKpiResponse } from '@core/models/dashboard-kpis.model';
@@ -20,7 +20,7 @@ import { DashboardService } from '@core/services/api/dashboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-summary-details',
+  selector: 'app-summary-details-v2',
   imports: [
     MatIconModule,
     MatCardModule,
@@ -31,10 +31,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './summary-details.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class SummaryDetailsComponent implements OnInit {
+export class SummaryDetailsV2Component implements OnInit {
   gridColumns = signal(3);
-  kpis$: Observable<DashboardKpiResponse> | undefined;
   kpi: DashboardKpiResponse | null = null;
+  lastUpdated = output<Date>();
 
   private destroyRef = inject(DestroyRef);
   breakpointObserver = inject(BreakpointObserver);
@@ -42,8 +42,9 @@ export class SummaryDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.dashboardService.getDashboardKPI().subscribe(response => {
-      console.log('RESPONSE:', response);
       this.kpi = response;
+      const fetchedAt = this.dashboardService.getLastFetchedAt();
+      if (fetchedAt) this.lastUpdated.emit(fetchedAt);
     });
 
     this.breakpointObserver

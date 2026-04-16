@@ -1,13 +1,6 @@
 @use 'index.scss' as main-styles;
-
-.details {
-  margin: 0px;
-  color: var(--neutral-700, #605e5e);
-  font-size: medium;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
 
 .summary-kpis {
   display: flex;
@@ -15,70 +8,47 @@
   gap: 24px;
 }
 
-.swiper {
-  min-height: 240px;
-  width: clamp(320px, 75vw, 970px);
-}
-
-swiper-slide {
-  display: flex;
-  justify-content: start;
-  border-radius: 10px;
-  font-size: 22px;
-  font-weight: 500;
-  color: black;
-  flex-direction: column;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-.swiper-slide-active {
-  border-color: main-styles.get-color('neutral', 90);
-  border-style: solid;
-  background-color: main-styles.get-color('neutral', 90);
-}
-
-swiper-slide:nth-child(1n) {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-  min-height: 240px;
-  width: 100%;
-  justify-content: center;
-}
-
 .services-card {
   padding: 15px;
   color: #008581;
   text-align: center;
 }
-.cl-icon {
-  color: #9064b9;
-  font-size: 64px;
-  width: 100%;
-  height: 80px;
-}
-
-.poll-details {
-  color: main-styles.get-color('primary', 30);
-  font-weight: 500;
-  font-size: large;
-  margin-left: 20px;
-}
-
-.check {
-  color: #07cb07;
-}
-.close {
-  color: #f13636;
-}
 
 ::ng-deep .page-subtitle-small {
   font-size: var(--font-size-header-smaller);
+  font-family: $inter;
   font-weight: 500;
   margin: 0;
+}
+
+.overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.overview-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.header-section {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.last-updated-chip {
+  font-family: $inter;
+  font-size: var(--font-size-medium);
+  font-weight: 500;
+  color: #117473;
+  background-color: #e2f1ec;
+  border-radius: 25px;
+  padding: 4px 16px;
 }
 
 .Incomplete {

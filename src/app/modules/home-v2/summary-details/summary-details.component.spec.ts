@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { SummaryDetailsComponent } from './summary-details.component';
 import { DashboardKpiResponse } from '@core/models/dashboard-kpis.model';
 import { DashboardService } from '@core/services/api/dashboard.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { SummaryDetailsComponent } from './summary-details.component';
 
 describe('SummaryDetailsComponent', () => {
   let component: SummaryDetailsComponent;
