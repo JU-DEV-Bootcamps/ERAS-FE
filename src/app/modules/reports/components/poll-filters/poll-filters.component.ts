@@ -173,8 +173,6 @@ export class PollFiltersComponent implements OnInit {
     const cohortIds = this.filterForm.value.cohortIds || [];
     if (areArraysEqual(this['prevCohortIds'], cohortIds)) return;
     this.prevCohortIds = [...cohortIds];
-
-    this._getVariables();
   }
 
   handleComponentsSelect(isOpen: boolean) {
