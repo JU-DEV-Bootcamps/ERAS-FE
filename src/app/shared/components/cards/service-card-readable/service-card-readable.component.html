@@ -1,0 +1,17 @@
+<div class="card">
+  <div class="graphic-status">
+    <div class="graphic">
+      <img src="assets/icons/serviceIcon.svg" alt="service icon" />
+    </div>
+    <div class="status">
+      <app-chip [text]="isActive ? 'ACTIVE' : 'INACTIVE'"></app-chip>
+    </div>
+  </div>
+  <div class="details">
+    <div class="title-service">{{ serviceName }}</div>
+    <div class="more-info">
+      <span>Service: {{ serviceProviderName }}</span>
+      <span>Created by:{{ serviceCreated }}</span>
+    </div>
+  </div>
+</div>

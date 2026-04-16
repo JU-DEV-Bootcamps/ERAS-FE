@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+
+.last-updated-chip {
+  font-family: $inter;
+  font-size: var(--font-size-medium);
+  font-weight: 500;
+  color: #117473;
+  background-color: #e2f1ec;
+  border-radius: 25px;
+  padding: 4px 16px;
+}

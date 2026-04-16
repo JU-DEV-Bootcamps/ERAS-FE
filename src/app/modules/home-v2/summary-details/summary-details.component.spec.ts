@@ -3,11 +3,11 @@ import { of } from 'rxjs';
 import { DashboardKpiResponse } from '@core/models/dashboard-kpis.model';
 import { DashboardService } from '@core/services/api/dashboard.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { SummaryDetailsComponent } from './summary-details.component';
+import { SummaryDetailsV2Component } from './summary-details.component';
 
-describe('SummaryDetailsComponent', () => {
-  let component: SummaryDetailsComponent;
-  let fixture: ComponentFixture<SummaryDetailsComponent>;
+describe('SummaryDetailsV2Component', () => {
+  let component: SummaryDetailsV2Component;
+  let fixture: ComponentFixture<SummaryDetailsV2Component>;
 
   const mockDashboardKpi: DashboardKpiResponse = {
     body: {
@@ -44,14 +44,14 @@ describe('SummaryDetailsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SummaryDetailsComponent],
+      imports: [SummaryDetailsV2Component],
       providers: [
         { provide: DashboardService, useValue: dashboardServiceMock },
         { provide: BreakpointObserver, useValue: breakpointObserverMock },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SummaryDetailsComponent);
+    fixture = TestBed.createComponent(SummaryDetailsV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -3,6 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SummaryDetailsV2Component } from './summary-details/summary-details.component';
+import { ChipComponent } from '@shared/components/chip/chip.component';
+import { ServiceCardReadableComponent } from '@shared/components/cards/service-card-readable/service-card-readable.component';
 
 @Component({
   selector: 'app-home-v2',
@@ -11,6 +13,8 @@ import { SummaryDetailsV2Component } from './summary-details/summary-details.com
     MatButtonModule,
     MatProgressSpinnerModule,
     SummaryDetailsV2Component,
+    ChipComponent,
+    ServiceCardReadableComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

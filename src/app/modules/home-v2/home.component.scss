@@ -41,16 +41,6 @@ $inter: 'Inter', sans-serif;
   justify-content: space-between;
 }
 
-.last-updated-chip {
-  font-family: $inter;
-  font-size: var(--font-size-medium);
-  font-weight: 500;
-  color: #117473;
-  background-color: #e2f1ec;
-  border-radius: 25px;
-  padding: 4px 16px;
-}
-
 .Incomplete {
   background-color: main-styles.get-color(tertiary, 20);
 }
