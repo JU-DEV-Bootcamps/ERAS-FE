@@ -22,6 +22,10 @@
   --font-size-small: #{theme-fonts.get-font-size('body', 'small')};
   --font-size-medium: #{theme-fonts.get-font-size('body', 'medium')};
   --font-size-large: #{theme-fonts.get-font-size('body', 'large')};
+  --font-size-header-smaller: #{theme-fonts.get-font-size(
+      'headline',
+      'smaller'
+    )};
   --color-neutral-5: #f7f7f7;
   --color-neutral-50: #f7f6f6;
   --color-neutral-100: #f0efef;

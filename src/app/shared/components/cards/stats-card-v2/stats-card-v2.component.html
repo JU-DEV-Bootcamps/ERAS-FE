@@ -3,13 +3,20 @@
     <span class="title">{{ title() }}</span>
     <div class="numeric-section">
       <span class="value-quantity">{{ value() }}</span>
-      <span
-        class="value-percentage"
-        [ngClass]="isPositive() ? 'positive' : 'negative'"
-      >
-        {{ formattedPercentage() }}
-      </span>
-      >
+      <div class="value-kpi">
+        <mat-icon
+          class="kpi-percentage icon-percentage"
+          [ngClass]="isPositive() ? 'positive' : 'negative'"
+        >
+          {{ isPositive() ? 'arrow_upward' : 'arrow_downward' }}</mat-icon
+        >
+        <span
+          class="kpi-percentage value-percentage"
+          [ngClass]="isPositive() ? 'positive' : 'negative'"
+        >
+          {{ formattedPercentage() }}
+        </span>
+      </div>
     </div>
   </div>
   <ng-content select="[icon]"></ng-content>

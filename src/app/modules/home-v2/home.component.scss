@@ -75,18 +75,12 @@ swiper-slide:nth-child(1n) {
   color: #f13636;
 }
 
-.statusRow {
-  padding: 4px;
-  border-radius: 10px;
-  border: none;
-  width: 200px;
-  display: block;
-  text-align: center;
+::ng-deep .page-subtitle-small {
+  font-size: var(--font-size-header-smaller);
   font-weight: 500;
-  opacity: 0.75;
-  color: white;
-  background-color: main-styles.get-color(primary, 60);
+  margin: 0;
 }
+
 .Incomplete {
   background-color: main-styles.get-color(tertiary, 20);
 }

@@ -1,6 +1,6 @@
 @if (kpi !== null) {
-  <mat-grid-list [cols]="gridColumns()" rowHeight="200px" gutterSize="30px">
-    <mat-grid-tile>
+  <div class="grid-list">
+    <div class="grid-tile">
       <app-stats-card-v2
         [title]="'Number of Students'"
         [value]="kpi.body.totalStudents.value"
@@ -10,9 +10,9 @@
           <img src="assets/icons/studentsIcon.svg" alt="students" />
         </ng-container>
       </app-stats-card-v2>
-    </mat-grid-tile>
+    </div>
 
-    <mat-grid-tile>
+    <div class="grid-tile">
       <app-stats-card-v2
         [title]="'Polls Answered'"
         [value]="kpi.body.totalPollsAnswered.value"
@@ -22,9 +22,9 @@
           <img src="assets/icons/pollsIcon.png" alt="polls" />
         </ng-container>
       </app-stats-card-v2>
-    </mat-grid-tile>
+    </div>
 
-    <mat-grid-tile>
+    <div class="grid-tile">
       <app-stats-card-v2
         [title]="'Evaluations'"
         [value]="kpi.body.totalEvaluations.value"
@@ -34,6 +34,6 @@
           <img src="assets/icons/evaluationsIcon.png" alt="evaluations" />
         </ng-container>
       </app-stats-card-v2>
-    </mat-grid-tile>
-  </mat-grid-list>
+    </div>
+  </div>
 }

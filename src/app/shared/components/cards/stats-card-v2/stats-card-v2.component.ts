@@ -1,10 +1,11 @@
 import { NgClass } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { MatCard } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-stats-card-v2',
-  imports: [MatCard, NgClass],
+  imports: [MatCard, NgClass, MatIcon],
   templateUrl: './stats-card-v2.component.html',
   styleUrl: './stats-card-v2.component.scss',
 })
@@ -16,6 +17,6 @@ export class StatsCardV2Component {
   isPositive = computed(() => this.percentageChange() >= 0);
   formattedPercentage = computed(() => {
     const val = this.percentageChange();
-    return `${val > 0 ? '↑' : '↓'} ${Math.abs(val)}%`;
+    return `${Math.abs(val)}%`;
   });
 }

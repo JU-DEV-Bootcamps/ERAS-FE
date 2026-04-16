@@ -1,14 +1,14 @@
 app-stats-card {
   width: 98%;
 }
-mat-grid-list {
-  display: flex;
-  gap: 24px !important;
+
+.grid-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
-mat-grid-tile {
-  width: calc(33.3333%);
-}
 app-stats-card-v2 {
   width: 100%;
 }
