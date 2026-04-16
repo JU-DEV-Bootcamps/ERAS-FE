@@ -67,14 +67,18 @@ export class SelectMultipleVirtualScrollComponent {
   );
 
   constructor() {
-    effect(() => {
+    effect(onCleanup => {
       const currentItems = this.scrollItems();
       const defaultValue = this.scrollItemsValues();
       const ctrl = this.control();
 
       if (currentItems?.length > 0 && this.autoSelect()) {
-        ctrl.patchValue(defaultValue);
-        this.openedChange.emit(false);
+        const timeoutId = setTimeout(() => {
+          ctrl.patchValue(defaultValue);
+          this.openedChange.emit(false);
+        });
+
+        onCleanup(() => clearTimeout(timeoutId));
       }
     });
   }

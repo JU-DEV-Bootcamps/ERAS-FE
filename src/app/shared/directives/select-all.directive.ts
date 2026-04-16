@@ -28,7 +28,9 @@ export class SelectAllDirective<T extends SelectAllValue>
     if (changes['allValues']) {
       const ctrl = this._matSelect.ngControl?.control;
       if (ctrl) {
-        this._updateState(ctrl.value);
+        setTimeout(() => {
+          this._updateState(ctrl.value);
+        });
       }
     }
   }

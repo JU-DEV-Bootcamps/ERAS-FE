@@ -205,9 +205,6 @@ export class PollFiltersComponent implements OnInit {
     const variableGroupsFlat = this.variableGroups.flat();
     this.variables.set(variableGroupsFlat);
 
-    this.filterForm.controls.variables.setValue(
-      variableGroupsFlat.map(v => !!v && v.pollVariableId)
-    );
     const result = this.variableGroups.flatMap(variableGroup => [
       {
         label: variableGroup[0].componentName.toLocaleUpperCase(),
@@ -219,8 +216,15 @@ export class PollFiltersComponent implements OnInit {
         ],
       },
     ]);
+
     this.variableSelectGroups.set(result);
     this.prevVariablesSelections = this.variables().map(v => v.pollVariableId);
+
+    setTimeout(() => {
+      this.filterForm.controls.variables.setValue(
+        variableGroupsFlat.map(v => !!v && v.pollVariableId)
+      );
+    });
   }
 
   handleVariableSelect(isOpen: boolean) {
@@ -372,11 +376,14 @@ export class PollFiltersComponent implements OnInit {
               .filter(v => v.componentName === compName)
               .map(v => ({ label: v.name, value: v.pollVariableId })),
           }));
-          this.variableSelectGroups.set(groups);
 
+          this.variableSelectGroups.set(groups);
           const allVariableIds = variables.map(v => v.pollVariableId);
-          this.filterForm.controls.variables.setValue(allVariableIds);
           this.prevVariablesSelections = allVariableIds;
+
+          setTimeout(() => {
+            this.filterForm.controls.variables.setValue(allVariableIds);
+          });
         },
         error: () => {
           this.variables.set([]);
