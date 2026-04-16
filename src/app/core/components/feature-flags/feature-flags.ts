@@ -1,11 +1,7 @@
-import { FeatureFlags } from '@core/components/feature-flags/feature-flags.model';
+import { FeatureFlags } from './feature-flags.model';
 
-/**
- * Handles the new feature flags to avoid magic strings.
- *
- * Example:
- * currentSection: 'currentSectionV2'
- */
 export const FEATURE_FLAGS: FeatureFlags = {
-  dynamicCharts: 'dynamicChartsV2',
+  dynamicChartsV2: { enabled: true },
+  platformSettings: { enabled: true, userRoles: ['Eras Admin'] },
+  newSidebar: { enabled: true },
 };

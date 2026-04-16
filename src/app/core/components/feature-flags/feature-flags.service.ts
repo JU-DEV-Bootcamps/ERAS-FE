@@ -1,31 +1,44 @@
-import { inject, Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { inject, Injectable, Signal } from '@angular/core';
+import { ErasRole, Profile } from '@core/models/profile.model';
+import { UserDataService } from '@core/services/access/user-data.service';
+import { FEATURE_FLAGS } from './feature-flags';
+import { FeatureFlagsName } from './feature-flags.model';
 
 /**
- * Service responsible for evaluating feature flags based on URL query parameters.
+ * Service responsible for evaluating feature flags.
+ * Use the `isEnabled()` method to evaluate a flag.
  *
- * Behavior:
- * 1.In production, feature flags are restricted and cannot be arbitrarily enabled.
- * 2.In non-production environments, feature flags can be toggled via query params
- *   for testing and validation purposes.
- *
- * Example:
- *   ?newSection=true or ?newSection=false.
  */
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
-  private readonly route = inject(ActivatedRoute);
+  private readonly userDataService = inject(UserDataService);
 
-  isEnabled(flag: string): boolean {
-    const param = this.route.snapshot.queryParamMap.get(flag);
+  private _user: Signal<Profile | null> = this.userDataService.user;
+  private _featureFlags = FEATURE_FLAGS;
 
-    // PROD: Restricts use of feature flags on Production.
-    if (environment.production) {
+  isEnabled(flagName: FeatureFlagsName): boolean {
+    const flagRules = this._featureFlags[flagName];
+
+    if (!flagRules.enabled) {
       return false;
     }
 
-    // NON-PROD: Works with query params, only available for testing mode.
-    return param === 'true';
+    const userRole = this._user()?.role;
+    if (flagRules.userRoles) {
+      return this.userHasAllowedRole(flagRules.userRoles, userRole);
+    }
+
+    return true;
+  }
+
+  private userHasAllowedRole(
+    allowedRoles: ErasRole[],
+    userRole?: ErasRole
+  ): boolean {
+    if (!userRole) {
+      return false;
+    }
+
+    return allowedRoles.includes(userRole);
   }
 }
