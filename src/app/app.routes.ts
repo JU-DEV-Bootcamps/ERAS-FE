@@ -20,6 +20,7 @@ import { SummaryChartsComponent } from '@modules/reports/components/summary-char
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
 import { StudentsListComponent } from '@modules/students/students-list/students-list.component';
 import { DynamicChartContainerComponent } from '@modules/reports/components/dynamic-charts-v2/dynamic-chart-container.component';
+import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
 
 export const routes: Routes = [
   {
@@ -34,20 +35,31 @@ export const routes: Routes = [
       },
       { path: 'home', component: HomeComponent },
       {
-        path: 'reports/summary-charts',
-        component: SummaryChartsComponent,
-        data: { breadcrumb: 'Summary Charts' },
-      },
-      {
-        path: 'reports/polls-answered',
-        component: PollsAnsweredComponent,
-        data: { breadcrumb: 'Polls Answered' },
-      },
-      {
-        path: 'reports/dynamic-charts',
-        component: DynamicChartContainerComponent,
-        data: { breadcrumb: 'Dynamic Charts' },
-        resolve: { evaluations: evaluationProcessesResolver },
+        path: 'reports',
+        component: ReportsComponent,
+        children: [
+          {
+            path: '',
+            redirectTo: 'dynamic-charts',
+            pathMatch: 'full',
+          },
+          {
+            path: 'dynamic-charts',
+            component: DynamicChartContainerComponent,
+            data: { breadcrumb: 'Dynamic Charts' },
+            resolve: { evaluations: evaluationProcessesResolver },
+          },
+          {
+            path: 'summary-charts',
+            component: SummaryChartsComponent,
+            data: { breadcrumb: 'Summary Charts' },
+          },
+          {
+            path: 'polls-answered',
+            component: PollsAnsweredComponent,
+            data: { breadcrumb: 'Polls Answered' },
+          },
+        ],
       },
       {
         path: 'cosmic-latte',
@@ -116,7 +128,9 @@ export const routes: Routes = [
           {
             path: 'details/:id',
             loadComponent: () =>
-              import('@modules/supports-referrals/components/referral-detail/referral-detail.component'),
+              import(
+                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
+              ),
             resolve: { referral: referralDetailsResolver },
             data: { breadcrumb: 'Referral Details' },
           },

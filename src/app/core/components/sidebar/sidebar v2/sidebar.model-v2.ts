@@ -17,11 +17,7 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
   {
     label: 'Reports',
     icon: 'assessment',
-    children: [
-      { label: 'Dynamic Charts', route: '/reports/dynamic-charts' },
-      { label: 'Summary Charts', route: '/reports/summary-charts' },
-      { label: 'Polls Answered', route: '/reports/polls-answered' },
-    ],
+    route: '/reports',
   },
   {
     label: 'Assessments',
