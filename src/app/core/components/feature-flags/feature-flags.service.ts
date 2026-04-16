@@ -1,8 +1,15 @@
-import { inject, Injectable, Signal } from '@angular/core';
+import {
+  inject,
+  Injectable,
+  signal,
+  Signal,
+  WritableSignal,
+} from '@angular/core';
 import { ErasRole, Profile } from '@core/models/profile.model';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { FEATURE_FLAGS } from './feature-flags';
-import { FeatureFlagsName } from './feature-flags.model';
+import { FeatureFlags, FeatureFlagsName } from './feature-flags.model';
+import { of, Subscription } from 'rxjs';
 
 /**
  * Service responsible for evaluating feature flags.
@@ -14,10 +21,23 @@ export class FeatureFlagsService {
   private readonly userDataService = inject(UserDataService);
 
   private _user: Signal<Profile | null> = this.userDataService.user;
-  private _featureFlags = FEATURE_FLAGS;
+  private _featureFlags: WritableSignal<FeatureFlags> = signal(
+    {} as FeatureFlags
+  );
+  private requestSub!: Subscription;
+
+  loadFeatureFlags() {
+    // Simulate get requests returning an Observable
+    this.requestSub = of(FEATURE_FLAGS).subscribe(features =>
+      this._featureFlags.set(features)
+    );
+
+    this.requestSub.unsubscribe();
+  }
 
   isEnabled(flagName: FeatureFlagsName): boolean {
-    const flagRules = this._featureFlags[flagName];
+    console.log(this._featureFlags());
+    const flagRules = this._featureFlags()[flagName];
 
     if (!flagRules.enabled) {
       return false;
