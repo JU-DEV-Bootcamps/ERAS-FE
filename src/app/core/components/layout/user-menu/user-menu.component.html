@@ -19,14 +19,16 @@
       <mat-icon>person</mat-icon>
       Account and Information
     </button>
-    <button
-      mat-menu-item
-      class="menu-button option-button"
-      (click)="redirectToSettings()"
-    >
-      <mat-icon>settings</mat-icon>
-      Platform Settings
-    </button>
+    @if (canViewFeature()) {
+      <button
+        mat-menu-item
+        class="menu-button option-button"
+        (click)="redirectToSettings()"
+      >
+        <mat-icon>settings</mat-icon>
+        Platform Settings
+      </button>
+    }
   </div>
   <hr />
   <div class="logout-container">
