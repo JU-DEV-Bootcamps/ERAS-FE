@@ -1,12 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
-import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 
 import { DynamicChartsV2Component } from './dynamic-charts-v2.component';
 import { DynamicChartsComponent } from '../dynamic-charts/dynamic-charts.component';
+import { FeatureFlagsName } from '@core/components/feature-flags/feature-flags.model';
 
 @Component({
   selector: 'app-dynamic-charts-container',
@@ -19,8 +18,14 @@ import { DynamicChartsComponent } from '../dynamic-charts/dynamic-charts.compone
     }
   `,
 })
-export class DynamicChartContainerComponent {
+export class DynamicChartContainerComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly featureFlags = inject(FeatureFlagsService);
-  showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.dynamicCharts);
+
+  showV2 = false;
+  ngOnInit(): void {
+    this.showV2 = this.featureFlags.isEnabled(
+      FeatureFlagsName.DYNAMIC_CHARTS_V2
+    );
+  }
 }
