@@ -1,4 +1,13 @@
 <mat-toolbar>
   <h1 class="app-title">{{ sectionTitle }}</h1>
-  <app-user-menu></app-user-menu>
+  <div class="profile-section">
+    <div class="user-info">
+      <span class="user-name"
+        >{{ user()?.firstName }} {{ user()?.lastName }}</span
+      >
+      <span class="user-role">{{ user()?.role }}</span>
+    </div>
+    <mat-icon [ariaSetSize]="36">notifications_none</mat-icon>
+    <app-user-menu></app-user-menu>
+  </div>
 </mat-toolbar>
