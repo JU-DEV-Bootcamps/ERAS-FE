@@ -5,8 +5,29 @@ $inter: 'Inter', sans-serif;
   font-family: $inter;
   font-size: var(--font-size-medium);
   font-weight: 500;
+  padding: 4px 16px;
+}
+
+.info {
   color: #117473;
   background-color: #e2f1ec;
   border-radius: 25px;
-  padding: 4px 16px;
+}
+
+.success,
+.error {
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 8px;
+}
+
+.success {
+  color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+.error {
+  color: #991b1b;
+  background-color: #fee2e2;
 }

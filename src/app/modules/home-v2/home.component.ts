@@ -5,6 +5,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SummaryDetailsV2Component } from './summary-details/summary-details.component';
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { ServiceCardReadableComponent } from '@shared/components/cards/service-card-readable/service-card-readable.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home-v2',
@@ -15,6 +16,7 @@ import { ServiceCardReadableComponent } from '@shared/components/cards/service-c
     SummaryDetailsV2Component,
     ChipComponent,
     ServiceCardReadableComponent,
+    CommonModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

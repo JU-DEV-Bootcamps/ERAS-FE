@@ -10,16 +10,13 @@
   width: main-styles.get-size(icon-size, extra-large);
 
   .main-button {
-    background: none;
-    border: none;
-    border-radius: 50%;
-    color: main-styles.get-color('primary', 30);
-
-    mat-icon {
-      height: main-styles.get-size(icon-size, large);
-      width: main-styles.get-size(icon-size, large);
-      font-size: main-styles.get-size(icon-size, large);
-    }
+    height: 32px;
+    width: 32px;
+    background-color: var(--primary-900);
+    border-radius: 100px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
   }
 }
 
