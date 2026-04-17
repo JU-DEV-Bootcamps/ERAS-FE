@@ -1,0 +1,14 @@
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  height: 84px;
+  border-bottom: 1px solid var(--color-neutral-300);
+  padding: 0px 24px;
+}
+
+.app-title {
+  font-size: var(--font-size-header-medium);
+  font-weight: 500;
+  color: var(--primary-900);
+}

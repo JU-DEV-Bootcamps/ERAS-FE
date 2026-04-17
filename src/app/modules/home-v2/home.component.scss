@@ -2,6 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 $inter: 'Inter', sans-serif;
 
+.home {
+  padding: 24px 4px;
+}
+
+.home,
 .summary-kpis {
   display: flex;
   flex-direction: column;
@@ -9,7 +14,6 @@ $inter: 'Inter', sans-serif;
 }
 
 .services-card {
-  padding: 15px;
   color: #008581;
   text-align: center;
 }

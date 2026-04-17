@@ -21,6 +21,7 @@ import { StudentsListComponent } from '@modules/students/students-list/students-
 import { DynamicChartContainerComponent } from '@modules/reports/components/dynamic-charts-v2/dynamic-chart-container.component';
 import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
 import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
+import { AppRouteData } from '@core/models/route-data.model';
 
 export const routes: Routes = [
   {
@@ -33,7 +34,11 @@ export const routes: Routes = [
         redirectTo: 'home',
         pathMatch: 'full',
       },
-      { path: 'home', component: HomeContainerComponent },
+      {
+        path: 'home',
+        component: HomeContainerComponent,
+        data: { headerTitle: 'Home' } satisfies AppRouteData,
+      },
       {
         path: 'reports',
         component: ReportsComponent,
@@ -52,7 +57,7 @@ export const routes: Routes = [
           {
             path: 'summary-charts',
             component: SummaryChartsComponent,
-            data: { breadcrumb: 'Summary Charts' },
+            data: { breadcrumb: 'Summary Charts' } satisfies AppRouteData,
           },
           {
             path: 'polls-answered',

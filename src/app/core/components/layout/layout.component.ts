@@ -25,7 +25,7 @@ import {
 import { filter } from 'rxjs';
 
 import { SidebarComponent } from '@core/components/sidebar/sidebar.component';
-import { UserMenuComponent } from './user-menu/user-menu.component';
+import { HeaderContainerComponent } from './header/header-v2/header-container.component';
 
 enum Sidenav {
   shrink = '70px',
@@ -47,8 +47,8 @@ enum Sidenav {
     ReactiveFormsModule,
     MatIconModule,
     MatMenuModule,
-    UserMenuComponent,
     SidebarComponent,
+    HeaderContainerComponent,
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
