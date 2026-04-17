@@ -50,17 +50,6 @@ mat-sidenav-content {
 mat-sidenav-content {
   background-color: main-styles.get-color('neutral', 95);
 }
-mat-toolbar {
-  display: flex;
-  justify-content: space-between;
-  height: 50px;
-}
-
-.app-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: main-styles.get-color('primary', 30);
-}
 
 .container {
   width: 100%;

@@ -1,0 +1,59 @@
+@use 'index.scss' as main-styles;
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+
+.home {
+  padding: 24px 4px;
+}
+
+.home,
+.summary-kpis {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.services-card {
+  color: #008581;
+  text-align: center;
+}
+
+::ng-deep .page-subtitle-small {
+  font-size: var(--font-size-header-smaller);
+  font-family: $inter;
+  font-weight: 500;
+  margin: 0;
+}
+
+.overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.overview-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.header-section {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.Incomplete {
+  background-color: main-styles.get-color(tertiary, 20);
+}
+.Not_started_yet {
+  background-color: main-styles.get-color(primary, 60);
+}
+.In_progress {
+  background-color: main-styles.get-color(primary, 30);
+}
+.Finished {
+  background-color: main-styles.get-color(neutral, 60);
+}

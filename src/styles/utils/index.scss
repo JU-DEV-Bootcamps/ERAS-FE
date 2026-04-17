@@ -22,6 +22,11 @@
   --font-size-small: #{theme-fonts.get-font-size('body', 'small')};
   --font-size-medium: #{theme-fonts.get-font-size('body', 'medium')};
   --font-size-large: #{theme-fonts.get-font-size('body', 'large')};
+  --font-size-header-smaller: #{theme-fonts.get-font-size(
+      'headline',
+      'smaller'
+    )};
+  --font-size-header-medium: #{theme-fonts.get-font-size('headline', 'medium')};
   --color-neutral-5: #f7f7f7;
   --color-neutral-50: #f7f6f6;
   --color-neutral-100: #f0efef;
@@ -35,6 +40,7 @@
   --color-neutral-900: #313030;
   --color-white: #ffffff;
   --primary-700: #117473;
+  --primary-900: #144d4d;
   --outline-neutral-200: 1px #c6c6c6 solid;
 }
 
