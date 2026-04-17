@@ -1,0 +1,17 @@
+<div class="reports-wrapper">
+  <nav class="reports-tabs">
+    <ng-container *ngFor="let tab of tabs">
+      <a
+        class="tab-item"
+        [routerLink]="tab.route"
+        routerLinkActive="active-tab"
+      >
+        {{ tab.label }}
+      </a>
+    </ng-container>
+  </nav>
+
+  <div class="reports-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>
