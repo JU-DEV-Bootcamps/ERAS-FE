@@ -11,7 +11,7 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
         route: '/student-option',
         forProduction: false,
       },
-      { label: 'Students List', route: '/list-students-by-poll' },
+      { label: 'Students List', route: '/students' },
     ],
   },
   {
