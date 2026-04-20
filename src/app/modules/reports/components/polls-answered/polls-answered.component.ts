@@ -35,8 +35,7 @@ import { ModalStudentDetailComponent } from '../../../../shared/components/modal
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
 
 interface DynamicPollInstance
-  extends PollInstanceModel,
-    Record<string, unknown> {}
+  extends PollInstanceModel, Record<string, unknown> {}
 
 @Component({
   selector: 'app-polls-answered',

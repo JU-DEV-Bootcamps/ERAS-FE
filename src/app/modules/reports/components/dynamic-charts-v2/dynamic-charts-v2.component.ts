@@ -84,13 +84,14 @@ export class DynamicChartsV2Component implements AfterViewInit {
   hasNoResults = false;
   isAnyCardExpanded = false;
   expandedIndex: number | null = null;
+  expandedComponent: string | null | undefined = null;
 
   gridHeight = 0;
   isExporting = signal(false);
   chartTypeMap = new Map<number, 'heatmap' | 'column'>();
   resizeTick = signal(0);
 
-  @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+  @ViewChild('contentQuarter', { static: false }) contentQuarter!: ElementRef;
   @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
 
   private cardWidth = signal<number>(0);
@@ -139,7 +140,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   generateSeries(report: PollCountReport) {
     const totalWidth = this.cardWidth();
-
     const CARD_LAYOUT = {
       spacing: 16,
       columns: 2,
@@ -224,32 +224,21 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   handleFilterSelect(filters: Filter) {
-    this.hasNoResults = false;
-    this.title = filters.title;
-    this.uuid = filters.uuid;
-    this.cohortIds = filters.cohortIds.join(',');
-    this.evaluationId = filters.evaluationId;
-
-    if (this.isAnyCardExpanded) {
-      const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
-      this.expandedIndex = firstIndex;
-      this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
-    }
-    this.gridHeight = 0;
-
-    if (!filters.cohortIds || filters.variableIds.length === 0) {
-      this.chartsOptions = [];
-      this.components.set(null);
-      this.uuid = null;
-      this.isAnyCardExpanded = false;
-      this.expandedId = null;
-      this.expandedIndex = null;
+    this.resetBaseState();
+    this.applyFilterMetadata(filters);
+    if (!this.isValidFilter(filters)) {
+      this.resetState();
       return;
     }
+    this.handleExpandedState(filters);
+    this.gridHeight = 0;
     this.generateHeatMap(filters.cohortIds, filters.variableIds);
   }
 
   onToggle(id: string): void {
+    const index: string = id.at(-1) ?? '0';
+    this.expandedComponent =
+      this.components()?.components[parseInt(index)].description;
     this.expandedId = this.expandedId === id ? null : id;
     this.isAnyCardExpanded = this.expandedId !== null;
     this.expandedIndex = this.isAnyCardExpanded
@@ -257,7 +246,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
       : null;
 
     if (this.expandedId === null) {
-      this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
+      this.gridHeight = this.contentQuarter.nativeElement.offsetHeight;
     }
     this._updateCardWidth();
     const report = this.components();
@@ -347,7 +336,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   private _updateCardWidth() {
-    const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
+    const width = this.contentQuarter?.nativeElement?.offsetWidth ?? 0;
     this.cardWidth.set(width);
   }
 
@@ -357,5 +346,48 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   onChartTypeChange(index: number, type: 'heatmap' | 'column'): void {
     this.chartTypeMap.set(index, type);
+  }
+
+  private resetBaseState() {
+    this.hasNoResults = false;
+  }
+
+  private applyFilterMetadata(filters: Filter) {
+    this.title = filters.title;
+    this.uuid = filters.uuid;
+    this.cohortIds = filters.cohortIds.join(',');
+    this.evaluationId = filters.evaluationId;
+  }
+
+  private isValidFilter(filters: Filter): boolean {
+    return !!filters.cohortIds && filters.variableIds.length > 0;
+  }
+
+  private resetState() {
+    this.chartsOptions = [];
+    this.components.set(null);
+    this.uuid = null;
+    this.isAnyCardExpanded = false;
+    this.expandedId = null;
+    this.expandedIndex = null;
+  }
+
+  private handleExpandedState(filters: Filter) {
+    if (!this.isAnyCardExpanded) return;
+
+    const selected = filters.selectedComponents;
+    const expanded = this.expandedComponent?.toLowerCase();
+
+    let index = selected.findIndex(c => c === expanded);
+    if (selected.length > 1 && index === -1) {
+      this.isAnyCardExpanded = false;
+      return;
+    }
+    if (index === -1) {
+      index = 0;
+      this.expandedComponent = selected[0].toLowerCase();
+    }
+    this.expandedIndex = index;
+    this.expandedId = `chart-${index}`;
   }
 }
