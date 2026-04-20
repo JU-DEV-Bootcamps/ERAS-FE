@@ -424,6 +424,7 @@ export class PollFiltersComponent implements OnInit {
             : -1
         )
         .filter(i => i !== -1),
+      selectedComponents,
     });
   }
 

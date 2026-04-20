@@ -84,13 +84,14 @@ export class DynamicChartsV2Component implements AfterViewInit {
   hasNoResults = false;
   isAnyCardExpanded = false;
   expandedIndex: number | null = null;
+  expandedComponent: string | null | undefined = null;
 
   gridHeight = 0;
   isExporting = signal(false);
   chartTypeMap = new Map<number, 'heatmap' | 'column'>();
   resizeTick = signal(0);
 
-  @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
+  @ViewChild('contentQuarter', { static: false }) contentQuarter!: ElementRef;
   @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
 
   private cardWidth = signal<number>(0);
@@ -139,7 +140,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   generateSeries(report: PollCountReport) {
     const totalWidth = this.cardWidth();
-
     const CARD_LAYOUT = {
       spacing: 16,
       columns: 2,
@@ -231,7 +231,23 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.evaluationId = filters.evaluationId;
 
     if (this.isAnyCardExpanded) {
-      const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
+      const indexOfChartStorage = filters.selectedComponents.reduce(
+        (prev, value, index) =>
+          value == this.expandedComponent?.toLocaleLowerCase() ? index : prev,
+        -1
+      );
+      if (filters.selectedComponents.length > 1 && indexOfChartStorage === -1) {
+        this.isAnyCardExpanded = false;
+        this.handleFilterSelect(filters);
+      }
+      let firstIndex = 0;
+      if (indexOfChartStorage !== -1) {
+        firstIndex = indexOfChartStorage;
+      } else {
+        firstIndex = 0;
+        this.expandedComponent =
+          filters.selectedComponents[0].toLocaleLowerCase();
+      }
       this.expandedIndex = firstIndex;
       this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
     }
@@ -250,6 +266,9 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   onToggle(id: string): void {
+    const index: string = id.at(-1) ?? '0';
+    this.expandedComponent =
+      this.components()?.components[parseInt(index)].description;
     this.expandedId = this.expandedId === id ? null : id;
     this.isAnyCardExpanded = this.expandedId !== null;
     this.expandedIndex = this.isAnyCardExpanded
@@ -257,7 +276,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
       : null;
 
     if (this.expandedId === null) {
-      this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
+      this.gridHeight = this.contentQuarter.nativeElement.offsetHeight;
     }
     this._updateCardWidth();
     const report = this.components();
@@ -347,7 +366,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   private _updateCardWidth() {
-    const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
+    const width = this.contentQuarter?.nativeElement?.offsetWidth ?? 0;
     this.cardWidth.set(width);
   }
 
