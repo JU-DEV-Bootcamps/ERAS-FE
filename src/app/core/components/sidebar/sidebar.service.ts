@@ -1,14 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import { IsActiveMatchOptions, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { Menu, SIDEBAR_MENUS } from './sidebar.model';
+import { Menu } from './sidebar.model';
 
 @Injectable({ providedIn: 'root' })
 export class SidebarService {
   private readonly _currentUrl = signal<string>('');
-  private readonly _isProduction: boolean | string = environment.production;
-  private readonly _menuItems: Menu[] = SIDEBAR_MENUS;
+
   private readonly _matchOptions: IsActiveMatchOptions = {
     paths: 'subset',
     queryParams: 'ignored',
@@ -20,8 +18,12 @@ export class SidebarService {
 
   constructor(private _router: Router) {
     this._router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        )
+      )
+      .subscribe(event => {
         this._currentUrl.set(event.urlAfterRedirects);
       });
   }
@@ -34,10 +36,9 @@ export class SidebarService {
     return this._router.isActive(route, this._matchOptions);
   }
 
-  getMenus() {
-    return this._menuItems.filter(
-      menu =>
-        !('forProduction' in menu && menu.forProduction !== this._isProduction)
+  getMenus(menus: Menu[]): Menu[] {
+    return menus.filter(
+      menu => !('forProduction' in menu && menu.forProduction !== true)
     );
   }
 

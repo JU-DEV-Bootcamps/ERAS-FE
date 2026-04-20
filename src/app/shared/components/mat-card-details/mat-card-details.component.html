@@ -1,0 +1,74 @@
+<div class="mat-elevation-z8">
+  <mat-spinner
+    *ngIf="
+      columns.length <= 0 ||
+      (totalItems && totalItems <= 0) ||
+      (!totalItems && items.length <= 0)
+    "
+  />
+  <div class="card-container">
+    <mat-card
+      [class]="mapClass?.card?.card ?? ''"
+      *ngFor="let item of items"
+      class="card"
+      appearance="outlined"
+    >
+      <mat-card-content [class]="mapClass?.card?.content ?? ''">
+        <div class="row-info" *ngFor="let column of columns">
+          @if (column.key !== 'name') {
+            <span class="field">{{ column.label }}:</span>
+            <span class="information-secondary">
+              {{ item[column.key] }}
+            </span>
+          } @else {
+            <span class="information">
+              {{ item[column.key] }}
+            </span>
+          }
+        </div>
+      </mat-card-content>
+      <div
+        class="row-mobile badge"
+        *ngFor="let columnTemplate of columnTemplates"
+      >
+        <span class="field">{{ columnTemplate.label }}: </span>
+        <span class="information">
+          <ng-container
+            class
+            *ngTemplateOutlet="
+              getTemplateForColumn(columnTemplate.key.toString());
+              context: { $implicit: item }
+            "
+          ></ng-container>
+        </span>
+      </div>
+      @if (actionDatas().length > 0) {
+        <mat-card-actions [class]="mapClass?.card?.actions ?? ''">
+          @for (actionData of actionDatas(); track $index) {
+            @if (isVisible(actionData, item) && actionData.ngIconName) {
+              <app-action-button
+                [matTooltip]="actionData.tooltip ?? 'action'"
+                [item]="item"
+                [actionData]="actionData"
+                (actionCalled)="handleAction($event)"
+                mat-icon-button
+              >
+                <mat-icon>
+                  {{ actionData.ngIconName }}
+                </mat-icon>
+              </app-action-button>
+            } @else {
+              @if (
+                isVisible(actionData, item) &&
+                actionData.text &&
+                !actionData.ngIconName
+              ) {
+                {{ actionData.text }}
+              }
+            }
+          }
+        </mat-card-actions>
+      }
+    </mat-card>
+  </div>
+</div>

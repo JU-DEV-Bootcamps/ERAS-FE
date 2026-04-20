@@ -1,0 +1,16 @@
+<div class="home">
+  <div class="summary-kpis">
+    <div class="header-section">
+      <h2 class="page-subtitle-small">Overview</h2>
+      <app-chip
+        [text]="`Last Updated: ${lastUpdatedLabel}`"
+        [status]="'info'"
+      ></app-chip>
+    </div>
+    <app-summary-details-v2
+      (lastUpdated)="handleDate($event)"
+    ></app-summary-details-v2>
+    <h2 class="page-subtitle-small">Connected Services</h2>
+    <app-service-card-readable />
+  </div>
+</div>

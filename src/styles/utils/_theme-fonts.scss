@@ -8,6 +8,7 @@ $font-size: (
     large: 57px,
   ),
   headline: (
+    smaller: 18px,
     small: 24px,
     medium: 28px,
     large: 32px,
@@ -50,7 +51,7 @@ $font-weight: (
 }
 
 .page-subtitle {
-  font-size: get-font-size(headline, medium);
+  font-size: get-font-size(headline, small);
   font-weight: get-font-weight(medium);
   text-align: left;
 }

@@ -12,15 +12,14 @@
     matTooltip="Charts"
     mat-icon-button
     [matMenuTriggerFor]="chartMenu"
-    (click)="changeToColumn()"
   >
     <img src="assets/icons/graphic.svg" alt="bar_chart" />
   </button>
   <mat-menu #chartMenu="matMenu">
-    <button mat-menu-item disabled="true" (click)="changeToHeatmap()">
+    <button mat-menu-item disabled="false" (click)="changeToHeatmap()">
       Heatmap chart
     </button>
-    <button mat-menu-item disabled="true" (click)="changeToColumn()">
+    <button mat-menu-item disabled="false" (click)="changeToColumn()">
       Column chart
     </button>
   </mat-menu>

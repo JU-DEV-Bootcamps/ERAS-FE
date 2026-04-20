@@ -5,9 +5,7 @@ import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/r
 import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
 
 import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
-import { DynamicChartsContainerComponent } from '@modules/reports/components/dynamic-charts-v2/dynamic-charts-container.component';
 import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
-import { HomeComponent } from '@modules/home/home.component';
 import { ImportPreviewComponent } from '@modules/imports/components/import-preview/import-preview.component';
 import { ImportStudentsComponent } from '@modules/imports/components/import-students/import-students.component';
 import { LayoutComponent } from '@core/components/layout/layout.component';
@@ -20,6 +18,11 @@ import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/stu
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
 import { AssessmentListComponent } from '@modules/lists/components/assessment-list/assessment-list.component';
+import { StudentsListComponent } from '@modules/students/students-list/students-list.component';
+import { DynamicChartContainerComponent } from '@modules/reports/components/dynamic-charts-v2/dynamic-chart-container.component';
+import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
+import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
+import { AppRouteData } from '@core/models/route-data.model';
 
 export const routes: Routes = [
   {
@@ -32,22 +35,37 @@ export const routes: Routes = [
         redirectTo: 'home',
         pathMatch: 'full',
       },
-      { path: 'home', component: HomeComponent },
       {
-        path: 'reports/summary-charts',
-        component: SummaryChartsComponent,
-        data: { breadcrumb: 'Summary Charts' },
+        path: 'home',
+        component: HomeContainerComponent,
+        data: { headerTitle: 'Home' } satisfies AppRouteData,
       },
       {
-        path: 'reports/polls-answered',
-        component: PollsAnsweredComponent,
-        data: { breadcrumb: 'Polls Answered' },
-      },
-      {
-        path: 'reports/dynamic-charts',
-        component: DynamicChartsContainerComponent,
-        data: { breadcrumb: 'Dynamic Charts' },
-        resolve: { evaluations: evaluationProcessesResolver },
+        path: 'reports',
+        component: ReportsComponent,
+        children: [
+          {
+            path: '',
+            redirectTo: 'dynamic-charts',
+            pathMatch: 'full',
+          },
+          {
+            path: 'dynamic-charts',
+            component: DynamicChartContainerComponent,
+            data: { breadcrumb: 'Dynamic Charts' },
+            resolve: { evaluations: evaluationProcessesResolver },
+          },
+          {
+            path: 'summary-charts',
+            component: SummaryChartsComponent,
+            data: { breadcrumb: 'Summary Charts' } satisfies AppRouteData,
+          },
+          {
+            path: 'polls-answered',
+            component: PollsAnsweredComponent,
+            data: { breadcrumb: 'Polls Answered' },
+          },
+        ],
       },
       {
         path: 'cosmic-latte',
@@ -78,6 +96,11 @@ export const routes: Routes = [
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
         data: { breadcrumb: 'Students List By Poll' },
+      },
+      {
+        path: 'students',
+        component: StudentsListComponent,
+        data: { breadcrumb: 'Students List' },
       },
       {
         path: 'risk-students',
