@@ -128,11 +128,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   generateSeries(report: PollCountReport) {
-    const reportHeatmap = report.components.filter(
-      comp =>
-        this.chartTypeMap.get(comp.description.toLocaleLowerCase()) === 'column'
-    );
-    console.log('vine aca miles de veces', reportHeatmap);
     const totalWidth = this.cardWidth();
     const CARD_LAYOUT = {
       spacing: 16,
