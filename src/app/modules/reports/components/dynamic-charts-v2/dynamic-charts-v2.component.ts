@@ -224,44 +224,14 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   handleFilterSelect(filters: Filter) {
-    this.hasNoResults = false;
-    this.title = filters.title;
-    this.uuid = filters.uuid;
-    this.cohortIds = filters.cohortIds.join(',');
-    this.evaluationId = filters.evaluationId;
-
-    if (this.isAnyCardExpanded) {
-      const indexOfChartStorage = filters.selectedComponents.reduce(
-        (prev, value, index) =>
-          value == this.expandedComponent?.toLocaleLowerCase() ? index : prev,
-        -1
-      );
-      if (filters.selectedComponents.length > 1 && indexOfChartStorage === -1) {
-        this.isAnyCardExpanded = false;
-        this.handleFilterSelect(filters);
-      }
-      let firstIndex = 0;
-      if (indexOfChartStorage !== -1) {
-        firstIndex = indexOfChartStorage;
-      } else {
-        firstIndex = 0;
-        this.expandedComponent =
-          filters.selectedComponents[0].toLocaleLowerCase();
-      }
-      this.expandedIndex = firstIndex;
-      this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
-    }
-    this.gridHeight = 0;
-
-    if (!filters.cohortIds || filters.variableIds.length === 0) {
-      this.chartsOptions = [];
-      this.components.set(null);
-      this.uuid = null;
-      this.isAnyCardExpanded = false;
-      this.expandedId = null;
-      this.expandedIndex = null;
+    this.resetBaseState();
+    this.applyFilterMetadata(filters);
+    if (!this.isValidFilter(filters)) {
+      this.resetState();
       return;
     }
+    this.handleExpandedState(filters);
+    this.gridHeight = 0;
     this.generateHeatMap(filters.cohortIds, filters.variableIds);
   }
 
@@ -376,5 +346,48 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   onChartTypeChange(index: number, type: 'heatmap' | 'column'): void {
     this.chartTypeMap.set(index, type);
+  }
+
+  private resetBaseState() {
+    this.hasNoResults = false;
+  }
+
+  private applyFilterMetadata(filters: Filter) {
+    this.title = filters.title;
+    this.uuid = filters.uuid;
+    this.cohortIds = filters.cohortIds.join(',');
+    this.evaluationId = filters.evaluationId;
+  }
+
+  private isValidFilter(filters: Filter): boolean {
+    return !!filters.cohortIds && filters.variableIds.length > 0;
+  }
+
+  private resetState() {
+    this.chartsOptions = [];
+    this.components.set(null);
+    this.uuid = null;
+    this.isAnyCardExpanded = false;
+    this.expandedId = null;
+    this.expandedIndex = null;
+  }
+
+  private handleExpandedState(filters: Filter) {
+    if (!this.isAnyCardExpanded) return;
+
+    const selected = filters.selectedComponents;
+    const expanded = this.expandedComponent?.toLowerCase();
+
+    let index = selected.findIndex(c => c === expanded);
+    if (selected.length > 1 && index === -1) {
+      this.isAnyCardExpanded = false;
+      return;
+    }
+    if (index === -1) {
+      index = 0;
+      this.expandedComponent = selected[0].toLowerCase();
+    }
+    this.expandedIndex = index;
+    this.expandedId = `chart-${index}`;
   }
 }
