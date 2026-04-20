@@ -10,36 +10,30 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-
+import { debounceTime, fromEvent } from 'rxjs';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-import { MatDialog } from '@angular/material/dialog';
 
 import { HeatMapService } from '@core/services/api/heat-map.service';
 import { ReportService } from '@core/services/api/report.service';
-
 import { customTooltip } from '@core/utils/apex-chart/customTooltip';
 import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
-
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
-import { Filter } from '../poll-filters/types/filters';
 import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
+import { RISK_COLORS } from '@core/constants/riskLevel';
 
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { ExpandableCardComponent } from '@shared/components/expandable-card-v2/expandable-card.component';
 import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
-import { RISK_COLORS } from '@core/constants/riskLevel';
 import {
   DetailsPanelData,
   DetailsPanelComponent,
 } from '@shared/components/panels/details-panel-v2/details-panel.component';
-import { debounceTime, fromEvent } from 'rxjs';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { Filter } from '../poll-filters/types/filters';
 import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic-column-chart-v2.component';
 
 @Component({
@@ -61,13 +55,12 @@ import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic
   styleUrl: './dynamic-charts-v2.component.scss',
 })
 export class DynamicChartsV2Component implements AfterViewInit {
-  private readonly dialog = inject(MatDialog);
-
   title = '';
   uuid: string | null = null;
   cohorTitle: string | null = null;
   chartsOptions: ApexOptions[] = [];
   evaluationId?: number | string;
+  componentsSelected: string[] = [];
   pdfHelper = inject(PdfHelper);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
@@ -88,7 +81,8 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   gridHeight = 0;
   isExporting = signal(false);
-  chartTypeMap = new Map<number, 'heatmap' | 'column'>();
+  // chartTypeMap = new Map<number, 'heatmap' | 'column'>();
+  chartTypeMap = new Map<string, 'heatmap' | 'column'>();
   resizeTick = signal(0);
 
   @ViewChild('contentQuarter', { static: false }) contentQuarter!: ElementRef;
@@ -109,21 +103,16 @@ export class DynamicChartsV2Component implements AfterViewInit {
       });
   }
 
-  constructor(
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
-  ) {}
+  constructor(private cdr: ChangeDetectorRef) {}
 
   generateHeatMap(cohortIds: number[], variablesIds: number[]) {
     if (this.uuid === null) return;
-
     this.isLoading = true;
     this.reportService
       .getCountPoolReport(this.uuid, cohortIds, variablesIds, this.evaluationId)
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
-          this.chartTypeMap.clear();
           this.generateSeries(data.body);
           this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
@@ -139,6 +128,11 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   generateSeries(report: PollCountReport) {
+    const reportHeatmap = report.components.filter(
+      comp =>
+        this.chartTypeMap.get(comp.description.toLocaleLowerCase()) === 'column'
+    );
+    console.log('vine aca miles de veces', reportHeatmap);
     const totalWidth = this.cardWidth();
     const CARD_LAYOUT = {
       spacing: 16,
@@ -341,11 +335,13 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   getChartType(index: number): 'heatmap' | 'column' {
-    return this.chartTypeMap.get(index) ?? 'heatmap';
+    const componentLabel = this.componentsSelected[index];
+    return this.chartTypeMap.get(componentLabel) ?? 'heatmap';
   }
 
   onChartTypeChange(index: number, type: 'heatmap' | 'column'): void {
-    this.chartTypeMap.set(index, type);
+    const componentLabel = this.componentsSelected[index];
+    this.chartTypeMap.set(componentLabel, type);
   }
 
   private resetBaseState() {
@@ -357,6 +353,12 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
+    this.componentsSelected = filters.selectedComponents;
+
+    //other way
+    // filters.selectedComponentIndex?.forEach(val =>
+    //   this.chartTypeMap.set(val, 'heatmap')
+    // );
   }
 
   private isValidFilter(filters: Filter): boolean {
