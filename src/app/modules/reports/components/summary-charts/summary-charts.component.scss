@@ -32,8 +32,16 @@
   width: 100%;
   height: auto;
   max-width: 100%;
-  white-space: nowrap;
+  overflow: visible;
   padding: 10px;
+
+  apx-chart,
+  .apexcharts-canvas,
+  .apexcharts-canvas svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
 }
 
 .list-container {
