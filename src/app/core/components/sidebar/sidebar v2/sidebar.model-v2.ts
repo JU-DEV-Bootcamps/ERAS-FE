@@ -12,6 +12,11 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
         forProduction: false,
       },
       { label: 'Students List', route: '/students' },
+      {
+        label: 'Assessments',
+        icon: 'person_search',
+        route: '/assessments',
+      },
     ],
   },
   {
