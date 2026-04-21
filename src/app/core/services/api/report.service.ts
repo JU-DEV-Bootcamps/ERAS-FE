@@ -25,7 +25,7 @@ import {
   SummaryReport,
 } from '../../models/reports/reports-data.model';
 import { Observable, of } from 'rxjs';
-import { addCountPercentages } from '@core/utils/apex-chart/customTooltip';
+import { addCountPercentages } from '@core/utils/apex-chart/customTooltip-v2';
 import { fixedColorRange } from '@core/utils/apex-chart/chart.constants';
 
 @Injectable({

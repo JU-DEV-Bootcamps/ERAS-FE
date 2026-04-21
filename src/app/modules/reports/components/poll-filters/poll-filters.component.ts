@@ -406,7 +406,8 @@ export class PollFiltersComponent implements OnInit {
       .join(', ');
 
     const title = `Poll: ${this.polls[0].name} - Cohort(s): ${cohortNames}`;
-    const selectedComponents = formVal.componentNames || [];
+    const selectedComponents =
+      formVal.componentNames?.filter(val => val !== undefined) || [];
 
     this.filters.emit({
       title,

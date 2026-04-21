@@ -1,11 +1,11 @@
 import { ApexOptions } from 'ng-apexcharts';
-import {
-  RISK_COLORS,
-  RISK_LABELS,
-  RISK_TEXT_COLORS,
-  getRiskGroup,
-} from '@core/constants/riskLevel';
-import { customTooltip } from './customTooltip-v2';
+import { getRiskGroup } from '@core/constants/riskLevel';
+import { customTooltip } from '@core/utils/apex-chart/customTooltip-v2';
+import { CHART_LAYOUT, fixedColorRange } from './chart.constants';
+
+interface ChartContext {
+  el: HTMLElement;
+}
 
 export function GetChartOptions(
   title: string,
@@ -13,8 +13,27 @@ export function GetChartOptions(
   dataPointSelection?: (x: number, y: number) => void,
   baseChartOptions?: ApexOptions,
   tooltipCustomFunction?: (x: number, y: number) => string,
+  availableWidth = 1500,
+  isExpanded = false,
   fixColors = true
 ): ApexOptions {
+  const CARD_HEADER_WIDTH = 96;
+  const MIN_CHART_HEIGHT = 230;
+  const isExpandedChart = isExpanded;
+  const chartValues = isExpandedChart
+    ? CHART_LAYOUT.expanded
+    : CHART_LAYOUT.compact;
+  const FIXED_CELL_WIDTH = availableWidth / chartValues.columnDivisor;
+  const CELL_HEIGHT = chartValues.cellHeight;
+  const percentageToView = chartValues.labelPercent;
+  const questionSection = percentageToView * availableWidth;
+  const rowCount = series.length;
+  const chartHeight = Math.max(
+    MIN_CHART_HEIGHT,
+    rowCount * CELL_HEIGHT + CARD_HEADER_WIDTH
+  );
+  const chartWidth = availableWidth;
+
   const options: ApexOptions = {
     series: series,
     chart: {
@@ -22,13 +41,23 @@ export function GetChartOptions(
         enabled: false,
       },
       type: 'heatmap',
+      height: chartHeight,
       toolbar: {
         show: false,
       },
+      offsetX: 0,
+      offsetY: 0,
       animations: {
         enabled: false,
       },
+      width: chartWidth,
       events: {
+        mounted: chartContext => {
+          fixCellWidths(chartContext, FIXED_CELL_WIDTH);
+        },
+        updated: chartContext => {
+          fixCellWidths(chartContext, FIXED_CELL_WIDTH);
+        },
         dataPointSelection: (
           event: Event,
           chartContext: unknown,
@@ -48,6 +77,10 @@ export function GetChartOptions(
     },
     title: {
       text: title,
+      style: {
+        fontSize: '22px',
+        fontWeight: '600',
+      },
     },
     xaxis: {
       type: 'category',
@@ -57,11 +90,18 @@ export function GetChartOptions(
       tooltip: {
         enabled: false,
       },
+      crosshairs: { show: false },
+    },
+    yaxis: {
+      labels: {
+        maxWidth: questionSection,
+        offsetX: 0,
+      },
     },
     plotOptions: {
       heatmap: {
         distributed: false,
-        // enableShades: false,
+        useFillColorAsStroke: false,
         ...(fixColors && {
           colorScale: {
             inverse: false,
@@ -72,7 +112,7 @@ export function GetChartOptions(
     },
     tooltip: {
       x: {
-        show: true,
+        show: false,
       },
       y: {
         formatter: function (val: number, opts?): string {
@@ -97,11 +137,12 @@ export function GetChartOptions(
             return tooltipCustomFunction(seriesIndex, dataPointIndex);
           } else {
             const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-            const xValue = dataPoint.x;
+            const color = w.globals.colors[seriesIndex];
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
-            return customTooltip(xValue, yValue, formattedZValue);
+
+            return customTooltip(yValue, formattedZValue, color);
           }
         };
         const wrap = (content: string) => {
@@ -115,47 +156,30 @@ export function GetChartOptions(
   return options;
 }
 
-export const fixedColorRange = [
-  {
-    from: -1,
-    to: 0.49,
-    color: RISK_COLORS[0], //'#FFFFFF',
-    foreColor: RISK_TEXT_COLORS[0],
-    name: RISK_LABELS[0], //No Answer
-  },
-  {
-    from: 0.5,
-    to: 1.49,
-    color: RISK_COLORS[1], //'#008000',
-    foreColor: RISK_TEXT_COLORS[1],
-    name: RISK_LABELS[1], //'Low Risk',
-  },
-  {
-    from: 1.5,
-    to: 2.49,
-    color: RISK_COLORS[2], //'#3CB371',
-    foreColor: RISK_TEXT_COLORS[2],
-    name: RISK_LABELS[2], //'Low-Medium Risk',
-  },
-  {
-    from: 2.5,
-    to: 3.49,
-    color: RISK_COLORS[3], //'#F0D722',
-    foreColor: RISK_TEXT_COLORS[3],
-    name: RISK_LABELS[3], //'Medium Risk',
-  },
-  {
-    from: 3.5,
-    to: 4.49,
-    color: RISK_COLORS[4], //'#FFA500',
-    foreColor: RISK_TEXT_COLORS[4],
-    name: RISK_LABELS[4], //'Medium-High Risk',
-  },
-  {
-    from: 4.5,
-    to: 14,
-    color: RISK_COLORS[5], //'#FF0000',
-    foreColor: RISK_TEXT_COLORS[5],
-    name: RISK_LABELS[5], //'High Risk',
-  },
-];
+export function fixCellWidths(chartContext: ChartContext, cellWidth: number) {
+  const el = chartContext.el as HTMLElement;
+  const seriesGroups = el.querySelectorAll<SVGGElement>('.apexcharts-series');
+
+  // to adjust each rect and its text in the middle
+  seriesGroups.forEach(seriesGroup => {
+    const rects = seriesGroup.querySelectorAll<SVGRectElement>(
+      '.apexcharts-heatmap-rect'
+    );
+    const texts = seriesGroup.querySelectorAll<SVGTextElement>(
+      '.apexcharts-data-labels text'
+    );
+
+    rects.forEach((rect, index) => {
+      const DEFAULT_INDEX = 0;
+      const CELL_MID_WIDTH = cellWidth / 2;
+      const j = parseInt(rect.getAttribute('j') ?? String(DEFAULT_INDEX), 10);
+      const newX = j * cellWidth;
+      rect.setAttribute('width', String(cellWidth - 1));
+      rect.setAttribute('x', String(newX));
+      const text = texts[index];
+      if (text) {
+        text.setAttribute('x', String(newX + CELL_MID_WIDTH));
+      }
+    });
+  });
+}
