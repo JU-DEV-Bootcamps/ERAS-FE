@@ -28,12 +28,14 @@ import { SidebarV2Component } from './sidebar v2/sidebar.component-v2';
 export class SidebarComponent {
   collapsed = model<boolean>();
   newSidebar = input<boolean>(false);
+  reportsV2 = input<boolean>(false);
 
-  menuItems = computed(() =>
-    this.newSidebar()
-      ? this.sidebarService.getMenus(SIDEBAR_MENUS_NEW)
-      : this.sidebarService.getMenus(SIDEBAR_MENUS_OLD)
-  );
+  menuItems = computed(() => {
+    if (this.newSidebar()) {
+      return this.sidebarService.getMenus(SIDEBAR_MENUS_NEW);
+    }
+    return this.sidebarService.getMenus(SIDEBAR_MENUS_OLD);
+  });
 
   constructor(public sidebarService: SidebarService) {
     effect(() => {

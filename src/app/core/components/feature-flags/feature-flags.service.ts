@@ -1,5 +1,4 @@
-import { inject, Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 /**
@@ -15,17 +14,13 @@ import { environment } from 'src/environments/environment';
  */
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
-  private readonly route = inject(ActivatedRoute);
-
   isEnabled(flag: string): boolean {
-    const param = this.route.snapshot.queryParamMap.get(flag);
+    if (environment.production) return false;
 
-    // PROD: Restricts use of feature flags on Production.
-    if (environment.production) {
-      return false;
-    }
+    const params = new URLSearchParams(window.location.search);
 
-    // NON-PROD: Works with query params, only available for testing mode.
-    return param === 'true';
+    if (params.get('v2') === 'true') return true;
+
+    return params.get(flag) === 'true';
   }
 }

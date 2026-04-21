@@ -22,6 +22,8 @@ import { DynamicChartContainerComponent } from '@modules/reports/components/dyna
 import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
 import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
 import { AppRouteData } from '@core/models/route-data.model';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 
 export const routes: Routes = [
   {
@@ -41,29 +43,30 @@ export const routes: Routes = [
       },
       {
         path: 'reports',
+        canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
         component: ReportsComponent,
         children: [
-          {
-            path: '',
-            redirectTo: 'dynamic-charts',
-            pathMatch: 'full',
-          },
+          { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
           {
             path: 'dynamic-charts',
             component: DynamicChartContainerComponent,
-            data: { breadcrumb: 'Dynamic Charts' },
             resolve: { evaluations: evaluationProcessesResolver },
           },
+          { path: 'summary-charts', component: SummaryChartsComponent },
+          { path: 'polls-answered', component: PollsAnsweredComponent },
+        ],
+      },
+      {
+        path: 'reports-v1',
+        children: [
+          { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
           {
-            path: 'summary-charts',
-            component: SummaryChartsComponent,
-            data: { breadcrumb: 'Summary Charts' } satisfies AppRouteData,
+            path: 'dynamic-charts',
+            component: DynamicChartContainerComponent,
+            resolve: { evaluations: evaluationProcessesResolver },
           },
-          {
-            path: 'polls-answered',
-            component: PollsAnsweredComponent,
-            data: { breadcrumb: 'Polls Answered' },
-          },
+          { path: 'summary-charts', component: SummaryChartsComponent },
+          { path: 'polls-answered', component: PollsAnsweredComponent },
         ],
       },
       {
