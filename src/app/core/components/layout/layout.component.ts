@@ -61,6 +61,8 @@ export class LayoutComponent implements OnInit {
   collapsed = model<boolean>(false);
   newSidebar = signal<boolean>(false);
   reportsV2 = signal<boolean>(false);
+  home = signal<boolean>(false);
+  dynamicCharts = signal<boolean>(false);
 
   sidenavWidth = computed(() => {
     if (this.newSidebar()) {
@@ -83,6 +85,10 @@ export class LayoutComponent implements OnInit {
     );
     this.reportsV2.set(
       this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
+    );
+    this.home.set(this.featureFlagsService.isEnabled(FEATURE_FLAGS.home));
+    this.dynamicCharts.set(
+      this.featureFlagsService.isEnabled(FEATURE_FLAGS.dynamicCharts)
     );
   }
 }

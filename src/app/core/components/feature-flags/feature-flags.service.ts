@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
 
 /**
  * Service responsible for evaluating feature flags based on URL query parameters.
@@ -12,15 +13,21 @@ import { environment } from 'src/environments/environment';
  * Example:
  *   ?newSection=true or ?newSection=false.
  */
+
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
+  private router = inject(Router);
+  private queryParams = computed(() => {
+    return this.router.routerState.root.snapshot.queryParams;
+  });
+
   isEnabled(flag: string): boolean {
     if (environment.production) return false;
 
-    const params = new URLSearchParams(window.location.search);
+    const params = this.queryParams();
 
-    if (params.get('v2') === 'true') return true;
+    if (params['v2'] === 'true') return true;
 
-    return params.get(flag) === 'true';
+    return params[flag] === 'true';
   }
 }
