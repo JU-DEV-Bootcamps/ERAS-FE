@@ -18,8 +18,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { HeatMapService } from '@core/services/api/heat-map.service';
 import { ReportService } from '@core/services/api/report.service';
-import { customTooltip } from '@core/utils/apex-chart/customTooltip';
-import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config';
+import { customTooltip } from '@core/utils/apex-chart/customTooltip-v2';
+import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config-v2';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
