@@ -1,0 +1,14 @@
+app-stats-card {
+  width: 98%;
+}
+
+.grid-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+app-stats-card-v2 {
+  width: 100%;
+}

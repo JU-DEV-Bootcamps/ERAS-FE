@@ -1,0 +1,48 @@
+@if (!data) {
+  <mat-spinner></mat-spinner>
+} @else {
+  <div class="container-title-button">
+    <div class="container-title">
+      @if (title) {
+        <h3 class="title">{{ title }}</h3>
+      }
+    </div>
+  </div>
+}
+<div class="container-table-button" #contentToExport>
+  <div>
+    @if (!items.length) {
+      <app-empty-data-message />
+    } @else {
+      <app-mat-card-details
+        [mapClass]="mapClass?.table ? mapClass : undefined"
+        [columns]="columns"
+        [items]="items"
+        [columnTemplates]="columnTemplates"
+        [templateMap]="templateMap"
+        [actionDatas]="actionDatas"
+        (actionCalled)="handleAction($event)"
+      />
+      <br />
+      <mat-paginator
+        [className]="mapClass?.paginator"
+        [length]="totalItems"
+        (page)="onPageChange($event)"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="pageSizeOptions"
+        showFirstLastButtons
+        aria-label="Select page"
+      />
+    }
+  </div>
+</div>
+
+<button class="export-btn" [matMenuTriggerFor]="chartMenu">
+  <mat-icon>save_alt</mat-icon>
+  <span class="label">Export Full Report</span>
+</button>
+<mat-menu #chartMenu="matMenu">
+  <button mat-menu-item (click)="exportTable('csv')">Export CSV</button>
+  <button mat-menu-item (click)="exportTable('pdf')">Export PDF</button>
+</mat-menu>

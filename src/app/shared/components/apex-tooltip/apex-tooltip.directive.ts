@@ -70,26 +70,46 @@ export class ApexTooltipDirective implements OnDestroy {
     event: MouseEvent
   ): { seriesIndex: number; dataPointIndex: number } | null {
     const target = event.target as SVGElement;
-    const rect =
+
+    const el =
       target.closest<SVGElement>('[data\\:value]') ??
-      target.closest<SVGElement>('.apexcharts-heatmap-rect');
+      target.closest<SVGElement>('.apexcharts-heatmap-rect') ??
+      target.closest<SVGElement>('.apexcharts-bar-area');
 
-    if (!rect) return null;
+    if (!el) return null;
 
-    const j = rect.getAttribute('j');
-    const i = rect.getAttribute('i');
-    const seriesGroup =
-      rect.closest<SVGElement>('[data\\:realindex]') ??
-      rect.closest<SVGElement>('.apexcharts-series');
+    const isHeatmap = el.classList.contains('apexcharts-heatmap-rect');
+    const isBar = el.classList.contains('apexcharts-bar-area');
 
-    const seriesIndex =
-      i != null
-        ? parseInt(i, 10)
-        : seriesGroup?.getAttribute('data:realindex') != null
-          ? parseInt(seriesGroup.getAttribute('data:realindex')!, 10)
-          : -1;
+    let seriesIndex = -1;
+    let dataPointIndex = -1;
 
-    const dataPointIndex = j != null ? parseInt(j, 10) : -1;
+    if (isHeatmap) {
+      const i = el.getAttribute('i');
+      const j = el.getAttribute('j');
+
+      seriesIndex = i != null ? parseInt(i, 10) : -1;
+      dataPointIndex = j != null ? parseInt(j, 10) : -1;
+    }
+
+    if (isBar) {
+      const i = el.getAttribute('index');
+      const j = el.getAttribute('j');
+
+      seriesIndex = j != null ? parseInt(j, 10) : -1;
+      dataPointIndex = i != null ? parseInt(i, 10) : -1;
+    }
+
+    if (seriesIndex === -1) {
+      const seriesGroup =
+        el.closest<SVGElement>('[data\\:realindex]') ??
+        el.closest<SVGElement>('.apexcharts-series');
+
+      const fallbackSeries = seriesGroup?.getAttribute('data:realindex');
+      if (fallbackSeries != null) {
+        seriesIndex = parseInt(fallbackSeries, 10);
+      }
+    }
 
     if (seriesIndex === -1 || dataPointIndex === -1) return null;
 

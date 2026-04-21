@@ -5,12 +5,10 @@ import {
   inject,
   signal,
   ViewChild,
-  AfterViewInit,
-  QueryList,
-  ViewChildren,
 } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 
+import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,36 +29,28 @@ import { PollCountQuestion, PollCountReport } from '@core/models/summary.model';
 
 import { DynamicColumnChartComponent } from './dynamic-column-chart/dynamic-column-chart.component';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
-import { ExpandableCardComponent } from '@shared/components/expandable-card-v2/expandable-card.component';
-import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
-import { RISK_COLORS } from '@core/constants/riskLevel';
 import {
-  DetailsPanelData,
-  DetailsPanelComponent,
-} from '@shared/components/panels/details-panel-v2/details-panel.component';
-import { debounceTime, fromEvent } from 'rxjs';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+  ModalQuestionDetailsComponent,
+  SelectedHMData,
+} from '@shared/components/modals/modal-question-details/modal-question-details.component';
+import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 
 @Component({
   selector: 'app-dynamic-charts',
   imports: [
     DynamicColumnChartComponent,
     EmptyDataComponent,
+    MatIcon,
     MatMenuModule,
     MatProgressBarModule,
     MatTooltipModule,
     NgApexchartsModule,
     PollFiltersComponent,
-    ExpandableCardComponent,
-    ApexTooltipDirective,
-    DetailsPanelComponent,
-    MatProgressSpinner,
   ],
   templateUrl: './dynamic-charts.component.html',
   styleUrl: './dynamic-charts.component.scss',
 })
-export class DynamicChartsComponent implements AfterViewInit {
+export class DynamicChartsComponent {
   private readonly dialog = inject(MatDialog);
 
   title = '';
@@ -77,34 +67,8 @@ export class DynamicChartsComponent implements AfterViewInit {
   components = signal<PollCountReport | null>(null);
   heatmapChart = true;
   cohortIds = '';
-  expandedId: string | null = null;
-
-  selectedPanelData = signal<DetailsPanelData | null>(null);
-  isPanelOpen = signal(false);
-  hasNoResults = false;
-  isAnyCardExpanded = false;
-  expandedIndex: number | null = null;
-
-  gridHeight = 0;
-  isExporting = signal(false);
 
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
-  @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
-
-  private cardWidth = signal<number>(0);
-
-  ngAfterViewInit() {
-    const DEFAULT_DEBOUNCE_TIME = 450;
-    this._updateCardWidth();
-
-    fromEvent(window, 'resize')
-      .pipe(debounceTime(DEFAULT_DEBOUNCE_TIME))
-      .subscribe(() => {
-        this._updateCardWidth();
-        const report = this.components();
-        if (report) this.generateSeries(report);
-      });
-  }
 
   constructor(
     private snackBar: MatSnackBar,
@@ -121,35 +85,16 @@ export class DynamicChartsComponent implements AfterViewInit {
         if (data) {
           this.components.set(data.body);
           this.generateSeries(data.body);
-          this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
           this.isLoading = false;
         } else {
           this.chartsOptions = [];
           this.components.set(null);
-          this.hasNoResults = true;
-          this.isAnyCardExpanded = false;
-          this.isLoading = false;
         }
       });
   }
 
   generateSeries(report: PollCountReport) {
-    const totalWidth = this.cardWidth();
-
-    const CARD_LAYOUT = {
-      spacing: 16,
-      columns: 2,
-      fallbackWidth: 400,
-    };
-
-    const cardWidth =
-      totalWidth > 0
-        ? this.isAnyCardExpanded
-          ? totalWidth - CARD_LAYOUT.spacing
-          : totalWidth / CARD_LAYOUT.columns - CARD_LAYOUT.spacing
-        : CARD_LAYOUT.fallbackWidth;
-
     this.chartsOptions = [];
     const hmSeries = report.components.map(c =>
       this.reportService.getHMSeriesFromCountComponent(c)
@@ -157,6 +102,7 @@ export class DynamicChartsComponent implements AfterViewInit {
     this.chartsOptions = hmSeries.map((series, index) => {
       const regroupSeries = this.reportService.regroupDynamicByColor(series);
       const component = report.components[index];
+
       return GetChartOptions(
         `Reporte: ${component.description}`,
         regroupSeries,
@@ -206,59 +152,43 @@ export class DynamicChartsComponent implements AfterViewInit {
             count?: number;
             x: number;
           };
-          const color = RISK_COLORS[regroupSeries[x]?.data[y].x];
+          const question = component.questions[x];
+
           return customTooltip(
+            question?.question ?? '',
             `${groupedAnswer?.count ?? 0}`,
-            dataAtPoint.z,
-            color
+            dataAtPoint.z
           );
-        },
-        cardWidth,
-        this.isAnyCardExpanded
+        }
       );
     });
     this.cdr.detectChanges();
   }
 
+  async exportReportPdf() {
+    if (this.isGeneratingPDF) return;
+
+    this.isGeneratingPDF = true;
+    await this.pdfHelper.exportToPdf({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+    });
+    this.isGeneratingPDF = false;
+  }
+
   handleFilterSelect(filters: Filter) {
-    this.hasNoResults = false;
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
-
-    if (this.isAnyCardExpanded) {
-      const firstIndex = filters.selectedComponentIndex?.[0] ?? null;
-      this.expandedIndex = firstIndex;
-      this.expandedId = firstIndex !== null ? `chart-${firstIndex}` : null;
-    }
-    this.gridHeight = 0;
-
-    if (!filters.cohortIds || filters.variableIds.length === 0) {
+    if (!filters.cohortIds || !filters.variableIds) {
       this.chartsOptions = [];
       this.components.set(null);
       this.uuid = null;
-      this.isAnyCardExpanded = false;
-      this.expandedId = null;
-      this.expandedIndex = null;
       return;
     }
     this.generateHeatMap(filters.cohortIds, filters.variableIds);
-  }
-
-  onToggle(id: string): void {
-    this.expandedId = this.expandedId === id ? null : id;
-    this.isAnyCardExpanded = this.expandedId !== null;
-    this.expandedIndex = this.isAnyCardExpanded
-      ? parseInt(id.replace('chart-', ''))
-      : null;
-
-    if (this.expandedId === null) {
-      this.gridHeight = this.contentToExport.nativeElement.offsetHeight;
-    }
-    this._updateCardWidth();
-    const report = this.components();
-    if (report) this.generateSeries(report);
   }
 
   openDetailsModal(
@@ -269,80 +199,29 @@ export class DynamicChartsComponent implements AfterViewInit {
     text?: string,
     riskLevel?: number
   ): void {
-    this.selectedPanelData.set({
-      cohortId,
+    const data: SelectedHMData = {
+      cohortId: cohortId,
       pollUuid,
       componentName,
       text,
       question,
       riskLevel,
       evaluationId: this.evaluationId,
+    };
+    this.dialog.open(ModalQuestionDetailsComponent, {
+      width: 'clamp(320px, 50vw, 580px)',
+      maxWidth: '60vw',
+      maxHeight: '60vh',
+      panelClass: 'border-modalbox-dialog',
+      data,
     });
-    this.isPanelOpen.set(true);
-
-    setTimeout(() => {
-      this._updateCardWidth();
-      const report = this.components();
-      if (report) this.generateSeries(report);
-    }, 50);
-  }
-
-  closePanel(): void {
-    this.isPanelOpen.set(false);
-    this.selectedPanelData.set(null);
-
-    setTimeout(() => {
-      this._updateCardWidth();
-      const report = this.components();
-      if (report) this.generateSeries(report);
-    }, 50);
   }
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
   }
 
-  async onExporting(processExport: boolean) {
-    if (processExport) {
-      this.isExporting.set(true);
-    } else {
-      this.isExporting.set(false);
-    }
-  }
-
   get showEmpty(): boolean {
     return !this.uuid;
-  }
-
-  getTooltipFn(chartIndex: number): (x: number, y: number) => string {
-    return (seriesIndex: number, dataPointIndex: number) => {
-      const report = this.components();
-      if (!report) return '';
-
-      const component = report.components[chartIndex];
-      const series =
-        this.reportService.getHMSeriesFromCountComponent(component);
-      const regroupSeries = this.reportService.regroupDynamicByColor(series);
-
-      const groupedQuestion = series[seriesIndex];
-      const dataAtPoint = regroupSeries[seriesIndex]?.data[dataPointIndex];
-
-      const totalFillers = dataAtPoint?.totalFillers ?? 0;
-      const groupedAnswer =
-        groupedQuestion?.data[dataPointIndex - totalFillers];
-
-      const color = RISK_COLORS[dataPointIndex];
-
-      return customTooltip(
-        `${groupedAnswer?.count ?? 0}`,
-        dataAtPoint?.z ?? '',
-        color
-      );
-    };
-  }
-
-  private _updateCardWidth() {
-    const width = this.contentToExport?.nativeElement?.offsetWidth ?? 0;
-    this.cardWidth.set(width);
   }
 }

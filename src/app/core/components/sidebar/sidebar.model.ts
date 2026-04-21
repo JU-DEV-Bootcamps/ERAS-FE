@@ -6,12 +6,8 @@ export interface Menu {
   forProduction?: boolean;
 }
 
-export const SIDEBAR_MENUS: Menu[] = [
-  {
-    label: 'Home',
-    icon: 'home',
-    route: '/home',
-  },
+export const SIDEBAR_MENUS_OLD: Menu[] = [
+  { label: 'Home', icon: 'home', route: '/home' },
   {
     label: 'Student Monitoring',
     icon: 'groups',
@@ -21,14 +17,10 @@ export const SIDEBAR_MENUS: Menu[] = [
   {
     label: 'Supports and Referrals',
     icon: 'link',
-    children: [
-      {
-        label: 'Referrals',
-        icon: 'group_add',
-        route: '/supports-referrals',
-      },
-    ],
     forProduction: false,
+    children: [
+      { label: 'Referrals', icon: 'group_add', route: '/supports-referrals' },
+    ],
   },
   {
     label: 'Reports',
@@ -65,11 +57,7 @@ export const SIDEBAR_MENUS: Menu[] = [
         icon: 'person_search',
         route: '/assessments',
       },
-      {
-        label: 'Students List',
-        icon: 'school',
-        route: '/list-students-by-poll',
-      },
+      { label: 'Students List', icon: 'school', route: '/students' },
     ],
   },
   {

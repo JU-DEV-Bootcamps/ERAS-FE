@@ -28,7 +28,9 @@ export class SelectAllDirective<T extends SelectAllValue>
     if (changes['allValues']) {
       const ctrl = this._matSelect.ngControl?.control;
       if (ctrl) {
-        this._updateState(ctrl.value);
+        setTimeout(() => {
+          this._updateState(ctrl.value);
+        });
       }
     }
   }
@@ -43,13 +45,20 @@ export class SelectAllDirective<T extends SelectAllValue>
   }
 
   private isAllSelected(selected: T[] | null | undefined): boolean {
-    if (!this.allValues || this.allValues.length === 0) return false;
-    const safeSelected = (selected || []).filter(
-      (s): s is T => s !== null && s !== undefined
+    const allIds = this.getAllIds();
+    if (allIds.length === 0) return false;
+    const selectedIds = new Set(
+      (selected || [])
+        .filter((s): s is T => s !== null && s !== undefined)
+        .map(item =>
+          typeof item === 'object' && item !== null && 'id' in item
+            ? (item as { id: string | number }).id
+            : (item as string | number)
+        )
     );
     return (
-      this.getAllIds().length > 0 &&
-      this.getAllIds().length === safeSelected.length
+      selectedIds.size === allIds.length &&
+      allIds.every(id => selectedIds.has(id))
     );
   }
 

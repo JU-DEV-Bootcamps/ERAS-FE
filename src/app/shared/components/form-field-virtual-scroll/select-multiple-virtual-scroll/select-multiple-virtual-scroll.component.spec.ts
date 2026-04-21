@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SelectMultipleVirtualScrollComponent } from './select-multiple-virtual-scroll.component';
@@ -75,15 +80,16 @@ describe('SelectMultipleVirtualScrollComponent', () => {
     expect(component.scrollItemsValues()).toEqual(['a1', 'a2']);
   });
 
-  it('should emit event openedChange(false) when items initialize', () => {
+  it('should emit event openedChange(false) when items initialize', fakeAsync(() => {
     spyOn(component.openedChange, 'emit');
     fixture.componentRef.setInput('control', new FormControl([]));
     fixture.componentRef.setInput('items', mockItems);
 
     fixture.detectChanges();
 
+    tick();
     expect(component.openedChange.emit).toHaveBeenCalledWith(false);
-  });
+  }));
 
   it('should return ["Select all"] when all elements are selected', () => {
     const control = new FormControl([1, 2]);

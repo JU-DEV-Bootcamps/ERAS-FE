@@ -4,8 +4,10 @@
     [mode]="'side'"
     [opened]="true"
     [style.width]="sidenavWidth()"
+    [ngClass]="newSidebar() ? 'new-theme' : 'old-theme'"
   >
     <button
+      *ngIf="!newSidebar()"
       class="expand-button"
       mat-icon-button
       (click)="collapsed.set(!collapsed())"
@@ -14,14 +16,15 @@
         collapsed() ? 'menu' : 'menu_open'
       }}</mat-icon>
     </button>
-    <app-sidebar [(collapsed)]="collapsed"></app-sidebar>
+
+    <app-sidebar
+      [(collapsed)]="collapsed"
+      [newSidebar]="newSidebar()"
+    ></app-sidebar>
   </mat-sidenav>
 
   <mat-sidenav-content [style.margin-left]="sidenavWidth()">
-    <mat-toolbar>
-      <h1 class="app-title">ERAS</h1>
-      <app-user-menu></app-user-menu>
-    </mat-toolbar>
+    <app-header-container />
     <div class="container">
       <router-outlet></router-outlet>
     </div>

@@ -1,0 +1,8 @@
+@if (element) {
+  <mat-checkbox
+    [checked]="element.isSelected"
+    (change)="onChange($event)"
+  ></mat-checkbox>
+} @else {
+  <app-empty-data-message description="No element found" />
+}

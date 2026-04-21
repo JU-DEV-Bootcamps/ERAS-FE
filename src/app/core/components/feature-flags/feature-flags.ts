@@ -8,4 +8,5 @@ import { FeatureFlags } from '@core/components/feature-flags/feature-flags.model
  */
 export const FEATURE_FLAGS: FeatureFlags = {
   dynamicCharts: 'dynamicChartsV2',
+  home: 'homev2',
 };
