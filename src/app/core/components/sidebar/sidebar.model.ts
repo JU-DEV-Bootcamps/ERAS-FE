@@ -57,7 +57,11 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         icon: 'person_search',
         route: '/assessments',
       },
-      { label: 'Students List', icon: 'school', route: '/students' },
+      {
+        label: 'Students List',
+        icon: 'school',
+        route: '/list-students-by-poll',
+      },
     ],
   },
   {
