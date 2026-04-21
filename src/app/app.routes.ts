@@ -17,6 +17,7 @@ import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/s
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
+import { AssessmentListComponent } from '@modules/lists/components/assessment-list/assessment-list.component';
 import { StudentsListComponent } from '@modules/students/students-list/students-list.component';
 import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
 import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
@@ -110,6 +111,13 @@ export const routes: Routes = [
         component: RiskStudentsComponent,
         data: { breadcrumb: 'Risk Students' },
       },
+
+      {
+        path: 'assessments',
+        component: AssessmentListComponent,
+        data: { breadcrumb: 'Assessments' },
+      },
+
       {
         path: 'student-option',
         component: StudentMonitoringPollsComponent,

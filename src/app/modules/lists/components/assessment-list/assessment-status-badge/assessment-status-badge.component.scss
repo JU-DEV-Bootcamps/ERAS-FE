@@ -1,0 +1,35 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-created {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-in-progress {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-on-hold {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+
+.status-remitted {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.status-resolved {
+  background-color: #dcfce7;
+  color: #15803d;
+}

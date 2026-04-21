@@ -52,7 +52,16 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         icon: 'fact_check_outline',
         route: '/evaluation-process',
       },
-      { label: 'Students List', icon: 'school', route: '/students' },
+      {
+        label: 'Assessments',
+        icon: 'person_search',
+        route: '/assessments',
+      },
+      {
+        label: 'Students List',
+        icon: 'school',
+        route: '/list-students-by-poll',
+      },
     ],
   },
   {
