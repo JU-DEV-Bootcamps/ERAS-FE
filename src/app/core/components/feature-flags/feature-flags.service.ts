@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Injectable, computed, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
 
 /**
  * Service responsible for evaluating feature flags based on URL query parameters.
@@ -13,19 +13,21 @@ import { environment } from 'src/environments/environment';
  * Example:
  *   ?newSection=true or ?newSection=false.
  */
+
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
-  private readonly route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private queryParams = computed(() => {
+    return this.router.routerState.root.snapshot.queryParams;
+  });
 
   isEnabled(flag: string): boolean {
-    const param = this.route.snapshot.queryParamMap.get(flag);
+    if (environment.production) return false;
 
-    // PROD: Restricts use of feature flags on Production.
-    if (environment.production) {
-      return false;
-    }
+    const params = this.queryParams();
 
-    // NON-PROD: Works with query params, only available for testing mode.
-    return param === 'true';
+    if (params['v2'] === 'true') return true;
+
+    return params[flag] === 'true';
   }
 }

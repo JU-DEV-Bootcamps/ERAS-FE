@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { HomeComponent } from '@modules/home/home.component';
@@ -8,7 +8,7 @@ import { HomeV2Component } from './home.component';
   selector: 'app-home-container',
   imports: [HomeComponent, HomeV2Component],
   template: `
-    @if (showV2) {
+    @if (showV2()) {
       <app-home-v2></app-home-v2>
     } @else {
       <app-home></app-home>
@@ -17,5 +17,5 @@ import { HomeV2Component } from './home.component';
 })
 export class HomeContainerComponent {
   private readonly featureFlags = inject(FeatureFlagsService);
-  showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.home);
+  showV2 = computed(() => this.featureFlags.isEnabled(FEATURE_FLAGS.home));
 }

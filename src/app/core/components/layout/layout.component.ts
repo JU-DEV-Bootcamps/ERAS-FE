@@ -6,7 +6,7 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -22,10 +22,10 @@ import {
   BreakpointState,
   Breakpoints,
 } from '@angular/cdk/layout';
-import { filter } from 'rxjs';
-
 import { SidebarComponent } from '@core/components/sidebar/sidebar.component';
 import { HeaderContainerComponent } from './header/header-v2/header-container.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 
 enum Sidenav {
   shrink = '70px',
@@ -56,9 +56,13 @@ enum Sidenav {
 export class LayoutComponent implements OnInit {
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
+  private featureFlagsService = inject(FeatureFlagsService);
 
   collapsed = model<boolean>(false);
-  newSidebar = signal<boolean>(true);
+  newSidebar = signal<boolean>(false);
+  reportsV2 = signal<boolean>(false);
+  home = signal<boolean>(false);
+  dynamicCharts = signal<boolean>(false);
 
   sidenavWidth = computed(() => {
     if (this.newSidebar()) {
@@ -70,22 +74,21 @@ export class LayoutComponent implements OnInit {
   ngOnInit() {
     this.readSidebarFlag();
 
-    this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe(() => this.readSidebarFlag());
-
     this.breakpointObserver
       .observe([Breakpoints.Small, '(max-width: 1200px)'])
       .subscribe((state: BreakpointState) => this.collapsed.set(state.matches));
   }
 
   private readSidebarFlag(): void {
-    const params = new URLSearchParams(window.location.search);
-
-    if (params.has('newSidebar')) {
-      this.newSidebar.set(params.get('newSidebar') !== 'false');
-    } else {
-      this.newSidebar.set(true);
-    }
+    this.newSidebar.set(
+      this.featureFlagsService.isEnabled(FEATURE_FLAGS.newSidebar)
+    );
+    this.reportsV2.set(
+      this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
+    );
+    this.home.set(this.featureFlagsService.isEnabled(FEATURE_FLAGS.home));
+    this.dynamicCharts.set(
+      this.featureFlagsService.isEnabled(FEATURE_FLAGS.dynamicCharts)
+    );
   }
 }

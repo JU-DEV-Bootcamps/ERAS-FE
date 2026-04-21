@@ -29,17 +29,17 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
       {
         label: 'Dynamic Charts',
         icon: 'description',
-        route: '/reports/dynamic-charts',
+        route: '/reports-v1/dynamic-charts',
       },
       {
         label: 'Summary Charts',
         icon: 'find_in_page',
-        route: '/reports/summary-charts',
+        route: '/reports-v1/summary-charts',
       },
       {
         label: 'Polls Answered',
         icon: 'poll',
-        route: '/reports/polls-answered',
+        route: '/reports-v1/polls-answered',
       },
     ],
   },
