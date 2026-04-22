@@ -38,8 +38,9 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() dimmed = false;
   @Input() title = '';
   @Input() set transitioning(val: boolean) {
+    const timeForLoading = 870;
     if (val) this.isLoading.set(true);
-    this.scheduleLoadingEnd(870);
+    this.scheduleLoadingEnd(timeForLoading);
   }
 
   @Output() toggleExpand = new EventEmitter<string>();

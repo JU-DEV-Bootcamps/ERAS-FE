@@ -81,9 +81,9 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   gridHeight = 0;
   isExporting = signal(false);
-  // chartTypeMap = new Map<number, 'heatmap' | 'column'>();
   chartTypeMap = new Map<string, 'heatmap' | 'column'>();
   resizeTick = signal(0);
+  isPanelTransitioning = signal(false);
 
   @ViewChild('contentQuarter', { static: false }) contentQuarter!: ElementRef;
   @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
@@ -97,9 +97,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
     fromEvent(window, 'resize')
       .pipe(debounceTime(DEFAULT_DEBOUNCE_TIME))
       .subscribe(() => {
-        // this._updateCardWidth();
-        // const report = this.components();
-        // if (report) this.generateSeries(report);
         this.refreshSeries();
       });
   }
@@ -115,11 +112,13 @@ export class DynamicChartsV2Component implements AfterViewInit {
         if (data) {
           this.components.set(data.body);
           this.chartTypeMap.clear();
-          // this.generateSeries(data.body);
           this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
           this.isLoading = false;
-          this.refreshSeries();
+          requestAnimationFrame(() => {
+            this._updateCardWidth();
+            this.generateSeries(data.body);
+          });
         } else {
           this.chartsOptions = [];
           this.components.set(null);
@@ -261,6 +260,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
       riskLevel,
       evaluationId: this.evaluationId,
     });
+    this.isPanelTransitioning.set(true);
     this.isPanelOpen.set(true);
 
     setTimeout(() => {
@@ -271,6 +271,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   closePanel(): void {
+    this.isPanelTransitioning.set(true);
     this.isPanelOpen.set(false);
     this.selectedPanelData.set(null);
 
@@ -332,7 +333,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
   private refreshSeries(delay = 0): void {
     setTimeout(() => {
       this._updateCardWidth();
-      console.log('vine te ayudare', this.cardWidth());
       const report = this.components();
       if (report) this.generateSeries(report);
     }, delay);
@@ -358,11 +358,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
     this.componentsSelected = filters.selectedComponents;
-
-    //other way
-    // filters.selectedComponentIndex?.forEach(val =>
-    //   this.chartTypeMap.set(val, 'heatmap')
-    // );
   }
 
   private isValidFilter(filters: Filter): boolean {
