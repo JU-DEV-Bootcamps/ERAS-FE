@@ -1,5 +1,5 @@
-$spring-expand: 420ms cubic-bezier(0.34, 1.18, 0.64, 1);
-$spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
+$spring-expand: 120ms cubic-bezier(0.34, 1.18, 0.64, 1);
+$spring-collapse: 100ms cubic-bezier(0.4, 0, 1, 1);
 
 :host {
   display: block;
@@ -148,8 +148,6 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
   min-height: 0;
   padding: 0.5rem;
   overflow: hidden;
-
-  // position: absolute;
 
   ::ng-deep > * {
     flex: 1;

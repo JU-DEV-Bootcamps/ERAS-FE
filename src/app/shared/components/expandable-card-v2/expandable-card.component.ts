@@ -66,7 +66,7 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['expanded'] && !changes['expanded'].firstChange) {
       this.isLoading.set(true);
-      this.scheduleLoadingEnd(570);
+      this.scheduleLoadingEnd(600);
       setTimeout(() => window.dispatchEvent(new Event('resize')), 420);
     }
   }
