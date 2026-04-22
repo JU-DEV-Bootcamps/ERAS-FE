@@ -149,6 +149,8 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
   padding: 0.5rem;
   overflow: hidden;
 
+  // position: absolute;
+
   ::ng-deep > * {
     flex: 1;
     width: 100% !important;
@@ -164,5 +166,50 @@ $spring-collapse: 340ms cubic-bezier(0.4, 0, 1, 1);
 
   ::ng-deep .apexcharts-tooltip {
     display: none !important;
+  }
+}
+
+.chart-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px;
+  background: var(--card-bg, #fff); // matches your card bg — no flash edge
+  border-radius: inherit;
+}
+
+.chart-skeleton {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  width: 90%;
+  height: 100%;
+  padding: 12px;
+}
+
+.skeleton-bar {
+  flex: 1;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px 4px 0 0;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@for $i from 1 through 8 {
+  .skeleton-bar:nth-child(#{$i}) {
+    animation-delay: #{($i - 1) * 0.1}s;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }

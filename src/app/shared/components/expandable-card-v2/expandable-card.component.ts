@@ -10,6 +10,10 @@ import {
   inject,
   ViewChild,
   ElementRef,
+  // ChangeDetectorRef,
+  OnInit,
+  OnDestroy,
+  signal,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
@@ -23,7 +27,8 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './expandable-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExpandableCardComponent implements OnChanges {
+export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
+  // export class ExpandableCardComponent implements  OnChanges {
   @Input() cardId!: string;
   @Input() expanded = false;
   @Input() dimmed = false;
@@ -42,10 +47,35 @@ export class ExpandableCardComponent implements OnChanges {
   pdfHelper = inject(PdfHelper);
   @ViewChild('cardRef') cardRef!: ElementRef<HTMLElement>;
 
+  isLoading = signal(true);
+  private loadingTimer: ReturnType<typeof setTimeout> | null = null;
+
+  ngOnInit(): void {
+    this.scheduleLoadingEnd(1000);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['expanded']) {
+    if (changes['expanded'] && !changes['expanded'].firstChange) {
+      this.isLoading.set(true);
+      // this.cdr.markForCheck();
+      this.scheduleLoadingEnd(570);
       setTimeout(() => window.dispatchEvent(new Event('resize')), 420);
     }
+
+    // if (changes['expanded']) {
+    //   setTimeout(() => window.dispatchEvent(new Event('resize')), 420);
+    // }
+  }
+
+  ngOnDestroy(): void {
+    if (this.loadingTimer) clearTimeout(this.loadingTimer);
+  }
+
+  private scheduleLoadingEnd(delay: number): void {
+    if (this.loadingTimer) clearTimeout(this.loadingTimer);
+    this.loadingTimer = setTimeout(() => {
+      this.isLoading.set(false);
+    }, delay);
   }
 
   onToggle(): void {
