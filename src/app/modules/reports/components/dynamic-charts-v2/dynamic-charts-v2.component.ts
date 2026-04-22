@@ -81,9 +81,9 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   gridHeight = 0;
   isExporting = signal(false);
-  // chartTypeMap = new Map<number, 'heatmap' | 'column'>();
   chartTypeMap = new Map<string, 'heatmap' | 'column'>();
   resizeTick = signal(0);
+  isPanelTransitioning = signal(false);
 
   @ViewChild('contentQuarter', { static: false }) contentQuarter!: ElementRef;
   @ViewChildren('chartsGrid') chartsGrid!: QueryList<ExpandableCardComponent>;
@@ -97,9 +97,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
     fromEvent(window, 'resize')
       .pipe(debounceTime(DEFAULT_DEBOUNCE_TIME))
       .subscribe(() => {
-        this._updateCardWidth();
-        const report = this.components();
-        if (report) this.generateSeries(report);
+        this.refreshSeries();
       });
   }
 
@@ -113,10 +111,14 @@ export class DynamicChartsV2Component implements AfterViewInit {
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
-          this.generateSeries(data.body);
+          this.chartTypeMap.clear();
           this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
           this.isLoading = false;
+          requestAnimationFrame(() => {
+            this._updateCardWidth();
+            this.generateSeries(data.body);
+          });
         } else {
           this.chartsOptions = [];
           this.components.set(null);
@@ -238,8 +240,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
       this.gridHeight = this.contentQuarter.nativeElement.offsetHeight;
     }
     this._updateCardWidth();
-    const report = this.components();
-    if (report) this.generateSeries(report);
+    this.refreshSeries(50);
   }
 
   openDetailsModal(
@@ -259,24 +260,24 @@ export class DynamicChartsV2Component implements AfterViewInit {
       riskLevel,
       evaluationId: this.evaluationId,
     });
+    this.isPanelTransitioning.set(true);
     this.isPanelOpen.set(true);
 
     setTimeout(() => {
       this._updateCardWidth();
-      const report = this.components();
-      if (report) this.generateSeries(report);
+      this.refreshSeries(50);
       this.resizeTick.update(v => v + 1);
     }, 50);
   }
 
   closePanel(): void {
+    this.isPanelTransitioning.set(true);
     this.isPanelOpen.set(false);
     this.selectedPanelData.set(null);
 
     setTimeout(() => {
       this._updateCardWidth();
-      const report = this.components();
-      if (report) this.generateSeries(report);
+      this.refreshSeries(50);
       this.resizeTick.update(v => v + 1);
     }, 50);
   }
@@ -329,6 +330,14 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.cardWidth.set(width);
   }
 
+  private refreshSeries(delay = 0): void {
+    setTimeout(() => {
+      this._updateCardWidth();
+      const report = this.components();
+      if (report) this.generateSeries(report);
+    }, delay);
+  }
+
   getChartType(index: number): 'heatmap' | 'column' {
     const componentLabel = this.componentsSelected[index];
     return this.chartTypeMap.get(componentLabel) ?? 'heatmap';
@@ -349,11 +358,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.cohortIds = filters.cohortIds.join(',');
     this.evaluationId = filters.evaluationId;
     this.componentsSelected = filters.selectedComponents;
-
-    //other way
-    // filters.selectedComponentIndex?.forEach(val =>
-    //   this.chartTypeMap.set(val, 'heatmap')
-    // );
   }
 
   private isValidFilter(filters: Filter): boolean {

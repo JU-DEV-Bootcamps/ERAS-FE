@@ -47,15 +47,25 @@ export const routes: Routes = [
         path: 'reports',
         canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
         component: ReportsComponent,
+        data: { headerTitle: 'Reports' } satisfies AppRouteData,
         children: [
           { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
           {
             path: 'dynamic-charts',
             component: DynamicChartsV2Component,
+            data: { headerTitle: 'Reports' } satisfies AppRouteData,
             resolve: { evaluations: evaluationProcessesResolver },
           },
-          { path: 'summary-charts', component: SummaryChartsComponent },
-          { path: 'polls-answered', component: PollsAnsweredComponent },
+          {
+            path: 'summary-charts',
+            component: SummaryChartsComponent,
+            data: { headerTitle: 'Reports' } satisfies AppRouteData,
+          },
+          {
+            path: 'polls-answered',
+            component: PollsAnsweredComponent,
+            data: { headerTitle: 'Reports' } satisfies AppRouteData,
+          },
         ],
       },
       {

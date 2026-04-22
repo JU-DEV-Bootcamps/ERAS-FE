@@ -1,4 +1,3 @@
-<h1 class="page-title">Dynamic Charts</h1>
 <h2 class="page-subtitle">{{ title }}</h2>
 <app-poll-filters
   [showVariables]="true"
@@ -22,80 +21,79 @@
     description="No data found for the selected filters. Try adjusting your selection."
   />
 } @else {
-  @defer {
-    <div class="charts-layout" [class.panel-open]="isPanelOpen()">
+  <div class="charts-layout" [class.panel-open]="isPanelOpen()">
+    <div
+      class="charts-area-wrapper"
+      [class.has-expanded-card]="isAnyCardExpanded"
+    >
       <div
-        class="charts-area-wrapper"
-        [class.has-expanded-card]="isAnyCardExpanded"
+        #contentQuarter
+        class="charts-grid"
+        [style.height.px]="isAnyCardExpanded ? gridHeight : null"
       >
-        <div
-          #contentQuarter
-          class="charts-grid"
-          [style.height.px]="isAnyCardExpanded ? gridHeight : null"
-        >
-          @for (chartOption of chartsOptions; track $index) {
-            <app-expandable-card
-              #chartsGrid
-              [cardId]="'chart-' + $index"
-              [expanded]="expandedId === 'chart-' + $index && isAnyCardExpanded"
-              [dimmed]="
-                expandedId !== null &&
-                expandedId !== 'chart-' + $index &&
-                isAnyCardExpanded
-              "
-              [title]="title"
-              (toggleExpand)="onToggle($event)"
-              (exporting)="onExporting($event)"
-              (changeChart)="onChartTypeChange($index, $event)"
-            >
-              @if (getChartType($index) === 'column') {
-                <div [appApexTooltip]="getTooltipFn($index)">
-                  <app-dynamic-column-chart-v2
-                    [componentData]="components()!.components[$index]"
-                    [identifier]="uuid!"
-                    [cohortsIds]="cohortIds"
-                    [evaluationId]="evaluationId"
-                    [tooltipFn]="getTooltipFn($index)"
-                    [resizeTrigger]="resizeTick()"
-                    (selectPoint)="
-                      openDetailsModal(
-                        uuid!,
-                        cohortIds,
-                        $event.question,
-                        $event.componentName,
-                        $event.text,
-                        $event.riskLevel
-                      )
-                    "
-                  />
-                </div>
-              } @else {
-                <div [appApexTooltip]="getTooltipFn($index)">
-                  <apx-chart
-                    [series]="chartOption.series!"
-                    [chart]="chartOption.chart!"
-                    [xaxis]="chartOption.xaxis!"
-                    [yaxis]="chartOption.yaxis!"
-                    [colors]="chartOption.colors!"
-                    [plotOptions]="chartOption.plotOptions!"
-                    [title]="chartOption.title!"
-                    [tooltip]="chartOption.tooltip!"
-                    [legend]="chartOption.legend!"
-                  ></apx-chart>
-                </div>
-              }
-            </app-expandable-card>
-          }
-        </div>
+        @for (chartOption of chartsOptions; track $index) {
+          <app-expandable-card
+            #chartsGrid
+            [cardId]="'chart-' + $index"
+            [expanded]="expandedId === 'chart-' + $index && isAnyCardExpanded"
+            [dimmed]="
+              expandedId !== null &&
+              expandedId !== 'chart-' + $index &&
+              isAnyCardExpanded
+            "
+            [transitioning]="isPanelTransitioning()"
+            [title]="title"
+            (toggleExpand)="onToggle($event)"
+            (exporting)="onExporting($event)"
+            (changeChart)="onChartTypeChange($index, $event)"
+          >
+            @if (getChartType($index) === 'column') {
+              <div [appApexTooltip]="getTooltipFn($index)">
+                <app-dynamic-column-chart-v2
+                  [componentData]="components()!.components[$index]"
+                  [identifier]="uuid!"
+                  [cohortsIds]="cohortIds"
+                  [evaluationId]="evaluationId"
+                  [tooltipFn]="getTooltipFn($index)"
+                  [resizeTrigger]="resizeTick()"
+                  (selectPoint)="
+                    openDetailsModal(
+                      uuid!,
+                      cohortIds,
+                      $event.question,
+                      $event.componentName,
+                      $event.text,
+                      $event.riskLevel
+                    )
+                  "
+                />
+              </div>
+            } @else {
+              <div [appApexTooltip]="getTooltipFn($index)">
+                <apx-chart
+                  [series]="chartOption.series!"
+                  [chart]="chartOption.chart!"
+                  [xaxis]="chartOption.xaxis!"
+                  [yaxis]="chartOption.yaxis!"
+                  [colors]="chartOption.colors!"
+                  [plotOptions]="chartOption.plotOptions!"
+                  [title]="chartOption.title!"
+                  [tooltip]="chartOption.tooltip!"
+                  [legend]="chartOption.legend!"
+                ></apx-chart>
+              </div>
+            }
+          </app-expandable-card>
+        }
       </div>
-      @if (isPanelOpen()) {
-        <aside class="details-aside">
-          <app-details-panel
-            [data]="selectedPanelData()"
-            (closed)="closePanel()"
-          />
-        </aside>
-      }
     </div>
-  }
+    @if (isPanelOpen()) {
+      <aside class="details-aside">
+        <app-details-panel
+          [data]="selectedPanelData()"
+          (closed)="closePanel()"
+        />
+      </aside>
+    }
+  </div>
 }
