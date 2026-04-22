@@ -24,9 +24,6 @@
           </button>
         </div>
       } @else {
-        <button mat-button matTooltip="Export table" [matMenuTriggerFor]="menu">
-          <mat-icon>print</mat-icon>
-        </button>
         <mat-menu #menu="matMenu">
           <button mat-button (click)="exportToCSV()">To CSV</button>
           <br />
