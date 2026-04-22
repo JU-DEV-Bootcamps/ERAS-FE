@@ -219,13 +219,17 @@ export class SummaryChartsComponent {
 
   async exportReportPdf() {
     if (this.isGeneratingPDF) return;
-
     this.isGeneratingPDF = true;
+
+    // Let ApexCharts finish any pending redraws before we clone
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     await this.pdfHelper.exportToPdf({
       fileName: 'cohort_report',
       container: this.contentToExport,
       snackBar: this.snackBar,
     });
+
     this.isGeneratingPDF = false;
   }
 

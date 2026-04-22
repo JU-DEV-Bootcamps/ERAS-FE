@@ -71,17 +71,17 @@
         [data]="title"
       ></app-summary-column-charts>
     }
-  </div>
-  <div id="table-container">
-    <app-list
-      (actionCalled)="(null)"
-      (loadCalled)="getStudentsByCohortAndPoll($event)"
-      [items]="students"
-      [totalItems]="totalStudents"
-      [columns]="columns"
-      [actionDatas]="[]"
-      [title]="'Students Risk'"
-      [showExportDropdown]="true"
-    />
+    <div id="table-container">
+      <app-list
+        (actionCalled)="(null)"
+        (loadCalled)="getStudentsByCohortAndPoll($event)"
+        [items]="students"
+        [totalItems]="totalStudents"
+        [columns]="columns"
+        [actionDatas]="[]"
+        [title]="'Students Risk'"
+        [showExportDropdown]="true"
+      />
+    </div>
   </div>
 }

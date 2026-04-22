@@ -4,15 +4,16 @@ import html2canvas from 'html2canvas-pro';
 import { PDF_CONFIG } from '../../constants/pdf';
 import { BaseExportService } from './base-export.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class PdfService extends BaseExportService {
   protected extension = 'pdf';
 
   exportToPDF(
     element: HTMLElement,
     name: string,
+    contentWidth: number,
+    contentHeight: number,
+    offsetX = 0,
     callback?: () => void,
     title?: string
   ) {
@@ -21,90 +22,108 @@ export class PdfService extends BaseExportService {
       useCORS: true,
       logging: false,
       removeContainer: true,
+      width: contentWidth,
+      height: contentHeight,
+      windowWidth: contentWidth,
+      windowHeight: contentHeight,
+      scrollX: -offsetX,
+      scrollY: 0,
+      x: 0,
+      y: 0,
     })
       .then(canvas => {
-        const pdf = new jsPDF('p', 'mm', 'letter');
+        const isLandscape = canvas.width > canvas.height;
+        const pdf = new jsPDF(isLandscape ? 'l' : 'p', 'mm', 'letter');
 
-        const marginTop = PDF_CONFIG.margin.top;
-        const marginLeft = PDF_CONFIG.margin.left;
-        const marginRight = PDF_CONFIG.margin.right;
-        const marginBottom = PDF_CONFIG.margin.bottom;
+        const {
+          top: marginTop,
+          left: marginLeft,
+          right: marginRight,
+          bottom: marginBottom,
+        } = PDF_CONFIG.margin;
+
+        const pageWidth = pdf.internal.pageSize.width;
+        const pageHeight = pdf.internal.pageSize.height;
+        const imgWidth = pageWidth - marginLeft - marginRight;
+        const mmPerPx = imgWidth / canvas.width;
+        const pxPerMm = canvas.width / imgWidth;
 
         let contentOffsetTop = marginTop;
         if (title) {
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
-          const maxWidth = 1200;
+
           const colonIndex = title.lastIndexOf(':');
           const firstLine =
             colonIndex !== -1 ? title.substring(0, colonIndex + 1) : title;
           const rest =
             colonIndex !== -1 ? title.substring(colonIndex + 1).trim() : null;
-          const wrappedLines: string[] = [firstLine];
-          if (rest) {
-            const splitRest = pdf.splitTextToSize(rest, maxWidth);
-            wrappedLines.push(...splitRest);
-          }
-          const lineHeight = 5; // mm between lines
-          wrappedLines.forEach((line, index) => {
-            pdf.text(line, marginLeft, marginTop + index * lineHeight);
-          });
-          contentOffsetTop = marginTop + wrappedLines.length * lineHeight + 3;
-        }
-
-        const pageWidth = pdf.internal.pageSize.width;
-        const pageHeight = pdf.internal.pageSize.height;
-
-        const imgWidth = pageWidth - marginLeft - marginRight;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        const usableHeightFirstPage =
-          pageHeight - contentOffsetTop - marginBottom;
-
-        let currentHeight = 0;
-
-        while (currentHeight < imgHeight) {
-          if (currentHeight > 0) pdf.addPage();
-
-          const sectionHeight = Math.min(
-            usableHeightFirstPage,
-            imgHeight - currentHeight
-          );
-          const section = canvas
-            .getContext('2d')!
-            .getImageData(
-              0,
-              currentHeight * (canvas.height / imgHeight),
-              canvas.width,
-              sectionHeight * (canvas.height / imgHeight)
+          const lines: string[] = [firstLine];
+          if (rest)
+            lines.push(
+              ...pdf.splitTextToSize(rest, pageWidth - marginLeft - marginRight)
             );
 
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = canvas.width;
-          tempCanvas.height = section.height;
-          tempCanvas.getContext('2d')!.putImageData(section, 0, 0);
+          const lineHeight = 5;
+          lines.forEach((line, i) =>
+            pdf.text(line, marginLeft, marginTop + i * lineHeight)
+          );
+          contentOffsetTop = marginTop + lines.length * lineHeight + 3;
+        }
 
-          const fragmentImgData = tempCanvas.toDataURL('image/jpeg');
+        const usableHeightPage1 = pageHeight - contentOffsetTop - marginBottom;
+        const usableHeightFullPage = pageHeight - marginTop - marginBottom;
 
-          pdf.addImage(
-            fragmentImgData,
-            'JPEG',
-            marginLeft,
-            contentOffsetTop,
-            imgWidth,
-            sectionHeight
+        let srcYpx = 0;
+        let isFirstPage = true;
+
+        while (srcYpx < canvas.height - 1) {
+          if (!isFirstPage) pdf.addPage();
+
+          const offsetTop = isFirstPage ? contentOffsetTop : marginTop;
+          const usableMm = isFirstPage
+            ? usableHeightPage1
+            : usableHeightFullPage;
+          const slicePx = Math.min(
+            Math.round(usableMm * pxPerMm),
+            canvas.height - srcYpx
           );
 
-          currentHeight += sectionHeight;
+          if (slicePx <= 0) break;
+
+          const tmp = document.createElement('canvas');
+          tmp.width = canvas.width;
+          tmp.height = slicePx;
+          tmp
+            .getContext('2d')!
+            .drawImage(
+              canvas,
+              0,
+              srcYpx,
+              canvas.width,
+              slicePx,
+              0,
+              0,
+              canvas.width,
+              slicePx
+            );
+
+          pdf.addImage(
+            tmp.toDataURL('image/jpeg', 0.92),
+            'JPEG',
+            marginLeft,
+            offsetTop,
+            imgWidth,
+            slicePx * mmPerPx
+          );
+
+          srcYpx += slicePx;
+          isFirstPage = false;
         }
 
         pdf.save(`${name}.${this.extension}`);
       })
-      .catch(error => {
-        console.error('Error while generating PDF:', error);
-      })
-      .finally(() => {
-        callback?.();
-      });
+      .catch(err => console.error('Error generating PDF:', err))
+      .finally(() => callback?.());
   }
 }
