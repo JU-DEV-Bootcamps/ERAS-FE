@@ -39,18 +39,7 @@
   </button>
   <div class="card-body">
     @if (isLoading()) {
-      <div class="chart-overlay">
-        <div class="chart-skeleton">
-          <div class="skeleton-bar" style="height: 60%"></div>
-          <div class="skeleton-bar" style="height: 85%"></div>
-          <div class="skeleton-bar" style="height: 45%"></div>
-          <div class="skeleton-bar" style="height: 15%"></div>
-          <div class="skeleton-bar" style="height: 70%"></div>
-          <div class="skeleton-bar" style="height: 90%"></div>
-          <div class="skeleton-bar" style="height: 55%"></div>
-          <div class="skeleton-bar" style="height: 75%"></div>
-        </div>
-      </div>
+      <app-chart-skeleton />
     }
     <ng-content></ng-content>
   </div>

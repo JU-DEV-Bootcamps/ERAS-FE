@@ -10,7 +10,6 @@ import {
   inject,
   ViewChild,
   ElementRef,
-  // ChangeDetectorRef,
   OnInit,
   OnDestroy,
   signal,
@@ -19,20 +18,29 @@ import { MatIconModule } from '@angular/material/icon';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { ChartSkeletonComponent } from './chart-skeleton.component';
 
 @Component({
   selector: 'app-expandable-card',
-  imports: [MatIconModule, MatTooltipModule, MatMenuModule],
+  imports: [
+    MatIconModule,
+    MatTooltipModule,
+    MatMenuModule,
+    ChartSkeletonComponent,
+  ],
   templateUrl: './expandable-card.component.html',
   styleUrl: './expandable-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
-  // export class ExpandableCardComponent implements  OnChanges {
   @Input() cardId!: string;
   @Input() expanded = false;
   @Input() dimmed = false;
   @Input() title = '';
+  @Input() set transitioning(val: boolean) {
+    if (val) this.isLoading.set(true);
+    this.scheduleLoadingEnd(870);
+  }
 
   @Output() toggleExpand = new EventEmitter<string>();
   @Output() exporting = new EventEmitter<boolean>();
@@ -51,20 +59,15 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   private loadingTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    this.scheduleLoadingEnd(1000);
+    this.scheduleLoadingEnd(1200);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['expanded'] && !changes['expanded'].firstChange) {
       this.isLoading.set(true);
-      // this.cdr.markForCheck();
       this.scheduleLoadingEnd(570);
       setTimeout(() => window.dispatchEvent(new Event('resize')), 420);
     }
-
-    // if (changes['expanded']) {
-    //   setTimeout(() => window.dispatchEvent(new Event('resize')), 420);
-    // }
   }
 
   ngOnDestroy(): void {
