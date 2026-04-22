@@ -33,6 +33,10 @@ import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.com
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalStudentDetailComponent } from '../../../../shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 interface DynamicPollInstance
   extends PollInstanceModel,
@@ -61,6 +65,7 @@ interface DynamicPollInstance
 export class PollsAnsweredComponent implements OnInit {
   private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
+  private featureFlags = inject(FeatureFlagsService);
 
   transformPipe = new TimestampToDatePipe();
   columns: Column<DynamicPollInstance>[] = [
@@ -207,11 +212,14 @@ export class PollsAnsweredComponent implements OnInit {
 
   goToDetails(event: EventAction): void {
     const pollInstance: PollInstanceModel = event.item as PollInstanceModel;
-
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
       data: {
         studentId: pollInstance['student.id' as keyof PollInstanceModel],

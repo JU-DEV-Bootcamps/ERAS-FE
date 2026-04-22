@@ -16,6 +16,10 @@ import { Router } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { LastAccessPipe } from '@shared/pipes/last-access.pipe';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-students-list',
@@ -34,6 +38,7 @@ export class StudentsListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
   private readonly lastAccessPipe = new LastAccessPipe();
+  private readonly featureFlags = inject(FeatureFlagsService);
 
   private readonly list = viewChild(ListComponent);
 
@@ -145,10 +150,14 @@ export class StudentsListComponent implements OnInit {
   }
 
   openStudentDetails(student: StudentModelFlat): void {
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
       data: { studentId: student.id },
     });

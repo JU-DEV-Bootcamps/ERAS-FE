@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -31,6 +31,10 @@ import { MapClass } from '@shared/components/list/types/class';
 import { ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Pagination } from '@core/services/interfaces/server.type';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-student-monitoring-details',
@@ -69,6 +73,8 @@ export class StudentMonitoringDetailsComponent implements OnInit {
   filteredStudents: StudentRiskResponse[] = [];
   studentRisk: StudentRiskResponse[] = [];
   private listInitialized = false;
+  private featureFlags = inject(FeatureFlagsService);
+
   public chartOptions: ApexOptions = {
     chart: {
       type: 'donut',
@@ -336,10 +342,14 @@ export class StudentMonitoringDetailsComponent implements OnInit {
   }
 
   openStudentDetails(studentId: string): void {
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
       data: { studentId },
     });
