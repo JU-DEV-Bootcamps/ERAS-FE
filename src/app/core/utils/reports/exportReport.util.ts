@@ -15,15 +15,39 @@ export class PdfHelper {
   preProcessHTML(clonedElement: HTMLElement, key: string) {
     const processes: Record<string, (clonedElement: HTMLElement) => void> = {
       'student-detail': (clonedElement: HTMLElement) => {
+        clonedElement.style.width = '1700px';
+        clonedElement.style.maxWidth = '1700px';
+        clonedElement.style.overflow = 'visible';
+
+        const studentHeader = clonedElement.querySelector(
+          '.student-header'
+        ) as HTMLElement;
+        if (studentHeader) {
+          studentHeader.style.width = '70%';
+          studentHeader.style.maxWidth = '70%';
+          studentHeader.style.boxSizing = 'border-box';
+          studentHeader.style.fontSize = '1.4em';
+          studentHeader.style.padding = '16px';
+        }
+
+        const cardPerformance = clonedElement.querySelector(
+          '.card-performance'
+        ) as HTMLElement;
+        const cardRisk = clonedElement.querySelector(
+          '.card-risk'
+        ) as HTMLElement;
+        if (cardPerformance) {
+          cardPerformance.style.width = '50%';
+          cardPerformance.style.flex = '1';
+        }
+        if (cardRisk) {
+          cardRisk.style.width = '50%';
+          cardRisk.style.flex = '1';
+        }
+
         clonedElement
           .querySelector('#chart-student-detail')
           ?.classList.add('print-chart');
-
-        const swiperContainer =
-          clonedElement.querySelector('#swiper-container');
-        if (swiperContainer) {
-          swiperContainer.removeAttribute('effect');
-        }
 
         const h1 = document.createElement('h1');
         h1.textContent = 'Student Details';
@@ -45,6 +69,20 @@ export class PdfHelper {
         const tspanElements = clonedElement.querySelectorAll('tspan');
         tspanElements.forEach(tspan => {
           tspan.style.fontSize = '1.6em';
+        });
+
+        const apexInner = clonedElement.querySelector<SVGElement>(
+          '.apexcharts-inner.apexcharts-graphical'
+        );
+        if (apexInner) {
+          apexInner.setAttribute('transform', 'translate(180, 20)');
+        }
+        const yAxisLabels = clonedElement.querySelectorAll<SVGTextElement>(
+          '.apexcharts-yaxis-label text, .apexcharts-yaxis text'
+        );
+        yAxisLabels.forEach(label => {
+          const currentX = parseFloat(label.getAttribute('x') ?? '0');
+          label.setAttribute('x', String(currentX - 60));
         });
 
         const printButton = clonedElement.querySelector('#print-button');
@@ -163,6 +201,7 @@ export class PdfHelper {
   async exportCardToPdf(args: ExportArgs) {
     const element = args.container?.nativeElement;
     const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
+    const clonedElement = this.printReportInfo(args.container, args.preProcess);
 
     const clonedCard = element.cloneNode(true) as HTMLElement;
     const collapsibleContent = clonedCard.querySelector<HTMLElement>(
@@ -192,7 +231,7 @@ export class PdfHelper {
     document.body.appendChild(clonedCard);
 
     return this.pdfService.exportToPDF(
-      clonedCard,
+      clonedElement,
       fileName,
       () => {
         document.body.removeChild(clonedCard);

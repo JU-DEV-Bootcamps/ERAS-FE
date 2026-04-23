@@ -79,7 +79,7 @@ export class DetailsPanelComponent implements OnChanges {
       columnId: 'actions',
       id: 'openStudentDetails',
       label: 'Actions',
-      ngIconName: 'visibility',
+      ngIconName: 'open_in_new',
       tooltip: 'View details',
     },
   ];

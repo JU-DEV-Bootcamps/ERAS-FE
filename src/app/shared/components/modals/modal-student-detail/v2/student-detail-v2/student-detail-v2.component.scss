@@ -11,13 +11,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 24px;
+  padding-right: 0px;
   margin: 24px 32px 0 32px;
   border-radius: 12px;
   box-sizing: border-box;
-  width: 1088px;
+  width: calc(100% - 64px);
+  max-width: 1088px;
   height: 96px;
   gap: 24px;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .student-info-grid {
@@ -77,8 +80,8 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  flex-shrink: 0;
   height: 36px;
+  padding-right: 0;
 }
 
 .action-icon {
@@ -178,18 +181,24 @@
   gap: 24px;
   height: 275px;
 
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: auto;
+  }
+
   .card-performance {
     flex: 1;
+    min-width: 0;
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
     border: 1px solid #f0f0f0;
-    width: 536px;
     background-color: #ffffff;
   }
 
   .card-risk {
-    width: 536px;
+    flex: 1;
+    min-width: 0;
     height: 275px;
     flex-shrink: 0;
     padding: 24px;
@@ -230,6 +239,12 @@
   grid-template-columns: 1fr 1fr;
   row-gap: 24px;
   column-gap: 48px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    row-gap: 16px;
+    column-gap: 0;
+  }
 }
 
 .metric-item {
@@ -303,15 +318,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
   min-width: 28px;
-  min-height: 28px;
+  height: 28px;
+  padding: 0 6px;
   border-radius: 4px;
   color: #1a1a1a;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
   box-sizing: border-box;
-  padding: 0;
+  white-space: nowrap;
 }
