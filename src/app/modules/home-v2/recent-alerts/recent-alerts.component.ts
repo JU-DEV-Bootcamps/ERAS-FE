@@ -13,6 +13,7 @@ import {
   ALERT_RISK_COLORS,
   ALERT_RISK_LABEL_COLORS,
 } from '@core/constants/alertRiskLevel';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-recent-alerts',
@@ -21,35 +22,35 @@ import {
   styleUrl: './recent-alerts.component.scss',
 })
 export class RecentAlertsComponent {
-  columns: Column<RecentAlertsResponse>[] = [
-    {
-      key: 'studentId',
-      label: 'student Id',
-    },
-    // {
-    //   key: 'studentName',
-    //   label: 'Student name',
-    // },
-    {
-      key: 'category',
-      label: 'category',
-    },
-    {
-      key: 'date',
-      label: 'date',
-      // pipe: new RangeTimestampPipe(),
-    },
-  ];
-  columnTemplates: Column<RecentAlertsResponse>[] = [
-    {
-      key: 'riskLevel',
-      label: 'risk Level',
-    },
-    {
-      key: 'status',
-      label: 'status',
-    },
-  ];
+  // columns: Column<RecentAlertsResponse>[] = [
+  //   {
+  //     key: 'studentId',
+  //     label: 'student Id',
+  //   },
+  //   // {
+  //   //   key: 'studentName',
+  //   //   label: 'Student name',
+  //   // },
+  //   {
+  //     key: 'category',
+  //     label: 'category',
+  //   },
+  //   {
+  //     key: 'date',
+  //     label: 'date',
+  //     pipe: new RangeTimestampPipe(),
+  //   },
+  // ];
+  // columnTemplates: Column<RecentAlertsResponse>[] = [
+  //   {
+  //     key: 'riskLevel',
+  //     label: 'risk Level',
+  //   },
+  //   {
+  //     key: 'status',
+  //     label: 'status',
+  //   },
+  // ];
   alertsList: RecentAlertsResponse[] = [];
   totalAlerts = 0;
   actionDatas = [];
@@ -59,26 +60,41 @@ export class RecentAlertsComponent {
     page: 0,
     pageSize: 5,
   };
+  allColumns: Column<RecentAlertsResponse>[] = [
+    { key: 'studentId', label: 'Student Id' },
+    { key: 'riskLevel', label: 'Risk Level', isTemplate: true },
+    { key: 'category', label: 'Category' },
+    {
+      key: 'date',
+      label: 'Date',
+      pipe: new DatePipe('en-US'),
+      pipeArgs: ['MMM d, y'],
+      pipeKey: 'date',
+    },
+    { key: 'status', label: 'Status', isTemplate: true },
+  ];
+
+  get columns() {
+    return this.allColumns.filter(c => !c.isTemplate);
+  }
+
+  get columnTemplates() {
+    return this.allColumns.filter(c => c.isTemplate);
+  }
 
   handleLoadCalled() {
     this.isLoading = true;
     this.evaluationDetailsService
       .getRecentAlerts(this.pagination)
       .subscribe(data => {
-        this.alertsList = this.normalizeStatus(data.items);
+        this.alertsList = data.items;
         this.totalAlerts = data.count;
         this.isLoading = false;
       });
   }
 
-  private normalizeStatus(
-    data: RecentAlertsResponse[]
-  ): RecentAlertsResponse[] {
-    data.forEach((alert: RecentAlertsResponse) => {
-      alert.status = STATUS_EVALUATIONS[alert.status];
-    });
-    console.log('hiii', data);
-    return data;
+  getStatusLabel(status: string): string {
+    return STATUS_EVALUATIONS[status] ?? STATUS_EVALUATIONS['default'];
   }
 
   getStatusColor(status: string): string {

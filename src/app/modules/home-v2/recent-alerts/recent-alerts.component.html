@@ -2,6 +2,7 @@
   (loadCalled)="handleLoadCalled()"
   [columns]="columns"
   [columnTemplates]="columnTemplates"
+  [columnOrder]="allColumns"
   [items]="alertsList"
   [totalItems]="totalAlerts"
   [isExportable]="false"
@@ -22,7 +23,7 @@
       [style.color]="getStatusLabelColor(element.status)"
       class="badge"
     >
-      {{ element.status }}
+      {{ getStatusLabel(element.status) }}
     </span>
   </ng-template>
 </app-list>

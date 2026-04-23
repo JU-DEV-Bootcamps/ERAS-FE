@@ -6,6 +6,7 @@ export interface Column<T> {
   pipe?: PipeTransform;
   pipeKey?: keyof T;
   pipeArgs?: unknown[];
+  isTemplate?: boolean;
 }
 
 export interface ComponentColumn {

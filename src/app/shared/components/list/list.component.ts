@@ -83,6 +83,7 @@ export class ListComponent<T extends object>
   @Input() externalExport = false;
   @Input() isExportable = true;
   @Input() showPaginator = true;
+  @Input() columnOrder: Column<T>[] = [];
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
