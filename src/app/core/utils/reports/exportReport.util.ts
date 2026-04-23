@@ -14,21 +14,86 @@ const LETTER_PX = { portrait: 816, landscape: 1056 };
 export class PdfHelper {
   pdfService = inject(PdfService);
 
+  private waitForReflow(): Promise<void> {
+    return new Promise(resolve =>
+      requestAnimationFrame(() => setTimeout(resolve, 100))
+    );
+  }
+
+  private async measureAndPrepare(
+    cloned: HTMLElement,
+    initialWidth?: number
+  ): Promise<{ width: number; height: number }> {
+    Object.assign(cloned.style, {
+      position: 'fixed',
+      top: '0px',
+      left: '0px',
+      width: initialWidth ? `${initialWidth}px` : '100%',
+      height: 'auto',
+      overflow: 'visible',
+      zIndex: '-9999',
+      opacity: '0',
+      pointerEvents: 'none',
+    });
+
+    document.body.appendChild(cloned);
+    await this.waitForReflow();
+
+    const naturalW = Math.ceil(cloned.getBoundingClientRect().width);
+    const naturalH = Math.ceil(cloned.getBoundingClientRect().height);
+    const isLandscape = naturalW > naturalH;
+    const targetW = isLandscape ? LETTER_PX.landscape : LETTER_PX.portrait;
+
+    cloned.style.width = `${targetW}px`;
+    cloned.style.height = 'auto';
+    await this.waitForReflow();
+
+    cloned
+      .querySelectorAll<HTMLElement>('.apexcharts-canvas')
+      .forEach(canvas => {
+        const containerW =
+          canvas.parentElement?.getBoundingClientRect().width ?? targetW;
+
+        canvas.style.width = `${containerW}px`;
+        canvas.style.overflow = 'visible';
+
+        const svg = canvas.querySelector<SVGElement>('svg');
+        if (svg) {
+          const viewBox = svg.getAttribute('viewBox');
+          if (!viewBox) {
+            const origW = parseFloat(
+              svg.getAttribute('width') ?? String(containerW)
+            );
+            const origH = parseFloat(svg.getAttribute('height') ?? '400');
+            svg.setAttribute('viewBox', `0 0 ${origW} ${origH}`);
+          }
+          svg.setAttribute('width', String(containerW));
+          svg.style.width = `${containerW}px`;
+          svg.style.overflow = 'visible';
+        }
+      });
+
+    await this.waitForReflow();
+
+    const finalH = Math.ceil(cloned.getBoundingClientRect().height);
+    cloned.style.opacity = '1';
+
+    return { width: targetW, height: finalH };
+  }
+
   preProcessHTML(clonedElement: HTMLElement, key: string) {
-    const processes: Record<string, (clonedElement: HTMLElement) => void> = {
+    const processes: Record<string, (el: HTMLElement) => void> = {
       'student-detail': (clonedElement: HTMLElement) => {
-        clonedElement.style.width = '1700px';
-        clonedElement.style.maxWidth = '1700px';
         clonedElement.style.overflow = 'visible';
 
         const studentHeader = clonedElement.querySelector(
           '.student-header'
         ) as HTMLElement;
         if (studentHeader) {
-          studentHeader.style.width = '70%';
-          studentHeader.style.maxWidth = '70%';
+          studentHeader.style.width = '100%';
+          studentHeader.style.maxWidth = '100%';
           studentHeader.style.boxSizing = 'border-box';
-          studentHeader.style.fontSize = '1.4em';
+          studentHeader.style.fontSize = '1em';
           studentHeader.style.padding = '16px';
         }
 
@@ -56,7 +121,7 @@ export class PdfHelper {
         h1.style.textAlign = 'center';
         h1.style.fontSize = '2em';
         h1.style.fontWeight = '500';
-        el.insertBefore(h1, el.firstChild);
+        clonedElement.insertBefore(h1, clonedElement.firstChild);
 
         const thElements = clonedElement.querySelectorAll('th');
         thElements.forEach(th => {
@@ -132,8 +197,6 @@ export class PdfHelper {
     cloned.querySelectorAll('.apexcharts-tooltip').forEach(t => t.remove());
     cloned.querySelectorAll('mat-card-actions').forEach(a => a.remove());
 
-    // Extract ApexCharts title text and legend, remove them from SVG,
-    // inject them as real HTML above the chart so they don't overlap on resize
     cloned
       .querySelectorAll<HTMLElement>('.apexcharts-canvas')
       .forEach(canvas => {
@@ -142,17 +205,13 @@ export class PdfHelper {
         );
         const titleText = svgTitle?.textContent?.trim();
 
-        // Hide only the SVG-rendered title — it overlaps when SVG is resized
         canvas
           .querySelectorAll<SVGElement>('.apexcharts-title-text')
           .forEach(el => (el.style.display = 'none'));
 
-        // The legend is a real HTML div inside .apexcharts-canvas, not inside the SVG
-        // Move it AFTER the title div but BEFORE the SVG so it renders in flow
         const legend = canvas.querySelector<HTMLElement>('.apexcharts-legend');
 
         if (canvas.parentElement) {
-          // Inject HTML title above the chart
           if (titleText) {
             const titleEl = document.createElement('div');
             titleEl.textContent = titleText;
@@ -166,7 +225,6 @@ export class PdfHelper {
             canvas.parentElement.insertBefore(titleEl, canvas);
           }
 
-          // Move legend out of the canvas and into normal HTML flow
           if (legend) {
             const legendClone = legend.cloneNode(true) as HTMLElement;
             Object.assign(legendClone.style, {
@@ -175,11 +233,10 @@ export class PdfHelper {
               gap: '8px',
               margin: '6px 0 8px 0',
               justifyContent: 'center',
-              position: 'static', // override ApexCharts absolute positioning
+              position: 'static',
               top: 'auto',
               left: 'auto',
             });
-            // Also fix individual legend markers in case they use absolute pos
             legendClone
               .querySelectorAll<HTMLElement>('.apexcharts-legend-series')
               .forEach(series => {
@@ -251,7 +308,6 @@ export class PdfHelper {
   async exportCardToPdf(args: ExportArgs) {
     const element = args.container?.nativeElement as HTMLElement;
     const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
-    const clonedElement = this.printReportInfo(args.container, args.preProcess);
 
     const cloned = element.cloneNode(true) as HTMLElement;
 
@@ -281,7 +337,7 @@ export class PdfHelper {
     );
 
     return this.pdfService.exportToPDF(
-      clonedElement,
+      cloned,
       fileName,
       width,
       height,
