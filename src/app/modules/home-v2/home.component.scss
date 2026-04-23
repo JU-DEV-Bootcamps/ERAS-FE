@@ -45,6 +45,28 @@ $inter: 'Inter', sans-serif;
   justify-content: space-between;
 }
 
+.section-alerts-support {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.recent-alerts {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.subtitle-alerts {
+  background-color: white;
+  padding: 16px 24px;
+  border-radius: 12px 12px 0 0;
+  font-size: var(--font-size-large);
+  font-family: $inter;
+  font-weight: 500;
+  margin: 0;
+  border: 1px solid #f3f4f6;
+  border-bottom: 0;
+}
+
 .Incomplete {
   background-color: main-styles.get-color(tertiary, 20);
 }

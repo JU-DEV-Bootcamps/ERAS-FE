@@ -7,7 +7,7 @@
         <h3 class="title">{{ title }}</h3>
       }
     </div>
-    @if (items.length && !externalExport) {
+    @if (items.length && !externalExport && isExportable) {
       @if (showExportDropdown) {
         <div class="export-container">
           <select class="export-select" [(ngModel)]="selectedExportFormat">
@@ -56,16 +56,18 @@
         (actionCalled)="handleAction($event)"
       />
       <br />
-      <mat-paginator
-        [className]="mapClass?.paginator"
-        [length]="totalItems"
-        (page)="onPageChange($event)"
-        [pageSize]="pageSize"
-        [pageIndex]="pageIndex"
-        [pageSizeOptions]="pageSizeOptions"
-        showFirstLastButtons
-        aria-label="Select page"
-      />
+      @if (showPaginator) {
+        <mat-paginator
+          [className]="mapClass?.paginator"
+          [length]="totalItems"
+          (page)="onPageChange($event)"
+          [pageSize]="pageSize"
+          [pageIndex]="pageIndex"
+          [pageSizeOptions]="pageSizeOptions"
+          showFirstLastButtons
+          aria-label="Select page"
+        />
+      }
     }
   </div>
 </div>

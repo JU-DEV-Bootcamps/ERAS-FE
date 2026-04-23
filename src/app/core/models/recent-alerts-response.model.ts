@@ -3,6 +3,6 @@ export interface RecentAlertsResponse {
   studentName: string;
   riskLevel: string;
   category: string;
-  date: string;
+  date: Date;
   status: string;
 }

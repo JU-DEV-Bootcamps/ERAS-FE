@@ -1,41 +1,35 @@
 import { Component, inject } from '@angular/core';
-import { TableComponent } from '@shared/components/table/table.component';
-import { TableWithActionsComponent } from '@shared/components/table-with-actions/table-with-actions.component';
-import { BadgeStatusComponent } from '@modules/lists/components/evaluacion-process/badge-status/badge-status.component';
 import { ListComponent } from '@shared/components/list/list.component';
 import { Column } from '@shared/components/list/types/column';
-import { RecentAlertsModel } from '@core/models/recent-alerts.model';
-import { RangeTimestampPipe } from '@shared/pipes/range-timestamp.pipe';
 import { Pagination } from '@core/services/interfaces/server.type';
-// import { EventLoad } from '@core/models/load';
 import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
+import { RecentAlertsResponse } from '@core/models/recent-alerts-response.model';
+import {
+  STATUS_COLORS,
+  STATUS_EVALUATIONS,
+  STATUS_LABEL_COLORS,
+} from '@core/constants/StatusEvaluation';
+import {
+  ALERT_RISK_COLORS,
+  ALERT_RISK_LABEL_COLORS,
+} from '@core/constants/alertRiskLevel';
 
 @Component({
   selector: 'app-recent-alerts',
-  imports: [
-    TableComponent,
-    TableWithActionsComponent,
-    BadgeStatusComponent,
-    ListComponent,
-  ],
+  imports: [ListComponent],
   templateUrl: './recent-alerts.component.html',
   styleUrl: './recent-alerts.component.scss',
 })
 export class RecentAlertsComponent {
-  data = ['hi', 'thunder'];
-  columns: Column<RecentAlertsModel>[] = [
-    {
-      key: 'id',
-      label: 'Id',
-    },
+  columns: Column<RecentAlertsResponse>[] = [
     {
       key: 'studentId',
       label: 'student Id',
     },
-    {
-      key: 'riskLevel',
-      label: 'risk Level',
-    },
+    // {
+    //   key: 'studentName',
+    //   label: 'Student name',
+    // },
     {
       key: 'category',
       label: 'category',
@@ -43,15 +37,22 @@ export class RecentAlertsComponent {
     {
       key: 'date',
       label: 'date',
-      pipe: new RangeTimestampPipe(),
+      // pipe: new RangeTimestampPipe(),
+    },
+  ];
+  columnTemplates: Column<RecentAlertsResponse>[] = [
+    {
+      key: 'riskLevel',
+      label: 'risk Level',
     },
     {
       key: 'status',
       label: 'status',
     },
   ];
-  alertsList: RecentAlertsModel[] = [];
+  alertsList: RecentAlertsResponse[] = [];
   totalAlerts = 0;
+  actionDatas = [];
   isLoading = false;
   evaluationDetailsService = inject(EvaluationDetailsService);
   pagination: Pagination = {
@@ -59,10 +60,40 @@ export class RecentAlertsComponent {
     pageSize: 5,
   };
 
-  // handleLoadCalled(event: EventLoad) {
-  //   this.isLoading = true;
-  //   this.evaluationDetailsService.getRecentAlerts(this.pagination).subscribe(response => {
+  handleLoadCalled() {
+    this.isLoading = true;
+    this.evaluationDetailsService
+      .getRecentAlerts(this.pagination)
+      .subscribe(data => {
+        this.alertsList = this.normalizeStatus(data.items);
+        this.totalAlerts = data.count;
+        this.isLoading = false;
+      });
+  }
 
-  //   })
-  // }
+  private normalizeStatus(
+    data: RecentAlertsResponse[]
+  ): RecentAlertsResponse[] {
+    data.forEach((alert: RecentAlertsResponse) => {
+      alert.status = STATUS_EVALUATIONS[alert.status];
+    });
+    console.log('hiii', data);
+    return data;
+  }
+
+  getStatusColor(status: string): string {
+    return STATUS_COLORS[status] ?? STATUS_COLORS['default'];
+  }
+
+  getStatusLabelColor(status: string): string {
+    return STATUS_LABEL_COLORS[status] ?? STATUS_LABEL_COLORS['default'];
+  }
+
+  getRiskLevelColor(level: string): string {
+    return ALERT_RISK_COLORS[level] ?? ALERT_RISK_COLORS['default'];
+  }
+
+  getRiskLevelLabelColor(level: string): string {
+    return ALERT_RISK_LABEL_COLORS[level] ?? ALERT_RISK_LABEL_COLORS['default'];
+  }
 }

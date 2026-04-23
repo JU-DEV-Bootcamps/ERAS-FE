@@ -22,5 +22,6 @@ export interface Student extends BaseModel {
 }
 
 export interface StudentModelFlat
-  extends Omit<StudentModel, 'studentDetail'>,
+  extends
+    Omit<StudentModel, 'studentDetail'>,
     Omit<StudentDetailModel, 'id' | 'audit'> {}

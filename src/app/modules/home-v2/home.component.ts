@@ -6,6 +6,7 @@ import { SummaryDetailsV2Component } from './summary-details/summary-details.com
 import { ChipComponent } from '@shared/components/chip/chip.component';
 import { ServiceCardReadableComponent } from '@shared/components/cards/service-card-readable/service-card-readable.component';
 import { CommonModule } from '@angular/common';
+import { RecentAlertsComponent } from './recent-alerts/recent-alerts.component';
 
 @Component({
   selector: 'app-home-v2',
@@ -17,6 +18,7 @@ import { CommonModule } from '@angular/common';
     ChipComponent,
     ServiceCardReadableComponent,
     CommonModule,
+    RecentAlertsComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

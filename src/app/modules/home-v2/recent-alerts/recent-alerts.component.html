@@ -1,13 +1,28 @@
-<!-- <app-list
-  (loadCalled)="handleLoadCalled($event)"
-  (actionCalled)="handleActionCalled($event)"
+<app-list
+  (loadCalled)="handleLoadCalled()"
   [columns]="columns"
   [columnTemplates]="columnTemplates"
-  [items]="evaluationProcessList"
-  [totalItems]="totalEvaluations"
-  [actionDatas]="actionDatas"
+  [items]="alertsList"
+  [totalItems]="totalAlerts"
+  [isExportable]="false"
+  [showPaginator]="false"
 >
-  <ng-template #status let-element>
-    <app-badge-status [element]="element" />
+  <ng-template #riskLevel let-element>
+    <span
+      [style.backgroundColor]="getRiskLevelColor(element.riskLevel)"
+      [style.color]="getRiskLevelLabelColor(element.riskLevel)"
+      class="badge"
+    >
+      {{ element.riskLevel }}
+    </span>
   </ng-template>
-</app-list> -->
+  <ng-template #status let-element>
+    <span
+      [style.backgroundColor]="getStatusColor(element.status)"
+      [style.color]="getStatusLabelColor(element.status)"
+      class="badge"
+    >
+      {{ element.status }}
+    </span>
+  </ng-template>
+</app-list>
