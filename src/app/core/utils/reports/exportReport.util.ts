@@ -90,8 +90,8 @@ export class PdfHelper {
           '.student-header'
         ) as HTMLElement;
         if (studentHeader) {
-          studentHeader.style.width = '100%';
-          studentHeader.style.maxWidth = '100%';
+          studentHeader.style.width = '96%';
+          studentHeader.style.maxWidth = '96%';
           studentHeader.style.boxSizing = 'border-box';
           studentHeader.style.fontSize = '1em';
           studentHeader.style.padding = '16px';
@@ -103,6 +103,7 @@ export class PdfHelper {
         const cardRisk = clonedElement.querySelector(
           '.card-risk'
         ) as HTMLElement;
+
         if (cardPerformance) {
           cardPerformance.style.width = '50%';
           cardPerformance.style.flex = '1';
@@ -110,6 +111,14 @@ export class PdfHelper {
         if (cardRisk) {
           cardRisk.style.width = '50%';
           cardRisk.style.flex = '1';
+
+          const riskChartCanvas = cardRisk.querySelector(
+            '.apexcharts-canvas'
+          ) as HTMLElement;
+          if (riskChartCanvas) {
+            riskChartCanvas.style.transform = 'scale(0.8)';
+            riskChartCanvas.style.transformOrigin = 'center center';
+          }
         }
 
         clonedElement
@@ -152,8 +161,11 @@ export class PdfHelper {
           label.setAttribute('x', String(currentX - 60));
         });
 
-        const printButton = clonedElement.querySelector('#print-button');
-        printButton?.remove();
+        const allButtons = clonedElement.querySelectorAll('button');
+        allButtons.forEach(button => button.remove());
+
+        const printLink = clonedElement.querySelector('#print-button');
+        printLink?.remove();
       },
 
       list: el => {
