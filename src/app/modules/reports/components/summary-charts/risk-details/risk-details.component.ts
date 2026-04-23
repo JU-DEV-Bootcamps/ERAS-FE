@@ -17,7 +17,11 @@ import { EvaluationDetailsService } from '@core/services/api/evaluation-details.
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-risk-details',
@@ -33,6 +37,7 @@ import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-detail
 export default class RiskDetailsComponent {
   readonly data = inject(MAT_DIALOG_DATA);
   readonly panelOpenState = signal(false);
+  private featureFlags = inject(FeatureFlagsService);
 
   private PollService = inject(PollService);
   private reportService = inject(ReportService);
@@ -143,12 +148,17 @@ export default class RiskDetailsComponent {
   }
 
   openStudentDetails(studentId: number): void {
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
-      data: { studentId: studentId },
+      data: { studentId },
     });
   }
 }

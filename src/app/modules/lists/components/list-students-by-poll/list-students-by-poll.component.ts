@@ -18,6 +18,10 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { Column } from '@shared/components/list/types/column';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { BadgeImportedComponent } from './badge-imported/badge-imported.component';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-list-students-by-poll',
@@ -41,7 +45,7 @@ import { BadgeImportedComponent } from './badge-imported/badge-imported.componen
 export class ListStudentsByPollComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   studentService = inject(StudentService);
-
+  featureFlags = inject(FeatureFlagsService);
   dataStudents = new MatTableDataSource<StudentModel>([]);
   students: StudentModel[] = [];
   totalStudents = 0;
@@ -128,10 +132,14 @@ export class ListStudentsByPollComponent implements OnInit {
   }
 
   openStudentDetails(student: StudentModel): void {
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
       data: { studentId: student.id },
     });

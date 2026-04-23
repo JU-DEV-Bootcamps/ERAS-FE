@@ -1,0 +1,165 @@
+<div #mainContainer class="main-wrapper">
+  <div class="student-header">
+    <div class="student-info-grid">
+      <div class="info-fields-row">
+        <div class="info-field">
+          <span class="info-label">Student Name</span>
+          <span class="info-value">{{ studentDetails.entity.name }}</span>
+        </div>
+        <div class="info-field">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ studentDetails.entity.email }}</span>
+        </div>
+        <div class="info-field">
+          <span class="info-label">UUID</span>
+          <span class="info-value">{{ studentDetails.entity.uuid }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        matTooltip="Export"
+        class="action-icon"
+        disableRipple
+      >
+        <mat-icon class="material-symbols-outlined">ios_share</mat-icon>
+      </button>
+      <button
+        id="print-button"
+        mat-icon-button
+        matTooltip="Download PDF"
+        class="action-icon"
+        disableRipple
+        (click)="exportReportPdf()"
+      >
+        <mat-icon class="material-symbols-outlined">print</mat-icon>
+      </button>
+      <button mat-flat-button class="create-assessment-btn" disableRipple>
+        Create Assessment
+      </button>
+    </div>
+  </div>
+
+  <div class="student-content">
+    <div class="cards-row">
+      <mat-card class="card-performance">
+        <h3 class="card-title">Academic Performance Overview</h3>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <span class="metric-label">Enrolled Courses</span>
+            <span class="metric-value neutral">
+              {{ studentDetails.entity.studentDetail.enrolledCourses }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Graded Courses</span>
+            <span class="metric-value neutral">
+              {{ studentDetails.entity.studentDetail.gradedCourses }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Timely Submissions</span>
+            <span class="metric-value positive">
+              {{ studentDetails.entity.studentDetail.timeDeliveryRate }}%
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Average Score</span>
+            <span class="metric-value positive">
+              {{ studentDetails.entity.studentDetail.avgScore }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Below Average</span>
+            <span class="metric-value warning">
+              {{ studentDetails.entity.studentDetail.coursesUnderAvg }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Raw Score Diff</span>
+            <span class="metric-value neutral">
+              {{ studentDetails.entity.studentDetail.pureScoreDiff }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Std Score Diff</span>
+            <span class="metric-value neutral">
+              {{ studentDetails.entity.studentDetail.standardScoreDiff }}
+            </span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Days Since Last Access</span>
+            <span
+              class="metric-value"
+              [class.negative]="
+                studentDetails.entity.studentDetail.lastAccessDays > 5
+              "
+              [class.positive]="
+                studentDetails.entity.studentDetail.lastAccessDays <= 5
+              "
+            >
+              {{ studentDetails.entity.studentDetail.lastAccessDays }}
+            </span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="card-risk">
+        <h3 class="card-title">Risk by Component</h3>
+
+        @if (
+          studentPolls.length > 0 &&
+          selectedPoll !== 0 &&
+          chartSeriesByPollId[selectedPoll]
+        ) {
+          <div class="chart-container">
+            <apx-chart
+              [series]="chartSeriesByPollId[selectedPoll]"
+              [chart]="chartOptions.chart!"
+              [plotOptions]="chartOptions.plotOptions!"
+              [dataLabels]="chartOptions.dataLabels!"
+              [xaxis]="chartOptions.xaxis!"
+              [yaxis]="chartOptions.yaxis!"
+              [grid]="chartOptions.grid!"
+            ></apx-chart>
+          </div>
+        } @else {
+          <div class="empty-chart-wrapper">
+            <app-empty-data-message description="No data available." />
+          </div>
+        }
+      </mat-card>
+    </div>
+
+    <mat-card class="card-answers">
+      <app-list
+        (loadCalled)="handleLoad(studentId, $event)"
+        [columns]="columns"
+        [columnTemplates]="columnTemplates"
+        [items]="studentAnswers"
+        [totalItems]="totalStudentAnswers"
+        [title]="'Student Answers'"
+      >
+        <ng-template #variable let-item>{{ item.variable }}</ng-template>
+        <ng-template #position let-item>{{ item.position }}</ng-template>
+        <ng-template #answer let-item>{{ item.answer }}</ng-template>
+
+        <ng-template #component let-item>
+          <span class="component-badge badge-{{ item.component }}">
+            {{ item.component | titlecase }}
+          </span>
+        </ng-template>
+
+        <ng-template #score let-item>
+          <span
+            class="score-badge"
+            [style.background-color]="getColorByRisk(item.score)"
+          >
+            {{ item.score }}
+          </span>
+        </ng-template>
+      </app-list>
+    </mat-card>
+  </div>
+</div>

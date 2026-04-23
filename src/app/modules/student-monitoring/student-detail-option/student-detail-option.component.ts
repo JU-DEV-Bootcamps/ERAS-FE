@@ -41,6 +41,10 @@ import { Column } from '@shared/components/list/types/column';
 import { EventAction } from '@core/models/load';
 import { MapClass } from '@shared/components/list/types/class';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 @Component({
   selector: 'app-student-detail-option',
@@ -85,6 +89,7 @@ export class StudentDetailOptionComponent implements OnInit {
   studentService = inject(StudentService);
   heatMapService = inject(HeatMapService);
   studentsService = inject(StudentService);
+  featureFlags = inject(FeatureFlagsService);
   selectedQuantity = 3;
   quantities = [3, 5, 10, 15, 20];
   accordion = viewChild.required(MatAccordion);
@@ -292,12 +297,16 @@ export class StudentDetailOptionComponent implements OnInit {
   }
 
   openStudentDetails(studentId: string): void {
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
-      data: { studentId: studentId },
+      data: { studentId },
     });
   }
 

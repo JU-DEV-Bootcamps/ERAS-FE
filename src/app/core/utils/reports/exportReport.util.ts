@@ -39,8 +39,6 @@ export class PdfHelper {
     document.body.appendChild(cloned);
     await this.waitForReflow();
 
-    // Snap to letter width first so the chart container has the right width
-    // before we measure and fix the SVG dimensions
     const naturalW = Math.ceil(cloned.getBoundingClientRect().width);
     const naturalH = Math.ceil(cloned.getBoundingClientRect().height);
     const isLandscape = naturalW > naturalH;
@@ -50,8 +48,6 @@ export class PdfHelper {
     cloned.style.height = 'auto';
     await this.waitForReflow();
 
-    // Now fix ApexCharts SVGs — set them to the pixel width of their container
-    // NOT '100%' — ApexCharts SVGs need pixel values to scale correctly
     cloned
       .querySelectorAll<HTMLElement>('.apexcharts-canvas')
       .forEach(canvas => {
@@ -63,10 +59,8 @@ export class PdfHelper {
 
         const svg = canvas.querySelector<SVGElement>('svg');
         if (svg) {
-          // Preserve the viewBox so internal scaling stays intact
           const viewBox = svg.getAttribute('viewBox');
           if (!viewBox) {
-            // If no viewBox, set one from the original dimensions before overriding
             const origW = parseFloat(
               svg.getAttribute('width') ?? String(containerW)
             );
@@ -89,23 +83,89 @@ export class PdfHelper {
 
   preProcessHTML(clonedElement: HTMLElement, key: string) {
     const processes: Record<string, (el: HTMLElement) => void> = {
-      'student-detail': el => {
-        el.querySelector('#chart-student-detail')?.classList.add('print-chart');
-        el.querySelector('#swiper-container')?.removeAttribute('effect');
+      'student-detail': (clonedElement: HTMLElement) => {
+        clonedElement.style.overflow = 'visible';
+
+        const studentHeader = clonedElement.querySelector(
+          '.student-header'
+        ) as HTMLElement;
+        if (studentHeader) {
+          studentHeader.style.width = '96%';
+          studentHeader.style.maxWidth = '96%';
+          studentHeader.style.boxSizing = 'border-box';
+          studentHeader.style.fontSize = '1em';
+          studentHeader.style.padding = '16px';
+        }
+
+        const cardPerformance = clonedElement.querySelector(
+          '.card-performance'
+        ) as HTMLElement;
+        const cardRisk = clonedElement.querySelector(
+          '.card-risk'
+        ) as HTMLElement;
+
+        if (cardPerformance) {
+          cardPerformance.style.width = '50%';
+          cardPerformance.style.flex = '1';
+        }
+        if (cardRisk) {
+          cardRisk.style.width = '50%';
+          cardRisk.style.flex = '1';
+
+          const riskChartCanvas = cardRisk.querySelector(
+            '.apexcharts-canvas'
+          ) as HTMLElement;
+          if (riskChartCanvas) {
+            riskChartCanvas.style.transform = 'scale(0.8)';
+            riskChartCanvas.style.transformOrigin = 'center center';
+          }
+        }
+
+        clonedElement
+          .querySelector('#chart-student-detail')
+          ?.classList.add('print-chart');
 
         const h1 = document.createElement('h1');
         h1.textContent = 'Student Details';
         h1.style.textAlign = 'center';
         h1.style.fontSize = '2em';
         h1.style.fontWeight = '500';
-        el.insertBefore(h1, el.firstChild);
+        clonedElement.insertBefore(h1, clonedElement.firstChild);
 
-        el.querySelectorAll('th').forEach(th => (th.style.fontSize = '1.3em'));
-        el.querySelectorAll('td').forEach(td => (td.style.fontSize = '1.3em'));
-        el.querySelectorAll('tspan').forEach(
-          ts => (ts.style.fontSize = '1.6em')
+        const thElements = clonedElement.querySelectorAll('th');
+        thElements.forEach(th => {
+          th.style.fontSize = '1.3em';
+        });
+
+        const tdElements = clonedElement.querySelectorAll('td');
+        tdElements.forEach(td => {
+          td.style.fontSize = '1.3em';
+        });
+
+        const tspanElements = clonedElement.querySelectorAll('tspan');
+        tspanElements.forEach(tspan => {
+          tspan.style.fontSize = '1.6em';
+        });
+
+        const apexInner = clonedElement.querySelector<SVGElement>(
+          '.apexcharts-inner.apexcharts-graphical'
         );
-        el.querySelector('#print-button')?.remove();
+        if (apexInner) {
+          apexInner.setAttribute('transform', 'translate(180, 20)');
+        }
+        const yAxisLabels = clonedElement.querySelectorAll<SVGTextElement>(
+          '.apexcharts-yaxis-label text, .apexcharts-yaxis text'
+        );
+        yAxisLabels.forEach(label => {
+          const currentX = parseFloat(label.getAttribute('x') ?? '0');
+          label.setAttribute('x', String(currentX - 60));
+        });
+
+        const allButtons = clonedElement.querySelectorAll('button');
+        allButtons.forEach(button => button.remove());
+
+        const printLink = clonedElement.querySelector('#print-button');
+        printLink?.remove();
       },
 
       list: el => {
@@ -149,8 +209,6 @@ export class PdfHelper {
     cloned.querySelectorAll('.apexcharts-tooltip').forEach(t => t.remove());
     cloned.querySelectorAll('mat-card-actions').forEach(a => a.remove());
 
-    // Extract ApexCharts title text and legend, remove them from SVG,
-    // inject them as real HTML above the chart so they don't overlap on resize
     cloned
       .querySelectorAll<HTMLElement>('.apexcharts-canvas')
       .forEach(canvas => {
@@ -159,17 +217,13 @@ export class PdfHelper {
         );
         const titleText = svgTitle?.textContent?.trim();
 
-        // Hide only the SVG-rendered title — it overlaps when SVG is resized
         canvas
           .querySelectorAll<SVGElement>('.apexcharts-title-text')
           .forEach(el => (el.style.display = 'none'));
 
-        // The legend is a real HTML div inside .apexcharts-canvas, not inside the SVG
-        // Move it AFTER the title div but BEFORE the SVG so it renders in flow
         const legend = canvas.querySelector<HTMLElement>('.apexcharts-legend');
 
         if (canvas.parentElement) {
-          // Inject HTML title above the chart
           if (titleText) {
             const titleEl = document.createElement('div');
             titleEl.textContent = titleText;
@@ -183,7 +237,6 @@ export class PdfHelper {
             canvas.parentElement.insertBefore(titleEl, canvas);
           }
 
-          // Move legend out of the canvas and into normal HTML flow
           if (legend) {
             const legendClone = legend.cloneNode(true) as HTMLElement;
             Object.assign(legendClone.style, {
@@ -192,11 +245,10 @@ export class PdfHelper {
               gap: '8px',
               margin: '6px 0 8px 0',
               justifyContent: 'center',
-              position: 'static', // override ApexCharts absolute positioning
+              position: 'static',
               top: 'auto',
               left: 'auto',
             });
-            // Also fix individual legend markers in case they use absolute pos
             legendClone
               .querySelectorAll<HTMLElement>('.apexcharts-legend-series')
               .forEach(series => {

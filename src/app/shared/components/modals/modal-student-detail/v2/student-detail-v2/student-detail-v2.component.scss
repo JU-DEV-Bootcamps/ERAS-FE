@@ -1,0 +1,331 @@
+.main-wrapper {
+  background-color: #f9fafb;
+  min-height: 100vh;
+  padding-bottom: 32px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 0px;
+  margin: 24px 32px 0 32px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  width: calc(100% - 64px);
+  max-width: 1088px;
+  height: 96px;
+  gap: 24px;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.student-info-grid {
+  display: flex;
+  align-items: center;
+  height: 96px;
+  flex: 1;
+  min-width: 0;
+  padding: 0 24px;
+  box-sizing: border-box;
+  background: #f0fdfb;
+  border-radius: 12px;
+  gap: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.info-fields-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  height: 48px;
+}
+
+.info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+}
+
+.info-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
+  height: 16px;
+  line-height: 16px;
+}
+
+.info-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 16px;
+  line-height: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 36px;
+  padding-right: 0;
+}
+
+.action-icon {
+  background: transparent !important;
+  box-shadow: none !important;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+
+  &::before,
+  .mat-mdc-button-persistent-ripple,
+  .mat-ripple {
+    display: none !important;
+  }
+
+  mat-icon {
+    color: #117473 !important;
+    font-size: 24px;
+    font-family: 'Material Symbols Outlined' !important;
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 300,
+      'GRAD' 0,
+      'opsz' 24 !important;
+  }
+}
+
+.create-assessment-btn {
+  background-color: #117473 !important;
+  color: #ffffff !important;
+  border-radius: 20px;
+  padding: 0 20px;
+  height: 36px;
+  width: 172px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+
+  .mdc-button__label {
+    font-weight: 400 !important;
+  }
+}
+
+// ──  Student Answers ──────────────────────────────────
+::ng-deep .card-answers {
+  .list-title,
+  h3,
+  .title,
+  .mat-card-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    color: #1a1a1a;
+  }
+
+  .mat-mdc-header-row,
+  .mat-header-row {
+    background-color: #f9fafb !important;
+    border-bottom: none !important;
+
+    th {
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 500 !important;
+      font-size: 12px !important;
+      color: #374151 !important;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .mat-mdc-row,
+  .mat-row {
+    td {
+      font-family: 'Inter', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      color: #374151 !important;
+    }
+
+    td:first-child {
+      font-weight: 500 !important;
+    }
+  }
+}
+
+// ── CONTENT WRAPPER ──────────────────────────────────────
+.student-content {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── CARDS ROW ────────────────────────────────────────────
+.cards-row {
+  display: flex;
+  gap: 24px;
+  height: 275px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .card-performance {
+    flex: 1;
+    min-width: 0;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #f0f0f0;
+    background-color: #ffffff;
+  }
+
+  .card-risk {
+    flex: 1;
+    min-width: 0;
+    height: 275px;
+    flex-shrink: 0;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+  }
+
+  .chart-container {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    margin-top: -30px;
+  }
+
+  .empty-chart-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+}
+
+// ── METRICS GRID ─────────────────────────────────────────
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 24px;
+  column-gap: 48px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    row-gap: 16px;
+    column-gap: 0;
+  }
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-label {
+  font-size: 13px;
+  color: #737373;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 15px;
+  font-weight: 600;
+
+  &.positive {
+    color: #059669;
+  }
+  &.negative {
+    color: #ef4444;
+  }
+  &.warning {
+    color: #d97706;
+  }
+  &.neutral {
+    color: #1a1a1a;
+  }
+}
+
+// ── ANSWERS CARD ─────────────────────────────────────────
+.card-answers {
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #f0f0f0;
+  background-color: #ffffff;
+}
+
+// ── BADGES DE COMPONENTE ──────────────────────────────────
+:host ::ng-deep .component-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.badge-academico {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  &.badge-individual {
+    background: #f3e8ff;
+    color: #6b21a8;
+  }
+  &.badge-socioeconomico {
+    background: #ccfbf1;
+    color: #115e59;
+  }
+  &.badge-familiar {
+    background: #ffedd5;
+    color: #9a3412;
+  }
+}
+
+// ── SCORE BADGE ──────────────────────
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 4px;
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
