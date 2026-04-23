@@ -3,6 +3,7 @@ import { BaseApiService } from './base-api.service';
 import { HttpParams } from '@angular/common/http';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
 import { PagedResult } from '../interfaces/page.type';
+import { RecentAlertsResponse } from '@core/models/recent-alerts-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -52,5 +53,9 @@ export class EvaluationDetailsService extends BaseApiService {
       `StudentsByFilters`,
       params
     );
+  }
+
+  getRecentAlerts() {
+    return this.get<PagedResult<RecentAlertsResponse>>('alerts');
   }
 }
