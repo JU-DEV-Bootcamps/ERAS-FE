@@ -37,8 +37,10 @@
       [class.hidden]="expanded"
     />
   </button>
-
   <div class="card-body">
+    @if (isLoading()) {
+      <app-chart-skeleton />
+    }
     <ng-content></ng-content>
   </div>
 </div>

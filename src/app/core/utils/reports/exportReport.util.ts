@@ -8,6 +8,8 @@ import {
   STYLE_CONF,
 } from '../../../modules/reports/components/summary-charts/constants/export-conf';
 
+const LETTER_PX = { portrait: 816, landscape: 1056 };
+
 @Injectable({ providedIn: 'root' })
 export class PdfHelper {
   pdfService = inject(PdfService);
@@ -54,7 +56,7 @@ export class PdfHelper {
         h1.style.textAlign = 'center';
         h1.style.fontSize = '2em';
         h1.style.fontWeight = '500';
-        clonedElement.insertBefore(h1, clonedElement.firstChild);
+        el.insertBefore(h1, el.firstChild);
 
         const thElements = clonedElement.querySelectorAll('th');
         thElements.forEach(th => {
@@ -88,91 +90,131 @@ export class PdfHelper {
         const printButton = clonedElement.querySelector('#print-button');
         printButton?.remove();
       },
-      list: (clonedElement: HTMLElement) => {
-        const selectedColumnCells = clonedElement.querySelectorAll(
-          '#isSelectedHeader,#isSelectedCheckbox'
-        );
-        selectedColumnCells.forEach(cell => {
-          cell.remove();
-        });
-        const actionColumnCells = clonedElement.querySelectorAll(
-          '.action-column-header,.action-column-cell'
-        );
-        actionColumnCells.forEach(cell => {
-          cell.remove();
-        });
 
-        const paginator = clonedElement.querySelector('mat-paginator');
-        paginator?.remove();
+      list: el => {
+        el.querySelectorAll('#isSelectedHeader,#isSelectedCheckbox').forEach(
+          cell => cell.remove()
+        );
+        el.querySelectorAll(
+          '.action-column-header,.action-column-cell'
+        ).forEach(cell => cell.remove());
+        el.querySelector('mat-paginator')?.remove();
       },
     };
 
-    if (processes[key]) {
-      processes[key](clonedElement);
-    }
+    if (processes[key]) processes[key](clonedElement);
   }
 
   printReportInfo(mainContainer: ElementRef, preProcess?: string): HTMLElement {
-    const mainContainerElement = mainContainer.nativeElement;
-    const clonedElement = mainContainerElement.cloneNode(true) as HTMLElement;
-    clonedElement.style.width = STYLE_CONF.width;
-    clonedElement.style.margin = STYLE_CONF.margin;
+    const source = mainContainer.nativeElement as HTMLElement;
+    const cloned = source.cloneNode(true) as HTMLElement;
 
-    if (preProcess) {
-      this.preProcessHTML(clonedElement, preProcess);
-    }
+    if (preProcess) this.preProcessHTML(cloned, preProcess);
 
-    const swiperContainer = clonedElement.querySelector('#swiper-container');
-    if (swiperContainer) {
-      swiperContainer.removeAttribute('effect');
-    }
+    cloned.querySelector('#swiper-container')?.removeAttribute('effect');
+    cloned
+      .querySelectorAll('h2')
+      .forEach(h => (h.style.fontSize = STYLE_CONF.font_size.h2));
+    cloned
+      .querySelectorAll('h3')
+      .forEach(h => (h.style.fontSize = STYLE_CONF.font_size.h3));
+    cloned
+      .querySelectorAll('h4')
+      .forEach(h => (h.style.fontSize = STYLE_CONF.font_size.h4));
+    cloned
+      .querySelectorAll('p')
+      .forEach(p => (p.style.fontSize = STYLE_CONF.font_size.p));
 
-    clonedElement.style.fontSize = STYLE_CONF.font_size.h4;
+    cloned.querySelector('#print-button')?.remove();
+    cloned.querySelector('.form-container')?.remove();
+    cloned.querySelector('.filter-container')?.remove();
+    cloned.querySelector('.title-card')?.remove();
+    cloned.querySelectorAll('.apexcharts-tooltip').forEach(t => t.remove());
+    cloned.querySelectorAll('mat-card-actions').forEach(a => a.remove());
 
-    const h2Elements = clonedElement.querySelectorAll('h2');
-    h2Elements.forEach(h2 => (h2.style.fontSize = STYLE_CONF.font_size.h2));
+    // Extract ApexCharts title text and legend, remove them from SVG,
+    // inject them as real HTML above the chart so they don't overlap on resize
+    cloned
+      .querySelectorAll<HTMLElement>('.apexcharts-canvas')
+      .forEach(canvas => {
+        const svgTitle = canvas.querySelector<SVGTextElement>(
+          '.apexcharts-title-text'
+        );
+        const titleText = svgTitle?.textContent?.trim();
 
-    const h3Elements = clonedElement.querySelectorAll('h3');
-    h3Elements.forEach(h3 => (h3.style.fontSize = STYLE_CONF.font_size.h3));
+        // Hide only the SVG-rendered title — it overlaps when SVG is resized
+        canvas
+          .querySelectorAll<SVGElement>('.apexcharts-title-text')
+          .forEach(el => (el.style.display = 'none'));
 
-    const h4Elements = clonedElement.querySelectorAll('h4');
-    h4Elements.forEach(h4 => (h4.style.fontSize = STYLE_CONF.font_size.h4));
+        // The legend is a real HTML div inside .apexcharts-canvas, not inside the SVG
+        // Move it AFTER the title div but BEFORE the SVG so it renders in flow
+        const legend = canvas.querySelector<HTMLElement>('.apexcharts-legend');
 
-    const pElements = clonedElement.querySelectorAll('p');
-    pElements.forEach(p => (p.style.fontSize = STYLE_CONF.font_size.p));
+        if (canvas.parentElement) {
+          // Inject HTML title above the chart
+          if (titleText) {
+            const titleEl = document.createElement('div');
+            titleEl.textContent = titleText;
+            Object.assign(titleEl.style, {
+              fontSize: '13px',
+              fontWeight: '600',
+              marginBottom: '4px',
+              whiteSpace: 'normal',
+              wordBreak: 'break-word',
+            });
+            canvas.parentElement.insertBefore(titleEl, canvas);
+          }
 
-    clonedElement.querySelector('#print-button')?.remove();
-    clonedElement.querySelector('.form-container')?.remove();
-    clonedElement.querySelector('.filter-container')?.remove();
-    clonedElement.querySelector('.title-card')?.remove();
-    clonedElement.querySelectorAll('.apexcharts-tooltip').forEach(tooltip => {
-      tooltip.remove();
-    });
+          // Move legend out of the canvas and into normal HTML flow
+          if (legend) {
+            const legendClone = legend.cloneNode(true) as HTMLElement;
+            Object.assign(legendClone.style, {
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              margin: '6px 0 8px 0',
+              justifyContent: 'center',
+              position: 'static', // override ApexCharts absolute positioning
+              top: 'auto',
+              left: 'auto',
+            });
+            // Also fix individual legend markers in case they use absolute pos
+            legendClone
+              .querySelectorAll<HTMLElement>('.apexcharts-legend-series')
+              .forEach(series => {
+                series.style.position = 'relative';
+                series.style.display = 'flex';
+                series.style.alignItems = 'center';
+              });
+            canvas.parentElement.insertBefore(legendClone, canvas);
+            legend.style.display = 'none'; // hide original
+          }
+        }
+      });
 
-    // Mobile
-    clonedElement.querySelectorAll('mat-card-actions').forEach(matCard => {
-      matCard.remove();
-    });
-
-    const containerCardList = clonedElement.querySelector(
+    const containerCardList = cloned.querySelector(
       '.container-card-list'
     ) as HTMLElement;
     if (containerCardList) {
       Object.assign(containerCardList.style, STYLE_CONF.container_card);
     }
 
-    const chartContainer = clonedElement.querySelector(
+    const chartContainer = cloned.querySelector(
       '.chart-container'
     ) as HTMLElement;
     if (chartContainer) {
       Object.assign(chartContainer.style, {
         ...STYLE_CONF.container_card,
-        margin: '0 auto',
+        width: '100%',
         maxWidth: 'none',
+        overflow: 'visible',
+        whiteSpace: 'normal',
+        margin: '0 auto',
       });
     }
 
-    return clonedElement;
+    return cloned;
   }
 
   async exportToPdf(args: ExportArgs) {
@@ -184,57 +226,68 @@ export class PdfHelper {
     }
 
     const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
-    const clonedElement = this.printReportInfo(args.container, args.preProcess);
+    const cloned = this.printReportInfo(args.container, args.preProcess);
 
-    document.body.appendChild(clonedElement);
-    return this.pdfService.exportToPDF(clonedElement, fileName, () => {
-      document.body.removeChild(clonedElement);
-      if (args.snackBar) {
-        args.snackBar.open(SNACKBAR_CONF.message_end, 'OK', {
-          duration: SNACKBAR_CONF.duration,
-          panelClass: SNACKBAR_CONF.panel_class,
-        });
+    const { width, height } = await this.measureAndPrepare(cloned);
+
+    return this.pdfService.exportToPDF(
+      cloned,
+      fileName,
+      width,
+      height,
+      0,
+      () => {
+        if (document.body.contains(cloned)) document.body.removeChild(cloned);
+        if (args.snackBar) {
+          args.snackBar.open(SNACKBAR_CONF.message_end, 'OK', {
+            duration: SNACKBAR_CONF.duration,
+            panelClass: SNACKBAR_CONF.panel_class,
+          });
+        }
       }
-    });
+    );
   }
 
   async exportCardToPdf(args: ExportArgs) {
-    const element = args.container?.nativeElement;
+    const element = args.container?.nativeElement as HTMLElement;
     const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
     const clonedElement = this.printReportInfo(args.container, args.preProcess);
 
-    const clonedCard = element.cloneNode(true) as HTMLElement;
-    const collapsibleContent = clonedCard.querySelector<HTMLElement>(
+    const cloned = element.cloneNode(true) as HTMLElement;
+
+    const collapsibleContent = cloned.querySelector<HTMLElement>(
       '.card, .card-body, [class*="content"]'
     );
     if (collapsibleContent) {
-      collapsibleContent.style.display = 'block';
-      collapsibleContent.style.overflow = 'visible';
-      collapsibleContent.style.maxHeight = 'none';
-      collapsibleContent.style.height = 'auto';
-      collapsibleContent.style.visibility = 'visible';
-      collapsibleContent.style.opacity = '1';
+      Object.assign(collapsibleContent.style, {
+        display: 'block',
+        overflow: 'visible',
+        maxHeight: 'none',
+        height: 'auto',
+        visibility: 'visible',
+        opacity: '1',
+      });
     }
-    const uiControls = clonedCard.querySelectorAll<HTMLElement>(
-      '.pdf-export, .expand-toggle, .change-to-column,.card-actions, [class*="export"], [class*="toggle"]'
+
+    cloned
+      .querySelectorAll<HTMLElement>(
+        '.pdf-export, .expand-toggle, .change-to-column, .card-actions, [class*="export"], [class*="toggle"]'
+      )
+      .forEach(el => (el.style.display = 'none'));
+
+    const { width, height } = await this.measureAndPrepare(
+      cloned,
+      element.offsetWidth
     );
-    uiControls.forEach(el => (el.style.display = 'none'));
-
-    clonedCard.style.position = 'fixed';
-    clonedCard.style.top = '0';
-    clonedCard.style.left = '-9999px';
-    clonedCard.style.width = element.offsetWidth + 'px';
-    clonedCard.style.zIndex = '-1';
-    clonedCard.style.height = 'auto';
-    clonedCard.style.overflow = 'visible';
-
-    document.body.appendChild(clonedCard);
 
     return this.pdfService.exportToPDF(
       clonedElement,
       fileName,
+      width,
+      height,
+      0,
       () => {
-        document.body.removeChild(clonedCard);
+        if (document.body.contains(cloned)) document.body.removeChild(cloned);
       },
       args.title
     );
