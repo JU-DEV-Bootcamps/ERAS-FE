@@ -9,6 +9,10 @@ import {
   TemplateRef,
   CUSTOM_ELEMENTS_SCHEMA,
   input,
+  WritableSignal,
+  signal,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +33,8 @@ import { EventAction } from '../../../core/models/load';
 import { Column } from '../list/types/column';
 import { MapClass } from '../list/types/class';
 import { ActionButtonComponent } from '../buttons/action-button/action-button.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SelectedCheckboxComponent } from '@modules/students/students-list/selected-checkbox/selected-checkbox.component';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -46,12 +52,16 @@ import { ActionButtonComponent } from '../buttons/action-button/action-button.co
     MatMenu,
     MatMenuTrigger,
     MatMenuModule,
+    MatCheckboxModule,
+    SelectedCheckboxComponent,
   ],
   templateUrl: './table-with-actions.component.html',
   styleUrls: ['./table-with-actions.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class TableWithActionsComponent<T extends object> implements OnInit {
+export class TableWithActionsComponent<T extends object>
+  implements OnInit, OnChanges
+{
   @Input() items: T[] = [];
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() templateMap: Map<string, TemplateRef<unknown>> = new Map<
@@ -66,11 +76,11 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
-  dataSource: T[] = [];
-
   isMobile = false;
   totalItems = 0;
-  actionColumns = ['Actions'] as (keyof T)[];
+  actionColumns = ['Actions'];
+  displayedColumns: string[] = [];
+  allItemsSelected: WritableSignal<boolean> = signal<boolean>(false);
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -78,9 +88,14 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     this.isMobile = target.innerWidth < 768;
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['items']) this.allItemsSelected.set(this.areAllItemsSelected());
+  }
+
   ngOnInit() {
     this.isMobile = window.innerWidth < 768;
     this.totalItems = this.items.length;
+    this.displayedColumns = this.getAllColumns();
   }
 
   handleAction(event: EventAction) {
@@ -89,7 +104,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
 
   getColumnKeys() {
     return this.columns.map(column => {
-      return column.key;
+      return column.key.toString();
     });
   }
   // getAllColumns() {
@@ -165,5 +180,29 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     result.push(...base);
     if (this.actionDatas().length > 0) result.push('Actions');
     return result;
+  }
+
+  private areAllItemsSelected(): boolean {
+    return this.items.every(item => 'isSelected' in item && item.isSelected);
+  }
+
+  private toggleItemsSelection(selected: boolean) {
+    this.items.forEach(item => {
+      if ('isSelected' in item) {
+        item.isSelected = selected;
+      }
+    });
+    this.allItemsSelected.set(selected);
+  }
+
+  itemChecked() {
+    this.allItemsSelected.set(this.areAllItemsSelected());
+  }
+
+  handleSelectAll() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this.allItemsSelected()
+      ? this.toggleItemsSelection(false)
+      : this.toggleItemsSelection(true);
   }
 }

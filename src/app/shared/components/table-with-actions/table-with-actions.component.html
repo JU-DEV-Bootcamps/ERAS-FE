@@ -80,14 +80,18 @@
       [class]="mapClass?.table?.table ?? ''"
       [dataSource]="items"
     >
-      <ng-container *ngIf="itemsAreSelectable" [matColumnDef]="'isSelected'">
+      <ng-container *ngIf="itemsAreSelectable" matColumnDef="isSelected">
         <th
           id="isSelectedHeader"
           mat-header-cell
           [class]="mapClass?.table?.table ?? ''"
           *matHeaderCellDef
         >
-          <mat-checkbox [disabled]="true"></mat-checkbox>
+          <mat-checkbox
+            (change)="handleSelectAll()"
+            [checked]="allItemsSelected()"
+          >
+          </mat-checkbox>
         </th>
         <td
           id="isSelectedCheckbox"
@@ -95,12 +99,10 @@
           [class]="mapClass?.table?.cell ?? ''"
           *matCellDef="let item"
         >
-          <ng-container
-            *ngTemplateOutlet="
-              getTemplateForColumn('isSelected');
-              context: { $implicit: item }
-            "
-          ></ng-container>
+          <app-selected-checkbox
+            [element]="item"
+            (checkChange)="itemChecked()"
+          ></app-selected-checkbox>
         </td>
       </ng-container>
       <ng-container
@@ -257,12 +259,12 @@
       <tr
         mat-header-row
         [class]="mapClass?.table?.row ?? ''"
-        *matHeaderRowDef="getAllColumns()"
+        *matHeaderRowDef="displayedColumns"
       ></tr>
       <tr
         mat-row
         [class]="mapClass?.table?.row ?? ''"
-        *matRowDef="let row; columns: getAllColumns()"
+        *matRowDef="let row; columns: displayedColumns"
       ></tr>
     </table>
   </ng-template>
