@@ -62,6 +62,7 @@ export class RecentAlertsComponent {
   };
   allColumns: Column<RecentAlertsResponse>[] = [
     { key: 'studentId', label: 'Student Id' },
+    { key: 'studentName', label: 'Student name' },
     { key: 'riskLevel', label: 'Risk Level', isTemplate: true },
     { key: 'category', label: 'Category' },
     {
