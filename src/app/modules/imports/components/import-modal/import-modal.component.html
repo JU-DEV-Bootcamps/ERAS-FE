@@ -1,0 +1,195 @@
+<div class="import-modal">
+  <!-- Header -->
+  <div class="import-modal__header">
+    <h2 class="import-modal__title">{{ config.title }}</h2>
+    <button
+      class="import-modal__close-btn"
+      type="button"
+      aria-label="Close dialog"
+      (click)="onCancel()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="import-modal__divider"></div>
+
+  <!-- Body -->
+  <div class="import-modal__body">
+    <!-- Drop Zone -->
+    <div
+      class="import-modal__drop-zone"
+      [class.import-modal__drop-zone--active]="isDragOver"
+      [class.import-modal__drop-zone--has-file]="selectedFile"
+      [class.import-modal__drop-zone--has-error]="fileError"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <!-- No file selected state -->
+      <ng-container *ngIf="!selectedFile">
+        <div class="import-modal__upload-icon" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="16 16 12 12 8 16"></polyline>
+            <line x1="12" y1="12" x2="12" y2="21"></line>
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+          </svg>
+        </div>
+        <p class="import-modal__drop-text">Drag and drop your file here, or</p>
+        <button
+          type="button"
+          class="import-modal__browse-btn"
+          (click)="openFileBrowser()"
+        >
+          Browse
+        </button>
+      </ng-container>
+
+      <!-- File selected state -->
+      <ng-container *ngIf="selectedFile">
+        <div class="import-modal__file-preview">
+          <div class="import-modal__file-icon" aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="import-modal__file-info">
+            <span class="import-modal__file-name">{{ selectedFile.name }}</span>
+            <span class="import-modal__file-size">{{ fileSizeLabel }}</span>
+          </div>
+          <button
+            type="button"
+            class="import-modal__remove-btn"
+            aria-label="Remove file"
+            (click)="removeFile()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- File Error -->
+    <div *ngIf="fileError" class="import-modal__error" role="alert">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      {{ fileError }}
+    </div>
+
+    <!-- Hidden native file input -->
+    <input
+      #fileInput
+      type="file"
+      [accept]="config.acceptedMimeType"
+      class="import-modal__file-input"
+      aria-hidden="true"
+      tabindex="-1"
+      (change)="onFileInputChange($event)"
+    />
+
+    <!-- Description / Instructions -->
+    <div *ngIf="config.description" class="import-modal__description">
+      <p>{{ config.description }}</p>
+    </div>
+
+    <!-- Template download link -->
+    <p *ngIf="config.templateUrl" class="import-modal__template-link">
+      Or you can download an
+      <a [href]="config.templateUrl" download class="import-modal__link">
+        {{ config.templateLabel ?? 'example template' }}
+      </a>
+      here.
+    </p>
+  </div>
+
+  <div class="import-modal__divider"></div>
+
+  <!-- Footer -->
+  <div class="import-modal__footer">
+    <button
+      type="button"
+      class="import-modal__btn import-modal__btn--cancel"
+      (click)="onCancel()"
+      [disabled]="isLoading"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="button"
+      class="import-modal__btn import-modal__btn--import"
+      [disabled]="!selectedFile || isLoading"
+      (click)="onImport()"
+    >
+      <mat-spinner
+        *ngIf="isLoading"
+        diameter="18"
+        class="import-modal__spinner"
+      ></mat-spinner>
+      <span>Import</span>
+    </button>
+  </div>
+</div>
