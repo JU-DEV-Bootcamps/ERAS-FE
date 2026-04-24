@@ -14,14 +14,15 @@ import {
   ALERT_RISK_LABEL_COLORS,
 } from '@core/constants/alertRiskLevel';
 import { DatePipe } from '@angular/common';
+import { EventLoad } from '@core/models/load';
 
 @Component({
   selector: 'app-recent-alerts',
   imports: [ListComponent],
-  templateUrl: './recent-alerts.component.html',
-  styleUrl: './recent-alerts.component.scss',
+  templateUrl: './recent-alerts-list.component.html',
+  styleUrl: './recent-alerts-list.component.scss',
 })
-export class RecentAlertsComponent {
+export class RecentAlertsListComponent {
   alertsList: RecentAlertsResponse[] = [];
   totalAlerts = 0;
   actionDatas = [];
@@ -54,7 +55,11 @@ export class RecentAlertsComponent {
     return this.allColumns.filter(c => c.isTemplate);
   }
 
-  handleLoadCalled() {
+  handleLoadCalled(event: EventLoad) {
+    this.pagination = {
+      page: event.page,
+      pageSize: event.pageSize,
+    };
     this.isLoading = true;
     this.evaluationDetailsService
       .getRecentAlerts(this.pagination)

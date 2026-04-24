@@ -26,6 +26,7 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
 import { DynamicChartsV2Component } from '@modules/reports/components/dynamic-charts-v2/dynamic-charts-v2.component';
+import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 
 export const routes: Routes = [
   {
@@ -161,6 +162,11 @@ export const routes: Routes = [
           },
         ],
         data: { breadcrumb: 'Referrals' },
+      },
+      {
+        path: 'recent-alerts',
+        component: RecentAlertsListComponent,
+        data: { headerTitle: 'Recent Alerts' } satisfies AppRouteData,
       },
     ],
   },

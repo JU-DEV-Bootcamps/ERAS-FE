@@ -12,7 +12,10 @@
     ></app-summary-details-v2>
     <div class="section-alerts-support">
       <div class="recent-alerts">
-        <h2 class="subtitle-alerts">Recent Alerts</h2>
+        <div class="section-header-alerts">
+          <h2 class="subtitle-alerts">Recent Alerts</h2>
+          <a [routerLink]="allAlertsUrl">View All</a>
+        </div>
         <app-recent-alerts />
       </div>
     </div>

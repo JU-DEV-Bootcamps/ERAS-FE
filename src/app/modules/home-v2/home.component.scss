@@ -55,16 +55,33 @@ $inter: 'Inter', sans-serif;
   grid-column-end: 3;
 }
 
-.subtitle-alerts {
+.section-header-alerts {
   background-color: white;
   padding: 16px 24px;
   border-radius: 12px 12px 0 0;
+  box-sizing: border-box;
+  border: 1px solid #f3f4f6;
+  border-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  a {
+    text-decoration: none;
+    color: #64748b;
+    font-size: var(--font-size-small);
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.subtitle-alerts {
   font-size: var(--font-size-large);
   font-family: $inter;
   font-weight: 500;
   margin: 0;
-  border: 1px solid #f3f4f6;
-  border-bottom: 0;
 }
 
 .Incomplete {
