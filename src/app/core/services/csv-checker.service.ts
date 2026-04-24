@@ -12,7 +12,7 @@ import {
   providedIn: 'root',
 })
 export class CsvCheckerService {
-  requiredHeaders: string[] = ['Name', 'Email', 'SISId', 'Id'];
+  requiredHeaders: string[] = ['Name', 'Email', 'SISId'];
   expectedHeaders: string[] = [
     ...this.requiredHeaders,
     'EnrolledCourses',
@@ -68,7 +68,7 @@ export class CsvCheckerService {
       Papa.parse(csv, {
         header: true,
         skipEmptyLines: true,
-        delimiter: ',',
+        delimiter: '',
         encoding: 'UTF-8',
         complete: result => {
           if (result.errors.length > 0) {

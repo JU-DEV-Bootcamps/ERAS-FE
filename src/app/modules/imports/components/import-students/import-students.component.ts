@@ -116,6 +116,7 @@ export class ImportStudentsComponent {
   private rejectFile(msg: string): void {
     this.fileError = msg;
     this.selectedFile = null;
+    this.inputFile.nativeElement.value = '';
     this.openDialog(GENERAL_MESSAGES.DETAILS, false);
   }
 
