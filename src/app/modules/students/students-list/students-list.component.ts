@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { EventAction, EventLoad } from '@core/models/load';
@@ -19,6 +19,8 @@ import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-s
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { ComponentType } from '@angular/cdk/portal';
+import { ImportModalComponent } from '@modules/imports/components/import-modal/import-modal.component';
+import { CSV_IMPORT_CONFIG } from '@shared/components/modals/modal-drag-and-drop/modalConfig';
 
 @Component({
   selector: 'app-students-list',
@@ -178,7 +180,33 @@ export class StudentsListComponent implements OnInit {
   }
 
   redirectToImport() {
-    this.router.navigate(['import-students']);
+    this.router.navigate(['ihol']);
+  }
+
+  openImportModal(): void {
+    const dialogRef: MatDialogRef<ImportModalComponent> = this.dialog.open(
+      ImportModalComponent,
+      {
+        width: '680px',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        panelClass: 'import-modal-dialog', // optional global style hook
+      }
+    );
+
+    // Give the component its config and a self-reference for programmatic close
+    const instance = dialogRef.componentInstance;
+    instance.config = CSV_IMPORT_CONFIG;
+    instance.dialogRef = dialogRef;
+
+    // React to the file being confirmed
+    instance.fileSelected.subscribe((file: File) => {
+      instance.isLoading = true;
+      this.handleImport(file, instance, dialogRef);
+    });
+
+    // React to cancel (dialog already closes itself via dialogRef)
+    instance.cancelled.subscribe(() => console.log('Import cancelled'));
   }
 
   private flattenStudentModel(data: StudentModel[]): StudentModelFlat[] {
@@ -202,5 +230,24 @@ export class StudentsListComponent implements OnInit {
       audit: student.audit,
       id: student.id,
     }));
+  }
+
+  private handleImport(
+    file: File,
+    instance: ImportModalComponent,
+    dialogRef: MatDialogRef<ImportModalComponent>
+  ): void {
+    // plug in your CsvCheckerService + StudentService logic here
+    // e.g.:
+    //   this.csvCheckerService.validateCSV(file).then(() => {
+    //     const data = this.csvCheckerService.getCSVData();
+    //     this.studentService.postData(data).subscribe({ ... });
+    //   });
+
+    // Example: simulate async import
+    setTimeout(() => {
+      instance.isLoading = false;
+      dialogRef.close({ success: true });
+    }, 2000);
   }
 }

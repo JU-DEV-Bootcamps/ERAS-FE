@@ -8,10 +8,6 @@ import {
   ImportModalConfig,
 } from './import-modal.component';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
 const DEFAULT_CONFIG: ImportModalConfig = {
   title: 'Import Students',
   acceptedMimeType: 'text/csv',
@@ -50,10 +46,6 @@ function dropFile(
   fixture.detectChanges();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Suite
-// ─────────────────────────────────────────────────────────────────────────────
-
 describe('ImportModalComponent', () => {
   let component: ImportModalComponent;
   let fixture: ComponentFixture<ImportModalComponent>;
@@ -72,8 +64,6 @@ describe('ImportModalComponent', () => {
     component.config = { ...DEFAULT_CONFIG };
     fixture.detectChanges();
   });
-
-  // ── Rendering ───────────────────────────────────────────────────────────────
 
   describe('rendering', () => {
     it('should create', () => {
@@ -138,8 +128,6 @@ describe('ImportModalComponent', () => {
     });
   });
 
-  // ── File validation ──────────────────────────────────────────────────────────
-
   describe('file validation', () => {
     it('should accept a valid CSV file', () => {
       const file = makeFile('data.csv', 'text/csv', 1024);
@@ -181,20 +169,16 @@ describe('ImportModalComponent', () => {
     });
 
     it('should clear errors when a valid file replaces an invalid one', () => {
-      // First reject
       component['processFile'](makeFile('bad.txt', 'text/plain'));
       fixture.detectChanges();
       expect(component.fileError).toBeTruthy();
 
-      // Then accept
       component['processFile'](makeFile('good.csv', 'text/csv'));
       fixture.detectChanges();
       expect(component.fileError).toBeNull();
       expect(component.selectedFile).toBeTruthy();
     });
   });
-
-  // ── Drag and Drop ────────────────────────────────────────────────────────────
 
   describe('drag and drop', () => {
     it('should set isDragOver to true on dragover', () => {
@@ -231,8 +215,6 @@ describe('ImportModalComponent', () => {
     });
   });
 
-  // ── Remove file ──────────────────────────────────────────────────────────────
-
   describe('removeFile()', () => {
     it('should clear selectedFile and fileError', () => {
       component.selectedFile = makeFile();
@@ -245,8 +227,6 @@ describe('ImportModalComponent', () => {
       expect(component.fileError).toBeNull();
     });
   });
-
-  // ── fileSizeLabel ────────────────────────────────────────────────────────────
 
   describe('fileSizeLabel', () => {
     it('should return empty string when no file is selected', () => {
@@ -263,8 +243,6 @@ describe('ImportModalComponent', () => {
       expect(component.fileSizeLabel).toContain('MB');
     });
   });
-
-  // ── Outputs ──────────────────────────────────────────────────────────────────
 
   describe('outputs', () => {
     it('should emit fileSelected with the file on Import click', () => {

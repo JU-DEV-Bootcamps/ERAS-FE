@@ -1,15 +1,13 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Variables
-// ─────────────────────────────────────────────────────────────────────────────
-
-$color-text-primary: #1a1a2e;
-$color-text-secondary: #6b7280;
-$color-text-muted: #9ca3af;
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+$color-text-primary: #111827;
+$color-text-secondary: var(--color-neutral-800);
+$color-text-muted: #717182;
 $color-border: #e5e7eb;
 $color-surface: #f9fafb;
 $color-white: #ffffff;
 
-$color-accent: #5c9e8f; // teal – matches "Browse" link in design
+$color-accent: #5c9e8f;
 $color-accent-hover: #4a8a7c;
 
 $color-danger: #dc2626;
@@ -29,13 +27,8 @@ $border-radius-lg: 14px;
 $font-size-xs: 0.75rem;
 $font-size-sm: 0.875rem;
 $font-size-base: 1rem;
-$font-size-lg: 1.25rem;
 
 $transition: 150ms ease;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────────────────────
 
 .import-modal {
   display: flex;
@@ -46,29 +39,29 @@ $transition: 150ms ease;
   border-radius: $border-radius-lg;
   overflow: hidden;
 
-  // ── Header ────────────────────────────────────────────────────────────────
-
-  &__header {
+  &-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20px 24px;
   }
 
-  &__title {
+  &-title {
     margin: 0;
-    font-size: $font-size-lg;
+    font-size: var(--font-size-header-small);
+    line-height: 32px;
     font-weight: 600;
+    font-family: $inter;
     color: $color-text-primary;
     letter-spacing: -0.01em;
   }
 
-  &__close-btn {
+  &-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     border: none;
     border-radius: $border-radius-sm;
@@ -90,29 +83,24 @@ $transition: 150ms ease;
     }
   }
 
-  // ── Divider ───────────────────────────────────────────────────────────────
-
-  &__divider {
+  &-divider {
     height: 1px;
     background: $color-border;
     flex-shrink: 0;
   }
 
-  // ── Body ──────────────────────────────────────────────────────────────────
-
-  &__body {
+  &-body {
     flex: 1;
     overflow-y: auto;
     padding: 32px 24px;
     display: flex;
+    background: $color-surface;
     flex-direction: column;
     align-items: center;
     gap: 20px;
   }
 
-  // ── Drop Zone ─────────────────────────────────────────────────────────────
-
-  &__drop-zone {
+  &-drop-zone {
     width: 100%;
     min-height: 200px;
     display: flex;
@@ -122,7 +110,6 @@ $transition: 150ms ease;
     gap: 10px;
     border: 2px dashed $color-border;
     border-radius: $border-radius-md;
-    background: $color-surface;
     transition:
       border-color $transition,
       background $transition;
@@ -146,18 +133,18 @@ $transition: 150ms ease;
     }
   }
 
-  &__upload-icon {
+  &-upload-icon {
     color: $color-text-muted;
     line-height: 0;
   }
 
-  &__drop-text {
+  &-drop-text {
     margin: 0;
     font-size: $font-size-sm;
     color: $color-text-secondary;
   }
 
-  &__browse-btn {
+  &-browse-btn {
     padding: 0;
     border: none;
     background: transparent;
@@ -180,9 +167,7 @@ $transition: 150ms ease;
     }
   }
 
-  // ── File Preview ──────────────────────────────────────────────────────────
-
-  &__file-preview {
+  &-file-preview {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -190,13 +175,13 @@ $transition: 150ms ease;
     max-width: 380px;
   }
 
-  &__file-icon {
+  &-file-icon {
     flex-shrink: 0;
     color: $color-accent;
     line-height: 0;
   }
 
-  &__file-info {
+  &-file-info {
     flex: 1;
     overflow: hidden;
     display: flex;
@@ -204,7 +189,7 @@ $transition: 150ms ease;
     gap: 2px;
   }
 
-  &__file-name {
+  &-file-name {
     font-size: $font-size-sm;
     font-weight: 500;
     color: $color-text-primary;
@@ -213,12 +198,12 @@ $transition: 150ms ease;
     text-overflow: ellipsis;
   }
 
-  &__file-size {
+  &-file-size {
     font-size: $font-size-xs;
     color: $color-text-muted;
   }
 
-  &__remove-btn {
+  &-remove-btn {
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -241,9 +226,7 @@ $transition: 150ms ease;
     }
   }
 
-  // ── Hidden file input ─────────────────────────────────────────────────────
-
-  &__file-input {
+  &-file-input {
     position: absolute;
     width: 0;
     height: 0;
@@ -251,9 +234,7 @@ $transition: 150ms ease;
     pointer-events: none;
   }
 
-  // ── Error ─────────────────────────────────────────────────────────────────
-
-  &__error {
+  &-error {
     display: flex;
     align-items: flex-start;
     gap: 6px;
@@ -272,9 +253,7 @@ $transition: 150ms ease;
     }
   }
 
-  // ── Description ───────────────────────────────────────────────────────────
-
-  &__description {
+  &-description {
     text-align: center;
     max-width: 520px;
 
@@ -286,16 +265,14 @@ $transition: 150ms ease;
     }
   }
 
-  // ── Template link ─────────────────────────────────────────────────────────
-
-  &__template-link {
+  &-template-link {
     margin: 0;
     font-size: $font-size-sm;
     color: $color-text-secondary;
     text-align: center;
   }
 
-  &__link {
+  &-link {
     color: $color-accent;
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -307,9 +284,7 @@ $transition: 150ms ease;
     }
   }
 
-  // ── Footer ────────────────────────────────────────────────────────────────
-
-  &__footer {
+  &-footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -317,9 +292,7 @@ $transition: 150ms ease;
     padding: 16px 24px;
   }
 
-  // ── Buttons ───────────────────────────────────────────────────────────────
-
-  &__btn {
+  &-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -370,8 +343,7 @@ $transition: 150ms ease;
     }
   }
 
-  &__spinner {
-    // Angular Material spinner override
+  &-spinner {
     ::ng-deep circle {
       stroke: $color-white !important;
     }
