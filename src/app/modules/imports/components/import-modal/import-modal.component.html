@@ -7,20 +7,7 @@
       aria-label="Close dialog"
       (click)="onCancel()"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 
@@ -50,7 +37,7 @@
           Browse
         </button>
       </ng-container>
-
+      <!-- File selected state -->
       <ng-container *ngIf="selectedFile">
         <div class="import-modal-file-preview">
           <div class="import-modal-file-icon" aria-hidden="true">
@@ -81,27 +68,14 @@
             aria-label="Remove file"
             (click)="removeFile()"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <mat-icon>close</mat-icon>
           </button>
         </div>
       </ng-container>
     </div>
 
     <div *ngIf="fileError" class="import-modal-error" role="alert">
-      <svg
+      <!-- <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
         height="16"
@@ -116,7 +90,8 @@
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
+      </svg> -->
+      <mat-icon>error_outline</mat-icon>
       {{ fileError }}
     </div>
 
@@ -159,14 +134,14 @@
       type="button"
       class="import-modal-btn import-modal-btn--import"
       [disabled]="!selectedFile || isLoading"
-      (click)="onImport()"
+      (click)="onPreviewImport()"
     >
       <mat-spinner
         *ngIf="isLoading"
         diameter="18"
         class="import-modal-spinner"
       ></mat-spinner>
-      <span>Import</span>
+      <span>Next</span>
     </button>
   </div>
 </div>

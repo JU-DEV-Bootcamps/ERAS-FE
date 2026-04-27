@@ -179,34 +179,23 @@ export class StudentsListComponent implements OnInit {
     this.isGenerating = false;
   }
 
-  redirectToImport() {
-    this.router.navigate(['ihol']);
-  }
-
   openImportModal(): void {
     const dialogRef: MatDialogRef<ImportModalComponent> = this.dialog.open(
       ImportModalComponent,
       {
-        width: '680px',
-        maxWidth: '90vw',
+        maxWidth: '70vw',
         maxHeight: '90vh',
-        panelClass: 'import-modal-dialog', // optional global style hook
+        panelClass: 'import-modal-dialog',
       }
     );
-
-    // Give the component its config and a self-reference for programmatic close
     const instance = dialogRef.componentInstance;
     instance.config = CSV_IMPORT_CONFIG;
     instance.dialogRef = dialogRef;
 
-    // React to the file being confirmed
     instance.fileSelected.subscribe((file: File) => {
       instance.isLoading = true;
       this.handleImport(file, instance, dialogRef);
     });
-
-    // React to cancel (dialog already closes itself via dialogRef)
-    instance.cancelled.subscribe(() => console.log('Import cancelled'));
   }
 
   private flattenStudentModel(data: StudentModel[]): StudentModelFlat[] {
@@ -243,6 +232,8 @@ export class StudentsListComponent implements OnInit {
     //     const data = this.csvCheckerService.getCSVData();
     //     this.studentService.postData(data).subscribe({ ... });
     //   });
+
+    console.log('hi', file);
 
     // Example: simulate async import
     setTimeout(() => {

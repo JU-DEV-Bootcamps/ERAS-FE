@@ -11,11 +11,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ImportModalConfig } from '@core/models/import-modal-config.model';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-import-modal',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+  ],
   templateUrl: './import-modal.component.html',
   styleUrl: './import-modal.component.scss',
 })
@@ -31,7 +37,6 @@ export class ImportModalComponent {
   selectedFile: File | null = null;
   fileError: string | null = null;
   isDragOver = false;
-
   dialogRef?: MatDialogRef<ImportModalComponent>;
 
   onDragOver(event: DragEvent): void {
@@ -94,7 +99,7 @@ export class ImportModalComponent {
     return kb >= 1024 ? `${(kb / 1024).toFixed(2)} MB` : `${kb.toFixed(1)} KB`;
   }
 
-  onImport(): void {
+  onPreviewImport(): void {
     if (!this.selectedFile || this.isLoading) return;
     this.fileSelected.emit(this.selectedFile);
   }
