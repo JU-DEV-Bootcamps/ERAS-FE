@@ -111,7 +111,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
-          this.chartTypeMap.clear();
           this.hasNoResults = data.body.components.length === 0;
           this.isGeneratingPDF = false;
           this.isLoading = false;
