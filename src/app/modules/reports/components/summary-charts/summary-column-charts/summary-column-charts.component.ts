@@ -75,7 +75,7 @@ export class SummaryColumnChartsComponent {
   ): Partial<ChartOptions> {
     return {
       title: ColumnChartUtils.createTitle(title),
-      chart: ColumnChartUtils.createChartBase(onSelect),
+      chart: ColumnChartUtils.createChartBase(onSelect, components.length),
       series: this._createSeries(components),
       plotOptions: ColumnChartUtils.createPlotOptions(),
       xaxis: ColumnChartUtils.createXAxis(
