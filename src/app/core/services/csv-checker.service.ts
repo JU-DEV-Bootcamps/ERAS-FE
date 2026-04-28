@@ -53,6 +53,10 @@ export class CsvCheckerService {
     return this.validationErrors;
   }
 
+  getErrorsByIndex(index: number): string {
+    return this.validationErrors[index] ?? '';
+  }
+
   getCSVData(): Record<string, string>[] {
     return this.csvData;
   }

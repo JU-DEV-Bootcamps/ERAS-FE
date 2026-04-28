@@ -21,6 +21,13 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { ComponentType } from '@angular/cdk/portal';
 import { ImportModalComponent } from '@modules/imports/components/import-modal/import-modal.component';
 import { CSV_IMPORT_CONFIG } from '@shared/components/modals/modal-drag-and-drop/modalConfig';
+import { CsvCheckerService } from '@core/services/csv-checker.service';
+import { ImportPreviewStudentsComponent } from '@modules/imports/components/import-preview-students/import-preview-students.component';
+import {
+  ImportPreviewConfirm,
+  StudentModelPreview,
+} from '@shared/components/list/types/preview';
+import { parseRowErrors } from '@core/utils/helpers/parsers';
 
 @Component({
   selector: 'app-students-list',
@@ -41,6 +48,7 @@ export class StudentsListComponent implements OnInit {
   private readonly featureFlags = inject(FeatureFlagsService);
 
   private readonly list = viewChild(ListComponent);
+  // private csvCheckerService!: CsvCheckerService;
 
   dataStudents = new MatTableDataSource<StudentModelFlat>([]);
   students: StudentModelFlat[] = [];
@@ -86,6 +94,8 @@ export class StudentsListComponent implements OnInit {
       tooltip: 'See more details',
     },
   ];
+
+  constructor(private csvCheckerService: CsvCheckerService) {}
 
   ngOnInit(): void {
     this.loadStudents();
@@ -194,7 +204,7 @@ export class StudentsListComponent implements OnInit {
 
     instance.fileSelected.subscribe((file: File) => {
       instance.isLoading = true;
-      this.handleImport(file, instance, dialogRef);
+      this.handlePreviewImport(file, instance, dialogRef);
     });
   }
 
@@ -221,24 +231,87 @@ export class StudentsListComponent implements OnInit {
     }));
   }
 
-  private handleImport(
+  private async handlePreviewImport(
     file: File,
     instance: ImportModalComponent,
     dialogRef: MatDialogRef<ImportModalComponent>
-  ): void {
-    // plug in your CsvCheckerService + StudentService logic here
-    // e.g.:
-    //   this.csvCheckerService.validateCSV(file).then(() => {
-    //     const data = this.csvCheckerService.getCSVData();
-    //     this.studentService.postData(data).subscribe({ ... });
-    //   });
-
-    console.log('hi', file);
-
-    // Example: simulate async import
-    setTimeout(() => {
+  ): Promise<void> {
+    try {
+      await this.csvCheckerService.validateCSV(file);
+    } catch {
       instance.isLoading = false;
-      dialogRef.close({ success: true });
-    }, 2000);
+      return;
+    }
+    const rawRows: Record<string, string>[] =
+      this.csvCheckerService.getCSVData();
+    const rowErrorMap = parseRowErrors(this.csvCheckerService.getErrors());
+
+    const previewRows = rawRows.map((row, i) => ({
+      data: this.convertToModel(row),
+      errors: rowErrorMap.get(i) ?? [],
+    }));
+
+    instance.isLoading = false;
+    dialogRef.close();
+
+    const previewRef: MatDialogRef<ImportPreviewStudentsComponent> =
+      this.dialog.open(ImportPreviewStudentsComponent, {
+        maxWidth: '70vw',
+        maxHeight: '90vh',
+        panelClass: 'import-preview-students-dialog',
+      });
+
+    const preview = previewRef.componentInstance;
+    preview.title = 'Import Students';
+    // preview.columns = this.columns;
+
+    preview.rows = previewRows;
+    // preview.rows = previewRows.map(prevRow => prevRow.data);
+    preview.dialogRef = previewRef;
+    preview.cancelled.subscribe(() => this.openImportModal());
+
+    preview.confirmed.subscribe((result: ImportPreviewConfirm) => {
+      preview.isLoading = true;
+      console.log('hooooo', result);
+      //this.submitImport(result.rows, preview, previewRef);
+    });
+  }
+
+  private submitImport(
+    rows: [],
+    preview: ImportPreviewStudentsComponent,
+    previewRef: MatDialogRef<ImportPreviewStudentsComponent>
+  ): void {
+    this.studentService.postData(rows).subscribe({
+      next: response => {
+        console.log(response);
+        preview.isLoading = false;
+        previewRef.close();
+        // this.openDialog(response.message, true);
+        // this.listImportedStudentComponent.loadStudents();
+      },
+      error: error => {
+        console.error(error);
+        preview.isLoading = false;
+        // this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
+      },
+    });
+  }
+
+  private convertToModel(row: Record<string, string>): StudentModelPreview {
+    return {
+      studentId: parseInt(row['Id']),
+      enrolledCourses: parseInt(row['EnrolledCourses']),
+      gradedCourses: parseInt(row['GradedCourses']),
+      timeDeliveryRate: parseFloat(row['TimelySubmissions']),
+      avgScore: parseFloat(row['AverageScore']),
+      coursesUnderAvg: parseFloat(row['CoursesBelowAverage']),
+      pureScoreDiff: parseFloat(row['RawScoreDifference']),
+      standardScoreDiff: parseFloat(row['StandardScoreDifference']),
+      lastAccessDays: parseFloat(row['DaysSinceLastAccess']),
+      uuid: row['SISId'],
+      name: row['Name'],
+      email: row['Email'],
+    };
   }
 }

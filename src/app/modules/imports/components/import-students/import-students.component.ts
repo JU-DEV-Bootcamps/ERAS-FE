@@ -126,6 +126,7 @@ export class ImportStudentsComponent {
       this.rejectFile(VALIDATION_MESSAGES.INVALID_FILE_TYPE + '(.csv)');
       return;
     }
+    console.log('import antuguo', file);
 
     if (file.size > maxFileSize) {
       this.rejectFile(VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)');

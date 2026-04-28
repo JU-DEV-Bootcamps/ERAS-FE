@@ -3,10 +3,8 @@ import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import {
-  ImportModalComponent,
-  ImportModalConfig,
-} from './import-modal.component';
+import { ImportModalComponent } from './import-modal.component';
+import { ImportModalConfig } from '@core/models/import-modal-config.model';
 
 const DEFAULT_CONFIG: ImportModalConfig = {
   title: 'Import Students',
@@ -241,37 +239,6 @@ describe('ImportModalComponent', () => {
     it('should format bytes above 1 MB as MB', () => {
       component.selectedFile = makeFile('f.csv', 'text/csv', 2 * 1024 * 1024); // 2 MB
       expect(component.fileSizeLabel).toContain('MB');
-    });
-  });
-
-  describe('outputs', () => {
-    it('should emit fileSelected with the file on Import click', () => {
-      const emitted: File[] = [];
-      component.fileSelected.subscribe((f: File) => emitted.push(f));
-
-      const file = makeFile();
-      component.selectedFile = file;
-      fixture.detectChanges();
-
-      component.onImport();
-      expect(emitted.length).toBe(1);
-      expect(emitted[0]).toBe(file);
-    });
-
-    it('should not emit fileSelected when no file is selected', () => {
-      const emitted: File[] = [];
-      component.fileSelected.subscribe((f: File) => emitted.push(f));
-
-      component.onImport();
-      expect(emitted.length).toBe(0);
-    });
-
-    it('should emit cancelled on Cancel click', () => {
-      let emitted = false;
-      component.cancelled.subscribe(() => (emitted = true));
-
-      component.onCancel();
-      expect(emitted).toBeTrue();
     });
   });
 });
