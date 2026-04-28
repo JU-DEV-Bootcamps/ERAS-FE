@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+
+.recent-alerts {
+  margin-top: 2rem;
+}
+
+::ng-deep .mat-mdc-header-cell,
+.mdc-data-table__header-cell,
+.cdk-header-cell,
+.cdk-column-studentName,
+.mat-column-studentName {
+  font-size: 12px;
+  font-family: $inter;
+  line-height: 16px;
+}
+
+::ng-deep .mat-mdc-cell,
+.mdc-data-table__cell,
+.cdk-cell,
+.cdk-column-date,
+.mat-column-date {
+  font-family: $inter;
+}
+
+.badge {
+  padding: 1.5px 10px;
+  font-family: $inter;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}

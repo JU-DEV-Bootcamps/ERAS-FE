@@ -62,6 +62,7 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
   actionDatas = input.required<ActionDatas>();
   @Input() mapClass?: MapClass;
   @Input() itemsAreSelectable = false;
+  @Input() columnOrder: Column<T>[] = [];
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
@@ -91,25 +92,25 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
       return column.key;
     });
   }
-  getAllColumns() {
-    let columnKeys = [] as (keyof T)[];
+  // getAllColumns() {
+  //   let columnKeys = [] as (keyof T)[];
 
-    if (this.itemsAreSelectable) {
-      columnKeys = columnKeys.concat(['isSelected'] as (keyof T)[]);
-    }
+  //   if (this.itemsAreSelectable) {
+  //     columnKeys = columnKeys.concat(['isSelected'] as (keyof T)[]);
+  //   }
 
-    columnKeys = columnKeys.concat(this.getColumnKeys());
+  //   columnKeys = columnKeys.concat(this.getColumnKeys());
 
-    if (this.getTotalTemplateColumns() > 0) {
-      columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));
-    }
+  //   if (this.getTotalTemplateColumns() > 0) {
+  //     columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));
+  //   }
 
-    if (this.actionDatas().length > 0) {
-      columnKeys = columnKeys.concat(this.actionColumns);
-    }
+  //   if (this.actionDatas().length > 0) {
+  //     columnKeys = columnKeys.concat(this.actionColumns);
+  //   }
 
-    return columnKeys;
-  }
+  //   return columnKeys;
+  // }
 
   getTotalTemplateColumns() {
     return this.columnTemplates.length;
@@ -149,5 +150,20 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     return this.actionDatas().some(
       (actionData: ActionData) => 'text' in actionData
     );
+  }
+
+  getAllColumns(): string[] {
+    const base = this.columnOrder.length
+      ? this.columnOrder.map(c => c.key.toString())
+      : [
+          ...this.columns.map(c => c.key.toString()),
+          ...this.columnTemplates.map(c => c.key.toString()),
+        ];
+
+    const result = [];
+    if (this.itemsAreSelectable) result.push('isSelected');
+    result.push(...base);
+    if (this.actionDatas().length > 0) result.push('Actions');
+    return result;
   }
 }

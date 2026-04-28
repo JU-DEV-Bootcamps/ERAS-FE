@@ -3,6 +3,8 @@ import { BaseApiService } from './base-api.service';
 import { HttpParams } from '@angular/common/http';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
 import { PagedResult } from '../interfaces/page.type';
+import { Pagination } from '../interfaces/server.type';
+import { RecentAlertsResponse } from '@core/models/recent-alerts-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -52,5 +54,13 @@ export class EvaluationDetailsService extends BaseApiService {
       `StudentsByFilters`,
       params
     );
+  }
+
+  getRecentAlerts(pagination: Pagination) {
+    const params = new HttpParams()
+      .set('PageSize', pagination.pageSize)
+      .set('Page', pagination.page);
+
+    return this.get<PagedResult<RecentAlertsResponse>>('alerts', params);
   }
 }

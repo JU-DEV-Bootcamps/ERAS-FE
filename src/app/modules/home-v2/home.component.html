@@ -10,6 +10,15 @@
     <app-summary-details-v2
       (lastUpdated)="handleDate($event)"
     ></app-summary-details-v2>
+    <div class="section-alerts-support">
+      <div class="recent-alerts">
+        <div class="section-header-alerts">
+          <h2 class="subtitle-alerts">Recent Alerts</h2>
+          <a [routerLink]="allAlertsUrl">View All</a>
+        </div>
+        <app-recent-alerts />
+      </div>
+    </div>
     <h2 class="page-subtitle-small">Connected Services</h2>
     <app-service-card-readable />
   </div>
