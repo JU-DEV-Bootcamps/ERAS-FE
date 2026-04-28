@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import {
   PreviewRow,
@@ -12,36 +12,31 @@ import { Pagination } from '@core/services/interfaces/server.type';
 import { MatIconModule } from '@angular/material/icon';
 import { ListComponent } from '@shared/components/list/list.component';
 import { EventLoad } from '@core/models/load';
+import { MandatoryColumns } from './import-preview-students.model';
+import { StudentModelFlat } from '@core/models/student.model';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-import-preview-students',
-  imports: [CommonModule, MatProgressSpinner, MatIconModule, ListComponent],
+  imports: [
+    CommonModule,
+    MatProgressSpinner,
+    MatIconModule,
+    ListComponent,
+    MatTooltipModule,
+  ],
   templateUrl: './import-preview-students.component.html',
   styleUrl: './import-preview-students.component.scss',
 })
-export class ImportPreviewStudentsComponent {
+export class ImportPreviewStudentsComponent implements OnInit {
   @Input() title = 'Import Students';
   @Input() rows: PreviewRow[] = [];
-  @Input() columns: Column<StudentModelPreview>[] = [
-    { key: 'studentId', label: 'Id' },
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'uuid', label: 'SIS Id' },
-    // { key: 'enrolledCourses', label: 'Enrolled' },
-    // { key: 'gradedCourses', label: 'Graded' },
-    // { key: 'timeDeliveryRate', label: 'Timely sub.' },
-    // { key: 'avgScore', label: 'Avg. score' },
-    // { key: 'coursesUnderAvg', label: 'Below avg.' },
-    // { key: 'pureScoreDiff', label: 'Raw diff.' },
-    // { key: 'standardScoreDiff', label: 'Std. diff.' },
-    // { key: 'lastAccessDays', label: 'Days since access' },
-  ];
+  @Input() columns: Column<StudentModelPreview>[] = MandatoryColumns;
   columnTemplates: Column<StudentModelPreview>[] = [
     { key: 'error', label: 'Errors' },
   ];
   @Input() totalStudents = 0;
   @Input() itemsAreSelectable = true;
-  @Input() isGenerating = false;
   @Input() isLoading = false;
   dialogRef?: MatDialogRef<ImportPreviewStudentsComponent>;
 
@@ -52,28 +47,30 @@ export class ImportPreviewStudentsComponent {
     pageSize: 10,
     page: 0,
   };
+  statusColumn: Column<StudentModelPreview>[] = [{ key: 'status', label: '' }];
   previewRows: PreviewRow[] = [];
   previewDataRows: StudentModelPreview[] = [];
+
+  ngOnInit(): void {
+    this.loadRows();
+  }
 
   loadRows(): void {
     this.previewRows = this.rows.map((row, i) => ({
       data: row.data,
       errors: row.errors,
       index: i,
-      selected: true,
+      selected: row.errors.length === 0,
     }));
-    console.log('import preview', this.previewRows);
-    this.previewDataRows = this.rows.map(row => row.data);
-    this.previewDataRows = this.previewDataRows.map((row, index) => ({
-      ...row,
-      isSelected: true,
-      error: this.previewRows[index].errors[0],
+    this.previewDataRows = this.previewRows.map(row => ({
+      ...row.data,
+      isSelected: row.selected,
+      _error: row.errors,
+      _hasError: row.errors.length > 0,
     }));
-    console.log('hiii previewDataRows', this.previewDataRows);
   }
 
   handleLoadCalled(event: EventLoad) {
-    console.log('heere', event);
     this.pagination = {
       page: event.page,
       pageSize: event.pageSize,
@@ -85,16 +82,8 @@ export class ImportPreviewStudentsComponent {
     return this.previewRows.length;
   }
 
-  get errorRows(): PreviewRow[] {
-    return this.previewRows.filter(r => r.errors.length > 0);
-  }
-
   get errorRowCount(): number {
-    return this.errorRows.length;
-  }
-
-  get selectedCount(): number {
-    return this.previewRows.filter(r => r.selected).length;
+    return this.previewRows.filter(r => r.errors.length > 0).length;
   }
 
   get selectedValidCount(): number {
@@ -102,50 +91,29 @@ export class ImportPreviewStudentsComponent {
       .length;
   }
 
-  get allSelected(): boolean {
-    return (
-      this.previewRows.length > 0 && this.previewRows.every(r => r.selected)
-    );
-  }
-
-  get someSelected(): boolean {
-    return this.previewRows.some(r => r.selected) && !this.allSelected;
-  }
-
   get canConfirm(): boolean {
     return this.selectedValidCount > 0 && !this.isLoading;
+  }
+
+  get listColumns(): Column<StudentModelPreview>[] {
+    return [...this.columns, ...this.statusColumn];
   }
 
   toggleAll(checked: boolean): void {
     this.previewRows.forEach(r => (r.selected = checked));
   }
 
-  toggleRow(row: PreviewRow, checked: boolean): void {
-    row.selected = checked;
-  }
-
   onConfirm(): void {
     if (!this.canConfirm) return;
     const selectedRows = this.previewRows
       .filter(r => r.selected && r.errors.length === 0)
-      .map(r => r.data);
+      .map(r => r.data as StudentModelFlat);
     console.log('selectedRow', selectedRows);
-    // this.confirmed.emit({ rows: selectedRows });
+    this.confirmed.emit({ rows: selectedRows });
   }
 
   onCancel(): void {
     this.cancelled.emit();
     this.dialogRef?.close();
-  }
-
-  trackByIndex(_: number, row: PreviewRow): number {
-    return row.index ?? 0;
-  }
-
-  cellValue(row: PreviewRow, key: string): string {
-    const val = row.data;
-    console.log(key);
-    if (val === null || val === undefined) return '—';
-    return String(val);
   }
 }

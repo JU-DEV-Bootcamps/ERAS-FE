@@ -28,6 +28,11 @@ import {
   StudentModelPreview,
 } from '@shared/components/list/types/preview';
 import { parseRowErrors } from '@core/utils/helpers/parsers';
+import {
+  CSV_KEY_TO_MODEL_KEY,
+  MandatoryColumns,
+  OptionalColumns,
+} from '@modules/imports/components/import-preview-students/import-preview-students.model';
 
 @Component({
   selector: 'app-students-list',
@@ -48,7 +53,6 @@ export class StudentsListComponent implements OnInit {
   private readonly featureFlags = inject(FeatureFlagsService);
 
   private readonly list = viewChild(ListComponent);
-  // private csvCheckerService!: CsvCheckerService;
 
   dataStudents = new MatTableDataSource<StudentModelFlat>([]);
   students: StudentModelFlat[] = [];
@@ -189,25 +193,6 @@ export class StudentsListComponent implements OnInit {
     this.isGenerating = false;
   }
 
-  openImportModal(): void {
-    const dialogRef: MatDialogRef<ImportModalComponent> = this.dialog.open(
-      ImportModalComponent,
-      {
-        maxWidth: '70vw',
-        maxHeight: '90vh',
-        panelClass: 'import-modal-dialog',
-      }
-    );
-    const instance = dialogRef.componentInstance;
-    instance.config = CSV_IMPORT_CONFIG;
-    instance.dialogRef = dialogRef;
-
-    instance.fileSelected.subscribe((file: File) => {
-      instance.isLoading = true;
-      this.handlePreviewImport(file, instance, dialogRef);
-    });
-  }
-
   private flattenStudentModel(data: StudentModel[]): StudentModelFlat[] {
     return data.map(student => ({
       uuid: student.uuid,
@@ -231,6 +216,24 @@ export class StudentsListComponent implements OnInit {
     }));
   }
 
+  openImportModal(): void {
+    const dialogRef: MatDialogRef<ImportModalComponent> = this.dialog.open(
+      ImportModalComponent,
+      {
+        maxWidth: '70vw',
+        maxHeight: '90vh',
+        panelClass: 'import-modal-dialog',
+      }
+    );
+    const instance = dialogRef.componentInstance;
+    instance.config = CSV_IMPORT_CONFIG;
+    instance.dialogRef = dialogRef;
+
+    instance.fileSelected.subscribe((file: File) => {
+      instance.isLoading = true;
+      this.handlePreviewImport(file, instance, dialogRef);
+    });
+  }
   private async handlePreviewImport(
     file: File,
     instance: ImportModalComponent,
@@ -245,6 +248,14 @@ export class StudentsListComponent implements OnInit {
     const rawRows: Record<string, string>[] =
       this.csvCheckerService.getCSVData();
     const rowErrorMap = parseRowErrors(this.csvCheckerService.getErrors());
+
+    const presentCsvKeys = rawRows.length > 0 ? Object.keys(rawRows[0]) : [];
+    const detectedOptionalColumns = OptionalColumns.filter(col => {
+      const csvKey = Object.entries(CSV_KEY_TO_MODEL_KEY).find(
+        ([, modelKey]) => modelKey === col.key
+      )?.[0];
+      return csvKey ? presentCsvKeys.includes(csvKey) : false;
+    });
 
     const previewRows = rawRows.map((row, i) => ({
       data: this.convertToModel(row),
@@ -263,39 +274,41 @@ export class StudentsListComponent implements OnInit {
 
     const preview = previewRef.componentInstance;
     preview.title = 'Import Students';
-    // preview.columns = this.columns;
-
     preview.rows = previewRows;
-    // preview.rows = previewRows.map(prevRow => prevRow.data);
+    preview.columns = [...MandatoryColumns, ...detectedOptionalColumns];
     preview.dialogRef = previewRef;
     preview.cancelled.subscribe(() => this.openImportModal());
 
     preview.confirmed.subscribe((result: ImportPreviewConfirm) => {
       preview.isLoading = true;
       console.log('hooooo', result);
-      //this.submitImport(result.rows, preview, previewRef);
+      this.submitImport(result.rows, preview, previewRef);
     });
   }
 
   private submitImport(
-    rows: [],
+    rows: StudentModelFlat[],
     preview: ImportPreviewStudentsComponent,
     previewRef: MatDialogRef<ImportPreviewStudentsComponent>
   ): void {
-    this.studentService.postData(rows).subscribe({
-      next: response => {
-        console.log(response);
-        preview.isLoading = false;
-        previewRef.close();
-        // this.openDialog(response.message, true);
-        // this.listImportedStudentComponent.loadStudents();
-      },
-      error: error => {
-        console.error(error);
-        preview.isLoading = false;
-        // this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
-      },
-    });
+    console.log('rows', rows);
+    console.log('preview', preview);
+    console.log('previewRef', previewRef);
+    //heereee rows normaliZE to studentModel
+    // this.studentService.postData(rows).subscribe({
+    //   next: response => {
+    //     console.log(response);
+    //     preview.isLoading = false;
+    //     previewRef.close();
+    //     // this.openDialog(response.message, true);
+    //     // this.listImportedStudentComponent.loadStudents();
+    //   },
+    //   error: error => {
+    //     console.error(error);
+    //     preview.isLoading = false;
+    //     // this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
+    //   },
+    // });
   }
 
   private convertToModel(row: Record<string, string>): StudentModelPreview {

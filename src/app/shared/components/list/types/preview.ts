@@ -10,6 +10,7 @@ export interface StudentModelPreview {
   name: string;
   email: string;
   uuid: string;
+  status?: boolean;
   error?: string;
   enrolledCourses?: number;
   gradedCourses?: number;
@@ -23,7 +24,6 @@ export interface StudentModelPreview {
 
 export interface PreviewRow {
   data: StudentModelPreview;
-  // data: StudentModelFlat;
   errors: string[];
   selected?: boolean;
   index?: number;

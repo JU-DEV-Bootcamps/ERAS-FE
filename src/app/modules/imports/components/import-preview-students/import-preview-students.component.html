@@ -28,26 +28,43 @@
           errors detected.</strong
         >
         Rows with errors are deselected automatically and will not be imported.
-        Hover the warning icon on each row for details.
+        Hover the
+        <mat-icon inline="true" style="font-size: 14px; vertical-align: middle"
+          >warning_amber</mat-icon
+        >icon on each row for details.
       </div>
     </div>
+
     <div class="preview-modal-table-wrapper">
       <app-list
         (loadCalled)="handleLoadCalled($event)"
-        [columns]="columns"
-        [columnTemplates]="columnTemplates"
+        [columns]="listColumns"
         [items]="previewDataRows"
         [totalItems]="totalRows"
         [itemsAreSelectable]="itemsAreSelectable"
       >
-        <ng-template #error let-element>
-          <div>{{ element.error }}</div>
+        <ng-template #status let-element>
+          <ng-container *ngIf="element._hasError; else validIcon">
+            <mat-icon
+              class="preview-modal-row-icon preview-modal-row-icon--error"
+              [matTooltip]="element._errors.join('\n')"
+              matTooltipClass="preview-modal-multiline-tooltip"
+            >
+              warning_amber
+            </mat-icon>
+          </ng-container>
+          <ng-template #validIcon>
+            <mat-icon class="preview-modal-row-icon preview-modal-row-icon--ok">
+              check_circle_outline
+            </mat-icon>
+          </ng-template>
         </ng-template>
       </app-list>
     </div>
   </div>
 
   <div class="preview-modal-divider"></div>
+
   <div class="preview-modal-footer">
     <span class="preview-modal-footer-hint">
       {{ selectedValidCount }} row{{ selectedValidCount === 1 ? '' : 's' }} will

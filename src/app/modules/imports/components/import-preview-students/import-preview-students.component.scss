@@ -201,4 +201,8 @@ $transition: 150ms ease;
       stroke: $color-white !important;
     }
   }
+
+  &-multiline-tooltip {
+    white-space: pre-line;
+  }
 }

@@ -39,8 +39,7 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { ComponentType } from '@angular/cdk/portal';
 
 interface DynamicPollInstance
-  extends PollInstanceModel,
-    Record<string, unknown> {}
+  extends PollInstanceModel, Record<string, unknown> {}
 
 @Component({
   selector: 'app-polls-answered',
