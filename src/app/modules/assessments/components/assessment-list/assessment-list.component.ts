@@ -23,6 +23,7 @@ import { AssessmentStatusBadgeComponent } from './assessment-status-badge/assess
 import { AssessmentDetailDialogComponent } from '../../../supports-referrals/components/assessement-detail/assessment-detail-dialog.component';
 import { AssessmentModel } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
+import { NewAssessmentModalComponent } from '@shared/components/modals/new-assessment-modal/new-assessment-modal.component';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -51,7 +52,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
-  private readonly dialog = inject(MatDialog);
+  private readonly matDialog = inject(MatDialog);
 
   @Input() pageSize = 10;
 
@@ -91,12 +92,16 @@ export class AssessmentListComponent implements OnInit {
   }
 
   protected onCreateClick(): void {
+    this.matDialog.open(NewAssessmentModalComponent, {
+      width: '40vw',
+      minWidth: '400px',
+    });
     this.createClicked.emit();
   }
 
   protected onViewClick(item: AssessmentRowViewModel): void {
     this.viewClicked.emit(item);
-    this.dialog.open(AssessmentDetailDialogComponent, {
+    this.matDialog.open(AssessmentDetailDialogComponent, {
       data: item,
       width: '420px',
       maxHeight: '90vh',
