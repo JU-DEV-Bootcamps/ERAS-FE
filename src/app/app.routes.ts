@@ -17,7 +17,6 @@ import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/s
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
-import { AssessmentListComponent } from '@modules/assessments/components/assessment-list/assessment-list.component';
 import { StudentsListComponent } from '@modules/students/students-list/students-list.component';
 import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
 import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
@@ -26,6 +25,7 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
 import { DynamicChartsV2Component } from '@modules/reports/components/dynamic-charts-v2/dynamic-charts-v2.component';
+import { AssessmentsComponent } from '@modules/assessments/components/assessments.component';
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 
 export const routes: Routes = [
@@ -128,7 +128,7 @@ export const routes: Routes = [
 
       {
         path: 'assessments',
-        component: AssessmentListComponent,
+        component: AssessmentsComponent,
         data: { breadcrumb: 'Assessments' },
       },
 

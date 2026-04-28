@@ -1,0 +1,11 @@
+<div class="page-header">
+  <h2 class="page-title">Assessments</h2>
+
+  <app-eras-button
+    [textButton]="'Create Assessment'"
+    [iconButton]="'add'"
+    (clickButton)="openCreateModal()"
+  ></app-eras-button>
+</div>
+
+<app-assessment-list (createClicked)="openCreateModal()"></app-assessment-list>

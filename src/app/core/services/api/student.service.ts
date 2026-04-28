@@ -29,7 +29,7 @@ export class StudentService extends BaseApiService {
 
   getAllStudents() {
     const params = new HttpParams().set('PageSize', 9999).set('Page', 0);
-    return this.get<PagedResult<StudentModel[]>>('', params);
+    return this.get<PagedResult<StudentModel>>('', params);
   }
 
   getAllAverageByCohortsAndPoll({
