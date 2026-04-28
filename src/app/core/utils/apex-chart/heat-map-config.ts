@@ -15,9 +15,17 @@ export function GetChartOptions(
   tooltipCustomFunction?: (x: number, y: number) => string,
   fixColors = true
 ): ApexOptions {
+  const ROW_HEIGHT = 50;
+  const LEGEND_OFFSET = 60;
+  const calculatedHeight = Math.max(
+    300,
+    series.length * ROW_HEIGHT + LEGEND_OFFSET
+  );
+
   const options: ApexOptions = {
     series: series,
     chart: {
+      height: calculatedHeight,
       zoom: {
         enabled: false,
       },
