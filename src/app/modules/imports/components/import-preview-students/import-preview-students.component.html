@@ -42,13 +42,14 @@
         [items]="previewDataRows"
         [totalItems]="totalRows"
         [itemsAreSelectable]="itemsAreSelectable"
+        [isItemDisabled]="isRowDisabled"
         [showPaginator]="false"
       >
         <ng-template #status let-element>
           @if (element._hasError) {
             <mat-icon
               class="preview-modal-row-icon preview-modal-row-icon--error"
-              [matTooltip]="element._error[0]"
+              [matTooltip]="element._errors[0]"
               matTooltipClass="preview-modal-multiline-tooltip"
             >
               error_outline
@@ -60,9 +61,6 @@
               check_circle_outline
             </mat-icon>
           }
-        </ng-template>
-        <ng-template #isSelected let-element>
-          <app-selected-checkbox [element]="element" />
         </ng-template>
       </app-list>
     </div>

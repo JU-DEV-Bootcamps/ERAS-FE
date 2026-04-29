@@ -13,7 +13,12 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { MandatoryColumns } from './import-preview-students.model';
 import { StudentModelFlat } from '@core/models/student.model';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SelectedCheckboxComponent } from '@modules/students/students-list/selected-checkbox/selected-checkbox.component';
+
+type PreviewDataRow = StudentModelPreview & {
+  isSelected: boolean;
+  _errors: string[];
+  _hasError: boolean;
+};
 
 @Component({
   selector: 'app-import-preview-students',
@@ -23,7 +28,6 @@ import { SelectedCheckboxComponent } from '@modules/students/students-list/selec
     MatIconModule,
     ListComponent,
     MatTooltipModule,
-    SelectedCheckboxComponent,
   ],
   templateUrl: './import-preview-students.component.html',
   styleUrl: './import-preview-students.component.scss',
@@ -44,43 +48,37 @@ export class ImportPreviewStudentsComponent implements OnInit {
   @Output() cancelled = new EventEmitter<void>();
 
   statusColumn: Column<StudentModelPreview>[] = [{ key: 'status', label: '' }];
-  previewRows: PreviewRow[] = [];
-  previewDataRows: StudentModelPreview[] = [];
+  previewDataRows: PreviewDataRow[] = [];
 
   ngOnInit(): void {
     this.loadRows();
   }
 
   loadRows(): void {
-    this.previewRows = this.rows.map((row, i) => ({
-      data: row.data,
-      errors: row.errors,
-      index: i,
-      selected: row.errors.length === 0,
-    }));
-    this.previewDataRows = this.previewRows.map(row => ({
+    this.previewDataRows = this.rows.map(row => ({
       ...row.data,
-      isSelected: row.selected,
-      _error: row.errors,
+      isSelected: row.errors.length === 0,
+      _errors: row.errors,
       _hasError: row.errors.length > 0,
     }));
-    console.log('heree', this.previewDataRows);
   }
 
   handleLoadCalled() {
     this.loadRows();
   }
 
+  readonly isRowDisabled = (item: PreviewDataRow): boolean => item._hasError;
+
   get totalRows(): number {
-    return this.previewRows.length;
+    return this.previewDataRows.length;
   }
 
   get errorRowCount(): number {
-    return this.previewRows.filter(r => r.errors.length > 0).length;
+    return this.previewDataRows.filter(r => r._hasError).length;
   }
 
   get selectedValidCount(): number {
-    return this.previewRows.filter(r => r.selected && r.errors.length === 0)
+    return this.previewDataRows.filter(r => r.isSelected && !r._hasError)
       .length;
   }
 
@@ -89,20 +87,22 @@ export class ImportPreviewStudentsComponent implements OnInit {
   }
 
   get listColumns(): Column<StudentModelPreview>[] {
-    // return [...this.columns, ...this.statusColumn];
     return this.columns;
   }
 
   toggleAll(checked: boolean): void {
-    this.previewRows.forEach(r => (r.selected = checked));
+    this.previewDataRows.forEach(r => (r.isSelected = checked));
   }
 
   onConfirm(): void {
     if (!this.canConfirm) return;
-    const selectedRows = this.previewRows
-      .filter(r => r.selected && r.errors.length === 0)
-      .map(r => r.data as StudentModelFlat);
-    console.log('selectedRow', selectedRows);
+    const selectedRows = this.previewDataRows
+      .filter(r => r.isSelected && !r._hasError)
+      .map(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ({ _errors, _hasError, isSelected, ...data }) =>
+          data as StudentModelFlat
+      );
     this.confirmed.emit({ rows: selectedRows });
   }
 

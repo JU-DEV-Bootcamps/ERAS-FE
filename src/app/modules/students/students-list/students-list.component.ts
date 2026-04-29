@@ -300,9 +300,6 @@ export class StudentsListComponent implements OnInit {
     preview: ImportPreviewStudentsComponent,
     previewRef: MatDialogRef<ImportPreviewStudentsComponent>
   ): void {
-    console.log('rows', rows);
-    console.log('preview', preview);
-    console.log('previewRef', previewRef);
     const jsonRequired = json.filter(rowJson =>
       rows.some(row => row.uuid === rowJson.SISId)
     );

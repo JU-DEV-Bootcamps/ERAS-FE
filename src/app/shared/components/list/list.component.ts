@@ -84,6 +84,7 @@ export class ListComponent<T extends object>
   @Input() isExportable = true;
   @Input() showPaginator = true;
   @Input() columnOrder: Column<T>[] = [];
+  @Input() isItemDisabled?: (item: T) => boolean;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();

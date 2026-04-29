@@ -1,6 +1,8 @@
 @if (element) {
   <mat-checkbox
     [checked]="element.isSelected"
+    [disabled]="disabled"
+    [matTooltip]="disabled ? 'You cannot select it because of the error' : ''"
     (change)="onChange($event)"
   ></mat-checkbox>
 } @else {
