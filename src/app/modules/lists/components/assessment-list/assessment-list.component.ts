@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -19,6 +20,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AssessmentStatusBadgeComponent } from './assessment-status-badge/assessment-status-badge.component';
+import { AssessmentDetailDialogComponent } from '../../../supports-referrals/components/assessement-detail/assessment-detail-dialog.component';
 import { AssessmentModel } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
 
@@ -35,6 +37,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
     DatePipe,
     MatButtonModule,
     MatCardModule,
+    MatDialogModule,
     MatIconModule,
     MatMenuModule,
     MatPaginatorModule,
@@ -48,6 +51,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
+  private readonly dialog = inject(MatDialog);
 
   @Input() pageSize = 10;
 
@@ -90,8 +94,14 @@ export class AssessmentListComponent implements OnInit {
     this.createClicked.emit();
   }
 
-  protected onViewClick(item: AssessmentModel): void {
+  protected onViewClick(item: AssessmentRowViewModel): void {
     this.viewClicked.emit(item);
+    this.dialog.open(AssessmentDetailDialogComponent, {
+      data: item,
+      width: '420px',
+      maxHeight: '90vh',
+      autoFocus: false,
+    });
   }
 
   protected onEditClick(item: AssessmentModel): void {
@@ -136,7 +146,6 @@ export class AssessmentListComponent implements OnInit {
     if (!comments?.trim()) {
       return '—';
     }
-
     return comments.length > 60
       ? `${comments.slice(0, 60).trim()}...`
       : comments;

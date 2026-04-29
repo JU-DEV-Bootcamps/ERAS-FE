@@ -11,12 +11,9 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
         route: '/student-option',
         forProduction: false,
       },
+      { label: 'Evaluation Processes', route: '/evaluation-process' },
+      { label: 'Import Students', route: '/import-students' },
       { label: 'Students List', route: '/students' },
-      {
-        label: 'Assessments',
-        icon: 'person_search',
-        route: '/assessments',
-      },
     ],
   },
   {
@@ -27,14 +24,6 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
   {
     label: 'Assessments',
     icon: 'link',
-    children: [
-      { label: 'Evaluation Processes', route: '/evaluation-process' },
-      {
-        label: 'Supports and Referrals',
-        route: '/supports-referrals',
-        forProduction: false,
-      },
-      { label: 'Import Students', route: '/import-students' },
-    ],
+    route: '/assessments',
   },
 ];

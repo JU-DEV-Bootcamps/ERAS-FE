@@ -53,11 +53,6 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         route: '/evaluation-process',
       },
       {
-        label: 'Assessments',
-        icon: 'person_search',
-        route: '/assessments',
-      },
-      {
         label: 'Students List',
         icon: 'school',
         route: '/list-students-by-poll',
