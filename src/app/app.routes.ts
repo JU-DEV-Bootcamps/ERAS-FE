@@ -115,7 +115,10 @@ export const routes: Routes = [
       {
         path: 'students',
         component: StudentsListComponent,
-        data: { breadcrumb: 'Students List' },
+        data: {
+          breadcrumb: 'Students List',
+          headerTitle: 'Students',
+        } satisfies AppRouteData,
       },
       {
         path: 'risk-students',
@@ -156,7 +159,9 @@ export const routes: Routes = [
           {
             path: 'details/:id',
             loadComponent: () =>
-              import('@modules/supports-referrals/components/referral-detail/referral-detail.component'),
+              import(
+                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
+              ),
             resolve: { referral: referralDetailsResolver },
             data: { breadcrumb: 'Referral Details' },
           },
