@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import {
   MatCheckboxChange,
   MatCheckboxModule,
@@ -14,10 +14,12 @@ import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.com
 })
 export class SelectedCheckboxComponent<T extends SelectableModel> {
   @Input() element: T | undefined;
+  checkChange = output<boolean>();
 
   public onChange(event: MatCheckboxChange) {
     if (this.element) {
       this.element.isSelected = event.checked;
+      this.checkChange.emit(event.checked);
     }
   }
 }

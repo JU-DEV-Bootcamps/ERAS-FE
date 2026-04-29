@@ -1,7 +1,3 @@
-<div class="page-header">
-  <h2 class="page-title">Students</h2>
-</div>
-
 @if (isLoading) {
   <mat-spinner />
 } @else {
@@ -40,6 +36,10 @@
         </button>
       </mat-menu>
     }
+    <app-eras-button
+      [textButton]="'New Student'"
+      [iconButton]="'add'"
+    ></app-eras-button>
   </div>
 
   <app-list
@@ -52,8 +52,5 @@
     [itemsAreSelectable]="itemsAreSelectable"
     [externalExport]="true"
   >
-    <ng-template #isSelected let-element>
-      <app-selected-checkbox [element]="element" />
-    </ng-template>
   </app-list>
 }

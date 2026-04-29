@@ -10,7 +10,6 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
-import { SelectedCheckboxComponent } from './selected-checkbox/selected-checkbox.component';
 import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
 import { Router } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -28,7 +27,6 @@ import { ComponentType } from '@angular/cdk/portal';
     ListComponent,
     MatProgressSpinner,
     MatMenuModule,
-    SelectedCheckboxComponent,
   ],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
