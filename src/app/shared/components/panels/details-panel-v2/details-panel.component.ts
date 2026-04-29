@@ -86,7 +86,11 @@ export class DetailsPanelComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data()) {
-      this.pagination = { page: 0, pageSize: 10 };
+      this.pagination = {
+        page: 0,
+        pageSize: this.pagination.pageSize,
+      };
+
       this.studentList.set([]);
       this.loadComponentsAndVariables();
     }
@@ -172,7 +176,10 @@ export class DetailsPanelComponent implements OnChanges {
   }
 
   handleLoadCalled(event: EventLoad): void {
-    this.pagination = { page: event.page, pageSize: event.pageSize };
+    this.pagination = {
+      page: event.page,
+      pageSize: event.pageSize,
+    };
     this.loadComponentsAndVariables();
   }
 
