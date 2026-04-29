@@ -30,4 +30,10 @@ export class AssessmentService extends BaseApiService {
   getById(id: string): Observable<AssessmentModel> {
     return this.get<AssessmentModel>(id);
   }
+
+  createAssessment(
+    newAssessment: AssessmentModel
+  ): Observable<AssessmentModel> {
+    return this.post<AssessmentModel>('', newAssessment);
+  }
 }

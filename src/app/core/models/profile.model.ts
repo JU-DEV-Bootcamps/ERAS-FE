@@ -9,6 +9,7 @@ export interface Profile {
   id?: string;
   lastName?: string;
   role?: ErasRole;
+  fullName?: string;
 }
 
 export function isErasRole(role: string): role is ErasRole {

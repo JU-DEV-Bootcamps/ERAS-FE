@@ -17,6 +17,8 @@ import { forkJoin, map, Observable, Subscription } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
+import { MatDialog } from '@angular/material/dialog';
+import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
 
 @Component({
   selector: 'app-assessments',
@@ -30,6 +32,7 @@ import { AssessmentListComponent } from './assessment-list/assessment-list.compo
   styleUrl: './assessments.component.scss',
 })
 export class AssessmentsComponent implements OnInit, OnDestroy {
+  private readonly matDialog = inject(MatDialog);
   private readonly juServicesService = inject(JuServicesService);
   private readonly professionalsService = inject(ProfessionalsService);
   private readonly studentService = inject(StudentService);
@@ -44,10 +47,13 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
     });
   private subscription!: Subscription;
 
+  lookupCompleted: WritableSignal<boolean> = signal<boolean>(false);
+
   ngOnInit(): void {
     this.subscription = this.getLookups().subscribe({
       next: lookups => this.lookups.set(lookups),
       error: err => console.log('Error retrieving lookups', err),
+      complete: () => this.lookupCompleted.set(true),
     });
   }
 
@@ -65,18 +71,22 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
         return {
           profiles: mapFields(
             [this.userDataService.user()!],
-            'firstName',
-            'id'
+            'fullName',
+            'fullName'
           ),
-          services: mapFields(services.items, 'name', 'id'),
-          professionals: mapFields(professionals.items, 'name', 'id'),
-          students: mapFields(students.items, 'name', 'id'),
+          services: mapFields(services.items, 'name', 'name'),
+          professionals: mapFields(professionals.items, 'name', 'name'),
+          students: mapFields(students.items, 'name', 'uuid'),
         };
       })
     );
   }
 
   openCreateModal() {
-    console.log('Opening modal!');
+    this.matDialog.open(NewAssessmentModalComponent, {
+      width: '40vw',
+      minWidth: '400px',
+      data: { ...this.lookups() },
+    });
   }
 }
