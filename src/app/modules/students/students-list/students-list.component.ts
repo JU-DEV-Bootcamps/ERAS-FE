@@ -5,7 +5,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { EventAction, EventLoad } from '@core/models/load';
 import { StudentModel, StudentModelFlat } from '@core/models/student.model';
 import { StudentService } from '@core/services/api/student.service';
-import { Pagination } from '@core/services/interfaces/server.type';
+import {
+  Pagination,
+  ServerResponse,
+} from '@core/services/interfaces/server.type';
 import { ListComponent } from '@shared/components/list/list.component';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
@@ -27,12 +30,15 @@ import {
   ImportPreviewConfirm,
   StudentModelPreview,
 } from '@shared/components/list/types/preview';
-import { parseRowErrors } from '@core/utils/helpers/parsers';
+import { parseJsonRows, parseRowErrors } from '@core/utils/helpers/parsers';
 import {
   CSV_KEY_TO_MODEL_KEY,
   MandatoryColumns,
   OptionalColumns,
 } from '@modules/imports/components/import-preview-students/import-preview-students.model';
+import { StudentImport } from '@core/services/interfaces/student.interface';
+import { GENERAL_MESSAGES } from '@core/constants/messages';
+import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 
 @Component({
   selector: 'app-students-list',
@@ -220,7 +226,7 @@ export class StudentsListComponent implements OnInit {
     const dialogRef: MatDialogRef<ImportModalComponent> = this.dialog.open(
       ImportModalComponent,
       {
-        maxWidth: '70vw',
+        maxWidth: '80vw',
         maxHeight: '90vh',
         panelClass: 'import-modal-dialog',
       }
@@ -234,6 +240,7 @@ export class StudentsListComponent implements OnInit {
       this.handlePreviewImport(file, instance, dialogRef);
     });
   }
+
   private async handlePreviewImport(
     file: File,
     instance: ImportModalComponent,
@@ -267,7 +274,7 @@ export class StudentsListComponent implements OnInit {
 
     const previewRef: MatDialogRef<ImportPreviewStudentsComponent> =
       this.dialog.open(ImportPreviewStudentsComponent, {
-        maxWidth: '70vw',
+        maxWidth: '80vw',
         maxHeight: '90vh',
         panelClass: 'import-preview-students-dialog',
       });
@@ -279,36 +286,62 @@ export class StudentsListComponent implements OnInit {
     preview.dialogRef = previewRef;
     preview.cancelled.subscribe(() => this.openImportModal());
 
+    const jsonData = parseJsonRows(rawRows);
+
     preview.confirmed.subscribe((result: ImportPreviewConfirm) => {
       preview.isLoading = true;
-      console.log('hooooo', result);
-      this.submitImport(result.rows, preview, previewRef);
+      this.submitImport(result.rows, jsonData, preview, previewRef);
     });
   }
 
   private submitImport(
     rows: StudentModelFlat[],
+    json: StudentImport[],
     preview: ImportPreviewStudentsComponent,
     previewRef: MatDialogRef<ImportPreviewStudentsComponent>
   ): void {
     console.log('rows', rows);
     console.log('preview', preview);
     console.log('previewRef', previewRef);
-    //heereee rows normaliZE to studentModel
-    // this.studentService.postData(rows).subscribe({
-    //   next: response => {
-    //     console.log(response);
-    //     preview.isLoading = false;
-    //     previewRef.close();
-    //     // this.openDialog(response.message, true);
-    //     // this.listImportedStudentComponent.loadStudents();
-    //   },
-    //   error: error => {
-    //     console.error(error);
-    //     preview.isLoading = false;
-    //     // this.openDialog(GENERAL_MESSAGES.ERROR_500, false);
-    //   },
-    // });
+    const jsonRequired = json.filter(rowJson =>
+      rows.some(row => row.uuid === rowJson.SISId)
+    );
+    const fileErrors = '';
+    this.studentService.postData(jsonRequired).subscribe({
+      next: (response: ServerResponse) => {
+        this.isLoading = false;
+        previewRef.close();
+        openDialogWithStatus(
+          response.message,
+          true,
+          [],
+          fileErrors,
+          this.dialog
+        );
+        this.loadStudents();
+      },
+      error: error => {
+        this.isLoading = false;
+        previewRef.close();
+        if (error.status == 500) {
+          openDialogWithStatus(
+            GENERAL_MESSAGES.ERROR_500,
+            false,
+            [],
+            fileErrors,
+            this.dialog
+          );
+        } else {
+          openDialogWithStatus(
+            GENERAL_MESSAGES.ERROR_UNKNOWN + error.message,
+            false,
+            [],
+            fileErrors,
+            this.dialog
+          );
+        }
+      },
+    });
   }
 
   private convertToModel(row: Record<string, string>): StudentModelPreview {

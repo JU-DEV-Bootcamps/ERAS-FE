@@ -33,7 +33,7 @@ $transition: 150ms ease;
 .preview-modal {
   display: flex;
   flex-direction: column;
-  width: 70vw;
+  width: 80vw;
   min-height: 80vh;
   max-height: 90vh;
   background: $color-white;
@@ -98,8 +98,10 @@ $transition: 150ms ease;
     background: $color-surface;
     flex-direction: column;
     align-items: center;
-    // justify-content: center;
     gap: 20px;
+  }
+
+  &-table-wrapper {
   }
 
   &-subtitle {
@@ -113,7 +115,7 @@ $transition: 150ms ease;
 
   &-error-banner {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
     padding: 10px 14px;
     border: 1px solid $color-danger-border;
@@ -121,9 +123,11 @@ $transition: 150ms ease;
     background: $color-danger-bg;
     color: $color-danger;
 
-    mat-icon {
+    .icon-alert {
       flex-shrink: 0;
-      margin-top: 1px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       font-size: 18px;
     }
 
@@ -134,6 +138,11 @@ $transition: 150ms ease;
     }
     strong {
       font-family: $inter;
+    }
+    .icon-example {
+      font-size: 14px;
+      vertical-align: middle;
+      margin-right: 2px;
     }
   }
 
@@ -202,7 +211,21 @@ $transition: 150ms ease;
     }
   }
 
-  &-multiline-tooltip {
-    white-space: pre-line;
+  &-row-icon--error {
+    color: $color-danger;
   }
+
+  &-row-icon--correct {
+    color: $color-accent;
+  }
+}
+
+::ng-deep .mat-mdc-header-cell,
+.mdc-data-table__header-cell,
+.cdk-header-cell,
+.cdk-column-studentName,
+.mat-column-studentName {
+  font-size: 12px;
+  font-family: $inter;
+  line-height: 16px;
 }

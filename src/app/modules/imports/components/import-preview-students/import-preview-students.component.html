@@ -21,7 +21,7 @@
       class="preview-modal-error-banner"
       role="alert"
     >
-      <mat-icon>error_outline</mat-icon>
+      <mat-icon class="icon-alert">warning_amber</mat-icon>
       <div class="preview-modal-error-banner-text">
         <strong
           >{{ errorRowCount }} row{{ errorRowCount === 1 ? '' : 's' }} with
@@ -29,35 +29,40 @@
         >
         Rows with errors are deselected automatically and will not be imported.
         Hover the
-        <mat-icon inline="true" style="font-size: 14px; vertical-align: middle"
-          >warning_amber</mat-icon
+        <mat-icon inline="true" class="icon-example">error_outline</mat-icon
         >icon on each row for details.
       </div>
     </div>
 
     <div class="preview-modal-table-wrapper">
       <app-list
-        (loadCalled)="handleLoadCalled($event)"
+        (loadCalled)="handleLoadCalled()"
         [columns]="listColumns"
+        [columnTemplates]="statusColumn"
         [items]="previewDataRows"
         [totalItems]="totalRows"
         [itemsAreSelectable]="itemsAreSelectable"
+        [showPaginator]="false"
       >
         <ng-template #status let-element>
-          <ng-container *ngIf="element._hasError; else validIcon">
+          @if (element._hasError) {
             <mat-icon
               class="preview-modal-row-icon preview-modal-row-icon--error"
-              [matTooltip]="element._errors.join('\n')"
+              [matTooltip]="element._error[0]"
               matTooltipClass="preview-modal-multiline-tooltip"
             >
-              warning_amber
+              error_outline
             </mat-icon>
-          </ng-container>
-          <ng-template #validIcon>
-            <mat-icon class="preview-modal-row-icon preview-modal-row-icon--ok">
+          } @else {
+            <mat-icon
+              class="preview-modal-row-icon preview-modal-row-icon--correct"
+            >
               check_circle_outline
             </mat-icon>
-          </ng-template>
+          }
+        </ng-template>
+        <ng-template #isSelected let-element>
+          <app-selected-checkbox [element]="element" />
         </ng-template>
       </app-list>
     </div>

@@ -8,13 +8,12 @@ import {
 } from '@shared/components/list/types/preview';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { Column } from '@shared/components/list/types/column';
-import { Pagination } from '@core/services/interfaces/server.type';
 import { MatIconModule } from '@angular/material/icon';
 import { ListComponent } from '@shared/components/list/list.component';
-import { EventLoad } from '@core/models/load';
 import { MandatoryColumns } from './import-preview-students.model';
 import { StudentModelFlat } from '@core/models/student.model';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { SelectedCheckboxComponent } from '@modules/students/students-list/selected-checkbox/selected-checkbox.component';
 
 @Component({
   selector: 'app-import-preview-students',
@@ -24,6 +23,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatIconModule,
     ListComponent,
     MatTooltipModule,
+    SelectedCheckboxComponent,
   ],
   templateUrl: './import-preview-students.component.html',
   styleUrl: './import-preview-students.component.scss',
@@ -43,10 +43,6 @@ export class ImportPreviewStudentsComponent implements OnInit {
   @Output() confirmed = new EventEmitter<ImportPreviewConfirm>();
   @Output() cancelled = new EventEmitter<void>();
 
-  pagination: Pagination = {
-    pageSize: 10,
-    page: 0,
-  };
   statusColumn: Column<StudentModelPreview>[] = [{ key: 'status', label: '' }];
   previewRows: PreviewRow[] = [];
   previewDataRows: StudentModelPreview[] = [];
@@ -68,13 +64,10 @@ export class ImportPreviewStudentsComponent implements OnInit {
       _error: row.errors,
       _hasError: row.errors.length > 0,
     }));
+    console.log('heree', this.previewDataRows);
   }
 
-  handleLoadCalled(event: EventLoad) {
-    this.pagination = {
-      page: event.page,
-      pageSize: event.pageSize,
-    };
+  handleLoadCalled() {
     this.loadRows();
   }
 
@@ -96,7 +89,8 @@ export class ImportPreviewStudentsComponent implements OnInit {
   }
 
   get listColumns(): Column<StudentModelPreview>[] {
-    return [...this.columns, ...this.statusColumn];
+    // return [...this.columns, ...this.statusColumn];
+    return this.columns;
   }
 
   toggleAll(checked: boolean): void {

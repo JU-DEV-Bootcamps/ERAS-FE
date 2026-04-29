@@ -18,7 +18,7 @@ import {
 } from '@core/services/interfaces/student.interface';
 import { CsvCheckerService } from '@core/services/csv-checker.service';
 import { StudentService } from '@core/services/api/student.service';
-import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 
 @Component({
   selector: 'app-import-students',
@@ -51,30 +51,15 @@ export class ImportStudentsComponent {
     private studentService: StudentService
   ) {}
 
-  private openDialog(text: string, isSuccess: boolean): void {
-    const buttonElement = document.activeElement as HTMLElement;
-    buttonElement.blur(); // Remove focus from the button - avoid console warning
-    const errorDetails =
-      this.csvErrors.length > 0 ? this.csvErrors : [GENERAL_MESSAGES.ERROR_500];
-
-    this.dialog.open(ModalComponent, {
-      ...MODAL_DEFAULT_CONF,
-      data: {
-        isSuccess: isSuccess,
-        type: isSuccess ? 'success' : 'error',
-        title: isSuccess
-          ? GENERAL_MESSAGES.SUCCESS_IMPORT_TITLE
-          : GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
-        message: isSuccess ? text : this.fileError,
-        details: isSuccess ? text : errorDetails,
-        action: isSuccess
-          ? null
-          : {
-              label: 'See details',
-              action: () => this.openDetailsDialog(),
-            },
-      },
-    });
+  openDialog(text: string, isSuccess: boolean): void {
+    openDialogWithStatus(
+      text,
+      isSuccess,
+      this.csvErrors,
+      this.fileError,
+      this.dialog,
+      () => this.openDetailsDialog()
+    );
   }
 
   private openDetailsDialog() {
