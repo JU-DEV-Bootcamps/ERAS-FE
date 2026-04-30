@@ -43,6 +43,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         options: this.data.students,
         validators: [Validators.required],
         multipleSelect: true,
+        floatingLabel: 'always',
       },
       {
         type: 'date',
@@ -50,6 +51,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         label: 'Date',
         placeholder: 'Select a date',
         validators: [Validators.required],
+        floatingLabel: 'always',
       },
       {
         type: 'select',
@@ -58,6 +60,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         placeholder: 'Select submitter',
         options: this.data.profiles,
         validators: [Validators.required],
+        floatingLabel: 'always',
       },
       {
         type: 'select',
@@ -66,6 +69,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         placeholder: 'Select service',
         options: this.data.services,
         validators: [Validators.required],
+        floatingLabel: 'always',
       },
       {
         type: 'select',
@@ -74,6 +78,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         placeholder: 'Select a professional',
         options: this.data.professionals,
         validators: [Validators.required],
+        floatingLabel: 'always',
       },
       {
         type: 'textarea',
@@ -81,6 +86,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         label: 'Professional comment',
         placeholder: 'Leave a comment',
         validators: [],
+        floatingLabel: 'always',
       },
     ];
   }

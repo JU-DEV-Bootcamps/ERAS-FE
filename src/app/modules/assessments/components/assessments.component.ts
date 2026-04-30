@@ -84,9 +84,10 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
 
   openCreateModal() {
     this.matDialog.open(NewAssessmentModalComponent, {
-      width: '40vw',
-      minWidth: '400px',
+      autoFocus: false,
       data: { ...this.lookups() },
+      minWidth: '400px',
+      width: '40vw',
     });
   }
 }

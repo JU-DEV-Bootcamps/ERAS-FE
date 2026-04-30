@@ -1,4 +1,8 @@
-<mat-form-field class="w-full" appearance="outline">
+<mat-form-field
+  [floatLabel]="field().floatingLabel ?? 'auto'"
+  class="w-full"
+  appearance="outline"
+>
   <mat-label>{{ field().label }}</mat-label>
   <input
     matInput

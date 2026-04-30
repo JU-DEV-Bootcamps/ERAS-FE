@@ -1,8 +1,13 @@
-<mat-form-field class="w-full" appearance="outline">
+<mat-form-field
+  [floatLabel]="field().floatingLabel ?? 'auto'"
+  class="w-full"
+  appearance="outline"
+>
   <mat-label>{{ field().label }}</mat-label>
   <mat-select
     [formControlName]="field().name"
     [multiple]="field().multipleSelect"
+    [placeholder]="field().placeholder ?? 'Select option'"
   >
     @for (option of field().options; track $index) {
       <mat-option [value]="option.value">{{ option.label }}</mat-option>
