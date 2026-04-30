@@ -258,6 +258,20 @@ export class StudentsListComponent implements OnInit {
     }
     const csvErrors = this.csvCheckerService.getErrors();
 
+    if (csvErrors.some(e => /Row NaN:/i.test(e))) {
+      instance.isLoading = false;
+      dialogRef.close();
+
+      const previewRef = this.prepareDialog();
+      const preview = previewRef.componentInstance;
+      preview.rows = [];
+      preview.errorsInHeaders = getHeadersErrors(csvErrors);
+      preview.columns = [...MandatoryColumns];
+      preview.dialogRef = previewRef;
+      preview.cancelled.subscribe(() => this.openImportModal());
+      return;
+    }
+
     const rawRows: Record<string, string>[] =
       this.csvCheckerService.getCSVData();
     const rowErrorMap = parseRowErrors(csvErrors);
@@ -275,17 +289,10 @@ export class StudentsListComponent implements OnInit {
       data: this.convertToModel(row),
       errors: rowErrorMap.get(i) ?? [],
     }));
-
     instance.isLoading = false;
     dialogRef.close();
 
-    const previewRef: MatDialogRef<ImportPreviewStudentsComponent> =
-      this.dialog.open(ImportPreviewStudentsComponent, {
-        maxWidth: '80vw',
-        maxHeight: '90vh',
-        panelClass: 'import-preview-students-dialog',
-      });
-
+    const previewRef = this.prepareDialog();
     const preview = previewRef.componentInstance;
     preview.title = 'Import Students';
     preview.rows = previewRows;
@@ -295,7 +302,6 @@ export class StudentsListComponent implements OnInit {
     preview.cancelled.subscribe(() => this.openImportModal());
 
     const jsonData = parseJsonRows(rawRows);
-
     preview.confirmed.subscribe((result: ImportPreviewConfirm) => {
       preview.isLoading = true;
       this.submitImport(result.rows, jsonData, preview, previewRef);
@@ -364,5 +370,13 @@ export class StudentsListComponent implements OnInit {
       name: row['Name'],
       email: row['Email'],
     };
+  }
+
+  private prepareDialog(): MatDialogRef<ImportPreviewStudentsComponent> {
+    return this.dialog.open(ImportPreviewStudentsComponent, {
+      maxWidth: '80vw',
+      maxHeight: '90vh',
+      panelClass: 'import-preview-students-dialog',
+    });
   }
 }
