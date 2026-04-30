@@ -1,4 +1,5 @@
 import { NgClass } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, inject, Inject } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import {
@@ -15,7 +16,9 @@ import {
   AssessmentModel,
   AssessmentStatus,
 } from '@core/models/assessement.model';
+import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { AssessmentsLookups } from '@modules/assessments/models/assessments.interfaces';
 
 @Component({
@@ -26,6 +29,8 @@ import { AssessmentsLookups } from '@modules/assessments/models/assessments.inte
 })
 export class NewAssessmentModalComponent implements FormCreation {
   private readonly assessmentsService = inject(AssessmentService);
+  private readonly toastService = inject(ToastNotificationService);
+
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
@@ -114,15 +119,53 @@ export class NewAssessmentModalComponent implements FormCreation {
 
       this.assessmentsService.createAssessment(newAssessment).subscribe({
         next: response => {
-          console.log('Success', response);
+          const toastData = this.buildSuccessToastDataObject(response);
+          this.toastService.showToast(toastData);
           this.assessmentsService.clearCache();
           this.assessmentsService.getAll();
         },
-        error: err => console.log('Error', err),
+        error: err => {
+          const toastData = this.buildErrorToastDataObject(err);
+          this.toastService.showToast(toastData, true);
+          console.error(err);
+        },
         complete: () => {
           this.dialogRef.close();
         },
       });
     }
+  }
+
+  private buildSuccessToastDataObject(
+    response: AssessmentModel
+  ): ToastNotificationData {
+    const totalStudents: number = response.studentIds.length;
+    const firstStudent = this.data.students.find(
+      student => student.value === response.studentIds[0]
+    );
+
+    const message =
+      totalStudents > 1
+        ? `Assessment for ${firstStudent?.label} and other ${totalStudents - 1} students has been created.`
+        : `Assessment for ${firstStudent?.label} has been created.`;
+
+    return {
+      title: 'Assessment created successfully',
+      message: message,
+      type: 'success',
+    };
+  }
+
+  private buildErrorToastDataObject(
+    error: HttpErrorResponse
+  ): ToastNotificationData {
+    const defaultMessage =
+      'There was an error submitting the form. Please try again later.';
+    const message = `${error.statusText}: ${error.error.title ?? defaultMessage}`;
+    return {
+      title: 'Form Submission Failed',
+      message: message,
+      type: 'error',
+    };
   }
 }
