@@ -17,6 +17,15 @@ export function parseRowErrors(flatErrors: string[]): Map<number, string[]> {
   }
   return map;
 }
+export function getHeadersErrors(flatErrors: string[]): string[] {
+  const errorsHeader = [];
+  for (const entry of flatErrors) {
+    if (entry.includes('header')) {
+      errorsHeader.push(entry);
+    }
+  }
+  return errorsHeader;
+}
 export function parseJsonRows(rows: Record<string, string>[]) {
   return rows.map((row: Record<string, string>): StudentImport => {
     const filteredRow = {} as StudentImport;

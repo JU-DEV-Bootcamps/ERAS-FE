@@ -41,6 +41,7 @@ export class ImportPreviewStudentsComponent implements OnInit {
   ];
   @Input() totalStudents = 0;
   @Input() itemsAreSelectable = true;
+  @Input() errorsInHeaders: string[] = [];
   @Input() isLoading = false;
   dialogRef?: MatDialogRef<ImportPreviewStudentsComponent>;
 
@@ -57,7 +58,7 @@ export class ImportPreviewStudentsComponent implements OnInit {
   loadRows(): void {
     this.previewDataRows = this.rows.map(row => ({
       ...row.data,
-      isSelected: row.errors.length === 0,
+      isSelected: row.errors.length === 0 && this.errorsInHeaders.length === 0,
       _errors: row.errors,
       _hasError: row.errors.length > 0,
     }));
@@ -67,7 +68,8 @@ export class ImportPreviewStudentsComponent implements OnInit {
     this.loadRows();
   }
 
-  readonly isRowDisabled = (item: PreviewDataRow): boolean => item._hasError;
+  readonly isRowDisabled = (item: PreviewDataRow): boolean =>
+    item._hasError || this.errorsInHeaders.length > 0;
 
   get totalRows(): number {
     return this.previewDataRows.length;
@@ -83,7 +85,11 @@ export class ImportPreviewStudentsComponent implements OnInit {
   }
 
   get canConfirm(): boolean {
-    return this.selectedValidCount > 0 && !this.isLoading;
+    return (
+      this.selectedValidCount > 0 &&
+      !this.isLoading &&
+      this.errorsInHeaders.length === 0
+    );
   }
 
   get listColumns(): Column<StudentModelPreview>[] {

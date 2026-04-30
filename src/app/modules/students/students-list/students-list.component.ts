@@ -30,7 +30,11 @@ import {
   ImportPreviewConfirm,
   StudentModelPreview,
 } from '@shared/components/list/types/preview';
-import { parseJsonRows, parseRowErrors } from '@core/utils/helpers/parsers';
+import {
+  getHeadersErrors,
+  parseJsonRows,
+  parseRowErrors,
+} from '@core/utils/helpers/parsers';
 import {
   CSV_KEY_TO_MODEL_KEY,
   MandatoryColumns,
@@ -252,9 +256,12 @@ export class StudentsListComponent implements OnInit {
       instance.isLoading = false;
       return;
     }
+    const csvErrors = this.csvCheckerService.getErrors();
+
     const rawRows: Record<string, string>[] =
       this.csvCheckerService.getCSVData();
-    const rowErrorMap = parseRowErrors(this.csvCheckerService.getErrors());
+    const rowErrorMap = parseRowErrors(csvErrors);
+    const errorsInHeaders = getHeadersErrors(csvErrors);
 
     const presentCsvKeys = rawRows.length > 0 ? Object.keys(rawRows[0]) : [];
     const detectedOptionalColumns = OptionalColumns.filter(col => {
@@ -282,6 +289,7 @@ export class StudentsListComponent implements OnInit {
     const preview = previewRef.componentInstance;
     preview.title = 'Import Students';
     preview.rows = previewRows;
+    preview.errorsInHeaders = errorsInHeaders;
     preview.columns = [...MandatoryColumns, ...detectedOptionalColumns];
     preview.dialogRef = previewRef;
     preview.cancelled.subscribe(() => this.openImportModal());

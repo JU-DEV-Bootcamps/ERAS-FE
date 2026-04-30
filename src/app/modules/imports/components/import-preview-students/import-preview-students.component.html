@@ -17,6 +17,18 @@
   <div class="preview-modal-body">
     <div class="preview-modal-subtitle">Students List</div>
     <div
+      *ngIf="errorsInHeaders.length > 0"
+      class="preview-modal-error-banner"
+      role="alert"
+    >
+      <mat-icon class="icon-alert">warning_amber</mat-icon>
+      <div class="preview-modal-error-banner-text">
+        @for (item of errorsInHeaders; track $index) {
+          <div>{{ item }}<br /></div>
+        }
+      </div>
+    </div>
+    <div
       *ngIf="errorRowCount > 0"
       class="preview-modal-error-banner"
       role="alert"
@@ -46,10 +58,10 @@
         [showPaginator]="false"
       >
         <ng-template #status let-element>
-          @if (element._hasError) {
+          @if (element._hasError || errorsInHeaders.length > 0) {
             <mat-icon
               class="preview-modal-row-icon preview-modal-row-icon--error"
-              [matTooltip]="element._errors[0]"
+              [matTooltip]="element._errors.join(', ')"
               matTooltipClass="preview-modal-multiline-tooltip"
             >
               error_outline
