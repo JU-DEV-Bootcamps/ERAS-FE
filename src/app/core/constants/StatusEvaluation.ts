@@ -2,8 +2,8 @@ export const STATUS_EVALUATIONS: Record<string, string> = {
   Pending: 'Pending',
   Ready: 'Ready',
   InProgress: 'In Progress',
-  Completed: 'Resolved',
-  Uncompleted: 'Unresolved',
+  Completed: 'Completed',
+  Uncompleted: 'Uncompleted',
   default: 'New',
 };
 
@@ -13,7 +13,7 @@ export const STATUS_COLORS: Record<string, string> = {
   InProgress: '#FEF9C3',
   Completed: '#DCFCE7',
   Uncompleted: '#FEE2E2',
-  default: '#DBEAFE',
+  default: '#F0EAEA',
 };
 
 export const STATUS_LABEL_COLORS: Record<string, string> = {
@@ -22,5 +22,5 @@ export const STATUS_LABEL_COLORS: Record<string, string> = {
   InProgress: '#854D0E',
   Completed: '#166534',
   Uncompleted: '#991B1B',
-  default: '#1E40AF',
+  default: '#63656A',
 };
