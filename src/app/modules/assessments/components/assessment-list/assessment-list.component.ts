@@ -20,7 +20,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AssessmentStatusBadgeComponent } from './assessment-status-badge/assessment-status-badge.component';
-import { AssessmentDetailDialogComponent } from '../../../supports-referrals/components/assessement-detail/assessment-detail-dialog.component';
+import { AssessmentDetailDialogComponent } from '../assessment-detail/assessment-detail-dialog.component';
 import { AssessmentModel } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
 
@@ -51,6 +51,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
+  private readonly matDialog = inject(MatDialog);
 
   @Input() pageSize = 10;
 

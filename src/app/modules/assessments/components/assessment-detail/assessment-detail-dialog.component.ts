@@ -8,9 +8,9 @@ import {
 } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { AssessmentStatusBadgeComponent } from '../assessment-list/assessment-status-badge/assessment-status-badge.component';
+import { AssessmentRowViewModel } from '../assessment-list/assessment-list.component';
 
-import { AssessmentRowViewModel } from '../../../lists/components/assessment-list/assessment-list.component';
-import { AssessmentStatusBadgeComponent } from '../../../lists/components/assessment-list/assessment-status-badge/assessment-status-badge.component';
 @Component({
   selector: 'app-assessment-detail-dialog',
   standalone: true,

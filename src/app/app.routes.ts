@@ -129,7 +129,10 @@ export const routes: Routes = [
       {
         path: 'assessments',
         component: AssessmentsComponent,
-        data: { breadcrumb: 'Assessments' },
+        data: {
+          breadcrumb: 'Assessments',
+          headerTitle: 'Assessments',
+        } satisfies AppRouteData,
       },
 
       {
