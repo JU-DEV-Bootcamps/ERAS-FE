@@ -1,0 +1,51 @@
+@use 'index.scss' as main-styles;
+
+.toast-container {
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  z-index: 9999;
+
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: white;
+  border: solid 1px main-styles.get-color(neutral, 80);
+
+  max-width: 450px;
+  max-height: 150px;
+}
+
+.icon {
+  img {
+    height: 40px;
+    width: 40px;
+    padding: 4px;
+  }
+}
+
+.information-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .toast-title {
+    font-size: main-styles.get-font-size(title, medium);
+    font-weight: main-styles.get-font-weight(bold);
+  }
+  .toast-message {
+    font-size: main-styles.get-font-size(body, large);
+    font-weight: main-styles.get-font-weight(regular);
+  }
+
+  p {
+    margin: 0px;
+  }
+}
+
+.close-button {
+  &:hover {
+    cursor: pointer;
+  }
+}
