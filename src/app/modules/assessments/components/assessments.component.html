@@ -2,6 +2,7 @@
   <app-eras-button
     [textButton]="'Create Assessment'"
     [iconButton]="'add'"
+    [disableButton]="lookupLoading()"
     (clickButton)="openCreateModal()"
   ></app-eras-button>
 </div>

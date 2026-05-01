@@ -50,13 +50,14 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
   private lookupsSub!: Subscription;
   private dialogRefSub!: Subscription;
 
-  lookupCompleted: WritableSignal<boolean> = signal<boolean>(false);
+  lookupLoading: WritableSignal<boolean> = signal<boolean>(false);
 
   ngOnInit(): void {
+    this.lookupLoading.set(true);
     this.lookupsSub = this.getLookups().subscribe({
       next: lookups => this.lookups.set(lookups),
       error: err => console.log('Error retrieving lookups', err),
-      complete: () => this.lookupCompleted.set(true),
+      complete: () => this.lookupLoading.set(false),
     });
   }
 
