@@ -122,7 +122,6 @@ export class NewAssessmentModalComponent implements FormCreation {
           const toastData = this.buildSuccessToastDataObject(response);
           this.toastService.showToast(toastData);
           this.assessmentsService.clearCache();
-          this.assessmentsService.getAll();
         },
         error: err => {
           const toastData = this.buildErrorToastDataObject(err);

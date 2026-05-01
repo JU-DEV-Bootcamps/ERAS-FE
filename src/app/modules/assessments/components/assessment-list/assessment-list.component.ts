@@ -116,7 +116,7 @@ export class AssessmentListComponent implements OnInit {
     this.moreClicked.emit(item);
   }
 
-  private loadAssessments(): void {
+  loadAssessments(): void {
     this.isLoading.set(true);
 
     this.assessmentService.getAll().subscribe({

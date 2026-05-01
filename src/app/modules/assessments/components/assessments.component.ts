@@ -4,6 +4,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  viewChild,
   WritableSignal,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -37,6 +38,7 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
   private readonly professionalsService = inject(ProfessionalsService);
   private readonly studentService = inject(StudentService);
   private readonly userDataService = inject(UserDataService);
+  private readonly listComponent = viewChild(AssessmentListComponent);
 
   private lookups: WritableSignal<AssessmentsLookups> =
     signal<AssessmentsLookups>({
@@ -45,12 +47,13 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
       professionals: [],
       students: [],
     });
-  private subscription!: Subscription;
+  private lookupsSub!: Subscription;
+  private dialogRefSub!: Subscription;
 
   lookupCompleted: WritableSignal<boolean> = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.subscription = this.getLookups().subscribe({
+    this.lookupsSub = this.getLookups().subscribe({
       next: lookups => this.lookups.set(lookups),
       error: err => console.log('Error retrieving lookups', err),
       complete: () => this.lookupCompleted.set(true),
@@ -58,7 +61,8 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    if (this.lookupsSub) this.lookupsSub.unsubscribe();
+    if (this.dialogRefSub) this.dialogRefSub.unsubscribe();
   }
 
   private getLookups(): Observable<AssessmentsLookups> {
@@ -83,11 +87,15 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
   }
 
   openCreateModal() {
-    this.matDialog.open(NewAssessmentModalComponent, {
+    const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
       autoFocus: false,
       data: { ...this.lookups() },
       minWidth: '400px',
       width: '40vw',
     });
+
+    dialogRef
+      .afterClosed()
+      .subscribe(() => this.listComponent()?.loadAssessments());
   }
 }
