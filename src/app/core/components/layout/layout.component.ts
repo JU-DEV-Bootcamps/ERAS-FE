@@ -26,6 +26,7 @@ import { SidebarComponent } from '@core/components/sidebar/sidebar.component';
 import { HeaderContainerComponent } from './header/header-v2/header-container.component';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ToastNotificationComponent } from '@shared/components/toast-notification/toast-notification.component';
 
 enum Sidenav {
   shrink = '70px',
@@ -49,6 +50,7 @@ enum Sidenav {
     MatMenuModule,
     SidebarComponent,
     HeaderContainerComponent,
+    ToastNotificationComponent,
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],

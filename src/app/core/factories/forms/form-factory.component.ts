@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  inject,
-  input,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -33,7 +26,7 @@ import { CustomValidators } from '@core/utils/forms/custom-validators';
   templateUrl: './form-factory.component.html',
 })
 export class FormFactoryComponent implements OnInit {
-  @Output() formReady = new EventEmitter();
+  formReady = output<FormGroup>();
   fields = input<DynamicField[]>([]);
 
   form!: FormGroup;

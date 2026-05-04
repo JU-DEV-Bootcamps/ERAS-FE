@@ -1,0 +1,112 @@
+@use 'index.scss' as main-styles;
+@use '@angular/material' as mat;
+
+$background: #f9fafb;
+$header-stroke: #e5e7eb;
+
+:host {
+  @include mat.dialog-overrides(
+    (
+      headline-padding: none,
+      content-padding: 24px,
+      container-shape: rectangle,
+    )
+  );
+
+  @include mat.form-field-overrides(
+    (
+      container-height: 56px,
+      outlined-label-text-color: main-styles.get-color(neutral, 50),
+      outlined-input-text-placeholder-color: main-styles.get-color(neutral, 50),
+      outlined-outline-color: main-styles.get-color(neutral, 50),
+      outlined-hover-label-text-color: main-styles.get-color(neutral, 30),
+      outlined-input-text-color: main-styles.get-color(neutral, 30),
+      outlined-hover-outline-color: main-styles.get-color(neutral, 30),
+    )
+  );
+
+  @include mat.select-overrides(
+    (
+      placeholder-text-color: main-styles.get-color(neutral, 50),
+    )
+  );
+}
+
+::ng-deep .mat-mdc-form-field-flex {
+  height: fit-content !important;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid $header-stroke;
+
+  mat-icon {
+    font-size: 24px;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .mat-mdc-dialog-title::before {
+    height: 0px;
+  }
+}
+
+.modal-content {
+  background-color: $background;
+}
+
+.create-button {
+  background-color: var(--primary-700);
+  color: white;
+
+  &:hover {
+    background-color: main-styles.get-color(primary, 30);
+  }
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: var(--primary-700);
+
+  &:hover {
+    background-color: main-styles.get-color(neutral, 90);
+  }
+}
+
+.disabled-button {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+button {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 100px;
+  font-size: main-styles.get-font-size(body, large);
+  font-weight: 500;
+  line-height: 125%;
+  height: 40px;
+  width: 80px;
+  padding: 10px 16px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  @media (min-width: 500px) {
+    padding: 10px 16px;
+    width: 200px;
+    width: 100px;
+  }
+}
+
+mat-dialog-actions {
+  gap: 8px;
+  padding: 24px;
+}

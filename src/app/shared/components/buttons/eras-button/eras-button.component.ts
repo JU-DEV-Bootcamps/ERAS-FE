@@ -11,4 +11,5 @@ export class ErasButtonComponent {
   clickButton = output<boolean>();
   textButton = input<string>('Default Button Text');
   iconButton = input<string>('');
+  disableButton = input<boolean>(false);
 }

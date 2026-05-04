@@ -3,6 +3,7 @@ import { EventEmitter, InputSignal } from '@angular/core';
 
 import { FormUtils } from '@core/utils/forms/form-utils';
 import { Lookup } from '@core/models/lookup';
+import { FloatLabelType } from '@angular/material/form-field';
 
 export type FieldType = 'date' | 'select' | 'text' | 'textarea' | 'password';
 export type ValueType = string | number | boolean | Date | null;
@@ -24,6 +25,7 @@ export interface DynamicField {
   options?: Lookup[];
   multipleSelect?: boolean;
   disabled?: boolean;
+  floatingLabel?: FloatLabelType;
 }
 
 // Used to implements a dynamic form.

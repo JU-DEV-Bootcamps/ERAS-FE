@@ -1,0 +1,10 @@
+<div class="page-header">
+  <app-eras-button
+    [textButton]="'Create Assessment'"
+    [iconButton]="'add'"
+    [disableButton]="lookupLoading()"
+    (clickButton)="openCreateModal()"
+  ></app-eras-button>
+</div>
+
+<app-assessment-list (createClicked)="openCreateModal()"></app-assessment-list>

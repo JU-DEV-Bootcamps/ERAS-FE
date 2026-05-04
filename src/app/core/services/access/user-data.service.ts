@@ -33,6 +33,9 @@ export class UserDataService {
       id: userProfile.id,
       lastName: userProfile.lastName,
       role: userRole ? userRole : 'User',
+      fullName: userProfile.lastName
+        ? `${userProfile.firstName} ${userProfile.lastName}`
+        : userProfile.firstName,
     };
   }
 

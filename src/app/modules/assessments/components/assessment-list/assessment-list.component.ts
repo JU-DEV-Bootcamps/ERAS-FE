@@ -20,7 +20,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AssessmentStatusBadgeComponent } from './assessment-status-badge/assessment-status-badge.component';
-import { AssessmentDetailDialogComponent } from '../../../supports-referrals/components/assessement-detail/assessment-detail-dialog.component';
+import { AssessmentDetailDialogComponent } from '../assessment-detail/assessment-detail-dialog.component';
 import { AssessmentModel } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
 
@@ -51,7 +51,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
-  private readonly dialog = inject(MatDialog);
+  private readonly matDialog = inject(MatDialog);
 
   @Input() pageSize = 10;
 
@@ -96,7 +96,7 @@ export class AssessmentListComponent implements OnInit {
 
   protected onViewClick(item: AssessmentRowViewModel): void {
     this.viewClicked.emit(item);
-    this.dialog.open(AssessmentDetailDialogComponent, {
+    this.matDialog.open(AssessmentDetailDialogComponent, {
       data: item,
       width: '420px',
       maxHeight: '90vh',
@@ -116,7 +116,7 @@ export class AssessmentListComponent implements OnInit {
     this.moreClicked.emit(item);
   }
 
-  private loadAssessments(): void {
+  loadAssessments(): void {
     this.isLoading.set(true);
 
     this.assessmentService.getAll().subscribe({
