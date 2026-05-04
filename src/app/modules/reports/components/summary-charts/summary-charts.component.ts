@@ -106,6 +106,7 @@ export class SummaryChartsComponent {
   evaluationId?: number | string;
 
   students: StudentRiskAverage[] = [];
+  allStudents: StudentRiskAverage[] = [];
   totalStudents = 0;
 
   isLoading = false;
@@ -118,6 +119,7 @@ export class SummaryChartsComponent {
 
   getStudentsByCohortAndPoll(event: EventLoad) {
     this._loadStudents(event);
+    this.loadAllStudents();
   }
 
   getHeatMap() {
@@ -271,6 +273,35 @@ export class SummaryChartsComponent {
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+  }
+
+  loadAllStudents() {
+    const batchPageSize = 100;
+    let page = 0;
+    let allItems: StudentRiskAverage[] = [];
+
+    const fetchPage = () => {
+      this.studentService
+        .getAllAverageByCohortsAndPoll({
+          page,
+          pageSize: batchPageSize,
+          cohortIds: this.cohortIds,
+          pollUuid: this.pollUuid,
+          lastVersion: this.lastVersion,
+          evaluationId: this.evaluationId,
+        })
+        .subscribe(response => {
+          allItems = [...allItems, ...response.items];
+
+          if (allItems.length < response.count) {
+            page++;
+            fetchPage();
+          } else {
+            this.allStudents = allItems;
+          }
+        });
+    };
+    fetchPage();
   }
 
   get showEmpty(): boolean {

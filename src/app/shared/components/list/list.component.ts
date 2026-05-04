@@ -85,6 +85,7 @@ export class ListComponent<T extends object>
   @Input() showPaginator = true;
   @Input() columnOrder: Column<T>[] = [];
   @Input() isItemDisabled?: (item: T) => boolean;
+  @Input() allItems: T[] = [];
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -195,7 +196,7 @@ export class ListComponent<T extends object>
     this.isGenerating = true;
     const itemsToExport = this.itemsAreSelectable
       ? this.getItemsToExport()
-      : this.items;
+      : (this.allItems ?? this.items);
     const columnsToExport = [
       ...new Set([...this.columns, ...this.exportColumns]),
     ];
