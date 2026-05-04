@@ -45,6 +45,7 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-charts/summary-column-charts/summary-column-charts.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-students-risk',
@@ -63,6 +64,7 @@ import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component'
     PollFiltersComponent,
     MatMenuModule,
     SummaryColumnChartsComponent,
+    MatProgressSpinner,
   ],
   templateUrl: './summary-charts.component.html',
   styleUrl: './summary-charts.component.scss',
@@ -111,6 +113,7 @@ export class SummaryChartsComponent {
 
   isLoading = false;
   isGeneratingPDF = false;
+  isExporting = signal<boolean>(false);
   title = '';
   components = signal<PollAvgReport | null>(null);
   heatmapChart = true;
@@ -302,6 +305,10 @@ export class SummaryChartsComponent {
         });
     };
     fetchPage();
+  }
+
+  async onExporting(processExport: boolean) {
+    this.isExporting.set(processExport);
   }
 
   get showEmpty(): boolean {

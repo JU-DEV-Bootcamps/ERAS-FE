@@ -11,6 +11,7 @@ import {
   TemplateRef,
   ViewChild,
   AfterContentInit,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -94,6 +95,7 @@ export class ListComponent<T extends object>
   @Input() columnTemplates: Column<T>[] = [];
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
   @Input() pageIndex = 0;
+  @Output() exporting = new EventEmitter<boolean>();
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 
@@ -108,7 +110,11 @@ export class ListComponent<T extends object>
     }
   }
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+    //aqui private pdfHelper: PdfHelper,
+  ) {}
 
   ngOnInit(): void {
     this.load();
@@ -216,13 +222,19 @@ export class ListComponent<T extends object>
     if (this.isGenerating) return;
 
     this.isGenerating = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-      preProcess: 'list',
-    });
-    this.isGenerating = false;
+    this.exporting.emit(true);
+    try {
+      if (!this.allItems?.length) {
+        const ready = await this.waitForAllItems();
+        if (!ready) {
+          console.warn('allItems not available, exporting current page only');
+        }
+      }
+      await this.exportWithAllItems();
+    } finally {
+      this.isGenerating = false;
+      this.exporting.emit(false);
+    }
   }
 
   private getItemsToExport(): T[] {
@@ -236,5 +248,40 @@ export class ListComponent<T extends object>
     }
 
     return selectedItems;
+  }
+
+  private waitForAllItems(timeoutMs = 30000): Promise<boolean> {
+    return new Promise(resolve => {
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (this.allItems?.length) {
+          clearInterval(interval);
+          resolve(true);
+        } else if (Date.now() - start > timeoutMs) {
+          clearInterval(interval);
+          resolve(false);
+        }
+      }, 200);
+    });
+  }
+
+  private async exportWithAllItems() {
+    const originalItems = this.items;
+    const itemsToExport = this.allItems?.length ? this.allItems : this.items;
+
+    this.items = itemsToExport;
+    this.cdr.detectChanges();
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 150)));
+
+    await this.pdfHelper.exportToPdf({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+      preProcess: 'list',
+    });
+
+    this.items = originalItems;
+    this.showPaginator = true;
+    this.cdr.detectChanges();
   }
 }
