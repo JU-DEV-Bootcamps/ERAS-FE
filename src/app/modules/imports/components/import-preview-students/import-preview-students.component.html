@@ -1,0 +1,119 @@
+<div class="preview-modal">
+  <div class="preview-modal-header">
+    <h2 class="preview-modal-title">{{ title }}</h2>
+    <button
+      class="preview-modal-close-btn"
+      type="button"
+      aria-label="Close dialog"
+      [disabled]="isLoading"
+      (click)="onCancel()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="preview-modal-divider"></div>
+
+  <div class="preview-modal-body">
+    <div class="preview-modal-subtitle">Students List</div>
+    <div
+      *ngIf="errorsInHeaders.length > 0"
+      class="preview-modal-error-banner"
+      role="alert"
+    >
+      <mat-icon class="icon-alert">warning_amber</mat-icon>
+      <div class="preview-modal-error-banner-text">
+        @for (item of errorsInHeaders; track $index) {
+          <div>{{ item }}<br /></div>
+        }
+      </div>
+    </div>
+    <div
+      *ngIf="errorRowCount > 0"
+      class="preview-modal-error-banner"
+      role="alert"
+    >
+      <mat-icon class="icon-alert">warning_amber</mat-icon>
+      <div class="preview-modal-error-banner-text">
+        <strong
+          >{{ errorRowCount }} row{{ errorRowCount === 1 ? '' : 's' }} with
+          errors detected.</strong
+        >
+        Rows with errors are deselected automatically and will not be imported.
+        Hover the
+        <mat-icon inline="true" class="icon-example">error_outline</mat-icon
+        >icon on each row for details.
+      </div>
+    </div>
+
+    <div class="preview-modal-table-wrapper">
+      <app-list
+        (loadCalled)="handleLoadCalled()"
+        [columns]="listColumns"
+        [columnTemplates]="statusColumn"
+        [items]="previewDataRows"
+        [totalItems]="totalRows"
+        [itemsAreSelectable]="itemsAreSelectable"
+        [isItemDisabled]="isRowDisabled"
+        [showPaginator]="false"
+      >
+        <ng-template #status let-element>
+          @if (element._hasError || errorsInHeaders.length > 0) {
+            <mat-icon
+              class="preview-modal-row-icon preview-modal-row-icon--error"
+              [matTooltip]="element._errors.join(', ')"
+              matTooltipClass="preview-modal-multiline-tooltip"
+            >
+              error_outline
+            </mat-icon>
+          } @else {
+            <mat-icon
+              class="preview-modal-row-icon preview-modal-row-icon--correct"
+            >
+              check_circle_outline
+            </mat-icon>
+          }
+        </ng-template>
+      </app-list>
+    </div>
+  </div>
+
+  <div class="preview-modal-divider"></div>
+
+  <div class="preview-modal-footer">
+    <span class="preview-modal-footer-hint">
+      {{ selectedValidCount }} row{{ selectedValidCount === 1 ? '' : 's' }} will
+      be imported
+    </span>
+
+    <div class="preview-modal-footer-actions">
+      <button
+        type="button"
+        class="preview-modal-btn preview-modal-btn--back"
+        [disabled]="isLoading"
+        (click)="onCancel()"
+      >
+        Back
+      </button>
+
+      <button
+        type="button"
+        class="preview-modal-btn preview-modal-btn--confirm"
+        [disabled]="!canConfirm"
+        (click)="onConfirm()"
+      >
+        <mat-spinner
+          *ngIf="isLoading"
+          diameter="16"
+          class="preview-modal-spinner"
+        ></mat-spinner>
+        <span
+          >Import
+          {{
+            selectedValidCount > 0 ? '(' + selectedValidCount + ')' : ''
+          }}</span
+        >
+      </button>
+    </div>
+  </div>
+</div>

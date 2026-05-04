@@ -6,7 +6,7 @@
       class="light-button"
       [textButton]="'Import'"
       [iconButton]="'download'"
-      (clickButton)="redirectToImport()"
+      (clickButton)="openImportModal()"
     ></app-eras-button>
     @if (students.length > 0) {
       <app-eras-button

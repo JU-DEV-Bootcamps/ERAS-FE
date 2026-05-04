@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+$color-text-primary: #111827;
+$color-text-secondary: var(--color-neutral-800);
+$color-text-subtitle: #1e293b;
+$color-border: #e5e7eb;
+$color-surface: #f9fafb;
+$color-white: #ffffff;
+
+$color-accent: #5c9e8f;
+$color-accent-hover: #4a8a7c;
+
+$color-danger: #dc2626;
+$color-danger-bg: #fef2f2;
+$color-danger-border: #fecaca;
+
+$color-drop-active-bg: #f0faf8;
+$color-drop-active-border: $color-accent;
+
+$color-btn-import-disabled-bg: #c8dbd8;
+$color-btn-cancel: #374151;
+
+$border-radius-sm: 6px;
+$border-radius-md: 10px;
+$border-radius-lg: 14px;
+
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-base: 1rem;
+
+$transition: 150ms ease;
+
+.preview-modal {
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+  min-height: 80vh;
+  max-height: 90vh;
+  background: $color-white;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+  }
+
+  &-title {
+    margin: 0;
+    font-size: var(--font-size-header-small);
+    line-height: 32px;
+    font-weight: 600;
+    font-family: $inter;
+    color: $color-text-primary;
+    letter-spacing: -0.01em;
+  }
+
+  &-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: $border-radius-sm;
+    background: transparent;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition:
+      background $transition,
+      color $transition;
+
+    &:hover {
+      background: $color-surface;
+      color: $color-text-primary;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $color-accent;
+      outline-offset: 2px;
+    }
+  }
+
+  &-divider {
+    height: 1px;
+    background: $color-border;
+    flex-shrink: 0;
+  }
+
+  &-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 24px;
+    display: flex;
+    background: $color-surface;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &-table-wrapper {
+    width: 100%;
+  }
+
+  &-subtitle {
+    font-family: $inter;
+    font-size: var(--font-size-large);
+    line-height: 28px;
+    color: $color-text-subtitle;
+    font-weight: 600;
+    width: 100%;
+  }
+
+  &-error-banner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid $color-danger-border;
+    border-radius: $border-radius-sm;
+    background: $color-danger-bg;
+    color: $color-danger;
+
+    .icon-alert {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+    }
+
+    &-text {
+      font-family: $inter;
+      font-size: $font-size-sm;
+      line-height: 1.5;
+    }
+    strong {
+      font-family: $inter;
+    }
+    .icon-example {
+      font-size: 14px;
+      vertical-align: middle;
+      margin-right: 2px;
+    }
+  }
+
+  &-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+  }
+
+  &-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 999px;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background $transition,
+      color $transition,
+      opacity $transition;
+
+    &:focus-visible {
+      outline: 2px solid $color-accent;
+      outline-offset: 2px;
+    }
+
+    &--cancel {
+      background: transparent;
+      color: $color-btn-cancel;
+
+      &:hover:not(:disabled) {
+        background: $color-surface;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    &--import {
+      background: $color-accent;
+      color: $color-white;
+
+      &:hover:not(:disabled) {
+        background: $color-accent-hover;
+      }
+
+      &:disabled {
+        background: $color-btn-import-disabled-bg;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  &-spinner {
+    ::ng-deep circle {
+      stroke: $color-white !important;
+    }
+  }
+
+  &-row-icon--error {
+    color: $color-danger;
+  }
+
+  &-row-icon--correct {
+    color: $color-accent;
+  }
+}
+
+::ng-deep .mat-mdc-header-cell,
+.mdc-data-table__header-cell,
+.cdk-header-cell,
+.cdk-column-studentName,
+.mat-column-studentName {
+  font-size: 12px;
+  font-family: $inter;
+  line-height: 16px;
+}

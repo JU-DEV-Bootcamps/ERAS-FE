@@ -101,6 +101,7 @@
         >
           <app-selected-checkbox
             [element]="item"
+            [disabled]="isItemDisabled ? isItemDisabled(item) : false"
             (checkChange)="itemChecked()"
           ></app-selected-checkbox>
         </td>

@@ -73,6 +73,7 @@ export class TableWithActionsComponent<T extends object>
   @Input() mapClass?: MapClass;
   @Input() itemsAreSelectable = false;
   @Input() columnOrder: Column<T>[] = [];
+  @Input() isItemDisabled?: (item: T) => boolean;
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
@@ -183,19 +184,33 @@ export class TableWithActionsComponent<T extends object>
   }
 
   private areAllItemsSelected(): boolean {
-    return this.items.every(item => 'isSelected' in item && item.isSelected);
+    const selectableItems = this.isItemDisabled
+      ? this.items.filter(item => !this.isItemDisabled!(item))
+      : this.items;
+    return (
+      selectableItems.length > 0 &&
+      selectableItems.every(item => 'isSelected' in item && item.isSelected)
+    );
   }
 
   private toggleItemsSelection(selected: boolean) {
     this.items.forEach(item => {
       if ('isSelected' in item) {
+        if (selected && this.isItemDisabled?.(item)) return;
         item.isSelected = selected;
       }
     });
-    this.allItemsSelected.set(selected);
+    this.allItemsSelected.set(this.areAllItemsSelected());
   }
 
   itemChecked() {
+    if (this.isItemDisabled) {
+      this.items.forEach(item => {
+        if (this.isItemDisabled!(item) && 'isSelected' in item) {
+          item.isSelected = false;
+        }
+      });
+    }
     this.allItemsSelected.set(this.areAllItemsSelected());
   }
 
