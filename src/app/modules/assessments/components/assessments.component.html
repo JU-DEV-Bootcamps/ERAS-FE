@@ -7,4 +7,7 @@
   ></app-eras-button>
 </div>
 
-<app-assessment-list (createClicked)="openCreateModal()"></app-assessment-list>
+<app-assessment-list
+  (createClicked)="openCreateModal()"
+  (editClicked)="openEditModal($event)"
+></app-assessment-list>

@@ -20,6 +20,8 @@ import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
+import { AssessmentModel } from '@core/models/assessement.model';
+import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
 
 @Component({
   selector: 'app-assessments',
@@ -98,5 +100,14 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
     dialogRef
       .afterClosed()
       .subscribe(() => this.listComponent()?.loadAssessments());
+  }
+
+  openEditModal(assessment: AssessmentModel) {
+    this.matDialog.open(EditAssessmentModalComponent, {
+      autoFocus: false,
+      data: { assessment, ...this.lookups() },
+      minWidth: '400px',
+      width: '40vw',
+    });
   }
 }

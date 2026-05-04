@@ -25,7 +25,7 @@ import { AssessmentsLookups } from '@modules/assessments/models/assessments.inte
   selector: 'app-new-assessment-modal',
   imports: [FormFactoryComponent, MatDialogModule, NgClass],
   templateUrl: './new-assessment-modal.component.html',
-  styleUrl: './new-assessment-modal.component.scss',
+  styleUrl: '../../styles/assessments-modal-styles.scss',
 })
 export class NewAssessmentModalComponent implements FormCreation {
   private readonly assessmentsService = inject(AssessmentService);
