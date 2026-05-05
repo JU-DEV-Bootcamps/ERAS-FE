@@ -52,23 +52,6 @@
               Column Chart
             </button>
           </mat-menu>
-
-          <button
-            mat-icon-button
-            class="action-btn action-btn--icon"
-            matTooltip="{{ isExpanded ? 'Collapse' : 'Expand' }}"
-            (click)="toggleExpand()"
-          >
-            @if (isExpanded) {
-              <mat-icon>fullscreen_exit</mat-icon>
-            } @else {
-              <img
-                src="assets/icons/expand.svg"
-                alt="expand_icon"
-                class="action-icon"
-              />
-            }
-          </button>
         </div>
       </div>
 

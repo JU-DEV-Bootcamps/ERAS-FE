@@ -1,7 +1,7 @@
 .summary-charts-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   padding: 24px;
 }
 
@@ -15,16 +15,17 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
+    padding: 16px 24px 12px 24px;
+    margin: 0;
   }
 
   &__title {
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 600;
     color: #1a1a1a;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.3;
   }
 
   &__actions {
@@ -32,14 +33,6 @@
     align-items: center;
     gap: 0.25rem;
   }
-}
-
-.report-card__title {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 0;
 }
 
 .action-btn {
@@ -99,19 +92,17 @@
 }
 
 .chart-area {
-  padding: 16px 8px;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  padding: 0 8px;
 
   ::ng-deep {
     .apexcharts-legend {
       display: none !important;
     }
-
     .apexcharts-canvas {
       width: 100% !important;
-
       svg {
         width: 100% !important;
         height: auto !important;
@@ -128,10 +119,10 @@
 .chart-legend {
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
-  height: auto;
   gap: clamp(16px, 5vw, 81px);
-  padding: 16px 8px 16px clamp(16px, 20vw, 278px);
+  padding: 16px 8px;
   flex-wrap: wrap;
   box-sizing: border-box;
 
@@ -139,7 +130,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 16px;
+    margin-top: 0;
   }
 
   &__dot {
@@ -158,18 +149,17 @@
 }
 
 .report-card--students {
-  padding: 24px;
+  padding: 16px 24px 24px 24px;
 
   ::ng-deep {
-    .list-header,
-    .list-title {
+    .list-header {
       font-family: 'Inter', sans-serif !important;
       font-size: 16px !important;
       font-weight: 600 !important;
       color: #1a1a1a !important;
-      margin: 0 0 20px 0 !important;
+      margin: 0 0 16px 0 !important;
       padding: 0 !important;
-      line-height: 1.4 !important;
+      line-height: 1.3 !important;
     }
 
     .list-container {
@@ -183,6 +173,7 @@
       width: 100%;
       table-layout: auto;
       margin-top: 0;
+      border: none !important;
     }
 
     th {
@@ -199,7 +190,6 @@
     td {
       height: 40px;
       padding: 0 24px !important;
-      box-sizing: border-box;
     }
 
     tr.mat-mdc-row td {
@@ -219,14 +209,6 @@
       width: 107.98px;
     }
   }
-}
-
-.report-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  margin-bottom: 8px;
 }
 
 .risk-badge {
@@ -267,16 +249,13 @@
     padding: 16px;
     gap: 16px;
   }
-
   .chart-area {
     padding: 16px;
   }
-
   .chart-legend {
     padding: 16px;
     gap: 1rem;
   }
-
   .report-card__header {
     flex-wrap: wrap;
     gap: 0.5rem;
