@@ -109,15 +109,16 @@
     <div class="report-card">
       <div class="report-card--students">
         <app-list
-          (actionCalled)="(null)"
           (loadCalled)="getStudentsByCohortAndPoll($event)"
+          (exportRequested)="onExportRequested($event)"
+          (exporting)="onExporting($event)"
           [items]="students"
           [totalItems]="totalStudents"
           [columns]="columns"
           [columnTemplates]="columnTemplates"
-          [actionDatas]="[]"
           [title]="'Student Answers'"
-          [showExportDropdown]="false"
+          [showExportDropdown]="true"
+          [allItems]="allStudents"
         >
           <ng-template #avgRiskLevel let-item>
             <span
