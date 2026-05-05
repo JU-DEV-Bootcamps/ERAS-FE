@@ -12,6 +12,8 @@ import {
   ViewChild,
   AfterContentInit,
   ChangeDetectorRef,
+  SimpleChanges,
+  OnChanges,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -39,6 +41,8 @@ import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
 
+export type TypeFile = 'csv' | 'pdf' | '';
+
 @Component({
   selector: 'app-list',
   imports: [
@@ -59,7 +63,7 @@ import { EmptyDataComponent } from '../empty-data/empty-data.component';
   styleUrl: './list.component.scss',
 })
 export class ListComponent<T extends object>
-  implements OnInit, AfterContentInit
+  implements OnInit, AfterContentInit, OnChanges
 {
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
@@ -96,10 +100,12 @@ export class ListComponent<T extends object>
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
   @Input() pageIndex = 0;
   @Output() exporting = new EventEmitter<boolean>();
+  @Output() exportRequested = new EventEmitter<TypeFile>();
+  private pendingExportResolve: (() => void) | null = null;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 
-  selectedExportFormat: 'csv' | 'pdf' | '' = '';
+  selectedExportFormat: TypeFile = '';
 
   exportTable() {
     if (!this.selectedExportFormat) return;
@@ -113,7 +119,6 @@ export class ListComponent<T extends object>
   constructor(
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
-    //aqui private pdfHelper: PdfHelper,
   ) {}
 
   ngOnInit(): void {
@@ -129,6 +134,18 @@ export class ListComponent<T extends object>
         this.templateMap.set(name, tpl);
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes['allItems'] &&
+      this.allItems?.length &&
+      this.pendingExportResolve
+    ) {
+      const resolve = this.pendingExportResolve;
+      this.pendingExportResolve = null;
+      resolve();
+    }
   }
 
   onPageChange(pagination: PageEvent): void {
@@ -199,23 +216,15 @@ export class ListComponent<T extends object>
 
   exportToCSV() {
     if (this.isGenerating) return;
-    this.isGenerating = true;
-    const itemsToExport = this.itemsAreSelectable
-      ? this.getItemsToExport()
-      : (this.allItems ?? this.items);
-    const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
-    ];
-    const columnKeys = columnsToExport.map(c => c.key);
-    const columnLabels = columnsToExport.map(c => c.label);
-
-    this.csvService.exportToCSV(
-      itemsToExport,
-      columnKeys as string[],
-      columnLabels
-    );
-
-    this.isGenerating = false;
+    if (!this.allItems?.length) {
+      const waitForItems = new Promise<void>(resolve => {
+        this.pendingExportResolve = resolve;
+      });
+      this.exportRequested.emit('csv');
+      waitForItems.then(() => this._exportItemsToCsv());
+      return;
+    }
+    this._exportItemsToCsv();
   }
 
   async exportToPdf() {
@@ -225,10 +234,10 @@ export class ListComponent<T extends object>
     this.exporting.emit(true);
     try {
       if (!this.allItems?.length) {
-        const ready = await this.waitForAllItems();
-        if (!ready) {
-          console.warn('allItems not available, exporting current page only');
-        }
+        await new Promise<void>(resolve => {
+          this.pendingExportResolve = resolve;
+          this.exportRequested.emit('pdf');
+        });
       }
       await this.exportWithAllItems();
     } finally {
@@ -283,5 +292,25 @@ export class ListComponent<T extends object>
     this.items = originalItems;
     this.showPaginator = true;
     this.cdr.detectChanges();
+  }
+  private _exportItemsToCsv() {
+    if (this.isGenerating) return;
+    this.isGenerating = true;
+    const itemsToExport = this.itemsAreSelectable
+      ? this.getItemsToExport()
+      : (this.allItems ?? this.items);
+    const columnsToExport = [
+      ...new Set([...this.columns, ...this.exportColumns]),
+    ];
+    const columnKeys = columnsToExport.map(c => c.key);
+    const columnLabels = columnsToExport.map(c => c.label);
+
+    this.csvService.exportToCSV(
+      itemsToExport,
+      columnKeys as string[],
+      columnLabels
+    );
+
+    this.isGenerating = false;
   }
 }

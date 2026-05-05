@@ -79,13 +79,12 @@
     }
     <div id="table-container">
       <app-list
-        (actionCalled)="(null)"
         (loadCalled)="getStudentsByCohortAndPoll($event)"
+        (exportRequested)="onExportRequested($event)"
         (exporting)="onExporting($event)"
         [items]="students"
         [totalItems]="totalStudents"
         [columns]="columns"
-        [actionDatas]="[]"
         [title]="'Students Risk'"
         [showExportDropdown]="true"
         [allItems]="allStudents"
