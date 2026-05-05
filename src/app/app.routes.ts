@@ -27,6 +27,7 @@ import { DynamicChartsComponent } from '@modules/reports/components/dynamic-char
 import { DynamicChartsV2Component } from '@modules/reports/components/dynamic-charts-v2/dynamic-charts-v2.component';
 import { AssessmentsComponent } from '@modules/assessments/components/assessments.component';
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
+import { SummaryChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-charts-v2.component';
 
 export const routes: Routes = [
   {
@@ -59,7 +60,7 @@ export const routes: Routes = [
           },
           {
             path: 'summary-charts',
-            component: SummaryChartsComponent,
+            component: SummaryChartsV2Component,
             data: { headerTitle: 'Reports' } satisfies AppRouteData,
           },
           {
