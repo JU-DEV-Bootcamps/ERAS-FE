@@ -11,3 +11,12 @@ export interface AssessmentsLookups {
 export interface AssessmentModalData extends AssessmentsLookups {
   assessment: AssessmentModel;
 }
+
+export interface EditAssessmentModel {
+  date: string;
+  professional: string;
+  professionalComment?: string;
+  service: string;
+  students: string[];
+  submitter: string;
+}

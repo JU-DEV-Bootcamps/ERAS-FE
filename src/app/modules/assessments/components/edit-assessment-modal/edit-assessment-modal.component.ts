@@ -1,5 +1,11 @@
 import { NgClass } from '@angular/common';
-import { Component, EventEmitter, Inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
@@ -11,7 +17,12 @@ import {
   DynamicField,
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
-import { AssessmentModalData } from '@modules/assessments/models/assessments.interfaces';
+import { areObjectsEqual } from '@core/utils/helpers/are-objects-equal';
+import {
+  AssessmentModalData,
+  EditAssessmentModel,
+} from '@modules/assessments/models/assessments.interfaces';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-assessment-modal',
@@ -19,15 +30,28 @@ import { AssessmentModalData } from '@modules/assessments/models/assessments.int
   templateUrl: './edit-assessment-modal.component.html',
   styleUrl: '../../styles/assessments-modal-styles.scss',
 })
-export class EditAssessmentModalComponent implements FormCreation {
+export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
+
+  private originalAssessment: EditAssessmentModel;
+  private valueChangesSubscription!: Subscription;
+  protected formHasChanges = signal<boolean>(false);
 
   constructor(
     public dialogRef: MatDialogRef<EditAssessmentModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: AssessmentModalData
   ) {
+    this.originalAssessment = {
+      date: data.assessment.createdAtUtc,
+      professional: data.assessment.assignedProfessional!,
+      professionalComment: data.assessment.comments as string | undefined,
+      service: data.assessment.service,
+      students: data.assessment.studentIds,
+      submitter: data.assessment.createdBy,
+    };
+
     this.formFields = [
       {
         type: 'select',
@@ -84,15 +108,27 @@ export class EditAssessmentModalComponent implements FormCreation {
         name: 'professionalComment',
         label: 'Professional comment',
         placeholder: 'Leave a comment',
-        validators: [],
+        validators: this.data.assessment.comments ? [Validators.required] : [],
         floatingLabel: 'always',
         value: this.data.assessment.comments,
       },
     ];
   }
 
+  ngOnDestroy(): void {
+    if (this.valueChangesSubscription)
+      this.valueChangesSubscription.unsubscribe();
+  }
+
   protected setFormGroup(event: FormGroup) {
     this.form = event;
+    this.valueChangesSubscription = this.form.valueChanges.subscribe({
+      next: value => {
+        this.formHasChanges.set(
+          !areObjectsEqual(this.originalAssessment, value)
+        );
+      },
+    });
   }
 
   protected submitAssessment() {
