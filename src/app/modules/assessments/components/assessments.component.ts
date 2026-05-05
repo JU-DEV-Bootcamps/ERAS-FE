@@ -1,7 +1,7 @@
 import {
   Component,
+  DestroyRef,
   inject,
-  OnDestroy,
   OnInit,
   signal,
   viewChild,
@@ -14,7 +14,7 @@ import { JuServicesService } from '@modules/supports-referrals/services/juServic
 import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
 import { StudentService } from '@core/services/api/student.service';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { forkJoin, map, Observable, Subscription } from 'rxjs';
+import { forkJoin, map, Observable } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
 import { AssessmentModel } from '@core/models/assessement.model';
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-assessments',
@@ -34,12 +35,14 @@ import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-asses
   templateUrl: './assessments.component.html',
   styleUrl: './assessments.component.scss',
 })
-export class AssessmentsComponent implements OnInit, OnDestroy {
+export class AssessmentsComponent implements OnInit {
   private readonly matDialog = inject(MatDialog);
   private readonly juServicesService = inject(JuServicesService);
   private readonly professionalsService = inject(ProfessionalsService);
   private readonly studentService = inject(StudentService);
   private readonly userDataService = inject(UserDataService);
+  private readonly destroyRef = inject(DestroyRef);
+
   private readonly listComponent = viewChild(AssessmentListComponent);
 
   private lookups: WritableSignal<AssessmentsLookups> =
@@ -49,23 +52,18 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
       professionals: [],
       students: [],
     });
-  private lookupsSub!: Subscription;
-  private dialogRefSub!: Subscription;
 
   lookupLoading: WritableSignal<boolean> = signal<boolean>(false);
 
   ngOnInit(): void {
     this.lookupLoading.set(true);
-    this.lookupsSub = this.getLookups().subscribe({
-      next: lookups => this.lookups.set(lookups),
-      error: err => console.log('Error retrieving lookups', err),
-      complete: () => this.lookupLoading.set(false),
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.lookupsSub) this.lookupsSub.unsubscribe();
-    if (this.dialogRefSub) this.dialogRefSub.unsubscribe();
+    this.getLookups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: lookups => this.lookups.set(lookups),
+        error: err => console.error('Error retrieving lookups', err),
+        complete: () => this.lookupLoading.set(false),
+      });
   }
 
   private getLookups(): Observable<AssessmentsLookups> {
@@ -99,15 +97,21 @@ export class AssessmentsComponent implements OnInit, OnDestroy {
 
     dialogRef
       .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.listComponent()?.loadAssessments());
   }
 
   openEditModal(assessment: AssessmentModel) {
-    this.matDialog.open(EditAssessmentModalComponent, {
+    const dialogRef = this.matDialog.open(EditAssessmentModalComponent, {
       autoFocus: false,
       data: { assessment, ...this.lookups() },
       minWidth: '400px',
       width: '40vw',
     });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.listComponent()?.loadAssessments());
   }
 }
