@@ -11,6 +11,9 @@ import {
   TemplateRef,
   ViewChild,
   AfterContentInit,
+  ChangeDetectorRef,
+  SimpleChanges,
+  OnChanges,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -38,6 +41,8 @@ import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
 
+export type TypeFile = 'csv' | 'pdf' | '';
+
 @Component({
   selector: 'app-list',
   imports: [
@@ -58,7 +63,7 @@ import { EmptyDataComponent } from '../empty-data/empty-data.component';
   styleUrl: './list.component.scss',
 })
 export class ListComponent<T extends object>
-  implements OnInit, AfterContentInit
+  implements OnInit, AfterContentInit, OnChanges
 {
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
@@ -85,6 +90,7 @@ export class ListComponent<T extends object>
   @Input() showPaginator = true;
   @Input() columnOrder: Column<T>[] = [];
   @Input() isItemDisabled?: (item: T) => boolean;
+  @Input() allItems: T[] = [];
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -93,10 +99,13 @@ export class ListComponent<T extends object>
   @Input() columnTemplates: Column<T>[] = [];
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
   @Input() pageIndex = 0;
+  @Output() exporting = new EventEmitter<boolean>();
+  @Output() exportRequested = new EventEmitter<TypeFile>();
+  private pendingExportResolve: (() => void) | null = null;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 
-  selectedExportFormat: 'csv' | 'pdf' | '' = '';
+  selectedExportFormat: TypeFile = '';
 
   exportTable() {
     if (!this.selectedExportFormat) return;
@@ -107,7 +116,10 @@ export class ListComponent<T extends object>
     }
   }
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.load();
@@ -122,6 +134,18 @@ export class ListComponent<T extends object>
         this.templateMap.set(name, tpl);
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes['allItems'] &&
+      this.allItems?.length &&
+      this.pendingExportResolve
+    ) {
+      const resolve = this.pendingExportResolve;
+      this.pendingExportResolve = null;
+      resolve();
+    }
   }
 
   onPageChange(pagination: PageEvent): void {
@@ -192,36 +216,34 @@ export class ListComponent<T extends object>
 
   exportToCSV() {
     if (this.isGenerating) return;
-    this.isGenerating = true;
-    const itemsToExport = this.itemsAreSelectable
-      ? this.getItemsToExport()
-      : this.items;
-    const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
-    ];
-    const columnKeys = columnsToExport.map(c => c.key);
-    const columnLabels = columnsToExport.map(c => c.label);
-
-    this.csvService.exportToCSV(
-      itemsToExport,
-      columnKeys as string[],
-      columnLabels
-    );
-
-    this.isGenerating = false;
+    if (!this.allItems?.length) {
+      const waitForItems = new Promise<void>(resolve => {
+        this.pendingExportResolve = resolve;
+      });
+      this.exportRequested.emit('csv');
+      waitForItems.then(() => this._exportItemsToCsv());
+      return;
+    }
+    this._exportItemsToCsv();
   }
 
   async exportToPdf() {
     if (this.isGenerating) return;
 
     this.isGenerating = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-      preProcess: 'list',
-    });
-    this.isGenerating = false;
+    this.exporting.emit(true);
+    try {
+      if (!this.allItems?.length) {
+        await new Promise<void>(resolve => {
+          this.pendingExportResolve = resolve;
+          this.exportRequested.emit('pdf');
+        });
+      }
+      await this.exportWithAllItems();
+    } finally {
+      this.isGenerating = false;
+      this.exporting.emit(false);
+    }
   }
 
   private getItemsToExport(): T[] {
@@ -235,5 +257,60 @@ export class ListComponent<T extends object>
     }
 
     return selectedItems;
+  }
+
+  private waitForAllItems(timeoutMs = 30000): Promise<boolean> {
+    return new Promise(resolve => {
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (this.allItems?.length) {
+          clearInterval(interval);
+          resolve(true);
+        } else if (Date.now() - start > timeoutMs) {
+          clearInterval(interval);
+          resolve(false);
+        }
+      }, 200);
+    });
+  }
+
+  private async exportWithAllItems() {
+    const originalItems = this.items;
+    const itemsToExport = this.allItems?.length ? this.allItems : this.items;
+
+    this.items = itemsToExport;
+    this.cdr.detectChanges();
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 150)));
+
+    await this.pdfHelper.exportToPdf({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+      preProcess: 'list',
+    });
+
+    this.items = originalItems;
+    this.showPaginator = true;
+    this.cdr.detectChanges();
+  }
+  private _exportItemsToCsv() {
+    if (this.isGenerating) return;
+    this.isGenerating = true;
+    const itemsToExport = this.itemsAreSelectable
+      ? this.getItemsToExport()
+      : (this.allItems ?? this.items);
+    const columnsToExport = [
+      ...new Set([...this.columns, ...this.exportColumns]),
+    ];
+    const columnKeys = columnsToExport.map(c => c.key);
+    const columnLabels = columnsToExport.map(c => c.label);
+
+    this.csvService.exportToCSV(
+      itemsToExport,
+      columnKeys as string[],
+      columnLabels
+    );
+
+    this.isGenerating = false;
   }
 }

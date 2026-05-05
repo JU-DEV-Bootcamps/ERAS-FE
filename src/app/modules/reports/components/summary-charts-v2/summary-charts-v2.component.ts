@@ -37,7 +37,10 @@ import { ReportService } from '@core/services/api/report.service';
 import { StudentService } from '@core/services/api/student.service';
 
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { ListComponent } from '@shared/components/list/list.component';
+import {
+  ListComponent,
+  TypeFile,
+} from '@shared/components/list/list.component';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
@@ -111,13 +114,16 @@ export class SummaryChartsV2Component {
   evaluationId?: number | string;
 
   students: StudentRiskAverage[] = [];
+  allStudents: StudentRiskAverage[] = [];
   totalStudents = 0;
 
   isLoading = false;
   isGeneratingPDF = false;
+  isExporting = signal<boolean>(false);
   title = '';
   components = signal<PollAvgReport | null>(null);
   heatmapChart = true;
+  private allStudentsLoaded = false;
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -293,6 +299,50 @@ export class SummaryChartsV2Component {
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+  }
+
+  loadAllStudents(): Promise<void> {
+    return new Promise(resolve => {
+      const batchPageSize = 100;
+      let page = 0;
+      let allItems: StudentRiskAverage[] = [];
+
+      const fetchPage = () => {
+        this.studentService
+          .getAllAverageByCohortsAndPoll({
+            page,
+            pageSize: batchPageSize,
+            cohortIds: this.cohortIds,
+            pollUuid: this.pollUuid,
+            lastVersion: this.lastVersion,
+            evaluationId: this.evaluationId,
+          })
+          .subscribe(response => {
+            allItems = [...allItems, ...response.items];
+            if (allItems.length < response.count) {
+              page++;
+              fetchPage();
+            } else {
+              this.allStudents = allItems;
+              resolve();
+            }
+          });
+      };
+
+      fetchPage();
+    });
+  }
+
+  async onExportRequested(event: TypeFile) {
+    void event;
+    if (!this.allStudentsLoaded) {
+      await this.loadAllStudents();
+      this.allStudentsLoaded = true;
+    }
+  }
+
+  async onExporting(processExport: boolean) {
+    this.isExporting.set(processExport);
   }
 
   get showEmpty(): boolean {
