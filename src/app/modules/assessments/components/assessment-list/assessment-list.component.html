@@ -79,7 +79,13 @@
             <button
               mat-icon-button
               type="button"
-              matTooltip="Edit"
+              [matTooltip]="
+                item.isEditable
+                  ? 'Edit'
+                  : 'Assessment is not editable after being remitted'
+              "
+              [disabled]="!item.isEditable || lookupsLoading()"
+              [ngClass]="{ 'disabled-action': !item.isEditable }"
               (click)="onEditClick(item)"
             >
               <mat-icon>edit</mat-icon>
@@ -118,7 +124,18 @@
                 <mat-icon>visibility</mat-icon>
                 <span>View</span>
               </button>
-              <button mat-menu-item type="button" (click)="onEditClick(item)">
+              <button
+                mat-menu-item
+                type="button"
+                [matTooltip]="
+                  item.isEditable
+                    ? 'Edit'
+                    : 'Assessment is not editable after being remitted'
+                "
+                [disabled]="!item.isEditable || lookupsLoading()"
+                [ngClass]="{ 'disabled-action': !item.isEditable }"
+                (click)="onEditClick(item)"
+              >
                 <mat-icon>edit</mat-icon>
                 <span>Edit</span>
               </button>
