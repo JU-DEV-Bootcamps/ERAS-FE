@@ -146,7 +146,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
   protected submitAssessment() {
     if (this.form.valid) {
       const editedAssessment: AssessmentModel = {
-        createdAtUtc: new Date().toISOString(),
+        createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
         service: this.form.value.service,
         assignedProfessional: this.form.value.professional,

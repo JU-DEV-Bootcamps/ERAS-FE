@@ -57,6 +57,12 @@ $header-stroke: #e5e7eb;
 
 .modal-content {
   background-color: $background;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px;
+  }
 }
 
 .action-button {
