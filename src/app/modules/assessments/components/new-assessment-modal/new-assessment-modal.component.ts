@@ -66,6 +66,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         options: this.data.profiles,
         validators: [Validators.required],
         floatingLabel: 'always',
+        value: this.data.profiles[0].value ?? undefined,
       },
       {
         type: 'select',
