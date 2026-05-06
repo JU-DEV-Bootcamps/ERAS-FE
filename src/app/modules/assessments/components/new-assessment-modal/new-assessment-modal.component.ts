@@ -66,6 +66,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         options: this.data.profiles,
         validators: [Validators.required],
         floatingLabel: 'always',
+        value: this.data.profiles[0].value ?? undefined,
       },
       {
         type: 'select',
@@ -107,7 +108,7 @@ export class NewAssessmentModalComponent implements FormCreation {
   submitAssessment() {
     if (this.form.valid) {
       const newAssessment: AssessmentModel = {
-        createdAtUtc: new Date().toISOString(),
+        createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
         service: this.form.value.service,
         assignedProfessional: this.form.value.professional,
