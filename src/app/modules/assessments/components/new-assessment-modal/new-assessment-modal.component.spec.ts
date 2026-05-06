@@ -12,7 +12,10 @@ describe('NewAssessmentModalComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NewAssessmentModalComponent],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: { profiles: [{ label: 'Admin', value: 'admin' }] },
+        },
         {
           provide: MatDialogRef,
           useValue: { close: jasmine.createSpy('close') },
