@@ -7,4 +7,8 @@
   ></app-eras-button>
 </div>
 
-<app-assessment-list (createClicked)="openCreateModal()"></app-assessment-list>
+<app-assessment-list
+  [lookupsLoading]="lookupLoading()"
+  (createClicked)="openCreateModal()"
+  (editClicked)="openEditModal($event)"
+></app-assessment-list>

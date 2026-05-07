@@ -36,4 +36,11 @@ export class AssessmentService extends BaseApiService {
   ): Observable<AssessmentModel> {
     return this.post<AssessmentModel>('', newAssessment);
   }
+
+  editAssessment(
+    id: string,
+    editedAssessment: AssessmentModel
+  ): Observable<AssessmentModel> {
+    return this.put<AssessmentModel>(id, editedAssessment);
+  }
 }

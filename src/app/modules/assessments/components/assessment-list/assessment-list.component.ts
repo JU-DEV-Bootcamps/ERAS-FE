@@ -7,6 +7,7 @@ import {
   Output,
   computed,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,12 +22,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AssessmentStatusBadgeComponent } from './assessment-status-badge/assessment-status-badge.component';
 import { AssessmentDetailDialogComponent } from '../assessment-detail/assessment-detail-dialog.component';
-import { AssessmentModel } from '../../../../core/models/assessement.model';
+import {
+  AssessmentModel,
+  AssessmentStatus,
+} from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
   commentPreview: string;
+  isEditable: boolean;
 }
 
 @Component({
@@ -73,6 +78,8 @@ export class AssessmentListComponent implements OnInit {
   ];
 
   protected readonly isLoading = signal(true);
+  lookupsLoading = input<boolean>(true);
+
   protected readonly pageIndex = signal(0);
   protected readonly assessments = signal<AssessmentRowViewModel[]>([]);
   protected readonly selectedAssessment = signal<AssessmentRowViewModel | null>(
@@ -141,6 +148,7 @@ export class AssessmentListComponent implements OnInit {
         ? item.studentIds.join(', ')
         : 'No student assigned',
       commentPreview: this.buildCommentPreview(item.comments),
+      isEditable: this.isItemEditable(item.status),
     };
   }
 
@@ -151,5 +159,11 @@ export class AssessmentListComponent implements OnInit {
     return comments.length > 60
       ? `${comments.slice(0, 60).trim()}...`
       : comments;
+  }
+
+  private isItemEditable(itemStatus: AssessmentStatus) {
+    const editableStatus = [AssessmentStatus.Created, AssessmentStatus.OnHold];
+
+    return !!editableStatus.find(status => itemStatus === status);
   }
 }

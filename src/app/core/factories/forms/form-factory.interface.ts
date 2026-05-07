@@ -6,7 +6,7 @@ import { Lookup } from '@core/models/lookup';
 import { FloatLabelType } from '@angular/material/form-field';
 
 export type FieldType = 'date' | 'select' | 'text' | 'textarea' | 'password';
-export type ValueType = string | number | boolean | Date | null;
+export type ValueType = string | number | boolean | Date | null | string[];
 
 export type FormControlTuple = Record<
   string,
