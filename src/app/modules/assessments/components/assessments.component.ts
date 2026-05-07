@@ -18,7 +18,7 @@ import { forkJoin, map, Observable } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
 import { AssessmentModel } from '@core/models/assessement.model';
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
@@ -52,6 +52,13 @@ export class AssessmentsComponent implements OnInit {
       professionals: [],
       students: [],
     });
+
+  private modalConfig: MatDialogConfig = {
+    autoFocus: false,
+    minWidth: '500px',
+    width: '40vw',
+    panelClass: 'assessment-modal-panel',
+  };
 
   lookupLoading: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -89,10 +96,8 @@ export class AssessmentsComponent implements OnInit {
 
   openCreateModal() {
     const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
-      autoFocus: false,
+      ...this.modalConfig,
       data: { ...this.lookups() },
-      minWidth: '400px',
-      width: '40vw',
     });
 
     dialogRef
@@ -103,10 +108,8 @@ export class AssessmentsComponent implements OnInit {
 
   openEditModal(assessment: AssessmentModel) {
     const dialogRef = this.matDialog.open(EditAssessmentModalComponent, {
-      autoFocus: false,
+      ...this.modalConfig,
       data: { assessment, ...this.lookups() },
-      minWidth: '400px',
-      width: '40vw',
     });
 
     dialogRef
