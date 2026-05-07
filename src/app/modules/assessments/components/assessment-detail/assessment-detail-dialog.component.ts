@@ -36,7 +36,6 @@ export class AssessmentDetailDialogComponent {
   }
 
   onCreateIntervention(): void {
-    // TODO: implement once Create Intervention screen is available
     this.dialogRef.close({
       action: 'createIntervention',
       assessment: this.data,

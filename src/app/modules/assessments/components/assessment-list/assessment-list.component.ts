@@ -98,9 +98,16 @@ export class AssessmentListComponent implements OnInit {
     this.viewClicked.emit(item);
     this.matDialog.open(AssessmentDetailDialogComponent, {
       data: item,
-      width: '420px',
-      maxHeight: '90vh',
+      width: '480px',
+      height: '868px',
+      maxWidth: '480px',
+      maxHeight: '868px',
+      position: { top: '0', right: '0' },
+      panelClass: ['slide-in-panel'],
+      hasBackdrop: false,
       autoFocus: false,
+      enterAnimationDuration: '0ms',
+      exitAnimationDuration: '0ms',
     });
   }
 

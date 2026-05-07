@@ -51,9 +51,10 @@ mat-icon {
 }
 
 // Select backgroud color
-.cdk-overlay-pane {
+.cdk-overlay-pane:not(.slide-in-panel) {
   background-color: white !important;
 }
+
 .cdk-overlay-pane:has(.compact-select-panel) {
   min-width: 540px !important;
 }
@@ -119,4 +120,25 @@ body {
   width: 3rem;
   height: 3rem;
   cursor: grab;
+}
+
+.slide-in-panel {
+  .mat-mdc-dialog-container,
+  .mdc-dialog__container,
+  .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+}
+.cdk-overlay-pane.slide-in-panel {
+  animation: slideInFromRight 250ms ease-out forwards;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
