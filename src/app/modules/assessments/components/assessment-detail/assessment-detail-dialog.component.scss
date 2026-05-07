@@ -1,16 +1,23 @@
 $primary: #117473;
 
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
 }
 
 .dialog-title {
   display: flex;
   flex-direction: row;
   align-items: center;
+  text-align: left;
   justify-content: space-between;
   margin: 0;
   padding: 0 24px;
+  width: 100%;
   height: 64px;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -18,11 +25,20 @@ $primary: #117473;
   line-height: 28px;
   color: #1f2937;
   box-sizing: border-box;
+  flex: 0 0 64px;
+  border-color: #e5e7eb;
+}
+
+mat-divider {
+  border-color: #e5e7eb;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .close-btn {
   color: #9ca3af;
   flex-shrink: 0;
+  margin-right: -8px;
 
   &:hover {
     color: #6b7280;
@@ -36,20 +52,23 @@ $primary: #117473;
 }
 
 .dialog-content {
-  padding: 24px !important;
-  margin: 0 !important;
+  padding: 20px 24px;
+  margin: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 2px;
   box-sizing: border-box;
+  flex: 1 1 auto;
+  overflow-y: auto;
 }
 
 .field-group {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0;
   width: 100%;
+  padding: 8px 0;
 }
 
 .field-label {
@@ -71,17 +90,25 @@ $primary: #117473;
 }
 
 .dialog-actions {
-  padding: 16px !important;
-  margin: 0 !important;
-  justify-content: stretch;
-  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 16px 24px 24px 24px;
+  gap: 8px;
+  margin: 0;
+  width: 100%;
+  height: 69px;
   box-sizing: border-box;
+  flex: 0 0 69px;
+  background: #ffffff;
+  overflow: hidden;
+  border-top: 1px solid #e5e7eb;
 }
 
 .create-intervention-btn {
   width: 100%;
-  background-color: $primary !important;
-  color: #ffffff !important;
+  background-color: $primary;
+  color: #ffffff;
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 500;
@@ -89,8 +116,9 @@ $primary: #117473;
   border-radius: 30px;
   height: 36px;
   transition: background-color 150ms ease;
+  padding: 8px 24px;
 
   &:hover {
-    background-color: darken($primary, 6%) !important;
+    background-color: darken($primary, 6%);
   }
 }

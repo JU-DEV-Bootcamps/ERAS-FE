@@ -77,7 +77,38 @@ th {
   }
 }
 
-.disabled-action {
-  cursor: not-allowed;
-  pointer-events: auto;
+.push-layout-container {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  overflow: hidden;
+}
+
+.main-content-area {
+  flex: 1;
+  min-width: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.slide-panel-area {
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: white;
+  border-radius: 12px;
+}
+
+.push-layout-container.panel-is-open {
+  .slide-panel-area {
+    width: 480px;
+    min-width: 480px;
+    margin-left: 16px;
+    opacity: 1;
+    visibility: visible;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
 }

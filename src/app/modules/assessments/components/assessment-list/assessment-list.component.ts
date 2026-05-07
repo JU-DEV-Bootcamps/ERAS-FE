@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -50,14 +50,13 @@ export interface AssessmentRowViewModel extends AssessmentModel {
     MatTableModule,
     MatTooltipModule,
     AssessmentStatusBadgeComponent,
-    NgClass,
+    AssessmentDetailDialogComponent,
   ],
   templateUrl: './assessment-list.component.html',
   styleUrl: './assessment-list.component.scss',
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
-  private readonly matDialog = inject(MatDialog);
 
   @Input() pageSize = 10;
 
@@ -83,6 +82,9 @@ export class AssessmentListComponent implements OnInit {
 
   protected readonly pageIndex = signal(0);
   protected readonly assessments = signal<AssessmentRowViewModel[]>([]);
+  protected readonly selectedAssessment = signal<AssessmentRowViewModel | null>(
+    null
+  );
 
   protected readonly pagedAssessments = computed(() => {
     const start = this.pageIndex() * this.pageSize;
@@ -104,12 +106,11 @@ export class AssessmentListComponent implements OnInit {
 
   protected onViewClick(item: AssessmentRowViewModel): void {
     this.viewClicked.emit(item);
-    this.matDialog.open(AssessmentDetailDialogComponent, {
-      data: item,
-      width: '420px',
-      maxHeight: '90vh',
-      autoFocus: false,
-    });
+    this.selectedAssessment.set(item);
+  }
+
+  protected closeDetailPanel(): void {
+    this.selectedAssessment.set(null);
   }
 
   protected onEditClick(item: AssessmentModel): void {

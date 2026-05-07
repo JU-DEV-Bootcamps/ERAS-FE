@@ -12,7 +12,7 @@
 
 <mat-divider></mat-divider>
 
-<mat-dialog-content class="dialog-content">
+<div class="dialog-content">
   <div class="field-group">
     <span class="field-label">Student:</span>
     <span class="field-value">{{ data.studentDisplay }}</span>
@@ -44,11 +44,9 @@
     <span class="field-label">Comment:</span>
     <span class="field-value">{{ data.comments || '—' }}</span>
   </div>
-</mat-dialog-content>
+</div>
 
-<mat-divider></mat-divider>
-
-<mat-dialog-actions class="dialog-actions">
+<div class="dialog-actions">
   <button
     mat-flat-button
     class="create-intervention-btn"
@@ -57,4 +55,4 @@
   >
     Create Intervention
   </button>
-</mat-dialog-actions>
+</div>
