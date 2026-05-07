@@ -76,3 +76,8 @@ th {
     max-width: 160px;
   }
 }
+
+.disabled-action {
+  cursor: not-allowed;
+  pointer-events: auto;
+}

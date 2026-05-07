@@ -3,31 +3,33 @@
 
 $background: #f9fafb;
 $header-stroke: #e5e7eb;
+$form-label-color: #666666;
+$form-outline-color: #c4c4c4;
+$form-placeholder-color: #9e9e9e;
 
 :host {
   @include mat.dialog-overrides(
     (
+      actions-padding: 8px 24px 24px,
       headline-padding: none,
-      content-padding: 24px,
-      container-shape: rectangle,
+      with-actions-content-padding: 20px 24px 24px,
     )
   );
 
   @include mat.form-field-overrides(
     (
       container-height: 56px,
-      outlined-label-text-color: main-styles.get-color(neutral, 50),
-      outlined-input-text-placeholder-color: main-styles.get-color(neutral, 50),
-      outlined-outline-color: main-styles.get-color(neutral, 50),
-      outlined-hover-label-text-color: main-styles.get-color(neutral, 30),
-      outlined-input-text-color: main-styles.get-color(neutral, 30),
-      outlined-hover-outline-color: main-styles.get-color(neutral, 30),
+      outlined-label-text-color: $form-label-color,
+      outlined-input-text-placeholder-color: $form-placeholder-color,
+      outlined-outline-color: $form-outline-color,
+      outlined-hover-label-text-color: $form-label-color,
+      outlined-hover-outline-color: $form-outline-color,
     )
   );
 
   @include mat.select-overrides(
     (
-      placeholder-text-color: main-styles.get-color(neutral, 50),
+      placeholder-text-color: $form-placeholder-color,
     )
   );
 }
@@ -57,9 +59,15 @@ $header-stroke: #e5e7eb;
 
 .modal-content {
   background-color: $background;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px;
+  }
 }
 
-.create-button {
+.action-button {
   background-color: var(--primary-700);
   color: white;
 
@@ -108,5 +116,4 @@ button {
 
 mat-dialog-actions {
   gap: 8px;
-  padding: 24px;
 }
