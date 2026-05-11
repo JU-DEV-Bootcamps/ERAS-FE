@@ -300,7 +300,11 @@ export class ListComponent<T extends object>
       ? this.getItemsToExport()
       : (this.allItems ?? this.items);
     const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
+      ...new Set([
+        ...this.columns,
+        ...this.exportColumns,
+        ...this.columnTemplates,
+      ]),
     ];
     const columnKeys = columnsToExport.map(c => c.key);
     const columnLabels = columnsToExport.map(c => c.label);
