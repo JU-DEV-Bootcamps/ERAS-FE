@@ -28,6 +28,7 @@ import { DynamicChartsV2Component } from '@modules/reports/components/dynamic-ch
 import { AssessmentsComponent } from '@modules/assessments/components/assessments.component';
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 import { SummaryChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-charts-v2.component';
+import { AssessmentsContainerComponent } from '@modules/assessments/components/assesment-container/assessments-container.component';
 
 export const routes: Routes = [
   {
@@ -129,11 +130,19 @@ export const routes: Routes = [
 
       {
         path: 'assessments',
-        component: AssessmentsComponent,
+        component: AssessmentsContainerComponent,
         data: {
           breadcrumb: 'Assessments',
           headerTitle: 'Assessments',
         } satisfies AppRouteData,
+        children: [
+          { path: '', redirectTo: 'assessments', pathMatch: 'full' },
+          {
+            path: 'assessments',
+            component: AssessmentsComponent,
+            data: { headerTitle: 'Assessments' } satisfies AppRouteData,
+          },
+        ],
       },
 
       {
