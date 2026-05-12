@@ -91,6 +91,7 @@ export class ListComponent<T extends object>
   @Input() columnOrder: Column<T>[] = [];
   @Input() isItemDisabled?: (item: T) => boolean;
   @Input() allItems: T[] = [];
+  @Input() areExportedAllItems = false;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -216,7 +217,7 @@ export class ListComponent<T extends object>
 
   exportToCSV() {
     if (this.isGenerating) return;
-    if (!this.allItems?.length) {
+    if (this.areExportedAllItems) {
       const waitForItems = new Promise<void>(resolve => {
         this.pendingExportResolve = resolve;
       });
@@ -233,7 +234,7 @@ export class ListComponent<T extends object>
     this.isGenerating = true;
     this.exporting.emit(true);
     try {
-      if (!this.allItems?.length) {
+      if (this.areExportedAllItems) {
         await new Promise<void>(resolve => {
           this.pendingExportResolve = resolve;
           this.exportRequested.emit('pdf');
@@ -257,21 +258,6 @@ export class ListComponent<T extends object>
     }
 
     return selectedItems;
-  }
-
-  private waitForAllItems(timeoutMs = 30000): Promise<boolean> {
-    return new Promise(resolve => {
-      const start = Date.now();
-      const interval = setInterval(() => {
-        if (this.allItems?.length) {
-          clearInterval(interval);
-          resolve(true);
-        } else if (Date.now() - start > timeoutMs) {
-          clearInterval(interval);
-          resolve(false);
-        }
-      }, 200);
-    });
   }
 
   private async exportWithAllItems() {
@@ -300,7 +286,11 @@ export class ListComponent<T extends object>
       ? this.getItemsToExport()
       : (this.allItems ?? this.items);
     const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
+      ...new Set([
+        ...this.columns,
+        ...this.exportColumns,
+        ...this.columnTemplates,
+      ]),
     ];
     const columnKeys = columnsToExport.map(c => c.key);
     const columnLabels = columnsToExport.map(c => c.label);

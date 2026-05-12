@@ -50,6 +50,7 @@ import { SummaryColumnChartsComponent } from '@modules/reports/components/summar
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-students-risk',
@@ -68,6 +69,7 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
     PollFiltersComponent,
     MatMenuModule,
     SummaryColumnChartsComponent,
+    MatProgressSpinner,
   ],
   templateUrl: './summary-charts-v2.component.html',
   styleUrl: './summary-charts-v2.component.scss',
