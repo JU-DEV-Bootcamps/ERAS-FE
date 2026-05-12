@@ -1,5 +1,5 @@
-<div class="reports-wrapper">
-  <nav class="reports-tabs">
+<div class="tabbed-wrapper">
+  <nav class="tabs-nav">
     <ng-container *ngFor="let tab of tabs">
       <a
         class="tab-item"
@@ -11,7 +11,7 @@
     </ng-container>
   </nav>
 
-  <div class="reports-content">
+  <div class="tabs-content">
     <router-outlet></router-outlet>
   </div>
 </div>

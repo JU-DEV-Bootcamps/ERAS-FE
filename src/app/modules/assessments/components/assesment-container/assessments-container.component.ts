@@ -5,14 +5,13 @@ import {
 } from '@shared/components/tabbed-layout-component/tabbed-layout.component';
 
 @Component({
-  selector: 'app-reports',
+  selector: 'app-assessments-container',
   imports: [TabbedLayoutComponent],
   template: `<app-tabbed-layout [tabs]="tabs" />`,
 })
-export class ReportsComponent {
+export class AssessmentsContainerComponent {
   tabs: TabItem[] = [
-    { label: 'Dynamic Charts', route: 'dynamic-charts' },
-    { label: 'Summary Charts', route: 'summary-charts' },
-    { label: 'Polls Answered', route: 'polls-answered' },
+    { label: 'Assessments', route: 'assessments' },
+    { label: 'Interventions', route: 'interventions' },
   ];
 }
