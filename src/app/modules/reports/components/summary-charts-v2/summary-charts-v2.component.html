@@ -6,6 +6,12 @@
     ></app-poll-filters>
   </div>
 
+  @if (isExporting()) {
+    <div class="export-overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="export-overlay__label">Generating PDF...</p>
+    </div>
+  }
   @if (showEmpty) {
     <app-empty-data-message
       description="Please select the required fields to generate the charts."
@@ -119,6 +125,7 @@
           [title]="'Student Answers'"
           [showExportDropdown]="true"
           [allItems]="allStudents"
+          [areExportedAllItems]="true"
         >
           <ng-template #avgRiskLevel let-item>
             <span
