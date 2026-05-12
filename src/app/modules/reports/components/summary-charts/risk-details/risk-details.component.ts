@@ -117,7 +117,9 @@ export default class RiskDetailsComponent {
         this.data.data.cohorts,
         [this.variableId],
         this.pagination.pageSize,
-        this.pagination.page
+        this.pagination.page,
+        undefined,
+        this.data.data.evaluationId
       )
       .subscribe(data => {
         const items = (data?.items ?? []).sort((a, b) => {
