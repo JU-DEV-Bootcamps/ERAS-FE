@@ -3,24 +3,25 @@
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 } @else if (!assessments().length) {
-  <mat-card class="empty-state">
-    <mat-card-content>
-      <div class="empty-state-content">
-        <h3>No assessments found</h3>
-        <p>Create the first assessment to get started.</p>
-        <button
-          mat-flat-button
-          type="button"
-          class="create-button"
-          (click)="onCreateClick()"
-        >
-          <mat-icon>add</mat-icon>
-          Create Assessment
-        </button>
+  <div class="empty-state">
+    <div class="empty-state-content">
+      <div class="empty-icon">
+        <mat-icon>assignment</mat-icon>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <h3>No Assessments yet</h3>
+      <p>Get Started by creating your first assessment record</p>
+      <button mat-flat-button type="button" (click)="onCreateClick()">
+        Create Assessment
+      </button>
+    </div>
+  </div>
 } @else {
+  <div class="page-header">
+    <button mat-flat-button type="button" (click)="onCreateClick()">
+      <mat-icon>add</mat-icon>
+      Create Assessment
+    </button>
+  </div>
   <div
     class="push-layout-container"
     [class.panel-is-open]="selectedAssessment() !== null"
