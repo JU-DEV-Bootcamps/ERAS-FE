@@ -32,6 +32,7 @@ export class SummaryColumnChartsComponent {
   pollUuid = input<string>();
   cohortsIds = input<number[]>();
   data = input();
+  evaluationId = input<number | string>();
 
   private injector = inject(EnvironmentInjector);
   private erasModalService = inject(ErasModalService);
@@ -61,6 +62,7 @@ export class SummaryColumnChartsComponent {
         pollUuid: this.pollUuid(),
         cohorts: this.cohortsIds(),
         componentName,
+        evaluationId: this.evaluationId(),
       },
       title: `${componentName}: ${series[y].name} Details`,
     };
