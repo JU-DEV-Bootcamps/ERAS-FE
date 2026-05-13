@@ -41,16 +41,20 @@ import {
   ListComponent,
   TypeFile,
 } from '@shared/components/list/list.component';
-import {
-  ModalQuestionDetailsComponent,
-  SelectedHMData,
-} from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
-import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-charts/summary-column-charts/summary-column-charts.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import {
+  DetailsPanelComponent,
+  DetailsPanelData,
+} from '@shared/components/panels/details-panel-v2/details-panel.component';
+import {
+  ColumnRiskPanelComponent,
+  ColumnRiskPanelData,
+} from './column-risk-panel/column-risk-panel.component';
+import { SummaryColumnChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-column-charts-v2/summary-column-charts-v2.component';
 
 @Component({
   selector: 'app-students-risk',
@@ -68,8 +72,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     CommonModule,
     PollFiltersComponent,
     MatMenuModule,
-    SummaryColumnChartsComponent,
+    SummaryColumnChartsV2Component,
     MatProgressSpinner,
+    DetailsPanelComponent,
+    ColumnRiskPanelComponent,
   ],
   templateUrl: './summary-charts-v2.component.html',
   styleUrl: './summary-charts-v2.component.scss',
@@ -122,6 +128,10 @@ export class SummaryChartsV2Component {
   isLoading = false;
   isGeneratingPDF = false;
   isExporting = signal<boolean>(false);
+  isPanelOpen = signal(false);
+  selectedPanelData = signal<DetailsPanelData | null>(null);
+  isColumnPanelOpen = signal(false);
+  selectedColumnPanelData = signal<ColumnRiskPanelData | null>(null);
   title = '';
   components = signal<PollAvgReport | null>(null);
   heatmapChart = true;
@@ -189,7 +199,7 @@ export class SummaryChartsV2Component {
               if (!pollAvgQuestion) {
                 console.error('Error getting question from report.');
               } else {
-                this.openDetailsModal(
+                this.openDetailsPanel(
                   pollAvgQuestion,
                   component.description as ComponentValueType,
                   component.text
@@ -263,13 +273,13 @@ export class SummaryChartsV2Component {
     this.isGeneratingPDF = false;
   }
 
-  openDetailsModal(
+  openDetailsPanel(
     question: PollAvgQuestion,
     componentName: ComponentValueType,
     text?: string
   ): void {
     if (!this.pollUuid) return;
-    const data: SelectedHMData = {
+    const data: DetailsPanelData = {
       cohortId: this.cohortIds.join(','),
       pollUuid: this.pollUuid,
       componentName,
@@ -277,7 +287,29 @@ export class SummaryChartsV2Component {
       question,
       evaluationId: this.evaluationId,
     };
-    this.dialog.open(ModalQuestionDetailsComponent, { data });
+    this.selectedPanelData.set(data);
+    this.isPanelOpen.set(true);
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+  }
+
+  closePanel(): void {
+    this.isPanelOpen.set(false);
+    this.selectedPanelData.set(null);
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+  }
+
+  openPanelFromColumn(data: ColumnRiskPanelData): void {
+    this.selectedColumnPanelData.set(data);
+    this.isColumnPanelOpen.set(true);
+    this.isPanelOpen.set(false);
+    this.selectedPanelData.set(null);
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+  }
+
+  closeColumnPanel(): void {
+    this.isColumnPanelOpen.set(false);
+    this.selectedColumnPanelData.set(null);
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
   }
 
   handleFilterSelect(filters: Filter) {
@@ -301,6 +333,10 @@ export class SummaryChartsV2Component {
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+    this.isPanelOpen.set(false);
+    this.selectedPanelData.set(null);
+    this.isColumnPanelOpen.set(false);
+    this.selectedColumnPanelData.set(null);
   }
 
   loadAllStudents(): Promise<void> {
