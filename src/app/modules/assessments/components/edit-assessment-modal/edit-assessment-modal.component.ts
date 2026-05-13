@@ -146,6 +146,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
   protected submitAssessment() {
     if (this.form.valid) {
       const editedAssessment: AssessmentModel = {
+        id: this.data.assessment.id,
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
         service: this.form.value.service,
@@ -157,7 +158,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       };
 
       this.assessmentsService
-        .editAssessment(this.data.assessment.id!, editedAssessment)
+        .editAssessment(this.data.assessment.id!.toString(), editedAssessment)
         .subscribe({
           next: response => {
             const toastData = this.buildSuccessToastDataObject(response);

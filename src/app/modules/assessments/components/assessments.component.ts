@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ErasButtonComponent } from '@shared/components/buttons/eras-button/eras-button.component';
 import { JuServicesService } from '@modules/supports-referrals/services/juServices.service';
 import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
 import { StudentService } from '@core/services/api/student.service';
@@ -26,12 +25,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-assessments',
-  imports: [
-    AssessmentListComponent,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    ErasButtonComponent,
-  ],
+  imports: [AssessmentListComponent, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './assessments.component.html',
   styleUrl: './assessments.component.scss',
 })
@@ -88,7 +82,7 @@ export class AssessmentsComponent implements OnInit {
           ),
           services: mapFields(services.items, 'name', 'name'),
           professionals: mapFields(professionals.items, 'name', 'name'),
-          students: mapFields(students.items, 'name', 'uuid'),
+          students: mapFields(students.items, 'name', 'id'),
         };
       })
     );

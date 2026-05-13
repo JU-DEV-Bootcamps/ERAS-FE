@@ -1,5 +1,5 @@
 export interface AssessmentModel {
-  id?: string;
+  id?: number;
 
   createdAtUtc: string;
   createdBy: string;
