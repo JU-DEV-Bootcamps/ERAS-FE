@@ -11,7 +11,7 @@ describe('AssessmentListComponent', () => {
 
   const mockAssessments: AssessmentModel[] = [
     {
-      id: '1',
+      id: 1,
       createdAtUtc: '2026-03-30T00:00:00Z',
       createdBy: 'Roberto Alvarez',
       service: 'Student Services',
