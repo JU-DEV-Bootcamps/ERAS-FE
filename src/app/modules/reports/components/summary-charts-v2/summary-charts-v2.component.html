@@ -23,126 +23,171 @@
       description="No data found for the selected filters. Try adjusting your selection."
     />
   } @else {
-    <div class="report-card">
-      <div class="report-card__header">
-        <span class="report-card__title">Global Academic Risk</span>
+    <div
+      class="summary-layout"
+      [class.panel-open]="isPanelOpen() || isColumnPanelOpen()"
+    >
+      <div class="summary-content">
+        <div class="report-card">
+          <div class="report-card__header">
+            <span class="report-card__title">Global Academic Risk</span>
 
-        <div class="report-card__actions">
-          <button
-            mat-button
-            class="action-btn action-btn--export"
-            [disabled]="!students.length || isGeneratingPDF"
-            (click)="exportReportPdf()"
-          >
-            Export
-          </button>
+            <div class="report-card__actions">
+              <button
+                mat-button
+                class="action-btn action-btn--export"
+                [disabled]="!students.length || isGeneratingPDF"
+                (click)="exportReportPdf()"
+              >
+                Export
+              </button>
 
-          <button
-            mat-icon-button
-            class="action-btn action-btn--icon"
-            [matMenuTriggerFor]="chartMenu"
-            matTooltip="Toggle chart type"
-            [disabled]="!students.length"
-          >
-            <img
-              src="assets/icons/graphic.svg"
-              alt="bar_chart"
-              class="action-icon"
-            />
-          </button>
-          <mat-menu #chartMenu="matMenu" xPosition="before">
-            <button mat-menu-item (click)="toggleChart('heatmap')">
-              Heatmap Chart
-            </button>
-            <button mat-menu-item (click)="toggleChart('chart')">
-              Column Chart
-            </button>
-          </mat-menu>
+              <button
+                mat-icon-button
+                class="action-btn action-btn--icon"
+                [matMenuTriggerFor]="chartMenu"
+                matTooltip="Toggle chart type"
+                [disabled]="!students.length"
+              >
+                <img
+                  src="assets/icons/graphic.svg"
+                  alt="bar_chart"
+                  class="action-icon"
+                />
+              </button>
+              <mat-menu #chartMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="toggleChart('heatmap')">
+                  Heatmap Chart
+                </button>
+                <button mat-menu-item (click)="toggleChart('chart')">
+                  Column Chart
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          <div class="chart-area">
+            <div class="chart-legend">
+              <div class="chart-legend__item">
+                <span
+                  class="chart-legend__dot"
+                  style="background: #bdbdbd"
+                ></span>
+                <span class="chart-legend__label">No Answer</span>
+              </div>
+              <div class="chart-legend__item">
+                <span
+                  class="chart-legend__dot"
+                  style="background: #43a047"
+                ></span>
+                <span class="chart-legend__label">Low</span>
+              </div>
+              <div class="chart-legend__item">
+                <span
+                  class="chart-legend__dot"
+                  style="background: #66bb6a"
+                ></span>
+                <span class="chart-legend__label">Low-Medium</span>
+              </div>
+              <div class="chart-legend__item">
+                <span
+                  class="chart-legend__dot"
+                  style="background: #fdd835"
+                ></span>
+                <span class="chart-legend__label">Medium</span>
+              </div>
+              <div class="chart-legend__item">
+                <span
+                  class="chart-legend__dot"
+                  style="background: #ffb74d"
+                ></span>
+                <span class="chart-legend__label">Medium-High</span>
+              </div>
+              <div class="chart-legend__item">
+                <span
+                  class="chart-legend__dot"
+                  style="background: #ef5350"
+                ></span>
+                <span class="chart-legend__label">High</span>
+              </div>
+            </div>
+
+            @if (heatmapChart) {
+              <apx-chart
+                id="heatmap"
+                [series]="chartOptions.series!"
+                [chart]="chartOptions.chart!"
+                [xaxis]="chartOptions.xaxis!"
+                [yaxis]="chartOptions.yaxis!"
+                [colors]="chartOptions.colors!"
+                [plotOptions]="chartOptions.plotOptions!"
+                [title]="chartOptions.title!"
+                [tooltip]="chartOptions.tooltip!"
+              ></apx-chart>
+            } @else {
+              <app-summary-column-charts-v2
+                [components]="components()!"
+                [pollUuid]="pollUuid"
+                [cohortsIds]="cohortIds"
+                [data]="title"
+                [evaluationId]="evaluationId"
+                (openPanel)="openPanelFromColumn($event)"
+              ></app-summary-column-charts-v2>
+            }
+          </div>
         </div>
-      </div>
 
-      <div class="chart-area">
-        <div class="chart-legend">
-          <div class="chart-legend__item">
-            <span class="chart-legend__dot" style="background: #bdbdbd"></span>
-            <span class="chart-legend__label">No Answer</span>
-          </div>
-          <div class="chart-legend__item">
-            <span class="chart-legend__dot" style="background: #43a047"></span>
-            <span class="chart-legend__label">Low</span>
-          </div>
-          <div class="chart-legend__item">
-            <span class="chart-legend__dot" style="background: #66bb6a"></span>
-            <span class="chart-legend__label">Low-Medium</span>
-          </div>
-          <div class="chart-legend__item">
-            <span class="chart-legend__dot" style="background: #fdd835"></span>
-            <span class="chart-legend__label">Medium</span>
-          </div>
-          <div class="chart-legend__item">
-            <span class="chart-legend__dot" style="background: #ffb74d"></span>
-            <span class="chart-legend__label">Medium-High</span>
-          </div>
-          <div class="chart-legend__item">
-            <span class="chart-legend__dot" style="background: #ef5350"></span>
-            <span class="chart-legend__label">High</span>
-          </div>
-        </div>
-
-        @if (heatmapChart) {
-          <apx-chart
-            id="heatmap"
-            [series]="chartOptions.series!"
-            [chart]="chartOptions.chart!"
-            [xaxis]="chartOptions.xaxis!"
-            [yaxis]="chartOptions.yaxis!"
-            [colors]="chartOptions.colors!"
-            [plotOptions]="chartOptions.plotOptions!"
-            [title]="chartOptions.title!"
-            [tooltip]="chartOptions.tooltip!"
-          ></apx-chart>
-        } @else {
-          <app-summary-column-charts
-            [components]="components()!"
-            [pollUuid]="pollUuid"
-            [cohortsIds]="cohortIds"
-            [data]="title"
-            [evaluationId]="evaluationId"
-          ></app-summary-column-charts>
-        }
-      </div>
-    </div>
-
-    <div class="report-card">
-      <div class="report-card--students">
-        <app-list
-          (loadCalled)="getStudentsByCohortAndPoll($event)"
-          (exportRequested)="onExportRequested($event)"
-          (exporting)="onExporting($event)"
-          [items]="students"
-          [totalItems]="totalStudents"
-          [columns]="columns"
-          [columnTemplates]="columnTemplates"
-          [title]="'Student Answers'"
-          [showExportDropdown]="true"
-          [allItems]="allStudents"
-          [areExportedAllItems]="true"
-        >
-          <ng-template #avgRiskLevel let-item>
-            <span
-              class="risk-badge"
-              [style.background-color]="getRiskColor(item.avgRiskLevel)"
-              [style.color]="
-                item.avgRiskLevel >= 3 && item.avgRiskLevel < 4
-                  ? '#1a1a1a'
-                  : '#ffffff'
-              "
+        <div class="report-card">
+          <div class="report-card--students">
+            <app-list
+              (loadCalled)="getStudentsByCohortAndPoll($event)"
+              (exportRequested)="onExportRequested($event)"
+              (exporting)="onExporting($event)"
+              [items]="students"
+              [totalItems]="totalStudents"
+              [columns]="columns"
+              [columnTemplates]="columnTemplates"
+              [title]="'Student Answers'"
+              [showExportDropdown]="true"
+              [allItems]="allStudents"
+              [areExportedAllItems]="true"
             >
-              {{ item.avgRiskLevel | number: '1.2-2' }}
-            </span>
-          </ng-template>
-        </app-list>
+              <ng-template #avgRiskLevel let-item>
+                <span
+                  class="risk-badge"
+                  [style.background-color]="getRiskColor(item.avgRiskLevel)"
+                  [style.color]="
+                    item.avgRiskLevel >= 3 && item.avgRiskLevel < 4
+                      ? '#1a1a1a'
+                      : '#ffffff'
+                  "
+                >
+                  {{ item.avgRiskLevel | number: '1.2-2' }}
+                </span>
+              </ng-template>
+            </app-list>
+          </div>
+        </div>
       </div>
+
+      @if (isPanelOpen()) {
+        <aside class="details-aside">
+          <app-details-panel
+            [data]="selectedPanelData()"
+            (closed)="closePanel()"
+          />
+        </aside>
+      }
+      @if (isColumnPanelOpen()) {
+        @if (isColumnPanelOpen()) {
+          <aside class="details-aside details-aside--scroll">
+            <app-column-risk-panel
+              [data]="selectedColumnPanelData()"
+              (closed)="closeColumnPanel()"
+            />
+          </aside>
+        }
+      }
     </div>
   }
 </div>
