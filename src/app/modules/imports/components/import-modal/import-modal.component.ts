@@ -113,4 +113,9 @@ export class ImportModalComponent {
     this.selectedFile = null;
     this.fileError = null;
   }
+
+  preloadFile(file: File): void {
+    this.fileError = null;
+    this.selectedFile = file;
+  }
 }

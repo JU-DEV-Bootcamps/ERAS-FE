@@ -47,6 +47,7 @@ export class ImportPreviewStudentsComponent implements OnInit {
 
   @Output() confirmed = new EventEmitter<ImportPreviewConfirm>();
   @Output() cancelled = new EventEmitter<void>();
+  @Output() cancelledExit = new EventEmitter<void>();
 
   statusColumn: Column<StudentModelPreview>[] = [{ key: 'status', label: '' }];
   previewDataRows: PreviewDataRow[] = [];
@@ -114,6 +115,11 @@ export class ImportPreviewStudentsComponent implements OnInit {
 
   onCancel(): void {
     this.cancelled.emit();
+    this.dialogRef?.close();
+  }
+
+  onExit(): void {
+    this.cancelledExit.emit();
     this.dialogRef?.close();
   }
 }

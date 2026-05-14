@@ -32,6 +32,7 @@ import {
 } from '@shared/components/list/types/preview';
 import {
   getHeadersErrors,
+  parseFloatDistinct,
   parseJsonRows,
   parseRowErrors,
 } from '@core/utils/helpers/parsers';
@@ -226,7 +227,7 @@ export class StudentsListComponent implements OnInit {
     }));
   }
 
-  openImportModal(): void {
+  openImportModal(restoredFile?: File): void {
     const dialogRef: MatDialogRef<ImportModalComponent> = this.dialog.open(
       ImportModalComponent,
       {
@@ -238,6 +239,10 @@ export class StudentsListComponent implements OnInit {
     const instance = dialogRef.componentInstance;
     instance.config = CSV_IMPORT_CONFIG;
     instance.dialogRef = dialogRef;
+
+    if (restoredFile) {
+      instance.preloadFile(restoredFile);
+    }
 
     instance.fileSelected.subscribe((file: File) => {
       instance.isLoading = true;
@@ -257,18 +262,25 @@ export class StudentsListComponent implements OnInit {
       return;
     }
     const csvErrors = this.csvCheckerService.getErrors();
-
-    if (csvErrors.some(e => /Row NaN:/i.test(e))) {
+    if (
+      csvErrors.some(e => /Row NaN:|Too few fields|Too many fields/i.test(e))
+    ) {
       instance.isLoading = false;
       dialogRef.close();
 
       const previewRef = this.prepareDialog();
       const preview = previewRef.componentInstance;
+      const errorsInHeaders = getHeadersErrors(csvErrors);
       preview.rows = [];
-      preview.errorsInHeaders = getHeadersErrors(csvErrors);
+      preview.errorsInHeaders =
+        errorsInHeaders.length > 0 ? errorsInHeaders : csvErrors;
       preview.columns = [...MandatoryColumns];
       preview.dialogRef = previewRef;
-      preview.cancelled.subscribe(() => this.openImportModal());
+      preview.cancelled.subscribe(() => this.openImportModal(file));
+      preview.cancelledExit.subscribe(() => {
+        preview.dialogRef?.close();
+        dialogRef.close();
+      });
       return;
     }
 
@@ -289,6 +301,7 @@ export class StudentsListComponent implements OnInit {
       data: this.convertToModel(row),
       errors: rowErrorMap.get(i) ?? [],
     }));
+
     instance.isLoading = false;
     dialogRef.close();
 
@@ -299,7 +312,11 @@ export class StudentsListComponent implements OnInit {
     preview.errorsInHeaders = errorsInHeaders;
     preview.columns = [...MandatoryColumns, ...detectedOptionalColumns];
     preview.dialogRef = previewRef;
-    preview.cancelled.subscribe(() => this.openImportModal());
+    preview.cancelled.subscribe(() => this.openImportModal(file));
+    preview.cancelledExit.subscribe(() => {
+      preview.dialogRef?.close();
+      dialogRef.close();
+    });
 
     const jsonData = parseJsonRows(rawRows);
     preview.confirmed.subscribe((result: ImportPreviewConfirm) => {
@@ -361,7 +378,7 @@ export class StudentsListComponent implements OnInit {
       enrolledCourses: parseInt(row['EnrolledCourses']),
       gradedCourses: parseInt(row['GradedCourses']),
       timeDeliveryRate: parseFloat(row['TimelySubmissions']),
-      avgScore: parseFloat(row['AverageScore']),
+      avgScore: parseFloatDistinct(row['AverageScore']),
       coursesUnderAvg: parseFloat(row['CoursesBelowAverage']),
       pureScoreDiff: parseFloat(row['RawScoreDifference']),
       standardScoreDiff: parseFloat(row['StandardScoreDifference']),
