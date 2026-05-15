@@ -53,6 +53,9 @@ export class ImportPreviewStudentsComponent implements OnInit {
   previewDataRows: PreviewDataRow[] = [];
 
   ngOnInit(): void {
+    if (this.rows.length === 0) {
+      this.errorsInHeaders.unshift('Failed to parse CSV file.');
+    }
     this.loadRows();
   }
 
