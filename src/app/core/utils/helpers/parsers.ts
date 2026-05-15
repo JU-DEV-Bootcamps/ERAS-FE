@@ -43,3 +43,10 @@ export function parseJsonRows(rows: Record<string, string>[]) {
     return filteredRow;
   });
 }
+
+export function parseFloatDistinct(value: string | undefined | null): number {
+  if (value == null) return NaN;
+  const decimal = value.replace(',', '.');
+  const parsed = parseFloat(decimal);
+  return isNaN(parsed) ? NaN : Math.round(parsed * 100) / 100;
+}
