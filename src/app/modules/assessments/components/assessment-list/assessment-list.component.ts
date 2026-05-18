@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe, NgClass } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -142,11 +142,15 @@ export class AssessmentListComponent implements OnInit {
   }
 
   private mapToRow(item: AssessmentModel): AssessmentRowViewModel {
+    const display = item.studentNames?.length
+      ? item.studentNames.join(', ')
+      : item.studentIds?.length
+        ? item.studentIds.join(', ')
+        : 'No student assigned';
+
     return {
       ...item,
-      studentDisplay: item.studentIds.length
-        ? item.studentIds.join(', ')
-        : 'No student assigned',
+      studentDisplay: display,
       commentPreview: this.buildCommentPreview(item.comments),
       isEditable: this.isItemEditable(item.status),
     };
