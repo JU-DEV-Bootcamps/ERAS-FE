@@ -23,28 +23,20 @@
           </section>
 
           <section class="answer-details">
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                Answer Details
-              </mat-expansion-panel-header>
-              <ng-template matExpansionPanelContent>
-                <app-list
-                  (loadCalled)="handleLoadCalled($event, risk)"
-                  (actionCalled)="handleActionCalled($event)"
-                  [columns]="columns"
-                  [columnTemplates]="columnTemplates"
-                  [items]="riskStudentData().get(risk.position)?.items ?? []"
-                  [totalItems]="
-                    riskStudentData().get(risk.position)?.total ?? 0
-                  "
-                  [actionDatas]="actionDatas"
-                >
-                  <ng-template #riskLevel let-item>
-                    <app-badge-risk-level [riskLevel]="item.riskLevel" />
-                  </ng-template>
-                </app-list>
+            <h3 class="risk-title">Answer Details</h3>
+            <app-list
+              (loadCalled)="handleLoadCalled($event, risk)"
+              (actionCalled)="handleActionCalled($event)"
+              [columns]="columns"
+              [columnTemplates]="columnTemplates"
+              [items]="riskStudentData().get(risk.position)?.items ?? []"
+              [totalItems]="riskStudentData().get(risk.position)?.total ?? 0"
+              [actionDatas]="actionDatas"
+            >
+              <ng-template #riskLevel let-item>
+                <app-badge-risk-level [riskLevel]="item.riskLevel" />
               </ng-template>
-            </mat-expansion-panel>
+            </app-list>
           </section>
         </div>
       }
