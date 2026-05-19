@@ -27,6 +27,7 @@ import {
   AssessmentStatus,
 } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -57,7 +58,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
-
+  private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
   @Input() pageSize = 10;
 
   @Output() createClicked = new EventEmitter<void>();
@@ -118,7 +119,28 @@ export class AssessmentListComponent implements OnInit {
   }
 
   protected onDeleteClick(item: AssessmentModel): void {
-    this.deleteClicked.emit(item);
+    if (item.id === undefined) return;
+
+    this.modalDeleteService
+      .confirmDelete({
+        title: 'Delete assessment',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+        this.isLoading.set(true);
+        this.assessmentService.deleteAssessment(item.id!).subscribe({
+          next: () => {
+            this.deleteClicked.emit(item);
+            this.assessmentService.invalidateCache();
+            this.loadAssessments();
+          },
+          error: error => {
+            console.error('Failed to remove one assessment', error);
+            this.isLoading.set(false);
+          },
+        });
+      });
   }
 
   protected onMoreClick(item: AssessmentModel): void {
@@ -131,6 +153,13 @@ export class AssessmentListComponent implements OnInit {
     this.assessmentService.getAll().subscribe({
       next: data => {
         this.assessments.set(data.map(item => this.mapToRow(item)));
+        const maxPage = Math.max(
+          0,
+          Math.ceil(this.assessments().length / this.pageSize) - 1
+        );
+        if (this.pageIndex() > maxPage) {
+          this.pageIndex.set(maxPage);
+        }
         this.isLoading.set(false);
       },
       error: error => {
