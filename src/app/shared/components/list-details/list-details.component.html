@@ -12,7 +12,11 @@
 <div class="container-table-button" #contentToExport>
   <div>
     @if (!items.length) {
-      <app-empty-data-message />
+      @if (emptyTemplate) {
+        <ng-container [ngTemplateOutlet]="emptyTemplate" />
+      } @else {
+        <app-empty-data-message />
+      }
     } @else {
       <app-mat-card-details
         [mapClass]="mapClass?.table ? mapClass : undefined"

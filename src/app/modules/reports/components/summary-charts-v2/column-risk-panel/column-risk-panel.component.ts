@@ -32,6 +32,7 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 export interface ColumnRiskPanelData {
   cohortIds: number[];
@@ -52,6 +53,7 @@ export interface ColumnRiskPanelData {
     MatExpansionModule,
     ListComponent,
     BadgeRiskComponent,
+    MatProgressSpinner,
   ],
   templateUrl: './column-risk-panel.component.html',
   styleUrl: './column-risk-panel.component.scss',

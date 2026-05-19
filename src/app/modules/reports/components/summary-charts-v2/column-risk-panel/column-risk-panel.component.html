@@ -32,6 +32,7 @@
               [items]="riskStudentData().get(risk.position)?.items ?? []"
               [totalItems]="riskStudentData().get(risk.position)?.total ?? 0"
               [actionDatas]="actionDatas"
+              [emptyTemplate]="loadingTemplate"
             >
               <ng-template #riskLevel let-item>
                 <app-badge-risk-level [riskLevel]="item.riskLevel" />
@@ -43,3 +44,6 @@
     </div>
   }
 </div>
+<ng-template #loadingTemplate>
+  <mat-spinner diameter="32"></mat-spinner>
+</ng-template>

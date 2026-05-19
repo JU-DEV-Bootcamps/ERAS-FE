@@ -38,6 +38,7 @@ import { Column, ComponentColumn } from '../list/types/column';
 import { ActionDatas } from '../list/types/action';
 import { MapClass } from '../list/types/class';
 import { MatCardDetailsComponent } from '../mat-card-details/mat-card-details.component';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-list-details',
@@ -54,6 +55,7 @@ import { MatCardDetailsComponent } from '../mat-card-details/mat-card-details.co
     MatMenuModule,
     EmptyDataComponent,
     MatCardDetailsComponent,
+    NgTemplateOutlet,
   ],
   templateUrl: './list-details.component.html',
   styleUrl: './list-details.component.scss',
@@ -82,6 +84,7 @@ export class ListDetailsComponent<T extends object>
   @Input() showExportDropdown = false;
   @Input() itemsAreSelectable = false;
   @Input() externalExport = false;
+  @Input() emptyTemplate?: TemplateRef<T>;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
