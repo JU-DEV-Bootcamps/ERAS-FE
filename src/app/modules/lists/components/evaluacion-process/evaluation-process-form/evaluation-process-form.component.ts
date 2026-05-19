@@ -120,7 +120,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           value: data?.evaluation?.pollName ? null : this.prefereToChooseLater,
           disabled: !!data?.evaluation?.pollName,
         },
-        [Validators.required, Validators.maxLength(50)],
+        [Validators.required, Validators.maxLength(100)],
       ],
       country: [
         {
@@ -332,7 +332,14 @@ export class EvaluationProcessFormComponent implements OnInit {
   getPollDetails(configurationId: number) {
     this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: (data: PollName[]) => {
-        this.pollsNames = [this.prefereToChooseLater, ...data];
+        const maxLength = 100;
+        const truncatedData = data.map(poll => {
+          if (poll.name && poll.name.length > maxLength) {
+            return { ...poll, name: poll.name.substring(0, maxLength) };
+          }
+          return poll;
+        });
+        this.pollsNames = [this.prefereToChooseLater, ...truncatedData];
       },
       error: err => {
         this.notify.error(
