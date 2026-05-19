@@ -28,6 +28,9 @@ import {
 } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastNotificationData } from '@core/models/toast-notification.model';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -59,6 +62,8 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
   private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
+  private readonly toastService = inject(ToastNotificationService);
+
   @Input() pageSize = 10;
 
   @Output() createClicked = new EventEmitter<void>();
@@ -132,10 +137,14 @@ export class AssessmentListComponent implements OnInit {
         this.assessmentService.deleteAssessment(item.id!).subscribe({
           next: () => {
             this.deleteClicked.emit(item);
-            this.assessmentService.invalidateCache();
+            const toastData = this.buildSuccessToastDataObject(item);
+            this.toastService.showToast(toastData);
+            this.assessmentService.clearCache();
             this.loadAssessments();
           },
           error: error => {
+            const toastData = this.buildErrorToastDataObject(item, error);
+            this.toastService.showToast(toastData, true);
             console.error('Failed to remove one assessment', error);
             this.isLoading.set(false);
           },
@@ -198,5 +207,30 @@ export class AssessmentListComponent implements OnInit {
     const editableStatus = [AssessmentStatus.Created, AssessmentStatus.OnHold];
 
     return !!editableStatus.find(status => itemStatus === status);
+  }
+
+  private buildSuccessToastDataObject(
+    item: AssessmentModel
+  ): ToastNotificationData {
+    return {
+      title: 'Assessment removed successfully',
+      message: `Assessment with id: ${item.id} was removed`,
+      type: 'success',
+    };
+  }
+
+  private buildErrorToastDataObject(
+    item: AssessmentModel,
+    error: HttpErrorResponse
+  ): ToastNotificationData {
+    const message =
+      item.status === 'Remitted'
+        ? `The item with id: ${item.id} cannot be removed due to its status.`
+        : `${error.statusText}: The item was not found with id: ${item.id}`;
+    return {
+      title: 'Assessment removed failed',
+      message: message,
+      type: 'error',
+    };
   }
 }

@@ -1,6 +1,6 @@
 <div class="delete-confirmation-modal">
   <div class="delete-confirmation-modal-header">
-    <h2 class="delete-confirmation-modal-title">{{ title }}</h2>
+    <h2 class="delete-confirmation-modal-title">{{ data.title }}</h2>
     <button
       class="delete-confirmation-modal-close-btn"
       type="button"
@@ -15,7 +15,11 @@
   <div class="delete-confirmation-modal-divider"></div>
 
   <div class="delete-confirmation-modal-body">
-    <div class="delete-confirmation-modal-subtitle">{{ subtitle }}</div>
+    <div class="delete-confirmation-modal-subtitle">{{ data.subtitle }}</div>
+    <span>Do you want to delete this item?</span>
+    <mat-icon class="delete-confirmation-modal-body-icon"
+      >delete_outline</mat-icon
+    >
     <div
       *ngIf="error() !== null"
       class="delete-confirmation-modal-error-banner"
@@ -36,7 +40,7 @@
     <div class="delete-confirmation-modal-footer-actions">
       <button
         type="button"
-        class="delete-confirmation-modal-btn delete-confirmation-modal-btn--back"
+        class="delete-confirmation-modal-btn delete-confirmation-modal-btn--cancel"
         [disabled]="isLoading()"
         (click)="onCancel()"
       >

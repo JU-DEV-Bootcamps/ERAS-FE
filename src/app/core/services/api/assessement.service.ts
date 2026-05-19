@@ -47,8 +47,4 @@ export class AssessmentService extends BaseApiService {
   deleteAssessment(id: number) {
     return this.delete<AssessmentModel>(id);
   }
-
-  invalidateCache(): void {
-    this.assessmentsCache$ = null;
-  }
 }
