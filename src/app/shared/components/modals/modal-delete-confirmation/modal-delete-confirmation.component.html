@@ -1,25 +1,20 @@
 <div class="delete-confirmation-modal">
   <div class="delete-confirmation-modal-header">
     <h2 class="delete-confirmation-modal-title">{{ data.title }}</h2>
-    <button
-      class="delete-confirmation-modal-close-btn"
-      type="button"
-      aria-label="Close dialog"
-      [disabled]="isLoading()"
-      (click)="onCancel()"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
   </div>
 
   <div class="delete-confirmation-modal-divider"></div>
 
   <div class="delete-confirmation-modal-body">
-    <div class="delete-confirmation-modal-subtitle">{{ data.subtitle }}</div>
-    <span>Do you want to delete this item?</span>
-    <mat-icon class="delete-confirmation-modal-body-icon"
-      >delete_outline</mat-icon
-    >
+    <img
+      src="assets/icons/warning.svg"
+      alt="warning icon"
+      class="delete-confirmation-modal-body-icon"
+    />
+    <span
+      >Are you sure you want to delete this item?<br />
+      This action cannot be undone.
+    </span>
     <div
       *ngIf="error() !== null"
       class="delete-confirmation-modal-error-banner"
@@ -53,7 +48,7 @@
         [disabled]="isLoading()"
         (click)="onConfirm()"
       >
-        Confirm
+        Delete
       </button>
     </div>
   </div>

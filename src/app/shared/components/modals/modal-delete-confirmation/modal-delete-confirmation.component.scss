@@ -1,93 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 $inter: 'Inter', sans-serif;
 $color-text-primary: #111827;
-$color-text-secondary: var(--color-neutral-800);
-$color-text-muted: #717182;
+$color-text-secondary: var(--color-neutral-200);
+$color-text-muted: #4f4f4f;
 $color-border: #e5e7eb;
 $color-surface: #f9fafb;
+$color-background: #f9fafb;
 $color-white: #ffffff;
 
-$color-accent: #5c9e8f;
+$color-accent: var(--primary-700);
 $color-accent-hover: #4a8a7c;
 
-$color-danger: #dc2626;
-$color-danger-bg: #fef2f2;
+$color-danger: #df1b1b;
+$color-danger-hover: #b71010;
 $color-danger-border: #fecaca;
 
-$color-drop-active-bg: #f0faf8;
-$color-drop-active-border: $color-accent;
-
-$color-btn-import-disabled-bg: #c8dbd8;
 $color-btn-cancel: #374151;
 
 $border-radius-sm: 6px;
 $border-radius-md: 10px;
 $border-radius-lg: 14px;
 
-$font-size-xs: 0.75rem;
-$font-size-sm: 0.875rem;
-$font-size-base: 1rem;
+$font-size-base: var(--font-size-large);
+$font-size-md: var(--font-size-medium);
 
 $transition: 150ms ease;
 
 .delete-confirmation-modal {
   display: flex;
   flex-direction: column;
-  width: 28vw;
-  background: $color-white;
+  width: 418px;
+  background: $color-background;
   border-radius: $border-radius-lg;
   overflow: hidden;
 
   &-header {
     display: flex;
     align-items: center;
+    background-color: $color-white;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 20px 32px;
   }
 
   &-title {
     margin: 0;
-    font-size: var(--font-size-header-small);
-    line-height: 32px;
+    font-size: $font-size-base;
+    line-height: 20px;
     font-weight: 600;
     font-family: $inter;
     color: $color-text-primary;
     letter-spacing: -0.01em;
   }
 
-  &-close-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    border-radius: $border-radius-sm;
-    background: transparent;
-    color: $color-text-secondary;
-    cursor: pointer;
-    transition:
-      background $transition,
-      color $transition;
-
-    &:hover {
-      background: $color-surface;
-      color: $color-text-primary;
-    }
-
-    &:focus-visible {
-      outline: 2px solid $color-accent;
-      outline-offset: 2px;
-    }
+  &-divider {
+    height: 1px;
+    background: $color-border;
+    flex-shrink: 0;
   }
 
   &-body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    gap: 16px;
+    padding: 24px;
+    font-family: $inter;
+    color: $color-text-muted;
+    line-height: 24px;
+    font-size: $font-size-base;
 
     &-icon {
       font-size: 32px;
@@ -98,13 +79,15 @@ $transition: 150ms ease;
   }
 
   &-footer {
-    padding: 20px 24px;
+    padding: 16px 24px;
     width: auto;
+    background-color: $color-white;
   }
 
   &-footer-actions {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-end;
+    gap: 8px;
   }
 
   &-btn {
@@ -112,11 +95,12 @@ $transition: 150ms ease;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    height: 40px;
-    padding: 0 24px;
+    height: 36.5px;
+    padding: 8px 24px;
     border: none;
-    border-radius: 999px;
-    font-size: $font-size-sm;
+    border-radius: 30px;
+    font-size: $font-size-md;
+    line-height: 20px;
     font-weight: 500;
     cursor: pointer;
     transition:
@@ -131,8 +115,7 @@ $transition: 150ms ease;
 
     &--cancel {
       background: transparent;
-      color: $color-btn-cancel;
-      border: 1px solid $color-btn-cancel;
+      color: $color-accent;
 
       &:hover:not(:disabled) {
         background: $color-surface;
@@ -145,17 +128,24 @@ $transition: 150ms ease;
     }
 
     &--confirm {
-      background: $color-accent;
+      background: $color-danger;
       color: $color-white;
 
       &:hover:not(:disabled) {
-        background: $color-accent-hover;
+        background: $color-danger-hover;
       }
 
       &:disabled {
-        background: $color-btn-import-disabled-bg;
+        background: $color-surface;
         cursor: not-allowed;
       }
     }
   }
+}
+
+::ng-deep .cdk-overlay-pane,
+.delete-confirmation-modal,
+.mat-mdc-dialog-panel {
+  border: 1px solid $color-text-secondary;
+  border-radius: 8px;
 }
