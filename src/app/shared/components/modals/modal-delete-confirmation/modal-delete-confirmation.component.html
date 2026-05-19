@@ -1,0 +1,56 @@
+<div class="delete-confirmation-modal">
+  <div class="delete-confirmation-modal-header">
+    <h2 class="delete-confirmation-modal-title">{{ title }}</h2>
+    <button
+      class="delete-confirmation-modal-close-btn"
+      type="button"
+      aria-label="Close dialog"
+      [disabled]="isLoading()"
+      (click)="onCancel()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="delete-confirmation-modal-divider"></div>
+
+  <div class="delete-confirmation-modal-body">
+    <div class="delete-confirmation-modal-subtitle">{{ subtitle }}</div>
+    <div
+      *ngIf="error() !== null"
+      class="delete-confirmation-modal-error-banner"
+      role="alert"
+    >
+      <mat-icon class="icon-alert">warning_amber</mat-icon>
+      <div class="delete-confirmation-modal-error-banner-text">
+        {{ error() }}
+      </div>
+    </div>
+
+    <div class="delete-confirmation-modal-table-wrapper"></div>
+  </div>
+
+  <div class="delete-confirmation-modal-divider"></div>
+
+  <div class="delete-confirmation-modal-footer">
+    <div class="delete-confirmation-modal-footer-actions">
+      <button
+        type="button"
+        class="delete-confirmation-modal-btn delete-confirmation-modal-btn--back"
+        [disabled]="isLoading()"
+        (click)="onCancel()"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        class="delete-confirmation-modal-btn delete-confirmation-modal-btn--confirm"
+        [disabled]="isLoading()"
+        (click)="onConfirm()"
+      >
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
