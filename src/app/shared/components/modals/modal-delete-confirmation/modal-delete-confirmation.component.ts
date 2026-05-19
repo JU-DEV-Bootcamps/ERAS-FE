@@ -2,10 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { DeleteModalData } from './modal-delete-confirmation.interface';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-modal-delete',
-  imports: [MatIconModule],
+  standalone: true,
+  imports: [MatIconModule, CommonModule],
   templateUrl: './modal-delete-confirmation.component.html',
   styleUrl: './modal-delete-confirmation.component.scss',
 })
