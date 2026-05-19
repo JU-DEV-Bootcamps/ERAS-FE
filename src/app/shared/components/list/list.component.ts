@@ -40,6 +40,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
+import { NgTemplateOutlet } from '@angular/common';
 
 export type TypeFile = 'csv' | 'pdf' | '';
 
@@ -58,6 +59,7 @@ export type TypeFile = 'csv' | 'pdf' | '';
     MatTooltipModule,
     MatMenuModule,
     EmptyDataComponent,
+    NgTemplateOutlet,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
@@ -92,6 +94,7 @@ export class ListComponent<T extends object>
   @Input() isItemDisabled?: (item: T) => boolean;
   @Input() allItems: T[] = [];
   @Input() areExportedAllItems = false;
+  @Input() emptyTemplate?: TemplateRef<T>;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
