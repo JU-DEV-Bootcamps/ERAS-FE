@@ -27,6 +27,8 @@ import {
   AssessmentStatus,
 } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
+import { MatDialog } from '@angular/material/dialog';
+import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -57,6 +59,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
+  private readonly matDialog = inject(MatDialog);
 
   @Input() pageSize = 10;
 
@@ -123,6 +126,26 @@ export class AssessmentListComponent implements OnInit {
 
   protected onMoreClick(item: AssessmentModel): void {
     this.moreClicked.emit(item);
+  }
+
+  protected onCreateIntervention(assessment: AssessmentRowViewModel): void {
+    const students = assessment.studentIds.map((id, index) => ({
+      value: String(id),
+      label: assessment.studentNames?.[index] ?? String(id),
+    }));
+
+    this.matDialog.open(NewInterventionModalComponent, {
+      width: '520px',
+      disableClose: true,
+      data: {
+        assessmentId: assessment.id,
+        professional: {
+          value: assessment.assignedProfessional ?? '',
+          label: assessment.assignedProfessional ?? '',
+        },
+        students,
+      },
+    });
   }
 
   loadAssessments(): void {

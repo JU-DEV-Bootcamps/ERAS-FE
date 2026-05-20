@@ -177,6 +177,7 @@
         <app-assessment-detail-dialog
           [data]="selectedAssessment()!"
           (close)="closeDetailPanel()"
+          (createIntervention)="onCreateIntervention($event)"
         >
         </app-assessment-detail-dialog>
       }

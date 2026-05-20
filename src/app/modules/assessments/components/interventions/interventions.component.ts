@@ -6,7 +6,7 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -33,7 +33,6 @@ interface AssessmentOption {
   standalone: true,
   imports: [
     CommonModule,
-    DatePipe,
     FormsModule,
     MatFormFieldModule,
     MatIconModule,
@@ -55,6 +54,10 @@ export class InterventionsComponent implements OnInit {
   readonly assessmentOptions: WritableSignal<AssessmentOption[]> = signal([]);
   private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
     []
+  );
+
+  readonly studentNamesLookup: WritableSignal<Record<string, string>> = signal(
+    {}
   );
 
   readonly selectedAssessmentId: WritableSignal<number | null> = signal(null);
@@ -82,6 +85,14 @@ export class InterventionsComponent implements OnInit {
           this.allAssessments.set(assessments);
           this.assessmentOptions.set(assessments.map(a => this.mapToOption(a)));
           this.isLoadingAssessments.set(false);
+
+          const lookup: Record<string, string> = {};
+          assessments.forEach(a => {
+            a.studentIds.forEach((id, index) => {
+              lookup[id] = a.studentNames?.[index] ?? id;
+            });
+          });
+          this.studentNamesLookup.set(lookup);
         },
         error: err => {
           console.error('Failed to load assessments', err);
@@ -116,9 +127,9 @@ export class InterventionsComponent implements OnInit {
     );
     if (!assessment) return;
 
-    const students = assessment.studentIds.map(id => ({
-      value: String(id),
-      label: String(id),
+    const students = assessment.studentIds.map((id, index) => ({
+      value: id,
+      label: assessment.studentNames?.[index] ?? id,
     }));
 
     this.matDialog.open(NewInterventionModalComponent, {
