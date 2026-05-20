@@ -10,6 +10,8 @@ export class ModalDeleteConfirmationService {
   confirmDelete(config: DeleteModalData) {
     return this.dialog.open(ModalDeleteConfirmationComponent, {
       data: config,
+      autoFocus: false,
+      width: '418px',
       panelClass: 'delete-confirmation-modal',
     });
   }

@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 $inter: 'Inter', sans-serif;
 $color-text-primary: #111827;
-$color-text-secondary: var(--color-neutral-200);
 $color-text-muted: #4f4f4f;
 $color-border: #e5e7eb;
 $color-surface: #f9fafb;
@@ -9,13 +8,9 @@ $color-background: #f9fafb;
 $color-white: #ffffff;
 
 $color-accent: var(--primary-700);
-$color-accent-hover: #4a8a7c;
 
 $color-danger: #df1b1b;
 $color-danger-hover: #b71010;
-$color-danger-border: #fecaca;
-
-$color-btn-cancel: #374151;
 
 $border-radius-sm: 6px;
 $border-radius-md: 10px;
@@ -29,9 +24,7 @@ $transition: 150ms ease;
 .delete-confirmation-modal {
   display: flex;
   flex-direction: column;
-  width: 418px;
   background: $color-background;
-  border-radius: $border-radius-lg;
   overflow: hidden;
 
   &-header {
@@ -141,11 +134,4 @@ $transition: 150ms ease;
       }
     }
   }
-}
-
-::ng-deep .cdk-overlay-pane,
-.delete-confirmation-modal,
-.mat-mdc-dialog-panel {
-  border: 1px solid $color-text-secondary;
-  border-radius: 8px;
 }
