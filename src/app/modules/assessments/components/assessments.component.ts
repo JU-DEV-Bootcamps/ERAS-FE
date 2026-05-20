@@ -111,4 +111,9 @@ export class AssessmentsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.listComponent()?.loadAssessments());
   }
+
+  openDeleteModal(assessment: AssessmentModel) {
+    if (assessment.id === undefined) return;
+    this.listComponent()?.loadAssessments();
+  }
 }

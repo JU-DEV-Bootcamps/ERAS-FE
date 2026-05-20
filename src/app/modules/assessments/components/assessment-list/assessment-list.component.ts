@@ -27,6 +27,10 @@ import {
   AssessmentStatus,
 } from '../../../../core/models/assessement.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastNotificationData } from '@core/models/toast-notification.model';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -57,6 +61,8 @@ export interface AssessmentRowViewModel extends AssessmentModel {
 })
 export class AssessmentListComponent implements OnInit {
   private readonly assessmentService = inject(AssessmentService);
+  private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
+  private readonly toastService = inject(ToastNotificationService);
 
   @Input() pageSize = 10;
 
@@ -118,7 +124,32 @@ export class AssessmentListComponent implements OnInit {
   }
 
   protected onDeleteClick(item: AssessmentModel): void {
-    this.deleteClicked.emit(item);
+    if (item.id === undefined) return;
+
+    this.modalDeleteService
+      .confirmDelete({
+        title: 'Delete assessment',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+        this.isLoading.set(true);
+        this.assessmentService.deleteAssessment(item.id!).subscribe({
+          next: () => {
+            this.deleteClicked.emit(item);
+            const toastData = this.buildSuccessToastDataObject(item);
+            this.toastService.showToast(toastData);
+            this.assessmentService.clearCache();
+            this.loadAssessments();
+          },
+          error: error => {
+            const toastData = this.buildErrorToastDataObject(item, error);
+            this.toastService.showToast(toastData, true);
+            console.error('Failed to remove one assessment', error);
+            this.isLoading.set(false);
+          },
+        });
+      });
   }
 
   protected onMoreClick(item: AssessmentModel): void {
@@ -131,6 +162,13 @@ export class AssessmentListComponent implements OnInit {
     this.assessmentService.getAll().subscribe({
       next: data => {
         this.assessments.set(data.map(item => this.mapToRow(item)));
+        const maxPage = Math.max(
+          0,
+          Math.ceil(this.assessments().length / this.pageSize) - 1
+        );
+        if (this.pageIndex() > maxPage) {
+          this.pageIndex.set(maxPage);
+        }
         this.isLoading.set(false);
       },
       error: error => {
@@ -169,5 +207,30 @@ export class AssessmentListComponent implements OnInit {
     const editableStatus = [AssessmentStatus.Created, AssessmentStatus.OnHold];
 
     return !!editableStatus.find(status => itemStatus === status);
+  }
+
+  private buildSuccessToastDataObject(
+    item: AssessmentModel
+  ): ToastNotificationData {
+    return {
+      title: 'Assessment removed successfully',
+      message: `Assessment with id: ${item.id} was removed`,
+      type: 'success',
+    };
+  }
+
+  private buildErrorToastDataObject(
+    item: AssessmentModel,
+    error: HttpErrorResponse
+  ): ToastNotificationData {
+    const message =
+      item.status === 'Remitted'
+        ? `The item with id: ${item.id} cannot be removed due to its status.`
+        : `${error.statusText}: The item was not found with id: ${item.id}`;
+    return {
+      title: 'Assessment removed failed',
+      message: message,
+      type: 'error',
+    };
   }
 }
