@@ -6,6 +6,7 @@ import {
   inject,
   OnChanges,
   SimpleChanges,
+  effect,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,6 +32,7 @@ import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 export interface ColumnRiskPanelData {
   cohortIds: number[];
@@ -51,6 +53,7 @@ export interface ColumnRiskPanelData {
     MatExpansionModule,
     ListComponent,
     BadgeRiskComponent,
+    MatProgressSpinner,
   ],
   templateUrl: './column-risk-panel.component.html',
   styleUrl: './column-risk-panel.component.scss',
@@ -88,12 +91,33 @@ export class ColumnRiskPanelComponent implements OnChanges {
       tooltip: 'View details',
     },
   ];
+  variablesCacheReady = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (this.variablesCacheReady()) {
+        const panelData = this.data();
+        if (!panelData) return;
+
+        panelData.questions.forEach(risk => {
+          const variableId = this.variablesCache.get(
+            `${risk.question}__${risk.position}`
+          );
+          if (variableId !== undefined) {
+            this.loadStudentList(risk, variableId);
+          }
+        });
+      }
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data()) {
       this.riskStudentData.set(new Map());
       this.pagination = { page: 0, pageSize: 10 };
       this.variablesCache = new Map();
+      this.variablesCacheReady.set(false);
+
       this._preloadVariables();
     }
   }
@@ -116,11 +140,15 @@ export class ColumnRiskPanelComponent implements OnChanges {
         response.forEach(v => {
           this.variablesCache.set(`${v.name}__${v.position}`, v.id);
         });
+        this.variablesCacheReady.set(true);
       });
   }
 
   handleLoadCalled(event: EventLoad, risk: PollAvgQuestion): void {
     this.pagination = { page: event.page, pageSize: event.pageSize };
+    if (!this.variablesCacheReady()) {
+      return;
+    }
     const variableId = this.variablesCache.get(
       `${risk.question}__${risk.position}`
     );

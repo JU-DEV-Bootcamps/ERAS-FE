@@ -19,7 +19,6 @@ import { Column } from '@shared/components/list/types/column';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { EventAction, EventLoad } from '@core/models/load';
 import { Pagination } from '@core/services/interfaces/server.type';
-import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -45,7 +44,6 @@ export interface DetailsPanelData {
   imports: [
     MatIconModule,
     MatButtonModule,
-    ListComponent,
     BadgeRiskComponent,
     ListDetailsComponent,
   ],
@@ -134,7 +132,7 @@ export class DetailsPanelComponent implements OnChanges {
         [this.variableId],
         this.pagination.pageSize,
         this.pagination.page,
-        panelData.riskLevel ? [panelData.riskLevel] : undefined,
+        panelData.riskLevel !== undefined ? [panelData.riskLevel] : undefined,
         panelData.evaluationId
       )
       .subscribe(data => {

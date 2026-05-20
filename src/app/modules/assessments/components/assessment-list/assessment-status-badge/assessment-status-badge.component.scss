@@ -1,35 +1,45 @@
+:host {
+  display: inline-block;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
-  border-radius: 9999px;
+  padding: 4px 12px;
+  border-radius: 16px;
   font-size: 12px;
   font-weight: 600;
+  font-family: 'Inter', sans-serif;
   white-space: nowrap;
 }
 
 .status-created {
   background-color: #dbeafe;
-  color: #1d4ed8;
+  color: #1e40af;
 }
 
 .status-in-progress {
-  background-color: #fef3c7;
-  color: #b45309;
+  background-color: #fef9c3;
+  color: #854d0e;
 }
 
 .status-on-hold {
   background-color: #ffedd5;
-  color: #c2410c;
+  color: #9a3412;
 }
 
 .status-remitted {
-  background-color: #ede9fe;
-  color: #6d28d9;
+  background-color: #f3e8ff;
+  color: #6b21a8;
 }
 
 .status-resolved {
   background-color: #dcfce7;
-  color: #15803d;
+  color: #166534;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
