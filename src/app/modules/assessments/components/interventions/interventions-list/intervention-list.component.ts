@@ -52,6 +52,11 @@ export class InterventionListComponent {
 
   @Input() pageSize = 10;
 
+  @Input() set studentNamesLookup(value: Record<string, string>) {
+    this._studentNamesLookup = value;
+  }
+  private _studentNamesLookup: Record<string, string> = {};
+
   readonly assessmentId = signal<number | null>(null);
   @Input() set assessmentIdInput(value: number | null) {
     this.assessmentId.set(value);
@@ -144,7 +149,9 @@ export class InterventionListComponent {
 
   private buildStudentDisplay(item: InterventionModel): string {
     if (item.studentIds?.length) {
-      return item.studentIds.join(', ');
+      return item.studentIds
+        .map(id => this._studentNamesLookup[id] ?? id)
+        .join(', ');
     }
     return 'No student assigned';
   }

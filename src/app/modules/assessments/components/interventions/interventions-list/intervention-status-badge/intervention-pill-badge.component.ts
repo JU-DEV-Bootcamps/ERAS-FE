@@ -26,7 +26,7 @@ export class InterventionPillBadgeComponent {
     return this.classMap[this.value] ?? '';
   }
 
-  private readonly labelMap: Record<PillValue, string> = {
+  private readonly labelMap: Record<string, string> = {
     [InterventionType.Individual]: 'Individual',
     [InterventionType.Group]: 'Group',
     [InterventionMode.InPlace]: 'In-Place',
@@ -39,14 +39,14 @@ export class InterventionPillBadgeComponent {
     [InterventionStatus.Rejected]: 'Rejected',
   };
 
-  private readonly classMap: Record<PillValue, string> = {
+  private readonly classMap: Record<string, string> = {
     [InterventionType.Individual]: 'type-individual',
     [InterventionType.Group]: 'type-group',
     [InterventionMode.InPlace]: 'mode-inplace',
     [InterventionMode.Remote]: 'mode-remote',
     [InterventionStatus.Created]: 'status-created',
-    [InterventionStatus.InProgress]: 'status-inprogress',
-    [InterventionStatus.OnHold]: 'status-onhold',
+    [InterventionStatus.InProgress]: 'status-in-progress',
+    [InterventionStatus.OnHold]: 'status-on-hold',
     [InterventionStatus.Remitted]: 'status-remitted',
     [InterventionStatus.Resolved]: 'status-resolved',
     [InterventionStatus.Rejected]: 'status-rejected',

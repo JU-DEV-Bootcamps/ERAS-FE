@@ -100,6 +100,15 @@ mat-icon {
     'opsz' 24;
 }
 
+td.mat-column-student {
+  vertical-align: middle;
+}
+
+.interventions-table td {
+  vertical-align: middle;
+  line-height: normal;
+}
+
 .interventions-table {
   width: 100%;
   table-layout: auto;

@@ -31,6 +31,7 @@ export interface InterventionModel {
 
   kind: InterventionType;
   mode: InterventionMode;
+  status?: InterventionStatus;
 
   professional?: string | null;
   dateUtc: string;
