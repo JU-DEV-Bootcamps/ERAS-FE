@@ -66,7 +66,7 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
       {
         label: 'Import Students',
         icon: 'person_add',
-        route: '/import-students',
+        route: '/students',
       },
     ],
   },

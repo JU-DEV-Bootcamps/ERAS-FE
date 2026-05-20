@@ -12,4 +12,5 @@ export const FEATURE_FLAGS: FeatureFlags = {
   newSidebar: 'newSidebar',
   reportsV2: 'reportsV2',
   studentDetails: 'studentDetailsV2',
+  studentList: 'studentList',
 };
