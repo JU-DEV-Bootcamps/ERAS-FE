@@ -25,15 +25,44 @@ export interface InterventionPlanModel {
 }
 
 export interface InterventionModel {
-  id?: string;
+  id?: number;
+  assessmentId: number;
 
-  dateUtc: string;
+  kind: InterventionType;
+  mode: InterventionMode;
 
-  activityType?: string | null;
   professional?: string | null;
+  dateUtc: string;
+  activity?: string | null;
   comments?: string | null;
 
-  attachments: string[];
+  area?: string | null;
+  numberOfParticipants?: number | null;
+  studentIds: string[];
+  attendance?: Record<number, boolean> | null;
+
+  remarks?: string | null;
+  attachments?: string[] | null;
+}
+
+export interface InterventionAttendanceModel {
+  studentId: string;
+  attended: boolean;
+}
+
+export interface InterventionRowViewModel extends InterventionModel {
+  studentDisplay: string;
+  commentPreview: string;
+}
+
+export enum InterventionMode {
+  InPlace = 'InPlace',
+  Remote = 'Remote',
+}
+
+export enum InterventionType {
+  Individual = 'Individual',
+  Group = 'Group',
 }
 
 export enum AssessmentStatus {
@@ -42,4 +71,13 @@ export enum AssessmentStatus {
   OnHold = 'OnHold',
   Remitted = 'Remitted',
   Resolved = 'Resolved',
+}
+
+export enum InterventionStatus {
+  Created = 'Created',
+  InProgress = 'InProgress',
+  OnHold = 'OnHold',
+  Remitted = 'Remitted',
+  Resolved = 'Resolved',
+  Rejected = 'Rejected',
 }

@@ -1,0 +1,19 @@
+<div class="filter-bar">
+  <mat-form-field appearance="outline" class="assessment-select">
+    <mat-select
+      placeholder="Select an assessment"
+      [ngModel]="selectedAssessmentId()"
+      (ngModelChange)="onAssessmentChange($event)"
+      [disabled]="isLoadingAssessments()"
+    >
+      @for (option of assessmentOptions(); track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<app-intervention-list
+  [assessmentIdInput]="selectedAssessmentId()"
+  (createClicked)="openCreateModal()"
+/>

@@ -1,0 +1,55 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.type-individual {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.type-group {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.mode-inplace {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.mode-remote {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-created {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+.status-in-progress {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+.status-on-hold {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+.status-remitted {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+.status-resolved {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+.status-rejected {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}

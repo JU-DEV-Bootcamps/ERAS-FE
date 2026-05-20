@@ -1,0 +1,62 @@
+<h2 mat-dialog-title class="dialog-title">
+  Intervention Details
+  <button
+    mat-icon-button
+    class="close-btn"
+    aria-label="Close"
+    (click)="onClose()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-divider></mat-divider>
+
+<div class="dialog-content">
+  <div class="field-group">
+    <span class="field-label">Date:</span>
+    <span class="field-value">{{ data.dateUtc | date: 'MM/dd/yyyy' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Type:</span>
+    <div class="field-value">
+      <app-intervention-pill-badge [value]="data.kind" />
+      <app-intervention-pill-badge [value]="data.mode" />
+    </div>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Activity:</span>
+    <span class="field-value">{{ data.activity || '—' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Professional:</span>
+    <span class="field-value">{{ data.professional || '—' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Student(s):</span>
+    <span class="field-value">{{ data.studentDisplay }}</span>
+  </div>
+
+  @if (data.area) {
+    <div class="field-group">
+      <span class="field-label">Area:</span>
+      <span class="field-value">{{ data.area }}</span>
+    </div>
+  }
+
+  @if (data.numberOfParticipants !== null) {
+    <div class="field-group">
+      <span class="field-label">Participants:</span>
+      <span class="field-value">{{ data.numberOfParticipants }}</span>
+    </div>
+  }
+
+  <div class="field-group">
+    <span class="field-label">Comments:</span>
+    <span class="field-value">{{ data.comments || '—' }}</span>
+  </div>
+</div>
