@@ -4,4 +4,5 @@ export interface FeatureFlags {
   newSidebar: string;
   reportsV2: string;
   studentDetails: string;
+  studentList: string;
 }
