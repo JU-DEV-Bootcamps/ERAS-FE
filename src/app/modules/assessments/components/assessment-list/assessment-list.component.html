@@ -64,7 +64,8 @@
               *matCellDef="let item"
               [matTooltip]="item.studentDisplay"
             >
-              <span class="truncate-text">{{ item.studentDisplay }}</span>
+              <!-- <span class="truncate-text">{{ item.studentDisplay }}</span> -->
+              <app-assessment-student-data [studentData]="item.studentNames" />
             </td>
           </ng-container>
 

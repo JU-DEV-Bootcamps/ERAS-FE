@@ -1,0 +1,23 @@
+$neutral-surface: var(--color-neutral-200);
+$font-text-sm: var(--font-size-small);
+
+.text-student {
+  max-width: 100%;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.badge-number-student {
+  padding: 1.5px 10px;
+  background-color: $neutral-surface;
+  border-radius: 17px;
+  font-size: $font-text-sm;
+  line-height: 16px;
+  font-weight: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
