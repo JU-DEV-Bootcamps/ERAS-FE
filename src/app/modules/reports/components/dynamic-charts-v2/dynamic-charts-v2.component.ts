@@ -76,7 +76,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
   isPanelOpen = signal(false);
   hasNoResults = false;
   isAnyCardExpanded = false;
-  expandedIndex: number | null = null;
   expandedComponent: string | null | undefined = null;
 
   gridHeight = 0;
@@ -226,15 +225,9 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   onToggle(id: string): void {
-    const index: string = id.at(-1) ?? '0';
-    this.expandedComponent =
-      this.components()?.components[parseInt(index)].description;
+    this.expandedComponent = id.replace('chart-', '');
     this.expandedId = this.expandedId === id ? null : id;
     this.isAnyCardExpanded = this.expandedId !== null;
-    this.expandedIndex = this.isAnyCardExpanded
-      ? parseInt(id.replace('chart-', ''))
-      : null;
-
     if (this.expandedId === null) {
       this.gridHeight = this.contentQuarter.nativeElement.offsetHeight;
     }
@@ -347,6 +340,10 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.chartTypeMap.set(componentLabel, type);
   }
 
+  getComponentOfChart(titleChart: string | undefined) {
+    return titleChart?.replace('Reporte: ', '').toLocaleLowerCase();
+  }
+
   private resetBaseState() {
     this.hasNoResults = false;
   }
@@ -369,7 +366,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.uuid = null;
     this.isAnyCardExpanded = false;
     this.expandedId = null;
-    this.expandedIndex = null;
   }
 
   private handleExpandedState(filters: Filter) {
@@ -387,7 +383,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
       index = 0;
       this.expandedComponent = selected[0].toLowerCase();
     }
-    this.expandedIndex = index;
-    this.expandedId = `chart-${index}`;
+    this.expandedId = `chart-${this.expandedComponent}`;
   }
 }

@@ -43,4 +43,8 @@ export class AssessmentService extends BaseApiService {
   ): Observable<AssessmentModel> {
     return this.put<AssessmentModel>(id, editedAssessment);
   }
+
+  deleteAssessment(id: number) {
+    return this.delete<AssessmentModel>(id);
+  }
 }
