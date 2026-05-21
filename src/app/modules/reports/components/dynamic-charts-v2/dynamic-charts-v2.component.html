@@ -34,11 +34,16 @@
         @for (chartOption of chartsOptions; track $index) {
           <app-expandable-card
             #chartsGrid
-            [cardId]="'chart-' + $index"
-            [expanded]="expandedId === 'chart-' + $index && isAnyCardExpanded"
+            [cardId]="'chart-' + getComponentOfChart(chartOption.title?.text)"
+            [expanded]="
+              expandedId ===
+                'chart-' + getComponentOfChart(chartOption.title?.text) &&
+              isAnyCardExpanded
+            "
             [dimmed]="
               expandedId !== null &&
-              expandedId !== 'chart-' + $index &&
+              expandedId !==
+                'chart-' + getComponentOfChart(chartOption.title?.text) &&
               isAnyCardExpanded
             "
             [transitioning]="isPanelTransitioning()"

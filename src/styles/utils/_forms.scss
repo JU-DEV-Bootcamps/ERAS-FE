@@ -58,6 +58,11 @@ mat-option[appselectall] {
   }
 }
 
-.assessment-modal-panel {
+.assessment-modal-panel,
+.delete-confirmation-modal {
   border-radius: 8px;
+}
+
+.delete-confirmation-modal {
+  box-shadow: 1px var(--color-neutral-200) blur(3px);
 }
