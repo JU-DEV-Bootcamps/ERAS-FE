@@ -26,6 +26,7 @@ export class AssessmentStatusBadgeComponent {
     [AssessmentStatus.OnHold]: 'On Hold',
     [AssessmentStatus.Remitted]: 'Remitted',
     [AssessmentStatus.Resolved]: 'Resolved',
+    [AssessmentStatus.Rejected]: 'Rejected',
   };
 
   private readonly statusClassMap: Record<AssessmentStatus, string> = {
@@ -34,5 +35,6 @@ export class AssessmentStatusBadgeComponent {
     [AssessmentStatus.OnHold]: 'status-on-hold',
     [AssessmentStatus.Remitted]: 'status-remitted',
     [AssessmentStatus.Resolved]: 'status-resolved',
+    [AssessmentStatus.Rejected]: 'status-rejected',
   };
 }

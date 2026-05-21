@@ -73,6 +73,7 @@ export enum AssessmentStatus {
   OnHold = 'OnHold',
   Remitted = 'Remitted',
   Resolved = 'Resolved',
+  Rejected = 'Rejected',
 }
 
 export enum InterventionStatus {
