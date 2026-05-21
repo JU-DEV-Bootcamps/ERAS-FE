@@ -7,7 +7,6 @@ import { referralsResolver } from '@modules/supports-referrals/resolvers/referra
 import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
 import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
 import { ImportPreviewComponent } from '@modules/imports/components/import-preview/import-preview.component';
-import { ImportStudentsComponent } from '@modules/imports/components/import-students/import-students.component';
 import { LayoutComponent } from '@core/components/layout/layout.component';
 import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
 import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
@@ -17,7 +16,6 @@ import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/s
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
-import { StudentsListComponent } from '@modules/students/students-list/students-list.component';
 import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
 import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
 import { AppRouteData } from '@core/models/route-data.model';
@@ -29,7 +27,11 @@ import { AssessmentsComponent } from '@modules/assessments/components/assessment
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 import { SummaryChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-charts-v2.component';
 import { AssessmentsContainerComponent } from '@modules/assessments/components/assesment-container/assessments-container.component';
+<<<<<<< 768-fe---view-interventions-on-a-list
 import { InterventionsComponent } from '@modules/assessments/components/interventions/interventions.component';
+=======
+import { StudentsContainerComponent } from '@modules/students/students-container.component';
+>>>>>>> develop
 
 export const routes: Routes = [
   {
@@ -106,18 +108,13 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'import-students',
-        component: ImportStudentsComponent,
-        data: { breadcrumb: 'Import Students' },
-      },
-      {
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
         data: { breadcrumb: 'Students List By Poll' },
       },
       {
         path: 'students',
-        component: StudentsListComponent,
+        component: StudentsContainerComponent,
         data: {
           breadcrumb: 'Students List',
           headerTitle: 'Students',
@@ -178,9 +175,7 @@ export const routes: Routes = [
           {
             path: 'details/:id',
             loadComponent: () =>
-              import(
-                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
-              ),
+              import('@modules/supports-referrals/components/referral-detail/referral-detail.component'),
             resolve: { referral: referralDetailsResolver },
             data: { breadcrumb: 'Referral Details' },
           },

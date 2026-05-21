@@ -12,7 +12,6 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
         forProduction: false,
       },
       { label: 'Evaluation Processes', route: '/evaluation-process' },
-      { label: 'Import Students', route: '/import-students' },
       { label: 'Students List', route: '/students' },
     ],
   },
