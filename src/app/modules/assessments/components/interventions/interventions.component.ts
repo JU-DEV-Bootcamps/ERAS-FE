@@ -5,6 +5,7 @@ import {
   OnInit,
   signal,
   WritableSignal,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -70,6 +71,8 @@ export class InterventionsComponent implements OnInit {
     [AssessmentStatus.Resolved]: 'Resolved',
   };
 
+  @ViewChild('interventionList') interventionList!: InterventionListComponent;
+
   ngOnInit(): void {
     this.loadAssessments();
   }
@@ -132,17 +135,24 @@ export class InterventionsComponent implements OnInit {
       label: assessment.studentNames?.[index] ?? id,
     }));
 
-    this.matDialog.open(NewInterventionModalComponent, {
-      width: '520px',
-      disableClose: true,
-      data: {
-        assessmentId: assessment.id!,
-        professional: {
-          value: assessment.assignedProfessional ?? '',
-          label: assessment.assignedProfessional ?? '',
+    this.matDialog
+      .open(NewInterventionModalComponent, {
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: assessment.id!,
+          professional: {
+            value: assessment.assignedProfessional ?? '',
+            label: assessment.assignedProfessional ?? '',
+          },
+          students,
         },
-        students,
-      },
-    });
+      })
+      .afterClosed()
+      .subscribe((created: boolean) => {
+        if (created) {
+          this.interventionList.loadInterventions(this.selectedAssessmentId()!);
+        }
+      });
   }
 }

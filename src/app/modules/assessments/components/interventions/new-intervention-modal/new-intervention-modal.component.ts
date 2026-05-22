@@ -9,12 +9,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -250,15 +245,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   setFormGroup(event: FormGroup): void {
     this.form = event;
-    this.form.addControl('mode', new FormControl('', Validators.required));
-    this.form.addControl(
-      'comments',
-      new FormControl('', [
-        Validators.required,
-        Validators.minLength(10),
-        Validators.maxLength(1000),
-      ])
-    );
   }
 
   private buildAttendance(): void {
@@ -350,46 +336,30 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   private buildPayload(): AddInterventionPayload {
     const v = this.form.value;
+    const isGroup = this.isGroup();
+
+    const studentIds: number[] = isGroup
+      ? (v.students as string[]).map(Number)
+      : [Number(v.students)];
 
     const attendanceRecord: Record<number, boolean> = {};
     this.attendance().forEach(({ student, attended }) => {
       attendanceRecord[Number(student.value)] = attended;
     });
 
-    if (this.isGroup()) {
-      const studentIds: number[] = (v.students as string[]).map(Number);
-
-      return {
-        assessmentId: this.data.assessmentId,
-        intervention: {
-          kind: InterventionType.Group,
-          dateUtc: new Date(v.date).toISOString(),
-          activity: v.activity,
-          mode: v.mode,
-          comments: v.comments,
-          professional: this.data.professional.label,
-          studentIds: studentIds,
-          area: v.area,
-          numberOfParticipants: studentIds.length,
-          attendance: attendanceRecord,
-          attachments: [],
-        },
-      };
-    }
-
-    const studentId = Number(v.students);
-
     return {
       assessmentId: this.data.assessmentId,
       intervention: {
-        kind: InterventionType.Individual,
+        kind: isGroup ? InterventionType.Group : InterventionType.Individual,
         dateUtc: new Date(v.date).toISOString(),
         activity: v.activity,
         mode: v.mode,
         comments: v.comments,
         professional: this.data.professional.label,
-        studentIds: [studentId],
-        attendance: { [studentId]: true },
+        studentIds,
+        area: v.area,
+        numberOfParticipants: studentIds.length,
+        attendance: attendanceRecord,
         attachments: [],
       },
     };
