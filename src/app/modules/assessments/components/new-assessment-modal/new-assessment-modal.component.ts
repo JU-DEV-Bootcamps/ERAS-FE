@@ -41,7 +41,7 @@ export class NewAssessmentModalComponent implements FormCreation {
   ) {
     this.formFields = [
       {
-        type: 'select',
+        type: 'searchableSelect',
         name: 'students',
         label: 'Students',
         placeholder: 'Select students',
