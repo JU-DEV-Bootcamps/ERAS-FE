@@ -17,6 +17,13 @@ describe('AssessmentListComponent', () => {
       service: 'Student Services',
       assignedProfessional: 'Master',
       studentIds: ['Jane Doe'],
+      students: [
+        {
+          id: 12,
+          name: 'Jane Doe',
+          email: 'jane@mail.com',
+        },
+      ],
       comments: 'Some comment for preview testing',
       status: AssessmentStatus.Created,
       interventions: [],

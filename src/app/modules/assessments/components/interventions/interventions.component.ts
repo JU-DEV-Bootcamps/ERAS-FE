@@ -69,6 +69,7 @@ export class InterventionsComponent implements OnInit {
     [AssessmentStatus.OnHold]: 'On Hold',
     [AssessmentStatus.Remitted]: 'Remitted',
     [AssessmentStatus.Resolved]: 'Resolved',
+    [AssessmentStatus.Rejected]: 'Rejected',
   };
 
   @ViewChild('interventionList') interventionList!: InterventionListComponent;
