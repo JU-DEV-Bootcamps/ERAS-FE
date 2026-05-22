@@ -9,7 +9,10 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import {
+  FloatLabelType,
+  MatFormFieldModule,
+} from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import {
@@ -65,6 +68,8 @@ export class SelectMultipleVirtualScrollComponent {
   readonly useVirtualScroll = computed(
     () => this.scrollItems().length > VIRTUAL_SCROLL_THRESHOLD
   );
+  readonly floatLabelSetup = input<FloatLabelType>('auto');
+  readonly placeholder = input<string>('Search...');
 
   constructor() {
     effect(onCleanup => {

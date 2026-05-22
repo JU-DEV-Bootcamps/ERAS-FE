@@ -1,4 +1,8 @@
-<mat-form-field appearance="outline" class="compact-select">
+<mat-form-field
+  appearance="outline"
+  class="compact-select"
+  [floatLabel]="floatLabelSetup()"
+>
   <mat-label [attr.for]="id()">{{ label() }}</mat-label>
 
   <mat-select
@@ -16,7 +20,7 @@
       <input
         #searchInput
         matInput
-        placeholder="Search..."
+        [placeholder]="placeholder()"
         (input)="onSearch($event)"
         (keydown.space)="$event.stopPropagation()"
         (keydown)="$event.stopPropagation()"
