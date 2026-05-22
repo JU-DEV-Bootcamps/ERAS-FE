@@ -66,7 +66,7 @@ export class DetailsPanelComponent implements OnChanges {
   pagination: Pagination = { page: 0, pageSize: 10 };
 
   columns: Column<EvaluationDetailsStudentResponse>[] = [
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: 'Name', showLabel: false },
     { key: 'answerText', label: 'Answer' },
   ];
   columnTemplates: Column<EvaluationDetailsStudentResponse>[] = [

@@ -1,3 +1,5 @@
+import { StudentProfileData } from '@modules/assessments/components/assessment-list/assessment-student-data/assessment-student-data.component';
+
 export interface AssessmentModel {
   id?: number;
 
@@ -8,6 +10,7 @@ export interface AssessmentModel {
   assignedProfessional?: string | null;
   studentIds: string[];
   studentNames?: string[];
+  students?: StudentProfileData[];
 
   diagnosis?: string | null;
   objective?: string | null;
