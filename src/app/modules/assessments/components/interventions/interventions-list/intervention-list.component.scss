@@ -158,21 +158,26 @@ td.mat-column-student {
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 0;
+
+  .inline-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-action {
+    display: none;
+  }
 }
 
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
+@media (max-width: 1500px) {
+  .action-buttons {
+    .inline-actions {
+      display: none;
+    }
 
-  .table-wrapper {
-    width: 100%;
-  }
-
-  .interventions-table {
-    width: 100%;
+    .menu-action {
+      display: flex;
+    }
   }
 }
 
