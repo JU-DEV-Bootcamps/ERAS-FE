@@ -119,7 +119,13 @@
         </th>
         <td
           mat-cell
+          #cellText
           [class]="mapClass?.table?.cell ?? ''"
+          [matTooltip]="
+            cellText.scrollWidth > cellText.clientWidth
+              ? showElement(element, column)
+              : null
+          "
           *matCellDef="let element"
         >
           {{ showElement(element, column) }}

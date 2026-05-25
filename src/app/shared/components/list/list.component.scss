@@ -29,6 +29,12 @@
   margin-left: auto;
 }
 
+app-table-with-actions {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
 app-table-with-actions,
 mat-paginator {
   color: var(

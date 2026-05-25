@@ -2,6 +2,12 @@ $row-height: 48px;
 $table-border-radius: 8px;
 $border-color: #e3e2e2;
 
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
 table {
   text-align: left;
   width: 100%;
@@ -59,7 +65,6 @@ mat-card-actions {
 
 .mat-mdc-cell {
   border-bottom: 1px solid $border-color;
-  text-transform: capitalize;
 }
 
 .row-mobile {

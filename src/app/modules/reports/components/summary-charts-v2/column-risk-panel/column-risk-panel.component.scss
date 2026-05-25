@@ -64,3 +64,9 @@
     font-size: 13px;
   }
 }
+
+:host ::ng-deep .mat-mdc-table {
+  color: black;
+  width: 100%;
+  table-layout: fixed;
+}
