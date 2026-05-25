@@ -122,3 +122,9 @@ mat-divider {
     background-color: darken($primary, 6%);
   }
 }
+
+.list-of-student {
+  width: 100%;
+  max-height: 282px;
+  overflow-y: auto;
+}

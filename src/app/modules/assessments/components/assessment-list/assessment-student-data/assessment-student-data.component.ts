@@ -38,9 +38,15 @@ export class AssessmentStudentDataComponent {
 
   openPopover() {
     const rect = this.badgeRef.nativeElement.getBoundingClientRect();
+    const popoverHeight = 360;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const showAbove = spaceBelow < popoverHeight;
+
     this.popoverStyle = {
-      top: `${rect.bottom + 6}px`,
       left: `${rect.left}px`,
+      ...(showAbove
+        ? { bottom: `${window.innerHeight - rect.top + 6}px` }
+        : { top: `${rect.bottom + 6}px` }),
     };
     this.show = true;
     setTimeout(() => {
