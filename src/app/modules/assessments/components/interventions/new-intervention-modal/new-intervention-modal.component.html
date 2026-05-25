@@ -1,0 +1,106 @@
+<div class="modal-header">
+  <h2 mat-dialog-title>New Intervention</h2>
+  <mat-icon mat-dialog-close>close</mat-icon>
+</div>
+
+<div class="modal-content">
+  <mat-dialog-content>
+    <div class="form-body">
+      <div class="intervention-type-toggle">
+        <mat-checkbox
+          [checked]="isGroup()"
+          [disabled]="data.students.length <= 1"
+          (change)="onToggleGroup($event.checked)"
+        >
+          Group intervention
+        </mat-checkbox>
+      </div>
+
+      <app-form-factory
+        [fields]="formFields"
+        (formReady)="setFormGroup($event)"
+      ></app-form-factory>
+
+      <div class="attendance-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Attendance</mat-label>
+          <mat-select
+            [multiple]="isGroup()"
+            (selectionChange)="onAttendanceChange($event.value)"
+          >
+            <mat-option
+              *ngFor="let student of data.students"
+              [value]="student.value"
+            >
+              {{ student.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="file-upload-section">
+        <span class="file-upload-label">
+          Evidences
+          <span class="file-upload-hint"
+            >PDF, JPG, PNG or TXT · max 5MB · up to 2 files</span
+          >
+        </span>
+        <div class="file-upload-actions">
+          <label class="file-upload-button" [class.disabled]="!canAddMoreFiles">
+            <mat-icon>upload_file</mat-icon>
+            Upload file
+            <input
+              type="file"
+              hidden
+              [accept]="allowedExtensions"
+              [disabled]="!canAddMoreFiles"
+              (change)="onFileSelected($event)"
+            />
+          </label>
+        </div>
+        @if (selectedFiles.length) {
+          <ul class="file-list">
+            @for (file of selectedFiles; track file.name; let i = $index) {
+              <li class="file-item">
+                <mat-icon class="file-icon">insert_drive_file</mat-icon>
+                <span class="file-name">{{ file.name }}</span>
+                <span class="file-size"
+                  >{{ (file.size / 1024 / 1024).toFixed(2) }} MB</span
+                >
+                <button
+                  class="file-remove-button"
+                  type="button"
+                  (click)="removeFile(i)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+        @if (fileErrors.length) {
+          <div class="file-errors">
+            @for (err of fileErrors; track err) {
+              <p class="file-error-message">
+                <mat-icon>error_outline</mat-icon>{{ err }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-dialog-close class="cancel-button">Cancel</button>
+    <button
+      class="action-button"
+      type="submit"
+      [ngClass]="{ 'disabled-button': isSubmitDisabled }"
+      [disabled]="isSubmitDisabled"
+      (click)="submitIntervention()"
+    >
+      Create
+    </button>
+  </mat-dialog-actions>
+</div>

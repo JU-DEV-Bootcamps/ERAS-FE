@@ -27,6 +27,7 @@ import { AssessmentsComponent } from '@modules/assessments/components/assessment
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 import { SummaryChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-charts-v2.component';
 import { AssessmentsContainerComponent } from '@modules/assessments/components/assesment-container/assessments-container.component';
+import { InterventionsComponent } from '@modules/assessments/components/interventions/interventions.component';
 import { StudentsContainerComponent } from '@modules/students/students-container.component';
 
 export const routes: Routes = [
@@ -136,6 +137,11 @@ export const routes: Routes = [
             component: AssessmentsComponent,
             data: { headerTitle: 'Assessments' } satisfies AppRouteData,
           },
+          {
+            path: 'interventions',
+            component: InterventionsComponent,
+            data: { headerTitle: 'Assessments' } satisfies AppRouteData,
+          },
         ],
       },
 
@@ -166,7 +172,9 @@ export const routes: Routes = [
           {
             path: 'details/:id',
             loadComponent: () =>
-              import('@modules/supports-referrals/components/referral-detail/referral-detail.component'),
+              import(
+                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
+              ),
             resolve: { referral: referralDetailsResolver },
             data: { breadcrumb: 'Referral Details' },
           },

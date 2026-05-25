@@ -2,16 +2,28 @@
   <div class="loading-state">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
-} @else if (!assessments().length) {
+} @else if (assessmentId() === null) {
   <div class="empty-state">
     <div class="empty-state-content">
       <div class="empty-icon">
-        <mat-icon>assignment</mat-icon>
+        <mat-icon>filter_list</mat-icon>
       </div>
-      <h3>No Assessments yet</h3>
-      <p>Get Started by creating your first assessment record</p>
+      <h3>Select an assessment</h3>
+      <p>
+        Choose an assessment from the dropdown above to view its interventions
+      </p>
+    </div>
+  </div>
+} @else if (!interventions().length) {
+  <div class="empty-state">
+    <div class="empty-state-content">
+      <div class="empty-icon">
+        <mat-icon>psychology</mat-icon>
+      </div>
+      <h3>No Interventions yet</h3>
+      <p>Create the first intervention for this assessment</p>
       <button mat-flat-button type="button" (click)="onCreateClick()">
-        Create Assessment
+        Create Intervention
       </button>
     </div>
   </div>
@@ -19,41 +31,53 @@
   <div class="page-header">
     <button mat-flat-button type="button" (click)="onCreateClick()">
       <mat-icon>add</mat-icon>
-      Create Assessment
+      Create Intervention
     </button>
   </div>
+
   <div
     class="push-layout-container"
-    [class.panel-is-open]="selectedAssessment() !== null"
+    [class.panel-is-open]="selectedIntervention() !== null"
   >
     <div class="main-content-area">
       <div class="table-wrapper">
         <table
           mat-table
-          [dataSource]="pagedAssessments()"
-          class="assessments-table"
+          [dataSource]="pagedInterventions()"
+          class="interventions-table"
         >
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef>Date</th>
             <td mat-cell *matCellDef="let item">
-              {{ item.createdAtUtc | date: 'MM/dd/yyyy' }}
+              {{ item.dateUtc | date: 'MM/dd/yyyy' }}
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="submitter">
-            <th mat-header-cell *matHeaderCellDef>Submitter</th>
-            <td mat-cell *matCellDef="let item">{{ item.createdBy }}</td>
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let item">
+              <app-intervention-pill-badge [value]="item.kind" />
+            </td>
           </ng-container>
 
-          <ng-container matColumnDef="service">
-            <th mat-header-cell *matHeaderCellDef>Service</th>
-            <td mat-cell *matCellDef="let item">{{ item.service }}</td>
+          <ng-container matColumnDef="mode">
+            <th mat-header-cell *matHeaderCellDef>Mode</th>
+            <td mat-cell *matCellDef="let item">
+              <app-intervention-pill-badge [value]="item.mode" />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="activity">
+            <th mat-header-cell *matHeaderCellDef>Activity</th>
+            <td mat-cell *matCellDef="let item" [matTooltip]="item.activity">
+              <span class="truncate-text">{{ item.activity || '—' }}</span>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="professional">
             <th mat-header-cell *matHeaderCellDef>Professional</th>
             <td mat-cell *matCellDef="let item">
-              {{ item.assignedProfessional || '—' }}
+              {{ item.professional || '—' }}
             </td>
           </ng-container>
 
@@ -68,10 +92,17 @@
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="area">
+            <th mat-header-cell *matHeaderCellDef>Area</th>
+            <td mat-cell *matCellDef="let item">
+              {{ item.area || '—' }}
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Status</th>
             <td mat-cell *matCellDef="let item">
-              <app-assessment-status-badge [status]="item.status" />
+              <app-intervention-pill-badge [value]="item.status" />
             </td>
           </ng-container>
 
@@ -122,7 +153,6 @@
                   type="button"
                   [matMenuTriggerFor]="moreMenu"
                   matTooltip="More options"
-                  (click)="onMoreClick(item)"
                 >
                   <mat-icon>more_vert</mat-icon>
                 </button>
@@ -163,7 +193,7 @@
       </div>
 
       <mat-paginator
-        [length]="assessments().length"
+        [length]="interventions().length"
         [pageIndex]="pageIndex()"
         [pageSize]="pageSize"
         [pageSizeOptions]="[10]"
@@ -173,13 +203,12 @@
     </div>
 
     <div class="slide-panel-area">
-      @if (selectedAssessment()) {
-        <app-assessment-detail-dialog
-          [data]="selectedAssessment()!"
+      @if (selectedIntervention()) {
+        <app-intervention-detail
+          [data]="selectedIntervention()!"
           (close)="closeDetailPanel()"
-          (createIntervention)="onCreateIntervention($event)"
         >
-        </app-assessment-detail-dialog>
+        </app-intervention-detail>
       }
     </div>
   </div>
