@@ -9,13 +9,21 @@
       (mouseenter)="openPopover()"
       (mouseleave)="closePopover()"
     >
-      <span class="badge-number-student" #badgeRef>
+      <span
+        class="badge-number-student"
+        #badgeRef
+        (click)="togglePin()"
+        (keydown.enter)="togglePin()"
+        (keydown.space)="togglePin()"
+        tabindex="0"
+      >
         +{{ studentData.length - 1 }}
       </span>
 
       <div
         class="students-popover"
         [class.visible]="show"
+        [class.pinned]="pinned"
         [ngStyle]="popoverStyle"
         (mouseenter)="show = true"
         (mouseleave)="closePopover()"

@@ -1,4 +1,10 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  ViewChild,
+} from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 
@@ -19,7 +25,16 @@ export class AssessmentStudentDataComponent {
   @ViewChild('badgeRef') badgeRef!: ElementRef;
 
   show = false;
+  pinned = false;
   popoverStyle: Record<string, string> = {};
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickedInside = this.badgeRef?.nativeElement.contains(event.target);
+    if (!clickedInside) {
+      this.pinned = false;
+      this.show = false;
+    }
+  }
 
   openPopover() {
     const rect = this.badgeRef.nativeElement.getBoundingClientRect();
@@ -28,9 +43,18 @@ export class AssessmentStudentDataComponent {
       left: `${rect.left}px`,
     };
     this.show = true;
+    setTimeout(() => {
+      const panel = document.querySelector('.students-popover');
+      if (panel) panel.scrollTop = 0;
+    });
   }
 
   closePopover() {
-    this.show = false;
+    if (!this.pinned) this.show = false;
+  }
+
+  togglePin() {
+    this.pinned = !this.pinned;
+    if (!this.pinned) this.show = false;
   }
 }
