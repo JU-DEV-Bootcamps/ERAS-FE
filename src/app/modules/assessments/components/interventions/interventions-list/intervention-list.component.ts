@@ -21,9 +21,13 @@ import { InterventionPillBadgeComponent } from './intervention-status-badge/inte
 import { InterventionDetailComponent } from '../interventions-detail/intervention-detail.component';
 import { InterventionModel } from '@core/models/assessement.model';
 import { InterventionService } from '@core/services/api/intervention.service';
+import {
+  StudentProfileData,
+  AssessmentStudentDataComponent,
+} from '../../assessment-list/assessment-student-data/assessment-student-data.component';
 
 export interface InterventionRowViewModel extends InterventionModel {
-  studentDisplay: string;
+  studentDisplay: StudentProfileData[] | string;
   commentPreview: string;
 }
 
@@ -43,6 +47,7 @@ export interface InterventionRowViewModel extends InterventionModel {
     MatTooltipModule,
     InterventionPillBadgeComponent,
     InterventionDetailComponent,
+    AssessmentStudentDataComponent,
   ],
   templateUrl: './intervention-list.component.html',
   styleUrl: './intervention-list.component.scss',
@@ -52,10 +57,10 @@ export class InterventionListComponent {
 
   @Input() pageSize = 10;
 
-  @Input() set studentNamesLookup(value: Record<string, string>) {
+  @Input() set studentNamesLookup(value: Record<string, StudentProfileData>) {
     this._studentNamesLookup = value;
   }
-  private _studentNamesLookup: Record<string, string> = {};
+  private _studentNamesLookup: Record<string, StudentProfileData> = {};
 
   readonly assessmentId = signal<number | null>(null);
   @Input() set assessmentIdInput(value: number | null) {
@@ -147,11 +152,11 @@ export class InterventionListComponent {
     };
   }
 
-  private buildStudentDisplay(item: InterventionModel): string {
+  private buildStudentDisplay(
+    item: InterventionModel
+  ): StudentProfileData[] | string {
     if (item.studentIds?.length) {
-      return item.studentIds
-        .map(id => this._studentNamesLookup[id] ?? id)
-        .join(', ');
+      return item.studentIds.map(id => this._studentNamesLookup[id]);
     }
     return 'No student assigned';
   }

@@ -118,7 +118,6 @@ export class AssessmentListComponent implements OnInit {
   protected onViewClick(item: AssessmentRowViewModel): void {
     this.viewClicked.emit(item);
     this.selectedAssessment.set(item);
-    console.log('item', item);
   }
 
   protected closeDetailPanel(): void {

@@ -23,6 +23,7 @@ import {
 } from '@core/models/assessement.model';
 import { InterventionListComponent } from './interventions-list/intervention-list.component';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
+import { StudentProfileData } from '../assessment-list/assessment-student-data/assessment-student-data.component';
 
 interface AssessmentOption {
   value: number;
@@ -57,9 +58,9 @@ export class InterventionsComponent implements OnInit {
     []
   );
 
-  readonly studentNamesLookup: WritableSignal<Record<string, string>> = signal(
-    {}
-  );
+  readonly studentNamesLookup: WritableSignal<
+    Record<string, StudentProfileData>
+  > = signal({});
 
   readonly selectedAssessmentId: WritableSignal<number | null> = signal(null);
 
@@ -90,10 +91,14 @@ export class InterventionsComponent implements OnInit {
           this.assessmentOptions.set(assessments.map(a => this.mapToOption(a)));
           this.isLoadingAssessments.set(false);
 
-          const lookup: Record<string, string> = {};
+          const lookup: Record<string, StudentProfileData> = {};
           assessments.forEach(a => {
             a.studentIds.forEach((id, index) => {
-              lookup[id] = a.studentNames?.[index] ?? id;
+              lookup[id] = a.students?.[index] ?? {
+                id: 0,
+                name: '',
+                email: '',
+              };
             });
           });
           this.studentNamesLookup.set(lookup);
@@ -133,7 +138,7 @@ export class InterventionsComponent implements OnInit {
 
     const students = assessment.studentIds.map((id, index) => ({
       value: id,
-      label: assessment.studentNames?.[index] ?? id,
+      label: assessment.students?.[index].name ?? id,
     }));
 
     this.matDialog
