@@ -25,6 +25,13 @@ export class InterventionDetailComponent {
 
   @Output() close = new EventEmitter<void>();
 
+  displayStudents(): string {
+    if (Array.isArray(this.data.studentDisplay)) {
+      return this.data.studentDisplay.map(m => m.name).join(', ');
+    }
+    return this.data.studentDisplay;
+  }
+
   onClose(): void {
     this.close.emit();
   }

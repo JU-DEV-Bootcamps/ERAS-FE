@@ -1,0 +1,49 @@
+<div class="assessment-data-student">
+  <span class="text-student">
+    {{ studentData[0].name }}
+  </span>
+
+  @if (studentData.length > 1) {
+    <div
+      class="popover-wrapper"
+      (mouseenter)="openPopover()"
+      (mouseleave)="closePopover()"
+    >
+      <span
+        class="badge-number-student"
+        #badgeRef
+        (click)="togglePin()"
+        (keydown.enter)="togglePin()"
+        (keydown.space)="togglePin()"
+        tabindex="0"
+      >
+        +{{ studentData.length - 1 }}
+      </span>
+
+      <div
+        class="students-popover"
+        [class.visible]="show"
+        [class.pinned]="pinned"
+        [ngStyle]="popoverStyle"
+        (mouseenter)="show = true"
+        (mouseleave)="closePopover()"
+      >
+        @for (student of studentData.slice(1); track student.id) {
+          <div class="student-item">
+            <div class="student-avatar">
+              <img
+                src="assets/icons/avatarPlaceholder.svg"
+                alt="imageForStudent"
+                class="avatar"
+              />
+            </div>
+            <div class="student-info">
+              <div class="student-name">{{ student.name }}</div>
+              <div class="student-email">{{ student.email }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

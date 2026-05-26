@@ -15,13 +15,16 @@
     >
       <mat-card-content [class]="mapClass?.card?.content ?? ''">
         <div class="row-info" *ngFor="let column of columns">
-          @if (column.key !== 'name') {
+          @if (column.showLabel !== false) {
             <span class="field">{{ column.label }}:</span>
-            <span class="information-secondary">
+            <span
+              class="information-secondary"
+              [ngClass]="column.label + '-label'"
+            >
               {{ item[column.key] }}
             </span>
           } @else {
-            <span class="information">
+            <span class="information" [ngClass]="column.label + '-label'">
               {{ item[column.key] }}
             </span>
           }

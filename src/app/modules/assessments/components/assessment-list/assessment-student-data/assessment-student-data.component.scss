@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+$neutral-surface: var(--color-neutral-200);
+$font-text-sm: var(--font-size-small);
+
+$color-background: #f0f0f0;
+$color-accent: #5c9e8f;
+$color-accent-hover: #4a8a7c;
+$color-stroke: #e5e5e5;
+
+.assessment-data-student {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-weight: inherit;
+}
+
+.text-student {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.badge-number-student {
+  padding: 1.5px 10px;
+  background-color: $neutral-surface;
+  border-radius: 17px;
+  font-size: $font-text-sm;
+  line-height: 16px;
+  font-weight: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  min-width: 240px;
+}
+
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-accent-hover;
+}
+
+.avatar {
+  object-fit: cover;
+  width: 28px;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+  font-family: $inter;
+}
+
+.student-name {
+  font-weight: 600;
+  font-family: $inter;
+  line-height: 21px;
+  letter-spacing: 0.29%;
+  color: var(--color-neutral-800);
+}
+
+.student-email {
+  font-size: $font-text-sm;
+  font-family: $inter;
+  color: var(--color-neutral-500);
+}
+
+.popover-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.students-popover {
+  position: fixed;
+  z-index: 1000;
+  background: $color-background;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  min-width: 280px;
+  border: 1px solid $color-stroke;
+  max-height: calc(5 * 72px);
+  overflow-y: auto;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+
+  &.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}

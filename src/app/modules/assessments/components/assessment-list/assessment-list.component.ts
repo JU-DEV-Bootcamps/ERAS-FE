@@ -33,6 +33,7 @@ import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { AssessmentStudentDataComponent } from './assessment-student-data/assessment-student-data.component';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -57,6 +58,7 @@ export interface AssessmentRowViewModel extends AssessmentModel {
     MatTooltipModule,
     AssessmentStatusBadgeComponent,
     AssessmentDetailDialogComponent,
+    AssessmentStudentDataComponent,
   ],
   templateUrl: './assessment-list.component.html',
   styleUrl: './assessment-list.component.scss',

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {
   Component,
   Input,
@@ -41,6 +41,7 @@ import { ActionButtonComponent } from '../buttons/action-button/action-button.co
     MatProgressSpinnerModule,
     MatTableModule,
     MatMenuModule,
+    NgClass,
   ],
   templateUrl: './mat-card-details.component.html',
   styleUrls: ['./mat-card-details.component.scss'],

@@ -1,0 +1,14 @@
+<div class="list-with-removal">
+  @if (!items.length && emptyTemplate) {
+    <ng-container [ngTemplateOutlet]="emptyTemplate" />
+  } @else {
+    <app-mat-card-details
+      [mapClass]="mapClass?.table ? mapClass : undefined"
+      [columns]="columns"
+      [items]="items"
+      [columnTemplates]="columnTemplates"
+      [actionDatas]="actionDatas"
+      (actionCalled)="handleAction($event)"
+    />
+  }
+</div>

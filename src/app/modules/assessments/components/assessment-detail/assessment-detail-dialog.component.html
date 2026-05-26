@@ -14,8 +14,16 @@
 
 <div class="dialog-content">
   <div class="field-group">
-    <span class="field-label">Student:</span>
-    <span class="field-value">{{ data.studentDisplay }}</span>
+    <span class="field-label">Student(s):</span>
+    <div class="list-of-student">
+      <app-list-with-removal
+        [columns]="columns"
+        [items]="data.students ?? []"
+        [totalItems]="data.students ? data.students.length : 0"
+        [title]="'Answer Details'"
+        [actionDatas]="actionDatas"
+      />
+    </div>
   </div>
 
   <div class="field-group">
