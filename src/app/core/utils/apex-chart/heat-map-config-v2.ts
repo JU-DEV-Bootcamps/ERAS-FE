@@ -138,11 +138,12 @@ export function GetChartOptions(
           } else {
             const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
             const color = w.globals.colors[seriesIndex];
+            const xValue = dataPoint.x;
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
 
-            return customTooltip(yValue, formattedZValue, color);
+            return customTooltip(xValue, yValue, formattedZValue, color);
           }
         };
         const wrap = (content: string) => {

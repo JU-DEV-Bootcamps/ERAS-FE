@@ -199,7 +199,10 @@ export class DynamicChartsV2Component implements AfterViewInit {
             x: number;
           };
           const color = RISK_COLORS[regroupSeries[x]?.data[y].x];
+          const question = component.questions[x];
+
           return customTooltip(
+            question?.question ?? '',
             `${groupedAnswer?.count ?? 0}`,
             dataAtPoint.z,
             color
@@ -299,7 +302,6 @@ export class DynamicChartsV2Component implements AfterViewInit {
       const series =
         this.reportService.getHMSeriesFromCountComponent(component);
       const regroupSeries = this.reportService.regroupDynamicByColor(series);
-
       const groupedQuestion = series[seriesIndex];
       const dataAtPoint = regroupSeries[seriesIndex]?.data[dataPointIndex];
 
@@ -308,8 +310,10 @@ export class DynamicChartsV2Component implements AfterViewInit {
         groupedQuestion?.data[dataPointIndex - totalFillers];
 
       const color = RISK_COLORS[dataPointIndex];
+      const question = component.questions[seriesIndex];
 
       return customTooltip(
+        question?.question ?? '',
         `${groupedAnswer?.count ?? 0}`,
         dataAtPoint?.z ?? '',
         color

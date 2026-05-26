@@ -5,7 +5,7 @@ import {
   RISK_TEXT_COLORS,
   getRiskGroup,
 } from '@core/constants/riskLevel';
-import { customTooltip } from './customTooltip-v2';
+import { customTooltip } from './customTooltip';
 
 export function GetChartOptions(
   title: string,
