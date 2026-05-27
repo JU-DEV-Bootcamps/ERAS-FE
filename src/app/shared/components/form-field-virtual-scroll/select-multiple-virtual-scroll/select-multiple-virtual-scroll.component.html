@@ -9,25 +9,31 @@
     multiple
     [id]="id()"
     [formControl]="control()"
+    [placeholder]="placeholder()"
     (openedChange)="openedChange.emit($event)"
+    (selectionChange)="updateSelection($event)"
     panelClass="compact-select-panel"
   >
     <mat-select-trigger>
-      <app-selected-items [items]="getItemSelection()" />
+      <app-selected-items [items]="selectedItemsLabels()" />
     </mat-select-trigger>
 
     <div class="select-search">
       <input
         #searchInput
         matInput
-        [placeholder]="placeholder()"
         (input)="onSearch($event)"
         (keydown.space)="$event.stopPropagation()"
         (keydown)="$event.stopPropagation()"
       />
     </div>
 
-    <mat-option appSelectAll [allValues]="scrollItemsValues()">
+    <mat-option
+      [value]="'allValues'"
+      appSelectAll
+      [allValues]="scrollItemsValues()"
+      (onSelectionChange)="selectAllClicked($event)"
+    >
       Select all
     </mat-option>
 

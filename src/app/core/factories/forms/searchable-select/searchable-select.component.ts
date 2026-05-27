@@ -15,9 +15,13 @@ export class SearchableSelectComponent implements DynamicInputComponent {
   form: InputSignal<FormGroup> = input.required<FormGroup>();
   formUtils = FormUtils;
 
-  fieldControl: Signal<FormControl> = computed(
-    () => this.form().get(this.field().name) as FormControl
-  );
+  fieldControl: Signal<FormControl> = computed(() => {
+    const control = this.form().get(this.field().name) as FormControl;
+    if (this.field().value) {
+      control.patchValue(this.field().value);
+    }
+    return control;
+  });
   items: Signal<MultipleSelectItem[]> = computed(() => {
     const options = this.field().options;
 
