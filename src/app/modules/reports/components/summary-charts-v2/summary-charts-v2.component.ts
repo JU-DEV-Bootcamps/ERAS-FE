@@ -42,7 +42,6 @@ import {
   TypeFile,
 } from '@shared/components/list/list.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
-import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -55,6 +54,7 @@ import {
   ColumnRiskPanelData,
 } from './column-risk-panel/column-risk-panel.component';
 import { SummaryColumnChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-column-charts-v2/summary-column-charts-v2.component';
+import { TooltipChartV2Component } from '../tooltip-chart-v2/tooltip-chart-v2.component';
 
 @Component({
   selector: 'app-students-risk',
@@ -184,6 +184,7 @@ export class SummaryChartsV2Component {
             response.body
           );
           const series = this.reportService.regroupSummaryByColor(reportSeries);
+          console.log('series', series);
 
           this.chartOptions = GetChartOptions(
             '',
@@ -208,11 +209,12 @@ export class SummaryChartsV2Component {
             },
             { legend: { show: false } },
             (x, y) => {
-              const category = `Q: ${series[x].data[y].x}`;
-              const value = `Answer: ${series[x].data[y].y}`;
+              const category = `${series[x].data[y].x}`;
+              const value = `Total answers: ${this.components()?.pollCount}`;
               const answers = series[x].data[y].z;
+              console.log('answers', series[x].data);
 
-              const compRef = createComponent(TooltipChartComponent, {
+              const compRef = createComponent(TooltipChartV2Component, {
                 environmentInjector: this.injector,
               });
 
