@@ -88,3 +88,54 @@ mat-divider {
   width: 100%;
   word-break: break-word;
 }
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(17, 116, 115, 0.06);
+  border: 1px solid rgba(17, 116, 115, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(17, 116, 115, 0.12);
+  }
+}
+
+.attachment-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: $primary;
+  flex-shrink: 0;
+}
+
+.attachment-name {
+  flex: 1;
+  font-size: 13px;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-open-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
 import { InterventionModel } from '@core/models/assessement.model';
@@ -43,5 +44,21 @@ export class InterventionService extends BaseApiService {
     interventionId: number
   ): Observable<void> {
     return this.delete<void>(`${assessmentId}/interventions/${interventionId}`);
+  }
+
+  uploadAttachments(
+    interventionId: number,
+    files: File[]
+  ): Observable<string[]> {
+    const formData = new FormData();
+    files.forEach(f => formData.append('files', f));
+    return this.postForm<string[]>(
+      `interventions/${interventionId}/attachments`,
+      formData
+    );
+  }
+
+  getAttachmentUrl(interventionId: number, fileName: string): string {
+    return `${environment.apiUrl}/api/v1/assessments/interventions/${interventionId}/attachments/${fileName}`;
   }
 }

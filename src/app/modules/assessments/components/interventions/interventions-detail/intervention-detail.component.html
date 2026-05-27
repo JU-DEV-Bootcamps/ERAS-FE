@@ -65,4 +65,23 @@
     <span class="field-label">Comments:</span>
     <span class="field-value">{{ data.comments || '—' }}</span>
   </div>
+
+  @if (data.attachments?.length) {
+    <div class="field-group">
+      <span class="field-label">Evidences:</span>
+      <div class="attachments-list">
+        @for (path of data.attachments!; track path) {
+          <button
+            class="attachment-item"
+            type="button"
+            (click)="openAttachment(path)"
+          >
+            <mat-icon class="attachment-icon">{{ getFileIcon(path) }}</mat-icon>
+            <span class="attachment-name">{{ getFileName(path) }}</span>
+            <mat-icon class="attachment-open-icon">open_in_new</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+  }
 </div>
