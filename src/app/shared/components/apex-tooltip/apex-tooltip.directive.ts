@@ -152,14 +152,33 @@ export class ApexTooltipDirective implements OnDestroy {
 
   private updatePosition(event: MouseEvent): void {
     if (!this.overlayRef) return;
-
     const offsetX = 16;
     const offsetY = -8;
+    const tooltipEl = this.overlayRef.overlayElement
+      .firstElementChild as HTMLElement;
+
+    const tooltipWidth = tooltipEl?.offsetWidth ?? 402;
+    const tooltipHeight = tooltipEl?.offsetHeight ?? 400;
+
+    const spaceOnRight = window.innerWidth - event.clientX;
+    const spaceOnBottom = window.innerHeight - event.clientY;
+
+    const showOnLeft = spaceOnRight < tooltipWidth + offsetX;
+    const showOnTop = spaceOnBottom < tooltipHeight + offsetY;
+
+    const left = showOnLeft
+      ? event.clientX - tooltipWidth - offsetX
+      : event.clientX + offsetX;
+
+    const top = showOnTop
+      ? event.clientY - tooltipHeight - offsetY
+      : event.clientY + offsetY;
+
     const strategy = this.overlay
       .position()
       .global()
-      .left(`${event.clientX + offsetX}px`)
-      .top(`${event.clientY + offsetY}px`);
+      .left(`${left}px`)
+      .top(`${top}px`);
 
     this.overlayRef.updatePositionStrategy(strategy);
     this.overlayRef.updatePosition();

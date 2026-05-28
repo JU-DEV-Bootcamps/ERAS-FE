@@ -2,15 +2,19 @@ import { RISK_COLORS } from '@core/constants/riskLevel';
 import { PollCountAnswer } from '@core/models/summary.model';
 
 export function customTooltip(
+  xValue: string,
   yValue: string,
   formattedZValue: string,
   color: string
 ): string {
   return `
   <div>
-    <div class="apexcharts-tooltip-y item-tooltip" >
+    <div class="apexcharts-tooltip-y item-tooltip">
+      <div class="apexcharts-tooltip-x" style="font-size: 16px; letter-spacing: 0.15px; font-weight: 500;">
+      ${xValue}
+      </div>
       ${_formatStudentItem(color)}
-      <span>${yValue} Students</span>
+      <span class="badge-value-students">${yValue} Students</span>
     </div>
     <div class="apexcharts-tooltip-z">
       ${_formatEmailsList(formattedZValue)}

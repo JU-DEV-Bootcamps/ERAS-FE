@@ -70,6 +70,7 @@ export interface AnswerDetail {
   answerText: string;
   answerPercentage: number;
   studentsEmails: string[];
+  riskLevel?: number;
 }
 
 export interface GetQueryResponse<T> {

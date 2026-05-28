@@ -70,3 +70,110 @@ ul.custom-markers {
   font-size: 16px !important;
   font-weight: 600;
 }
+
+.summary-chart-tooltip {
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: 402px;
+  padding: 16px;
+  white-space: normal;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &-title {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+  }
+
+  &-container {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+    flex-direction: column;
+  }
+
+  &-divider {
+    border-top: 1px solid var(--color-neutral-200);
+  }
+
+  &-total-badge {
+    padding: 1.5px 10px;
+    background-color: var(--color-neutral-200);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    border-radius: 17px;
+    width: fit-content;
+  }
+
+  &-percentage-answer {
+    width: 100% !important;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &-answer {
+    font-weight: 500;
+  }
+
+  &-percentage {
+    font-weight: 500;
+    color: var(--progress-color);
+    white-space: nowrap;
+  }
+
+  &-progress {
+    width: inherit;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  &-progress::-webkit-progress-bar {
+    background-color: #fff;
+    border-radius: 4px;
+  }
+
+  &-progress::-webkit-progress-value {
+    background-color: var(--progress-color);
+    border-radius: 4px;
+  }
+
+  &-progress::-moz-progress-bar {
+    background-color: var(--progress-color);
+    border-radius: 4px;
+  }
+}
+
+.summary-chart-tooltip-mail-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0 0 20px;
+
+  li {
+    position: relative;
+    color: #6b7280;
+  }
+}
+
+.point-tooltip-color {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 5px;
+  background-color: var(--progress-color);
+}

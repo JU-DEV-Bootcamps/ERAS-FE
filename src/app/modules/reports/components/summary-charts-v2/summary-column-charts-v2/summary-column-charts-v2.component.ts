@@ -19,9 +19,9 @@ import {
 import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
-import { TooltipChartComponent } from '../../tooltip-chart/tooltip-chart.component';
 import { ColumnRiskPanelData } from '../column-risk-panel/column-risk-panel.component';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
+import { TooltipChartV2Component } from '../../tooltip-chart-v2/tooltip-chart-v2.component';
 
 @Component({
   selector: 'app-summary-column-charts-v2',
@@ -139,7 +139,7 @@ export class SummaryColumnChartsV2Component {
         const category = w.globals.labels[dataPointIndex];
         const emails = w.config.series[seriesIndex].data[dataPointIndex].meta;
 
-        const compRef = createComponent(TooltipChartComponent, {
+        const compRef = createComponent(TooltipChartV2Component, {
           environmentInjector: this.injector,
         });
 

@@ -93,7 +93,7 @@
 }
 
 ::ng-deep .item-tooltip {
-  padding: 8px 8px;
+  padding: 16px 16px 8px;
 }
 
 ::ng-deep .mail-list {
@@ -120,8 +120,11 @@
   width: 10px;
   height: 10px;
   margin-right: 8px;
-  margin-left: 8px;
   border-radius: 5px;
+}
+
+::ng-deep .point-tooltip-color-0 {
+  background-color: #868686;
 }
 
 ::ng-deep .point-tooltip-color-1 {
@@ -151,4 +154,13 @@
 
 ::ng-deep .apexcharts-yaxis {
   width: 30%;
+}
+
+::ng-deep .badge-value-students {
+  padding: 1.5px 10px;
+  background-color: var(--color-neutral-200);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  border-radius: 17px;
 }

@@ -1,0 +1,46 @@
+<div class="summary-chart-tooltip">
+  <div class="summary-chart-tooltip-header">
+    <div class="summary-chart-tooltip-title">{{ category }}</div>
+    <div class="summary-chart-tooltip-total-badge" [innerHTML]="value"></div>
+  </div>
+  <div class="summary-chart-tooltip-divider"></div>
+  <div class="summary-chart-tooltip-container">
+    @if (emails) {
+      <ul class="summary-chart-tooltip-mail-list">
+        @for (email of emails; track $index) {
+          <li>{{ email }}</li>
+        }
+      </ul>
+    } @else if (answersWithColor.length > 0) {
+      @for (answer of answersWithColor; track $index) {
+        <div class="summary-chart-tooltip-percentage-answer">
+          <span class="summary-chart-tooltip-answer">
+            <div
+              class="point-tooltip-color"
+              [style.--progress-color]="answer.riskColor"
+            ></div>
+            {{ answer.answerText }}
+          </span>
+          <span
+            class="summary-chart-tooltip-percentage"
+            [style.--progress-color]="answer.riskColor"
+            >{{ answer.answerPercentage }} %</span
+          >
+        </div>
+        <progress
+          class="summary-chart-tooltip-progress"
+          [value]="answer.answerPercentage"
+          max="100"
+          [style.--progress-color]="answer.riskColor"
+        >
+          {{ answer.answerPercentage }}%
+        </progress>
+        <ul class="summary-chart-tooltip-mail-list">
+          @for (email of answer.studentsEmails; track $index) {
+            <li>{{ email }}</li>
+          }
+        </ul>
+      }
+    }
+  </div>
+</div>
