@@ -6,12 +6,12 @@
   <div class="summary-chart-tooltip-divider"></div>
   <div class="summary-chart-tooltip-container">
     @if (emails) {
-      <ul class="custom-markers">
+      <ul class="summary-chart-tooltip-mail-list">
         @for (email of emails; track $index) {
-          <li><span class="cct-icon">&#10003;</span> {{ email }}</li>
+          <li>{{ email }}</li>
         }
       </ul>
-    } @else if (answersWithColor) {
+    } @else if (answersWithColor.length > 0) {
       @for (answer of answersWithColor; track $index) {
         <div class="summary-chart-tooltip-percentage-answer">
           <span class="summary-chart-tooltip-answer">

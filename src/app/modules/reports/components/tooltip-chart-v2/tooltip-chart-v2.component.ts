@@ -15,14 +15,15 @@ export type AnswerDetailWithColor = AnswerDetail & {
 export class TooltipChartV2Component implements OnInit {
   @Input() value!: string;
   @Input() category!: string;
-  @Input() emails!: string[];
-  @Input() answers!: AnswerDetail[];
+  @Input() emails?: string[];
+  @Input() answers?: AnswerDetail[];
   answersWithColor: AnswerDetailWithColor[] = [];
 
   ngOnInit() {
-    this.answersWithColor = this.answers.map(answer => ({
-      ...answer,
-      riskColor: RISK_COLORS[answer.riskLevel ?? 0],
-    }));
+    this.answersWithColor =
+      this.answers?.map(answer => ({
+        ...answer,
+        riskColor: RISK_COLORS[answer.riskLevel ?? 0],
+      })) ?? [];
   }
 }
