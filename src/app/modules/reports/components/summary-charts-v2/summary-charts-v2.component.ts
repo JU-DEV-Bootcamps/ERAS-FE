@@ -184,7 +184,6 @@ export class SummaryChartsV2Component {
             response.body
           );
           const series = this.reportService.regroupSummaryByColor(reportSeries);
-          console.log('series', series);
 
           this.chartOptions = GetChartOptions(
             '',
@@ -212,7 +211,6 @@ export class SummaryChartsV2Component {
               const category = `${series[x].data[y].x}`;
               const value = `Total answers: ${this.components()?.pollCount}`;
               const answers = series[x].data[y].z;
-              console.log('answers', series[x].data);
 
               const compRef = createComponent(TooltipChartV2Component, {
                 environmentInjector: this.injector,
