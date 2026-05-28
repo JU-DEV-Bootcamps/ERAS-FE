@@ -121,6 +121,7 @@ ul.custom-markers {
     width: 100% !important;
     display: flex;
     justify-content: space-between;
+    gap: 12px;
   }
 
   &-answer {
@@ -130,6 +131,7 @@ ul.custom-markers {
   &-percentage {
     font-weight: 500;
     color: var(--progress-color);
+    white-space: nowrap;
   }
 
   &-progress {
