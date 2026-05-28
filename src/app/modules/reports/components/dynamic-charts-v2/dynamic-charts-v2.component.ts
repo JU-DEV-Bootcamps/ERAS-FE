@@ -349,6 +349,10 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   private applyFilterMetadata(filters: Filter) {
+    if (this.evaluationId !== filters.evaluationId) {
+      this.chartTypeMap.clear();
+      this.closePanel();
+    }
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
