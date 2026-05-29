@@ -35,7 +35,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessement.model';
-import { switchMap, map, of } from 'rxjs';
+import { map, of, concatMap } from 'rxjs';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -45,7 +45,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
 const MAX_FILES = 2;
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const ACTIVITY_OPTIONS = [
   { value: 'tutoring', label: 'Tutoring' },
@@ -293,7 +293,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         continue;
       }
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        this.fileErrors.push(`"${file.name}" exceeds the 5MB size limit.`);
+        this.fileErrors.push(`"${file.name}" exceeds the 10MB size limit.`);
         continue;
       }
       this.selectedFiles.push(file);
@@ -315,7 +315,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.interventionService
       .createIntervention(payload)
       .pipe(
-        switchMap((created: InterventionModel) => {
+        concatMap((created: InterventionModel) => {
           if (this.selectedFiles.length === 0) return of(created);
           return this.interventionService
             .uploadAttachments(created.id!, this.selectedFiles)

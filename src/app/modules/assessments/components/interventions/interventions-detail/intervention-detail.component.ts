@@ -35,11 +35,14 @@ export class InterventionDetailComponent {
   openAttachment(relativePath: string): void {
     const fileName = relativePath.split('/').pop() ?? relativePath;
     const interventionId = this.data.id!;
-    const url = this.interventionService.getAttachmentUrl(
-      interventionId,
-      fileName
-    );
-    window.open(url, '_blank');
+
+    this.interventionService
+      .downloadAttachment(interventionId, fileName)
+      .subscribe(blob => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      });
   }
 
   getFileIcon(relativePath: string): string {

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
 import { InterventionModel } from '@core/models/assessement.model';
@@ -58,7 +57,13 @@ export class InterventionService extends BaseApiService {
     );
   }
 
-  getAttachmentUrl(interventionId: number, fileName: string): string {
-    return `${environment.apiUrl}/api/v1/assessments/interventions/${interventionId}/attachments/${fileName}`;
+  downloadAttachment(
+    interventionId: number,
+    fileName: string
+  ): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/assessments/interventions/${interventionId}/attachments/${fileName}`,
+      { responseType: 'blob' }
+    );
   }
 }
