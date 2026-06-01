@@ -5,7 +5,13 @@ import { FormUtils } from '@core/utils/forms/form-utils';
 import { Lookup } from '@core/models/lookup';
 import { FloatLabelType } from '@angular/material/form-field';
 
-export type FieldType = 'date' | 'select' | 'text' | 'textarea' | 'password';
+export type FieldType =
+  | 'date'
+  | 'select'
+  | 'text'
+  | 'textarea'
+  | 'password'
+  | 'searchableSelect';
 export type ValueType = string | number | boolean | Date | null | string[];
 
 export type FormControlTuple = Record<

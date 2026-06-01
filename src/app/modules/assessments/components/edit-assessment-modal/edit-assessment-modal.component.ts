@@ -66,7 +66,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
 
     this.formFields = [
       {
-        type: 'select',
+        type: 'searchableSelect',
         name: 'students',
         label: 'Students',
         placeholder: 'Select students',

@@ -9,9 +9,12 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import {
+  FloatLabelType,
+  MatFormFieldModule,
+} from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import {
   MultipleSelectCommonItem,
   MultipleSelectGroup,
@@ -23,6 +26,7 @@ import { SelectedItemsComponent } from '@modules/reports/components/poll-filters
 import { SelectAllValue } from '@shared/directives/select-all-value';
 import { UpperCasePipe } from '@angular/common';
 import { VIRTUAL_SCROLL_THRESHOLD } from '@core/constants/select';
+import { MatOptionSelectionChange } from '@angular/material/core';
 
 @Component({
   selector: 'app-select-multiple-virtual-scroll',
@@ -65,6 +69,13 @@ export class SelectMultipleVirtualScrollComponent {
   readonly useVirtualScroll = computed(
     () => this.scrollItems().length > VIRTUAL_SCROLL_THRESHOLD
   );
+  readonly floatLabelSetup = input<FloatLabelType>('auto');
+  readonly placeholder = input<string>('Search...');
+  readonly selectedItemsValues = signal<SelectAllValue[]>([]);
+  readonly selectedItemsLabels = signal<string[]>([]);
+  readonly inputControlValues = computed<SelectAllValue[]>(
+    () => this.control().value
+  );
 
   constructor() {
     effect(onCleanup => {
@@ -72,14 +83,25 @@ export class SelectMultipleVirtualScrollComponent {
       const defaultValue = this.scrollItemsValues();
       const ctrl = this.control();
 
+      // Account for edit modals with existing values
+      if (this.inputControlValues()) {
+        this.selectedItemsValues.set(this.inputControlValues());
+      }
+
       if (currentItems?.length > 0 && this.autoSelect()) {
         const timeoutId = setTimeout(() => {
           ctrl.patchValue(defaultValue);
+          this.selectedItemsValues.set(defaultValue);
           this.openedChange.emit(false);
         });
 
         onCleanup(() => clearTimeout(timeoutId));
       }
+    });
+
+    effect(() => {
+      this.control().patchValue(this.selectedItemsValues());
+      this.selectedItemsLabels.set(this.getItemSelection());
     });
   }
 
@@ -101,31 +123,28 @@ export class SelectMultipleVirtualScrollComponent {
   }
 
   getItemSelection() {
-    const value = this.control().value;
+    const currentSelectionValues = this.selectedItemsValues();
+    const scrollItems = this.scrollItems().filter(
+      scrollItem => !scrollItem.type || scrollItem.type !== 'group'
+    );
 
-    let toReturn = [''];
-
-    if (value) {
-      const selectedItems = value.filter((item: MultipleSelectItem) => !!item);
-      const scrollItems = this.scrollItems().filter(
-        scrollItem => !scrollItem.type || scrollItem.type !== 'group'
-      );
-
-      if (selectedItems.length === scrollItems.length) {
-        toReturn = ['Select all'];
-      } else {
-        toReturn = selectedItems?.map((selectedItem: unknown) => {
+    let itemSelection = [''];
+    if (currentSelectionValues.length === scrollItems.length) {
+      itemSelection = ['Select all'];
+    } else {
+      itemSelection = currentSelectionValues.map(
+        (selectedItem: SelectAllValue) => {
           const match = scrollItems.find(
             (item: MultipleSelectItem) =>
               !this.isGroupItem(item) && item.value === selectedItem
           );
 
           return match ? match.label : '';
-        });
-      }
+        }
+      );
     }
 
-    return toReturn;
+    return itemSelection;
   }
 
   isGroupItem(item: MultipleSelectItem): item is MultipleSelectGroup {
@@ -173,5 +192,42 @@ export class SelectMultipleVirtualScrollComponent {
       this.searchText.set('');
     }
     this.openedChange.emit(isOpen);
+  }
+
+  selectAllClicked(selection: MatOptionSelectionChange) {
+    if (selection.isUserInput && !selection.source.selected) {
+      this.selectedItemsValues.set([]);
+    }
+  }
+
+  updateSelection(selection: MatSelectChange<SelectAllValue[]>) {
+    if (selection.value.includes('allValues')) {
+      this.selectedItemsValues.set(this.scrollItemsValues());
+    } else {
+      this.selectedItemsValues.update(oldSelection => {
+        const newSelection: SelectAllValue[] = [...oldSelection];
+        const filteredItemsValues = this.filteredScrollItems().map(
+          item => (item as MultipleSelectCommonItem).value
+        );
+
+        // Add new selections while avoiding duplicates
+        newSelection.push(
+          ...selection.value.filter(item => !oldSelection.includes(item))
+        );
+
+        // Remove previously selected item if it is deselected
+        oldSelection.forEach(item => {
+          if (
+            filteredItemsValues.includes(item) &&
+            !selection.value.includes(item)
+          ) {
+            const index = newSelection.indexOf(item);
+            newSelection.splice(index, 1);
+          }
+        });
+
+        return newSelection;
+      });
+    }
   }
 }
