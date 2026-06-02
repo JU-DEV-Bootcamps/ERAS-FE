@@ -105,7 +105,7 @@ export class SummaryChartsComponent {
   students: StudentRiskAverage[] = [];
   totalStudents = 0;
 
-  isLoading = false;
+  isLoading = signal(false);
   isGeneratingPDF = false;
   title = '';
   components = signal<PollAvgReport | null>(null);
@@ -115,7 +115,7 @@ export class SummaryChartsComponent {
 
   getStudentsByCohortAndPoll(event: EventLoad) {
     if (this.cohortIds.length && this.pollUuid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       this.studentService
         .getAllAverageByCohortsAndPoll({
           page: event.page,
@@ -127,7 +127,7 @@ export class SummaryChartsComponent {
         .subscribe(response => {
           this.students = response.items;
           this.totalStudents = response.count;
-          this.isLoading = false;
+          this.isLoading.set(false);
         });
     } else {
       this.students = [];

@@ -101,7 +101,7 @@ describe('SummaryChartsComponent', () => {
     });
     expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading()).toBeFalse();
   });
 
   it('should call getAvgPoolReport and set chartOptions in getHeatMap', () => {

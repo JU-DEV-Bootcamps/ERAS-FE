@@ -6,7 +6,7 @@
   (filters)="handleFilterSelect($event)"
 ></app-poll-filters>
 
-@defer (when isLoading) {
+@defer (when isLoading()) {
   <ng-container>
     <div class="action-section">
       <button
@@ -59,6 +59,7 @@
         <app-summary-column-charts
           [components]="components()!"
           [pollUuid]="pollUuid"
+          [cohortsIds]="cohortIds"
           [data]="title"
         ></app-summary-column-charts>
       }
