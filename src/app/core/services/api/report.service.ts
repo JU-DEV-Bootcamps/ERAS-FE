@@ -5,6 +5,7 @@ import {
   CountSummaryModel,
   GetQueryResponse,
   PollAvgReport,
+  PollCountAnswer,
   PollCountComponent,
   PollCountReport,
   StudentReportAnswerRiskLevel,
@@ -13,7 +14,11 @@ import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
 import { fixedColorRange } from '@core/utils/apex-chart/heat-map-config';
 import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
-import { RISK_COLORS, RISK_LEVEL } from '../../constants/riskLevel';
+import {
+  RISK_COLORS,
+  RISK_LEVEL,
+  getRiskGroup,
+} from '../../constants/riskLevel';
 import { Pagination } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
 import {
@@ -129,14 +134,32 @@ export class ReportService extends BaseApiService {
     const series = component.questions
       .sort((q1, q2) => q2.position - q1.position)
       .map(question => {
+        const grouped = new Map<number, PollCountAnswer>();
+        for (const answer of question.answers) {
+          const group = getRiskGroup(answer.answerRisk);
+          if (grouped.has(group)) {
+            const existing = grouped.get(group)!;
+            existing.count += answer.count;
+            existing.students = [...existing.students, ...answer.students];
+          } else {
+            grouped.set(group, {
+              ...answer,
+              answerRisk: group,
+              students: [...answer.students],
+            });
+          }
+        }
+        const groupedAnswers = Array.from(grouped.values());
+
         return {
           text: `${question.question}`,
           description: `${question.question}`,
           name: `${question.question}`,
-          data: addCountPercentages(question.answers).map(a => {
+          data: addCountPercentages(groupedAnswers).map(a => {
             return {
-              x: Math.trunc(a.answerRisk),
+              x: a.answerRisk,
               y: a.answerRisk,
+              count: a.count,
               z: `<span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br> ${a.students
                 .map(ans => `${this.arrayAsStringParams([ans.email])}`)
                 .join(';')}`,

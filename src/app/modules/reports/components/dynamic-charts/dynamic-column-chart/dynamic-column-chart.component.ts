@@ -29,7 +29,11 @@ import {
   PollCountQuestion,
   PollCountReport,
 } from '@core/models/summary.model';
-import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
+import {
+  RISK_COLORS,
+  RISK_LABELS,
+  getRiskGroup,
+} from '@core/constants/riskLevel';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 
 import {
@@ -155,7 +159,7 @@ export class DynamicColumnChartComponent {
   private _getAnswersRisks(questions: PollCountQuestion[], riskLevel: number) {
     return questions.map(question => {
       const filteredAnswers = question.answers.filter(
-        answer => Math.trunc(answer.answerRisk) === riskLevel
+        answer => getRiskGroup(answer.answerRisk) === riskLevel
       );
 
       const totalCount = filteredAnswers.reduce(
