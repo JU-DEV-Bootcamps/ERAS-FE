@@ -130,7 +130,7 @@
               [columnTemplates]="columnTemplates"
               [actionDatas]="actionDatas"
               [items]="filteredStudents"
-              [totalItems]="filteredStudents.length"
+              [totalItems]="totalStudents"
               [title]="'Top Risk Students'"
             >
               <ng-template #riskSum let-item>
@@ -162,7 +162,9 @@
             </mat-expansion-panel-header>
             <div>
               <app-list
-                (loadCalled)="handleLoad()"
+                (loadCalled)="
+                  handleLoadComponent($event, component.key.toLowerCase())
+                "
                 (actionCalled)="handleActionCalled($event)"
                 [mapClass]="mapClass"
                 [columns]="columns"
@@ -171,10 +173,7 @@
                 [items]="
                   componentStudentRisk[component.key.toLowerCase()] || []
                 "
-                [totalItems]="
-                  (componentStudentRisk[component.key.toLowerCase()] || [])
-                    .length
-                "
+                [totalItems]="totalStudentsComponent"
               >
                 <ng-template #riskSum let-item>
                   <app-badge-risk-level [riskLevel]="item.riskSum" />
