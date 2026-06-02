@@ -132,10 +132,11 @@ export class DynamicChartsComponent {
 
               this.openDetailsModal(
                 this.uuid!,
-                1,
+                this.cohortIds,
                 selectedQuestionOnly,
                 component.description,
-                component.text
+                component.text,
+                selectedAnswer.answerRisk
               );
             }
           }
@@ -191,17 +192,19 @@ export class DynamicChartsComponent {
 
   openDetailsModal(
     pollUuid: string,
-    cohortId: number,
+    cohortId: string,
     question: PollCountQuestion,
     componentName: ComponentValueType,
-    text?: string
+    text?: string,
+    riskLevel?: number
   ): void {
     const data: SelectedHMData = {
-      cohortId: this.cohortIds,
+      cohortId: cohortId,
       pollUuid,
       componentName,
       text,
       question,
+      riskLevel,
     };
     this.dialog.open(ModalQuestionDetailsComponent, {
       width: 'clamp(320px, 50vw, 580px)',
