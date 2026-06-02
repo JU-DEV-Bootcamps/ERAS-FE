@@ -177,6 +177,7 @@ export class PollsAnsweredComponent implements OnInit {
   }
 
   load(): void {
+    if (this.selectedPollUuid === '') return;
     this.loading = true;
     this.pollInstanceService
       .getPollInstancesByFilters({
@@ -232,5 +233,9 @@ export class PollsAnsweredComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  get showEmpty(): boolean {
+    return !this.selectedPollUuid;
   }
 }

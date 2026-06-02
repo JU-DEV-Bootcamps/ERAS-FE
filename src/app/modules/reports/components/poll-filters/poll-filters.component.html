@@ -1,46 +1,34 @@
 <form [formGroup]="filterForm">
-  @if (polls === null) {
+  @if (!evaluations) {
     <p class="error-message">
-      There was an error looking for polls. Please contact support
+      There was an error looking for evaluation processes. Please contact
+      support.
     </p>
   }
   <div class="form-container">
-    @if (polls !== null && polls.length > 0) {
+    @if (evaluations && evaluations.length > 0) {
       <mat-form-field appearance="fill">
-        <mat-label for="sl-poll">Poll</mat-label>
+        <mat-label for="sl-evaluation">Evaluation</mat-label>
         <mat-select
-          id="sl-poll"
-          formControlName="selectedPoll"
-          (selectionChange)="handlePollSelect($event)"
+          id="sl-evaluation"
+          formControlName="selectedEvaluation"
+          (selectionChange)="handleEvaluationSelect($event)"
+          (openedChange)="$event && onDropdownScroll()"
         >
-          @for (poll of polls; track $index) {
-            <mat-option class="versioned-option" [value]="poll">
-              <p>{{ poll.name }}</p>
-            </mat-option>
+          @for (evaluation of evaluations; track $index) {
+            @if (evaluation.status === 'Completed') {
+              <mat-option class="versioned-option" [value]="evaluation">
+                <p>{{ `${evaluation.name} - ${evaluation.status}`}}</p>
+              </mat-option>
+            }
           }
         </mat-select>
-        @if (filterForm.get('selectedPoll')?.errors) {
+        @if (filterForm.get('selectedEvaluation')?.errors) {
           <mat-error>This field is required</mat-error>
         }
       </mat-form-field>
     }
-    @if (filterForm.value.selectedPoll) {
-      <mat-form-field appearance="fill">
-        <mat-label for="sl-version">Version</mat-label>
-        <mat-select
-          formControlName="lastVersion"
-          (selectionChange)="handleVersionSelect($event)"
-        >
-          <mat-option [value]="false">Older Versions</mat-option>
-          <mat-option [value]="true">
-            Last Version V{{ filterForm.value.selectedPoll.lastVersion }} -
-            {{
-              filterForm.value.selectedPoll.lastVersionDate | date: 'shortDate'
-            }}</mat-option
-          >
-        </mat-select>
-      </mat-form-field>
-
+    @if (polls[0]) {
       <mat-form-field appearance="fill">
         <mat-label for="sl-cohort">Cohort</mat-label>
         <mat-select

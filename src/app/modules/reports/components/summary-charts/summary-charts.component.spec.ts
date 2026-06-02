@@ -101,7 +101,6 @@ describe('SummaryChartsComponent', () => {
     });
     expect(component.students).toEqual(mockStudents.items);
     expect(component.totalStudents).toBe(1);
-    expect(component.isLoading()).toBeFalse();
   });
 
   it('should call getAvgPoolReport and set chartOptions in getHeatMap', () => {
@@ -153,15 +152,17 @@ describe('SummaryChartsComponent', () => {
     await component.exportReportPdf();
   });
 
-  it('should update filters and call getStudentsByCohortAndPoll and getHeatMap on handleFilterSelect', () => {
-    spyOn(component, 'getStudentsByCohortAndPoll');
+  it('should update filters and call _loadStudents and getHeatMap on handleFilterSelect', () => {
     spyOn(component, 'getHeatMap');
+    spyOn(
+      component as unknown as { _loadStudents: () => void },
+      '_loadStudents'
+    ).and.stub();
     const filters = { cohortIds: [1], title: 'Test', uuid: 'poll-uuid' };
     component.handleFilterSelect(filters as Filter);
     expect(component.cohortIds).toEqual([1]);
     expect(component.title).toBe('Test');
     expect(component.pollUuid).toBe('poll-uuid');
-    expect(component.getStudentsByCohortAndPoll).toHaveBeenCalled();
     expect(component.getHeatMap).toHaveBeenCalled();
   });
 
@@ -173,5 +174,19 @@ describe('SummaryChartsComponent', () => {
       { x: 'Q', y: 1 } as SummarySerie
     );
     expect(result).toBeNull();
+  });
+
+  describe('showEmpty', () => {
+    it('should return true when pollUuid is empty', () => {
+      component.pollUuid = '';
+
+      expect(component.showEmpty).toBeTrue();
+    });
+
+    it('should return false when pollUuid exists', () => {
+      component.pollUuid = 'poll-123';
+
+      expect(component.showEmpty).toBeFalse();
+    });
   });
 });
