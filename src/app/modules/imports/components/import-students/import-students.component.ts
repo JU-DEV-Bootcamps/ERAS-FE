@@ -92,7 +92,6 @@ export class ImportStudentsComponent {
 
   private async validateFile(file: File): Promise<void> {
     const maxFileSize = 5 * 1024 * 1024;
-
     if (file.size > maxFileSize) {
       this.fileError = VALIDATION_MESSAGES.FILE_SIZE_EXCEEDED + '(5MB)';
       this.selectedFile = null;
