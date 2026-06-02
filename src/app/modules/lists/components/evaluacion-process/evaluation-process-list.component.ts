@@ -90,15 +90,17 @@ export class EvaluationProcessListComponent implements OnInit {
       columnId: 'actions',
       id: 'openModalDetails',
       label: 'Actions',
+      tooltip: '',
       ngIconName: 'edit',
-      tooltip: 'Edit evaluation',
+      text: 'Edit evaluation',
     },
     {
       columnId: 'actions',
       id: 'goImport',
       label: 'Actions',
+      tooltip: '',
       ngIconName: 'drive_file_move',
-      tooltip: 'Go to import',
+      text: 'Go to import',
       isVisible: this.isVisible.bind(this),
     },
   ];
@@ -221,20 +223,24 @@ export class EvaluationProcessListComponent implements OnInit {
           pollName: data.pollName,
           endDate: data.endDate,
           startDate: data.startDate,
+          configurationId: data.configurationId,
         },
       })
       .afterClosed()
       .subscribe((result: PreselectedPoll) => {
-        this.routeDataService.updateRouteData({
-          evaluationId: data.id,
-          configuration: result.configuration,
-          pollName: result.pollName,
-          startDate: result.startDate,
-          endDate: result.endDate,
-        });
-        this.router.navigate(['import-preview'], {
-          relativeTo: this.route,
-        });
+        if (result) {
+          this.routeDataService.updateRouteData({
+            evaluationId: data.id,
+            configuration: result.configuration,
+            pollName: result.pollName,
+            startDate: result.startDate,
+            endDate: result.endDate,
+          });
+
+          this.router.navigate(['import-preview'], {
+            relativeTo: this.route,
+          });
+        }
       });
   }
 
@@ -254,6 +260,7 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
+
   openAlertDialog(
     descriptionMessage: string,
     type: DialogType,

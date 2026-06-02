@@ -11,6 +11,8 @@ export const IMPORT_MESSAGES = {
     'The students information was saved into the system successfully.',
   STUDENT_ERROR:
     'There was an error during the import process, please try again.',
+  ANSWERS_ERROR_DETAILS:
+    'Check your evaluation process data and your Cosmic Latte configuration.',
 };
 
 export const VALIDATION_MESSAGES = {

@@ -1,5 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterModule } from '@angular/router';
 
 import { ModalImportAnswersFormComponent } from './modal-import-answers-form.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -17,7 +18,11 @@ describe('ModalImportAnswersFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ModalImportAnswersFormComponent, HttpClientModule],
+      imports: [
+        ModalImportAnswersFormComponent,
+        HttpClientModule,
+        RouterModule.forRoot([]),
+      ],
       providers: [
         {
           provide: UserDataService,
