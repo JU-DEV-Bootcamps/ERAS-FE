@@ -1,0 +1,60 @@
+<mat-form-field appearance="fill">
+  <mat-label [attr.for]="id()">{{ label() }}</mat-label>
+
+  <mat-select
+    multiple
+    [id]="id()"
+    [formControl]="control()"
+    (openedChange)="openedChange.emit($event)"
+  >
+    <mat-select-trigger>
+      <app-selected-items [items]="getItemSelection()" />
+    </mat-select-trigger>
+
+    <mat-option appSelectAll [allValues]="scrollItemsValues()">
+      Select all
+    </mat-option>
+
+    @if (useVirtualScroll()) {
+      <cdk-virtual-scroll-viewport [itemSize]="itemSize" class="viewport">
+        <ng-container *cdkVirtualFor="let item of scrollItems()">
+          @if (isGroupItem(item)) {
+            <mat-option disabled class="group-header">
+              {{ item.label | uppercase }}
+            </mat-option>
+          } @else {
+            <mat-option
+              class="group-option versioned-option"
+              [value]="item.value"
+            >
+              {{ item.label }}
+            </mat-option>
+          }
+        </ng-container>
+      </cdk-virtual-scroll-viewport>
+    } @else {
+      @for (item of scrollItems(); track item.label) {
+        @if (isGroupItem(item)) {
+          <mat-option disabled class="group-header">
+            {{ item.label | uppercase }}
+          </mat-option>
+        } @else {
+          <mat-option
+            class="group-option versioned-option"
+            [value]="item.value"
+          >
+            {{ item.label }}
+          </mat-option>
+        }
+      }
+    }
+  </mat-select>
+
+  @if (control().invalid) {
+    <mat-error>
+      @if (control().hasError('required')) {
+        This field is required
+      }
+    </mat-error>
+  }
+</mat-form-field>
