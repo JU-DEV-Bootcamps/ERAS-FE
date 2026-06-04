@@ -34,6 +34,8 @@ import {
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { InterventionModel } from '@core/models/assessement.model';
+import { map, of, concatMap } from 'rxjs';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -43,7 +45,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
 const MAX_FILES = 2;
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const ACTIVITY_OPTIONS = [
   { value: 'tutoring', label: 'Tutoring' },
@@ -291,7 +293,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         continue;
       }
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        this.fileErrors.push(`"${file.name}" exceeds the 5MB size limit.`);
+        this.fileErrors.push(`"${file.name}" exceeds the 10MB size limit.`);
         continue;
       }
       this.selectedFiles.push(file);
@@ -310,28 +312,38 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
     const payload = this.buildPayload();
 
-    this.interventionService.createIntervention(payload).subscribe({
-      next: () => {
-        const toast: ToastNotificationData = {
-          title: 'Intervention created successfully',
-          message: `The ${this.isGroup() ? 'group' : 'individual'} intervention has been registered.`,
-          type: 'success',
-        };
-        this.toastService.showToast(toast);
-      },
-      error: (err: HttpErrorResponse) => {
-        const toast: ToastNotificationData = {
-          title: 'Form Submission Failed',
-          message: `${err.statusText}: ${err.error?.title ?? 'There was an error submitting the form. Please try again later.'}`,
-          type: 'error',
-        };
-        this.toastService.showToast(toast, true);
-        console.error(err);
-      },
-      complete: () => {
-        this.dialogRef.close(true);
-      },
-    });
+    this.interventionService
+      .createIntervention(payload)
+      .pipe(
+        concatMap((created: InterventionModel) => {
+          if (this.selectedFiles.length === 0) return of(created);
+          return this.interventionService
+            .uploadAttachments(created.id!, this.selectedFiles)
+            .pipe(map(() => created));
+        })
+      )
+      .subscribe({
+        next: () => {
+          const toast: ToastNotificationData = {
+            title: 'Intervention created successfully',
+            message: `The ${this.isGroup() ? 'group' : 'individual'} intervention has been registered.`,
+            type: 'success',
+          };
+          this.toastService.showToast(toast);
+        },
+        error: (err: HttpErrorResponse) => {
+          const toast: ToastNotificationData = {
+            title: 'Form Submission Failed',
+            message: `${err.statusText}: ${err.error?.title ?? 'There was an error submitting the form. Please try again later.'}`,
+            type: 'error',
+          };
+          this.toastService.showToast(toast, true);
+          console.error(err);
+        },
+        complete: () => {
+          this.dialogRef.close(true);
+        },
+      });
   }
 
   private buildPayload(): AddInterventionPayload {

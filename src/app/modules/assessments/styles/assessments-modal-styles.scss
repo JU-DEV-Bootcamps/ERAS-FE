@@ -117,3 +117,18 @@ button {
 mat-dialog-actions {
   gap: 8px;
 }
+
+.file-error-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-error, #b00020);
+  font-size: 12px;
+  margin: 0;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
