@@ -66,4 +66,10 @@ export class InterventionService extends BaseApiService {
       { responseType: 'blob' }
     );
   }
+
+  deleteAttachment(interventionId: number, fileName: string): Observable<void> {
+    return this.delete<void>(
+      `interventions/${interventionId}/attachments/${fileName}`
+    );
+  }
 }

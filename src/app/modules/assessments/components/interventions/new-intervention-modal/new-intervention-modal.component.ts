@@ -35,7 +35,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessement.model';
-import { map, of, concatMap } from 'rxjs';
+import { map, of, concatMap, catchError, Observable } from 'rxjs';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -75,6 +75,7 @@ export interface NewInterventionDialogData {
   assessmentId: number;
   professional: { value: string; label: string };
   students: StudentLookup[];
+  intervention?: InterventionModel;
 }
 
 @Component({
@@ -96,6 +97,9 @@ export interface NewInterventionDialogData {
 export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
+
+  private _prefillValues: Record<string, unknown> = {};
+  existingAttachments: string[] = [];
 
   readonly isGroup = signal<boolean>(false);
 
@@ -129,14 +133,23 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     return this.selectedFiles.length < MAX_FILES;
   }
 
+  get isEditMode(): boolean {
+    return !!this.data.intervention;
+  }
+
   constructor(
     public dialogRef: MatDialogRef<NewInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
   ) {}
 
   ngOnInit(): void {
-    this.isGroup.set(this.data.students.length > 1);
+    this.isGroup.set(
+      this.isEditMode
+        ? this.data.intervention!.kind === InterventionType.Group
+        : this.data.students.length > 1
+    );
     this.buildAttendance();
+    if (this.isEditMode) this.prefillForm();
     this.buildFormFields();
   }
 
@@ -247,6 +260,37 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   setFormGroup(event: FormGroup): void {
     this.form = event;
+    if (this.isEditMode && Object.keys(this._prefillValues).length) {
+      this.form.patchValue(this._prefillValues);
+      this.form.markAsPristine();
+    }
+  }
+
+  private prefillForm(): void {
+    const iv = this.data.intervention!;
+    this._prefillValues = {
+      date: iv.dateUtc,
+      activity: iv.activity,
+      area: iv.area,
+      mode: iv.mode,
+      comments: iv.comments,
+      students: this.isGroup()
+        ? iv.studentIds.map(String)
+        : String(iv.studentIds[0]),
+    };
+
+    const attended = Object.entries(iv.attendance ?? {})
+      .filter(([, v]) => v)
+      .map(([k]) => k);
+    this.attendedStudentIds.set(attended);
+    this.attendance.set(
+      this.data.students.map(s => ({
+        student: s,
+        attended: attended.includes(s.value),
+      }))
+    );
+
+    this.existingAttachments = iv.attachments ?? [];
   }
 
   private buildAttendance(): void {
@@ -286,6 +330,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         this.fileErrors.push(`Maximum ${MAX_FILES} files allowed.`);
         break;
       }
+      if (
+        this.selectedFiles.some(
+          f => f.name === file.name && f.size === file.size
+        )
+      ) {
+        this.fileErrors.push(`"${file.name}" has already been added.`);
+        continue;
+      }
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
         this.fileErrors.push(
           `"${file.name}" has an unsupported format. Allowed: ${ALLOWED_EXTENSIONS}`
@@ -309,6 +361,11 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   submitIntervention(): void {
     if (this.form.invalid) return;
+
+    if (this.isEditMode) {
+      this.updateIntervention();
+      return;
+    }
 
     const payload = this.buildPayload();
 
@@ -379,5 +436,81 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   closeAndResetDialog(): void {
     this.dialogRef.close();
+  }
+
+  private updateIntervention(): void {
+    const iv = this.data.intervention!;
+    const payload = this.buildPayload();
+    const updated: InterventionModel = {
+      ...iv,
+      ...payload.intervention,
+      id: iv.id,
+      attachments: this.existingAttachments,
+    } as InterventionModel;
+
+    this.interventionService
+      .upsertInterventions(this.data.assessmentId, [updated])
+      .pipe(
+        concatMap(() => {
+          if (!this.selectedFiles.length) return of(null);
+          return this.interventionService.uploadAttachments(
+            iv.id!,
+            this.selectedFiles
+          );
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            title: 'Intervention updated successfully',
+            message: 'The intervention has been updated.',
+            type: 'success',
+          });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.toastService.showToast(
+            {
+              title: 'Update Failed',
+              message: `${err.statusText}: ${err.error?.title ?? 'There was an error updating the intervention.'}`,
+              type: 'error',
+            },
+            true
+          );
+        },
+        complete: () => this.dialogRef.close(true),
+      });
+  }
+
+  private uploadFiles(interventionId: number): Observable<unknown> {
+    if (!this.selectedFiles.length) return of(null);
+    return this.interventionService
+      .uploadAttachments(interventionId, this.selectedFiles)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 409) {
+            this.toastService.showToast(
+              {
+                title: 'Duplicate file',
+                message:
+                  err.error?.title ?? 'This file has already been uploaded.',
+                type: 'error',
+              },
+              true
+            );
+          }
+          return of(null);
+        })
+      );
+  }
+
+  removeExistingAttachment(index: number): void {
+    this.existingAttachments = this.existingAttachments.filter(
+      (_, i) => i !== index
+    );
+    this.form.markAsDirty();
+  }
+
+  getFileName(path: string): string {
+    return path.split('/').pop() ?? path;
   }
 }

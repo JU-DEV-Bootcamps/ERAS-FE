@@ -1,5 +1,7 @@
 <div class="modal-header">
-  <h2 mat-dialog-title>New Intervention</h2>
+  <h2 mat-dialog-title>
+    {{ isEditMode ? 'Edit Intervention' : 'New Intervention' }}
+  </h2>
   <mat-icon mat-dialog-close>close</mat-icon>
 </div>
 
@@ -26,6 +28,7 @@
           <mat-label>Attendance</mat-label>
           <mat-select
             [multiple]="isGroup()"
+            [value]="attendedStudentIds()"
             (selectionChange)="onAttendanceChange($event.value)"
           >
             <mat-option
@@ -78,6 +81,24 @@
             }
           </ul>
         }
+        @if (existingAttachments.length) {
+          <ul class="file-list">
+            @for (path of existingAttachments; track path; let i = $index) {
+              <li class="file-item">
+                <mat-icon class="file-icon">insert_drive_file</mat-icon>
+                <span class="file-name">{{ getFileName(path) }}</span>
+                <span class="file-size existing-label">saved</span>
+                <button
+                  class="file-remove-button"
+                  type="button"
+                  (click)="removeExistingAttachment(i)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        }
         @if (fileErrors.length) {
           <div class="file-errors">
             @for (err of fileErrors; track err) {
@@ -100,7 +121,7 @@
       [disabled]="isSubmitDisabled"
       (click)="submitIntervention()"
     >
-      Create
+      {{ isEditMode ? 'Save' : 'Create' }}
     </button>
   </mat-dialog-actions>
 </div>

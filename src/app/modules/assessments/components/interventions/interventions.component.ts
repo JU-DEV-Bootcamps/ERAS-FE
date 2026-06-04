@@ -20,10 +20,13 @@ import { AssessmentService } from '@core/services/api/assessement.service';
 import {
   AssessmentModel,
   AssessmentStatus,
+  InterventionModel,
 } from '@core/models/assessement.model';
 import { InterventionListComponent } from './interventions-list/intervention-list.component';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { StudentProfileData } from '../assessment-list/assessment-student-data/assessment-student-data.component';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
+import { InterventionService } from '@core/services/api/intervention.service';
 
 interface AssessmentOption {
   value: number;
@@ -51,6 +54,8 @@ export class InterventionsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly matDialog = inject(MatDialog);
+
+  private readonly interventionService = inject(InterventionService);
 
   readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
   readonly assessmentOptions: WritableSignal<AssessmentOption[]> = signal([]);
@@ -159,6 +164,64 @@ export class InterventionsComponent implements OnInit {
         if (created) {
           this.interventionList.loadInterventions(this.selectedAssessmentId()!);
         }
+      });
+  }
+
+  openEditModal(intervention: InterventionModel): void {
+    if (this.selectedAssessmentId() == null) return;
+    const assessment = this.allAssessments().find(
+      a => a.id === this.selectedAssessmentId()
+    );
+    if (!assessment) return;
+
+    const students = assessment.studentIds.map((id, index) => ({
+      value: id,
+      label: assessment.students?.[index].name ?? id,
+    }));
+
+    this.matDialog
+      .open(NewInterventionModalComponent, {
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: assessment.id!,
+          professional: {
+            value: assessment.assignedProfessional ?? '',
+            label: assessment.assignedProfessional ?? '',
+          },
+          students,
+          intervention,
+        },
+      })
+      .afterClosed()
+      .subscribe((updated: boolean) => {
+        if (updated)
+          this.interventionList.loadInterventions(this.selectedAssessmentId()!);
+      });
+  }
+
+  confirmDelete(intervention: InterventionModel): void {
+    const assessmentId = this.selectedAssessmentId();
+    if (assessmentId == null) return;
+
+    this.matDialog
+      .open(ModalDeleteConfirmationComponent, {
+        width: '400px',
+        data: {
+          title: 'Delete Intervention',
+          subtitle:
+            'This will permanently remove the intervention and all its attachments.',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.interventionService
+          .deleteIntervention(assessmentId, intervention.id!)
+          .subscribe({
+            next: () => this.interventionList.loadInterventions(assessmentId),
+            error: err => console.error('Failed to delete intervention', err),
+          });
       });
   }
 }
