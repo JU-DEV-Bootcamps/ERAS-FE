@@ -348,6 +348,14 @@ export class DynamicChartsV2Component implements AfterViewInit {
     return titleChart?.replace('Reporte: ', '').toLocaleLowerCase();
   }
 
+  getColumnData(index: number) {
+    const source = this.components()!.components[index];
+    return {
+      ...source,
+      questions: [...source.questions],
+    };
+  }
+
   private resetBaseState() {
     this.hasNoResults = false;
   }
