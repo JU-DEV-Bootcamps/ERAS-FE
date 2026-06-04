@@ -295,13 +295,11 @@
   }
 
   .details-aside {
-    width: 420px;
+    width: 440px;
     flex-shrink: 0;
     position: sticky;
     top: 16px;
-
-    &--scroll {
-      position: static;
-    }
+    max-height: 100vh;
+    overflow-y: auto;
   }
 }
