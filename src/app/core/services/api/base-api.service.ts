@@ -29,6 +29,13 @@ export abstract class BaseApiService {
     );
   }
 
+  postForm<R>(endpoint: string | number, body: FormData): Observable<R> {
+    return this.http.post<R>(
+      `${this.apiUrl}/${this.resource}/${endpoint}`,
+      body
+    );
+  }
+
   put<T, R = T>(
     endpoint: string | number,
     body: T,
