@@ -35,6 +35,7 @@ import { MapClass } from '../list/types/class';
 import { ActionButtonComponent } from '../buttons/action-button/action-button.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectedCheckboxComponent } from '@modules/students/students-list/selected-checkbox/selected-checkbox.component';
+import { OverflowTooltipDirective } from '@shared/directives/overflow-tooltip.directive';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -54,6 +55,7 @@ import { SelectedCheckboxComponent } from '@modules/students/students-list/selec
     MatMenuModule,
     MatCheckboxModule,
     SelectedCheckboxComponent,
+    OverflowTooltipDirective,
   ],
   templateUrl: './table-with-actions.component.html',
   styleUrls: ['./table-with-actions.component.scss'],
@@ -82,6 +84,7 @@ export class TableWithActionsComponent<T extends object>
   actionColumns = ['Actions'];
   displayedColumns: string[] = [];
   allItemsSelected: WritableSignal<boolean> = signal<boolean>(false);
+  displayCache = new Map<T, Record<string, string>>();
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -90,7 +93,12 @@ export class TableWithActionsComponent<T extends object>
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['items']) this.allItemsSelected.set(this.areAllItemsSelected());
+    if (changes['items']) {
+      this.buildDisplayCache();
+      Promise.resolve().then(() => {
+        this.allItemsSelected.set(this.areAllItemsSelected());
+      });
+    }
   }
 
   ngOnInit() {
@@ -108,25 +116,6 @@ export class TableWithActionsComponent<T extends object>
       return column.key.toString();
     });
   }
-  // getAllColumns() {
-  //   let columnKeys = [] as (keyof T)[];
-
-  //   if (this.itemsAreSelectable) {
-  //     columnKeys = columnKeys.concat(['isSelected'] as (keyof T)[]);
-  //   }
-
-  //   columnKeys = columnKeys.concat(this.getColumnKeys());
-
-  //   if (this.getTotalTemplateColumns() > 0) {
-  //     columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));
-  //   }
-
-  //   if (this.actionDatas().length > 0) {
-  //     columnKeys = columnKeys.concat(this.actionColumns);
-  //   }
-
-  //   return columnKeys;
-  // }
 
   getTotalTemplateColumns() {
     return this.columnTemplates.length;
@@ -219,5 +208,16 @@ export class TableWithActionsComponent<T extends object>
     this.allItemsSelected()
       ? this.toggleItemsSelection(false)
       : this.toggleItemsSelection(true);
+  }
+
+  private buildDisplayCache(): void {
+    this.displayCache.clear();
+    for (const item of this.items ?? []) {
+      const row: Record<string, string> = {};
+      for (const col of this.columns ?? []) {
+        row[col.key.toString()] = this.showElement(item, col);
+      }
+      this.displayCache.set(item, row);
+    }
   }
 }

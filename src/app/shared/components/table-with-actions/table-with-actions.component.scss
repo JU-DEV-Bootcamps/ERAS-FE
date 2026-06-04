@@ -90,3 +90,10 @@ mat-card-actions {
   display: flex;
   align-items: anchor-center;
 }
+
+.cell-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

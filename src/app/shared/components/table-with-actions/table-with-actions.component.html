@@ -121,14 +121,17 @@
           mat-cell
           #cellText
           [class]="mapClass?.table?.cell ?? ''"
-          [matTooltip]="
-            cellText.scrollWidth > cellText.clientWidth
-              ? showElement(element, column)
-              : null
-          "
           *matCellDef="let element"
         >
-          {{ showElement(element, column) }}
+          <span
+            appOverflowTooltip
+            [tooltipText]="
+              displayCache.get(element)?.[column.key.toString()] ?? ''
+            "
+            class="cell-text"
+          >
+            {{ displayCache.get(element)?.[column.key.toString()] }}
+          </span>
         </td>
       </ng-container>
 
