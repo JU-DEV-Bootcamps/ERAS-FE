@@ -13,24 +13,6 @@ export const SIDEBAR_MENUS: Menu[] = [
     route: '/home',
   },
   {
-    label: 'Student Monitoring',
-    icon: 'groups',
-    route: '/student-option',
-    forProduction: false,
-  },
-  {
-    label: 'Supports and Referrals',
-    icon: 'link',
-    children: [
-      {
-        label: 'Referrals',
-        icon: 'group_add',
-        route: '/supports-referrals',
-      },
-    ],
-    forProduction: false,
-  },
-  {
     label: 'Reports',
     icon: 'pie_chart_outline',
     children: [
