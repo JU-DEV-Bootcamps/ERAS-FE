@@ -55,7 +55,7 @@
             @if (getChartType($index) === 'column') {
               <div [appApexTooltip]="getTooltipFn($index)">
                 <app-dynamic-column-chart-v2
-                  [componentData]="components()!.components[$index]"
+                  [componentData]="getColumnData($index)"
                   [identifier]="uuid!"
                   [cohortsIds]="cohortIds"
                   [evaluationId]="evaluationId"
