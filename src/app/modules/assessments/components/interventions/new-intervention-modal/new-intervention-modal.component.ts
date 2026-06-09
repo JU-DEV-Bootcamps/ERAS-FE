@@ -449,8 +449,15 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     } as InterventionModel;
 
     this.interventionService
-      .upsertInterventions(this.data.assessmentId, [updated])
+      .getByAssessment(this.data.assessmentId)
       .pipe(
+        concatMap(existing => {
+          const merged = existing.map(e => (e.id === iv.id ? updated : e));
+          return this.interventionService.upsertInterventions(
+            this.data.assessmentId,
+            merged
+          );
+        }),
         concatMap(() => {
           if (!this.selectedFiles.length) return of(null);
           return this.interventionService.uploadAttachments(
