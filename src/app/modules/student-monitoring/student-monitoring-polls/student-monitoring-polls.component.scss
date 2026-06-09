@@ -24,9 +24,11 @@
   .card {
     display: flex;
     width: 350px;
+    max-width: 90vw;
     margin: 20px;
     text-align: center;
     align-items: center;
+    box-sizing: border-box;
   }
 }
 
@@ -50,6 +52,8 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   transition: background-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #f5f5f5;
@@ -58,6 +62,9 @@
   strong {
     font-weight: main-styles.get-font-weight(semi-bold);
     font-size: main-styles.get-font-size(title, medium);
+    word-break: break-word;
+    white-space: normal;
+    display: block;
   }
 }
 
