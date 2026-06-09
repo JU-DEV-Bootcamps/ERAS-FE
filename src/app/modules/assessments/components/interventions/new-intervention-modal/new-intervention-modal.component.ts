@@ -511,10 +511,30 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   }
 
   removeExistingAttachment(index: number): void {
-    this.existingAttachments = this.existingAttachments.filter(
-      (_, i) => i !== index
-    );
-    this.form.markAsDirty();
+    const pathToRemove = this.existingAttachments[index];
+    const fileName = this.getFileName(pathToRemove);
+    const interventionId = this.data.intervention!.id!;
+
+    this.interventionService
+      .deleteAttachment(interventionId, fileName)
+      .subscribe({
+        next: () => {
+          this.existingAttachments = this.existingAttachments.filter(
+            (_, i) => i !== index
+          );
+          this.form.markAsDirty();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.toastService.showToast(
+            {
+              title: 'Delete Failed',
+              message: `Could not delete attachment: ${err.error?.title ?? err.statusText}`,
+              type: 'error',
+            },
+            true
+          );
+        },
+      });
   }
 
   getFileName(path: string): string {
