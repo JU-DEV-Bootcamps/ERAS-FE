@@ -176,7 +176,7 @@ export class InterventionsComponent implements OnInit {
 
     const students = assessment.studentIds.map((id, index) => ({
       value: id,
-      label: assessment.students?.[index].name ?? id,
+      label: assessment.students?.[index]?.name ?? String(id),
     }));
 
     this.matDialog

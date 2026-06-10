@@ -35,7 +35,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessement.model';
-import { map, of, concatMap, catchError, Observable } from 'rxjs';
+import { map, of, concatMap, catchError, Observable, forkJoin } from 'rxjs';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -100,6 +100,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   private _prefillValues: Record<string, unknown> = {};
   existingAttachments: string[] = [];
+  attachmentsToDelete: string[] = [];
 
   readonly isGroup = signal<boolean>(false);
 
@@ -148,8 +149,11 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         ? this.data.intervention!.kind === InterventionType.Group
         : this.data.students.length > 1
     );
-    this.buildAttendance();
-    if (this.isEditMode) this.prefillForm();
+    if (this.isEditMode) {
+      this.prefillForm();
+    } else {
+      this.buildAttendance();
+    }
     this.buildFormFields();
   }
 
@@ -211,7 +215,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       validators: [Validators.required],
       multipleSelect: true,
       floatingLabel: 'always',
-      value: this.data.students.map(s => s.value),
+      value: this.isEditMode
+        ? this.data.intervention!.studentIds
+        : this.data.students.map(s => s.value),
     };
 
     const studentsIndividualField: DynamicField = {
@@ -222,7 +228,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       options: this.data.students,
       validators: [Validators.required],
       floatingLabel: 'always',
-      value: this.data.students[0]?.value,
+      value: this.isEditMode
+        ? this.data.intervention!.studentIds[0]
+        : this.data.students[0]?.value,
     };
 
     const bottomFields: DynamicField[] = [
@@ -262,7 +270,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.form = event;
     if (this.isEditMode && Object.keys(this._prefillValues).length) {
       this.form.patchValue(this._prefillValues);
-      this.form.markAsPristine();
     }
   }
 
@@ -274,19 +281,18 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       area: iv.area,
       mode: iv.mode,
       comments: iv.comments,
-      students: this.isGroup()
-        ? iv.studentIds.map(String)
-        : String(iv.studentIds[0]),
     };
 
     const attended = Object.entries(iv.attendance ?? {})
       .filter(([, v]) => v)
-      .map(([k]) => k);
-    this.attendedStudentIds.set(attended);
+      .map(([k]) => Number(k));
+
+    this.attendedStudentIds.set(attended.map(String));
+
     this.attendance.set(
       this.data.students.map(s => ({
         student: s,
-        attended: attended.includes(s.value),
+        attended: attended.includes(Number(s.value)),
       }))
     );
 
@@ -312,6 +318,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       attended: this.attendedStudentIds().includes(item.student.value),
     }));
     this.attendance.set(current);
+    this.form.markAsDirty();
   }
 
   toggleAttendance(index: number, checked: boolean): void {
@@ -349,6 +356,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         continue;
       }
       this.selectedFiles.push(file);
+      this.form.markAsDirty();
     }
 
     input.value = '';
@@ -357,10 +365,32 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   removeFile(index: number): void {
     this.selectedFiles.splice(index, 1);
     this.fileErrors = [];
+    this.form.markAsDirty();
   }
 
   submitIntervention(): void {
     if (this.form.invalid) return;
+
+    const selectedStudents: string[] = this.isGroup()
+      ? (this.form.value.students as string[]).map(String)
+      : [String(this.form.value.students)];
+
+    const invalidAttendees = this.attendedStudentIds().filter(
+      id => !selectedStudents.includes(String(id))
+    );
+
+    if (invalidAttendees.length > 0) {
+      this.toastService.showToast(
+        {
+          title: 'Invalid attendance',
+          message:
+            'Attendance can only include students selected for this intervention.',
+          type: 'error',
+        },
+        true
+      );
+      return;
+    }
 
     if (this.isEditMode) {
       this.updateIntervention();
@@ -412,8 +442,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       : [Number(v.students)];
 
     const attendanceRecord: Record<number, boolean> = {};
-    this.attendance().forEach(({ student, attended }) => {
-      attendanceRecord[Number(student.value)] = attended;
+    this.data.students.forEach(student => {
+      attendanceRecord[Number(student.value)] =
+        this.attendedStudentIds().includes(String(student.value));
     });
 
     return {
@@ -448,10 +479,20 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       attachments: this.existingAttachments,
     } as InterventionModel;
 
-    this.interventionService
-      .getByAssessment(this.data.assessmentId)
+    const deleteObs: Observable<unknown> = this.attachmentsToDelete.length
+      ? forkJoin(
+          this.attachmentsToDelete.map(fileName =>
+            this.interventionService.deleteAttachment(iv.id!, fileName)
+          )
+        )
+      : of(null);
+
+    deleteObs
       .pipe(
-        concatMap(existing => {
+        concatMap(() =>
+          this.interventionService.getByAssessment(this.data.assessmentId)
+        ),
+        concatMap((existing: InterventionModel[]) => {
           const merged = existing.map(e => (e.id === iv.id ? updated : e));
           return this.interventionService.upsertInterventions(
             this.data.assessmentId,
@@ -512,29 +553,11 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   removeExistingAttachment(index: number): void {
     const pathToRemove = this.existingAttachments[index];
-    const fileName = this.getFileName(pathToRemove);
-    const interventionId = this.data.intervention!.id!;
-
-    this.interventionService
-      .deleteAttachment(interventionId, fileName)
-      .subscribe({
-        next: () => {
-          this.existingAttachments = this.existingAttachments.filter(
-            (_, i) => i !== index
-          );
-          this.form.markAsDirty();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.toastService.showToast(
-            {
-              title: 'Delete Failed',
-              message: `Could not delete attachment: ${err.error?.title ?? err.statusText}`,
-              type: 'error',
-            },
-            true
-          );
-        },
-      });
+    this.attachmentsToDelete.push(this.getFileName(pathToRemove));
+    this.existingAttachments = this.existingAttachments.filter(
+      (_, i) => i !== index
+    );
+    this.form.markAsDirty();
   }
 
   getFileName(path: string): string {
