@@ -214,7 +214,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     ];
 
     const studentsGroupField: DynamicField = {
-      type: 'select',
+      type: 'searchableSelect',
       name: 'students',
       label: 'Students',
       placeholder: 'Select students',

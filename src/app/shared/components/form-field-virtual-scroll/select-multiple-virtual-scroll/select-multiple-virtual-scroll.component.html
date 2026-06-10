@@ -15,7 +15,27 @@
     panelClass="compact-select-panel"
   >
     <mat-select-trigger>
-      <app-selected-items [items]="selectedItemsLabels()" />
+      @if (displayMode() === 'chips') {
+        <mat-chip-grid #chipGrid aria-label="Frit selection">
+          @for (item of selectedItemsLabels(); track item) {
+            <mat-chip-row class="selected-chip" (removed)="remove(item)">
+              {{ item }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+        </mat-chip-grid>
+        <input
+          name="currentFuit"
+          #searchInput
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="add($event)"
+        />
+      } @else {
+        <app-selected-items [items]="selectedItemsLabels()" />
+      }
     </mat-select-trigger>
 
     <div class="select-search">
@@ -43,7 +63,7 @@
         <ng-container *cdkVirtualFor="let item of filteredScrollItems()">
           @if (isGroupItem(item)) {
             <mat-option disabled class="group-header">
-              {{ item.label | uppercase }}
+              {{ item.label | uppercase }}holip
             </mat-option>
           } @else {
             <mat-option
