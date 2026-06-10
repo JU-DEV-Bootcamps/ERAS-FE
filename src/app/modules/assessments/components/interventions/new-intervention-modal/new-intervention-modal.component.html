@@ -28,9 +28,14 @@
           <mat-label>Attendance</mat-label>
           <mat-select
             [multiple]="isGroup()"
-            [value]="attendedStudentIds()"
-            (selectionChange)="onAttendanceChange($event.value)"
+            [ngModel]="
+              isGroup() ? attendedStudentIdsModel : attendedStudentIdsModel[0]
+            "
+            (ngModelChange)="onAttendanceChange($event)"
           >
+            @if (!isGroup()) {
+              <mat-option [value]="null">None</mat-option>
+            }
             <mat-option
               *ngFor="let student of data.students"
               [value]="student.value.toString()"
