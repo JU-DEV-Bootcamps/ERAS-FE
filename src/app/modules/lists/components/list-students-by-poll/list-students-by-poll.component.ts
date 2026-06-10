@@ -49,10 +49,11 @@ export class ListStudentsByPollComponent implements OnInit {
     pageSize: 10,
     page: 0,
   };
+
   columns: Column<StudentModel>[] = [
     {
       key: 'id',
-      label: '#',
+      label: 'Id',
     },
     {
       key: 'name',
@@ -61,6 +62,12 @@ export class ListStudentsByPollComponent implements OnInit {
     {
       key: 'email',
       label: 'Email',
+    },
+  ];
+  exportColumns: Column<StudentModel>[] = [
+    {
+      key: 'uuid',
+      label: 'SISId',
     },
   ];
   columnTemplates: Column<StudentModel>[] = [

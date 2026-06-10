@@ -113,46 +113,53 @@ export class DynamicChartsComponent {
           const questionIndex = y;
           const answerIndex = x;
 
+          const groupedQuestion = series[questionIndex];
           const question = component.questions[questionIndex];
 
-          if (question) {
+          if (question && groupedQuestion) {
             const dataAtPoint = regroupSeries[questionIndex]?.data[
               answerIndex
             ] as unknown as { z: string; totalFillers?: number };
             const totalFillers = dataAtPoint?.totalFillers ?? 0;
             const realAnswerIndex = answerIndex - totalFillers;
 
-            const selectedAnswer = question.answers[realAnswerIndex];
+            const selectedAnswer = groupedQuestion.data[realAnswerIndex];
 
             if (selectedAnswer) {
               const selectedQuestionOnly: PollCountQuestion = {
                 ...question,
-                answers: [selectedAnswer],
+                answers: question.answers,
               };
 
               this.openDetailsModal(
                 this.uuid!,
-                1,
+                this.cohortIds,
                 selectedQuestionOnly,
                 component.description,
-                component.text
+                component.text,
+                selectedAnswer.y as number
               );
             }
           }
         },
         undefined,
         (x: number, y: number) => {
-          const question = component.questions[x];
+          const groupedQuestion = series[x];
           const dataAtPoint = regroupSeries[x]?.data[y] as unknown as {
             z: string;
+            count?: number;
             totalFillers?: number;
           };
           const totalFillers = dataAtPoint?.totalFillers ?? 0;
-          const riskLevel = question.answers[y - totalFillers];
+          const groupedAnswer = groupedQuestion?.data[y - totalFillers] as {
+            count?: number;
+            x: number;
+          };
+          const question = component.questions[x];
 
           return customTooltip(
-            question.question,
-            `${riskLevel.count}`,
+            question?.question ?? '',
+            `${groupedAnswer?.count ?? 0}`,
             dataAtPoint.z
           );
         }
@@ -180,6 +187,7 @@ export class DynamicChartsComponent {
     if (!filters.cohortIds || !filters.variableIds || !filters.lastVersion) {
       this.chartsOptions = [];
       this.components.set(null);
+      this.uuid = null;
       return;
     }
     this.generateHeatMap(
@@ -191,17 +199,19 @@ export class DynamicChartsComponent {
 
   openDetailsModal(
     pollUuid: string,
-    cohortId: number,
+    cohortId: string,
     question: PollCountQuestion,
     componentName: ComponentValueType,
-    text?: string
+    text?: string,
+    riskLevel?: number
   ): void {
     const data: SelectedHMData = {
-      cohortId: this.cohortIds,
+      cohortId: cohortId,
       pollUuid,
       componentName,
       text,
       question,
+      riskLevel,
     };
     this.dialog.open(ModalQuestionDetailsComponent, {
       width: 'clamp(320px, 50vw, 580px)',
@@ -214,5 +224,9 @@ export class DynamicChartsComponent {
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+  }
+
+  get showEmpty(): boolean {
+    return !this.uuid;
   }
 }

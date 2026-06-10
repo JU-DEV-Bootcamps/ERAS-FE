@@ -114,10 +114,17 @@ export class ImportPreviewComponent implements OnInit {
         });
     } else {
       this.loadingSubject.next(false);
+      const errorMessage = (
+        event as { state: string; data: { error?: { message?: string } } }
+      ).data?.error?.message;
       this.dialogService.openDialog(
         'Error saving polls. Please try again.',
-        'error'
+        'error',
+        errorMessage
       );
     }
+  }
+  handleCancel() {
+    this.router.navigate(['evaluation-process']);
   }
 }

@@ -16,7 +16,7 @@
         <p>
           For an example template download it
           <a
-            href="assets/example_files/students_example.csv"
+            href="assets/example_files/import_student_example.csv"
             target="_blank"
             rel="noopener noreferrer"
             title="See an example"
@@ -28,6 +28,7 @@
       <input
         #fileInput
         type="file"
+        accept=".csv,text/csv"
         (change)="onFileSelected($event)"
         style="display: none"
       />

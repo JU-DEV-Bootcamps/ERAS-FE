@@ -85,6 +85,8 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     data: unknown;
   }>();
 
+  @Output() cancelImport = new EventEmitter<void>();
+
   studentExcludedEmailsSubject = new BehaviorSubject<string[]>([]);
   studentExcludedEmails$ = this.studentExcludedEmailsSubject.asObservable();
 
@@ -158,6 +160,12 @@ export class ImportAnswersPreviewComponent implements OnChanges {
         },
       });
   }
+
+  cancel() {
+    this.resetAllDataPolls();
+    this.cancelImport.emit();
+  }
+
   resetAllDataPolls() {
     this.dataStudents = new MatTableDataSource<StudentPreview>([]);
     this.studentPreviews = [];

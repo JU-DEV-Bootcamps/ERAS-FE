@@ -32,6 +32,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RouteDataService } from '@core/services/route-data.service';
 import { ModalImportAnswersFormComponent } from '@modules/lists/components/modal-import-answers-form/modal-import-answers-form.component';
 import { PreselectedPoll } from '@modules/imports/models/preselected-poll';
+import { Pagination } from '@core/services/interfaces/server.type';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -89,25 +90,29 @@ export class EvaluationProcessListComponent implements OnInit {
       columnId: 'actions',
       id: 'openModalDetails',
       label: 'Actions',
+      tooltip: '',
       ngIconName: 'edit',
-      tooltip: 'Edit evaluation',
+      text: 'Edit evaluation',
     },
     {
       columnId: 'actions',
       id: 'goImport',
       label: 'Actions',
+      tooltip: '',
       ngIconName: 'drive_file_move',
-      tooltip: 'Go to import',
+      text: 'Go to import',
       isVisible: this.isVisible.bind(this),
     },
   ];
   evaluationProcessList: EvaluationModel[] = [];
-  pageSize = 5;
-  currentPage = 0;
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
   importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED];
+  pagination: Pagination = {
+    page: 0,
+    pageSize: 10,
+  };
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -120,8 +125,10 @@ export class EvaluationProcessListComponent implements OnInit {
   }
 
   handleLoadCalled(event: EventLoad) {
-    this.currentPage = event.page;
-    this.pageSize = event.pageSize;
+    this.pagination = {
+      page: event.page,
+      pageSize: event.pageSize,
+    };
     this.getEvaluationProcess();
   }
 
@@ -174,39 +181,24 @@ export class EvaluationProcessListComponent implements OnInit {
         },
       });
   }
-  onPageChange({
-    pageSize,
-    pageIndex,
-  }: {
-    pageIndex: number;
-    pageSize: number;
-  }): void {
-    this.currentPage = pageIndex;
-    this.pageSize = pageSize;
-    this.getEvaluationProcess();
-  }
+
   getEvaluationProcess() {
     this.isLoading = true;
-    this.evaluationProcessService
-      .getAllEvalProc({
-        page: this.currentPage,
-        pageSize: this.pageSize,
-      })
-      .subscribe({
-        next: (data: PagedReadEvaluationProcess) => {
-          this.evaluationProcessList = this.normalizeData(data.items);
-          this.totalEvaluations = data.count;
-          this.isLoading = false;
-        },
-        error: err => {
-          this.openAlertDialog(
-            'Error: An error occurred while trying to access information : ' +
-              err.message,
-            'error'
-          );
-          this.isLoading = false;
-        },
-      });
+    this.evaluationProcessService.getAllEvalProc(this.pagination).subscribe({
+      next: (data: PagedReadEvaluationProcess) => {
+        this.evaluationProcessList = this.normalizeData(data.items);
+        this.totalEvaluations = data.count;
+        this.isLoading = false;
+      },
+      error: err => {
+        this.openAlertDialog(
+          'Error: An error occurred while trying to access information : ' +
+            err.message,
+          'error'
+        );
+        this.isLoading = false;
+      },
+    });
   }
 
   openModalNewEvaluationProcess(): void {
@@ -231,20 +223,24 @@ export class EvaluationProcessListComponent implements OnInit {
           pollName: data.pollName,
           endDate: data.endDate,
           startDate: data.startDate,
+          configurationId: data.configurationId,
         },
       })
       .afterClosed()
       .subscribe((result: PreselectedPoll) => {
-        this.routeDataService.updateRouteData({
-          evaluationId: data.id,
-          configuration: result.configuration,
-          pollName: result.pollName,
-          startDate: result.startDate,
-          endDate: result.endDate,
-        });
-        this.router.navigate(['import-preview'], {
-          relativeTo: this.route,
-        });
+        if (result) {
+          this.routeDataService.updateRouteData({
+            evaluationId: data.id,
+            configuration: result.configuration,
+            pollName: result.pollName,
+            startDate: result.startDate,
+            endDate: result.endDate,
+          });
+
+          this.router.navigate(['import-preview'], {
+            relativeTo: this.route,
+          });
+        }
       });
   }
 
@@ -264,6 +260,7 @@ export class EvaluationProcessListComponent implements OnInit {
       },
     });
   }
+
   openAlertDialog(
     descriptionMessage: string,
     type: DialogType,
@@ -324,10 +321,12 @@ export class EvaluationProcessListComponent implements OnInit {
 
   private _updatePaginator() {
     this.totalEvaluations = Math.max(0, this.totalEvaluations - 1);
-    const totalPages = Math.ceil(this.totalEvaluations / this.pageSize);
+    const totalPages = Math.ceil(
+      this.totalEvaluations / this.pagination.pageSize
+    );
 
-    if (this.currentPage >= totalPages && this.currentPage > 0) {
-      this.currentPage -= 1;
+    if (this.pagination.page >= totalPages && this.pagination.page > 0) {
+      this.pagination.page -= 1;
     }
   }
 }

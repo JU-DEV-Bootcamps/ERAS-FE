@@ -8,18 +8,16 @@ import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
 import { EventAction, EventLoad } from '@core/models/load';
 import { Pagination } from '@core/services/interfaces/server.type';
-import {
-  PollAvgQuestion,
-  PollTopReport,
-  StudentReportAnswerRiskLevel,
-} from '@core/models/summary.model';
+import { PollAvgQuestion, PollTopReport } from '@core/models/summary.model';
 
 import { PollService } from '@core/services/api/poll.service';
 import { ReportService } from '@core/services/api/report.service';
+import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
+import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
 
 @Component({
   selector: 'app-risk-details',
@@ -38,6 +36,7 @@ export default class RiskDetailsComponent {
 
   private PollService = inject(PollService);
   private reportService = inject(ReportService);
+  private evaluationDetailsService = inject(EvaluationDetailsService);
   public variableId = 0;
   readonly dialog = inject(MatDialog);
 
@@ -49,12 +48,12 @@ export default class RiskDetailsComponent {
   totalStudentRisks = signal(0);
   riskStudentData = new Map<
     number,
-    { items: StudentReportAnswerRiskLevel[]; total: number }
+    { items: EvaluationDetailsStudentResponse[]; total: number }
   >();
 
-  columns: Column<StudentReportAnswerRiskLevel>[] = [
+  columns: Column<EvaluationDetailsStudentResponse>[] = [
     {
-      key: 'studentName',
+      key: 'name',
       label: 'Name',
     },
     {
@@ -62,9 +61,9 @@ export default class RiskDetailsComponent {
       label: 'Answer',
     },
   ];
-  columnTemplates: Column<StudentReportAnswerRiskLevel>[] = [
+  columnTemplates: Column<EvaluationDetailsStudentResponse>[] = [
     {
-      key: 'answerRisk',
+      key: 'riskLevel',
       label: 'Risk Level',
     },
   ];
@@ -106,28 +105,40 @@ export default class RiskDetailsComponent {
   loadStudentList(risk: PollAvgQuestion) {
     const pollInstanceUUID: string = this.data.data.pollUuid;
     if (this.variableId === 0) return;
-    this.reportService
-      .getTopPollReport([this.variableId], pollInstanceUUID, this.pagination)
+    this.evaluationDetailsService
+      .getStudentsByFilters(
+        pollInstanceUUID,
+        [this.data.data.componentName.toLowerCase()],
+        this.data.data.cohorts,
+        [this.variableId],
+        this.pagination.pageSize,
+        this.pagination.page
+      )
       .subscribe(data => {
-        this.riskStudentData.set(risk.position, {
-          items: data.body.items || [],
-          total: data.body.count || 0,
+        const items = (data?.items ?? []).sort((a, b) => {
+          if (b.riskLevel !== a.riskLevel) {
+            return b.riskLevel - a.riskLevel;
+          }
+          return a.answerText.localeCompare(b.answerText);
         });
+        const total = data?.count ?? 0;
+        this.riskStudentData.set(risk.position, { items, total });
+        this.totalStudentRisks.set(total);
       });
   }
 
   handleActionCalled(event: EventAction) {
     const actions: Record<
       string,
-      (item: StudentReportAnswerRiskLevel) => void
+      (item: EvaluationDetailsStudentResponse) => void
     > = {
-      openStudentDetails: (element: StudentReportAnswerRiskLevel) => {
-        this.openStudentDetails(element.studentId);
+      openStudentDetails: (element: EvaluationDetailsStudentResponse) => {
+        this.openStudentDetails(element.id);
       },
     };
 
     if (actions[event.data.id]) {
-      actions[event.data.id](event.item as StudentReportAnswerRiskLevel);
+      actions[event.data.id](event.item as EvaluationDetailsStudentResponse);
     }
   }
 

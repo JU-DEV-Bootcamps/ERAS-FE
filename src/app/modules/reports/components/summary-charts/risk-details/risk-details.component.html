@@ -25,8 +25,8 @@
             [totalItems]="riskStudentData.get(risk.position)?.total ?? 0"
             [actionDatas]="actionDatas"
           >
-            <ng-template #answerRisk let-item>
-              <app-badge-risk-level [riskLevel]="item.answerRisk" />
+            <ng-template #riskLevel let-item>
+              <app-badge-risk-level [riskLevel]="item.riskLevel" />
             </ng-template>
           </app-list>
         </ng-template>

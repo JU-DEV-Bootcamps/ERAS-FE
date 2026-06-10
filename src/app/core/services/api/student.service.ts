@@ -85,22 +85,37 @@ export class StudentService extends BaseApiService {
     pollUuid: string,
     componentName: string,
     cohortId: number,
-    lastVersion: boolean
+    lastVersion: boolean,
+    pageSize: number,
+    page: number
   ) {
-    return this.get<StudentRiskResponse[]>(
+    return this.get<PagedResult<StudentRiskResponse>>(
       `polls/${pollUuid}/components/top`,
       new HttpParams()
         .set('componentName', componentName)
         .set('cohortId', cohortId)
         .set('LastVersion', lastVersion)
+        .set('PageSize', pageSize.toString())
+        .set('Page', page.toString())
     );
   }
 
-  getPollTopStudents(pollUuid: string, cohortId: number, lastVersion: boolean) {
+  getPollTopStudents(
+    pollUuid: string,
+    cohortId: number,
+    lastVersion: boolean,
+    pageSize: number,
+    page: number
+  ) {
     const params = new HttpParams()
       .set('CohortId', cohortId)
-      .set('LastVersion', lastVersion);
-    return this.get<StudentRiskResponse[]>(`polls/${pollUuid}/top`, params);
+      .set('LastVersion', lastVersion)
+      .set('PageSize', pageSize.toString())
+      .set('Page', page.toString());
+    return this.get<PagedResult<StudentRiskResponse>>(
+      `polls/${pollUuid}/top`,
+      params
+    );
   }
 
   getPollStudentsRiskSum(pollUuid: string, cohortId: number) {
@@ -135,13 +150,17 @@ export class StudentService extends BaseApiService {
   getTopRiskStudentsByComponent(
     pollUuid: string,
     componentName: string,
-    cohortId: number
+    cohortId: number,
+    pageSize: number,
+    page: number
   ) {
     return this.get<StudentRiskResponse[]>(
       `/polls/${pollUuid}/components/top`,
       new HttpParams()
         .set('ComponentName', componentName)
         .set('CohortId', cohortId)
+        .set('PageSize', pageSize.toString())
+        .set('Page', page.toString())
     );
   }
 }

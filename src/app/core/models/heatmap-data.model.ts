@@ -21,5 +21,6 @@ export interface DynamicSerie {
   x: number;
   y: number;
   z: string;
+  count?: number;
   totalFillers?: number;
 }

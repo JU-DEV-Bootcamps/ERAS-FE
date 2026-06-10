@@ -71,6 +71,7 @@ export class ListComponent<T extends object>
   @Input() totalItems = 0;
   @Input() data = new MatTableDataSource<T>([]);
   @Input() columns: Column<T>[] = [] as Column<T>[];
+  @Input() exportColumns: Column<T>[] = [] as Column<T>[];
   @Input() componentColumns: ComponentColumn[] = [] as ComponentColumn[];
   @Input() actionDatas: ActionDatas = [];
   @Input() title?: string;
@@ -172,9 +173,11 @@ export class ListComponent<T extends object>
   exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
-
-    const columnKeys = this.columns.map(c => c.key);
-    const columnLabels = this.columns.map(c => c.label);
+    const columnsToExport = [
+      ...new Set([...this.columns, ...this.exportColumns]),
+    ];
+    const columnKeys = columnsToExport.map(c => c.key);
+    const columnLabels = columnsToExport.map(c => c.label);
 
     this.csvService.exportToCSV(
       this.items,

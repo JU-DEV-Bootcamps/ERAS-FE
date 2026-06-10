@@ -98,6 +98,7 @@ export class SummaryChartsComponent {
   variableColumns = ['variableName'];
 
   cohortIds: number[] = [];
+
   selectedCohort?: CohortModel;
   lastVersion = true;
   pollUuid = '';
@@ -114,25 +115,7 @@ export class SummaryChartsComponent {
   constructor(private snackBar: MatSnackBar) {}
 
   getStudentsByCohortAndPoll(event: EventLoad) {
-    if (this.cohortIds.length && this.pollUuid) {
-      this.isLoading = true;
-      this.studentService
-        .getAllAverageByCohortsAndPoll({
-          page: event.page,
-          pageSize: event.pageSize,
-          cohortIds: this.cohortIds,
-          pollUuid: this.pollUuid,
-          lastVersion: this.lastVersion,
-        })
-        .subscribe(response => {
-          this.students = response.items;
-          this.totalStudents = response.count;
-          this.isLoading = false;
-        });
-    } else {
-      this.students = [];
-      this.totalStudents = 0;
-    }
+    this._loadStudents(event);
   }
 
   getHeatMap() {
@@ -162,7 +145,6 @@ export class SummaryChartsComponent {
               component.description,
               serieQuestion
             );
-
             if (!pollAvgQuestion) {
               console.error('Error getting question from report.');
             } else {
@@ -252,11 +234,37 @@ export class SummaryChartsComponent {
     this.title = filters.title;
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
-    this.getStudentsByCohortAndPoll({ pageSize: 10, page: 0 });
+    this._loadStudents({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
 
   toggleChart(chart: string) {
     this.heatmapChart = chart === 'heatmap';
+  }
+
+  get showEmpty(): boolean {
+    return !this.pollUuid;
+  }
+
+  private _loadStudents(event: EventLoad) {
+    if (this.cohortIds.length && this.pollUuid) {
+      this.isLoading = true;
+      this.studentService
+        .getAllAverageByCohortsAndPoll({
+          page: event.page,
+          pageSize: event.pageSize,
+          cohortIds: this.cohortIds,
+          pollUuid: this.pollUuid,
+          lastVersion: this.lastVersion,
+        })
+        .subscribe(response => {
+          this.students = response.items;
+          this.totalStudents = response.count;
+          this.isLoading = false;
+        });
+    } else {
+      this.students = [];
+      this.totalStudents = 0;
+    }
   }
 }
