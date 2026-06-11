@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+$inter: 'Inter', sans-serif;
+$neutral-surface: var(--color-neutral-200);
+$font-text-md: var(--font-size-medium);
+
+$color-background: #f0f0f0;
+$color-accent: #5c9e8f;
+$color-accent-hover: #4a8a7c;
+
+.button-style {
+  background-color: transparent;
+  border: none;
+  font-family: $inter;
+  font-size: $font-text-md;
+  font-weight: 500;
+  line-height: 20px;
+  color: $color-accent;
+  margin-right: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    color: $color-accent-hover;
+    background-color: $color-background;
+  }
+}

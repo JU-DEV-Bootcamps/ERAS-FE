@@ -16,7 +16,7 @@
   >
     <mat-select-trigger>
       @if (displayMode() === 'chips') {
-        <mat-chip-grid #chipGrid aria-label="Frit selection">
+        <mat-chip-grid #chipGrid>
           @for (item of selectedItemsLabels(); track item) {
             <mat-chip-row class="selected-chip" (removed)="remove(item)">
               {{ item }}
@@ -27,10 +27,9 @@
           }
         </mat-chip-grid>
         <input
-          name="currentFuit"
+          class="inputItem"
           #searchInput
           [matChipInputFor]="chipGrid"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           (matChipInputTokenEnd)="add($event)"
         />
       } @else {

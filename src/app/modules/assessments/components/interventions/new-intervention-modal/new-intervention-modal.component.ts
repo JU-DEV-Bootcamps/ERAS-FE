@@ -262,6 +262,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         ],
         floatingLabel: 'always',
       },
+      {
+        type: 'file',
+        name: 'uploadInput',
+        label: 'Upload',
+        placeholder: 'Upload File (s)',
+        validators: [],
+        floatingLabel: 'always',
+      },
     ];
     this.formFields = this.isGroup()
       ? [professionalField, ...topFields, studentsGroupField, ...bottomFields]

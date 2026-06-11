@@ -11,7 +11,9 @@ export type FieldType =
   | 'text'
   | 'textarea'
   | 'password'
-  | 'searchableSelect';
+  | 'searchableSelect'
+  | 'file';
+
 export type ValueType = string | number | boolean | Date | null | string[];
 
 export type FormControlTuple = Record<
