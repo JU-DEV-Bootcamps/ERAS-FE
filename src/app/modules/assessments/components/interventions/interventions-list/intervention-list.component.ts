@@ -133,7 +133,15 @@ export class InterventionListComponent {
 
     this.interventionService.getByAssessment(assessmentId).subscribe({
       next: data => {
-        this.interventions.set(data.map(item => this.mapToRow(item)));
+        const rows = data.map(item => this.mapToRow(item));
+        this.interventions.set(rows);
+
+        const current = this.selectedIntervention();
+        if (current) {
+          const refreshed = rows.find(r => r.id === current.id);
+          this.selectedIntervention.set(refreshed ?? null);
+        }
+
         this.isLoading.set(false);
       },
       error: error => {

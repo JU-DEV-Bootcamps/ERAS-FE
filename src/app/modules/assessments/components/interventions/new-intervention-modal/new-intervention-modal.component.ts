@@ -9,7 +9,12 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -35,7 +40,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessement.model';
-import { map, of, concatMap } from 'rxjs';
+import { map, of, concatMap, catchError, Observable, forkJoin } from 'rxjs';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -75,11 +80,13 @@ export interface NewInterventionDialogData {
   assessmentId: number;
   professional: { value: string; label: string };
   students: StudentLookup[];
+  intervention?: InterventionModel;
 }
 
 @Component({
   selector: 'app-new-intervention-modal',
   imports: [
+    FormsModule,
     FormFactoryComponent,
     MatDialogModule,
     MatCheckboxModule,
@@ -96,6 +103,11 @@ export interface NewInterventionDialogData {
 export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
+
+  private _prefillValues: Record<string, unknown> = {};
+  existingAttachments: string[] = [];
+  attachmentsToDelete: string[] = [];
+  attendedStudentIdsModel: string[] = [];
 
   readonly isGroup = signal<boolean>(false);
 
@@ -129,14 +141,26 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     return this.selectedFiles.length < MAX_FILES;
   }
 
+  get isEditMode(): boolean {
+    return !!this.data.intervention;
+  }
+
   constructor(
     public dialogRef: MatDialogRef<NewInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
   ) {}
 
   ngOnInit(): void {
-    this.isGroup.set(this.data.students.length > 1);
-    this.buildAttendance();
+    this.isGroup.set(
+      this.isEditMode
+        ? this.data.intervention!.kind === InterventionType.Group
+        : this.data.students.length > 1
+    );
+    if (this.isEditMode) {
+      this.prefillForm();
+    } else {
+      this.buildAttendance();
+    }
     this.buildFormFields();
   }
 
@@ -198,7 +222,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       validators: [Validators.required],
       multipleSelect: true,
       floatingLabel: 'always',
-      value: this.data.students.map(s => s.value),
+      value: this.isEditMode
+        ? this.data.intervention!.studentIds
+        : this.data.students.map(s => s.value),
     };
 
     const studentsIndividualField: DynamicField = {
@@ -209,7 +235,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       options: this.data.students,
       validators: [Validators.required],
       floatingLabel: 'always',
-      value: this.data.students[0]?.value,
+      value: this.isEditMode
+        ? this.data.intervention!.studentIds[0]
+        : this.data.students[0]?.value,
     };
 
     const bottomFields: DynamicField[] = [
@@ -247,6 +275,29 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   setFormGroup(event: FormGroup): void {
     this.form = event;
+    if (this.isEditMode && Object.keys(this._prefillValues).length) {
+      this.form.patchValue(this._prefillValues);
+    }
+  }
+
+  private prefillForm(): void {
+    const iv = this.data.intervention!;
+    this._prefillValues = {
+      date: iv.dateUtc,
+      activity: iv.activity,
+      area: iv.area,
+      mode: iv.mode,
+      comments: iv.comments,
+    };
+
+    const attended = Object.entries(iv.attendance ?? {})
+      .filter(([, v]) => v)
+      .map(([k]) => String(k));
+
+    this.attendedStudentIds.set(attended);
+    this.attendedStudentIdsModel = attended;
+
+    this.existingAttachments = iv.attachments ?? [];
   }
 
   private buildAttendance(): void {
@@ -255,19 +306,22 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     );
   }
 
-  onAttendanceChange(selectedValues: string[]): void {
-    if (!this.isGroup()) {
-      const single = selectedValues.slice(-1);
-      this.attendedStudentIds.set(single);
-    } else {
-      this.attendedStudentIds.set(selectedValues);
-    }
+  onAttendanceChange(selectedValues: string[] | string | null): void {
+    const asArray = !selectedValues
+      ? []
+      : Array.isArray(selectedValues)
+        ? selectedValues
+        : [String(selectedValues)];
+
+    this.attendedStudentIds.set(asArray);
+    this.attendedStudentIdsModel = asArray;
 
     const current = this.attendance().map(item => ({
       ...item,
-      attended: this.attendedStudentIds().includes(item.student.value),
+      attended: asArray.includes(String(item.student.value)),
     }));
     this.attendance.set(current);
+    this.form.markAsDirty();
   }
 
   toggleAttendance(index: number, checked: boolean): void {
@@ -286,6 +340,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         this.fileErrors.push(`Maximum ${MAX_FILES} files allowed.`);
         break;
       }
+      if (
+        this.selectedFiles.some(
+          f => f.name === file.name && f.size === file.size
+        )
+      ) {
+        this.fileErrors.push(`"${file.name}" has already been added.`);
+        continue;
+      }
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
         this.fileErrors.push(
           `"${file.name}" has an unsupported format. Allowed: ${ALLOWED_EXTENSIONS}`
@@ -297,6 +359,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         continue;
       }
       this.selectedFiles.push(file);
+      this.form.markAsDirty();
     }
 
     input.value = '';
@@ -305,10 +368,41 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   removeFile(index: number): void {
     this.selectedFiles.splice(index, 1);
     this.fileErrors = [];
+    this.form.markAsDirty();
   }
 
   submitIntervention(): void {
     if (this.form.invalid) return;
+
+    const selectedStudents: string[] = this.isGroup()
+      ? (this.form.value.students as string[]).map(String)
+      : [String(this.form.value.students)];
+
+    const attendedIds: string[] = Array.isArray(this.attendedStudentIds())
+      ? this.attendedStudentIds()
+      : [this.attendedStudentIds() as unknown as string];
+
+    const invalidAttendees = attendedIds.filter(
+      id => !selectedStudents.includes(String(id))
+    );
+
+    if (invalidAttendees.length > 0) {
+      this.toastService.showToast(
+        {
+          title: 'Invalid attendance',
+          message:
+            'Attendance can only include students selected for this intervention.',
+          type: 'error',
+        },
+        true
+      );
+      return;
+    }
+
+    if (this.isEditMode) {
+      this.updateIntervention();
+      return;
+    }
 
     const payload = this.buildPayload();
 
@@ -355,8 +449,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       : [Number(v.students)];
 
     const attendanceRecord: Record<number, boolean> = {};
-    this.attendance().forEach(({ student, attended }) => {
-      attendanceRecord[Number(student.value)] = attended;
+    this.data.students.forEach(student => {
+      attendanceRecord[Number(student.value)] =
+        this.attendedStudentIds().includes(String(student.value));
     });
 
     return {
@@ -379,5 +474,100 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   closeAndResetDialog(): void {
     this.dialogRef.close();
+  }
+
+  private updateIntervention(): void {
+    const iv = this.data.intervention!;
+    const payload = this.buildPayload();
+    const updated: InterventionModel = {
+      ...iv,
+      ...payload.intervention,
+      id: iv.id,
+      attachments: this.existingAttachments,
+    } as InterventionModel;
+
+    const deleteObs: Observable<unknown> = this.attachmentsToDelete.length
+      ? forkJoin(
+          this.attachmentsToDelete.map(fileName =>
+            this.interventionService.deleteAttachment(iv.id!, fileName)
+          )
+        )
+      : of(null);
+
+    deleteObs
+      .pipe(
+        concatMap(() =>
+          this.interventionService.getByAssessment(this.data.assessmentId)
+        ),
+        concatMap((existing: InterventionModel[]) => {
+          const merged = existing.map(e => (e.id === iv.id ? updated : e));
+          return this.interventionService.upsertInterventions(
+            this.data.assessmentId,
+            merged
+          );
+        }),
+        concatMap(() => {
+          if (!this.selectedFiles.length) return of(null);
+          return this.interventionService.uploadAttachments(
+            iv.id!,
+            this.selectedFiles
+          );
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            title: 'Intervention updated successfully',
+            message: 'The intervention has been updated.',
+            type: 'success',
+          });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.toastService.showToast(
+            {
+              title: 'Update Failed',
+              message: `${err.statusText}: ${err.error?.title ?? 'There was an error updating the intervention.'}`,
+              type: 'error',
+            },
+            true
+          );
+        },
+        complete: () => this.dialogRef.close(true),
+      });
+  }
+
+  private uploadFiles(interventionId: number): Observable<unknown> {
+    if (!this.selectedFiles.length) return of(null);
+    return this.interventionService
+      .uploadAttachments(interventionId, this.selectedFiles)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 409) {
+            this.toastService.showToast(
+              {
+                title: 'Duplicate file',
+                message:
+                  err.error?.title ?? 'This file has already been uploaded.',
+                type: 'error',
+              },
+              true
+            );
+          }
+          return of(null);
+        })
+      );
+  }
+
+  removeExistingAttachment(index: number): void {
+    const pathToRemove = this.existingAttachments[index];
+    this.attachmentsToDelete.push(this.getFileName(pathToRemove));
+    this.existingAttachments = this.existingAttachments.filter(
+      (_, i) => i !== index
+    );
+    this.form.markAsDirty();
+  }
+
+  getFileName(path: string): string {
+    return path.split('/').pop() ?? path;
   }
 }
