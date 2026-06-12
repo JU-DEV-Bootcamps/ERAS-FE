@@ -313,6 +313,7 @@ export class SummaryChartsV2Component {
   }
 
   handleFilterSelect(filters: Filter) {
+    this.closePanel();
     this.hasNoResults = false;
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
