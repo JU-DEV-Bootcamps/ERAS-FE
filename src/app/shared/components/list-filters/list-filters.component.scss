@@ -1,0 +1,49 @@
+@use '@angular/material' as mat;
+@use 'index.scss' as main-styles;
+
+form {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.form-container > app-select-virtual-scroll,
+.form-container > app-select-multiple-virtual-scroll {
+  flex: 1;
+  min-width: 180px;
+}
+
+.button-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.apply-button {
+  border: 1px solid main-styles.get-color('primary', 30);
+  border-radius: 30px;
+
+  @include mat.button-overrides(
+    (
+      filled-container-color: none,
+      filled-label-text-color: main-styles.get-color('primary', 30),
+    )
+  );
+
+  &:hover {
+    @include mat.button-overrides(
+      (
+        filled-container-color: main-styles.get-color('neutral-variant', 95),
+      )
+    );
+  }
+}

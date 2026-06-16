@@ -1,0 +1,31 @@
+<form [formGroup]="filtersForm">
+  <div class="form-container">
+    @for (field of filterFields(); track field) {
+      @switch (field.type) {
+        @case ('virtual-select') {
+          <app-select-virtual-scroll
+            [items]="castToSingleSelect(field.options)"
+            [control]="filtersForm.controls[field.id]"
+            [id]="field.id"
+            [label]="field.label"
+          />
+        }
+        @case ('virtual-multi-select') {
+          <app-select-multiple-virtual-scroll
+            [items]="castToMultipleSelect(field.options)"
+            [control]="filtersForm.controls[field.id]"
+            [id]="'sl-cohort'"
+            [label]="field.label"
+          />
+        }
+      }
+    }
+  </div>
+  <div class="button-container">
+    <app-eras-button
+      class="apply-button"
+      [textButton]="'Apply'"
+      (clickButton)="onApply()"
+    ></app-eras-button>
+  </div>
+</form>
