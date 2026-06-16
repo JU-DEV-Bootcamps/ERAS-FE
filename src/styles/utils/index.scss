@@ -130,6 +130,26 @@ body {
   animation: slideInFromRight 250ms ease-out forwards;
 }
 
+.cdk-overlay-pane:not(.slide-in-panel) {
+  background-color: white !important;
+}
+
+.kpi-tooltip {
+  --mdc-plain-tooltip-container-color: var(--color-white);
+  --mdc-plain-tooltip-supporting-text-color: #484646;
+  font-family: var(--font-family-plain) !important;
+  font-size: var(--font-size-medium) !important;
+  max-width: 260px !important;
+  white-space: normal !important;
+  line-height: 1.5 !important;
+
+  .mdc-tooltip__surface {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+  }
+}
+
 @keyframes slideInFromRight {
   from {
     transform: translateX(100%);
