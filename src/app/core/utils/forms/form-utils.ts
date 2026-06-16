@@ -9,7 +9,6 @@ export class FormUtils {
   static getFieldError(form: FormGroup, field: DynamicField): string | null {
     if (!form.controls[field.name]) return null;
     const errors = form.controls[field.name]['errors'] ?? {};
-
     return FormUtils.getTextError(errors, field.label);
   }
 
@@ -23,9 +22,25 @@ export class FormUtils {
         `${field} must have at least ${errors['minlength'].requiredLength} characters.`,
       maxlength: () =>
         `${field} must have maximun ${errors['maxlength'].requiredLength} characters.`,
+      maxFiles: () =>
+        `${field} The maximum ${errors['maxFiles'].max} file(s) allowed.`,
+      maxSize: () =>
+        `"${errors['maxSize'].fileName}" exceeds ${errors['maxSize'].maxMb / (1024 * 1024)}MB.`,
+      fileFormat: () =>
+        `${field}: "${errors['fileFormat'].fileName}" has an unsupported format. Allowed: ${errors['fileFormat'].extensions}`,
+      duplicated: () =>
+        `${errors['duplicated'].fileName} has already been added.`,
     };
 
     const key = Object.keys(errors).find(key => errorMessages[key]);
     return key ? errorMessages[key]() : null;
+  }
+
+  static setErrors(
+    errors: ValidationErrors,
+    form: FormGroup,
+    field: string
+  ): void {
+    form.controls[field].setErrors(errors);
   }
 }

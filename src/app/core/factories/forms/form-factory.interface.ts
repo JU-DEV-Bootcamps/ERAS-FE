@@ -34,6 +34,7 @@ export interface DynamicField {
   multipleSelect?: boolean;
   disabled?: boolean;
   floatingLabel?: FloatLabelType;
+  fileConfig?: FileFieldConfig;
 }
 
 // Used to implements a dynamic form.
@@ -47,4 +48,13 @@ export interface DynamicInputComponent {
   field: InputSignal<DynamicField>;
   form: InputSignal<FormGroup>;
   formUtils: typeof FormUtils;
+}
+
+export interface FileFieldConfig {
+  maxFiles?: number;
+  maxSizeMb?: number;
+  allowedMimeTypes?: string[];
+  allowedExtensions?: string;
+  onFileSelected?: (file: File) => void;
+  onFileRemoved?: (index: number) => void;
 }
