@@ -264,7 +264,9 @@ export class PollFiltersComponent implements OnInit {
       )
       .subscribe({
         next: result => {
-          const completed = result.items.filter(e => e.status === 'Completed');
+          const completed = result.items.filter(
+            e => e.status === 'Completed' || e.status === 'InProgress'
+          );
           this.evaluations.set(completed);
         },
         error: () => this.evaluations.set(null),
