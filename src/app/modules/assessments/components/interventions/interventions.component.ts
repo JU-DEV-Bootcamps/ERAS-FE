@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
@@ -21,17 +21,24 @@ import {
   AssessmentModel,
   AssessmentStatus,
   InterventionModel,
+  InterventionType,
 } from '@core/models/assessement.model';
 import { InterventionListComponent } from './interventions-list/intervention-list.component';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { StudentProfileData } from '../assessment-list/assessment-student-data/assessment-student-data.component';
 import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 import { InterventionService } from '@core/services/api/intervention.service';
-
-interface AssessmentOption {
-  value: number;
-  label: string;
-}
+import { ListFiltersComponent } from '@shared/components/list-filters/list-filters.component';
+import {
+  AppliedFilter,
+  FilterField,
+  FilterName,
+  FilterType,
+} from '@shared/components/list-filters/models/list-filters.interface';
+import {
+  MultipleSelectItem,
+  SingleSelectItem,
+} from '@shared/components/form-field-virtual-scroll/interfaces/select';
 
 @Component({
   selector: 'app-interventions',
@@ -45,6 +52,7 @@ interface AssessmentOption {
     MatSelectModule,
     MatDialogModule,
     InterventionListComponent,
+    ListFiltersComponent,
   ],
   templateUrl: './interventions.component.html',
   styleUrl: './interventions.component.scss',
@@ -58,7 +66,6 @@ export class InterventionsComponent implements OnInit {
   private readonly interventionService = inject(InterventionService);
 
   readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
-  readonly assessmentOptions: WritableSignal<AssessmentOption[]> = signal([]);
   private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
     []
   );
@@ -78,10 +85,59 @@ export class InterventionsComponent implements OnInit {
     [AssessmentStatus.Rejected]: 'Rejected',
   };
 
+  private readonly assessmentOptions = signal<SingleSelectItem[]>([]);
+  private readonly statusOptions = signal<MultipleSelectItem[]>([]);
+  private readonly typeOptions = signal<MultipleSelectItem[]>([]);
+
+  readonly appliedFilters = signal<AppliedFilter[]>([]);
+
+  filters: FilterField[] = [];
+
   @ViewChild('interventionList') interventionList!: InterventionListComponent;
 
   ngOnInit(): void {
     this.loadAssessments();
+    this._buildFiltersOptions();
+    this.filters = [
+      {
+        name: FilterName.Assessment,
+        disabled: false,
+        label: 'Assessment',
+        type: FilterType.virtualSelect,
+        value: null,
+        options: this.assessmentOptions(),
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Type,
+        disabled: false,
+        label: 'Type',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: this.typeOptions(),
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Status,
+        disabled: false,
+        label: 'Status',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: this.statusOptions(),
+        validators: [Validators.required],
+      },
+    ];
+  }
+
+  handleFilters(filters: AppliedFilter[]) {
+    const assessmentFilter = filters.find(
+      filter => filter.name === FilterName.Assessment
+    );
+    if (assessmentFilter && assessmentFilter.value) {
+      this.selectedAssessmentId.set(assessmentFilter.value as number);
+    }
+
+    this.appliedFilters.set(filters);
   }
 
   private loadAssessments(): void {
@@ -93,7 +149,6 @@ export class InterventionsComponent implements OnInit {
       .subscribe({
         next: assessments => {
           this.allAssessments.set(assessments);
-          this.assessmentOptions.set(assessments.map(a => this.mapToOption(a)));
           this.isLoadingAssessments.set(false);
 
           const lookup: Record<string, StudentProfileData> = {};
@@ -115,18 +170,49 @@ export class InterventionsComponent implements OnInit {
       });
   }
 
-  private mapToOption(a: AssessmentModel): AssessmentOption {
-    const date = new Date(a.createdAtUtc);
-    const dateStr = date.toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
+  private _buildFiltersOptions() {
+    this.assessmentOptions.set(this._mapAssessments());
+    this.statusOptions.set(this._mapStatus());
+    this.typeOptions.set(this._mapTypes());
+  }
+
+  private _mapAssessments(): SingleSelectItem[] {
+    return this.allAssessments().map(assessment => {
+      const date = new Date(assessment.createdAtUtc);
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+      });
+      const statusLabel =
+        this.statusLabelMap[assessment.status] ?? assessment.status;
+      return {
+        value: assessment.id!,
+        label: `${dateStr} – ${assessment.service} (${statusLabel})`,
+      };
     });
-    const statusLabel = this.statusLabelMap[a.status] ?? a.status;
-    return {
-      value: a.id!,
-      label: `${dateStr} – ${a.service} (${statusLabel})`,
-    };
+  }
+
+  private _mapStatus(): MultipleSelectItem[] {
+    return Object.keys(this.statusLabelMap).map(statusKey => {
+      return {
+        label: this.statusLabelMap[statusKey as AssessmentStatus],
+        value: statusKey,
+      };
+    });
+  }
+
+  private _mapTypes(): MultipleSelectItem[] {
+    return [
+      {
+        label: InterventionType.Group,
+        value: InterventionType.Group,
+      },
+      {
+        label: InterventionType.Individual,
+        value: InterventionType.Individual,
+      },
+    ];
   }
 
   onAssessmentChange(assessmentId: number | null): void {
