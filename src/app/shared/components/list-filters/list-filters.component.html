@@ -5,15 +5,15 @@
         @case ('virtual-select') {
           <app-select-virtual-scroll
             [items]="castToSingleSelect(field.options)"
-            [control]="filtersForm.controls[field.id]"
-            [id]="field.id"
+            [control]="filtersForm.controls[field.name]"
+            [id]="field.name"
             [label]="field.label"
           />
         }
         @case ('virtual-multi-select') {
           <app-select-multiple-virtual-scroll
             [items]="castToMultipleSelect(field.options)"
-            [control]="filtersForm.controls[field.id]"
+            [control]="filtersForm.controls[field.name]"
             [id]="'sl-cohort'"
             [label]="field.label"
           />

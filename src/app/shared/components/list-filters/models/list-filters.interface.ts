@@ -5,8 +5,14 @@ import {
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
 
 interface AppliedFilter {
-  name: string;
+  name: FilterName;
   value: FilterValue;
+}
+
+enum FilterName {
+  Assessment = 'assessment',
+  Status = 'status',
+  Type = 'type',
 }
 
 enum FilterType {
@@ -16,7 +22,7 @@ enum FilterType {
 
 interface FilterField {
   disabled: boolean;
-  id: string;
+  name: FilterName;
   label: string;
   value: FilterValue;
   type: FilterType;
@@ -26,4 +32,4 @@ interface FilterField {
 
 type FilterValue = string | number | string[] | null;
 
-export { AppliedFilter, FilterField, FilterType, FilterValue };
+export { AppliedFilter, FilterField, FilterName, FilterType, FilterValue };

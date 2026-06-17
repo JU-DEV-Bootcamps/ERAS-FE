@@ -9,6 +9,7 @@ import {
 import {
   AppliedFilter,
   FilterField,
+  FilterName,
   FilterValue,
 } from './models/list-filters.interface';
 import { SelectMultipleVirtualScrollComponent } from '../form-field-virtual-scroll/select-multiple-virtual-scroll/select-multiple-virtual-scroll.component';
@@ -57,7 +58,7 @@ export class ListFiltersComponent implements OnInit {
         })
         .filter(Boolean);
 
-      controls[field.id] = new FormControl(
+      controls[field.name] = new FormControl(
         { value: initialValue, disabled: isDisabled },
         resolvedValidators
       );
@@ -80,7 +81,7 @@ export class ListFiltersComponent implements OnInit {
       const formValue = this.filtersForm.value;
       Object.keys(formValue).forEach(filterKey => {
         appliedFilters.push({
-          name: filterKey,
+          name: filterKey as FilterName,
           value: formValue[filterKey] ?? null,
         });
       });
