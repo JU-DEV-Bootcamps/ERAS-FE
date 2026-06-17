@@ -96,7 +96,7 @@ describe('SelectMultipleVirtualScrollComponent', () => {
     expect(component.openedChange.emit).toHaveBeenCalledWith(false);
   }));
 
-  it('should return ["Select all"] when all elements are selected', () => {
+  it('should return ["All"] when all elements are selected', () => {
     const control = new FormControl([1, 2]);
     const mockItemsValues = mockItems.map(
       item => (item as MultipleSelectCommonItem).value
@@ -108,7 +108,7 @@ describe('SelectMultipleVirtualScrollComponent', () => {
     fixture.detectChanges();
 
     const selection = component.getItemSelection();
-    expect(selection).toEqual(['Select all']);
+    expect(selection).toEqual(['All']);
   });
 
   it('should return empty array when no element has been selected', () => {

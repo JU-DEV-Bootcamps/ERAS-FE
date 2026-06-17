@@ -151,7 +151,7 @@ export class SelectMultipleVirtualScrollComponent {
       currentSelectionValues.length === scrollItems.length &&
       this.displayMode() !== 'chips'
     ) {
-      itemSelection = ['Select all'];
+      itemSelection = ['All'];
     } else {
       itemSelection = currentSelectionValues.map(
         (selectedItem: SelectAllValue) => {
