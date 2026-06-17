@@ -2,10 +2,11 @@ import { NgClass } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-stats-card-v2',
-  imports: [MatCard, NgClass, MatIcon],
+  imports: [MatCard, NgClass, MatIcon, MatTooltipModule],
   templateUrl: './stats-card-v2.component.html',
   styleUrl: './stats-card-v2.component.scss',
 })
@@ -13,6 +14,7 @@ export class StatsCardV2Component {
   title = input<string>('');
   value = input<number>(0);
   percentageChange = input<number>(0);
+  tooltip = input<string>('');
 
   isPositive = computed(() => this.percentageChange() >= 0);
   formattedPercentage = computed(() => {

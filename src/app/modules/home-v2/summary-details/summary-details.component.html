@@ -5,6 +5,9 @@
         [title]="'Number of Students'"
         [value]="kpi.body.totalStudents.value"
         [percentageChange]="kpi.body.totalStudents.percentageChange"
+        [tooltip]="
+          'Number of students enrolled during the current 6-month period, compared to the same period last cycle.'
+        "
       >
         <ng-container icon>
           <img src="assets/icons/studentsIcon.svg" alt="students" />
@@ -17,6 +20,9 @@
         [title]="'Polls Answered'"
         [value]="kpi.body.totalPollsAnswered.value"
         [percentageChange]="kpi.body.totalPollsAnswered.percentageChange"
+        [tooltip]="
+          'Total polls answered by students. % Change compares the current 6-month period vs. the equivalent previous period.'
+        "
       >
         <ng-container icon>
           <img src="assets/icons/pollsIcon.png" alt="polls" />
@@ -29,6 +35,9 @@
         [title]="'Evaluations'"
         [value]="kpi.body.totalEvaluations.value"
         [percentageChange]="kpi.body.totalEvaluations.percentageChange"
+        [tooltip]="
+          'Total evaluations conducted. % Change compares the current 6-month period vs. the equivalent previous period.'
+        "
       >
         <ng-container icon>
           <img src="assets/icons/evaluationsIcon.png" alt="evaluations" />

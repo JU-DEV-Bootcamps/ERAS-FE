@@ -1,6 +1,13 @@
 <mat-card class="stat-card">
   <div class="kpi-information">
-    <span class="title">{{ title() }}</span>
+    <span
+      class="title"
+      [matTooltip]="tooltip()"
+      matTooltipPosition="above"
+      matTooltipClass="kpi-tooltip"
+    >
+      {{ title() }}
+    </span>
     <div class="numeric-section">
       <span class="value-quantity">{{ value() }}</span>
       <div class="value-kpi">
