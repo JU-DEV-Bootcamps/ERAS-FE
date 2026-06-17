@@ -32,6 +32,7 @@ export interface InterventionModel {
   id?: number;
   assessmentId: number;
 
+  type: string;
   kind: InterventionType;
   mode: InterventionMode;
   status?: InterventionStatus;
@@ -48,6 +49,7 @@ export interface InterventionModel {
 
   remarks?: string | null;
   attachments?: string[] | null;
+  uploadInput?: File[] | null;
 }
 
 export interface InterventionAttendanceModel {

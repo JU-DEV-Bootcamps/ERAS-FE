@@ -53,7 +53,7 @@
             >PDF, JPG, PNG or TXT · max 10MB · up to 2 files</span
           >
         </span>
-        <div class="file-upload-actions">
+        <!-- <div class="file-upload-actions">
           <label class="file-upload-button" [class.disabled]="!canAddMoreFiles">
             <mat-icon>upload_file</mat-icon>
             Upload file
@@ -65,10 +65,10 @@
               (change)="onFileSelected($event)"
             />
           </label>
-        </div>
+        </div> -->
         @if (selectedFiles.length) {
           <ul class="file-list">
-            @for (file of selectedFiles; track file.name; let i = $index) {
+            <!-- @for (file of selectedFiles; track file.name; let i = $index) {
               <li class="file-item">
                 <mat-icon class="file-icon">insert_drive_file</mat-icon>
                 <span class="file-name">{{ file.name }}</span>
@@ -83,7 +83,7 @@
                   <mat-icon>close</mat-icon>
                 </button>
               </li>
-            }
+            } -->
           </ul>
         }
         @if (existingAttachments.length) {

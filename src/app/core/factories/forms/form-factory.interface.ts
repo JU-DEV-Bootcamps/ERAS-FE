@@ -57,4 +57,5 @@ export interface FileFieldConfig {
   allowedExtensions?: string;
   onFileSelected?: (file: File) => void;
   onFileRemoved?: (index: number) => void;
+  prefillFileNames?: string[];
 }

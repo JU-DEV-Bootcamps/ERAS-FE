@@ -1,25 +1,37 @@
-<mat-form-field
-  [floatLabel]="field().floatingLabel ?? 'auto'"
-  class="w-full"
-  appearance="outline"
->
-  <mat-label>{{ field().label }}</mat-label>
-  <input
-    matInput
-    readonly
-    [placeholder]="field().placeholder!"
-    [value]="fileName()"
-  />
-  @if (formUtils.isValidField(form(), field().name)) {
-    <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
+<div class="upload-field-wrapper">
+  <mat-form-field
+    [floatLabel]="field().floatingLabel ?? 'auto'"
+    class="w-full"
+    appearance="outline"
+    [class.field-error]="errorMatcher.hasErrors()"
+  >
+    <mat-label>{{ field().label }}</mat-label>
+    <mat-chip-grid #chipGrid>
+      @for (item of selectedFiles(); track $index) {
+        <mat-chip-row (removed)="removeFile($index)">
+          {{ item.name }}
+          <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
+    </mat-chip-grid>
+    <input
+      matInput
+      readonly
+      [placeholder]="selectedFiles().length ? '' : field().placeholder!"
+      [matChipInputFor]="chipGrid"
+      [errorStateMatcher]="errorMatcher"
+    />
+  </mat-form-field>
+
+  @if (errorMatcher.hasErrors()) {
+    <p class="file-error-message">
+      {{ formUtils.getFieldError(form(), field()) }}
+    </p>
   }
   <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
-  <button
-    class="button-style"
-    matSuffix
-    type="button"
-    (click)="fileInput.click()"
-  >
-    Choosse File
+  <button class="choose-file-button" type="button" (click)="fileInput.click()">
+    Choose File
   </button>
-</mat-form-field>
+</div>
