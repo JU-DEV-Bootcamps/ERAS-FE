@@ -8,6 +8,7 @@ import {
   OnInit,
   signal,
   computed,
+  DestroyRef,
 } from '@angular/core';
 import {
   FormGroup,
@@ -41,6 +42,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessement.model';
 import { map, of, concatMap, Observable, forkJoin } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -108,14 +110,14 @@ export interface NewInterventionDialogData {
 export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private _prefillValues: Record<string, unknown> = {};
-  private prefillFileNames = signal<string[]>([]);
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
   attendedStudentIdsModel: string[] = [];
 
-  readonly isGroup = signal<boolean>(false);
+  isGroup = signal<boolean>(false);
 
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
@@ -123,11 +125,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   attendance = signal<{ student: StudentLookup; attended: boolean }[]>([]);
   attendedStudentIds = signal<string[]>([]);
-
-  selectedFiles = signal<File[]>([]);
-  fileErrors: string[] = [];
-  readonly allowedExtensions = ALLOWED_EXTENSIONS;
-  readonly modeOptions = MODE_OPTIONS;
 
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
@@ -141,10 +138,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   get isSubmitDisabled(): boolean {
     return !this.form || this.form.invalid || this.form.pristine;
-  }
-
-  get canAddMoreFiles(): boolean {
-    return this.selectedFiles.length < MAX_FILES;
   }
 
   get isEditMode(): boolean {
@@ -178,17 +171,10 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   }
 
   private buildFormFields(): void {
-    const professionalField: DynamicField = {
-      type: 'select',
-      name: 'professionalId',
-      label: 'Professional',
-      placeholder: this.data.professional.label,
-      options: [this.data.professional],
-      validators: [Validators.required],
-      floatingLabel: 'always',
-      value: this.data.professional.value,
-      disabled: true,
-    };
+    const isGroupForm = this.data.students.length > 1;
+    const typeValueDefault = isGroupForm
+      ? InterventionType.Group
+      : InterventionType.Individual;
 
     const topFields: DynamicField[] = [
       {
@@ -207,7 +193,11 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         options: TYPE_OPTIONS,
         validators: [Validators.required],
         floatingLabel: 'always',
+        value: typeValueDefault,
+        disabled: !isGroupForm,
       },
+    ];
+    const optionalFields: DynamicField[] = [
       {
         type: 'select',
         name: 'activity',
@@ -223,6 +213,15 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         label: 'Area',
         placeholder: 'Select area',
         options: AREA_OPTIONS,
+        validators: [Validators.required],
+        floatingLabel: 'always',
+      },
+      {
+        type: 'select',
+        name: 'mode',
+        label: 'Mode',
+        placeholder: 'Select mode',
+        options: MODE_OPTIONS,
         validators: [Validators.required],
         floatingLabel: 'always',
       },
@@ -258,24 +257,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     const bottomFields: DynamicField[] = [
       {
         type: 'select',
-        name: 'mode',
-        label: 'Mode',
-        placeholder: 'Select mode',
-        options: MODE_OPTIONS,
+        name: 'professionalId',
+        label: 'Professional',
+        placeholder: this.data.professional.label,
+        options: [this.data.professional],
         validators: [Validators.required],
         floatingLabel: 'always',
-      },
-      {
-        type: 'textarea',
-        name: 'comments',
-        label: 'Comments',
-        placeholder: 'Remarks, observations and follow-up notes...',
-        validators: [
-          Validators.required,
-          Validators.minLength(10),
-          Validators.maxLength(1000),
-        ],
-        floatingLabel: 'always',
+        value: this.data.professional.value,
+        disabled: true,
       },
       {
         type: 'file',
@@ -296,14 +285,26 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         },
         floatingLabel: 'always',
       },
+      {
+        type: 'textarea',
+        name: 'comments',
+        label: 'Intervention Notes',
+        placeholder: 'Remarks, observations and follow-up notes...',
+        validators: [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(1000),
+        ],
+        floatingLabel: 'always',
+      },
     ];
     this.formFields = this.isGroup()
-      ? [professionalField, ...topFields, studentsGroupField, ...bottomFields]
+      ? [...topFields, studentsGroupField, ...bottomFields, ...optionalFields]
       : [
-          professionalField,
           ...topFields,
           studentsIndividualField,
           ...bottomFields,
+          ...optionalFields,
         ];
   }
 
@@ -311,8 +312,19 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.form = event;
     if (this.isEditMode && Object.keys(this._prefillValues).length) {
       this.form.patchValue(this._prefillValues);
-      this._fillFiles(); //unnecesary
     }
+    this.form
+      .get('type')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        const nowGroup = value === InterventionType.Group;
+        if (nowGroup === this.isGroup()) return;
+        this.isGroup.set(nowGroup);
+        this.attendedStudentIds.set([]);
+        this.attendedStudentIdsModel = [];
+        this.buildAttendance();
+        this.buildFormFields();
+      });
   }
 
   private prefillForm(): void {
@@ -357,8 +369,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
             })
         );
         this.form.get('uploadInput')?.setValue(files);
-        // const control = this.form.get('uploadInput');
-        // control?.setValue(files.map(f => f.name));
       },
     });
   }

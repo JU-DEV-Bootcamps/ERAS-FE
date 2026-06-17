@@ -32,7 +32,6 @@ export interface InterventionModel {
   id?: number;
   assessmentId: number;
 
-  type: string;
   kind: InterventionType;
   mode: InterventionMode;
   status?: InterventionStatus;

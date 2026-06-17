@@ -65,3 +65,23 @@ mat-option[appselectall] {
 .delete-confirmation-modal {
   box-shadow: 1px var(--color-neutral-200) blur(3px);
 }
+
+app-new-intervention-modal form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+app-new-intervention-modal form > :nth-child(1),
+app-new-intervention-modal form > :nth-child(2) {
+  width: calc(50% - 32px);
+  flex: 1 1 calc(50% - 16px);
+}
+
+app-new-intervention-modal mat-form-field {
+  margin-bottom: 0px;
+}
+
+app-new-intervention-modal form > :not(:nth-child(1)):not(:nth-child(2)) {
+  flex: 1 1 100%;
+}
