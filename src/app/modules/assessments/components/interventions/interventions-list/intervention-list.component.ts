@@ -118,6 +118,8 @@ export class InterventionListComponent {
     );
   });
 
+  protected readonly hasInterventions = signal(false);
+
   protected onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
   }
@@ -149,6 +151,7 @@ export class InterventionListComponent {
     this.interventionService.getByAssessment(assessmentId).subscribe({
       next: data => {
         const rows = data.map(item => this.mapToRow(item));
+        this.hasInterventions.set(rows.length > 0);
         this.interventions.set(rows);
 
         const current = this.selectedIntervention();

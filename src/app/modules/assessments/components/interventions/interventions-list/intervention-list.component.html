@@ -20,11 +20,19 @@
       <div class="empty-icon">
         <mat-icon>psychology</mat-icon>
       </div>
-      <h3>No Interventions yet</h3>
-      <p>Create the first intervention for this assessment</p>
-      <button mat-flat-button type="button" (click)="onCreateClick()">
-        Create Intervention
-      </button>
+      @if (hasInterventions()) {
+        <h3>No Interventions</h3>
+        <p>
+          No interventions match the current filters.<br />Try with other
+          values.
+        </p>
+      } @else {
+        <h3>No Interventions yet</h3>
+        <p>Create the first intervention for this assessment</p>
+        <button mat-flat-button type="button" (click)="onCreateClick()">
+          Create Intervention
+        </button>
+      }
     </div>
   </div>
 } @else {
