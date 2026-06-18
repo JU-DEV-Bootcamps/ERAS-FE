@@ -36,8 +36,7 @@ import {
 } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-
-type ModeType = 'list' | 'chips';
+import { ModeType } from '@core/factories/forms/form-factory.interface';
 
 @Component({
   selector: 'app-select-multiple-virtual-scroll',
@@ -148,7 +147,10 @@ export class SelectMultipleVirtualScrollComponent {
     );
 
     let itemSelection = [''];
-    if (currentSelectionValues.length === scrollItems.length) {
+    if (
+      currentSelectionValues.length === scrollItems.length &&
+      this.displayMode() !== 'chips'
+    ) {
       itemSelection = ['Select all'];
     } else {
       itemSelection = currentSelectionValues.map(

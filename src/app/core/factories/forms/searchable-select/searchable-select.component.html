@@ -5,5 +5,5 @@
   [floatLabelSetup]="field().floatingLabel ?? 'auto'"
   [placeholder]="field().placeholder ?? 'Select...'"
   [autoSelect]="false"
-  [displayMode]="'chips'"
+  [displayMode]="field().multiSelectConfig?.displayMode ?? 'list'"
 ></app-select-multiple-virtual-scroll>

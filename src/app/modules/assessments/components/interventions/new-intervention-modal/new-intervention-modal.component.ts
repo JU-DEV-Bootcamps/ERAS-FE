@@ -230,12 +230,15 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     const studentsGroupField: DynamicField = {
       type: 'searchableSelect',
       name: 'students',
-      label: 'Students',
+      label: 'Student (s)',
       placeholder: 'Select students',
       options: this.data.students,
       validators: [Validators.required],
       multipleSelect: true,
       floatingLabel: 'always',
+      multiSelectConfig: {
+        displayMode: 'chips',
+      },
       value: this.isEditMode
         ? this.data.intervention!.studentIds
         : this.data.students.map(s => s.value),

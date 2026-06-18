@@ -22,6 +22,8 @@ export type FormControlTuple = Record<
 >;
 export type FormDataTuple = Record<string, ValueType>;
 
+export type ModeType = 'list' | 'chips';
+
 // Used to model our formFields variables.
 export interface DynamicField {
   type: FieldType;
@@ -35,6 +37,9 @@ export interface DynamicField {
   disabled?: boolean;
   floatingLabel?: FloatLabelType;
   fileConfig?: FileFieldConfig;
+  multiSelectConfig?: {
+    displayMode?: ModeType;
+  };
 }
 
 // Used to implements a dynamic form.
