@@ -33,6 +33,9 @@ export const GENERAL_MESSAGES = {
   SUCCESS_IMPORT_TITLE: 'Successful import',
   WARNING_TITLE: 'Warning',
   DETAILS: 'Details:',
+  ERROR_400: 'Bad Request',
+  INVALID_TYPE_ERROR_400: (attribute: string) =>
+    `The property ${attribute} cannot be converted to the required type.`,
 };
 
 export const TYPE_ICON: Record<DialogType, string> = {
