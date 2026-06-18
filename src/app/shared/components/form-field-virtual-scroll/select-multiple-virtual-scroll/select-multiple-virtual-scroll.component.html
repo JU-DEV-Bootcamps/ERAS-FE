@@ -15,7 +15,26 @@
     panelClass="compact-select-panel"
   >
     <mat-select-trigger>
-      <app-selected-items [items]="selectedItemsLabels()" />
+      @if (displayMode() === 'chips') {
+        <mat-chip-grid #chipGrid>
+          @for (item of selectedItemsLabels(); track item) {
+            <mat-chip-row class="selected-chip" (removed)="remove(item)">
+              {{ item }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+        </mat-chip-grid>
+        <input
+          class="inputItem"
+          #searchInput
+          [matChipInputFor]="chipGrid"
+          (matChipInputTokenEnd)="add($event)"
+        />
+      } @else {
+        <app-selected-items [items]="selectedItemsLabels()" />
+      }
     </mat-select-trigger>
 
     <div class="select-search">

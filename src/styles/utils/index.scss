@@ -158,3 +158,12 @@ body {
     transform: translateX(0);
   }
 }
+
+@include mat.chips-overrides(
+  (
+    outline-width: 0px,
+    label-text-font: 'Inter',
+    container-shape-radius: 24px,
+    container-height: 28px,
+  )
+);

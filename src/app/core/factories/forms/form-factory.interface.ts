@@ -11,7 +11,9 @@ export type FieldType =
   | 'text'
   | 'textarea'
   | 'password'
-  | 'searchableSelect';
+  | 'searchableSelect'
+  | 'file';
+
 export type ValueType = string | number | boolean | Date | null | string[];
 
 export type FormControlTuple = Record<
@@ -19,6 +21,8 @@ export type FormControlTuple = Record<
   [{ value: ValueType; disabled: boolean }, ValidatorFn[]]
 >;
 export type FormDataTuple = Record<string, ValueType>;
+
+export type ModeType = 'list' | 'chips';
 
 // Used to model our formFields variables.
 export interface DynamicField {
@@ -32,6 +36,10 @@ export interface DynamicField {
   multipleSelect?: boolean;
   disabled?: boolean;
   floatingLabel?: FloatLabelType;
+  fileConfig?: FileFieldConfig;
+  multiSelectConfig?: {
+    displayMode?: ModeType;
+  };
 }
 
 // Used to implements a dynamic form.
@@ -45,4 +53,14 @@ export interface DynamicInputComponent {
   field: InputSignal<DynamicField>;
   form: InputSignal<FormGroup>;
   formUtils: typeof FormUtils;
+}
+
+export interface FileFieldConfig {
+  maxFiles?: number;
+  maxSizeMb?: number;
+  allowedMimeTypes?: string[];
+  allowedExtensions?: string;
+  onFileSelected?: (file: File) => void;
+  onFileRemoved?: (index: number) => void;
+  prefillFileNames?: string[];
 }

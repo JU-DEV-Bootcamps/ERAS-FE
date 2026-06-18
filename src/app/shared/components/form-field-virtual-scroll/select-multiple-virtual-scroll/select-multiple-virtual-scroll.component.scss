@@ -38,3 +38,12 @@ mat-form-field {
     color: inherit;
   }
 }
+
+.selected-chip {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: #e5e6e7 !important;
+  &:hover {
+    background-color: #dbdcdc;
+  }
+}

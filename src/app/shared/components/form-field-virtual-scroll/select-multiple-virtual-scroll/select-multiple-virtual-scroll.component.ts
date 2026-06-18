@@ -8,7 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
   FloatLabelType,
   MatFormFieldModule,
@@ -27,6 +27,16 @@ import { SelectAllValue } from '@shared/directives/select-all-value';
 import { UpperCasePipe } from '@angular/common';
 import { VIRTUAL_SCROLL_THRESHOLD } from '@core/constants/select';
 import { MatOptionSelectionChange } from '@angular/material/core';
+import {
+  MatChipInput,
+  MatChipGrid,
+  MatChipRow,
+  MatChipRemove,
+  MatChipInputEvent,
+} from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { ModeType } from '@core/factories/forms/form-factory.interface';
 
 @Component({
   selector: 'app-select-multiple-virtual-scroll',
@@ -40,6 +50,12 @@ import { MatOptionSelectionChange } from '@angular/material/core';
     SelectAllDirective,
     SelectedItemsComponent,
     UpperCasePipe,
+    FormsModule,
+    MatChipInput,
+    MatAutocompleteModule,
+    MatChipGrid,
+    MatChipRow,
+    MatChipRemove,
   ],
   templateUrl: './select-multiple-virtual-scroll.component.html',
   styleUrl: './select-multiple-virtual-scroll.component.scss',
@@ -76,6 +92,8 @@ export class SelectMultipleVirtualScrollComponent {
   readonly inputControlValues = computed<SelectAllValue[]>(
     () => this.control().value
   );
+  readonly displayMode = input<ModeType>('list');
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   constructor() {
     effect(onCleanup => {
@@ -129,7 +147,10 @@ export class SelectMultipleVirtualScrollComponent {
     );
 
     let itemSelection = [''];
-    if (currentSelectionValues.length === scrollItems.length) {
+    if (
+      currentSelectionValues.length === scrollItems.length &&
+      this.displayMode() !== 'chips'
+    ) {
       itemSelection = ['Select all'];
     } else {
       itemSelection = currentSelectionValues.map(
@@ -229,5 +250,37 @@ export class SelectMultipleVirtualScrollComponent {
         return newSelection;
       });
     }
+  }
+
+  add(event: MatChipInputEvent): void {
+    const label = (event.value || '').trim();
+    if (!label) {
+      return;
+    }
+    const item = this.scrollItems().find(
+      scrollItem =>
+        !this.isGroupItem(scrollItem) &&
+        scrollItem.label.toLowerCase() === label.toLowerCase()
+    );
+    if (!item || this.isGroupItem(item)) {
+      event.chipInput?.clear();
+      return;
+    }
+    this.selectedItemsValues.update(values =>
+      values.includes(item.value) ? values : [...values, item.value]
+    );
+    event.chipInput?.clear();
+  }
+
+  remove(label: string): void {
+    const item = this.scrollItems().find(
+      scrollItem => !this.isGroupItem(scrollItem) && scrollItem.label === label
+    );
+    if (!item || this.isGroupItem(item)) {
+      return;
+    }
+    this.selectedItemsValues.update(values =>
+      values.filter(value => value !== item.value)
+    );
   }
 }
