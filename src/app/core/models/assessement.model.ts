@@ -86,5 +86,4 @@ export enum InterventionStatus {
   OnHold = 'OnHold',
   Remitted = 'Remitted',
   Resolved = 'Resolved',
-  Rejected = 'Rejected',
 }

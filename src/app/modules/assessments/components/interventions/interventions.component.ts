@@ -194,7 +194,13 @@ export class InterventionsComponent implements OnInit {
   }
 
   private _mapStatus(): MultipleSelectItem[] {
-    return Object.keys(this.statusLabelMap).map(statusKey => {
+    const statusKeys: AssessmentStatus[] = Object.keys(
+      this.statusLabelMap
+    ) as AssessmentStatus[];
+    const interventionStatus = statusKeys.filter(
+      statusKey => statusKey !== AssessmentStatus.Rejected
+    );
+    return interventionStatus.map(statusKey => {
       return {
         label: this.statusLabelMap[statusKey as AssessmentStatus],
         value: statusKey,

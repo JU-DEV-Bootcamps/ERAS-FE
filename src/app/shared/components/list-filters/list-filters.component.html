@@ -24,7 +24,9 @@
   <div class="button-container">
     <app-eras-button
       class="apply-button"
+      [ngClass]="{ outlined: filtersForm.valid }"
       [textButton]="'Apply'"
+      [disableButton]="filtersForm.invalid"
       (clickButton)="onApply()"
     ></app-eras-button>
   </div>

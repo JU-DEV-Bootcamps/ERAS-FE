@@ -20,11 +20,13 @@ import {
 } from '../form-field-virtual-scroll/interfaces/select';
 import { CustomValidators } from '@core/utils/forms/custom-validators';
 import { ErasButtonComponent } from '../buttons/eras-button/eras-button.component';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-list-filters',
   imports: [
     ErasButtonComponent,
+    NgClass,
     ReactiveFormsModule,
     SelectMultipleVirtualScrollComponent,
     SelectVirtualScrollComponent,

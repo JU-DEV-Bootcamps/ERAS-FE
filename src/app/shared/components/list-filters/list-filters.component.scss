@@ -29,13 +29,13 @@ form {
 }
 
 .apply-button {
-  border: 1px solid main-styles.get-color('primary', 30);
+  border: 1px solid transparent;
   border-radius: 30px;
-
   @include mat.button-overrides(
     (
       filled-container-color: none,
       filled-label-text-color: main-styles.get-color('primary', 30),
+      filled-container-height: 36px,
     )
   );
 
@@ -46,4 +46,8 @@ form {
       )
     );
   }
+}
+
+.outlined {
+  border-color: main-styles.get-color('primary', 30);
 }
