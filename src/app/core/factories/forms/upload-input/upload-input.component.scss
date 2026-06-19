@@ -68,3 +68,34 @@ $color-accent-hover: #4a8a7c;
     top: 24%;
   }
 }
+
+.selected-chip {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 1px solid $color-accent-hover;
+  &:hover {
+    background-color: #deeae8;
+  }
+}
+
+:host ::ng-deep .mdc-evolution-chip__action--primary {
+  overflow: hidden !important;
+  min-width: 0;
+}
+
+.mat-mdc-standard-chip,
+.mdc-evolution-chip__cell--primary,
+.mat-mdc-standard-chip,
+.mdc-evolution-chip__action--primary,
+.mat-mdc-standard-chip,
+.mat-mdc-chip-action-label {
+  max-width: 320px;
+}
+
+:host ::ng-deep .mdc-evolution-chip__text-label,
+.mat-mdc-chip-action-label {
+  max-width: 260px;
+  display: block;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
