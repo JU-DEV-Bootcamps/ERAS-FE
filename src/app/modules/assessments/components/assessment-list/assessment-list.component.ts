@@ -162,9 +162,9 @@ export class AssessmentListComponent implements OnInit {
   }
 
   protected onCreateIntervention(assessment: AssessmentRowViewModel): void {
-    const students = assessment.studentIds.map((id, index) => ({
-      value: String(id),
-      label: assessment.studentNames?.[index] ?? String(id),
+    const students = assessment.students?.map(student => ({
+      value: student.id,
+      label: student.name,
     }));
 
     this.matDialog.open(NewInterventionModalComponent, {
