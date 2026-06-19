@@ -1,9 +1,9 @@
 <div class="assessment-data-student">
-  <span class="text-student">
-    {{ studentData[0].name }}
-  </span>
+  <div class="set-names">
+    {{ studentNames }}
+  </div>
 
-  @if (studentData.length > 1) {
+  @if (studentData.length > numberOfStudent) {
     <div
       class="popover-wrapper"
       (mouseenter)="openPopover()"
@@ -17,7 +17,7 @@
         (keydown.space)="togglePin()"
         tabindex="0"
       >
-        +{{ studentData.length - 1 }}
+        +{{ studentData.length - numberOfStudent }}
       </span>
 
       <div
@@ -28,7 +28,7 @@
         (mouseenter)="show = true"
         (mouseleave)="closePopover()"
       >
-        @for (student of studentData.slice(1); track student.id) {
+        @for (student of studentData.slice(numberOfStudent); track student.id) {
           <div class="student-item">
             <div class="student-avatar">
               <img

@@ -4,6 +4,7 @@ import {
   HostListener,
   Input,
   ViewChild,
+  OnInit,
 } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
@@ -20,13 +21,16 @@ export interface StudentProfileData {
   templateUrl: './assessment-student-data.component.html',
   styleUrl: './assessment-student-data.component.scss',
 })
-export class AssessmentStudentDataComponent {
+export class AssessmentStudentDataComponent implements OnInit {
   @Input({ required: true }) studentData!: StudentProfileData[];
+  @Input({ required: false }) numberOfStudent = 1;
   @ViewChild('badgeRef') badgeRef!: ElementRef;
 
   show = false;
   pinned = false;
   popoverStyle: Record<string, string> = {};
+  studentNames = '';
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const clickedInside = this.badgeRef?.nativeElement.contains(event.target);
@@ -34,6 +38,14 @@ export class AssessmentStudentDataComponent {
       this.pinned = false;
       this.show = false;
     }
+  }
+
+  ngOnInit() {
+    this.studentNames = this.studentData
+      .slice(0, this.numberOfStudent)
+      .map(st => st.name)
+      .join(', ');
+    console.log(this.studentNames);
   }
 
   openPopover() {
