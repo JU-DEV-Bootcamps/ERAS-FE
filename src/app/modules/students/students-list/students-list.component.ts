@@ -351,11 +351,24 @@ export class StudentsListComponent implements OnInit {
       error: error => {
         this.isLoading = false;
         previewRef.close();
-        if (error.status == 500) {
+        if (error.status === 500) {
           openDialogWithStatus(
             GENERAL_MESSAGES.ERROR_500,
             false,
             [],
+            fileErrors,
+            this.dialog
+          );
+        } else if (error.status === 400) {
+          const keys = Object.keys(error.error.errors);
+          const errors = keys.slice(1).map(key => {
+            const attribute: string = key.split('.').pop() ?? '';
+            return GENERAL_MESSAGES.INVALID_TYPE_ERROR_400(attribute);
+          });
+          openDialogWithStatus(
+            GENERAL_MESSAGES.ERROR_400,
+            false,
+            errors,
             fileErrors,
             this.dialog
           );
