@@ -56,7 +56,7 @@
         <div class="row">
           <mat-form-field class="input">
             <mat-label>Enter a date range</mat-label>
-            <mat-date-range-input [rangePicker]="picker">
+            <mat-date-range-input [rangePicker]="picker" [required]="true">
               <input
                 matStartDate
                 placeholder="Start date"
@@ -69,7 +69,14 @@
               [for]="picker"
             ></mat-datepicker-toggle>
             <mat-date-range-picker #picker></mat-date-range-picker>
-            <mat-hint>Not required</mat-hint>
+            @if (
+              form.get('start')?.hasError('required') ||
+              form.get('end')?.hasError('required')
+            ) {
+              <mat-error>Required</mat-error>
+            } @else {
+              <mat-hint>Required</mat-hint>
+            }
           </mat-form-field>
         </div>
         <div class="row">

@@ -95,8 +95,8 @@ export class ModalImportAnswersFormComponent implements OnInit {
         },
         [Validators.pattern(/^(?!\s*$).+/)]
       ),
-      start: this.preselectedPollState?.startDate ?? '',
-      end: this.preselectedPollState?.endDate ?? '',
+      start: [this.preselectedPollState?.startDate ?? '', Validators.required],
+      end: [this.preselectedPollState?.endDate ?? '', Validators.required],
     });
   }
 
