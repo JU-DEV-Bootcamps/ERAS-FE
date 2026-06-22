@@ -18,10 +18,13 @@
   <div class="empty-state">
     <div class="empty-state-content">
       <div class="empty-icon">
-        <mat-icon>psychology</mat-icon>
+        <mat-icon>assignment</mat-icon>
       </div>
       <h3>No Interventions yet</h3>
-      <p>Create the first intervention for this assessment</p>
+      <p>
+        Get Started by creating your first <br />
+        intervention record
+      </p>
       <button mat-flat-button type="button" (click)="onCreateClick()">
         Create Intervention
       </button>
@@ -86,6 +89,7 @@
             <td mat-cell *matCellDef="let item">
               <app-assessment-student-data
                 [studentData]="item.studentDisplay"
+                [numberOfStudent]="2"
               />
             </td>
           </ng-container>
