@@ -8,7 +8,7 @@
     <mat-label>{{ field().label }}</mat-label>
     <mat-chip-grid #chipGrid>
       @for (item of selectedFiles(); track $index) {
-        <mat-chip-row (removed)="removeFile($index)">
+        <mat-chip-row (removed)="removeFile($index)" class="selected-chip">
           {{ item.name }}
           <button matChipRemove>
             <mat-icon>cancel</mat-icon>
