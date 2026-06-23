@@ -5,13 +5,7 @@
   </div>
   <div class="summary-chart-tooltip-divider"></div>
   <div class="summary-chart-tooltip-container">
-    @if (emails) {
-      <ul class="summary-chart-tooltip-mail-list">
-        @for (email of emails; track $index) {
-          <li>{{ email }}</li>
-        }
-      </ul>
-    } @else if (answersWithColor.length > 0) {
+    @if (answersWithColor.length > 0) {
       @for (answer of answersWithColor; track $index) {
         <div class="summary-chart-tooltip-percentage-answer">
           <span class="summary-chart-tooltip-answer">
@@ -35,11 +29,10 @@
         >
           {{ answer.answerPercentage }}%
         </progress>
-        <ul class="summary-chart-tooltip-mail-list">
-          @for (email of answer.studentsEmails; track $index) {
-            <li>{{ email }}</li>
-          }
-        </ul>
+        <div class="summary-chart-tooltip-student-count">
+          {{ answer.studentCount }}
+          {{ answer.studentCount === 1 ? 'Student' : 'Students' }}
+        </div>
       }
     }
   </div>

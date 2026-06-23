@@ -5,10 +5,12 @@ import { AnswerDetail } from '@core/models/summary.model';
 
 export type AnswerDetailWithColor = AnswerDetail & {
   riskColor: string;
+  studentCount: number;
 };
 
 @Component({
   selector: 'app-tooltip-chart-v2',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './tooltip-chart-v2.component.html',
 })
@@ -24,6 +26,7 @@ export class TooltipChartV2Component implements OnInit {
       this.answers?.map(answer => ({
         ...answer,
         riskColor: RISK_COLORS[answer.riskLevel ?? 0],
+        studentCount: new Set(answer.studentsEmails ?? []).size,
       })) ?? [];
   }
 }
