@@ -4,7 +4,7 @@ import {
   HostListener,
   Input,
   ViewChild,
-  OnInit,
+  OnChanges,
 } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
@@ -21,7 +21,7 @@ export interface StudentProfileData {
   templateUrl: './assessment-student-data.component.html',
   styleUrl: './assessment-student-data.component.scss',
 })
-export class AssessmentStudentDataComponent implements OnInit {
+export class AssessmentStudentDataComponent implements OnChanges {
   @Input({ required: true }) studentData!: StudentProfileData[];
   @Input({ required: false }) numberOfStudent = 1;
   @ViewChild('badgeRef') badgeRef!: ElementRef;
@@ -40,12 +40,11 @@ export class AssessmentStudentDataComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnChanges() {
     this.studentNames = this.studentData
       .slice(0, this.numberOfStudent)
       .map(st => st.name)
       .join(', ');
-    console.log(this.studentNames);
   }
 
   openPopover() {
