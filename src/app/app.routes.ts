@@ -16,19 +16,14 @@ import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/s
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
 import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
-import { ReportsComponent } from '@modules/reports/components/reports/reports.component';
-import { HomeContainerComponent } from '@modules/home-v2/home-container.component';
 import { AppRouteData } from '@core/models/route-data.model';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
-import { DynamicChartsV2Component } from '@modules/reports/components/dynamic-charts-v2/dynamic-charts-v2.component';
 import { AssessmentsComponent } from '@modules/assessments/components/assessments.component';
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
-import { SummaryChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-charts-v2.component';
 import { AssessmentsContainerComponent } from '@modules/assessments/components/assesment-container/assessments-container.component';
 import { InterventionsComponent } from '@modules/assessments/components/interventions/interventions.component';
-import { StudentsContainerComponent } from '@modules/students/students-container.component';
 
 export const routes: Routes = [
   {
@@ -43,33 +38,43 @@ export const routes: Routes = [
       },
       {
         path: 'home',
-        component: HomeContainerComponent,
-        data: { headerTitle: 'Home' } satisfies AppRouteData,
+        loadChildren: () =>
+          import('./modules/home-v2/home.routes').then(m => m.HOME_ROUTES),
+        // component: HomeContainerComponent,
+        // data: { headerTitle: 'Home' } satisfies AppRouteData,
       },
+      // {
+      //   path: 'reports',
+      //   canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
+      //   component: ReportsComponent,
+      //   data: { headerTitle: 'Reports' } satisfies AppRouteData,
+      //   children: [
+      //     { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
+      //     {
+      //       path: 'dynamic-charts',
+      //       component: DynamicChartsV2Component,
+      //       data: { headerTitle: 'Reports' } satisfies AppRouteData,
+      //       resolve: { evaluations: evaluationProcessesResolver },
+      //     },
+      //     {
+      //       path: 'summary-charts',
+      //       component: SummaryChartsV2Component,
+      //       data: { headerTitle: 'Reports' } satisfies AppRouteData,
+      //     },
+      //     {
+      //       path: 'polls-answered',
+      //       component: PollsAnsweredComponent,
+      //       data: { headerTitle: 'Reports' } satisfies AppRouteData,
+      //     },
+      //   ],
+      // },
       {
         path: 'reports',
         canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
-        component: ReportsComponent,
-        data: { headerTitle: 'Reports' } satisfies AppRouteData,
-        children: [
-          { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
-          {
-            path: 'dynamic-charts',
-            component: DynamicChartsV2Component,
-            data: { headerTitle: 'Reports' } satisfies AppRouteData,
-            resolve: { evaluations: evaluationProcessesResolver },
-          },
-          {
-            path: 'summary-charts',
-            component: SummaryChartsV2Component,
-            data: { headerTitle: 'Reports' } satisfies AppRouteData,
-          },
-          {
-            path: 'polls-answered',
-            component: PollsAnsweredComponent,
-            data: { headerTitle: 'Reports' } satisfies AppRouteData,
-          },
-        ],
+        loadChildren: () =>
+          import('./modules/reports/reports.routes').then(
+            m => m.REPORTS_ROUTES
+          ),
       },
       {
         path: 'reports-v1',
@@ -109,13 +114,20 @@ export const routes: Routes = [
         component: ListStudentsByPollComponent,
         data: { breadcrumb: 'Students List By Poll' },
       },
+      // {
+      //   path: 'students',
+      //   component: StudentsContainerComponent,
+      //   data: {
+      //     breadcrumb: 'Students List',
+      //     headerTitle: 'Students',
+      //   } satisfies AppRouteData,
+      // },
       {
         path: 'students',
-        component: StudentsContainerComponent,
-        data: {
-          breadcrumb: 'Students List',
-          headerTitle: 'Students',
-        } satisfies AppRouteData,
+        loadComponent: () =>
+          import('./modules/students/students-container.component').then(
+            c => c.StudentsContainerComponent
+          ),
       },
       {
         path: 'risk-students',
@@ -172,9 +184,7 @@ export const routes: Routes = [
           {
             path: 'details/:id',
             loadComponent: () =>
-              import(
-                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
-              ),
+              import('@modules/supports-referrals/components/referral-detail/referral-detail.component'),
             resolve: { referral: referralDetailsResolver },
             data: { breadcrumb: 'Referral Details' },
           },

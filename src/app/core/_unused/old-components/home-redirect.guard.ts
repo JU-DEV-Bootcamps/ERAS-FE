@@ -1,6 +1,6 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { FEATURE_FLAGS } from './feature-flags';
-import { FeatureFlagsService } from './feature-flags.service';
+import { FEATURE_FLAGS } from '../../components/feature-flags/feature-flags';
+import { FeatureFlagsService } from '../../components/feature-flags/feature-flags.service';
 import { inject } from '@angular/core';
 
 export const homeRedirectGuard: CanActivateFn = () => {
