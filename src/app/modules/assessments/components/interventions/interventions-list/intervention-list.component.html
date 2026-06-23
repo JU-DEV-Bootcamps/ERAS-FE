@@ -14,20 +14,28 @@
       </p>
     </div>
   </div>
-} @else if (!interventions().length) {
+} @else if (!filteredInterventions().length) {
   <div class="empty-state">
     <div class="empty-state-content">
       <div class="empty-icon">
         <mat-icon>assignment</mat-icon>
       </div>
-      <h3>No Interventions yet</h3>
-      <p>
-        Get Started by creating your first <br />
-        intervention record
-      </p>
-      <button mat-flat-button type="button" (click)="onCreateClick()">
-        Create Intervention
-      </button>
+      @if (hasInterventions()) {
+        <h3>No Interventions</h3>
+        <p>
+          No interventions match the current filters.<br />Try with other
+          values.
+        </p>
+      } @else {
+        <h3>No Interventions yet</h3>
+        <p>
+          Get Started by creating your first <br />
+          intervention record
+        </p>
+        <button mat-flat-button type="button" (click)="onCreateClick()">
+          Create Intervention
+        </button>
+      }
     </div>
   </div>
 } @else {
@@ -193,7 +201,7 @@
       </div>
 
       <mat-paginator
-        [length]="interventions().length"
+        [length]="filteredInterventions().length"
         [pageIndex]="pageIndex()"
         [pageSize]="pageSize"
         [pageSizeOptions]="[10]"

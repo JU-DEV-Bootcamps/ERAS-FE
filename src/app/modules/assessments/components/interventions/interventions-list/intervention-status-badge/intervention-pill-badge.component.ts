@@ -36,7 +36,6 @@ export class InterventionPillBadgeComponent {
     [InterventionStatus.OnHold]: 'On Hold',
     [InterventionStatus.Remitted]: 'Remitted',
     [InterventionStatus.Resolved]: 'Resolved',
-    [InterventionStatus.Rejected]: 'Rejected',
   };
 
   private readonly classMap: Record<string, string> = {
@@ -49,6 +48,5 @@ export class InterventionPillBadgeComponent {
     [InterventionStatus.OnHold]: 'status-on-hold',
     [InterventionStatus.Remitted]: 'status-remitted',
     [InterventionStatus.Resolved]: 'status-resolved',
-    [InterventionStatus.Rejected]: 'status-rejected',
   };
 }

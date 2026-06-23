@@ -1,23 +1,16 @@
-<div class="filter-bar">
-  <mat-form-field appearance="outline" class="assessment-select">
-    <mat-select
-      placeholder="Select an assessment"
-      [ngModel]="selectedAssessmentId()"
-      (ngModelChange)="onAssessmentChange($event)"
-      [disabled]="isLoadingAssessments()"
-    >
-      @for (option of assessmentOptions(); track option.value) {
-        <mat-option [value]="option.value">{{ option.label }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-</div>
+<div class="container">
+  <app-list-filters
+    [filterFields]="filters"
+    (appliedFilters)="handleFilters($event)"
+  ></app-list-filters>
 
-<app-intervention-list
-  #interventionList
-  [assessmentIdInput]="selectedAssessmentId()"
-  [studentNamesLookup]="studentNamesLookup()"
-  (createClicked)="openCreateModal()"
-  (editClicked)="openEditModal($event)"
-  (deleteClicked)="confirmDelete($event)"
-/>
+  <app-intervention-list
+    #interventionList
+    [appliedFilters]="appliedFilters()"
+    [assessmentIdInput]="selectedAssessmentId()"
+    [studentNamesLookup]="studentNamesLookup()"
+    (createClicked)="openCreateModal()"
+    (editClicked)="openEditModal($event)"
+    (deleteClicked)="confirmDelete($event)"
+  />
+</div>

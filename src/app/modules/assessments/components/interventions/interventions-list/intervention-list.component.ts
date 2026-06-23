@@ -6,6 +6,7 @@ import {
   Output,
   computed,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +26,8 @@ import {
   StudentProfileData,
   AssessmentStudentDataComponent,
 } from '../../assessment-list/assessment-student-data/assessment-student-data.component';
+import { AppliedFilter } from '@shared/components/list-filters/models/list-filters.interface';
+import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -54,6 +57,7 @@ export interface InterventionRowViewModel extends InterventionModel {
 })
 export class InterventionListComponent {
   private readonly interventionService = inject(InterventionService);
+  private readonly filterStrategy = inject(InterventionFilterStrategy);
 
   @Input() pageSize = 10;
 
@@ -71,6 +75,8 @@ export class InterventionListComponent {
       this.interventions.set([]);
     }
   }
+
+  readonly appliedFilters = input<AppliedFilter[]>([]);
 
   @Output() createClicked = new EventEmitter<void>();
   @Output() editClicked = new EventEmitter<InterventionModel>();
@@ -95,13 +101,24 @@ export class InterventionListComponent {
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
 
-  private _assessmentId: number | null = null;
-
   protected readonly pagedInterventions = computed(() => {
     const start = this.pageIndex() * this.pageSize;
     const end = start + this.pageSize;
-    return this.interventions().slice(start, end);
+    return this.filteredInterventions().slice(start, end);
   });
+
+  protected readonly filteredInterventions = computed(() => {
+    const filters = this.appliedFilters();
+    const filteredInterventionModels = this.filterStrategy.apply(
+      this.interventions(),
+      filters
+    );
+    return filteredInterventionModels.map(intervention =>
+      this.mapToRow(intervention)
+    );
+  });
+
+  protected readonly hasInterventions = signal(false);
 
   protected onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
@@ -134,6 +151,7 @@ export class InterventionListComponent {
     this.interventionService.getByAssessment(assessmentId).subscribe({
       next: data => {
         const rows = data.map(item => this.mapToRow(item));
+        this.hasInterventions.set(rows.length > 0);
         this.interventions.set(rows);
 
         const current = this.selectedIntervention();
