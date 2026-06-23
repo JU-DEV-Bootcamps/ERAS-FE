@@ -1,0 +1,33 @@
+<form [formGroup]="filtersForm">
+  <div class="form-container">
+    @for (field of filterFields(); track field) {
+      @switch (field.type) {
+        @case ('virtual-select') {
+          <app-select-virtual-scroll
+            [items]="castToSingleSelect(field.options)"
+            [control]="filtersForm.controls[field.name]"
+            [id]="field.name"
+            [label]="field.label"
+          />
+        }
+        @case ('virtual-multi-select') {
+          <app-select-multiple-virtual-scroll
+            [items]="castToMultipleSelect(field.options)"
+            [control]="filtersForm.controls[field.name]"
+            [id]="'sl-cohort'"
+            [label]="field.label"
+          />
+        }
+      }
+    }
+  </div>
+  <div class="button-container">
+    <app-eras-button
+      class="apply-button"
+      [ngClass]="{ outlined: filtersForm.valid }"
+      [textButton]="'Apply'"
+      [disableButton]="filtersForm.invalid"
+      (clickButton)="onApply()"
+    ></app-eras-button>
+  </div>
+</form>
