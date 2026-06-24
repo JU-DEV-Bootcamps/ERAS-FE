@@ -489,10 +489,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         this.attendedStudentIds().includes(String(student.value));
     });
 
+    const kindIntervention = this.formFields.find(
+      field => field.name === 'type'
+    )?.value;
+
     return {
       assessmentId: this.data.assessmentId,
       intervention: {
-        kind: v.type,
+        kind: v.type ?? kindIntervention,
         dateUtc: new Date(v.date).toISOString(),
         activity: v.activity,
         mode: v.mode,
