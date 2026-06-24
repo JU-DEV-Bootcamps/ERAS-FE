@@ -12,7 +12,8 @@ export type FieldType =
   | 'textarea'
   | 'password'
   | 'searchableSelect'
-  | 'file';
+  | 'file'
+  | 'number';
 
 export type ValueType = string | number | boolean | Date | null | string[];
 

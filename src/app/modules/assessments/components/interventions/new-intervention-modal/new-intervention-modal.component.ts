@@ -259,6 +259,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
     const bottomFields: DynamicField[] = [
       {
+        type: 'number',
+        name: 'riskLevel',
+        label: 'Risk Level',
+        validators: [Validators.required, Validators.max(5), Validators.min(0)],
+        floatingLabel: 'always',
+        // value: this.data.professional.value,
+      },
+      {
         type: 'select',
         name: 'professionalId',
         label: 'Professional',

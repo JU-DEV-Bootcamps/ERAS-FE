@@ -30,6 +30,8 @@ export class FormUtils {
         `${field}: "${errors['fileFormat'].fileName}" has an unsupported format. Allowed: ${errors['fileFormat'].extensions}`,
       duplicated: () =>
         `${errors['duplicated'].fileName} has already been added.`,
+      min: () => `${field} cannot be lower ${errors['min'].min}.`,
+      max: () => `${field} cannot exceeds ${errors['max'].max}.`,
     };
 
     const key = Object.keys(errors).find(key => errorMessages[key]);
