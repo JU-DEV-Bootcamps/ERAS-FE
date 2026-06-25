@@ -168,6 +168,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
   ) {
     effect(() => {
+      if (this.isEditMode) return;
       const avg = this.avgRiskLevel();
       const control = this.form?.get('riskLevel');
       if (!control || this.riskLevelManuallyEdited) return;
@@ -186,13 +187,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     } else {
       this.buildAttendance();
     }
-    this.buildFormFields();
-  }
-
-  onToggleGroup(checked: boolean): void {
-    this.isGroup.set(checked);
-    this.attendedStudentIds.set([]);
-    this.buildAttendance();
     this.buildFormFields();
   }
 
@@ -402,6 +396,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       mode: iv.mode,
       comments: iv.comments,
       uploadInput: (iv.attachments ?? []).map(p => this.getFileName(p)),
+      riskLevel: iv.riskLevel,
     };
 
     const attended = Object.entries(iv.attendance ?? {})
@@ -412,30 +407,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.attendedStudentIdsModel = attended;
 
     this.existingAttachments = iv.attachments ?? [];
-  }
-
-  private _fillFiles(): void {
-    const iv = this.data.intervention!;
-    const attachments = iv.attachments ?? [];
-    if (!attachments.length) return;
-
-    const requests = attachments.map(name =>
-      this.interventionService.downloadAttachment(
-        iv.id ?? 0,
-        this.getFileName(name)
-      )
-    );
-    forkJoin(requests).subscribe({
-      next: blobs => {
-        const files = blobs.map(
-          (blob, index) =>
-            new File([blob], this.getFileName(attachments[index]), {
-              type: blob.type,
-            })
-        );
-        this.form.get('uploadInput')?.setValue(files);
-      },
-    });
   }
 
   private buildAttendance(): void {
@@ -460,12 +431,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     }));
     this.attendance.set(current);
     this.form.markAsDirty();
-  }
-
-  toggleAttendance(index: number, checked: boolean): void {
-    const current = [...this.attendance()];
-    current[index] = { ...current[index], attended: checked };
-    this.attendance.set(current);
   }
 
   submitIntervention(): void {
@@ -569,6 +534,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         numberOfParticipants: studentIds.length,
         attendance: attendanceRecord,
         attachments: [],
+        riskLevel: parseFloat(v.riskLevel),
       },
     };
   }

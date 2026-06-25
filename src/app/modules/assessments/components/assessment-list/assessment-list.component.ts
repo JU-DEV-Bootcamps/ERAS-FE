@@ -165,6 +165,7 @@ export class AssessmentListComponent implements OnInit {
     const students = assessment.students?.map(student => ({
       value: student.id,
       label: student.name,
+      riskLevel: student.avgRiskLevel,
     }));
 
     this.matDialog.open(NewInterventionModalComponent, {
