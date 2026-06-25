@@ -9,6 +9,7 @@ import {
   signal,
   computed,
   DestroyRef,
+  effect,
 } from '@angular/core';
 import {
   FormGroup,
@@ -79,8 +80,9 @@ const MODE_OPTIONS = [
 ];
 
 export interface StudentLookup {
-  value: string;
+  value: number;
   label: string;
+  riskLevel?: number;
 }
 
 export interface NewInterventionDialogData {
@@ -113,11 +115,13 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   private _prefillValues: Record<string, unknown> = {};
+  private riskLevelManuallyEdited = false;
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
   attendedStudentIdsModel: string[] = [];
 
   isGroup = signal<boolean>(false);
+  studentsSelected = signal<number[]>([]);
 
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
@@ -143,11 +147,33 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   get isEditMode(): boolean {
     return !!this.data.intervention;
   }
+  avgRiskLevel = computed(() => {
+    const selectedIds = new Set(this.studentsSelected());
+
+    const selectedStudents = this.data.students.filter(st =>
+      selectedIds.has(st.value)
+    );
+
+    const total = selectedStudents.reduce(
+      (acc, st) => acc + (st.riskLevel ?? 0),
+      0
+    );
+    return selectedStudents.length
+      ? Number((total / selectedStudents.length).toFixed(2))
+      : 0;
+  });
 
   constructor(
     public dialogRef: MatDialogRef<NewInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
-  ) {}
+  ) {
+    effect(() => {
+      const avg = this.avgRiskLevel();
+      const control = this.form?.get('riskLevel');
+      if (!control || this.riskLevelManuallyEdited) return;
+      control.setValue(avg, { emitEvent: false });
+    });
+  }
 
   ngOnInit(): void {
     this.isGroup.set(
@@ -175,6 +201,17 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     const typeValueDefault = isGroupForm
       ? InterventionType.Group
       : InterventionType.Individual;
+
+    const defaultStudentIds = this.isGroup()
+      ? this.isEditMode
+        ? this.data.intervention!.studentIds
+        : this.data.students.map(s => s.value)
+      : [
+          this.isEditMode
+            ? this.data.intervention!.studentIds[0]
+            : this.data.students[0]?.value,
+        ];
+    this.studentsSelected.set(defaultStudentIds);
 
     const topFields: DynamicField[] = [
       {
@@ -264,7 +301,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         label: 'Risk Level',
         validators: [Validators.required, Validators.max(5), Validators.min(0)],
         floatingLabel: 'always',
-        // value: this.data.professional.value,
+        value: this.avgRiskLevel(),
       },
       {
         type: 'select',
@@ -323,7 +360,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.form = event;
     if (this.isEditMode && Object.keys(this._prefillValues).length) {
       this.form.patchValue(this._prefillValues);
+      this.riskLevelManuallyEdited = true;
     }
+
     this.form
       .get('type')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
@@ -333,8 +372,23 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         this.isGroup.set(nowGroup);
         this.attendedStudentIds.set([]);
         this.attendedStudentIdsModel = [];
+        this.riskLevelManuallyEdited = false;
         this.buildAttendance();
         this.buildFormFields();
+      });
+    this.form
+      .get('students')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        const asArray = Array.isArray(value) ? value : [value];
+        this.studentsSelected.set(asArray);
+      });
+
+    this.form
+      .get('riskLevel')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.riskLevelManuallyEdited = true;
       });
   }
 

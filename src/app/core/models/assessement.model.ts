@@ -43,7 +43,7 @@ export interface InterventionModel {
 
   area?: string | null;
   numberOfParticipants?: number | null;
-  studentIds: string[];
+  studentIds: number[];
   attendance?: Record<number, boolean> | null;
 
   remarks?: string | null;

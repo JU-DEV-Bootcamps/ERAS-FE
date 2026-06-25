@@ -15,7 +15,14 @@ export type FieldType =
   | 'file'
   | 'number';
 
-export type ValueType = string | number | boolean | Date | null | string[];
+export type ValueType =
+  | string
+  | number
+  | boolean
+  | Date
+  | null
+  | string[]
+  | number[];
 
 export type FormControlTuple = Record<
   string,
