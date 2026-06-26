@@ -48,6 +48,8 @@ export interface DynamicField {
   multiSelectConfig?: {
     displayMode?: ModeType;
   };
+  max?: number;
+  min?: number;
 }
 
 // Used to implements a dynamic form.

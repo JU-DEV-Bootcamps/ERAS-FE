@@ -54,6 +54,10 @@ const ALLOWED_MIME_TYPES = [
 const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
 const MAX_FILES = 2;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const INPUT_RISK_LEVEL_VALUES = {
+  max: 5,
+  min: 0,
+};
 
 const TYPE_OPTIONS = [
   { value: 'Individual', label: 'Individual' },
@@ -293,9 +297,15 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         type: 'number',
         name: 'riskLevel',
         label: 'Risk Level',
-        validators: [Validators.required, Validators.max(5), Validators.min(0)],
+        validators: [
+          Validators.required,
+          Validators.max(INPUT_RISK_LEVEL_VALUES.max),
+          Validators.min(INPUT_RISK_LEVEL_VALUES.min),
+        ],
         floatingLabel: 'always',
         value: this.avgRiskLevel(),
+        min: INPUT_RISK_LEVEL_VALUES.min,
+        max: INPUT_RISK_LEVEL_VALUES.max,
       },
       {
         type: 'select',

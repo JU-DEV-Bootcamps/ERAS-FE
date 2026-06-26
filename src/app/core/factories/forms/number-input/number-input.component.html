@@ -9,6 +9,8 @@
     [type]="field().type"
     [formControlName]="field().name"
     [placeholder]="field().placeholder!"
+    [max]="field().max"
+    [min]="field().min"
   />
   @if (formUtils.isValidField(form(), field().name)) {
     <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
