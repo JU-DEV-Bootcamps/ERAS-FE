@@ -13,6 +13,8 @@ import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from '@core/interceptors/keycloak-interceptor';
 import { AuthService } from '@core/services/access/access.service';
 import Keycloak from 'keycloak-js';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { firstValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,7 +24,10 @@ export const appConfig: ApplicationConfig = {
     },
     provideAppInitializer(async () => {
       const authService = inject(AuthService);
-      return await authService.init();
+      const featureFlags = inject(FeatureFlagsService);
+
+      await authService.init();
+      await firstValueFrom(featureFlags.loadFlags());
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),

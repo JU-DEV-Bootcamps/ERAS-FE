@@ -13,6 +13,7 @@ import { PollService } from '@core/services/api/poll.service';
 import { ActivatedRoute } from '@angular/router';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
@@ -73,6 +74,7 @@ describe('ModalQuestionDetailsComponent', () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideHttpClient(),
         {
           provide: MAT_DIALOG_DATA,
           useValue: mockDialogData,
