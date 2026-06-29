@@ -9,21 +9,15 @@ import { EvaluationProcessListComponent } from '@modules/lists/components/evalua
 import { ImportPreviewComponent } from '@modules/imports/components/import-preview/import-preview.component';
 import { LayoutComponent } from '@core/components/layout/layout.component';
 import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
-import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
 import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
 import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
 import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
 import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
-import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
-import { evaluationProcessesResolver } from '@modules/reports/resolvers/evaluation-processes.resolver';
 import { AppRouteData } from '@core/models/route-data.model';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
-import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
-import { AssessmentsComponent } from '@modules/assessments/components/assessments.component';
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 import { AssessmentsContainerComponent } from '@modules/assessments/components/assesment-container/assessments-container.component';
-import { InterventionsComponent } from '@modules/assessments/components/interventions/interventions.component';
 
 export const routes: Routes = [
   {
@@ -40,34 +34,7 @@ export const routes: Routes = [
         path: 'home',
         loadChildren: () =>
           import('./modules/home-v2/home.routes').then(m => m.HOME_ROUTES),
-        // component: HomeContainerComponent,
-        // data: { headerTitle: 'Home' } satisfies AppRouteData,
       },
-      // {
-      //   path: 'reports',
-      //   canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
-      //   component: ReportsComponent,
-      //   data: { headerTitle: 'Reports' } satisfies AppRouteData,
-      //   children: [
-      //     { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
-      //     {
-      //       path: 'dynamic-charts',
-      //       component: DynamicChartsV2Component,
-      //       data: { headerTitle: 'Reports' } satisfies AppRouteData,
-      //       resolve: { evaluations: evaluationProcessesResolver },
-      //     },
-      //     {
-      //       path: 'summary-charts',
-      //       component: SummaryChartsV2Component,
-      //       data: { headerTitle: 'Reports' } satisfies AppRouteData,
-      //     },
-      //     {
-      //       path: 'polls-answered',
-      //       component: PollsAnsweredComponent,
-      //       data: { headerTitle: 'Reports' } satisfies AppRouteData,
-      //     },
-      //   ],
-      // },
       {
         path: 'reports',
         canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
@@ -78,16 +45,10 @@ export const routes: Routes = [
       },
       {
         path: 'reports-v1',
-        children: [
-          { path: '', redirectTo: 'dynamic-charts', pathMatch: 'full' },
-          {
-            path: 'dynamic-charts',
-            component: DynamicChartsComponent,
-            resolve: { evaluations: evaluationProcessesResolver },
-          },
-          { path: 'summary-charts', component: SummaryChartsComponent },
-          { path: 'polls-answered', component: PollsAnsweredComponent },
-        ],
+        loadChildren: () =>
+          import('./modules/reports/reports.routes').then(
+            m => m.REPORTS_ROUTES_V1
+          ),
       },
       {
         path: 'cosmic-latte',
@@ -114,14 +75,6 @@ export const routes: Routes = [
         component: ListStudentsByPollComponent,
         data: { breadcrumb: 'Students List By Poll' },
       },
-      // {
-      //   path: 'students',
-      //   component: StudentsContainerComponent,
-      //   data: {
-      //     breadcrumb: 'Students List',
-      //     headerTitle: 'Students',
-      //   } satisfies AppRouteData,
-      // },
       {
         path: 'students',
         loadComponent: () =>
@@ -134,7 +87,6 @@ export const routes: Routes = [
         component: RiskStudentsComponent,
         data: { breadcrumb: 'Risk Students' },
       },
-
       {
         path: 'assessments',
         component: AssessmentsContainerComponent,
@@ -142,19 +94,10 @@ export const routes: Routes = [
           breadcrumb: 'Assessments',
           headerTitle: 'Assessments',
         } satisfies AppRouteData,
-        children: [
-          { path: '', redirectTo: 'assessments', pathMatch: 'full' },
-          {
-            path: 'assessments',
-            component: AssessmentsComponent,
-            data: { headerTitle: 'Assessments' } satisfies AppRouteData,
-          },
-          {
-            path: 'interventions',
-            component: InterventionsComponent,
-            data: { headerTitle: 'Assessments' } satisfies AppRouteData,
-          },
-        ],
+        loadChildren: () =>
+          import('./modules/assessments/assessments.routes').then(
+            m => m.ASSESSMENT_ROUTES
+          ),
       },
 
       {

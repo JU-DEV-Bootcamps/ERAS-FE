@@ -19,7 +19,7 @@ import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
-import { AssessmentModel } from '@core/models/assessement.model';
+import { AssessmentModel } from '@core/models/assessment.model';
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 

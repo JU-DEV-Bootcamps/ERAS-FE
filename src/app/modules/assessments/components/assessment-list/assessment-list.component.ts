@@ -25,7 +25,7 @@ import { AssessmentDetailDialogComponent } from '../assessment-detail/assessment
 import {
   AssessmentModel,
   AssessmentStatus,
-} from '../../../../core/models/assessement.model';
+} from '@core/models/assessment.model';
 import { AssessmentService } from '../../../../core/services/api/assessement.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';

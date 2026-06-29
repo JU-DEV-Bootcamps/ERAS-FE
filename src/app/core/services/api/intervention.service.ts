@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
-import { InterventionModel } from '@core/models/assessement.model';
+import { InterventionModel } from '@core/models/assessment.model';
 
 export interface AddInterventionPayload {
   assessmentId: number;

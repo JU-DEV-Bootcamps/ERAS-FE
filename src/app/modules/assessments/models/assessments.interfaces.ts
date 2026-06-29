@@ -1,4 +1,4 @@
-import { AssessmentModel } from '@core/models/assessement.model';
+import { AssessmentModel } from '@core/models/assessment.model';
 import { Lookup } from '@core/models/lookup';
 
 export interface AssessmentsLookups {
