@@ -37,7 +37,6 @@ export class FeatureFlagsService {
   loadFlags(): Observable<void> {
     return this.http.get<FeatureFlag[]>(this.baseUrl).pipe(
       tap(flags => {
-        console.log('flags from API:', flags);
         this._flagMeta.set(flags);
 
         const v2Flag = flags.find(f => f.name === 'v2');
