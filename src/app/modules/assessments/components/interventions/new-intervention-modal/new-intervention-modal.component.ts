@@ -9,7 +9,6 @@ import {
   signal,
   computed,
   DestroyRef,
-  effect,
 } from '@angular/core';
 import {
   FormGroup,
@@ -54,14 +53,16 @@ const ALLOWED_MIME_TYPES = [
 const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
 const MAX_FILES = 2;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
-const INPUT_RISK_LEVEL_VALUES = {
-  max: 5,
-  min: 0,
-};
 
 const TYPE_OPTIONS = [
   { value: 'Individual', label: 'Individual' },
   { value: 'Group', label: 'Group' },
+];
+
+const RISK_OPTIONS = [
+  { value: 'Low', label: 'Low', color: 'success' },
+  { value: 'Medium', label: 'Medium', color: 'warning' },
+  { value: 'High', label: 'High', color: 'danger' },
 ];
 
 const ACTIVITY_OPTIONS = [
@@ -119,7 +120,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   private _prefillValues: Record<string, unknown> = {};
-  private riskLevelManuallyEdited = false;
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
   attendedStudentIdsModel: string[] = [];
@@ -151,34 +151,11 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   get isEditMode(): boolean {
     return !!this.data.intervention;
   }
-  avgRiskLevel = computed(() => {
-    const selectedIds = new Set(this.studentsSelected());
-
-    const selectedStudents = this.data.students.filter(st =>
-      selectedIds.has(st.value)
-    );
-
-    const total = selectedStudents.reduce(
-      (acc, st) => acc + (st.riskLevel ?? 0),
-      0
-    );
-    return selectedStudents.length
-      ? Number((total / selectedStudents.length).toFixed(2))
-      : 0;
-  });
 
   constructor(
     public dialogRef: MatDialogRef<NewInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
-  ) {
-    effect(() => {
-      if (this.isEditMode) return;
-      const avg = this.avgRiskLevel();
-      const control = this.form?.get('riskLevel');
-      if (!control || this.riskLevelManuallyEdited) return;
-      control.setValue(avg, { emitEvent: false });
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.isGroup.set(
@@ -271,7 +248,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       validators: [Validators.required],
       multipleSelect: true,
       floatingLabel: 'always',
-      multiSelectConfig: {
+      selectConfig: {
         displayMode: 'chips',
       },
       value: this.isEditMode
@@ -294,18 +271,16 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
     const bottomFields: DynamicField[] = [
       {
-        type: 'number',
-        name: 'riskLevel',
+        type: 'select',
+        name: 'riskLevelName',
         label: 'Risk Level',
-        validators: [
-          Validators.required,
-          Validators.max(INPUT_RISK_LEVEL_VALUES.max),
-          Validators.min(INPUT_RISK_LEVEL_VALUES.min),
-        ],
+        options: RISK_OPTIONS,
+        validators: [Validators.required],
         floatingLabel: 'always',
-        value: this.avgRiskLevel(),
-        min: INPUT_RISK_LEVEL_VALUES.min,
-        max: INPUT_RISK_LEVEL_VALUES.max,
+        selectConfig: {
+          displayMode: 'chips',
+        },
+        value: RISK_OPTIONS.at(1)?.label,
       },
       {
         type: 'select',
@@ -364,7 +339,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.form = event;
     if (this.isEditMode && Object.keys(this._prefillValues).length) {
       this.form.patchValue(this._prefillValues);
-      this.riskLevelManuallyEdited = true;
     }
 
     this.form
@@ -376,23 +350,8 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         this.isGroup.set(nowGroup);
         this.attendedStudentIds.set([]);
         this.attendedStudentIdsModel = [];
-        this.riskLevelManuallyEdited = false;
         this.buildAttendance();
         this.buildFormFields();
-      });
-    this.form
-      .get('students')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
-        const asArray = Array.isArray(value) ? value : [value];
-        this.studentsSelected.set(asArray);
-      });
-
-    this.form
-      .get('riskLevel')
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.riskLevelManuallyEdited = true;
       });
   }
 
@@ -406,7 +365,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       mode: iv.mode,
       comments: iv.comments,
       uploadInput: (iv.attachments ?? []).map(p => this.getFileName(p)),
-      riskLevel: iv.riskLevel,
+      riskLevelName: iv.riskLevelName,
     };
 
     const attended = Object.entries(iv.attendance ?? {})
@@ -544,7 +503,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         numberOfParticipants: studentIds.length,
         attendance: attendanceRecord,
         attachments: [],
-        riskLevel: parseFloat(v.riskLevel),
+        riskLevelName: v.riskLevelName,
       },
     };
   }

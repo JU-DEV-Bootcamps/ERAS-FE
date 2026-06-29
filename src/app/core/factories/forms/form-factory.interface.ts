@@ -45,7 +45,7 @@ export interface DynamicField {
   disabled?: boolean;
   floatingLabel?: FloatLabelType;
   fileConfig?: FileFieldConfig;
-  multiSelectConfig?: {
+  selectConfig?: {
     displayMode?: ModeType;
   };
   max?: number;

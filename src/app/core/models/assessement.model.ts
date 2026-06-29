@@ -49,7 +49,7 @@ export interface InterventionModel {
   remarks?: string | null;
   attachments?: string[] | null;
   uploadInput?: File[] | null;
-  riskLevel?: number;
+  riskLevelName?: string;
 }
 
 export interface InterventionAttendanceModel {
