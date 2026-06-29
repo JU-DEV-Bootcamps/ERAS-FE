@@ -146,6 +146,11 @@ export class DynamicChartsV2Component implements AfterViewInit {
     const hmSeries = report.components.map(c =>
       this.reportService.getHMSeriesFromCountComponent(c)
     );
+
+    const highestRowCount = this.isAnyCardExpanded
+      ? 0
+      : Math.max(...hmSeries.map(series => series.length));
+
     this.chartsOptions = hmSeries.map((series, index) => {
       const regroupSeries = this.reportService.regroupDynamicByColor(series);
       const component = report.components[index];
@@ -209,7 +214,9 @@ export class DynamicChartsV2Component implements AfterViewInit {
           );
         },
         cardWidth,
-        this.isAnyCardExpanded
+        this.isAnyCardExpanded,
+        true,
+        highestRowCount
       );
     });
     this.cdr.detectChanges();

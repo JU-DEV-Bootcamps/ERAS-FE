@@ -61,6 +61,9 @@
                   [evaluationId]="evaluationId"
                   [tooltipFn]="getTooltipFn($index)"
                   [resizeTrigger]="resizeTick()"
+                  [maxChartHeight]="
+                    isAnyCardExpanded ? undefined : chartOption.chart?.height
+                  "
                   (selectPoint)="
                     openDetailsModal(
                       uuid!,

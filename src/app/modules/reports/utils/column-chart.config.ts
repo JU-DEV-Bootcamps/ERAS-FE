@@ -20,11 +20,16 @@ export class ColumnChartUtils {
 
   static createChartBase(
     onSelect?: (x: number, y: number, series: ComponentRisk[]) => void,
-    componentCount = 5
+    componentCount = 5,
+    containerHeight?: number
   ): ApexChart {
     const BAR_WIDTH = 20;
     const MIN_HEIGHT = 580;
-    const calculatedHeight = Math.max(MIN_HEIGHT, componentCount * BAR_WIDTH);
+    const calculatedHeight = Math.max(
+      MIN_HEIGHT,
+      componentCount * BAR_WIDTH,
+      containerHeight ?? 0
+    );
 
     return {
       type: 'bar',

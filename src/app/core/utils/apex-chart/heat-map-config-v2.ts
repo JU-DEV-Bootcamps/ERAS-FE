@@ -15,7 +15,8 @@ export function GetChartOptions(
   tooltipCustomFunction?: (x: number, y: number) => string,
   availableWidth = 1500,
   isExpanded = false,
-  fixColors = true
+  fixColors = true,
+  highestRowCount = 0
 ): ApexOptions {
   const CARD_HEADER_WIDTH = 96;
   const MIN_CHART_HEIGHT = 230;
@@ -27,7 +28,7 @@ export function GetChartOptions(
   const CELL_HEIGHT = chartValues.cellHeight;
   const percentageToView = chartValues.labelPercent;
   const questionSection = percentageToView * availableWidth;
-  const rowCount = series.length;
+  const rowCount = Math.max(series.length, highestRowCount);
   const chartHeight = Math.max(
     MIN_CHART_HEIGHT,
     rowCount * CELL_HEIGHT + CARD_HEADER_WIDTH

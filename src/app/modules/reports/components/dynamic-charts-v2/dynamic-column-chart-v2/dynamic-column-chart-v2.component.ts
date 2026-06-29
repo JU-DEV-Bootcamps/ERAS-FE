@@ -66,6 +66,7 @@ export class DynamicColumnChartV2Component {
   evaluationId = input<number | string | undefined>();
   tooltipFn = input<(seriesIndex: number, dataPointIndex: number) => string>();
   resizeTrigger = input<number>(0);
+  maxChartHeight = input<number | string | undefined>();
 
   selectPoint = output<SelectPointEvent>();
   private injector = inject(EnvironmentInjector);
@@ -97,9 +98,19 @@ export class DynamicColumnChartV2Component {
     questions: PollCountQuestion[],
     onSelect?: (x: number, y: number) => void
   ): Partial<ChartOptions> {
+    let chartHeight = 0;
+    const value = this.maxChartHeight();
+    if (value) {
+      chartHeight = typeof value == 'string' ? parseInt(value) : value;
+    }
+
     return {
       title: ColumnChartUtils.createTitle(title),
-      chart: ColumnChartUtils.createChartBase((x, s) => onSelect?.(x, s)),
+      chart: ColumnChartUtils.createChartBase(
+        (x, s) => onSelect?.(x, s),
+        questions.length,
+        chartHeight
+      ),
       series: this._createSeries(questions),
       plotOptions: ColumnChartUtils.createPlotOptions(),
       xaxis: ColumnChartUtils.createXAxis(questions.map(q => q.question)),
