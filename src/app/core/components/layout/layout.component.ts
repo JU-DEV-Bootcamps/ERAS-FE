@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  model,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, model } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -61,10 +54,16 @@ export class LayoutComponent implements OnInit {
   private featureFlagsService = inject(FeatureFlagsService);
 
   collapsed = model<boolean>(false);
-  newSidebar = signal<boolean>(false);
-  reportsV2 = signal<boolean>(false);
-  home = signal<boolean>(false);
-  dynamicCharts = signal<boolean>(false);
+  newSidebar = computed(() =>
+    this.featureFlagsService.isEnabled(FEATURE_FLAGS.newSidebar)
+  );
+  reportsV2 = computed(() =>
+    this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
+  );
+  home = computed(() => this.featureFlagsService.isEnabled(FEATURE_FLAGS.home));
+  dynamicCharts = computed(() =>
+    this.featureFlagsService.isEnabled(FEATURE_FLAGS.dynamicCharts)
+  );
 
   sidenavWidth = computed(() => {
     if (this.newSidebar()) {
@@ -74,23 +73,8 @@ export class LayoutComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.readSidebarFlag();
-
     this.breakpointObserver
       .observe([Breakpoints.Small, '(max-width: 1200px)'])
       .subscribe((state: BreakpointState) => this.collapsed.set(state.matches));
-  }
-
-  private readSidebarFlag(): void {
-    this.newSidebar.set(
-      this.featureFlagsService.isEnabled(FEATURE_FLAGS.newSidebar)
-    );
-    this.reportsV2.set(
-      this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
-    );
-    this.home.set(this.featureFlagsService.isEnabled(FEATURE_FLAGS.home));
-    this.dynamicCharts.set(
-      this.featureFlagsService.isEnabled(FEATURE_FLAGS.dynamicCharts)
-    );
   }
 }

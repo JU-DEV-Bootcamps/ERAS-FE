@@ -5,7 +5,12 @@
   </button>
 </div>
 
-<mat-menu #beforeMenu="matMenu" xPosition="before" hasBackdrop="false">
+<mat-menu
+  #beforeMenu="matMenu"
+  xPosition="before"
+  hasBackdrop="true"
+  class="user-menu-panel"
+>
   <div class="user-info-container">
     <!-- TODO: Add component/img for profile picture -->
     <mat-icon class="profile-picture">account_circle</mat-icon>
@@ -28,6 +33,22 @@
       <mat-icon>settings</mat-icon>
       Platform Settings
     </button>
+    @if (isAdmin()) {
+      <button
+        class="menu-button version-toggle-item"
+        (click)="$event.stopPropagation()"
+      >
+        <span class="toggle-label-text">Turn on V2</span>
+        <label class="simple-toggle">
+          <input
+            type="checkbox"
+            [checked]="v2Enabled()"
+            (change)="onV2Toggle($event)"
+          />
+          <span class="slider"></span>
+        </label>
+      </button>
+    }
   </div>
   <hr />
   <div class="logout-container">
