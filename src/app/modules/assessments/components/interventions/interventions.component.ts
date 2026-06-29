@@ -22,7 +22,7 @@ import {
   AssessmentStatus,
   InterventionModel,
   InterventionType,
-} from '@core/models/assessement.model';
+} from '@core/models/assessment.model';
 import { InterventionListComponent } from './interventions-list/intervention-list.component';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { StudentProfileData } from '../assessment-list/assessment-student-data/assessment-student-data.component';

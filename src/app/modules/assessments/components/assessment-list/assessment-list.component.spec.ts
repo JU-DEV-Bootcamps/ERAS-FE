@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AssessmentListComponent } from './assessment-list.component';
-import { AssessmentStatus } from '../../../../core/models/assessement.model';
-import { AssessmentModel } from '../../../../core/models/assessement.model';
-import { AssessmentService } from '../../../../core/services/api/assessement.service';
+import { AssessmentStatus } from '@core/models/assessment.model';
+import { AssessmentModel } from '@core/models/assessment.model';
+import { AssessmentService } from '@core/services/api/assessement.service';
 
 describe('AssessmentListComponent', () => {
   let component: AssessmentListComponent;

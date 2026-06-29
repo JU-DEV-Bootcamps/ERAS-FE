@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { FilterStrategy } from './filter.strategy';
-import { InterventionModel } from '@core/models/assessement.model';
+import { InterventionModel } from '@core/models/assessment.model';
 import { AppliedFilter, FilterName } from '../models/list-filters.interface';
 
 @Injectable({ providedIn: 'root' })
-export class InterventionFilterStrategy
-  implements FilterStrategy<InterventionModel>
-{
+export class InterventionFilterStrategy implements FilterStrategy<InterventionModel> {
   apply(
     data: InterventionModel[],
     filters: AppliedFilter[]

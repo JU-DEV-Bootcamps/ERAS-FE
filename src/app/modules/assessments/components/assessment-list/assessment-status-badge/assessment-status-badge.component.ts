@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { AssessmentStatus } from '../../../../../core/models/assessement.model';
+import { AssessmentStatus } from '@core/models/assessment.model';
 
 @Component({
   selector: 'app-assessment-status-badge',

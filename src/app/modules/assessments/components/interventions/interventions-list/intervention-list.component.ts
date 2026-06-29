@@ -20,7 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { InterventionPillBadgeComponent } from './intervention-status-badge/intervention-pill-badge.component';
 import { InterventionDetailComponent } from '../interventions-detail/intervention-detail.component';
-import { InterventionModel } from '@core/models/assessement.model';
+import { InterventionModel } from '@core/models/assessment.model';
 import { InterventionService } from '@core/services/api/intervention.service';
 import {
   StudentProfileData,
