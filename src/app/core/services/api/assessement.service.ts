@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
-import { AssessmentModel } from '../../models/assessement.model';
+import { AssessmentModel } from '../../models/assessment.model';
 
 @Injectable({
   providedIn: 'root',

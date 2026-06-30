@@ -4,7 +4,7 @@ import {
   InterventionType,
   InterventionMode,
   InterventionStatus,
-} from '@core/models/assessement.model';
+} from '@core/models/assessment.model';
 
 type PillValue = InterventionType | InterventionMode | InterventionStatus;
 

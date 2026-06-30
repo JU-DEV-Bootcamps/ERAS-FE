@@ -22,7 +22,7 @@ import {
 import {
   AssessmentModel,
   AssessmentStatus,
-} from '@core/models/assessement.model';
+} from '@core/models/assessment.model';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';

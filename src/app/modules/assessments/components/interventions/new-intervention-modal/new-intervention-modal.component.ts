@@ -32,7 +32,7 @@ import { ToastNotificationData } from '@core/models/toast-notification.model';
 import {
   InterventionMode,
   InterventionType,
-} from '@core/models/assessement.model';
+} from '@core/models/assessment.model';
 import {
   AddInterventionPayload,
   InterventionService,
@@ -40,7 +40,7 @@ import {
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { InterventionModel } from '@core/models/assessement.model';
+import { InterventionModel } from '@core/models/assessment.model';
 import { map, of, concatMap, Observable, forkJoin } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 

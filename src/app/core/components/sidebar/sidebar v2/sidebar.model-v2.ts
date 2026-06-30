@@ -8,7 +8,7 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
     children: [
       {
         label: 'Student Monitoring',
-        route: '/student-option',
+        route: '/_unused/student-option',
         forProduction: false,
       },
       { label: 'Evaluation Processes', route: '/evaluation-process' },
