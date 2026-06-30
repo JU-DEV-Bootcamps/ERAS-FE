@@ -43,12 +43,13 @@ export interface InterventionModel {
 
   area?: string | null;
   numberOfParticipants?: number | null;
-  studentIds: string[];
+  studentIds: number[];
   attendance?: Record<number, boolean> | null;
 
   remarks?: string | null;
   attachments?: string[] | null;
   uploadInput?: File[] | null;
+  riskLevelName?: string;
 }
 
 export interface InterventionAttendanceModel {

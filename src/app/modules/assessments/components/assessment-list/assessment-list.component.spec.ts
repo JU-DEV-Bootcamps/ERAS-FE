@@ -22,6 +22,7 @@ describe('AssessmentListComponent', () => {
           id: 12,
           name: 'Jane Doe',
           email: 'jane@mail.com',
+          avgRiskLevel: 0,
         },
       ],
       comments: 'Some comment for preview testing',

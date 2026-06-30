@@ -59,6 +59,12 @@ const TYPE_OPTIONS = [
   { value: 'Group', label: 'Group' },
 ];
 
+const RISK_OPTIONS = [
+  { value: 'Low', label: 'Low', color: 'success' },
+  { value: 'Medium', label: 'Medium', color: 'warning' },
+  { value: 'High', label: 'High', color: 'danger' },
+];
+
 const ACTIVITY_OPTIONS = [
   { value: 'tutoring', label: 'Tutoring' },
   { value: 'counseling', label: 'Counseling' },
@@ -79,8 +85,9 @@ const MODE_OPTIONS = [
 ];
 
 export interface StudentLookup {
-  value: string;
+  value: number;
   label: string;
+  riskLevel?: number;
 }
 
 export interface NewInterventionDialogData {
@@ -118,6 +125,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   attendedStudentIdsModel: string[] = [];
 
   isGroup = signal<boolean>(false);
+  studentsSelected = signal<number[]>([]);
 
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
@@ -163,18 +171,22 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.buildFormFields();
   }
 
-  onToggleGroup(checked: boolean): void {
-    this.isGroup.set(checked);
-    this.attendedStudentIds.set([]);
-    this.buildAttendance();
-    this.buildFormFields();
-  }
-
   private buildFormFields(): void {
     const isGroupForm = this.data.students.length > 1;
     const typeValueDefault = isGroupForm
       ? InterventionType.Group
       : InterventionType.Individual;
+
+    const defaultStudentIds = this.isGroup()
+      ? this.isEditMode
+        ? this.data.intervention!.studentIds
+        : this.data.students.map(s => s.value)
+      : [
+          this.isEditMode
+            ? this.data.intervention!.studentIds[0]
+            : this.data.students[0]?.value,
+        ];
+    this.studentsSelected.set(defaultStudentIds);
 
     const topFields: DynamicField[] = [
       {
@@ -236,7 +248,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       validators: [Validators.required],
       multipleSelect: true,
       floatingLabel: 'always',
-      multiSelectConfig: {
+      selectConfig: {
         displayMode: 'chips',
       },
       value: this.isEditMode
@@ -258,6 +270,18 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     };
 
     const bottomFields: DynamicField[] = [
+      {
+        type: 'select',
+        name: 'riskLevelName',
+        label: 'Risk Level',
+        options: RISK_OPTIONS,
+        validators: [Validators.required],
+        floatingLabel: 'always',
+        selectConfig: {
+          displayMode: 'chips',
+        },
+        value: RISK_OPTIONS.at(1)?.label,
+      },
       {
         type: 'select',
         name: 'professionalId',
@@ -316,6 +340,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     if (this.isEditMode && Object.keys(this._prefillValues).length) {
       this.form.patchValue(this._prefillValues);
     }
+
     this.form
       .get('type')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
@@ -340,6 +365,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       mode: iv.mode,
       comments: iv.comments,
       uploadInput: (iv.attachments ?? []).map(p => this.getFileName(p)),
+      riskLevelName: iv.riskLevelName,
     };
 
     const attended = Object.entries(iv.attendance ?? {})
@@ -350,30 +376,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.attendedStudentIdsModel = attended;
 
     this.existingAttachments = iv.attachments ?? [];
-  }
-
-  private _fillFiles(): void {
-    const iv = this.data.intervention!;
-    const attachments = iv.attachments ?? [];
-    if (!attachments.length) return;
-
-    const requests = attachments.map(name =>
-      this.interventionService.downloadAttachment(
-        iv.id ?? 0,
-        this.getFileName(name)
-      )
-    );
-    forkJoin(requests).subscribe({
-      next: blobs => {
-        const files = blobs.map(
-          (blob, index) =>
-            new File([blob], this.getFileName(attachments[index]), {
-              type: blob.type,
-            })
-        );
-        this.form.get('uploadInput')?.setValue(files);
-      },
-    });
   }
 
   private buildAttendance(): void {
@@ -398,12 +400,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     }));
     this.attendance.set(current);
     this.form.markAsDirty();
-  }
-
-  toggleAttendance(index: number, checked: boolean): void {
-    const current = [...this.attendance()];
-    current[index] = { ...current[index], attended: checked };
-    this.attendance.set(current);
   }
 
   submitIntervention(): void {
@@ -507,6 +503,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         numberOfParticipants: studentIds.length,
         attendance: attendanceRecord,
         attachments: [],
+        riskLevelName: v.riskLevelName,
       },
     };
   }

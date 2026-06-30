@@ -12,9 +12,17 @@ export type FieldType =
   | 'textarea'
   | 'password'
   | 'searchableSelect'
-  | 'file';
+  | 'file'
+  | 'number';
 
-export type ValueType = string | number | boolean | Date | null | string[];
+export type ValueType =
+  | string
+  | number
+  | boolean
+  | Date
+  | null
+  | string[]
+  | number[];
 
 export type FormControlTuple = Record<
   string,
@@ -37,9 +45,11 @@ export interface DynamicField {
   disabled?: boolean;
   floatingLabel?: FloatLabelType;
   fileConfig?: FileFieldConfig;
-  multiSelectConfig?: {
+  selectConfig?: {
     displayMode?: ModeType;
   };
+  max?: number;
+  min?: number;
 }
 
 // Used to implements a dynamic form.

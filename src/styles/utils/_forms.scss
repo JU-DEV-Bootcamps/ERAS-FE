@@ -73,7 +73,9 @@ app-new-intervention-modal form {
 }
 
 app-new-intervention-modal form > :nth-child(1),
-app-new-intervention-modal form > :nth-child(2) {
+app-new-intervention-modal form > :nth-child(2),
+app-new-intervention-modal form > :nth-child(4),
+app-new-intervention-modal form > :nth-child(5) {
   width: calc(50% - 32px);
   flex: 1 1 calc(50% - 16px);
 }
@@ -82,6 +84,10 @@ app-new-intervention-modal mat-form-field {
   margin-bottom: 0px;
 }
 
-app-new-intervention-modal form > :not(:nth-child(1)):not(:nth-child(2)) {
+app-new-intervention-modal
+  form
+  > :not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(4)):not(
+    :nth-child(5)
+  ) {
   flex: 1 1 100%;
 }

@@ -158,6 +158,7 @@ export class InterventionsComponent implements OnInit {
                 id: 0,
                 name: '',
                 email: '',
+                avgRiskLevel: 0,
               };
             });
           });
@@ -236,6 +237,7 @@ export class InterventionsComponent implements OnInit {
     const students = assessment.studentIds.map((id, index) => ({
       value: id,
       label: assessment.students?.[index].name ?? id,
+      riskLevel: assessment.students?.[index].avgRiskLevel ?? 0,
     }));
 
     this.matDialog
@@ -269,6 +271,7 @@ export class InterventionsComponent implements OnInit {
     const students = assessment.studentIds.map((id, index) => ({
       value: id,
       label: assessment.students?.[index]?.name ?? String(id),
+      riskLevel: assessment.students?.[index].avgRiskLevel ?? 0,
     }));
 
     this.matDialog
