@@ -18,6 +18,7 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 import { RecentAlertsListComponent } from '@modules/lists/components/recent-alerts-list/recent-alerts-list.component';
 import { AssessmentsContainerComponent } from '@modules/assessments/components/assesment-container/assessments-container.component';
+import { ROUTE_METADATA } from '@core/utils/routing/route-metadata';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,10 @@ export const routes: Routes = [
       {
         path: 'reports',
         canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
+        data: {
+          breadcrumb: 'Reports',
+          headerTitle: 'Reports',
+        } satisfies AppRouteData,
         loadChildren: () =>
           import('./modules/reports/reports.routes').then(
             m => m.REPORTS_ROUTES
@@ -53,7 +58,7 @@ export const routes: Routes = [
       {
         path: 'cosmic-latte',
         component: CosmicLatteComponent,
-        data: { breadcrumb: 'Cosmic Latte' },
+        data: ROUTE_METADATA.COSMIC_LATTE,
       },
       {
         path: 'evaluation-process',
@@ -61,22 +66,23 @@ export const routes: Routes = [
           {
             path: '',
             component: EvaluationProcessListComponent,
-            data: { breadcrumb: 'Evaluation Process' },
+            data: ROUTE_METADATA.EVALUATION_PROCESS,
           },
           {
             path: 'import-preview',
             component: ImportPreviewComponent,
-            data: { breadcrumb: 'Import Answers' },
+            data: ROUTE_METADATA.IMPORT_PREVIEW,
           },
         ],
       },
       {
         path: 'list-students-by-poll',
         component: ListStudentsByPollComponent,
-        data: { breadcrumb: 'Students List By Poll' },
+        data: ROUTE_METADATA.LIST_STUDENTS,
       },
       {
         path: 'students',
+        data: ROUTE_METADATA.STUDENTS,
         loadComponent: () =>
           import('./modules/students/students-container.component').then(
             c => c.StudentsContainerComponent
@@ -90,16 +96,17 @@ export const routes: Routes = [
       {
         path: 'assessments',
         component: AssessmentsContainerComponent,
-        data: {
-          breadcrumb: 'Assessments',
-          headerTitle: 'Assessments',
-        } satisfies AppRouteData,
+        data: ROUTE_METADATA.ASSESSMENTS,
         loadChildren: () =>
           import('./modules/assessments/assessments.routes').then(
             m => m.ASSESSMENT_ROUTES
           ),
       },
-
+      {
+        path: 'recent-alerts',
+        component: RecentAlertsListComponent,
+        data: { headerTitle: 'Recent Alerts' } satisfies AppRouteData,
+      },
       {
         path: 'student-option',
         component: StudentMonitoringPollsComponent,
@@ -133,11 +140,6 @@ export const routes: Routes = [
           },
         ],
         data: { breadcrumb: 'Referrals' },
-      },
-      {
-        path: 'recent-alerts',
-        component: RecentAlertsListComponent,
-        data: { headerTitle: 'Recent Alerts' } satisfies AppRouteData,
       },
     ],
   },

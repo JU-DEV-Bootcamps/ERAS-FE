@@ -6,16 +6,13 @@ import { SummaryChartsV2Component } from './components/summary-charts-v2/summary
 import { evaluationProcessesResolver } from './resolvers/evaluation-processes.resolver';
 import { DynamicChartsComponent } from './components/dynamic-charts/dynamic-charts.component';
 import { SummaryChartsComponent } from './components/summary-charts/summary-charts.component';
-import { AppRouteData } from '@core/models/route-data.model';
+import { ROUTE_METADATA } from '@core/utils/routing/route-metadata';
 
 export const REPORTS_ROUTES: Routes = [
   {
     path: '',
     component: ReportsComponent,
-    data: {
-      breadcrumb: 'Reports',
-      headerTitle: 'Reports',
-    } satisfies AppRouteData,
+    data: ROUTE_METADATA.REPORTS,
     children: [
       {
         path: '',
@@ -25,6 +22,7 @@ export const REPORTS_ROUTES: Routes = [
       {
         path: 'dynamic-charts',
         component: DynamicChartsV2Component,
+        data: ROUTE_METADATA.REPORTS,
         resolve: {
           evaluations: evaluationProcessesResolver,
         },
@@ -32,10 +30,12 @@ export const REPORTS_ROUTES: Routes = [
       {
         path: 'summary-charts',
         component: SummaryChartsV2Component,
+        data: ROUTE_METADATA.REPORTS,
       },
       {
         path: 'polls-answered',
         component: PollsAnsweredComponent,
+        data: ROUTE_METADATA.REPORTS,
       },
     ],
   },
