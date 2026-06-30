@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
-import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
-import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
-import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
+import { RiskStudentsComponent } from '@modules/_unused/experimental/risk-students/risk-students.component';
+import { StudentMonitoringCohortsComponent } from '@modules/_unused/experimental/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
+import { StudentMonitoringDetailsComponent } from '@modules/_unused/experimental/student-monitoring/student-monitoring-details/student-monitoring-details.component';
+import { StudentMonitoringPollsComponent } from '@modules/_unused/experimental/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
 
 export const UNUSED_ROUTES: Routes = [
   {
