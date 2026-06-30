@@ -42,12 +42,6 @@ export const ROUTE_METADATA = {
   STUDENT_MONITORING_DETAILS: {
     breadcrumb: 'Student Monitoring Details',
   },
-  REFERRALS: {
-    breadcrumb: 'Referrals',
-  },
-  REFERRAL_DETAILS: {
-    breadcrumb: 'Referral Details',
-  },
   RECENT_ALERTS: {
     headerTitle: 'Recent Alerts',
   },
