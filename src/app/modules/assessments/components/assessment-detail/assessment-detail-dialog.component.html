@@ -22,6 +22,7 @@
         [totalItems]="data.students ? data.students.length : 0"
         [title]="'Answer Details'"
         [actionDatas]="actionDatas"
+        (actionCalled)="onActionCalled($event)"
       />
     </div>
   </div>

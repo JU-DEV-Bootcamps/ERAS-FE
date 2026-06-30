@@ -13,7 +13,7 @@ export interface StudentProfileData {
   id: number;
   name: string;
   email: string;
-  avgRiskLevel: number;
+  avgRiskLevel?: number;
 }
 
 @Component({
