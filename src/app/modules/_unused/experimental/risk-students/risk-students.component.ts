@@ -11,14 +11,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
 import { RiskStudentsTableComponent } from '@shared/components/risk-students-table/risk-students-table.component';
-import { Poll } from '../lists/components/list-students-by-poll/types/list-students-by-poll';
+import { Poll } from '../../../lists/components/list-students-by-poll/types/list-students-by-poll';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import {
   MockUpAnswers,
   Question,
   SurveyKind,
-} from '../reports/models/data.generator';
-import { adaptAnswers } from '../reports/utils/data.adapter';
+} from '../../../reports/models/data.generator';
+import { adaptAnswers } from '../../../reports/utils/data.adapter';
 import { PollService } from '@core/services/api/poll.service';
 import { HeatMapService } from '@core/services/api/heat-map.service';
 @Component({
