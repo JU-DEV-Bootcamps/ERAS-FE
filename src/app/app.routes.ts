@@ -6,7 +6,6 @@ import { referralsResolver } from '@modules/supports-referrals/resolvers/referra
 
 import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
 import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
-import { ImportPreviewComponent } from '@modules/imports/components/import-preview/import-preview.component';
 import { LayoutComponent } from '@core/components/layout/layout.component';
 import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
 import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
@@ -96,11 +95,6 @@ export const routes: Routes = [
             path: '',
             component: EvaluationProcessListComponent,
             data: { breadcrumb: 'Evaluation Process' },
-          },
-          {
-            path: 'import-preview',
-            component: ImportPreviewComponent,
-            data: { breadcrumb: 'Import Answers' },
           },
           {
             path: 'import-status/:importJobId',

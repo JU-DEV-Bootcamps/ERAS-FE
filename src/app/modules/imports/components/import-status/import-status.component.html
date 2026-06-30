@@ -7,15 +7,24 @@
 
     <div class="import-status__summary" *ngIf="status as s">
       <app-import-status-badge [status]="s.status"></app-import-status-badge>
-      <span class="counts">
-        {{ s.processedCount }} / {{ s.totalCount }} processed
-        <ng-container *ngIf="failedCount > 0">
-          · {{ failedCount }} failed
-        </ng-container>
-      </span>
+      <span class="counts">{{ progressLabel }}</span>
     </div>
 
+    <!-- Confirm selection (extraction done) -->
     <button
+      *ngIf="isReady"
+      mat-flat-button
+      color="primary"
+      (click)="confirmImport()"
+      [disabled]="confirmableCount === 0"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      Import selected ({{ confirmableCount }})
+    </button>
+
+    <!-- Retry failed (import phase) -->
+    <button
+      *ngIf="!isExtractionPhase"
       mat-flat-button
       color="primary"
       (click)="retrySelected()"
@@ -25,6 +34,12 @@
       Retry selected ({{ selectedFailedCount }})
     </button>
   </header>
+
+  <mat-progress-bar
+    *ngIf="showProgress"
+    [mode]="progressMode"
+    [value]="progressValue"
+  ></mat-progress-bar>
 
   <app-table-with-actions
     [items]="rows"

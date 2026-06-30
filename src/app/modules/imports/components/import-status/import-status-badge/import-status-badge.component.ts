@@ -27,6 +27,11 @@ export class ImportStatusBadgeComponent {
     Completed: 'Completed',
     Failed: 'Failed',
     PartiallyCompleted: 'Partially completed',
+    Extracting: 'Extracting',
+    Extracted: 'Extracted',
+    Ready: 'Ready',
+    Importing: 'Importing',
+    Skipped: 'Skipped',
   };
 
   private readonly statusClassMap: Record<ImportJobStatus, string> = {
@@ -35,5 +40,10 @@ export class ImportStatusBadgeComponent {
     Completed: 'status-completed',
     Failed: 'status-failed',
     PartiallyCompleted: 'status-partial',
+    Extracting: 'status-running',
+    Extracted: 'status-queued',
+    Ready: 'status-completed',
+    Importing: 'status-running',
+    Skipped: 'status-skipped',
   };
 }

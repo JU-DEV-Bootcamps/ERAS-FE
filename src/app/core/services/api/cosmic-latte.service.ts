@@ -10,6 +10,7 @@ import {
   ImportJobItem,
   ImportJobStatusModel,
   QueuedImportResponse,
+  StartExtractionRequest,
 } from '../../models/import-job.model';
 import { sortArray } from '../../utils/helpers/sort';
 
@@ -60,13 +61,21 @@ export class CosmicLatteService extends BaseApiService {
   }
 
   /**
-   * Queues the import for background processing. Returns 202 with the created import job id;
-   * progress is then polled via {@link getImportStatus} / {@link getImportItems}.
+   * Starts the background extraction of respondents from Cosmic Latte. Returns 202 with the import
+   * job id; the client polls the unified import view and confirms the selection afterwards.
    */
-  savePollsCosmicLattePreview(data: PollInstance[], evaluationId: number) {
-    return this.post<PollInstance[], QueuedImportResponse>(
-      `polls/${evaluationId}`,
-      data
+  startExtraction(request: StartExtractionRequest) {
+    return this.post<StartExtractionRequest, QueuedImportResponse>(
+      'imports/extract',
+      request
+    );
+  }
+
+  /** Confirms which extracted respondents to persist (no answer payload is re-sent). */
+  confirmImport(importJobId: number, itemIds: number[]) {
+    return this.post<{ itemIds: number[] }, QueuedImportResponse>(
+      `imports/${importJobId}/confirm`,
+      { itemIds }
     );
   }
 

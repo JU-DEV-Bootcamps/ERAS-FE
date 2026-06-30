@@ -29,7 +29,8 @@ import { EvaluationProcessFormComponent } from './evaluation-process-form/evalua
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouteDataService } from '@core/services/route-data.service';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { ModalImportAnswersFormComponent } from '@modules/lists/components/modal-import-answers-form/modal-import-answers-form.component';
 import { PreselectedPoll } from '@modules/imports/models/preselected-poll';
 import { Pagination } from '@core/services/interfaces/server.type';
@@ -53,7 +54,8 @@ export class EvaluationProcessListComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
-  private routeDataService = inject(RouteDataService);
+  private cosmicLatteService = inject(CosmicLatteService);
+  private toast = inject(ToastNotificationService);
 
   evaluationProcessService = inject(EvaluationsService);
   columns: Column<EvaluationModel>[] = [
@@ -228,19 +230,29 @@ export class EvaluationProcessListComponent implements OnInit {
       })
       .afterClosed()
       .subscribe((result: PreselectedPoll) => {
-        if (result) {
-          this.routeDataService.updateRouteData({
-            evaluationId: data.id,
-            configuration: result.configuration,
-            pollName: result.pollName,
+        if (!result) return;
+        // Kick off the background extraction and go straight to the unified import view, which
+        // shows extraction progress and then the confirm/import step (no synchronous preview).
+        this.cosmicLatteService
+          .startExtraction({
+            evaluationSetName: result.pollName,
+            configurationId: result.configuration.id,
             startDate: result.startDate,
             endDate: result.endDate,
+            evaluationId: data.id,
+          })
+          .subscribe({
+            next: res =>
+              this.router.navigate(['import-status', res.importJobId], {
+                relativeTo: this.route,
+              }),
+            error: () =>
+              this.toast.showToast({
+                type: 'error',
+                title: 'Import',
+                message: 'Could not start the import extraction.',
+              }),
           });
-
-          this.router.navigate(['import-preview'], {
-            relativeTo: this.route,
-          });
-        }
       });
   }
 
