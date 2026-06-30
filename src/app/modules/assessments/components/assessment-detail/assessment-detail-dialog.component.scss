@@ -117,10 +117,6 @@ mat-divider {
   height: 36px;
   transition: background-color 150ms ease;
   padding: 8px 24px;
-
-  &:hover {
-    background-color: darken($primary, 6%);
-  }
 }
 
 .list-of-student {
