@@ -107,11 +107,19 @@ export class ImportPreviewComponent implements OnInit {
     } else if (event.state == 'true') {
       this.loadingSubject.next(false);
       this.importedPollData = [];
-      this.dialogService
-        .openDialog('Polls saved successfully!', 'success')
-        .subscribe(() => {
-          this.router.navigate(['evaluation-process']);
-        });
+      // The import is now processed asynchronously; navigate to the tracking grid instead of
+      // blocking on a success dialog.
+      const importJobId = (event as { data?: { importJobId?: number } }).data
+        ?.importJobId;
+      if (importJobId) {
+        this.router.navigate([
+          'evaluation-process',
+          'import-status',
+          importJobId,
+        ]);
+      } else {
+        this.router.navigate(['evaluation-process']);
+      }
     } else {
       this.loadingSubject.next(false);
       const errorMessage = (

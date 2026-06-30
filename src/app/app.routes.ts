@@ -102,6 +102,14 @@ export const routes: Routes = [
             component: ImportPreviewComponent,
             data: { breadcrumb: 'Import Answers' },
           },
+          {
+            path: 'import-status/:importJobId',
+            loadComponent: () =>
+              import(
+                '@modules/imports/components/import-status/import-status.component'
+              ).then(m => m.ImportStatusComponent),
+            data: { breadcrumb: 'Import Progress' },
+          },
         ],
       },
       {

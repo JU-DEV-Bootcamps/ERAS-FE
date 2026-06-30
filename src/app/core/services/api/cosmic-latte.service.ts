@@ -6,6 +6,11 @@ import { BaseApiService } from './base-api.service';
 import { HealthCheckResponse } from '../../models/cosmic-latte-request.model';
 import { PollName } from '../../models/poll-request.model';
 import { PollInstance } from '../../models/poll-instance.model';
+import {
+  ImportJobItem,
+  ImportJobStatusModel,
+  QueuedImportResponse,
+} from '../../models/import-job.model';
 import { sortArray } from '../../utils/helpers/sort';
 
 @Injectable({
@@ -54,7 +59,29 @@ export class CosmicLatteService extends BaseApiService {
     );
   }
 
+  /**
+   * Queues the import for background processing. Returns 202 with the created import job id;
+   * progress is then polled via {@link getImportStatus} / {@link getImportItems}.
+   */
   savePollsCosmicLattePreview(data: PollInstance[], evaluationId: number) {
-    return this.post<PollInstance[]>(`polls/${evaluationId}`, data);
+    return this.post<PollInstance[], QueuedImportResponse>(
+      `polls/${evaluationId}`,
+      data
+    );
+  }
+
+  getImportStatus(importJobId: number) {
+    return this.get<ImportJobStatusModel>(`imports/${importJobId}`);
+  }
+
+  getImportItems(importJobId: number) {
+    return this.get<ImportJobItem[]>(`imports/${importJobId}/items`);
+  }
+
+  retryImportItems(importJobId: number, itemIds: number[]) {
+    return this.post<{ itemIds: number[] }, QueuedImportResponse>(
+      `imports/${importJobId}/retry`,
+      { itemIds }
+    );
   }
 }

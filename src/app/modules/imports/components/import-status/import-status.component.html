@@ -1,0 +1,43 @@
+<section class="import-status">
+  <header class="import-status__header">
+    <button mat-stroked-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </button>
+
+    <div class="import-status__summary" *ngIf="status as s">
+      <app-import-status-badge [status]="s.status"></app-import-status-badge>
+      <span class="counts">
+        {{ s.processedCount }} / {{ s.totalCount }} processed
+        <ng-container *ngIf="failedCount > 0">
+          · {{ failedCount }} failed
+        </ng-container>
+      </span>
+    </div>
+
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="retrySelected()"
+      [disabled]="selectedFailedCount === 0"
+    >
+      <mat-icon>refresh</mat-icon>
+      Retry selected ({{ selectedFailedCount }})
+    </button>
+  </header>
+
+  <app-table-with-actions
+    [items]="rows"
+    [columns]="columns"
+    [columnTemplates]="statusColumns"
+    [templateMap]="templateMap"
+    [actionDatas]="actions"
+    [itemsAreSelectable]="true"
+    [isItemDisabled]="isItemDisabled"
+    (actionCalled)="onAction($event)"
+  ></app-table-with-actions>
+</section>
+
+<ng-template #statusTpl let-row>
+  <app-import-status-badge [status]="row.status"></app-import-status-badge>
+</ng-template>
