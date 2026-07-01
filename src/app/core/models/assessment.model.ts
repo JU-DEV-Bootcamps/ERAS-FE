@@ -9,7 +9,6 @@ export interface AssessmentModel {
 
   assignedProfessional?: string | null;
   studentIds: string[];
-  studentNames?: string[];
   students?: StudentProfileData[];
 
   diagnosis?: string | null;

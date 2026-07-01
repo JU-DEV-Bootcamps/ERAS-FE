@@ -26,7 +26,7 @@ import {
   AssessmentModel,
   AssessmentStatus,
 } from '@core/models/assessment.model';
-import { AssessmentService } from '../../../../core/services/api/assessement.service';
+import { AssessmentService } from '@core/services/api/assessement.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
@@ -123,6 +123,10 @@ export class AssessmentListComponent implements OnInit {
   protected closeDetailPanel(): void {
     this.selectedAssessment.set(null);
   }
+  protected closePanelRefreshing(): void {
+    this.selectedAssessment.set(null);
+    this.loadAssessments();
+  }
 
   protected onEditClick(item: AssessmentModel): void {
     this.editClicked.emit(item);
@@ -206,11 +210,9 @@ export class AssessmentListComponent implements OnInit {
   }
 
   private mapToRow(item: AssessmentModel): AssessmentRowViewModel {
-    const display = item.studentNames?.length
-      ? item.studentNames.join(', ')
-      : item.studentIds?.length
-        ? item.studentIds.join(', ')
-        : 'No student assigned';
+    const display = item.studentIds?.length
+      ? item.studentIds.join(', ')
+      : 'No student assigned';
 
     return {
       ...item,

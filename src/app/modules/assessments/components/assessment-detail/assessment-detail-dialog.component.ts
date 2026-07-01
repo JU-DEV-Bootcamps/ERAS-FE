@@ -16,6 +16,12 @@ import { ComponentType } from '@angular/cdk/overlay';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EventUpdate } from '@core/models/load';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { AssessmentService } from '@core/services/api/assessement.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { AssessmentModel } from '@core/models/assessment.model';
+import { ToastNotificationData } from '@core/models/toast-notification.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-assessment-detail-dialog',
@@ -36,9 +42,13 @@ export class AssessmentDetailDialogComponent {
 
   @Output() close = new EventEmitter<void>();
   @Output() createIntervention = new EventEmitter<AssessmentRowViewModel>();
+  @Output() closeRefresh = new EventEmitter<void>();
 
   private readonly dialog = inject(MatDialog);
   private readonly featureFlags = inject(FeatureFlagsService);
+  private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
+  private readonly assessmentService = inject(AssessmentService);
+  private readonly toastService = inject(ToastNotificationService);
 
   columns: Column<StudentProfileData>[] = [
     { key: 'name', label: 'Name', showLabel: false },
@@ -64,6 +74,10 @@ export class AssessmentDetailDialogComponent {
     this.close.emit();
   }
 
+  onCloseRefresh(): void {
+    this.closeRefresh.emit();
+  }
+
   onCreateIntervention(): void {
     this.createIntervention.emit(this.data);
   }
@@ -71,9 +85,9 @@ export class AssessmentDetailDialogComponent {
   onActionCalled(event: EventUpdate) {
     const item = event.item as StudentProfileData;
     if (event.data.id === 'openStudentDetails') {
-      this.openStudentDetails(item.id ?? 0);
+      this.openStudentDetails(item.id);
     } else if (event.data.id === 'removeStudent') {
-      console.log('reomve student');
+      this.onDeleteStudent(item.id);
     }
   }
 
@@ -89,5 +103,72 @@ export class AssessmentDetailDialogComponent {
       panelClass: 'border-modalbox-dialog',
       data: { studentId },
     });
+  }
+
+  protected onDeleteStudent(studentId: number): void {
+    if (this.data.students?.length === 1) return;
+    const studentsWithoutRemoved = this.data.students?.filter(
+      st => st.id !== studentId
+    );
+    const studentsIdWithoutRemoved = this.data.studentIds.filter(
+      st => parseInt(st) !== studentId
+    );
+
+    const dataToUpdate = {
+      ...this.data,
+      studentIds: studentsIdWithoutRemoved,
+      students: studentsWithoutRemoved,
+    };
+    if (this.data.id === undefined) {
+      return;
+    }
+    this.modalDeleteService
+      .confirmDelete({
+        title: `Delete student from assessment`,
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+        const id = this.data.id as number;
+        this.assessmentService
+          .editAssessment(id.toString(), dataToUpdate)
+          .subscribe({
+            next: () => {
+              const toastData = this.buildSuccessToastDataObject(this.data);
+              this.toastService.showToast(toastData);
+              this.assessmentService.clearCache();
+              this.onCloseRefresh();
+            },
+            error: error => {
+              const toastData = this.buildErrorToastDataObject(
+                this.data,
+                error
+              );
+              this.toastService.showToast(toastData, true);
+              console.error('Failed to remove one assessment', error);
+            },
+          });
+      });
+  }
+
+  private buildSuccessToastDataObject(
+    item: AssessmentModel
+  ): ToastNotificationData {
+    return {
+      title: 'Student removed successfully',
+      message: `Assessment with id: ${item.id} has removed a student`,
+      type: 'success',
+    };
+  }
+
+  private buildErrorToastDataObject(
+    item: AssessmentModel,
+    errorCode: HttpErrorResponse
+  ): ToastNotificationData {
+    return {
+      title: 'Student removed failed',
+      message: `Assessment with id: ${item.id} has not removed anything, ${errorCode}`,
+      type: 'error',
+    };
   }
 }

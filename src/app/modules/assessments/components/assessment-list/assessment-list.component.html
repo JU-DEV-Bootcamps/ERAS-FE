@@ -169,6 +169,7 @@
           [data]="selectedAssessment()!"
           (close)="closeDetailPanel()"
           (createIntervention)="onCreateIntervention($event)"
+          (closeRefresh)="closePanelRefreshing()"
         >
         </app-assessment-detail-dialog>
       }
