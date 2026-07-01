@@ -27,7 +27,7 @@
 
   @if (errorMatcher.hasErrors()) {
     <p class="file-error-message">
-      {{ formUtils.getFieldError(form(), field()) }}
+      {{ errorMessage() }}
     </p>
   }
   <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
