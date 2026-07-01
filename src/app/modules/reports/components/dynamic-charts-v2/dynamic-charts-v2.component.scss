@@ -44,6 +44,15 @@
   }
 }
 
+.chart-container {
+  display: flex;
+  align-items: center;
+
+  app-dynamic-column-chart-v2 {
+    width: 100%;
+  }
+}
+
 .details-aside {
   width: 380px;
   align-self: stretch;
