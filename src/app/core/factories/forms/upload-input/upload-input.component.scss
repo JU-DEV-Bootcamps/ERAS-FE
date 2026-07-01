@@ -46,6 +46,12 @@ $color-accent-hover: #4a8a7c;
       border-color: #ba1a1a !important;
     }
 
+    .mdc-text-field--outlined {
+      &:hover .mat-mdc-notch-piece {
+        border-bottom-color: #ba1a1a !important;
+      }
+    }
+
     .mdc-notched-outline__notch {
       border-bottom-color: #ba1a1a;
     }

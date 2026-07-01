@@ -41,7 +41,7 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
 
   selectedFiles = signal<File[]>([]);
   fileErrors = signal<string[]>([]);
-  selectedErrors = signal<ValidationErrors[]>([]);
+  errorMessage = signal<string | null>(null);
 
   readonly errorMatcher = new FileErrorStateMatcher();
 
@@ -71,7 +71,6 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
     let accumulatedErrors: ValidationErrors = {};
 
     this.fileErrors.set([]);
-    this.selectedErrors.set([]);
 
     for (const file of input.files) {
       const errors = this.validate(file);
@@ -94,10 +93,14 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
     input.value = '';
 
     if (Object.keys(accumulatedErrors).length > 0) {
-      control?.setErrors(accumulatedErrors);
+      const formattedError = this.formUtils.getTextError(
+        accumulatedErrors,
+        this.field().label
+      );
+      this.errorMessage.set(formattedError);
       this.errorMatcher.setHasErrors(true);
     } else {
-      control?.setErrors(null);
+      this.errorMessage.set(null);
       this.errorMatcher.setHasErrors(false);
     }
   }
