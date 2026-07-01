@@ -159,7 +159,7 @@ $spring-collapse: 100ms cubic-bezier(0.4, 0, 1, 1);
   ::ng-deep .apexcharts-canvas,
   ::ng-deep apx-chart {
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
   }
 
   ::ng-deep .apexcharts-tooltip {
