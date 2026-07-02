@@ -47,10 +47,24 @@ export const routes: Routes = [
       },
       {
         path: 'evaluation-process',
-        loadChildren: () =>
-          import('./modules/lists/components/evaluacion-process/evaluation-process.routes').then(
-            m => m.EVALUATION_PROCESSES
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./modules/lists/components/evaluacion-process/evaluation-process-list.component').then(
+                m => m.EvaluationProcessListComponent
+              ),
+            data: ROUTE_METADATA.EVALUATION_PROCESS,
+          },
+          {
+            path: 'import-preview',
+            loadComponent: () =>
+              import('./modules/imports/components/import-preview/import-preview.component').then(
+                m => m.ImportPreviewComponent
+              ),
+            data: ROUTE_METADATA.IMPORT_PREVIEW,
+          },
+        ],
       },
       {
         path: 'list-students-by-poll',
