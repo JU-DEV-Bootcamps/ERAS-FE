@@ -163,11 +163,11 @@ export class AssessmentDetailDialogComponent {
 
   private buildErrorToastDataObject(
     item: AssessmentModel,
-    errorCode: HttpErrorResponse
+    error: HttpErrorResponse
   ): ToastNotificationData {
     return {
       title: 'Student removed failed',
-      message: `Assessment with id: ${item.id} has not removed anything, ${errorCode}`,
+      message: `Assessment with id: ${item.id} has not removed anything, ${error.error.message}`,
       type: 'error',
     };
   }
