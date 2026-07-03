@@ -1,6 +1,6 @@
 <div class="container">
   <app-list-filters
-    [filterFields]="filters"
+    [filterFields]="filters()"
     (appliedFilters)="handleFilters($event)"
   ></app-list-filters>
 

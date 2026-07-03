@@ -6,6 +6,8 @@ import {
   signal,
   WritableSignal,
   ViewChild,
+  computed,
+  Signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -85,48 +87,25 @@ export class InterventionsComponent implements OnInit {
     [AssessmentStatus.Rejected]: 'Rejected',
   };
 
-  private readonly assessmentOptions = signal<SingleSelectItem[]>([]);
-  private readonly statusOptions = signal<MultipleSelectItem[]>([]);
-  private readonly typeOptions = signal<MultipleSelectItem[]>([]);
-
   readonly appliedFilters = signal<AppliedFilter[]>([]);
+  readonly filters: Signal<FilterField[]> = computed(() => {
+    const assessmentOptions = this._mapToOptionAssessments(
+      this.allAssessments()
+    );
+    const statusOptions = this._mapStatus();
+    const typeOptions = this._mapTypes();
 
-  filters: FilterField[] = [];
+    return this._buildFilters({
+      assessmentOptions,
+      statusOptions,
+      typeOptions,
+    });
+  });
 
   @ViewChild('interventionList') interventionList!: InterventionListComponent;
 
   ngOnInit(): void {
     this.loadAssessments();
-    this._buildFiltersOptions();
-    this.filters = [
-      {
-        name: FilterName.Assessment,
-        disabled: false,
-        label: 'Assessment',
-        type: FilterType.virtualSelect,
-        value: null,
-        options: this.assessmentOptions(),
-        validators: [Validators.required],
-      },
-      {
-        name: FilterName.Type,
-        disabled: false,
-        label: 'Type',
-        type: FilterType.virtualMultiSelect,
-        value: null,
-        options: this.typeOptions(),
-        validators: [Validators.required],
-      },
-      {
-        name: FilterName.Status,
-        disabled: false,
-        label: 'Status',
-        type: FilterType.virtualMultiSelect,
-        value: null,
-        options: this.statusOptions(),
-        validators: [Validators.required],
-      },
-    ];
   }
 
   handleFilters(filters: AppliedFilter[]) {
@@ -171,14 +150,44 @@ export class InterventionsComponent implements OnInit {
       });
   }
 
-  private _buildFiltersOptions() {
-    this.assessmentOptions.set(this._mapAssessments());
-    this.statusOptions.set(this._mapStatus());
-    this.typeOptions.set(this._mapTypes());
+  private _buildFilters(
+    filtersOptions: Record<string, SingleSelectItem[] | MultipleSelectItem[]>
+  ) {
+    return [
+      {
+        name: FilterName.Assessment,
+        disabled: false,
+        label: 'Assessment',
+        type: FilterType.virtualSelect,
+        value: null,
+        options: filtersOptions['assessmentOptions'],
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Type,
+        disabled: false,
+        label: 'Type',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: filtersOptions['typeOptions'],
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Status,
+        disabled: false,
+        label: 'Status',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: filtersOptions['statusOptions'],
+        validators: [Validators.required],
+      },
+    ];
   }
 
-  private _mapAssessments(): SingleSelectItem[] {
-    return this.allAssessments().map(assessment => {
+  private _mapToOptionAssessments(
+    assessments: AssessmentModel[]
+  ): SingleSelectItem[] {
+    return assessments.map(assessment => {
       const date = new Date(assessment.createdAtUtc);
       const dateStr = date.toLocaleDateString('en-US', {
         month: '2-digit',
