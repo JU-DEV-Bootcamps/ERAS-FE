@@ -105,7 +105,7 @@ export class AssessmentDetailDialogComponent {
     });
   }
 
-  protected onDeleteStudent(studentId: number): void {
+  onDeleteStudent(studentId: number): void {
     if (this.data.students?.length === 1) return;
     const studentsWithoutRemoved = this.data.students?.filter(
       st => st.id !== studentId
