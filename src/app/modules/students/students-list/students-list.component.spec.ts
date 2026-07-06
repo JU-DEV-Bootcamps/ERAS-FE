@@ -4,6 +4,7 @@ import { StudentsListComponent } from './students-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import Keycloak from 'keycloak-js';
 
 describe('StudentsListComponent', () => {
   const mockActivatedRoute = {
@@ -22,7 +23,10 @@ describe('StudentsListComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [StudentsListComponent, HttpClientModule],
-      providers: [{ provide: ActivatedRoute, useValue: mockActivatedRoute }],
+      providers: [
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: Keycloak, useValue: {} },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StudentsListComponent);

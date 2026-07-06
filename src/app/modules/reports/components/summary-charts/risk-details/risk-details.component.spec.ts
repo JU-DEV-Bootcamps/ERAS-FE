@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import RiskDetailsComponent from './risk-details.component';
 import { provideHttpClient } from '@angular/common/http';
+import Keycloak from 'keycloak-js';
 
 describe('RiskDetailsComponent', () => {
   let component: RiskDetailsComponent;
@@ -16,6 +17,7 @@ describe('RiskDetailsComponent', () => {
           useValue: { data: { riskGroup: { data: [] } } },
         },
         provideHttpClient(),
+        { provide: Keycloak, useValue: {} },
       ],
     }).compileComponents();
 

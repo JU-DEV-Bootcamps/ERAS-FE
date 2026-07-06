@@ -27,7 +27,10 @@ export const appConfig: ApplicationConfig = {
       const featureFlags = inject(FeatureFlagsService);
 
       await authService.init();
-      await firstValueFrom(featureFlags.loadFlags());
+
+      if (authService.isAuthenticated()) {
+        await firstValueFrom(featureFlags.loadFlags());
+      }
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
