@@ -14,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 import { provideHttpClient } from '@angular/common/http';
+import Keycloak from 'keycloak-js';
 
 describe('ModalQuestionDetailsComponent', () => {
   let component: ModalQuestionDetailsComponent;
@@ -75,6 +76,7 @@ describe('ModalQuestionDetailsComponent', () => {
       ],
       providers: [
         provideHttpClient(),
+        { provide: Keycloak, useValue: {} },
         {
           provide: MAT_DIALOG_DATA,
           useValue: mockDialogData,

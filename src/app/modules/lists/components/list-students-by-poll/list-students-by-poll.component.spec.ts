@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ListStudentsByPollComponent } from './list-students-by-poll.component';
 import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import Keycloak from 'keycloak-js';
 
 describe('ListStudentsByPollComponent', () => {
   const mockActivatedRoute = {
@@ -26,7 +27,10 @@ describe('ListStudentsByPollComponent', () => {
         HttpClientModule,
         BrowserAnimationsModule,
       ],
-      providers: [{ provide: ActivatedRoute, useValue: mockActivatedRoute }],
+      providers: [
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: Keycloak, useValue: {} },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ListStudentsByPollComponent);

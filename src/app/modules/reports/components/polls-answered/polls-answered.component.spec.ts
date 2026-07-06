@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
+import Keycloak from 'keycloak-js';
 import { PollInstanceService } from '@core/services/api/poll-instance.service';
 import { CohortService } from '@core/services/api/cohort.service';
 import { PollService } from '@core/services/api/poll.service';
@@ -18,7 +19,7 @@ describe('PollsAnsweredComponent', () => {
   ]);
   const mockPollService = jasmine.createSpyObj('PollService', [
     'getPollsByCohortId',
-    'getAllPolls', // Se agregó el método faltante
+    'getAllPolls',
   ]);
 
   beforeEach(async () => {
@@ -39,6 +40,7 @@ describe('PollsAnsweredComponent', () => {
         { provide: PollInstanceService, useValue: mockPollInstanceService },
         { provide: CohortService, useValue: mockCohortService },
         { provide: PollService, useValue: mockPollService },
+        { provide: Keycloak, useValue: {} },
         provideNoopAnimations(),
         provideHttpClient(),
       ],
