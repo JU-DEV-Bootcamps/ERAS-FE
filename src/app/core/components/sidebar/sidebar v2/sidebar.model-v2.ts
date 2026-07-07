@@ -5,15 +5,12 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
   {
     label: 'Students',
     icon: 'school',
-    children: [
-      {
-        label: 'Student Monitoring',
-        route: '/_unused/student-option',
-        forProduction: false,
-      },
-      { label: 'Evaluation Processes', route: '/evaluation-process' },
-      { label: 'Students List', route: '/students' },
-    ],
+    route: '/students',
+  },
+  {
+    label: 'Evaluation Processes',
+    icon: 'playlist_add_check',
+    route: '/evaluation-process',
   },
   {
     label: 'Reports',
