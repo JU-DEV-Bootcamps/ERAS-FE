@@ -202,7 +202,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
   ): ToastNotificationData {
     const defaultMessage =
       'There was an error submitting the form. Please try again later.';
-    const message = `${error.statusText}: ${error.error.title ?? defaultMessage}`;
+    const message = `${error.statusText}: ${error.error.message ?? defaultMessage}`;
     return {
       title: 'Form Submission Failed',
       message: message,
