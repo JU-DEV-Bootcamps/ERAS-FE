@@ -106,7 +106,11 @@ export class AssessmentDetailDialogComponent {
   }
 
   onDeleteStudent(studentId: number): void {
-    if (this.data.students?.length === 1) return;
+    if (this.data.students?.length === 1) {
+      const toastData = this.buildPreventiveToastDataObject();
+      this.toastService.showToast(toastData);
+      return;
+    }
     const studentsWithoutRemoved = this.data.students?.filter(
       st => st.id !== studentId
     );
@@ -168,6 +172,15 @@ export class AssessmentDetailDialogComponent {
     return {
       title: 'Student removed failed',
       message: `Assessment with id: ${item.id} has not removed anything, ${error.error.message}`,
+      type: 'error',
+    };
+  }
+
+  private buildPreventiveToastDataObject(): ToastNotificationData {
+    return {
+      title: 'Action not allowed',
+      message:
+        'The current student cannot be removed because this assessment must have at least one student.',
       type: 'error',
     };
   }
