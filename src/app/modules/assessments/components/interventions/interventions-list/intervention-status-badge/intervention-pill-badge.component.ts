@@ -31,11 +31,9 @@ export class InterventionPillBadgeComponent {
     [InterventionType.Group]: 'Group',
     [InterventionMode.InPlace]: 'In-Place',
     [InterventionMode.Remote]: 'Remote',
-    [InterventionStatus.Created]: 'Created',
-    [InterventionStatus.InProgress]: 'In Progress',
-    [InterventionStatus.OnHold]: 'On Hold',
     [InterventionStatus.Remitted]: 'Remitted',
-    [InterventionStatus.Resolved]: 'Resolved',
+    [InterventionStatus.InProgress]: 'In Progress',
+    [InterventionStatus.Finalized]: 'Finalized',
   };
 
   private readonly classMap: Record<string, string> = {
@@ -43,10 +41,8 @@ export class InterventionPillBadgeComponent {
     [InterventionType.Group]: 'type-group',
     [InterventionMode.InPlace]: 'mode-inplace',
     [InterventionMode.Remote]: 'mode-remote',
-    [InterventionStatus.Created]: 'status-created',
-    [InterventionStatus.InProgress]: 'status-in-progress',
-    [InterventionStatus.OnHold]: 'status-on-hold',
     [InterventionStatus.Remitted]: 'status-remitted',
-    [InterventionStatus.Resolved]: 'status-resolved',
+    [InterventionStatus.InProgress]: 'status-in-progress',
+    [InterventionStatus.Finalized]: 'status-finalized',
   };
 }

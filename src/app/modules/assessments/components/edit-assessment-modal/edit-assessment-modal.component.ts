@@ -153,7 +153,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         assignedProfessional: this.form.value.professional,
         studentIds: this.form.value.students,
         comments: this.form.value.professionalComment,
-        status: AssessmentStatus.Created,
+        status: AssessmentStatus.Remitted,
         interventions: [],
       };
 

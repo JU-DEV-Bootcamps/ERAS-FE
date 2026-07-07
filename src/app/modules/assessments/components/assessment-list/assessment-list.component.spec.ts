@@ -26,7 +26,7 @@ describe('AssessmentListComponent', () => {
         },
       ],
       comments: 'Some comment for preview testing',
-      status: AssessmentStatus.Created,
+      status: AssessmentStatus.Remitted,
       interventions: [],
     },
   ];
