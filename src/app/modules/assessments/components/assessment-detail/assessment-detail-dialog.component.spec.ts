@@ -65,7 +65,7 @@ describe('AssessmentDetailDialogComponent', () => {
       createdBy: '',
       service: '',
       studentIds: ['10', '11'],
-      status: AssessmentStatus.Created,
+      status: AssessmentStatus.Remitted,
       interventions: [],
       studentDisplay: '',
       commentPreview: '',
@@ -213,7 +213,7 @@ describe('AssessmentDetailDialogComponent', () => {
         createdBy: '',
         service: '',
         studentIds: ['1'],
-        status: AssessmentStatus.Created,
+        status: AssessmentStatus.Remitted,
         interventions: [],
         students: [],
       })
