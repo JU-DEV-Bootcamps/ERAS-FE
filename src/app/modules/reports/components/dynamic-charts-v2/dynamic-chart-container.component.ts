@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
@@ -22,5 +22,7 @@ import { DynamicChartsComponent } from '../dynamic-charts/dynamic-charts.compone
 export class DynamicChartContainerComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly featureFlags = inject(FeatureFlagsService);
-  showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.dynamicCharts);
+  showV2 = computed(() =>
+    this.featureFlags.isEnabled(FEATURE_FLAGS.dynamicCharts)
+  );
 }

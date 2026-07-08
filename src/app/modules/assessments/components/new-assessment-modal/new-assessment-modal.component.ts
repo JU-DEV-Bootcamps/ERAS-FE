@@ -49,6 +49,9 @@ export class NewAssessmentModalComponent implements FormCreation {
         validators: [Validators.required],
         multipleSelect: true,
         floatingLabel: 'always',
+        value: this.data.preselectedStudentId
+          ? [this.data.preselectedStudentId]
+          : [],
       },
       {
         type: 'date',

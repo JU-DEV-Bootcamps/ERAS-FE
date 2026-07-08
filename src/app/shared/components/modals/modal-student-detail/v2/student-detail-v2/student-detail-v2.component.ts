@@ -15,7 +15,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper/types';
 import { AnswerResponse } from '@core/models/answer-request.model';
@@ -34,6 +34,8 @@ import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { getRiskColor } from '@core/constants/riskLevel';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
+import { Router } from '@angular/router';
+import { MatDialogRef } from '@angular/material/dialog';
 
 register();
 
@@ -173,6 +175,8 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
     'individual',
     'academico',
   ];
+  private readonly router = inject(Router);
+  private readonly dialogRef = inject(MatDialogRef, { optional: true });
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -191,6 +195,13 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
     }
     if (this.selectedPoll === 0) return;
     this.getStudentAnswersByPoll(studentId, this.selectedPoll);
+  }
+
+  createAssessment(): void {
+    this.dialogRef?.close();
+    this.router.navigate(['/assessments'], {
+      state: { preselectedStudentId: this.studentId },
+    });
   }
 
   getStudentDetails(studentId: number) {
@@ -319,12 +330,84 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   async exportReportPdf() {
     if (this.isGeneratingPDF) return;
     this.isGeneratingPDF = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'student-detail',
-      container: this.mainContainer,
-      preProcess: 'student-detail',
-      snackBar: this.snackBar,
-    });
+
+    const originalAnswers = this.studentAnswers;
+    const originalPagination = { ...this.pagination };
+
+    try {
+      if (this.totalStudentAnswers > this.pagination.pageSize) {
+        this.studentAnswers = await this.fetchAllStudentAnswers();
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+
+      await this.pdfHelper.exportToPdf({
+        fileName: 'student-detail',
+        container: this.mainContainer,
+        preProcess: 'student-detail',
+        snackBar: this.snackBar,
+      });
+    } finally {
+      this.studentAnswers = originalAnswers;
+      this.pagination = originalPagination;
+      this.isGeneratingPDF = false;
+    }
+  }
+
+  async exportCsv(): Promise<void> {
+    const d = this.studentDetails.entity;
+    const summaryRows: [string, string | number][] = [
+      ['Student Name', d.name],
+      ['Email', d.email],
+      ['UUID', d.uuid],
+      ['Enrolled Courses', d.studentDetail.enrolledCourses],
+      ['Graded Courses', d.studentDetail.gradedCourses],
+      ['Timely Submissions (%)', d.studentDetail.timeDeliveryRate],
+      ['Average Score', d.studentDetail.avgScore],
+      ['Below Average Courses', d.studentDetail.coursesUnderAvg],
+      ['Raw Score Diff', d.studentDetail.pureScoreDiff],
+      ['Std Score Diff', d.studentDetail.standardScoreDiff],
+      ['Days Since Last Access', d.studentDetail.lastAccessDays],
+    ];
+
+    const allAnswers = await this.fetchAllStudentAnswers();
+
+    const summarySection = summaryRows
+      .map(([label, value]) => `"${label}","${value}"`)
+      .join('\n');
+
+    const answersHeader = '"Variable","Position","Component","Answer","Score"';
+    const answersRows = allAnswers
+      .map(
+        a =>
+          `"${a.variable}","${a.position}","${a.component}","${a.answer}","${a.score}"`
+      )
+      .join('\n');
+
+    const csvContent = `${summarySection}\n\n${answersHeader}\n${answersRows}`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `student-${d.uuid || this.studentId}-details.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private async fetchAllStudentAnswers(): Promise<AnswerResponse[]> {
+    if (!this.selectedPoll) return [];
+    const fullPagination: Pagination = {
+      page: 0,
+      pageSize: this.totalStudentAnswers || 1000,
+    };
+    const result = await firstValueFrom(
+      this.studentService.getStudentAnswersByPoll(
+        this.studentId,
+        this.selectedPoll,
+        fullPagination
+      )
+    );
+    return result.items;
   }
 
   capitalize(text: string) {
