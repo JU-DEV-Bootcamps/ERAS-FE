@@ -205,9 +205,6 @@ export class InterventionsComponent implements OnInit {
       this.statusLabelMap
     ) as AssessmentStatus[];
     const interventionStatus = statusKeys;
-    //   .filter(
-    //   statusKey => statusKey !== AssessmentStatus.Rejected
-    // );
     return interventionStatus.map(statusKey => {
       return {
         label: this.statusLabelMap[statusKey as AssessmentStatus],
