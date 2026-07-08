@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h2 mat-dialog-title>
-    {{ 'New Intervention' }}
+    {{ isEditMode ? 'Edit Intervention' : 'New Intervention' }}
   </h2>
   <mat-icon mat-dialog-close>close</mat-icon>
 </div>
@@ -57,7 +57,7 @@
       [disabled]="isSubmitDisabled"
       (click)="submitIntervention()"
     >
-      {{ 'Create' }}
+      {{ isEditMode ? 'Save' : 'Create' }}
     </button>
   </mat-dialog-actions>
 </div>

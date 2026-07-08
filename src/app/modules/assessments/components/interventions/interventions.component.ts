@@ -41,6 +41,7 @@ import {
   MultipleSelectItem,
   SingleSelectItem,
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
+import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
 
 @Component({
   selector: 'app-interventions',
@@ -279,7 +280,7 @@ export class InterventionsComponent implements OnInit {
     }));
 
     this.matDialog
-      .open(NewInterventionModalComponent, {
+      .open(EditInterventionModalComponent, {
         width: '520px',
         disableClose: true,
         data: {
