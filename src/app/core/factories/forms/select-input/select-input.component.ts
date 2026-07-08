@@ -20,6 +20,7 @@ import {
   ALERT_RISK_COLORS,
   ALERT_RISK_LABEL_COLORS,
 } from '@core/constants/alertRiskLevel';
+import { LookupExtended } from '@core/models/lookup';
 
 @Component({
   selector: 'app-select-input',
@@ -51,6 +52,7 @@ export class SelectInputComponent implements DynamicInputComponent {
     ),
     { initialValue: null }
   );
+
   selectedOption = computed(() => {
     const value = this.fieldValue();
     return this.field().options?.find(o => o.value === value);
@@ -61,10 +63,18 @@ export class SelectInputComponent implements DynamicInputComponent {
   }
 
   getRiskLevelColor(level: string): string {
-    return ALERT_RISK_COLORS[level] ?? ALERT_RISK_COLORS['default'];
+    const optionWithColor = this.selectedOption();
+    if ((optionWithColor as LookupExtended).colors !== undefined) {
+      return (optionWithColor as LookupExtended).colors.background;
+    }
+    return ALERT_RISK_COLORS[level];
   }
 
   getRiskLevelLabelColor(level: string): string {
+    const optionWithColor = this.selectedOption();
+    if ((optionWithColor as LookupExtended).colors !== undefined) {
+      return (optionWithColor as LookupExtended).colors.label;
+    }
     return ALERT_RISK_LABEL_COLORS[level] ?? ALERT_RISK_LABEL_COLORS['default'];
   }
 }
