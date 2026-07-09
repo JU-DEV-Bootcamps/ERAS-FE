@@ -21,20 +21,14 @@ export class AssessmentStatusBadgeComponent {
   }
 
   private readonly statusLabelMap: Record<AssessmentStatus, string> = {
-    [AssessmentStatus.Created]: 'Created',
-    [AssessmentStatus.InProgress]: 'In Progress',
-    [AssessmentStatus.OnHold]: 'On Hold',
     [AssessmentStatus.Remitted]: 'Remitted',
-    [AssessmentStatus.Resolved]: 'Resolved',
-    [AssessmentStatus.Rejected]: 'Rejected',
+    [AssessmentStatus.InProgress]: 'In Progress',
+    [AssessmentStatus.Finalized]: 'Finalized',
   };
 
   private readonly statusClassMap: Record<AssessmentStatus, string> = {
-    [AssessmentStatus.Created]: 'status-created',
-    [AssessmentStatus.InProgress]: 'status-in-progress',
-    [AssessmentStatus.OnHold]: 'status-on-hold',
     [AssessmentStatus.Remitted]: 'status-remitted',
-    [AssessmentStatus.Resolved]: 'status-resolved',
-    [AssessmentStatus.Rejected]: 'status-rejected',
+    [AssessmentStatus.InProgress]: 'status-in-progress',
+    [AssessmentStatus.Finalized]: 'status-finalized',
   };
 }

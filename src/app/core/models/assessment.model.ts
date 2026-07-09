@@ -72,18 +72,13 @@ export enum InterventionType {
 }
 
 export enum AssessmentStatus {
-  Created = 'Created',
-  InProgress = 'InProgress',
-  OnHold = 'OnHold',
   Remitted = 'Remitted',
-  Resolved = 'Resolved',
-  Rejected = 'Rejected',
+  InProgress = 'InProgress',
+  Finalized = 'Finalized',
 }
 
 export enum InterventionStatus {
-  Created = 'Created',
-  InProgress = 'InProgress',
-  OnHold = 'OnHold',
   Remitted = 'Remitted',
-  Resolved = 'Resolved',
+  InProgress = 'InProgress',
+  Finalized = 'Finalized',
 }

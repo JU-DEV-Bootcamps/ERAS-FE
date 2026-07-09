@@ -20,7 +20,7 @@ const assessments: AssessmentModel[] = [
     createdBy: 'admin',
     service: 'Support',
     studentIds: ['103', '215'],
-    status: AssessmentStatus.Created,
+    status: AssessmentStatus.Remitted,
     interventions: [],
   },
   {
@@ -38,7 +38,7 @@ const assessments: AssessmentModel[] = [
     createdBy: 'admin',
     service: 'Psychology',
     studentIds: ['2', '456'],
-    status: AssessmentStatus.Rejected,
+    status: AssessmentStatus.Finalized,
     interventions: [],
   },
 ];
@@ -98,13 +98,13 @@ describe('InterventionsComponent', () => {
     expect(assessmentFilter).toBeDefined();
     expect(assessmentFilter?.options?.length).toBe(assessments.length);
     expect(assessmentFilter?.options?.[0].label).toBe(
-      '07/03/2026 – Support (Created)'
+      '07/03/2026 – Support (Remitted)'
     );
     expect(assessmentFilter?.options?.[1].label).toBe(
       '07/03/2026 – Counseling (In Progress)'
     );
     expect(assessmentFilter?.options?.[2].label).toBe(
-      '07/03/2026 – Psychology (Rejected)'
+      '07/03/2026 – Psychology (Finalized)'
     );
   });
 

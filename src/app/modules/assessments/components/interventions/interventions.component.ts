@@ -79,12 +79,9 @@ export class InterventionsComponent implements OnInit {
   readonly selectedAssessmentId: WritableSignal<number | null> = signal(null);
 
   private readonly statusLabelMap: Record<AssessmentStatus, string> = {
-    [AssessmentStatus.Created]: 'Created',
-    [AssessmentStatus.InProgress]: 'In Progress',
-    [AssessmentStatus.OnHold]: 'On Hold',
     [AssessmentStatus.Remitted]: 'Remitted',
-    [AssessmentStatus.Resolved]: 'Resolved',
-    [AssessmentStatus.Rejected]: 'Rejected',
+    [AssessmentStatus.InProgress]: 'In Progress',
+    [AssessmentStatus.Finalized]: 'Finalized',
   };
 
   readonly appliedFilters = signal<AppliedFilter[]>([]);
@@ -207,9 +204,7 @@ export class InterventionsComponent implements OnInit {
     const statusKeys: AssessmentStatus[] = Object.keys(
       this.statusLabelMap
     ) as AssessmentStatus[];
-    const interventionStatus = statusKeys.filter(
-      statusKey => statusKey !== AssessmentStatus.Rejected
-    );
+    const interventionStatus = statusKeys;
     return interventionStatus.map(statusKey => {
       return {
         label: this.statusLabelMap[statusKey as AssessmentStatus],

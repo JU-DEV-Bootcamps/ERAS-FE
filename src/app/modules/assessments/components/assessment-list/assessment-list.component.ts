@@ -232,7 +232,10 @@ export class AssessmentListComponent implements OnInit {
   }
 
   private isItemEditable(itemStatus: AssessmentStatus) {
-    const editableStatus = [AssessmentStatus.Created, AssessmentStatus.OnHold];
+    const editableStatus = [
+      AssessmentStatus.Remitted,
+      AssessmentStatus.InProgress,
+    ];
 
     return !!editableStatus.find(status => itemStatus === status);
   }
@@ -252,7 +255,7 @@ export class AssessmentListComponent implements OnInit {
     error: HttpErrorResponse
   ): ToastNotificationData {
     const message =
-      item.status === 'Remitted'
+      item.status !== 'Remitted'
         ? `The item with id: ${item.id} cannot be removed due to its status.`
         : `${error.statusText}: The item was not found with id: ${item.id}`;
     return {
