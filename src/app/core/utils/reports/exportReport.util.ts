@@ -163,8 +163,8 @@ export class PdfHelper {
             '.apexcharts-canvas'
           ) as HTMLElement;
           if (riskChartCanvas) {
-            riskChartCanvas.style.transform = 'scale(0.8)';
-            riskChartCanvas.style.transformOrigin = 'center center';
+            riskChartCanvas.style.transform = 'scale(0.7)';
+            riskChartCanvas.style.transformOrigin = '35% center';
           }
         }
 
