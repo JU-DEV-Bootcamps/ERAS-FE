@@ -89,6 +89,7 @@
                     mat-icon-button
                     type="button"
                     matTooltip="Edit"
+                    [disabled]="item.status === 'Finalized'"
                     (click)="onEditClick(item)"
                   >
                     <mat-icon>edit</mat-icon>
@@ -131,6 +132,7 @@
                     <button
                       mat-menu-item
                       type="button"
+                      [disabled]="item.status === 'Finalized'"
                       (click)="onEditClick(item)"
                     >
                       <mat-icon>edit</mat-icon><span>Edit</span>

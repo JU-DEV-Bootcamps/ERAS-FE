@@ -1,4 +1,4 @@
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -108,7 +108,6 @@ export interface NewInterventionDialogData {
     MatFormFieldModule,
     MatSelectModule,
     NgClass,
-    NgFor,
     ReactiveFormsModule,
   ],
   templateUrl: './new-intervention-modal.component.html',
@@ -121,7 +120,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
-  attendedStudentIdsModel: string[] = [];
 
   isGroup = signal<boolean>(false);
   studentsSelected = signal<number[]>([]);
@@ -129,9 +127,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
-
-  attendance = signal<{ student: StudentLookup; attended: boolean }[]>([]);
-  attendedStudentIds = signal<string[]>([]);
 
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
@@ -154,7 +149,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   ngOnInit(): void {
     this.isGroup.set(this.data.students.length > 1);
-    this.buildAttendance();
+    // this.buildAttendance();
     this.buildFormFields();
   }
 
@@ -318,64 +313,16 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         const nowGroup = value === InterventionType.Group;
         if (nowGroup === this.isGroup()) return;
         this.isGroup.set(nowGroup);
-        this.attendedStudentIds.set([]);
-        this.attendedStudentIdsModel = [];
-        this.buildAttendance();
         this.buildFormFields();
       });
-  }
-
-  private buildAttendance(): void {
-    this.attendance.set(
-      this.data.students.map(student => ({ student, attended: false }))
-    );
-  }
-
-  onAttendanceChange(selectedValues: string[] | string | null): void {
-    const asArray = !selectedValues
-      ? []
-      : Array.isArray(selectedValues)
-        ? selectedValues
-        : [String(selectedValues)];
-
-    this.attendedStudentIds.set(asArray);
-    this.attendedStudentIdsModel = asArray;
-
-    const current = this.attendance().map(item => ({
-      ...item,
-      attended: asArray.includes(String(item.student.value)),
-    }));
-    this.attendance.set(current);
-    this.form.markAsDirty();
   }
 
   submitIntervention(): void {
     if (this.form.invalid) return;
 
-    const selectedStudents: string[] = this.isGroup()
-      ? (this.form.value.students as string[]).map(String)
-      : [String(this.form.value.students)];
-
-    const attendedIds: string[] = Array.isArray(this.attendedStudentIds())
-      ? this.attendedStudentIds()
-      : [this.attendedStudentIds() as unknown as string];
-
-    const invalidAttendees = attendedIds.filter(
-      id => !selectedStudents.includes(String(id))
-    );
-
-    if (invalidAttendees.length > 0) {
-      this.toastService.showToast(
-        {
-          title: 'Invalid attendance',
-          message:
-            'Attendance can only include students selected for this intervention.',
-          type: 'error',
-        },
-        true
-      );
-      return;
-    }
+    // const selectedStudents: string[] = this.isGroup()
+    //   ? (this.form.value.students as string[]).map(String)
+    //   : [String(this.form.value.students)];
 
     const payload = this.buildPayload();
 
@@ -421,11 +368,11 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       ? (v.students as string[]).map(Number)
       : [Number(v.students)];
 
-    const attendanceRecord: Record<number, boolean> = {};
-    this.data.students.forEach(student => {
-      attendanceRecord[Number(student.value)] =
-        this.attendedStudentIds().includes(String(student.value));
-    });
+    // const attendanceRecord: Record<number, boolean> = {};
+    // this.data.students.forEach(student => {
+    //   attendanceRecord[Number(student.value)] =
+    //     this.attendedStudentIds().includes(String(student.value));
+    // });
 
     const kindIntervention = this.formFields.find(
       field => field.name === 'type'
@@ -443,7 +390,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         studentIds,
         area: v.area,
         numberOfParticipants: studentIds.length,
-        attendance: attendanceRecord,
         attachments: [],
         riskLevelName: v.riskLevelName,
       },

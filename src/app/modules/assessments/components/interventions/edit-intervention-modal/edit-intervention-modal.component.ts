@@ -180,10 +180,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     return !this.form || this.form.invalid || this.form.pristine;
   }
 
-  get isEditMode(): boolean {
-    return !!this.data.intervention;
-  }
-
   constructor(
     public dialogRef: MatDialogRef<EditInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
