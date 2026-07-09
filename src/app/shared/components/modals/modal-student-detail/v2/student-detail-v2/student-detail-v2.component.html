@@ -22,6 +22,7 @@
         matTooltip="Export"
         class="action-icon"
         disableRipple
+        (click)="exportCsv()"
       >
         <mat-icon class="material-symbols-outlined">ios_share</mat-icon>
       </button>
@@ -35,7 +36,12 @@
       >
         <mat-icon class="material-symbols-outlined">print</mat-icon>
       </button>
-      <button mat-flat-button class="create-assessment-btn" disableRipple>
+      <button
+        mat-flat-button
+        class="create-assessment-btn"
+        disableRipple
+        (click)="createAssessment()"
+      >
         Create Assessment
       </button>
     </div>

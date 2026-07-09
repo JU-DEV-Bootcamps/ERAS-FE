@@ -97,6 +97,37 @@ export class PdfHelper {
           studentHeader.style.padding = '16px';
         }
 
+        const infoValues =
+          clonedElement.querySelectorAll<HTMLElement>('.info-value');
+        infoValues.forEach(val => {
+          val.style.whiteSpace = 'normal';
+          val.style.overflow = 'visible';
+          val.style.textOverflow = 'clip';
+          val.style.height = 'auto';
+          val.style.wordBreak = 'break-all';
+        });
+
+        const infoFields =
+          clonedElement.querySelectorAll<HTMLElement>('.info-field');
+        infoFields.forEach(field => {
+          field.style.minWidth = 'auto';
+          field.style.height = 'auto';
+        });
+
+        const infoFieldsRow =
+          clonedElement.querySelector<HTMLElement>('.info-fields-row');
+        if (infoFieldsRow) {
+          infoFieldsRow.style.height = 'auto';
+          infoFieldsRow.style.alignItems = 'flex-start';
+        }
+
+        const studentInfoGrid =
+          clonedElement.querySelector<HTMLElement>('.student-info-grid');
+        if (studentInfoGrid) {
+          studentInfoGrid.style.height = 'auto';
+          studentInfoGrid.style.minHeight = '96px';
+        }
+
         const cardPerformance = clonedElement.querySelector(
           '.card-performance'
         ) as HTMLElement;
@@ -107,17 +138,33 @@ export class PdfHelper {
         if (cardPerformance) {
           cardPerformance.style.width = '50%';
           cardPerformance.style.flex = '1';
+
+          const cardTitle =
+            cardPerformance.querySelector<HTMLElement>('.card-title');
+          if (cardTitle) cardTitle.style.fontSize = '13px';
+
+          const metricLabels =
+            cardPerformance.querySelectorAll<HTMLElement>('.metric-label');
+          metricLabels.forEach(el => (el.style.fontSize = '11px'));
+
+          const metricValues =
+            cardPerformance.querySelectorAll<HTMLElement>('.metric-value');
+          metricValues.forEach(el => (el.style.fontSize = '12px'));
         }
+
         if (cardRisk) {
           cardRisk.style.width = '50%';
           cardRisk.style.flex = '1';
+
+          const cardTitle = cardRisk.querySelector<HTMLElement>('.card-title');
+          if (cardTitle) cardTitle.style.fontSize = '13px';
 
           const riskChartCanvas = cardRisk.querySelector(
             '.apexcharts-canvas'
           ) as HTMLElement;
           if (riskChartCanvas) {
-            riskChartCanvas.style.transform = 'scale(0.8)';
-            riskChartCanvas.style.transformOrigin = 'center center';
+            riskChartCanvas.style.transform = 'scale(0.7)';
+            riskChartCanvas.style.transformOrigin = '35% center';
           }
         }
 
@@ -166,6 +213,8 @@ export class PdfHelper {
 
         const printLink = clonedElement.querySelector('#print-button');
         printLink?.remove();
+
+        clonedElement.querySelector('mat-paginator')?.remove();
       },
 
       list: el => {

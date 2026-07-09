@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { HeaderComponent } from '../header/header.component';
@@ -12,7 +12,7 @@ import { AppRouteData } from '@core/models/route-data.model';
   selector: 'app-header-container',
   imports: [HeaderComponent, HeaderV2Component],
   template: `
-    @if (showV2) {
+    @if (showV2()) {
       <app-header-v2 [sectionTitle]="headerTitle()"></app-header-v2>
     } @else {
       <app-header></app-header>
@@ -23,7 +23,7 @@ export class HeaderContainerComponent {
   private readonly featureFlags = inject(FeatureFlagsService);
   private readonly router = inject(Router);
   //Later, it will need to see V2 in queryparams, currently it is only for home screen v2
-  showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.home);
+  showV2 = computed(() => this.featureFlags.isEnabled(FEATURE_FLAGS.home));
 
   headerTitle = toSignal(
     this.router.events.pipe(

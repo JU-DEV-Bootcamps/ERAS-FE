@@ -15,10 +15,18 @@ export class PdfService extends BaseExportService {
     contentHeight: number,
     offsetX = 0,
     callback?: () => void,
-    title?: string
+    title?: string,
+    avoidBreakSelector = 'tr, .mat-mdc-row, .mat-row'
   ) {
+    const scale = 2;
+    const forbiddenZones = this.getForbiddenZones(
+      element,
+      avoidBreakSelector,
+      scale
+    );
+
     html2canvas(element, {
-      scale: 2,
+      scale,
       useCORS: true,
       logging: false,
       removeContainer: true,
@@ -84,9 +92,18 @@ export class PdfService extends BaseExportService {
           const usableMm = isFirstPage
             ? usableHeightPage1
             : usableHeightFullPage;
-          const slicePx = Math.min(
+
+          let slicePx = Math.min(
             Math.round(usableMm * pxPerMm),
             canvas.height - srcYpx
+          );
+
+          if (slicePx <= 0) break;
+
+          slicePx = this.adjustSliceForSafeBreak(
+            srcYpx,
+            slicePx,
+            forbiddenZones
           );
 
           if (slicePx <= 0) break;
@@ -125,5 +142,40 @@ export class PdfService extends BaseExportService {
       })
       .catch(err => console.error('Error generating PDF:', err))
       .finally(() => callback?.());
+  }
+
+  private getForbiddenZones(
+    element: HTMLElement,
+    selector: string,
+    scale: number
+  ): { top: number; bottom: number }[] {
+    const containerTop = element.getBoundingClientRect().top;
+
+    return Array.from(element.querySelectorAll<HTMLElement>(selector))
+      .map(row => {
+        const rect = row.getBoundingClientRect();
+        return {
+          top: (rect.top - containerTop) * scale,
+          bottom: (rect.bottom - containerTop) * scale,
+        };
+      })
+      .filter(zone => zone.bottom - zone.top < 500 * scale);
+  }
+
+  private adjustSliceForSafeBreak(
+    srcYpx: number,
+    slicePx: number,
+    forbiddenZones: { top: number; bottom: number }[]
+  ): number {
+    const cutPoint = srcYpx + slicePx;
+
+    const crossingZone = forbiddenZones.find(
+      zone => zone.top < cutPoint && zone.bottom > cutPoint && zone.top > srcYpx
+    );
+
+    if (crossingZone) {
+      return Math.max(1, Math.round(crossingZone.top - srcYpx));
+    }
+    return slicePx;
   }
 }

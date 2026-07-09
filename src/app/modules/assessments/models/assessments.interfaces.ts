@@ -6,6 +6,7 @@ export interface AssessmentsLookups {
   services: Lookup[];
   professionals: Lookup[];
   students: Lookup[];
+  preselectedStudentId?: number;
 }
 
 export interface AssessmentModalData extends AssessmentsLookups {

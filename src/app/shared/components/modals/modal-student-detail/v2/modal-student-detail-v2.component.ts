@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,5 +20,7 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 export class ModalStudentDetailV2Component {
   readonly data = inject(MAT_DIALOG_DATA);
   private featureFlags = inject(FeatureFlagsService);
-  showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+  showV2 = computed(() =>
+    this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails)
+  );
 }

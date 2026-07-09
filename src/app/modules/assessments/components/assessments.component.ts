@@ -63,7 +63,10 @@ export class AssessmentsComponent implements OnInit {
       .subscribe({
         next: lookups => this.lookups.set(lookups),
         error: err => console.error('Error retrieving lookups', err),
-        complete: () => this.lookupLoading.set(false),
+        complete: () => {
+          this.lookupLoading.set(false);
+          this.checkPreselectedStudent();
+        },
       });
   }
 
@@ -88,10 +91,20 @@ export class AssessmentsComponent implements OnInit {
     );
   }
 
-  openCreateModal() {
+  private checkPreselectedStudent(): void {
+    const preselectedStudentId = history.state?.preselectedStudentId as
+      | number
+      | undefined;
+    if (preselectedStudentId) {
+      this.openCreateModal(preselectedStudentId);
+      history.replaceState({}, '');
+    }
+  }
+
+  openCreateModal(preselectedStudentId?: number) {
     const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
       ...this.modalConfig,
-      data: { ...this.lookups() },
+      data: { ...this.lookups(), preselectedStudentId },
     });
 
     dialogRef
