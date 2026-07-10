@@ -29,10 +29,7 @@ import {
   DynamicField,
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
-import {
-  InterventionMode,
-  InterventionType,
-} from '@core/models/assessment.model';
+import { InterventionType } from '@core/models/assessment.model';
 import {
   AddInterventionPayload,
   InterventionService,
@@ -43,82 +40,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessment.model';
 import { of, concatMap, Observable, forkJoin } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'text/plain',
-];
-const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
-const MAX_FILES = 2;
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
-
-const TYPE_OPTIONS = [
-  { value: 'Individual', label: 'Individual' },
-  { value: 'Group', label: 'Group' },
-];
-
-const RISK_OPTIONS = [
-  { value: 'Low', label: 'Low', color: 'success' },
-  { value: 'Medium', label: 'Medium', color: 'warning' },
-  { value: 'High', label: 'High', color: 'danger' },
-];
-
-const STATUS_OPTIONS = [
-  {
-    value: 'Remitted',
-    label: 'Remitted',
-    allowed: ['Remitted'],
-    colors: {
-      label: '#333399',
-      background: '#cdcde1',
-    },
-  },
-  {
-    value: 'InProgress',
-    label: 'InProgress',
-    allowed: ['Remitted', 'InProgress'],
-    colors: {
-      label: '#854d0e',
-      background: '#fef9c3',
-    },
-  },
-  {
-    value: 'Finalized',
-    label: 'Finalized',
-    allowed: ['InProgress'],
-    colors: {
-      label: '#117473',
-      background: '#afeae9',
-    },
-  },
-];
-
-const ACTIVITY_OPTIONS = [
-  { value: 'tutoring', label: 'Tutoring' },
-  { value: 'counseling', label: 'Counseling' },
-  { value: 'workshop', label: 'Workshop' },
-  { value: 'mentoring', label: 'Mentoring' },
-];
-
-const AREA_OPTIONS = [
-  { value: 'academic', label: 'Academic' },
-  { value: 'social', label: 'Social' },
-  { value: 'emotional', label: 'Emotional' },
-  { value: 'vocational', label: 'Vocational' },
-];
-
-const MODE_OPTIONS = [
-  { value: InterventionMode.InPlace, label: 'In place' },
-  { value: InterventionMode.Remote, label: 'Remote' },
-];
-
-export interface StudentLookup {
-  value: number;
-  label: string;
-  riskLevel?: number;
-}
+import {
+  ACTIVITY_OPTIONS,
+  ALLOWED_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+  AREA_OPTIONS,
+  MAX_FILE_SIZE_BYTES,
+  MAX_FILES,
+  MODE_OPTIONS,
+  RISK_OPTIONS,
+  STATUS_OPTIONS,
+  StudentLookup,
+  TYPE_OPTIONS,
+} from '../interventions.constants';
 
 export interface NewInterventionDialogData {
   assessmentId: number;
@@ -168,14 +102,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   attendedStudentIds = signal<string[]>([]);
 
   readonly numberOfParticipants = computed(() => this.data.students.length);
-
-  readonly selectedStudentCount = computed(() => {
-    if (!this.isGroup()) return 1;
-    if (!this.form || !this.form.get('students'))
-      return this.data.students.length;
-    const selected = (this.form.get('students')?.value as string[]) ?? [];
-    return selected.length || this.data.students.length;
-  });
 
   get isSubmitDisabled(): boolean {
     return !this.form || this.form.invalid || this.form.pristine;
@@ -511,10 +437,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         endRiskLevelName: v.endRiskLevelName,
       },
     };
-  }
-
-  closeAndResetDialog(): void {
-    this.dialogRef.close();
   }
 
   private updateIntervention(): void {

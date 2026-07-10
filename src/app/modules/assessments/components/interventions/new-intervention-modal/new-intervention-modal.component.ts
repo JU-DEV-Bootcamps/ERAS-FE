@@ -29,10 +29,7 @@ import {
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
-import {
-  InterventionMode,
-  InterventionType,
-} from '@core/models/assessment.model';
+import { InterventionType } from '@core/models/assessment.model';
 import {
   AddInterventionPayload,
   InterventionService,
@@ -43,46 +40,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessment.model';
 import { map, of, concatMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'text/plain',
-];
-const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
-const MAX_FILES = 2;
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
-
-const TYPE_OPTIONS = [
-  { value: 'Individual', label: 'Individual' },
-  { value: 'Group', label: 'Group' },
-];
-
-const RISK_OPTIONS = [
-  { value: 'Low', label: 'Low', color: 'success' },
-  { value: 'Medium', label: 'Medium', color: 'warning' },
-  { value: 'High', label: 'High', color: 'danger' },
-];
-
-const ACTIVITY_OPTIONS = [
-  { value: 'tutoring', label: 'Tutoring' },
-  { value: 'counseling', label: 'Counseling' },
-  { value: 'workshop', label: 'Workshop' },
-  { value: 'mentoring', label: 'Mentoring' },
-];
-
-const AREA_OPTIONS = [
-  { value: 'academic', label: 'Academic' },
-  { value: 'social', label: 'Social' },
-  { value: 'emotional', label: 'Emotional' },
-  { value: 'vocational', label: 'Vocational' },
-];
-
-const MODE_OPTIONS = [
-  { value: InterventionMode.InPlace, label: 'In place' },
-  { value: InterventionMode.Remote, label: 'Remote' },
-];
+import {
+  ACTIVITY_OPTIONS,
+  ALLOWED_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+  AREA_OPTIONS,
+  MAX_FILE_SIZE_BYTES,
+  MAX_FILES,
+  MODE_OPTIONS,
+  RISK_OPTIONS,
+  TYPE_OPTIONS,
+} from '../interventions.constants';
 
 export interface StudentLookup {
   value: number;
@@ -149,7 +117,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   ngOnInit(): void {
     this.isGroup.set(this.data.students.length > 1);
-    // this.buildAttendance();
     this.buildFormFields();
   }
 
@@ -320,10 +287,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   submitIntervention(): void {
     if (this.form.invalid) return;
 
-    // const selectedStudents: string[] = this.isGroup()
-    //   ? (this.form.value.students as string[]).map(String)
-    //   : [String(this.form.value.students)];
-
     const payload = this.buildPayload();
 
     this.interventionService
@@ -367,12 +330,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     const studentIds: number[] = isGroup
       ? (v.students as string[]).map(Number)
       : [Number(v.students)];
-
-    // const attendanceRecord: Record<number, boolean> = {};
-    // this.data.students.forEach(student => {
-    //   attendanceRecord[Number(student.value)] =
-    //     this.attendedStudentIds().includes(String(student.value));
-    // });
 
     const kindIntervention = this.formFields.find(
       field => field.name === 'type'
