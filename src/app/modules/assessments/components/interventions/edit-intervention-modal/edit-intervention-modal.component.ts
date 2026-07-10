@@ -11,6 +11,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import {
+  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -373,6 +374,22 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         this.buildAttendance();
         this.buildFormFields();
       });
+
+    this.form
+      .get('status')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        const isFinalized = value === 'Finalized';
+        const control = this.form.get('riskLevelName');
+
+        if (isFinalized) {
+          control?.disable();
+          this.addEndRiskLevelField();
+        } else {
+          control?.enable();
+          this.removeEndRiskLevelField();
+        }
+      });
   }
 
   private prefillForm(): void {
@@ -491,6 +508,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         attachments: [],
         riskLevelName: v.riskLevelName,
         status: v.status,
+        endRiskLevelName: v.endRiskLevelName,
       },
     };
   }
@@ -582,5 +600,44 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       this.existingAttachments.map(path => this.getFileName(path))
     );
     return uploadInputValue.filter(file => !existingNames.has(file.name));
+  }
+
+  private addEndRiskLevelField(): void {
+    if (this.form.contains('endRiskLevelName')) return;
+
+    this.form.addControl(
+      'endRiskLevelName',
+      new FormControl(
+        {
+          value: this.data.intervention?.endRiskLevelName ?? '',
+          disabled: false,
+        },
+        [Validators.required]
+      )
+    );
+
+    if (!this.formFields.some(f => f.name === 'endRiskLevelName')) {
+      this.formFields = [
+        ...this.formFields,
+        {
+          type: 'select',
+          name: 'endRiskLevelName',
+          label: 'End Risk Level',
+          validators: [Validators.required],
+          options: RISK_OPTIONS,
+          floatingLabel: 'always',
+          selectConfig: { displayMode: 'chips' },
+        },
+      ];
+    }
+  }
+
+  private removeEndRiskLevelField(): void {
+    if (this.form.contains('endRiskLevelName')) {
+      this.form.removeControl('endRiskLevelName');
+    }
+    this.formFields = this.formFields.filter(
+      f => f.name !== 'endRiskLevelName'
+    );
   }
 }

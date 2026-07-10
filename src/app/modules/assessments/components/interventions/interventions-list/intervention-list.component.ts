@@ -137,7 +137,6 @@ export class InterventionListComponent {
   }
 
   protected onEditClick(item: InterventionModel): void {
-    console.log('hihihihi', item);
     this.editClicked.emit(item);
   }
 
