@@ -6,6 +6,12 @@ import { BaseApiService } from './base-api.service';
 import { HealthCheckResponse } from '../../models/cosmic-latte-request.model';
 import { PollName } from '../../models/poll-request.model';
 import { PollInstance } from '../../models/poll-instance.model';
+import {
+  ImportJobItem,
+  ImportJobStatusModel,
+  QueuedImportResponse,
+  StartExtractionRequest,
+} from '../../models/import-job.model';
 import { sortArray } from '../../utils/helpers/sort';
 
 @Injectable({
@@ -54,7 +60,37 @@ export class CosmicLatteService extends BaseApiService {
     );
   }
 
-  savePollsCosmicLattePreview(data: PollInstance[], evaluationId: number) {
-    return this.post<PollInstance[]>(`polls/${evaluationId}`, data);
+  /**
+   * Starts the background extraction of respondents from Cosmic Latte. Returns 202 with the import
+   * job id; the client polls the unified import view and confirms the selection afterwards.
+   */
+  startExtraction(request: StartExtractionRequest) {
+    return this.post<StartExtractionRequest, QueuedImportResponse>(
+      'imports/extract',
+      request
+    );
+  }
+
+  /** Confirms which extracted respondents to persist (no answer payload is re-sent). */
+  confirmImport(importJobId: number, itemIds: number[]) {
+    return this.post<{ itemIds: number[] }, QueuedImportResponse>(
+      `imports/${importJobId}/confirm`,
+      { itemIds }
+    );
+  }
+
+  getImportStatus(importJobId: number) {
+    return this.get<ImportJobStatusModel>(`imports/${importJobId}`);
+  }
+
+  getImportItems(importJobId: number) {
+    return this.get<ImportJobItem[]>(`imports/${importJobId}/items`);
+  }
+
+  retryImportItems(importJobId: number, itemIds: number[]) {
+    return this.post<{ itemIds: number[] }, QueuedImportResponse>(
+      `imports/${importJobId}/retry`,
+      { itemIds }
+    );
   }
 }
