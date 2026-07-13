@@ -95,6 +95,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
+  isSubmitting = false;
 
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
@@ -107,7 +108,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   });
 
   get isSubmitDisabled(): boolean {
-    return !this.form || this.form.invalid || this.form.pristine;
+    return (
+      !this.form || this.form.invalid || this.form.pristine || this.isSubmitting
+    );
   }
 
   constructor(
@@ -288,6 +291,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     if (this.form.invalid) return;
 
     const payload = this.buildPayload();
+    this.isSubmitting = true;
 
     this.interventionService
       .createIntervention(payload)
@@ -315,6 +319,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
             type: 'error',
           };
           this.toastService.showToast(toast, true);
+          this.isSubmitting = false;
         },
         complete: () => {
           this.dialogRef.close(true);

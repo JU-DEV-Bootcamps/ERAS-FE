@@ -16,7 +16,9 @@
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button mat-dialog-close class="cancel-button">Cancel</button>
+    <button mat-dialog-close class="cancel-button" [disabled]="isSubmitting">
+      Cancel
+    </button>
     <button
       class="action-button"
       type="submit"
@@ -24,7 +26,7 @@
       [disabled]="isSubmitDisabled"
       (click)="submitIntervention()"
     >
-      {{ 'Create' }}
+      {{ isSubmitting ? 'Creating...' : 'Create' }}
     </button>
   </mat-dialog-actions>
 </div>
