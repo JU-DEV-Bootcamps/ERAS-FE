@@ -20,7 +20,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { InterventionPillBadgeComponent } from './intervention-status-badge/intervention-pill-badge.component';
 import { InterventionDetailComponent } from '../interventions-detail/intervention-detail.component';
-import { InterventionModel } from '@core/models/assessment.model';
+import {
+  AssessmentModel,
+  InterventionModel,
+} from '@core/models/assessment.model';
 import { InterventionService } from '@core/services/api/intervention.service';
 import {
   StudentProfileData,
@@ -28,6 +31,7 @@ import {
 } from '../../assessment-list/assessment-student-data/assessment-student-data.component';
 import { AppliedFilter } from '@shared/components/list-filters/models/list-filters.interface';
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
+import { AssessmentService } from '@core/services/api/assessement.service';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -57,6 +61,7 @@ export interface InterventionRowViewModel extends InterventionModel {
 })
 export class InterventionListComponent {
   private readonly interventionService = inject(InterventionService);
+  private readonly assessmentService = inject(AssessmentService);
   private readonly filterStrategy = inject(InterventionFilterStrategy);
 
   @Input() pageSize = 10;
@@ -71,10 +76,15 @@ export class InterventionListComponent {
     this.assessmentId.set(value);
     if (value != null) {
       this.loadInterventions(value);
+      this.loadAssessment(value);
     } else {
       this.interventions.set([]);
+      this.assessment.set(null);
     }
   }
+
+  protected readonly assessment = signal<AssessmentModel | null>(null);
+  protected readonly isLoadingAssessment = signal(false);
 
   readonly appliedFilters = input<AppliedFilter[]>([]);
 
@@ -119,6 +129,10 @@ export class InterventionListComponent {
   });
 
   protected readonly hasInterventions = signal(false);
+
+  get statusFinalizedAssessment(): boolean {
+    return this.assessment()?.status === 'Finalized';
+  }
 
   protected onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
@@ -192,5 +206,21 @@ export class InterventionListComponent {
     return comments.length > 60
       ? `${comments.slice(0, 60).trim()}...`
       : comments;
+  }
+
+  private loadAssessment(assessmentId: number): void {
+    this.isLoadingAssessment.set(true);
+
+    this.assessmentService.getById(assessmentId.toString()).subscribe({
+      next: data => {
+        this.assessment.set(data);
+        this.isLoadingAssessment.set(false);
+      },
+      error: error => {
+        console.error('Failed to load assessment', error);
+        this.assessment.set(null);
+        this.isLoadingAssessment.set(false);
+      },
+    });
   }
 }
