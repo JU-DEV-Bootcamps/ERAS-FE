@@ -7,6 +7,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { ActivatedRoute } from '@angular/router';
+import Keycloak from 'keycloak-js';
 
 describe('EvaluationProcessListComponent', () => {
   let component: EvaluationProcessListComponent;
@@ -41,6 +42,7 @@ describe('EvaluationProcessListComponent', () => {
           provide: MatDialogRef,
           useValue: jasmine.createSpyObj('MatDialogRef', ['close']),
         },
+        { provide: Keycloak, useValue: {} },
         provideNoopAnimations(),
         provideHttpClient(),
       ],

@@ -5,6 +5,7 @@ import { LayoutComponent } from '@core/components/layout/layout.component';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 import { ROUTE_METADATA } from '@core/utils/routing/route-metadata';
+import { AppRouteData } from '@core/models/route-data.model';
 
 export const routes: Routes = [
   {
@@ -54,15 +55,26 @@ export const routes: Routes = [
               import(
                 './modules/lists/components/evaluacion-process/evaluation-process-list.component'
               ).then(m => m.EvaluationProcessListComponent),
-            data: ROUTE_METADATA.EVALUATION_PROCESS,
+            data: { breadcrumb: 'Evaluation Process' } satisfies AppRouteData,
+          },
+          {
+            path: 'import-preview',
+            loadComponent: () =>
+              import(
+                './modules/imports/components/import-preview/import-preview.component'
+              ).then(m => m.ImportPreviewComponent),
+            data: { breadcrumb: 'Import Answers' } satisfies AppRouteData,
           },
           {
             path: 'import-status/:importJobId',
             loadComponent: () =>
               import(
-                '@modules/imports/components/import-status/import-status.component'
+                './modules/imports/components/import-status/import-status.component'
               ).then(m => m.ImportStatusComponent),
-            data: { breadcrumb: 'Import Progress' },
+            data: {
+              headerTitle: 'Import Progress',
+              breadcrumb: 'Import Progress',
+            } satisfies AppRouteData,
           },
         ],
       },
