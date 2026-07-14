@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ImportPreviewComponent } from './import-preview.component';
-import { ReactiveFormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,51 +7,49 @@ import { MatDialog } from '@angular/material/dialog';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
-import { ConfigurationsService } from '@core/services/api/configurations.service';
-import { ServiceProvidersService } from '@core/services/api/service-providers.service';
-import { UserDataService } from '@core/services/access/user-data.service';
+import { DialogService } from '@core/services/dialog.service';
+import { RouteDataService } from '@core/services/route-data.service';
+import { ConfigurationsModel } from '@core/models/configurations.model';
 
-describe('ImportAnswersComponent', () => {
+describe('ImportPreviewComponent', () => {
   let component: ImportPreviewComponent;
   let fixture: ComponentFixture<ImportPreviewComponent>;
   let mockService: jasmine.SpyObj<CosmicLatteService>;
-  let mockUserData: jasmine.SpyObj<UserDataService>;
+  let mockDialogService: jasmine.SpyObj<DialogService>;
+  let mockRouteDataService: jasmine.SpyObj<RouteDataService>;
+  let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
     mockService = jasmine.createSpyObj('CosmicLatteService', [
       'importAnswerBySurvey',
-      'getPollNames',
     ]);
-    const mockConfigService = jasmine.createSpyObj('ConfigurationsService', [
-      'getConfigurationsByUserId',
+    mockDialogService = jasmine.createSpyObj('DialogService', ['openDialog']);
+    mockRouteDataService = jasmine.createSpyObj('RouteDataService', [
+      'routeData',
     ]);
-    const mockSPService = jasmine.createSpyObj('ServiceProvidersService', [
-      'getAllServiceProviders',
-    ]);
-    const mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    const mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
-    mockUserData = jasmine.createSpyObj('UserDataService', ['user']);
-    mockUserData.user.and.returnValue({ id: 'user123' });
-
-    mockService.getPollNames.and.returnValue(of([]));
-    mockConfigService.getConfigurationsByUserId.and.returnValue(of([]));
-    mockSPService.getAllServiceProviders.and.returnValue(of([]));
+    mockService.importAnswerBySurvey.and.returnValue(of([]));
+    mockDialogService.openDialog.and.returnValue(of({} as MatDialog));
+    mockRouteDataService.routeData.and.returnValue({
+      evaluationId: 1,
+      pollName: 'Test Poll',
+      startDate: '',
+      endDate: '',
+      configuration: { id: 1 } as ConfigurationsModel,
+    });
 
     await TestBed.configureTestingModule({
-      imports: [ImportPreviewComponent, ReactiveFormsModule],
+      imports: [ImportPreviewComponent],
       providers: [
         { provide: CosmicLatteService, useValue: mockService },
-        { provide: ConfigurationsService, useValue: mockConfigService },
-        { provide: ServiceProvidersService, useValue: mockSPService },
-        { provide: MatDialog, useValue: mockDialog },
+        { provide: DialogService, useValue: mockDialogService },
+        { provide: RouteDataService, useValue: mockRouteDataService },
         { provide: Router, useValue: mockRouter },
         { provide: DatePipe, useClass: DatePipe },
-        { provide: UserDataService, useValue: mockUserData },
         {
           provide: ActivatedRoute,
           useValue: {
-            params: of({ id: 123 }),
             snapshot: { paramMap: { get: () => '123' } },
           },
         },
@@ -68,5 +65,14 @@ describe('ImportAnswersComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should call importAnswerBySurvey with routeData values', () => {
+    expect(mockService.importAnswerBySurvey).toHaveBeenCalledWith(
+      1,
+      'Test Poll',
+      '',
+      ''
+    );
   });
 });

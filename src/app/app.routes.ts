@@ -51,18 +51,26 @@ export const routes: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import('./modules/lists/components/evaluacion-process/evaluation-process-list.component').then(
-                m => m.EvaluationProcessListComponent
-              ),
+              import(
+                './modules/lists/components/evaluacion-process/evaluation-process-list.component'
+              ).then(m => m.EvaluationProcessListComponent),
             data: ROUTE_METADATA.EVALUATION_PROCESS,
           },
           {
             path: 'import-preview',
             loadComponent: () =>
-              import('./modules/imports/components/import-preview/import-preview.component').then(
-                m => m.ImportPreviewComponent
-              ),
+              import(
+                './modules/imports/components/import-preview/import-preview.component'
+              ).then(m => m.ImportPreviewComponent),
             data: ROUTE_METADATA.IMPORT_PREVIEW,
+          },
+          {
+            path: 'import-status/:importJobId',
+            loadComponent: () =>
+              import(
+                './modules/imports/components/import-status/import-status.component'
+              ).then(m => m.ImportStatusComponent),
+            data: ROUTE_METADATA.IMPORT_STATUS,
           },
         ],
       },
@@ -70,9 +78,9 @@ export const routes: Routes = [
         path: 'list-students-by-poll',
         data: ROUTE_METADATA.LIST_STUDENTS,
         loadComponent: () =>
-          import('./modules/lists/components/list-students-by-poll/list-students-by-poll.component').then(
-            c => c.ListStudentsByPollComponent
-          ),
+          import(
+            './modules/lists/components/list-students-by-poll/list-students-by-poll.component'
+          ).then(c => c.ListStudentsByPollComponent),
       },
       {
         path: 'students',
@@ -93,9 +101,9 @@ export const routes: Routes = [
         path: 'recent-alerts',
         data: ROUTE_METADATA.RECENT_ALERTS,
         loadComponent: () =>
-          import('./modules/lists/components/recent-alerts-list/recent-alerts-list.component').then(
-            c => c.RecentAlertsListComponent
-          ),
+          import(
+            './modules/lists/components/recent-alerts-list/recent-alerts-list.component'
+          ).then(c => c.RecentAlertsListComponent),
       },
       {
         path: '_unused',
