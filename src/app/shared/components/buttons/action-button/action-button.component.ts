@@ -20,6 +20,7 @@ export class ActionButtonComponent {
   };
   @Input() item: unknown = {};
   @Output() actionCalled = new EventEmitter<EventAction>();
+  @Input() disabled = false;
 
   onButtonClick(event: Event) {
     if (this.actionData.label) {
