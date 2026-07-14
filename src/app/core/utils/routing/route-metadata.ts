@@ -1,3 +1,5 @@
+import { AppRouteData } from '@core/models/route-data.model';
+
 export const ROUTE_METADATA = {
   HOME: {
     breadcrumb: 'Home',
@@ -18,6 +20,10 @@ export const ROUTE_METADATA = {
   },
   IMPORT_PREVIEW: {
     breadcrumb: 'Import Answers',
+  },
+  IMPORT_STATUS: {
+    headerTitle: 'Import Progress',
+    breadcrumb: 'Import Progress',
   },
   LIST_STUDENTS: {
     breadcrumb: 'Students List By Poll',
@@ -45,4 +51,4 @@ export const ROUTE_METADATA = {
   RECENT_ALERTS: {
     headerTitle: 'Recent Alerts',
   },
-};
+} as const satisfies Record<string, AppRouteData>;
