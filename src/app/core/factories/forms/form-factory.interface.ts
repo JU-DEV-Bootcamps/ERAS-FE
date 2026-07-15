@@ -2,7 +2,7 @@ import { FormGroup, ValidatorFn } from '@angular/forms';
 import { EventEmitter, InputSignal } from '@angular/core';
 
 import { FormUtils } from '@core/utils/forms/form-utils';
-import { Lookup } from '@core/models/lookup';
+import { Lookup, LookupExtended } from '@core/models/lookup';
 import { FloatLabelType } from '@angular/material/form-field';
 
 export type FieldType =
@@ -40,7 +40,7 @@ export interface DynamicField {
   placeholder?: string;
   validators?: (ValidatorFn | string)[];
   value?: ValueType;
-  options?: Lookup[];
+  options?: (Lookup | LookupExtended)[];
   multipleSelect?: boolean;
   disabled?: boolean;
   floatingLabel?: FloatLabelType;

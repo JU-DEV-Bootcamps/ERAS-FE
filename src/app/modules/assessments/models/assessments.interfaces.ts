@@ -1,4 +1,7 @@
-import { AssessmentModel } from '@core/models/assessment.model';
+import {
+  AssessmentModel,
+  AssessmentStatus,
+} from '@core/models/assessment.model';
 import { Lookup } from '@core/models/lookup';
 
 export interface AssessmentsLookups {
@@ -20,4 +23,5 @@ export interface EditAssessmentModel {
   service: string;
   students: string[];
   submitter: string;
+  status: AssessmentStatus;
 }

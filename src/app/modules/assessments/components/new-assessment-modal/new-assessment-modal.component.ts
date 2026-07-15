@@ -34,6 +34,7 @@ export class NewAssessmentModalComponent implements FormCreation {
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
+  isSubmitting = false;
 
   constructor(
     public dialogRef: MatDialogRef<NewAssessmentModalComponent>,
@@ -109,7 +110,9 @@ export class NewAssessmentModalComponent implements FormCreation {
   }
 
   submitAssessment() {
-    if (this.form.valid) {
+    if (this.form.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+
       const newAssessment: AssessmentModel = {
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
@@ -131,6 +134,7 @@ export class NewAssessmentModalComponent implements FormCreation {
           const toastData = this.buildErrorToastDataObject(err);
           this.toastService.showToast(toastData, true);
           console.error(err);
+          this.isSubmitting = false;
         },
         complete: () => {
           this.dialogRef.close();

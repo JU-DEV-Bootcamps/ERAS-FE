@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common';
+import { NgClass, NgFor } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -11,6 +11,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import {
+  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -28,7 +29,6 @@ import {
   DynamicField,
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
-import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { InterventionType } from '@core/models/assessment.model';
 import {
   AddInterventionPayload,
@@ -38,7 +38,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessment.model';
-import { map, of, concatMap } from 'rxjs';
+import { of, concatMap, Observable, forkJoin } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ACTIVITY_OPTIONS,
@@ -49,14 +49,10 @@ import {
   MAX_FILES,
   MODE_OPTIONS,
   RISK_OPTIONS,
+  STATUS_OPTIONS,
+  StudentLookup,
   TYPE_OPTIONS,
 } from '../interventions.constants';
-
-export interface StudentLookup {
-  value: number;
-  label: string;
-  riskLevel?: number;
-}
 
 export interface NewInterventionDialogData {
   assessmentId: number;
@@ -66,7 +62,7 @@ export interface NewInterventionDialogData {
 }
 
 @Component({
-  selector: 'app-new-intervention-modal',
+  selector: 'app-edit-intervention-modal',
   imports: [
     FormsModule,
     FormFactoryComponent,
@@ -76,18 +72,24 @@ export interface NewInterventionDialogData {
     MatFormFieldModule,
     MatSelectModule,
     NgClass,
+    NgFor,
     ReactiveFormsModule,
   ],
-  templateUrl: './new-intervention-modal.component.html',
-  styleUrl: '../../../styles/assessments-modal-styles.scss',
+  templateUrl: './edit-intervention-modal.component.html',
+  styleUrls: [
+    '../../../styles/assessments-modal-styles.scss',
+    './edit-intervention-modal.component.scss',
+  ],
 })
-export class NewInterventionModalComponent implements FormCreation, OnInit {
+export class EditInterventionModalComponent implements FormCreation, OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
+  private _prefillValues: Record<string, unknown> = {};
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
+  attendedStudentIdsModel: string[] = [];
 
   isGroup = signal<boolean>(false);
   studentsSelected = signal<number[]>([]);
@@ -95,31 +97,24 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
-  isSubmitting = false;
+
+  attendance = signal<{ student: StudentLookup; attended: boolean }[]>([]);
+  attendedStudentIds = signal<string[]>([]);
 
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
-  readonly selectedStudentCount = computed(() => {
-    if (!this.isGroup()) return 1;
-    if (!this.form || !this.form.get('students'))
-      return this.data.students.length;
-    const selected = (this.form.get('students')?.value as string[]) ?? [];
-    return selected.length || this.data.students.length;
-  });
-
   get isSubmitDisabled(): boolean {
-    return (
-      !this.form || this.form.invalid || this.form.pristine || this.isSubmitting
-    );
+    return !this.form || this.form.invalid || this.form.pristine;
   }
 
   constructor(
-    public dialogRef: MatDialogRef<NewInterventionModalComponent>,
+    public dialogRef: MatDialogRef<EditInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
   ) {}
 
   ngOnInit(): void {
-    this.isGroup.set(this.data.students.length > 1);
+    this.isGroup.set(this.data.intervention!.kind === InterventionType.Group);
+    this.prefillForm();
     this.buildFormFields();
   }
 
@@ -130,8 +125,8 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       : InterventionType.Individual;
 
     const defaultStudentIds = this.isGroup()
-      ? this.data.students.map(s => s.value)
-      : [this.data.students[0]?.value];
+      ? this.data.intervention!.studentIds
+      : [this.data.intervention!.studentIds[0]];
     this.studentsSelected.set(defaultStudentIds);
 
     const topFields: DynamicField[] = [
@@ -197,7 +192,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       selectConfig: {
         displayMode: 'chips',
       },
-      value: this.data.students.map(s => s.value),
+      value: this.data.intervention!.studentIds,
     };
 
     const studentsIndividualField: DynamicField = {
@@ -208,7 +203,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       options: this.data.students,
       validators: [Validators.required],
       floatingLabel: 'always',
-      value: this.data.students[0]?.value,
+      value: this.data.intervention!.studentIds[0],
     };
 
     const bottomFields: DynamicField[] = [
@@ -223,6 +218,20 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
           displayMode: 'chips',
         },
         value: RISK_OPTIONS.at(1)?.label,
+      },
+      {
+        type: 'select',
+        name: 'status',
+        label: 'Status',
+        options: STATUS_OPTIONS.filter(s =>
+          s.allowed.includes(this.data.intervention!.status ?? '')
+        ),
+        validators: [Validators.required],
+        floatingLabel: 'always',
+        selectConfig: {
+          displayMode: 'chips',
+        },
+        value: this.data.intervention!.status,
       },
       {
         type: 'select',
@@ -246,7 +255,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
           allowedExtensions: ALLOWED_EXTENSIONS,
           allowedMimeTypes: ALLOWED_MIME_TYPES,
           onFileRemoved: fileIndex => this.removeExistingAttachment(fileIndex),
-          prefillFileNames: [],
+          prefillFileNames: (this.data.intervention!.attachments ?? []).map(p =>
+            this.getFileName(p)
+          ),
         },
         floatingLabel: 'always',
       },
@@ -275,6 +286,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
   setFormGroup(event: FormGroup): void {
     this.form = event;
+    this.form.patchValue(this._prefillValues);
 
     this.form
       .get('type')
@@ -283,48 +295,108 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         const nowGroup = value === InterventionType.Group;
         if (nowGroup === this.isGroup()) return;
         this.isGroup.set(nowGroup);
+        this.attendedStudentIds.set([]);
+        this.attendedStudentIdsModel = [];
+        this.buildAttendance();
         this.buildFormFields();
       });
+
+    this.form
+      .get('status')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        const isFinalized = value === 'Finalized';
+        const control = this.form.get('riskLevelName');
+
+        if (isFinalized) {
+          control?.disable();
+          this.addEndRiskLevelField();
+        } else {
+          control?.enable();
+          this.removeEndRiskLevelField();
+        }
+      });
+  }
+
+  private prefillForm(): void {
+    const iv = this.data.intervention!;
+
+    this._prefillValues = {
+      type: iv.kind,
+      date: iv.dateUtc,
+      activity: iv.activity,
+      area: iv.area,
+      mode: iv.mode,
+      comments: iv.comments,
+      uploadInput: (iv.attachments ?? []).map(p => this.getFileName(p)),
+      riskLevelName: iv.riskLevelName,
+      status: iv.status,
+    };
+
+    const attended = Object.entries(iv.attendance ?? {})
+      .filter(([, v]) => v)
+      .map(([k]) => String(k));
+
+    this.attendedStudentIds.set(attended);
+    this.attendedStudentIdsModel = attended;
+
+    this.existingAttachments = iv.attachments ?? [];
+  }
+
+  private buildAttendance(): void {
+    this.attendance.set(
+      this.data.students.map(student => ({ student, attended: false }))
+    );
+  }
+
+  onAttendanceChange(selectedValues: string[] | string | null): void {
+    const asArray = !selectedValues
+      ? []
+      : Array.isArray(selectedValues)
+        ? selectedValues
+        : [String(selectedValues)];
+
+    this.attendedStudentIds.set(asArray);
+    this.attendedStudentIdsModel = asArray;
+
+    const current = this.attendance().map(item => ({
+      ...item,
+      attended: asArray.includes(String(item.student.value)),
+    }));
+    this.attendance.set(current);
+    this.form.markAsDirty();
   }
 
   submitIntervention(): void {
     if (this.form.invalid) return;
 
-    const payload = this.buildPayload();
-    this.isSubmitting = true;
+    const selectedStudents: string[] = this.isGroup()
+      ? (this.form.value.students as string[]).map(String)
+      : [String(this.form.value.students)];
 
-    this.interventionService
-      .createIntervention(payload)
-      .pipe(
-        concatMap((created: InterventionModel) => {
-          if (this.form.value.uploadInput.length === 0) return of(created);
-          return this.interventionService
-            .uploadAttachments(created.id!, this.form.value.uploadInput)
-            .pipe(map(() => created));
-        })
-      )
-      .subscribe({
-        next: () => {
-          const toast: ToastNotificationData = {
-            title: 'Intervention created successfully',
-            message: `The ${this.isGroup() ? 'group' : 'individual'} intervention has been registered.`,
-            type: 'success',
-          };
-          this.toastService.showToast(toast);
+    const attendedIds: string[] = Array.isArray(this.attendedStudentIds())
+      ? this.attendedStudentIds()
+      : [this.attendedStudentIds() as unknown as string];
+
+    const invalidAttendees = attendedIds.filter(
+      id => !selectedStudents.includes(String(id))
+    );
+
+    if (invalidAttendees.length > 0) {
+      this.toastService.showToast(
+        {
+          title: 'Invalid attendance',
+          message:
+            'Attendance can only include students selected for this intervention.',
+          type: 'error',
         },
-        error: (err: HttpErrorResponse) => {
-          const toast: ToastNotificationData = {
-            title: 'Form Submission Failed',
-            message: `${err.statusText}: ${err.error?.title ?? 'There was an error submitting the form. Please try again later.'}`,
-            type: 'error',
-          };
-          this.toastService.showToast(toast, true);
-          this.isSubmitting = false;
-        },
-        complete: () => {
-          this.dialogRef.close(true);
-        },
-      });
+        true
+      );
+      return;
+    }
+
+    this.updateIntervention();
+    return;
   }
 
   private buildPayload(): AddInterventionPayload {
@@ -335,6 +407,12 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     const studentIds: number[] = isGroup
       ? (v.students as string[]).map(Number)
       : [Number(v.students)];
+
+    const attendanceRecord: Record<number, boolean> = {};
+    this.data.students.forEach(student => {
+      attendanceRecord[Number(student.value)] =
+        this.attendedStudentIds().includes(String(student.value));
+    });
 
     const kindIntervention = this.formFields.find(
       field => field.name === 'type'
@@ -352,14 +430,74 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         studentIds,
         area: v.area,
         numberOfParticipants: studentIds.length,
+        attendance: attendanceRecord,
         attachments: [],
         riskLevelName: v.riskLevelName,
+        status: v.status,
+        endRiskLevelName: v.endRiskLevelName,
       },
     };
   }
 
-  closeAndResetDialog(): void {
-    this.dialogRef.close();
+  private updateIntervention(): void {
+    const iv = this.data.intervention!;
+    const payload = this.buildPayload();
+    const updated: InterventionModel = {
+      ...iv,
+      ...payload.intervention,
+      id: iv.id,
+      attachments: this.existingAttachments,
+    } as InterventionModel;
+
+    const deleteObs: Observable<unknown> = this.attachmentsToDelete.length
+      ? forkJoin(
+          this.attachmentsToDelete.map(fileName =>
+            this.interventionService.deleteAttachment(iv.id!, fileName)
+          )
+        )
+      : of(null);
+
+    deleteObs
+      .pipe(
+        concatMap(() =>
+          this.interventionService.getByAssessment(this.data.assessmentId)
+        ),
+        concatMap((existing: InterventionModel[]) => {
+          const merged = existing.map(e => (e.id === iv.id ? updated : e));
+          return this.interventionService.upsertInterventions(
+            this.data.assessmentId,
+            merged
+          );
+        }),
+        concatMap(() => {
+          const filesToUpload = this.getNewFilesToUpload();
+          if (!filesToUpload.length) return of(null);
+          return this.interventionService.uploadAttachments(
+            iv.id!,
+            filesToUpload
+          );
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            title: 'Intervention updated successfully',
+            message: 'The intervention has been updated.',
+            type: 'success',
+          });
+        },
+        error: (err: HttpErrorResponse) => {
+          this.toastService.showToast(
+            {
+              title: 'Update Failed',
+              message: `${err.statusText}: ${err.error?.title ?? 'There was an error updating the intervention.'}`,
+              type: 'error',
+            },
+            true
+          );
+        },
+        complete: () => this.dialogRef.close(true),
+      });
   }
 
   removeExistingAttachment(index: number): void {
@@ -374,5 +512,54 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   getFileName(path: string): string {
     if (path === undefined) return '';
     return path.split('/').pop() ?? path;
+  }
+
+  private getNewFilesToUpload(): File[] {
+    const uploadInputValue = this.form.get('uploadInput')?.value as File[];
+    if (!uploadInputValue?.length) return [];
+
+    const existingNames = new Set(
+      this.existingAttachments.map(path => this.getFileName(path))
+    );
+    return uploadInputValue.filter(file => !existingNames.has(file.name));
+  }
+
+  private addEndRiskLevelField(): void {
+    if (this.form.contains('endRiskLevelName')) return;
+
+    this.form.addControl(
+      'endRiskLevelName',
+      new FormControl(
+        {
+          value: this.data.intervention?.endRiskLevelName ?? '',
+          disabled: false,
+        },
+        [Validators.required]
+      )
+    );
+
+    if (!this.formFields.some(f => f.name === 'endRiskLevelName')) {
+      this.formFields = [
+        ...this.formFields,
+        {
+          type: 'select',
+          name: 'endRiskLevelName',
+          label: 'End Risk Level',
+          validators: [Validators.required],
+          options: RISK_OPTIONS,
+          floatingLabel: 'always',
+          selectConfig: { displayMode: 'chips' },
+        },
+      ];
+    }
+  }
+
+  private removeEndRiskLevelField(): void {
+    if (this.form.contains('endRiskLevelName')) {
+      this.form.removeControl('endRiskLevelName');
+    }
+    this.formFields = this.formFields.filter(
+      f => f.name !== 'endRiskLevelName'
+    );
   }
 }

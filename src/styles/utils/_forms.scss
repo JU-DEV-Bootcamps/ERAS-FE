@@ -66,20 +66,26 @@ mat-option[appselectall] {
   box-shadow: 1px var(--color-neutral-200) blur(3px);
 }
 
+app-edit-intervention-modal form,
 app-new-intervention-modal form {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
+app-edit-intervention-modal form > :nth-child(1),
 app-new-intervention-modal form > :nth-child(1),
+app-edit-intervention-modal form > :nth-child(2),
 app-new-intervention-modal form > :nth-child(2),
+app-edit-intervention-modal form > :nth-child(4),
 app-new-intervention-modal form > :nth-child(4),
+app-edit-intervention-modal form > :nth-child(5),
 app-new-intervention-modal form > :nth-child(5) {
   width: calc(50% - 32px);
   flex: 1 1 calc(50% - 16px);
 }
 
+app-edit-intervention-modal mat-form-field,
 app-new-intervention-modal mat-form-field {
   margin-bottom: 0px;
 }
@@ -90,4 +96,32 @@ app-new-intervention-modal
     :nth-child(5)
   ) {
   flex: 1 1 100%;
+}
+
+app-edit-intervention-modal
+  form
+  > :not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(4)):not(
+    :nth-child(5)
+  ) {
+  flex: 1 1 100%;
+}
+
+app-edit-assessment-modal form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+app-edit-assessment-modal form > :nth-child(2),
+app-edit-assessment-modal form > :nth-child(3) {
+  width: calc(50% - 32px);
+  flex: 1 1 calc(50% - 16px);
+}
+
+app-edit-assessment-modal form > :not(:nth-child(2)):not(:nth-child(3)) {
+  flex: 1 1 100%;
+}
+
+app-edit-assessment-modal mat-form-field {
+  margin-bottom: 0px;
 }

@@ -41,6 +41,10 @@ import {
   MultipleSelectItem,
   SingleSelectItem,
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
+import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { ToastNotificationData } from '@core/models/toast-notification.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-interventions',
@@ -66,6 +70,7 @@ export class InterventionsComponent implements OnInit {
   private readonly matDialog = inject(MatDialog);
 
   private readonly interventionService = inject(InterventionService);
+  private readonly toastService = inject(ToastNotificationService);
 
   readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
   private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
@@ -279,7 +284,7 @@ export class InterventionsComponent implements OnInit {
     }));
 
     this.matDialog
-      .open(NewInterventionModalComponent, {
+      .open(EditInterventionModalComponent, {
         width: '520px',
         disableClose: true,
         data: {
@@ -318,9 +323,44 @@ export class InterventionsComponent implements OnInit {
         this.interventionService
           .deleteIntervention(assessmentId, intervention.id!)
           .subscribe({
-            next: () => this.interventionList.loadInterventions(assessmentId),
-            error: err => console.error('Failed to delete intervention', err),
+            next: () => {
+              const toastData = this.buildSuccessToastDataObject(intervention);
+              this.toastService.showToast(toastData);
+              this.interventionList.loadInterventions(assessmentId);
+            },
+            error: err => {
+              const toastData = this.buildErrorToastDataObject(
+                intervention,
+                err
+              );
+              this.toastService.showToast(toastData, true);
+              console.error('Failed to delete intervention', err);
+            },
           });
       });
+  }
+  private buildSuccessToastDataObject(
+    item: InterventionModel
+  ): ToastNotificationData {
+    return {
+      title: 'Intervention removed successfully',
+      message: `Intervention with id: ${item.id} was removed`,
+      type: 'success',
+    };
+  }
+
+  private buildErrorToastDataObject(
+    item: InterventionModel,
+    error: HttpErrorResponse
+  ): ToastNotificationData {
+    const message =
+      item.status !== 'Remitted'
+        ? `The item with id: ${item.id} cannot be removed due to its status.`
+        : `${error.statusText}: The item was not found with id: ${item.id}`;
+    return {
+      title: 'Intervention removed failed',
+      message: message,
+      type: 'error',
+    };
   }
 }

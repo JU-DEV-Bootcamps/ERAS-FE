@@ -39,12 +39,14 @@
     </div>
   </div>
 } @else {
-  <div class="page-header">
-    <button mat-flat-button type="button" (click)="onCreateClick()">
-      <mat-icon>add</mat-icon>
-      Create Intervention
-    </button>
-  </div>
+  @if (!statusFinalizedAssessment) {
+    <div class="page-header">
+      <button mat-flat-button type="button" (click)="onCreateClick()">
+        <mat-icon>add</mat-icon>
+        Create Intervention
+      </button>
+    </div>
+  }
 
   <div
     class="push-layout-container"
@@ -136,6 +138,9 @@
                     mat-icon-button
                     type="button"
                     matTooltip="Edit"
+                    [disabled]="
+                      item.status === 'Finalized' || statusFinalizedAssessment
+                    "
                     (click)="onEditClick(item)"
                   >
                     <mat-icon>edit</mat-icon>
@@ -152,6 +157,7 @@
                     mat-icon-button
                     type="button"
                     matTooltip="Delete"
+                    [disabled]="statusFinalizedAssessment"
                     (click)="onDeleteClick(item)"
                   >
                     <mat-icon>delete</mat-icon>
@@ -178,6 +184,9 @@
                     <button
                       mat-menu-item
                       type="button"
+                      [disabled]="
+                        item.status === 'Finalized' || statusFinalizedAssessment
+                      "
                       (click)="onEditClick(item)"
                     >
                       <mat-icon>edit</mat-icon><span>Edit</span>
@@ -185,6 +194,7 @@
                     <button
                       mat-menu-item
                       type="button"
+                      [disabled]="statusFinalizedAssessment"
                       (click)="onDeleteClick(item)"
                     >
                       <mat-icon>delete</mat-icon><span>Delete</span>

@@ -19,10 +19,7 @@ import {
   DynamicField,
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
-import {
-  AssessmentModel,
-  AssessmentStatus,
-} from '@core/models/assessment.model';
+import { AssessmentModel } from '@core/models/assessment.model';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
@@ -32,6 +29,36 @@ import {
   EditAssessmentModel,
 } from '@modules/assessments/models/assessments.interfaces';
 import { Subscription } from 'rxjs';
+
+const STATUS_OPTIONS = [
+  {
+    value: 'Remitted',
+    label: 'Remitted',
+    allowed: ['Remitted'],
+    colors: {
+      label: '#333399',
+      background: '#cdcde1',
+    },
+  },
+  {
+    value: 'InProgress',
+    label: 'InProgress',
+    allowed: ['Remitted', 'InProgress'],
+    colors: {
+      label: '#854d0e',
+      background: '#fef9c3',
+    },
+  },
+  {
+    value: 'Finalized',
+    label: 'Finalized',
+    allowed: ['InProgress'],
+    colors: {
+      label: '#117473',
+      background: '#afeae9',
+    },
+  },
+];
 
 @Component({
   selector: 'app-edit-assessment-modal',
@@ -62,6 +89,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       service: data.assessment.service,
       students: data.assessment.studentIds,
       submitter: data.assessment.createdBy,
+      status: data.assessment.status,
     };
 
     this.formFields = [
@@ -84,6 +112,20 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         validators: [Validators.required],
         floatingLabel: 'always',
         value: this.data.assessment.createdAtUtc,
+      },
+      {
+        type: 'select',
+        name: 'status',
+        label: 'Status',
+        options: STATUS_OPTIONS.filter(s =>
+          s.allowed.includes(data.assessment.status)
+        ),
+        validators: [Validators.required],
+        floatingLabel: 'always',
+        selectConfig: {
+          displayMode: 'chips',
+        },
+        value: this.data.assessment.status,
       },
       {
         type: 'select',
@@ -153,7 +195,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         assignedProfessional: this.form.value.professional,
         studentIds: this.form.value.students,
         comments: this.form.value.professionalComment,
-        status: AssessmentStatus.Remitted,
+        status: this.form.value.status,
         interventions: [],
       };
 
