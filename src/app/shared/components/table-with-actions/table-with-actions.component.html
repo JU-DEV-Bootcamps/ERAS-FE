@@ -52,6 +52,7 @@
                   [matTooltip]="actionData.tooltip ?? 'action'"
                   [item]="item"
                   [actionData]="actionData"
+                  [disabled]="isDisabled(actionData, item)"
                   (actionCalled)="handleAction($event)"
                 >
                   <mat-icon>
@@ -184,6 +185,7 @@
                   <app-action-button
                     [item]="item"
                     [actionData]="actionData"
+                    [disabled]="isDisabled(actionData, item)"
                     (actionCalled)="handleAction($event)"
                   >
                     @if (!actionData.text && actionData.ngIconName) {
@@ -199,6 +201,7 @@
                   <app-action-button
                     [item]="item"
                     [actionData]="actionData"
+                    [disabled]="isDisabled(actionData, item)"
                     (actionCalled)="handleAction($event)"
                   >
                     <div class="wrapper-content">
@@ -225,6 +228,7 @@
                           <app-action-button
                             [item]="item"
                             [actionData]="actionData"
+                            [disabled]="isDisabled(actionData, item)"
                             (actionCalled)="handleAction($event)"
                           >
                             @if (!actionData.text && actionData.ngIconName) {
@@ -242,6 +246,7 @@
                           <app-action-button
                             [item]="item"
                             [actionData]="actionData"
+                            [disabled]="isDisabled(actionData, item)"
                             (actionCalled)="handleAction($event)"
                           >
                             <div class="wrapper-content">

@@ -125,8 +125,19 @@ export class EvaluationProcessListComponent implements OnInit {
       label: 'Actions',
       tooltip: '',
       ngIconName: 'drive_file_move',
-      text: 'Go to import',
+      text: 'New Import',
       isVisible: this.isVisible.bind(this),
+    },
+    {
+      columnId: 'actions',
+      id: 'viewImport',
+      label: 'Actions',
+      tooltip: '',
+      ngIconName: 'visibility',
+      text: 'View Import',
+      isVisible: () =>
+        this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2),
+      isDisabled: (item: EvaluationModel) => !item.latestImportJobId,
     },
   ];
   evaluationProcessList: EvaluationModel[] = [];
@@ -171,17 +182,23 @@ export class EvaluationProcessListComponent implements OnInit {
 
   handleActionCalled(event: EventAction) {
     const actions: Record<string, (item: EvaluationModel) => void> = {
-      goImport: (element: EvaluationModel) => {
-        this.goToImport(element);
-      },
-      openModalDetails: (element: EvaluationModel) => {
-        this.openModalDetails(element);
-      },
+      goImport: (element: EvaluationModel) => this.goToImport(element),
+      openModalDetails: (element: EvaluationModel) =>
+        this.openModalDetails(element),
+      viewImport: (element: EvaluationModel) => this.viewImport(element),
     };
 
     if (actions[event.data.id]) {
       actions[event.data.id](event.item as EvaluationModel);
     }
+  }
+
+  viewImport(data: EvaluationModel): void {
+    if (!data.latestImportJobId) return;
+
+    this.router.navigate(['import-status', data.latestImportJobId], {
+      relativeTo: this.route,
+    });
   }
 
   getClassName(value: string): string {

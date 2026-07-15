@@ -151,6 +151,11 @@ export class TableWithActionsComponent<T extends object>
     return isValidWithCondition;
   }
 
+  isDisabled(actionData: ActionData | ActionDataWithCondition<T>, item: T) {
+    const actionDataWC = actionData as ActionDataWithCondition<T>;
+    return actionDataWC.isDisabled ? actionDataWC.isDisabled(item) : false;
+  }
+
   hasTextAttribute() {
     return this.actionDatas().some(
       (actionData: ActionData) => 'text' in actionData
