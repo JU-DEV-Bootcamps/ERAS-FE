@@ -16,6 +16,7 @@ export const ROUTE_METADATA = {
     breadcrumb: 'Cosmic Latte',
   },
   EVALUATION_PROCESS: {
+    headerTitle: 'Evaluation Process',
     breadcrumb: 'Evaluation Process',
   },
   IMPORT_PREVIEW: {

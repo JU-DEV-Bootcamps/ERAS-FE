@@ -1,7 +1,9 @@
-<h1 class="page-title">Evaluation Processes</h1>
+@if (!displayV2()) {
+  <h1 class="page-title">Evaluation Processes</h1>
+}
 
 @if (this.totalEvaluations !== 0) {
-  <div align="end">
+  <div align="end" class="button-add-evaluation">
     <app-eras-button
       [textButton]="'Add new'"
       [iconButton]="'add'"
@@ -20,7 +22,18 @@
   [actionDatas]="actionDatas"
 >
   <ng-template #status let-element>
-    <app-badge-status [element]="element" />
+    @if (displayV2()) {
+      <span
+        [matTooltip]="getStatusTooltip(element.status)"
+        [style.backgroundColor]="getStatusColor(element.status)"
+        [style.color]="getStatusLabelColor(element.status)"
+        class="badge"
+      >
+        {{ getStatusLabel(element.status) }}
+      </span>
+    } @else {
+      <app-badge-status [element]="element" />
+    }
   </ng-template>
 </app-list>
 

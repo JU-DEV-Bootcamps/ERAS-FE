@@ -1,4 +1,12 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  HostListener,
+  inject,
+  OnInit,
+  untracked,
+} from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -37,6 +45,12 @@ import { Pagination } from '@core/services/interfaces/server.type';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { RouteDataService } from '@core/services/route-data.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import {
+  STATUS_COLORS,
+  STATUS_EVALUATIONS,
+  STATUS_LABEL_COLORS,
+  TOOLTIP_EVALUATIONS,
+} from '@core/constants/StatusEvaluation';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -52,6 +66,10 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
     MatTooltipModule,
   ],
   templateUrl: './evaluation-process-list.component.html',
+  styleUrls: [
+    '../../../home-v2/recent-alerts/recent-alerts.component.scss',
+    './evaluation-process-list.component.scss',
+  ],
 })
 export class EvaluationProcessListComponent implements OnInit {
   private router = inject(Router);
@@ -120,6 +138,9 @@ export class EvaluationProcessListComponent implements OnInit {
     page: 0,
     pageSize: 10,
   };
+  displayV2 = computed(() =>
+    this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
+  );
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -129,6 +150,15 @@ export class EvaluationProcessListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isMobile = window.innerWidth < 600;
+  }
+
+  constructor() {
+    effect(() => {
+      this.displayV2();
+      untracked(() => {
+        this.getEvaluationProcess();
+      });
+    });
   }
 
   handleLoadCalled(event: EventLoad) {
@@ -335,6 +365,9 @@ export class EvaluationProcessListComponent implements OnInit {
   }
 
   transformStatus(data: EvaluationModel[]): EvaluationModel[] {
+    if (this.displayV2()) {
+      return data;
+    }
     data.forEach((evaluation: EvaluationModel) => {
       evaluation.status = getStatusForEvaluationProcess(evaluation);
     });
@@ -347,6 +380,22 @@ export class EvaluationProcessListComponent implements OnInit {
 
   isVisible(item: EvaluationModel) {
     return !this.importPollsDisabled.includes(item.status);
+  }
+
+  getStatusLabel(status: string): string {
+    return STATUS_EVALUATIONS[status] ?? STATUS_EVALUATIONS['default'];
+  }
+
+  getStatusTooltip(status: string): string {
+    return TOOLTIP_EVALUATIONS[status] ?? TOOLTIP_EVALUATIONS['default'];
+  }
+
+  getStatusColor(status: string): string {
+    return STATUS_COLORS[status] ?? STATUS_COLORS['default'];
+  }
+
+  getStatusLabelColor(status: string): string {
+    return STATUS_LABEL_COLORS[status] ?? STATUS_LABEL_COLORS['default'];
   }
 
   private _updatePaginator() {
