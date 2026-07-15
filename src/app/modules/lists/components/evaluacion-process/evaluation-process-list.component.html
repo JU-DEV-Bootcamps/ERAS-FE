@@ -24,6 +24,7 @@
   <ng-template #status let-element>
     @if (displayV2()) {
       <span
+        [matTooltip]="getStatusTooltip(element.status)"
         [style.backgroundColor]="getStatusColor(element.status)"
         [style.color]="getStatusLabelColor(element.status)"
         class="badge"

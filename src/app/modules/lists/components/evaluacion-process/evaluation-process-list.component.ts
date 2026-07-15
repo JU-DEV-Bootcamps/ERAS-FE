@@ -49,6 +49,7 @@ import {
   STATUS_COLORS,
   STATUS_EVALUATIONS,
   STATUS_LABEL_COLORS,
+  TOOLTIP_EVALUATIONS,
 } from '@core/constants/StatusEvaluation';
 
 @Component({
@@ -132,7 +133,7 @@ export class EvaluationProcessListComponent implements OnInit {
   totalEvaluations = 0;
   isMobile = false;
   isLoading = false;
-  importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED, Status.READY];
+  importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED];
   pagination: Pagination = {
     page: 0,
     pageSize: 10,
@@ -383,6 +384,10 @@ export class EvaluationProcessListComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     return STATUS_EVALUATIONS[status] ?? STATUS_EVALUATIONS['default'];
+  }
+
+  getStatusTooltip(status: string): string {
+    return TOOLTIP_EVALUATIONS[status] ?? TOOLTIP_EVALUATIONS['default'];
   }
 
   getStatusColor(status: string): string {
