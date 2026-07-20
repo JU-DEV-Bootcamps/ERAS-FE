@@ -29,7 +29,7 @@ export const TOOLTIP_EVALUATIONS: Record<string, string> = {
   Pending: 'This evaluation has not been imported yet.',
   Ready:
     'This evaluation has not ended yet. The poll may also have been used by other evaluations.',
-  InProgress: 'This evaluation has bee imported and it is in progress',
+  InProgress: 'This evaluation has been imported and it is in progress',
   Completed: 'This evaluation has been imported and completed.',
   Uncompleted:
     'This evaluation was not completed before the deadline. The poll may also have been used by other evaluations.',
