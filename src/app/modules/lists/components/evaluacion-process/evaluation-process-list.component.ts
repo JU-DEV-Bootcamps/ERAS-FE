@@ -201,20 +201,12 @@ export class EvaluationProcessListComponent implements OnInit {
     });
   }
 
-  getClassName(value: string): string {
-    return value ? value.replace(/\s+/g, '_') : '';
-  }
-
   deleteEvaluationConfirmation(id: number) {
-    if (id) {
-      this.openAlertDialog(
-        `Are you sure you want to delete the evaluation?`,
-        'warning',
-        () => this.deleteEvaluation(id)
-      );
-    } else {
-      console.warn("id wasn't provided");
-    }
+    this.openAlertDialog(
+      `Are you sure you want to delete the evaluation?`,
+      'warning',
+      () => this.deleteEvaluation(id)
+    );
   }
 
   deleteEvaluation(id: number) {
@@ -300,12 +292,21 @@ export class EvaluationProcessListComponent implements OnInit {
                 this.router.navigate(['import-status', res.importJobId], {
                   relativeTo: this.route,
                 }),
-              error: () =>
-                this.toast.showToast({
-                  type: 'error',
-                  title: 'Import',
-                  message: 'Could not start the import extraction.',
-                }),
+              error: err => {
+                if (err.status === 400) {
+                  this.toast.showToast({
+                    type: 'error',
+                    title: 'Import failed',
+                    message: `${err.error.message}`,
+                  });
+                } else {
+                  this.toast.showToast({
+                    type: 'error',
+                    title: 'Import',
+                    message: 'Could not start the import extraction.',
+                  });
+                }
+              },
             });
         } else {
           this.routeDataService.updateRouteData({
