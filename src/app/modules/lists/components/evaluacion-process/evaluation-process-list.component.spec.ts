@@ -8,7 +8,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import Keycloak from 'keycloak-js';
@@ -18,6 +18,7 @@ import { FeatureFlagsService } from '@core/components/feature-flags/feature-flag
 import { RouteDataService } from '@core/services/route-data.service';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { ActionDataWithCondition } from '@shared/components/list/types/action';
+import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
 
 describe('EvaluationProcessListComponent', () => {
   let component: EvaluationProcessListComponent;
@@ -188,6 +189,196 @@ describe('EvaluationProcessListComponent', () => {
       } as never);
 
       expect(component.viewImport).toHaveBeenCalledWith(evaluation);
+    });
+  });
+  describe('deleteEvaluationConfirmation', () => {
+    it('should delete the evaluation when the dialog is confirmed', () => {
+      const dialogRefSpy = {
+        afterClosed: () => of(true),
+      };
+      mockDialog.open.and.returnValue(
+        dialogRefSpy as MatDialogRef<ModalComponent>
+      );
+      spyOn(component, 'deleteEvaluation');
+      component.deleteEvaluationConfirmation(123);
+      expect(mockDialog.open).toHaveBeenCalled();
+    });
+
+    it('should pass a delete callback to the dialog', () => {
+      spyOn(component, 'deleteEvaluation');
+
+      component.deleteEvaluationConfirmation(123);
+
+      const [, config] = mockDialog.open.calls.mostRecent().args;
+
+      config.data.action.action();
+
+      expect(component.deleteEvaluation).toHaveBeenCalledWith(123);
+    });
+  });
+
+  describe('goToImport', () => {
+    it('should navigate to the import-status after extraction succeeds', () => {
+      const evaluation = buildEvaluation({ latestImportJobId: 42 });
+
+      const selectedPoll = {
+        pollName: 'Poll 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        configuration: {
+          userId: '534da',
+          configurationName: 'a',
+          baseURL: 'url',
+          encryptedKey: '1ffc',
+          id: 4,
+          isDeleted: false,
+          serviceProvider: null,
+          serviceProviderId: 1,
+        },
+      };
+
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(selectedPoll),
+      });
+      mockFeatureFlagsService.isEnabled.and.returnValue(true);
+
+      mockCosmicLatteService.startExtraction.and.returnValue(
+        of({ importJobId: 12 })
+      );
+      component.goToImport(evaluation);
+      expect(mockCosmicLatteService.startExtraction).toHaveBeenCalledWith({
+        evaluationSetName: 'Poll 1',
+        configurationId: 4,
+        startDate: selectedPoll.startDate,
+        endDate: selectedPoll.endDate,
+        evaluationId: evaluation.id,
+      });
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['import-status', 12], {
+        relativeTo: mockActivatedRoute,
+      });
+    });
+    it('should return when the result is empty', () => {
+      const evaluation = buildEvaluation({ latestImportJobId: 42 });
+
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(null),
+      });
+      mockFeatureFlagsService.isEnabled.and.returnValue(true);
+
+      mockCosmicLatteService.startExtraction.and.returnValue(
+        of({ importJobId: 12 })
+      );
+      component.goToImport(evaluation);
+      expect(mockDialog.open).toHaveBeenCalled();
+    });
+    it('should navigate to the import-preview after for v1 enabled', () => {
+      const evaluation = buildEvaluation({ latestImportJobId: 42 });
+
+      const selectedPoll = {
+        pollName: 'Poll 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        configuration: {
+          userId: '534da',
+          configurationName: 'a',
+          baseURL: 'url',
+          encryptedKey: '1ffc',
+          id: 4,
+          isDeleted: false,
+          serviceProvider: null,
+          serviceProviderId: 1,
+        },
+      };
+
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(selectedPoll),
+      });
+      mockFeatureFlagsService.isEnabled.and.returnValue(false);
+
+      component.goToImport(evaluation);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['import-preview'], {
+        relativeTo: mockActivatedRoute,
+      });
+    });
+    it('should show import toast failed when extraction returns 400', () => {
+      const evaluation = buildEvaluation();
+
+      const selectedPoll = {
+        pollName: 'Poll 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        configuration: {
+          userId: '534da',
+          configurationName: 'a',
+          baseURL: 'url',
+          encryptedKey: '1ffc',
+          id: 4,
+          isDeleted: false,
+          serviceProvider: null,
+          serviceProviderId: 1,
+        },
+      };
+
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(selectedPoll),
+      });
+      mockFeatureFlagsService.isEnabled.and.returnValue(true);
+
+      mockCosmicLatteService.startExtraction.and.returnValue(
+        throwError(() => ({
+          status: 400,
+          error: {
+            message: 'Poll without answers',
+          },
+        }))
+      );
+      component.goToImport(evaluation);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        type: 'error',
+        title: 'Import failed',
+        message: 'Poll without answers',
+      });
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+    it('should show import toast failed when extraction returns 500', () => {
+      const evaluation = buildEvaluation();
+
+      const selectedPoll = {
+        pollName: 'Poll 1',
+        startDate: new Date(),
+        endDate: new Date(),
+        configuration: {
+          userId: '534da',
+          configurationName: 'a',
+          baseURL: 'url',
+          encryptedKey: '1ffc',
+          id: 4,
+          isDeleted: false,
+          serviceProvider: null,
+          serviceProviderId: 1,
+        },
+      };
+
+      mockDialog.open.and.returnValue({
+        afterClosed: () => of(selectedPoll),
+      });
+      mockFeatureFlagsService.isEnabled.and.returnValue(true);
+
+      mockCosmicLatteService.startExtraction.and.returnValue(
+        throwError(() => ({
+          status: 500,
+          error: {
+            message: 'Could not start the import extraction.',
+          },
+        }))
+      );
+      component.goToImport(evaluation);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        type: 'error',
+        title: 'Import',
+        message: 'Could not start the import extraction.',
+      });
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
   });
 });
