@@ -1,25 +1,22 @@
 import { Component } from '@angular/core';
-import {
-  ComponentFixture,
-  TestBed,
-  fakeAsync,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
-import { MatSelectModule, MatSelect } from '@angular/material/select';
-import { By } from '@angular/platform-browser';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSelectHarness } from '@angular/material/select/testing';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { SelectAllDirective } from './select-all.directive';
 import { CommonModule, NgFor } from '@angular/common';
-import { OverlayContainer } from '@angular/cdk/overlay';
 
-// 1. Define a type for the values
 type TestOption = { id: number; name: string } | string;
 
 @Component({
   template: `
     <mat-form-field>
       <mat-select [formControl]="control" multiple>
-        <mat-option appSelectAll [allValues]="allValues">Select All</mat-option>
+        <mat-option [value]="'allValues'" appSelectAll [allValues]="allValues"
+          >Select All</mat-option
+        >
         <mat-option
           *ngFor="let item of allValues"
           [value]="isObject(item) ? item.id : item"
@@ -55,102 +52,69 @@ class TestHostComponent {
 describe('SelectAllDirective', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let component: TestHostComponent;
-  let overlayContainer: OverlayContainer;
+  let loader: HarnessLoader;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
-      providers: [OverlayContainer],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
-    overlayContainer = TestBed.inject(OverlayContainer);
+    loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  function openSelect() {
-    fixture.detectChanges();
-    const matSelect = fixture.debugElement.query(By.directive(MatSelect))
-      .componentInstance as MatSelect;
-    matSelect.open();
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-  }
-
-  function getOptions() {
-    // Options are rendered in the overlay container
-    return overlayContainer
-      .getContainerElement()
-      .querySelectorAll('mat-option');
-  }
-
-  it('should select all ids for array of objects with id', fakeAsync(() => {
+  it('should select all ids for array of objects with id', async () => {
     component.allValues = [
       { id: 1, name: 'One' },
       { id: 2, name: 'Two' },
       { id: 3, name: 'Three' },
     ];
     fixture.detectChanges();
-    openSelect();
 
-    const options = getOptions();
-    const selectAllOption = options[0] as HTMLElement;
-
-    // Simulate user selecting "Select All"
-    selectAllOption.click();
-    fixture.detectChanges();
-    tick();
+    const select = await loader.getHarness(MatSelectHarness);
+    await select.open();
+    const options = await select.getOptions();
+    await options[0].click(); // "Select All" is always the first option
 
     expect(component.control.value).toEqual([1, 2, 3]);
-  }));
+  });
 
-  it('should select all values for array of strings', fakeAsync(() => {
+  it('should select all values for array of strings', async () => {
     component.allValues = ['A', 'B', 'C'];
     fixture.detectChanges();
-    openSelect();
 
-    const options = getOptions();
-    const selectAllOption = options[0] as HTMLElement;
-
-    // Simulate user selecting "Select All"
-    selectAllOption.click();
-    fixture.detectChanges();
-    tick();
+    const select = await loader.getHarness(MatSelectHarness);
+    await select.open();
+    const options = await select.getOptions();
+    await options[0].click();
 
     expect(component.control.value).toEqual(['A', 'B', 'C']);
-  }));
+  });
 
-  it('should clear selection when select all is deselected', fakeAsync(() => {
+  it('should clear selection when select all is deselected', async () => {
     component.allValues = ['A', 'B', 'C'];
     component.control.setValue(['A', 'B', 'C']);
     fixture.detectChanges();
-    openSelect();
 
-    const options = getOptions();
-    const selectAllOption = options[0] as HTMLElement;
-
-    // Simulate user deselecting "Select All"
-    selectAllOption.click();
-    fixture.detectChanges();
-    tick();
+    const select = await loader.getHarness(MatSelectHarness);
+    await select.open();
+    const options = await select.getOptions();
+    await options[0].click(); // was selected -> this deselects it
 
     expect(component.control.value).toEqual([]);
-  }));
+  });
 
-  it('should not include "Select All" value in form control', fakeAsync(() => {
+  it('should not include "Select All" value in form control', async () => {
     component.allValues = ['A', 'B', 'C'];
     fixture.detectChanges();
-    openSelect();
 
-    const options = getOptions();
-    const selectAllOption = options[0] as HTMLElement;
+    const select = await loader.getHarness(MatSelectHarness);
+    await select.open();
+    const options = await select.getOptions();
+    await options[0].click();
 
-    // Simulate user selecting "Select All"
-    selectAllOption.click();
-    fixture.detectChanges();
-    tick();
-
+    expect(component.control.value).toEqual(['A', 'B', 'C']);
     expect(component.control.value).not.toContain('Select All');
-  }));
+  });
 });

@@ -172,6 +172,19 @@ export class SelectMultipleVirtualScrollComponent {
     return !!(item.type && item.type === 'group');
   }
 
+  trackScrollItem(
+    index: number,
+    item: MultipleSelectItem
+  ): string | number | boolean {
+    if (this.isGroupItem(item)) {
+      return `group-${index}`;
+    }
+    const value = item.value;
+    return typeof value === 'object' && value !== null && 'id' in value
+      ? value.id
+      : value;
+  }
+
   private readonly searchText = signal('');
 
   readonly filteredScrollItems = computed(() => {
