@@ -4,6 +4,7 @@ import { EventEmitter, InputSignal } from '@angular/core';
 import { FormUtils } from '@core/utils/forms/form-utils';
 import { Lookup, LookupExtended } from '@core/models/lookup';
 import { FloatLabelType } from '@angular/material/form-field';
+import { Observable } from 'rxjs';
 
 export type FieldType =
   | 'date'
@@ -13,7 +14,8 @@ export type FieldType =
   | 'password'
   | 'searchableSelect'
   | 'file'
-  | 'number';
+  | 'number'
+  | 'creatableSelect';
 
 export type ValueType =
   | string
@@ -47,6 +49,8 @@ export interface DynamicField {
   fileConfig?: FileFieldConfig;
   selectConfig?: {
     displayMode?: ModeType;
+    addNewLabel?: string;
+    onCreateRecord?: (name: string) => Observable<Lookup>;
   };
   max?: number;
   min?: number;
