@@ -48,7 +48,11 @@
       />
     </div>
 
-    <mat-option [value]="'allValues'" appSelectAll [allValues]="allValues"
+    <mat-option
+      [value]="'allValues'"
+      appSelectAll
+      [allValues]="scrollItemsValues()"
+    >
       >S Select all
     </mat-option>
 
