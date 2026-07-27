@@ -103,16 +103,10 @@
           [value]="pollDataSelected?.selectData || ''"
         >
           @for (poll of pollsNames; track poll) {
-            @if (!poll.name) {
-              <mat-option [value]="poll"
-                >-- I prefer to choose later --</mat-option
-              >
-            } @else {
-              <mat-option [value]="poll"
-                >{{ poll.name }} - Id:
-                {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
-              >
-            }
+            <mat-option [value]="poll"
+              >{{ poll.name }} - Id:
+              {{ poll.parent.replace('evaluationSets:', '') }}</mat-option
+            >
           }
         </mat-select>
 

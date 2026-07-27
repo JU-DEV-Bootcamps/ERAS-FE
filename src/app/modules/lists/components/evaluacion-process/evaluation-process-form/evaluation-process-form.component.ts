@@ -65,14 +65,7 @@ export class EvaluationProcessFormComponent implements OnInit {
   title;
   buttonText;
   selectedCountry = '';
-  prefereToChooseLater: PollName = {
-    parent: 'null',
-    name: '',
-    status: 'null',
-    selectData: 'I prefer to choose later',
-    country: 'null',
-  };
-  pollsNames: PollName[] = [this.prefereToChooseLater];
+  pollsNames: PollName[] = [];
   cosmicLatteService = inject(CosmicLatteService);
   evaluationsService = inject(EvaluationsService);
   configurationsService = inject(ConfigurationsService);
@@ -117,7 +110,7 @@ export class EvaluationProcessFormComponent implements OnInit {
       ],
       pollName: [
         {
-          value: data?.evaluation?.pollName ? null : this.prefereToChooseLater,
+          value: '',
           disabled: !!data?.evaluation?.pollName,
         },
         [Validators.required, Validators.maxLength(100)],
@@ -333,13 +326,12 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: (data: PollName[]) => {
         const maxLength = 100;
-        const truncatedData = data.map(poll => {
+        this.pollsNames = data.map(poll => {
           if (poll.name && poll.name.length > maxLength) {
             return { ...poll, name: poll.name.substring(0, maxLength) };
           }
           return poll;
         });
-        this.pollsNames = [this.prefereToChooseLater, ...truncatedData];
       },
       error: err => {
         this.notify.error(
