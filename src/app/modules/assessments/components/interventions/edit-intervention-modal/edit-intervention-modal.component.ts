@@ -509,19 +509,30 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     this.form.markAsDirty();
   }
 
-  getFileName(path: string): string {
+  private getFileName(path: string): string {
     if (path === undefined) return '';
     return path.split('/').pop() ?? path;
   }
 
   private getNewFilesToUpload(): File[] {
-    const uploadInputValue = this.form.get('uploadInput')?.value as File[];
+    const uploadInputValue = this.form.get('uploadInput')?.value as
+      | File[]
+      | string[];
     if (!uploadInputValue?.length) return [];
 
     const existingNames = new Set(
       this.existingAttachments.map(path => this.getFileName(path))
     );
-    return uploadInputValue.filter(file => !existingNames.has(file.name));
+
+    if (typeof uploadInputValue[0] === 'string') {
+      (uploadInputValue as string[]).filter(
+        filename => !existingNames.has(filename)
+      );
+      return [];
+    }
+    return (uploadInputValue as File[]).filter(
+      file => !existingNames.has(file.name)
+    );
   }
 
   private addEndRiskLevelField(): void {

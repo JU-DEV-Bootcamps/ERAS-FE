@@ -156,6 +156,37 @@ describe('EditInterventionModalComponent', () => {
     expect(toastService.showToast).toHaveBeenCalled();
   });
 
+  it('should return an empty array when uploadInput is empty', () => {
+    component.form.get('uploadInput')?.setValue([]);
+    const result = component['getNewFilesToUpload']();
+    expect(result).toEqual([]);
+  });
+
+  it('should return only new files', () => {
+    const existingFile = new File(['a'], 'existing.pdf');
+    const newFile = new File(['b'], 'new.pdf');
+    component.form.get('uploadInput')?.setValue([existingFile, newFile]);
+    component.existingAttachments = ['existing.pdf'];
+    const result = component['getNewFilesToUpload']();
+    expect(result).toEqual([newFile]);
+  });
+
+  it('should return getFileName', () => {
+    const url = 'something/folder/found.pdf';
+    const result = component['getFileName'](url);
+    expect(result).toEqual('found.pdf');
+  });
+
+  it('should return the same fileName', () => {
+    const result = component['getFileName']('');
+    expect(result).toEqual('');
+  });
+
+  it('should return empty string if there is no path provided', () => {
+    const result = component['getFileName'](undefined as unknown as string);
+    expect(result).toEqual('');
+  });
+
   it('should handle update error', () => {
     interventionService.getByAssessment.and.returnValue(
       throwError(() => ({
