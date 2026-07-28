@@ -12,7 +12,7 @@
     matInput
     #trigger="matAutocompleteTrigger"
     type="text"
-    [formControlName]="field().label"
+    [formControlName]="field().name"
     [placeholder]="
       isCreating()
         ? (field().selectConfig?.addNewLabel ?? 'New' + field().label)

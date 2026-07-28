@@ -16,4 +16,10 @@ export class ProfessionalsService extends BaseApiService {
   getAllProfessionals(): Observable<PagedResult<AssignedProfessional>> {
     return this.get<PagedResult<AssignedProfessional>>('');
   }
+
+  addNewProfessional(
+    professional: AssignedProfessional
+  ): Observable<AssignedProfessional> {
+    return this.post<AssignedProfessional>('', professional);
+  }
 }

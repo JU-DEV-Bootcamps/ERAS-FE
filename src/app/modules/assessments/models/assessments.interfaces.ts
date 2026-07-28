@@ -3,6 +3,7 @@ import {
   AssessmentStatus,
 } from '@core/models/assessment.model';
 import { Lookup } from '@core/models/lookup';
+import { Observable } from 'rxjs';
 
 export interface AssessmentsLookups {
   profiles: Lookup[];
@@ -10,6 +11,7 @@ export interface AssessmentsLookups {
   professionals: Lookup[];
   students: Lookup[];
   preselectedStudentId?: number;
+  createProfessional?: (name: string) => Observable<Lookup>;
 }
 
 export interface AssessmentModalData extends AssessmentsLookups {

@@ -13,7 +13,7 @@ import { JuServicesService } from '@modules/supports-referrals/services/juServic
 import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
 import { StudentService } from '@core/services/api/student.service';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { forkJoin, map, Observable } from 'rxjs';
+import { forkJoin, map, Observable, tap } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
@@ -22,6 +22,8 @@ import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessme
 import { AssessmentModel } from '@core/models/assessment.model';
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Lookup } from '@core/models/lookup';
+import { AssignedProfessional } from '@modules/supports-referrals/models/referrals.interfaces';
 
 @Component({
   selector: 'app-assessments',
@@ -104,7 +106,11 @@ export class AssessmentsComponent implements OnInit {
   openCreateModal(preselectedStudentId?: number) {
     const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
       ...this.modalConfig,
-      data: { ...this.lookups(), preselectedStudentId },
+      data: {
+        ...this.lookups(),
+        preselectedStudentId,
+        createProfessional: this.createProfessional.bind(this),
+      },
     });
 
     dialogRef
@@ -129,4 +135,33 @@ export class AssessmentsComponent implements OnInit {
     if (assessment.id === undefined) return;
     this.listComponent()?.loadAssessments();
   }
+
+  private createProfessional = (name: string): Observable<Lookup> => {
+    const newProfessional: AssignedProfessional = {
+      id: 0,
+      name: name,
+      uuid: crypto.randomUUID(),
+      audit: {
+        createdBy: 'configurator',
+        createdAt: new Date(),
+        modifiedBy: 'configurator',
+        modifiedAt: new Date(),
+      },
+    };
+    return this.professionalsService.addNewProfessional(newProfessional).pipe(
+      tap((created: AssignedProfessional) => {
+        const option: Lookup = { label: created.name, value: created.name };
+        this.lookups.update(current => ({
+          ...current,
+          professionals: [...current.services, option],
+        }));
+      }),
+      map(
+        (created: AssignedProfessional): Lookup => ({
+          label: created.name,
+          value: created.name,
+        })
+      )
+    );
+  };
 }

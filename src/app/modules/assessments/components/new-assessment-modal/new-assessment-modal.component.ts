@@ -80,15 +80,19 @@ export class NewAssessmentModalComponent implements FormCreation {
         options: this.data.services,
         validators: [Validators.required],
         floatingLabel: 'always',
+        value: this.data.services[0]?.value,
       },
       {
-        type: 'select',
+        type: 'creatableSelect',
         name: 'professional',
         label: 'Professional',
         placeholder: 'Select a professional',
         options: this.data.professionals,
         validators: [Validators.required],
         floatingLabel: 'always',
+        selectConfig: {
+          onCreateRecord: this.data.createProfessional,
+        },
       },
       {
         type: 'textarea',
