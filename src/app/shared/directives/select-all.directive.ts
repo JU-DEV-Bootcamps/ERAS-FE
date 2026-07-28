@@ -76,7 +76,17 @@ export class SelectAllDirective<T extends SelectAllValue>
 
   ngAfterViewInit(): void {
     const parentSelect = this._matSelect;
-    const parentFormControl = parentSelect.ngControl?.control;
+    const parentFormControl = this._matSelect.ngControl?.control;
+
+    this._subscriptions.push(
+      parentFormControl!.valueChanges.subscribe(value => {
+        // Deferred to a microtask so this doesn't run synchronously in the
+        // middle of the same click's onSelectionChange emission chain —
+        // otherwise it flips this option's `selected` state before our
+        // own onSelectionChange handler below gets a chance to read it.
+        queueMicrotask(() => this._updateState(value));
+      })
+    );
 
     this._subscriptions.push(
       this._matOption.onSelectionChange.subscribe(event => {

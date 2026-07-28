@@ -8,9 +8,11 @@ import {
   AfterViewInit,
   QueryList,
   ViewChildren,
+  DestroyRef,
+  OnDestroy,
 } from '@angular/core';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { debounceTime, fromEvent } from 'rxjs';
+import { debounceTime, fromEvent, timer } from 'rxjs';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -35,6 +37,7 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { Filter } from '../poll-filters/types/filters';
 import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic-column-chart-v2.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-dynamic-charts--v2',
@@ -54,7 +57,9 @@ import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic
   templateUrl: './dynamic-charts-v2.component.html',
   styleUrl: './dynamic-charts-v2.component.scss',
 })
-export class DynamicChartsV2Component implements AfterViewInit {
+export class DynamicChartsV2Component implements AfterViewInit, OnDestroy {
+  private destroyRef = inject(DestroyRef);
+
   title = '';
   uuid: string | null = null;
   cohorTitle: string | null = null;
@@ -89,15 +94,23 @@ export class DynamicChartsV2Component implements AfterViewInit {
 
   private cardWidth = signal<number>(0);
 
+  private pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
+
   ngAfterViewInit() {
     const DEFAULT_DEBOUNCE_TIME = 450;
     this._updateCardWidth();
 
     fromEvent(window, 'resize')
-      .pipe(debounceTime(DEFAULT_DEBOUNCE_TIME))
-      .subscribe(() => {
-        this.refreshSeries();
-      });
+      .pipe(
+        debounceTime(DEFAULT_DEBOUNCE_TIME),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.refreshSeries());
+  }
+
+  ngOnDestroy(): void {
+    this.pendingTimeouts.forEach(id => clearTimeout(id));
+    this.pendingTimeouts = [];
   }
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -107,6 +120,7 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.isLoading = true;
     this.reportService
       .getCountPoolReport(this.uuid, cohortIds, variablesIds, this.evaluationId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
@@ -258,11 +272,13 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.isPanelTransitioning.set(true);
     this.isPanelOpen.set(true);
 
-    setTimeout(() => {
-      this._updateCardWidth();
-      this.refreshSeries(50);
-      this.resizeTick.update(v => v + 1);
-    }, 50);
+    timer(50)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._updateCardWidth();
+        this.refreshSeries(50);
+        this.resizeTick.update(v => v + 1);
+      });
   }
 
   closePanel(): void {
@@ -270,11 +286,13 @@ export class DynamicChartsV2Component implements AfterViewInit {
     this.isPanelOpen.set(false);
     this.selectedPanelData.set(null);
 
-    setTimeout(() => {
-      this._updateCardWidth();
-      this.refreshSeries(50);
-      this.resizeTick.update(v => v + 1);
-    }, 50);
+    timer(50)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._updateCardWidth();
+        this.refreshSeries(50);
+        this.resizeTick.update(v => v + 1);
+      });
   }
 
   toggleChart(chart: string) {
@@ -327,11 +345,13 @@ export class DynamicChartsV2Component implements AfterViewInit {
   }
 
   private refreshSeries(delay = 0): void {
-    setTimeout(() => {
-      this._updateCardWidth();
-      const report = this.components();
-      if (report) this.generateSeries(report);
-    }, delay);
+    timer(delay)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._updateCardWidth();
+        const report = this.components();
+        if (report) this.generateSeries(report);
+      });
   }
 
   getChartType(index: number): 'heatmap' | 'column' {

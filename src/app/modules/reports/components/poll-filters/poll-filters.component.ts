@@ -68,6 +68,8 @@ export class PollFiltersComponent implements OnInit {
   private pollsService = inject(PollService);
   private evaluationsService = inject(EvaluationsService);
 
+  private readonly SELECT_ALL_SENTINEL = 'allValues';
+
   cohorts = signal<CohortModel[]>([]);
   componentNames = signal<string[]>([]);
   allComponentNames = signal<string[]>([]);
@@ -411,11 +413,19 @@ export class PollFiltersComponent implements OnInit {
     const selectedComponents =
       formVal.componentNames?.filter(val => val !== undefined) || [];
 
+    const rawVariables = formVal.variables || [];
+    const variableIds = this.showVariables
+      ? rawVariables.filter(
+          (v): v is number =>
+            v !== undefined && (v as unknown) !== this.SELECT_ALL_SENTINEL
+        )
+      : [];
+
     this.filters.emit({
       title,
       uuid: this.polls[0].uuid,
       cohortIds: cohorts.filter((id): id is number => !!id),
-      variableIds: this.showVariables ? formVal.variables || [] : [],
+      variableIds,
       lastVersion: true,
       evaluationId,
       selectedComponentIndex: selectedComponents

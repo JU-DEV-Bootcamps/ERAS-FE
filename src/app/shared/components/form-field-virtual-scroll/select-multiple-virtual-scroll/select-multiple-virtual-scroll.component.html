@@ -52,7 +52,6 @@
       [value]="'allValues'"
       appSelectAll
       [allValues]="scrollItemsValues()"
-      (onSelectionChange)="selectAllClicked($event)"
     >
       Select all
     </mat-option>
@@ -75,7 +74,10 @@
         </ng-container>
       </cdk-virtual-scroll-viewport>
     } @else {
-      @for (item of filteredScrollItems(); track item.label) {
+      @for (
+        item of filteredScrollItems();
+        track trackScrollItem($index, item)
+      ) {
         @if (isGroupItem(item)) {
           <mat-option disabled class="group-header">
             {{ item.label | uppercase }}

@@ -31,7 +31,10 @@
         class="charts-grid"
         [style.height.px]="isAnyCardExpanded ? gridHeight : null"
       >
-        @for (chartOption of chartsOptions; track $index) {
+        @for (
+          chartOption of chartsOptions;
+          track getComponentOfChart(chartOption.title?.text)
+        ) {
           <app-expandable-card
             #chartsGrid
             [cardId]="'chart-' + getComponentOfChart(chartOption.title?.text)"
