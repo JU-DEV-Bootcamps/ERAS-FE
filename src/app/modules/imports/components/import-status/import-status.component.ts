@@ -34,6 +34,8 @@ import { Column } from '@shared/components/list/types/column';
 import { ActionDatas } from '@shared/components/list/types/action';
 
 import { ImportStatusBadgeComponent } from './import-status-badge/import-status-badge.component';
+import { DialogService } from '@core/services/dialog.service';
+import { IMPORT_MESSAGES } from '@core/constants/messages';
 
 const POLL_INTERVAL_MS = 3000;
 
@@ -56,6 +58,7 @@ export class ImportStatusComponent implements OnInit {
   private readonly toast = inject(ToastNotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
 
   @ViewChild('statusTpl', { static: true })
   statusTpl!: TemplateRef<unknown>;
@@ -66,6 +69,7 @@ export class ImportStatusComponent implements OnInit {
 
   status: ImportJobStatusModel | null = null;
   rows: ImportItemRow[] = [];
+  private emptyHandled = false;
 
   readonly columns: Column<ImportItemRow>[] = [
     { label: 'Name', key: 'name' },
@@ -273,6 +277,14 @@ export class ImportStatusComponent implements OnInit {
       row.isSelected = this.isConfirmable(row);
       return row;
     });
+    if (status.status === 'Ready' && items.length === 0 && !this.emptyHandled) {
+      this.emptyHandled = true;
+      this.dialogService.openDialog(
+        IMPORT_MESSAGES.ANSWERS_IMPORT_EMPTY,
+        'warning'
+      );
+      this.router.navigate(['evaluation-process']);
+    }
   }
 
   private isActive(status: ImportJobStatus): boolean {
