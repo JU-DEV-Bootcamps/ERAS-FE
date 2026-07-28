@@ -206,9 +206,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           configurationId: this.selectedConfiguration?.id,
           country: this.selectedCountry || this.form.value.country.alpha3,
         } as CreateEvaluationModel;
-        if (this.form.value.pollName.name === 'null') {
-          delete newProcess.pollName;
-        }
+
         this.evaluationsService
           .createEvalProc(newProcess, this.form.value.pollName._id)
           .subscribe({
