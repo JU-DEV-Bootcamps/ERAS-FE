@@ -82,6 +82,10 @@ export class DetailsPanelComponent implements OnChanges {
     },
   ];
 
+  exportColumns: Column<EvaluationDetailsStudentResponse>[] = [
+    { key: 'riskLevel', label: 'Risk Level' },
+  ];
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data()) {
       this.pagination = {
