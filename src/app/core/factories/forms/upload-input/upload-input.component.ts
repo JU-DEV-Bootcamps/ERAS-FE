@@ -5,6 +5,7 @@ import {
   FormGroupDirective,
   ReactiveFormsModule,
   ValidationErrors,
+  ValidatorFn,
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import {
@@ -54,16 +55,34 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
     return this.field().fileConfig ?? {};
   }
 
+  private get maxFiles(): number {
+    return this.config.maxFiles ?? 1;
+  }
+
+  private maxFilesValidator(): ValidatorFn {
+    return (): ValidationErrors | null => {
+      const current = this.selectedFiles().length;
+      return current > this.maxFiles
+        ? { maxFilesExceeded: { max: this.maxFiles, current } }
+        : null;
+    };
+  }
+
   ngOnInit(): void {
+    const control = this.form().get(this.field().name);
+    control?.addValidators(this.maxFilesValidator());
+
     const names = this.config.prefillFileNames ?? [];
-    if (!names.length) return;
+    if (!names.length) {
+      control?.updateValueAndValidity();
+      return;
+    }
 
     const placeholders = names.map(name => new File([], name));
     this.selectedFiles.set(placeholders);
 
-    const control = this.form().get(this.field().name);
     control?.setValue(names);
-    this.applyMaxFilesValidation();
+    this.syncMaxFilesMessage();
   }
 
   onFileSelected(event: Event): void {
@@ -105,50 +124,34 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
       this.errorMatcher.setHasErrors(false);
     }
 
-    this.applyMaxFilesValidation();
+    this.syncMaxFilesMessage();
   }
 
   removeFile(index: number): void {
     this.selectedFiles.update(prev => prev.filter((file, i) => i !== index));
     this.config.onFileRemoved?.(index);
-    this.form().get(this.field().name)?.setValue(this.selectedFiles());
-    this.form().get(this.field().name)?.markAsDirty();
+    const control = this.form().get(this.field().name);
+    control?.setValue(this.selectedFiles());
+    control?.markAsDirty();
     this.errorMatcher.setHasErrors(false);
-    this.applyMaxFilesValidation();
+    this.errorMessage.set(null);
+    this.syncMaxFilesMessage();
   }
 
-  private applyMaxFilesValidation(): void {
+  private syncMaxFilesMessage(): void {
     const control = this.form().get(this.field().name);
-    if (!control) return;
-
-    const maxFiles = this.field().fileConfig?.maxFiles ?? 1;
-    const currentErrors = { ...(control.errors ?? {}) };
-
-    if (this.selectedFiles().length > maxFiles) {
-      currentErrors['maxFilesExceeded'] = { max: maxFiles };
-      control.setErrors(currentErrors);
+    if (control?.hasError('maxFilesExceeded')) {
+      const removeCount = this.selectedFiles().length - this.maxFiles;
       this.errorMessage.set(
-        `You can only attach up to ${maxFiles} documents. Please remove ${
-          this.selectedFiles().length - maxFiles
-        } file(s) before saving.`
+        `You can only attach up to ${this.maxFiles} documents. Please remove ${removeCount} file(s) before saving.`
       );
       this.errorMatcher.setHasErrors(true);
-    } else if (currentErrors['maxFilesExceeded']) {
-      delete currentErrors['maxFilesExceeded'];
-      const remaining = Object.keys(currentErrors).length
-        ? currentErrors
-        : null;
-      control.setErrors(remaining);
-      if (!remaining) {
-        this.errorMessage.set(null);
-        this.errorMatcher.setHasErrors(false);
-      }
     }
   }
 
   private validate(file: File): ValidationErrors | null {
     const FILE_CONFIG = {
-      maxFiles: this.field().fileConfig?.maxFiles ?? 1,
+      maxFiles: this.maxFiles,
       maxSizeMb: this.field().fileConfig?.maxSizeMb ?? 1024,
       allowedMimeTypes: this.field().fileConfig?.allowedMimeTypes ?? [],
       allowedExtensions: this.field().fileConfig?.allowedExtensions ?? '',
