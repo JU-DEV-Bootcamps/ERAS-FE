@@ -23,7 +23,10 @@ import { AssessmentModel } from '@core/models/assessment.model';
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Lookup } from '@core/models/lookup';
-import { AssignedProfessional } from '@modules/supports-referrals/models/referrals.interfaces';
+import {
+  AssignedProfessional,
+  JuService,
+} from '@modules/supports-referrals/models/referrals.interfaces';
 
 @Component({
   selector: 'app-assessments',
@@ -81,43 +84,14 @@ export class AssessmentsComponent implements OnInit {
       });
   }
 
-  private getLookups(): Observable<AssessmentsLookups> {
-    return forkJoin({
-      services: this.juServicesService.getAllJuServices(),
-      professionals: this.professionalsService.getAllProfessionals({
-        page: 0,
-        pageSize: 1000,
-      }),
-      students: this.studentService.getAllStudents(),
-    }).pipe(
-      map(({ professionals, services, students }) => ({
-        // this.professionalsService
-        //   .getAllProfessionals({
-        //     page: 0,
-        //     pageSize: firstProfessionals.count,
-        //   })
-        //   .pipe(
-        // map(professionals => ({
-        profiles: mapFields(
-          [this.userDataService.user()!],
-          'fullName',
-          'fullName'
-        ),
-        services: mapFields(services.items, 'name', 'name'),
-        professionals: mapFields(professionals.items, 'name', 'name'),
-        students: mapFields(students.items, 'name', 'id'),
-      }))
-      // ))
-      // )
-      // )
-    );
-  }
-
   private getVolatileLookups(): Observable<
     Pick<AssessmentsLookups, 'services' | 'professionals'>
   > {
     return forkJoin({
-      services: this.juServicesService.getAllJuServices(),
+      services: this.juServicesService.getAllJuServices({
+        page: 0,
+        pageSize: 1000,
+      }),
       professionals: this.professionalsService.getAllProfessionals({
         page: 0,
         pageSize: 1000,
@@ -158,6 +132,7 @@ export class AssessmentsComponent implements OnInit {
               ...this.lookups(),
               preselectedStudentId,
               createProfessional: this.createProfessional.bind(this),
+              createService: this.createService.bind(this),
             },
           });
 
@@ -171,20 +146,6 @@ export class AssessmentsComponent implements OnInit {
           this.lookupLoading.set(false);
         },
       });
-
-    // const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
-    //   ...this.modalConfig,
-    //   data: {
-    //     ...this.lookups(),
-    //     preselectedStudentId,
-    //     createProfessional: this.createProfessional.bind(this),
-    //   },
-    // });
-
-    // dialogRef
-    //   .afterClosed()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe(() => this.listComponent()?.loadAssessments());
   }
 
   openEditModal(assessment: AssessmentModel) {
@@ -235,10 +196,7 @@ export class AssessmentsComponent implements OnInit {
       },
     };
     return this.professionalsService.addNewProfessional(newProfessional).pipe(
-      // map(response => response.),
       tap((created: AssignedProfessional) => {
-        console.log('cretaed0', created);
-
         const option: Lookup = { label: created.name, value: created.name };
         this.lookups.update(current => ({
           ...current,
@@ -247,6 +205,34 @@ export class AssessmentsComponent implements OnInit {
       }),
       map(
         (created: AssignedProfessional): Lookup => ({
+          label: created.name,
+          value: created.name,
+        })
+      )
+    );
+  };
+
+  private createService = (newService: string): Observable<Lookup> => {
+    const service: JuService = {
+      id: 0,
+      name: newService,
+      audit: {
+        createdBy: 'configurator',
+        createdAt: new Date(),
+        modifiedBy: 'configurator',
+        modifiedAt: new Date(),
+      },
+    };
+    return this.juServicesService.addNewService(service).pipe(
+      tap((created: JuService) => {
+        const option: Lookup = { label: created.name, value: created.name };
+        this.lookups.update(current => ({
+          ...current,
+          services: [...current.services, option],
+        }));
+      }),
+      map(
+        (created: JuService): Lookup => ({
           label: created.name,
           value: created.name,
         })

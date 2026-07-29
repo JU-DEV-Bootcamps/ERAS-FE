@@ -12,6 +12,7 @@ export interface AssessmentsLookups {
   students: Lookup[];
   preselectedStudentId?: number;
   createProfessional?: (name: string) => Observable<Lookup>;
+  createService?: (record: string) => Observable<Lookup>;
 }
 
 export interface AssessmentModalData extends AssessmentsLookups {

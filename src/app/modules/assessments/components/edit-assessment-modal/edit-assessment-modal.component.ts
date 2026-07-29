@@ -138,7 +138,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         value: this.data.assessment.createdBy,
       },
       {
-        type: 'select',
+        type: 'creatableSelect',
         name: 'service',
         label: 'Service',
         placeholder: 'Select service',
@@ -155,9 +155,6 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         options: this.data.professionals,
         validators: [Validators.required],
         floatingLabel: 'always',
-        selectConfig: {
-          onCreateRecord: this.data.createProfessional,
-        },
         value: this.data.assessment.assignedProfessional,
       },
       {
@@ -194,7 +191,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         id: this.data.assessment.id,
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
-        service: this.form.value.service,
+        service: this.form.value.service.value,
         assignedProfessional: this.form.value.professional.value,
         studentIds: this.form.value.students,
         comments: this.form.value.professionalComment,

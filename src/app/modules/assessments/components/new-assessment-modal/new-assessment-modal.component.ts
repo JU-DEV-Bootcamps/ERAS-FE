@@ -73,7 +73,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         value: this.data.profiles?.[0]?.value ?? null,
       },
       {
-        type: 'select',
+        type: 'creatableSelect',
         name: 'service',
         label: 'Service',
         placeholder: 'Select service',
@@ -81,6 +81,9 @@ export class NewAssessmentModalComponent implements FormCreation {
         validators: [Validators.required],
         floatingLabel: 'always',
         value: this.data.services[0]?.value,
+        selectConfig: {
+          onCreateRecord: this.data.createService,
+        },
       },
       {
         type: 'creatableSelect',
@@ -120,7 +123,7 @@ export class NewAssessmentModalComponent implements FormCreation {
       const newAssessment: AssessmentModel = {
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
-        service: this.form.value.service,
+        service: this.form.value.service.value,
         assignedProfessional: this.form.value.professional.value,
         studentIds: this.form.value.students,
         comments: this.form.value.professionalComment,
