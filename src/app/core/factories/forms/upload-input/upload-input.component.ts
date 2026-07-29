@@ -63,6 +63,7 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
 
     const control = this.form().get(this.field().name);
     control?.setValue(names);
+    this.applyMaxFilesValidation();
   }
 
   onFileSelected(event: Event): void {
@@ -103,6 +104,8 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
       this.errorMessage.set(null);
       this.errorMatcher.setHasErrors(false);
     }
+
+    this.applyMaxFilesValidation();
   }
 
   removeFile(index: number): void {
@@ -111,6 +114,36 @@ export class UploadInputComponent implements DynamicInputComponent, OnInit {
     this.form().get(this.field().name)?.setValue(this.selectedFiles());
     this.form().get(this.field().name)?.markAsDirty();
     this.errorMatcher.setHasErrors(false);
+    this.applyMaxFilesValidation();
+  }
+
+  private applyMaxFilesValidation(): void {
+    const control = this.form().get(this.field().name);
+    if (!control) return;
+
+    const maxFiles = this.field().fileConfig?.maxFiles ?? 1;
+    const currentErrors = { ...(control.errors ?? {}) };
+
+    if (this.selectedFiles().length > maxFiles) {
+      currentErrors['maxFilesExceeded'] = { max: maxFiles };
+      control.setErrors(currentErrors);
+      this.errorMessage.set(
+        `You can only attach up to ${maxFiles} documents. Please remove ${
+          this.selectedFiles().length - maxFiles
+        } file(s) before saving.`
+      );
+      this.errorMatcher.setHasErrors(true);
+    } else if (currentErrors['maxFilesExceeded']) {
+      delete currentErrors['maxFilesExceeded'];
+      const remaining = Object.keys(currentErrors).length
+        ? currentErrors
+        : null;
+      control.setErrors(remaining);
+      if (!remaining) {
+        this.errorMessage.set(null);
+        this.errorMatcher.setHasErrors(false);
+      }
+    }
   }
 
   private validate(file: File): ValidationErrors | null {
