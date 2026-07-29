@@ -127,6 +127,7 @@ export class EvaluationProcessListComponent implements OnInit {
       ngIconName: 'drive_file_move',
       text: 'New Import',
       isVisible: this.isVisible.bind(this),
+      isDisabled: (item: EvaluationModel) => item.pollName.trim() === '',
     },
     {
       columnId: 'actions',

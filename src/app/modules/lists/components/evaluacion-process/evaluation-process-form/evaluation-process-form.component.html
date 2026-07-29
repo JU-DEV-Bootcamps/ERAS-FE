@@ -93,7 +93,7 @@
 
     <div class="row">
       <mat-form-field class="input">
-        @if (pollDataSelected !== null) {
+        @if (pollDataSelected !== null && pollDataSelected.selectData) {
           <mat-label> {{ pollDataSelected.selectData }}</mat-label>
         } @else {
           <mat-label>Select a COSMIC LATTE poll by name</mat-label>
