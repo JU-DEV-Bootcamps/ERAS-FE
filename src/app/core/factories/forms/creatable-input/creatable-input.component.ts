@@ -1,7 +1,7 @@
-import { Component, computed, input, signal } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, input, InputSignal, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormUtils } from '@core/utils/forms/form-utils';
-import { DynamicField } from '../form-factory.interface';
+import { DynamicField, DynamicInputComponent } from '../form-factory.interface';
 import { MatLabel } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import {
@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-creatable-component',
@@ -25,17 +26,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatProgressSpinnerModule,
     MatLabel,
     MatFormFieldModule,
+    CommonModule,
     MatAutocompleteModule,
   ],
   templateUrl: './creatable-input.component.html',
   styleUrl: './creatable-input.component.scss',
 })
-export class CreatableInputComponent {
-  field = input.required<DynamicField>();
-  form = input.required<FormGroup>();
+export class CreatableInputComponent implements DynamicInputComponent {
+  field: InputSignal<DynamicField> = input.required<DynamicField>();
+  form: InputSignal<FormGroup> = input.required<FormGroup>();
   formUtils = FormUtils;
 
-  private _control = computed(() => this.form().get(this.field().name));
+  control = computed(() => this.form().get(this.field().name) as FormControl);
 
   private _createdOptions = signal<Lookup[]>([]);
 
@@ -70,7 +72,7 @@ export class CreatableInputComponent {
   }
 
   onOptionSelected(option: Lookup): void {
-    this._control()?.setValue(option);
+    this.control()?.setValue(option);
     this.searchTerm.set('');
     this.isCreating.set(false);
   }
@@ -98,8 +100,9 @@ export class CreatableInputComponent {
       .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: created => {
+          created = { label: name, value: name };
           this._createdOptions.update(opts => [...opts, created]);
-          this._control()?.setValue(created);
+          this.control()?.setValue(created);
           this.searchTerm.set('');
           this.isCreating.set(false);
           trigger.closePanel();

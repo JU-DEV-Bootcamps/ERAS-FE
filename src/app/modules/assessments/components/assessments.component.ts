@@ -13,7 +13,7 @@ import { JuServicesService } from '@modules/supports-referrals/services/juServic
 import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
 import { StudentService } from '@core/services/api/student.service';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { forkJoin, map, Observable, switchMap, tap } from 'rxjs';
+import { forkJoin, map, Observable, of, tap } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
@@ -59,47 +59,74 @@ export class AssessmentsComponent implements OnInit {
   lookupLoading: WritableSignal<boolean> = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.checkPreselectedStudent();
-    // this.lookupLoading.set(true);
-    // this.getLookups()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe({
-    //     next: lookups => this.lookups.set(lookups),
-    //     error: err => console.error('Error retrieving lookups', err),
-    //     complete: () => {
-    //       this.lookupLoading.set(false);
-    //       this.checkPreselectedStudent();
-    //     },
-    //   });
+    this.lookupLoading.set(true);
+    forkJoin({
+      profiles: of(
+        mapFields([this.userDataService.user()!], 'fullName', 'fullName')
+      ),
+      students: this.studentService
+        .getAllStudents()
+        .pipe(map(students => mapFields(students.items, 'name', 'id'))),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ profiles, students }) => {
+          this.lookups.update(current => ({ ...current, profiles, students }));
+        },
+        error: err => console.error('Error retrieving static lookups', err),
+        complete: () => {
+          this.lookupLoading.set(false);
+          this.checkPreselectedStudent();
+        },
+      });
   }
 
   private getLookups(): Observable<AssessmentsLookups> {
-    console.log('aire');
-
     return forkJoin({
       services: this.juServicesService.getAllJuServices(),
-      firstProfessionals: this.professionalsService.getAllProfessionals(),
+      professionals: this.professionalsService.getAllProfessionals({
+        page: 0,
+        pageSize: 1000,
+      }),
       students: this.studentService.getAllStudents(),
     }).pipe(
-      switchMap(({ firstProfessionals, services, students }) =>
-        this.professionalsService
-          .getAllProfessionals({
-            page: 0,
-            pageSize: firstProfessionals.count,
-          })
-          .pipe(
-            map(professionals => ({
-              profiles: mapFields(
-                [this.userDataService.user()!],
-                'fullName',
-                'fullName'
-              ),
-              services: mapFields(services.items, 'name', 'name'),
-              professionals: mapFields(professionals.items, 'name', 'name'),
-              students: mapFields(students.items, 'name', 'id'),
-            }))
-          )
-      )
+      map(({ professionals, services, students }) => ({
+        // this.professionalsService
+        //   .getAllProfessionals({
+        //     page: 0,
+        //     pageSize: firstProfessionals.count,
+        //   })
+        //   .pipe(
+        // map(professionals => ({
+        profiles: mapFields(
+          [this.userDataService.user()!],
+          'fullName',
+          'fullName'
+        ),
+        services: mapFields(services.items, 'name', 'name'),
+        professionals: mapFields(professionals.items, 'name', 'name'),
+        students: mapFields(students.items, 'name', 'id'),
+      }))
+      // ))
+      // )
+      // )
+    );
+  }
+
+  private getVolatileLookups(): Observable<
+    Pick<AssessmentsLookups, 'services' | 'professionals'>
+  > {
+    return forkJoin({
+      services: this.juServicesService.getAllJuServices(),
+      professionals: this.professionalsService.getAllProfessionals({
+        page: 0,
+        pageSize: 1000,
+      }),
+    }).pipe(
+      map(({ services, professionals }) => ({
+        services: mapFields(services.items, 'name', 'name'),
+        professionals: mapFields(professionals.items, 'name', 'name'),
+      }))
     );
   }
 
@@ -115,11 +142,15 @@ export class AssessmentsComponent implements OnInit {
 
   openCreateModal(preselectedStudentId?: number) {
     this.lookupLoading.set(true);
-    this.getLookups()
+    this.getVolatileLookups()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: lookups => {
-          this.lookups.set(lookups);
+        next: ({ services, professionals }) => {
+          this.lookups.update(current => ({
+            ...current,
+            services,
+            professionals,
+          }));
           this.lookupLoading.set(false);
           const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
             ...this.modalConfig,
@@ -140,18 +171,50 @@ export class AssessmentsComponent implements OnInit {
           this.lookupLoading.set(false);
         },
       });
+
+    // const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
+    //   ...this.modalConfig,
+    //   data: {
+    //     ...this.lookups(),
+    //     preselectedStudentId,
+    //     createProfessional: this.createProfessional.bind(this),
+    //   },
+    // });
+
+    // dialogRef
+    //   .afterClosed()
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe(() => this.listComponent()?.loadAssessments());
   }
 
   openEditModal(assessment: AssessmentModel) {
-    const dialogRef = this.matDialog.open(EditAssessmentModalComponent, {
-      ...this.modalConfig,
-      data: { assessment, ...this.lookups() },
-    });
+    this.lookupLoading.set(true);
 
-    dialogRef
-      .afterClosed()
+    this.getVolatileLookups()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.listComponent()?.loadAssessments());
+      .subscribe({
+        next: ({ services, professionals }) => {
+          this.lookups.update(current => ({
+            ...current,
+            services,
+            professionals,
+          }));
+          this.lookupLoading.set(false);
+          const dialogRef = this.matDialog.open(EditAssessmentModalComponent, {
+            ...this.modalConfig,
+            data: { assessment, ...this.lookups() },
+          });
+
+          dialogRef
+            .afterClosed()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.listComponent()?.loadAssessments());
+        },
+        error: err => {
+          console.error('Error retrieving lookups', err);
+          this.lookupLoading.set(false);
+        },
+      });
   }
 
   openDeleteModal(assessment: AssessmentModel) {

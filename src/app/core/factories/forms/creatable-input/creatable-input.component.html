@@ -12,7 +12,7 @@
     matInput
     #trigger="matAutocompleteTrigger"
     type="text"
-    [formControlName]="field().name"
+    [formControl]="control()"
     [placeholder]="
       isCreating()
         ? (field().selectConfig?.addNewLabel ?? 'New' + field().label)
@@ -59,7 +59,7 @@
       </mat-option>
     }
 
-    @for (option of filteredOptions(); track option.label) {
+    @for (option of filteredOptions(); track option.value) {
       <mat-option [value]="option">{{ option.label }}</mat-option>
     }
 

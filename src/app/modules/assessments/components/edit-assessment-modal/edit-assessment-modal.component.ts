@@ -148,13 +148,16 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         value: this.data.assessment.service,
       },
       {
-        type: 'select',
+        type: 'creatableSelect',
         name: 'professional',
         label: 'Professional',
         placeholder: 'Select a professional',
         options: this.data.professionals,
         validators: [Validators.required],
         floatingLabel: 'always',
+        selectConfig: {
+          onCreateRecord: this.data.createProfessional,
+        },
         value: this.data.assessment.assignedProfessional,
       },
       {
