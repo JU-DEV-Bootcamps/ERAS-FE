@@ -19,12 +19,4 @@ $font-text-md: var(--font-size-medium);
 
 .upload-field-wrapper {
   position: relative;
-
-  mat-form-field {
-    margin-bottom: 0;
-  }
-
-  &:has(.field-error) .choose-file-button {
-    top: 24%;
-  }
 }

@@ -48,11 +48,14 @@ export class CreatableInputComponent implements DynamicInputComponent {
 
   filteredOptions = computed(() => {
     const options = (this.field().options ?? []) as Lookup[];
+    const lastOptions = [...options, ...this._createdOptions()];
     const term = (this.searchTerm() ?? '').toString().toLowerCase().trim();
 
-    if (!term) return options;
+    if (!term) return lastOptions;
 
-    return options.filter(option => option.label.toLowerCase().includes(term));
+    return lastOptions.filter(option =>
+      option.label.toLowerCase().includes(term)
+    );
   });
 
   hasExactMatch = computed(() => {
@@ -91,7 +94,7 @@ export class CreatableInputComponent implements DynamicInputComponent {
     const name = this.searchTerm().trim();
     const onCreateFn = this.field().selectConfig?.onCreateRecord;
 
-    if (!name || !onCreateFn) return;
+    if (!name || !onCreateFn || this.hasExactMatch()) return;
 
     this.isSaving.set(true);
     this.createError.set(null);
