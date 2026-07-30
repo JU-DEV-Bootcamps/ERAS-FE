@@ -7,7 +7,7 @@ export const ALLOWED_MIME_TYPES = [
   'text/plain',
 ];
 export const ALLOWED_EXTENSIONS = '.pdf,.jpg,.png,.txt';
-export const MAX_FILES = 2;
+export const MAX_FILES = 5;
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export const TYPE_OPTIONS = [
