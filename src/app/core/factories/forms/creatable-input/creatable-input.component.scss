@@ -1,0 +1,30 @@
+$font-text-md: var(--font-size-medium);
+
+.button-save-cancel {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $font-text-md;
+  font-weight: 500;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.upload-field-wrapper {
+  position: relative;
+
+  mat-form-field {
+    margin-bottom: 0;
+  }
+
+  &:has(.field-error) .choose-file-button {
+    top: 24%;
+  }
+}

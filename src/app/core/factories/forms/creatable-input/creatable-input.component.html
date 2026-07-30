@@ -1,78 +1,82 @@
-<mat-form-field
-  [floatLabel]="field().floatingLabel ?? 'auto'"
-  class="w-full"
-  appearance="outline"
->
-  <mat-label>{{ field().label }}</mat-label>
-  @if (!isCreating()) {
-    <mat-icon matPrefix>search</mat-icon>
-  }
-
-  <input
-    matInput
-    #trigger="matAutocompleteTrigger"
-    type="text"
-    [formControl]="control()"
-    [placeholder]="
-      isCreating()
-        ? (field().selectConfig?.addNewLabel ?? 'New' + field().label)
-        : (field().placeholder ?? 'Search')
-    "
-    [matAutocomplete]="auto"
-    [disabled]="isSaving()"
-    (input)="onInput($any($event.target).value)"
-  />
-
-  @if (isCreating()) {
-    @if (isSaving()) {
-      <mat-spinner matSuffix diameter="18"></mat-spinner>
-    } @else {
-      <button
-        matSuffix
-        mat-button
-        color="primary"
-        type="button"
-        [disabled]="!searchTerm().trim()"
-        (click)="save(trigger)"
-      >
-        Save
-      </button>
-      <button
-        matSuffix
-        mat-icon-button
-        type="button"
-        (click)="cancelCreating()"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
-    }
-  }
-  <mat-autocomplete
-    #auto="matAutocomplete"
-    [displayWith]="displayFn"
-    (optionSelected)="onOptionSelected($event.option.value)"
+<div class="upload-field-wrapper">
+  <mat-form-field
+    [floatLabel]="field().floatingLabel ?? 'auto'"
+    class="w-full"
+    appearance="outline"
   >
-    @if (field().selectConfig?.onCreateRecord && !hasExactMatch()) {
-      <mat-option class="add-new-option" (click)="startCreating()">
-        <mat-icon>add</mat-icon>
-        {{ field().selectConfig?.addNewLabel ?? 'New ' + field().label }}
-      </mat-option>
+    <mat-label>{{ field().label }}</mat-label>
+    @if (!isCreating()) {
+      <mat-icon matPrefix>search</mat-icon>
     }
 
-    @for (option of filteredOptions(); track option.value) {
-      <mat-option [value]="option">{{ option.label }}</mat-option>
-    }
+    <input
+      matInput
+      #trigger="matAutocompleteTrigger"
+      type="text"
+      [formControl]="control()"
+      [placeholder]="
+        isCreating()
+          ? (field().selectConfig?.addNewLabel ?? 'New' + field().label)
+          : (field().placeholder ?? 'Search')
+      "
+      [matAutocomplete]="auto"
+      [disabled]="isSaving()"
+      (input)="onInput($any($event.target).value)"
+    />
 
-    @if (
-      filteredOptions().length === 0 && !field().selectConfig?.onCreateRecord
-    ) {
-      <mat-option disabled>No results found</mat-option>
+    @if (isCreating()) {
+      @if (isSaving()) {
+        <mat-spinner matSuffix diameter="18"></mat-spinner>
+      } @else {
+        <div class="button-save-cancel">
+          <button
+            matSuffix
+            mat-button
+            color="primary"
+            type="button"
+            [disabled]="!searchTerm().trim()"
+            (click)="save(trigger)"
+          >
+            Save
+          </button>
+          <button
+            matSuffix
+            mat-icon-button
+            type="button"
+            (click)="cancelCreating()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
     }
-  </mat-autocomplete>
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="displayFn"
+      (optionSelected)="onOptionSelected($event.option.value)"
+    >
+      @if (field().selectConfig?.onCreateRecord && !hasExactMatch()) {
+        <mat-option class="add-new-option" (click)="startCreating()">
+          <mat-icon>add</mat-icon>
+          {{ field().selectConfig?.addNewLabel ?? 'New ' + field().label }}
+        </mat-option>
+      }
 
-  @if (createError()) {
-    <mat-error>{{ createError() }}</mat-error>
-  } @else if (formUtils.isValidField(form(), field().name)) {
-    <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
-  }
-</mat-form-field>
+      @for (option of filteredOptions(); track option.value) {
+        <mat-option [value]="option">{{ option.label }}</mat-option>
+      }
+
+      @if (
+        filteredOptions().length === 0 && !field().selectConfig?.onCreateRecord
+      ) {
+        <mat-option disabled>No results found</mat-option>
+      }
+    </mat-autocomplete>
+
+    @if (createError()) {
+      <mat-error>{{ createError() }}</mat-error>
+    } @else if (formUtils.isValidField(form(), field().name)) {
+      <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
+    }
+  </mat-form-field>
+</div>
