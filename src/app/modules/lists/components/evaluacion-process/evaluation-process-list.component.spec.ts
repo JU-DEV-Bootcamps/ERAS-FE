@@ -19,6 +19,7 @@ import { RouteDataService } from '@core/services/route-data.service';
 import { EvaluationModel } from '@core/models/evaluation.model';
 import { ActionDataWithCondition } from '@shared/components/list/types/action';
 import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
+import { Status } from '@core/constants/common';
 
 describe('EvaluationProcessListComponent', () => {
   let component: EvaluationProcessListComponent;
@@ -175,6 +176,53 @@ describe('EvaluationProcessListComponent', () => {
 
       mockFeatureFlagsService.isEnabled.and.returnValue(false);
       expect(viewImportAction?.isVisible?.(buildEvaluation())).toBeFalse();
+    });
+  });
+
+  describe('goImport action data', () => {
+    it('should be disabled when the evaluation has no pollName', () => {
+      const evaluation = buildEvaluation({ pollName: '' });
+      const goImportAction = component.actionDatas.find(
+        action => action.id === 'goImport'
+      ) as ActionDataWithCondition<EvaluationModel> | undefined;
+
+      expect(goImportAction?.isDisabled?.(evaluation)).toBeTrue();
+    });
+
+    it('should be enabled when the evaluation has a pollName', () => {
+      const evaluation = buildEvaluation({ pollName: 'Test Poll Name' });
+      const goImportAction = component.actionDatas.find(
+        action => action.id === 'goImport'
+      ) as ActionDataWithCondition<EvaluationModel> | undefined;
+
+      expect(goImportAction?.isDisabled?.(evaluation)).toBeFalse();
+    });
+
+    it('should not be visible when evaluation status is incomplete', () => {
+      const evaluation = buildEvaluation({ status: Status.INCOMPLETE });
+      const goImportAction = component.actionDatas.find(
+        action => action.id === 'goImport'
+      ) as ActionDataWithCondition<EvaluationModel> | undefined;
+
+      expect(goImportAction!.isVisible!(evaluation)).toBeFalse();
+    });
+
+    it('should not be visible when evaluation status is not started', () => {
+      const evaluation = buildEvaluation({ status: Status.NOT_STARTED });
+      const goImportAction = component.actionDatas.find(
+        action => action.id === 'goImport'
+      ) as ActionDataWithCondition<EvaluationModel> | undefined;
+
+      expect(goImportAction!.isVisible!(evaluation)).toBeFalse();
+    });
+
+    it('should be visible when evaluation status is in progress', () => {
+      const evaluation = buildEvaluation({ status: Status.IN_PROGRESS });
+      const goImportAction = component.actionDatas.find(
+        action => action.id === 'goImport'
+      ) as ActionDataWithCondition<EvaluationModel> | undefined;
+
+      expect(goImportAction!.isVisible!(evaluation)).toBeTrue();
     });
   });
 
