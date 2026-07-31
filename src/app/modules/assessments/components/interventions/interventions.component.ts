@@ -24,6 +24,7 @@ import {
   AssessmentStatus,
   InterventionModel,
   InterventionType,
+  RiskLevels,
 } from '@core/models/assessment.model';
 import { InterventionListComponent } from './interventions-list/intervention-list.component';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
@@ -96,11 +97,13 @@ export class InterventionsComponent implements OnInit {
     );
     const statusOptions = this._mapStatus();
     const typeOptions = this._mapTypes();
+    const riskOptions = this._mapRiskLevels();
 
     return this._buildFilters({
       assessmentOptions,
       statusOptions,
       typeOptions,
+      riskOptions,
     });
   });
 
@@ -183,6 +186,15 @@ export class InterventionsComponent implements OnInit {
         options: filtersOptions['statusOptions'],
         validators: [Validators.required],
       },
+      {
+        name: FilterName.Risk,
+        disabled: false,
+        label: 'Risk Level',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: filtersOptions['riskOptions'],
+        validators: [Validators.required],
+      },
     ];
   }
 
@@ -227,6 +239,23 @@ export class InterventionsComponent implements OnInit {
       {
         label: InterventionType.Individual,
         value: InterventionType.Individual,
+      },
+    ];
+  }
+
+  private _mapRiskLevels(): MultipleSelectItem[] {
+    return [
+      {
+        label: RiskLevels.Low,
+        value: RiskLevels.Low,
+      },
+      {
+        label: RiskLevels.Medium,
+        value: RiskLevels.Medium,
+      },
+      {
+        label: RiskLevels.High,
+        value: RiskLevels.High,
       },
     ];
   }
