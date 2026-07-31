@@ -100,6 +100,7 @@ export class InterventionListComponent {
     'professional',
     'student',
     'area',
+    'risk',
     'status',
     'comment',
     'actions',

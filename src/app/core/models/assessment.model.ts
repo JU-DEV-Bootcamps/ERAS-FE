@@ -48,8 +48,8 @@ export interface InterventionModel {
   remarks?: string | null;
   attachments?: string[] | null;
   uploadInput?: File[] | null;
-  riskLevelName?: string;
-  endRiskLevelName?: InterventionStatus;
+  riskLevelName?: RiskLevels;
+  endRiskLevelName?: RiskLevels;
 }
 
 export interface InterventionAttendanceModel {
@@ -82,4 +82,10 @@ export enum InterventionStatus {
   Remitted = 'Remitted',
   InProgress = 'InProgress',
   Finalized = 'Finalized',
+}
+
+export enum RiskLevels {
+  Low = 'Low',
+  Medium = 'Medium',
+  High = 'High',
 }
