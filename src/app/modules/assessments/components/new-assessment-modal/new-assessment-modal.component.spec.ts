@@ -109,10 +109,6 @@ describe('NewAssessmentModalComponent', () => {
     it('should set default submitter', () => {
       expect(component.formFields[2].value).toBe('teacher');
     });
-
-    it('should set default service', () => {
-      expect(component.formFields[3].value).toBe('speech');
-    });
   });
 
   describe('closeAndResetDialog', () => {

@@ -13,7 +13,7 @@ import { JuServicesService } from '@modules/supports-referrals/services/juServic
 import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
 import { StudentService } from '@core/services/api/student.service';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { forkJoin, map, Observable, of, tap } from 'rxjs';
+import { forkJoin, map, Observable, of } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
@@ -196,13 +196,6 @@ export class AssessmentsComponent implements OnInit {
       },
     };
     return this.professionalsService.addNewProfessional(newProfessional).pipe(
-      tap((created: AssignedProfessional) => {
-        const option: Lookup = { label: created.name, value: created.name };
-        this.lookups.update(current => ({
-          ...current,
-          professionals: [...current.professionals, option],
-        }));
-      }),
       map(
         (created: AssignedProfessional): Lookup => ({
           label: created.name,
@@ -224,13 +217,6 @@ export class AssessmentsComponent implements OnInit {
       },
     };
     return this.juServicesService.addNewService(service).pipe(
-      tap((created: JuService) => {
-        const option: Lookup = { label: created.name, value: created.name };
-        this.lookups.update(current => ({
-          ...current,
-          services: [...current.services, option],
-        }));
-      }),
       map(
         (created: JuService): Lookup => ({
           label: created.name,

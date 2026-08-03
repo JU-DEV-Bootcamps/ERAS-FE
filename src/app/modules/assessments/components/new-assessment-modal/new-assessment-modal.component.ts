@@ -80,7 +80,6 @@ export class NewAssessmentModalComponent implements FormCreation {
         options: this.data.services,
         validators: [Validators.required],
         floatingLabel: 'always',
-        value: this.data.services[0]?.value,
         selectConfig: {
           onCreateRecord: this.data.createService,
         },
