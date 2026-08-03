@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { InterventionListComponent } from './intervention-list.component';
+import {
+  InterventionListComponent,
+  InterventionRowViewModel,
+} from './intervention-list.component';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { InterventionService } from '@core/services/api/intervention.service';
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
@@ -11,6 +14,7 @@ import {
   InterventionMode,
   InterventionModel,
   InterventionType,
+  RiskLevels,
 } from '@core/models/assessment.model';
 import { of, throwError } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
@@ -242,6 +246,7 @@ describe('InterventionListComponent', () => {
       component.appliedFilters()
     );
   });
+
   it('should truncate long comments', () => {
     const longComment = 'a'.repeat(100);
     mockInterventionService.getByAssessment.and.returnValue(
@@ -269,5 +274,157 @@ describe('InterventionListComponent', () => {
     );
     component.loadInterventions(10);
     expect(component['interventions']()[0].commentPreview).toBe('—');
+  });
+
+  describe('sorting behavior', () => {
+    const highRisk = {
+      ...intervention,
+      id: 1,
+      dateUtc: '2026-02-20',
+      riskLevelName: RiskLevels.High,
+      studentDisplay: [],
+      commentPreview: '',
+    } as unknown as InterventionRowViewModel;
+
+    const mediumRisk = {
+      ...intervention,
+      id: 2,
+      dateUtc: '2026-03-01',
+      riskLevelName: RiskLevels.Medium,
+      studentDisplay: [],
+      commentPreview: '',
+    } as unknown as InterventionRowViewModel;
+
+    const lowRisk = {
+      ...intervention,
+      id: 3,
+      dateUtc: '2026-01-10',
+      riskLevelName: RiskLevels.Low,
+      studentDisplay: [],
+      commentPreview: '',
+    } as unknown as InterventionRowViewModel;
+
+    describe('onSortClick', () => {
+      it('should set the new column and reset direction to "asc" when a different column is clicked', () => {
+        component['onSortClick']('risk');
+        expect(component['sortColumn']()).toBe('risk');
+        expect(component['sortDirection']()).toBe('asc');
+      });
+
+      it('should toggle direction when the same column is clicked again', () => {
+        component['onSortClick']('risk');
+        expect(component['sortDirection']()).toBe('asc');
+
+        component['onSortClick']('risk');
+        expect(component['sortDirection']()).toBe('desc');
+
+        component['onSortClick']('risk');
+        expect(component['sortDirection']()).toBe('asc');
+      });
+
+      it('should reset pageIndex to 0 when sorting changes', () => {
+        component['pageIndex'].set(2);
+        component['onSortClick']('risk');
+        expect(component['pageIndex']()).toBe(0);
+      });
+    });
+
+    describe('compareByColumn', () => {
+      it('should rank "high" above "medium" and "low" for the risk column', () => {
+        const result = component['compareByColumn'](
+          highRisk,
+          mediumRisk,
+          'risk'
+        );
+        expect(result).toBeGreaterThan(0);
+      });
+
+      it('should rank "low" below "medium" for the risk column', () => {
+        const result = component['compareByColumn'](
+          lowRisk,
+          mediumRisk,
+          'risk'
+        );
+        expect(result).toBeLessThan(0);
+      });
+
+      it('should return 0 when comparing equal risk levels', () => {
+        const anotherHigh = { ...highRisk, id: 4 };
+        const result = component['compareByColumn'](
+          highRisk,
+          anotherHigh,
+          'risk'
+        );
+        expect(result).toBe(0);
+      });
+
+      it('should fall back to string comparison for unknown columns', () => {
+        const itemA = {
+          ...highRisk,
+          activity: 'Aaa',
+        } as unknown as InterventionRowViewModel;
+        const itemB = {
+          ...mediumRisk,
+          activity: 'Bbb',
+        } as unknown as InterventionRowViewModel;
+        const result = component['compareByColumn'](itemA, itemB, 'activity');
+        expect(result).toBe(0);
+      });
+    });
+
+    describe('sortedInterventions', () => {
+      beforeEach(() => {
+        component.studentNamesLookup = studentLookup;
+        mockFilterStrategy.apply.and.callFake(items => items);
+      });
+
+      it('should sort by risk level when sortColumn is "risk"', () => {
+        mockInterventionService.getByAssessment.and.returnValue(
+          of([
+            { ...intervention, id: 1, riskLevelName: RiskLevels.Low },
+            { ...intervention, id: 2, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 3, riskLevelName: RiskLevels.Medium },
+          ])
+        );
+        component.loadInterventions(10);
+        component['onSortClick']('risk');
+        const result = component['sortedInterventions']();
+        expect(result.map(r => r.id)).toEqual([1, 3, 2]);
+      });
+
+      it('should reverse order when direction toggles to desc', () => {
+        mockInterventionService.getByAssessment.and.returnValue(
+          of([
+            { ...intervention, id: 1, riskLevelName: RiskLevels.Low },
+            { ...intervention, id: 2, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 3, riskLevelName: RiskLevels.Medium },
+          ])
+        );
+        component.loadInterventions(10);
+        component['onSortClick']('risk');
+        component['onSortClick']('risk');
+
+        const result = component['sortedInterventions']();
+        expect(result.map(r => r.id)).toEqual([2, 3, 1]);
+      });
+
+      it('should not mutate the original filteredInterventions array', () => {
+        mockInterventionService.getByAssessment.and.returnValue(
+          of([
+            { ...intervention, id: 1, dateUtc: '2026-01-10' },
+            { ...intervention, id: 2, dateUtc: '2026-03-01' },
+          ])
+        );
+        component.loadInterventions(10);
+
+        const before = component['filteredInterventions']();
+        const beforeOrder = before.map(r => r.id);
+
+        component['sortedInterventions']();
+
+        const after = component['filteredInterventions']();
+        expect(after.map(r => r.id)).toEqual(beforeOrder);
+      });
+    });
   });
 });

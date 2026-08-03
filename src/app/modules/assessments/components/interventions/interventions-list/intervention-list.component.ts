@@ -262,8 +262,6 @@ export class InterventionListComponent {
   }
 
   protected onSortClick(column: string): void {
-    console.log('hi');
-
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     } else {

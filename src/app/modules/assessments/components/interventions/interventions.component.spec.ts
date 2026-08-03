@@ -4,7 +4,9 @@ import { provideHttpClient } from '@angular/common/http';
 import {
   AssessmentModel,
   AssessmentStatus,
+  InterventionMode,
   InterventionModel,
+  InterventionType,
 } from '@core/models/assessment.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { of } from 'rxjs';
@@ -15,6 +17,8 @@ import {
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { InterventionService } from '@core/services/api/intervention.service';
 import { MatDialog } from '@angular/material/dialog';
+import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
+import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
 
 // Helpers
 const assessments: AssessmentModel[] = [
@@ -62,8 +66,11 @@ describe('InterventionsComponent', () => {
   let interventionServiceSpy: jasmine.SpyObj<InterventionService>;
   let toastServiceSpy: jasmine.SpyObj<ToastNotificationService>;
   const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+  dialogRef.afterClosed.and.returnValue(of(undefined));
 
   beforeEach(async () => {
+    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
+
     assessmentServiceSpy = jasmine.createSpyObj('AssessmentService', [
       'getAll',
     ]);
@@ -76,13 +83,10 @@ describe('InterventionsComponent', () => {
       ['showToast']
     );
 
-    dialogRef.afterClosed.and.returnValue(of(undefined));
-
-    dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
-
-    dialog.open.and.returnValue(dialogRef);
+    // dialogRef.afterClosed.and.returnValue(of(undefined));
 
     assessmentServiceSpy.getAll.and.returnValue(of(assessments));
+    dialog.open.and.returnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [InterventionsComponent],
@@ -93,7 +97,13 @@ describe('InterventionsComponent', () => {
         { provide: ToastNotificationService, useValue: toastServiceSpy },
         { provide: MatDialog, useValue: dialog },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(InterventionsComponent, {
+        set: {
+          providers: [{ provide: MatDialog, useValue: dialog }],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(InterventionsComponent);
     component = fixture.componentInstance;
@@ -187,8 +197,106 @@ describe('InterventionsComponent', () => {
     expect(dialog.open).not.toHaveBeenCalled();
   });
 
-  it('should not open confirmation dialog without selected assessment', () => {
+  it('should not open edit modal without selecteed assessment', () => {
+    component.onAssessmentChange(1);
+    component['allAssessments'].set([]);
+    component.openEditModal(intervention);
+    expect(dialog.open).not.toHaveBeenCalled();
+  });
+
+  it('should not open confirmation dialog without selected intervention', () => {
     component.confirmDelete(intervention);
     expect(dialog.open).not.toHaveBeenCalled();
+  });
+
+  it('should not open confirmation dialog without selected assessment', () => {
+    component.onAssessmentChange(1);
+    // component['allAssessments'].set([]);
+    component.confirmDelete(intervention);
+    expect(dialog.open).toHaveBeenCalled();
+  });
+
+  it('should open create intervention dialog', () => {
+    component.onAssessmentChange(1);
+    component.handleFilters([
+      { name: FilterName.Type, value: 'virtual-select' },
+    ]);
+    component['allAssessments'].set(assessments);
+
+    component.openCreateModal();
+    expect(dialog.open).toHaveBeenCalledWith(
+      NewInterventionModalComponent,
+      jasmine.objectContaining({
+        data: jasmine.objectContaining({
+          assessmentId: 1,
+          professional: {
+            value: '',
+            label: '',
+          },
+          students: [
+            { value: '103', label: '103', riskLevel: 0 },
+            { value: '215', label: '215', riskLevel: 0 },
+          ],
+        }),
+      })
+    );
+  });
+
+  it('should open edit intervention dialog', () => {
+    const exampleIntervention: InterventionModel = {
+      id: 10,
+      assessmentId: 1,
+      kind: InterventionType.Individual,
+      mode: InterventionMode.InPlace,
+      dateUtc: '',
+      studentIds: [2],
+    };
+
+    const assessment: AssessmentModel = {
+      id: 1,
+      createdAtUtc: '',
+      createdBy: 'me',
+      service: 'Support',
+      studentIds: ['2'],
+      students: [
+        {
+          id: 2,
+          name: 'John Doe',
+          email: '',
+          avgRiskLevel: 3,
+        },
+      ],
+      assignedProfessional: 'Jane Smith',
+      interventions: [exampleIntervention],
+      status: AssessmentStatus.Finalized,
+    };
+
+    component['allAssessments'].set([assessment]);
+    component.onAssessmentChange(1);
+
+    component.openEditModal(intervention);
+
+    expect(dialog.open).toHaveBeenCalledWith(
+      EditInterventionModalComponent,
+      jasmine.objectContaining({
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: 1,
+          professional: {
+            value: 'Jane Smith',
+            label: 'Jane Smith',
+          },
+          students: [
+            {
+              value: '2',
+              label: 'John Doe',
+              riskLevel: 3,
+            },
+          ],
+          intervention: intervention,
+        },
+      })
+    );
   });
 });
