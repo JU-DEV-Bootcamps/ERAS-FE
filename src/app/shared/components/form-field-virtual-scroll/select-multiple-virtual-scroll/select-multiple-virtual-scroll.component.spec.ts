@@ -187,6 +187,49 @@ describe('SelectMultipleVirtualScrollComponent', () => {
       expect(result.some(i => component.isGroupItem(i))).toBeTrue();
       expect(result.length).toBe(2);
     });
+
+    it('pins an already-selected item even if it does not match the current search text', () => {
+      fixture.componentRef.setInput('control', new FormControl<number[]>([]));
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+
+      component.selectedItemsValues.set([2]);
+
+      component.onSearch(createSearchEvent('Option 1'));
+
+      const result = component.filteredScrollItems();
+      expect(result).toContain(mockItems[0]);
+      expect(result).toContain(mockItems[1]);
+    });
+
+    it('does not pin an unselected item that does not match the search text', () => {
+      fixture.componentRef.setInput('control', new FormControl<number[]>([]));
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+
+      component.selectedItemsValues.set([]);
+
+      component.onSearch(createSearchEvent('Option 1'));
+
+      expect(component.filteredScrollItems()).toEqual([mockItems[0]]);
+    });
+
+    it('keeps a selection made across two different searches (end-to-end regression)', () => {
+      fixture.componentRef.setInput('control', new FormControl<number[]>([]));
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+
+      component.onSearch(createSearchEvent('Option 1'));
+      component.updateSelection({ value: [1] } as MatSelectChange);
+
+      component.onSearch(createSearchEvent('Option 2'));
+      component.updateSelection({ value: [1, 2] } as MatSelectChange);
+
+      expect(component.selectedItemsValues()).toEqual([1, 2]);
+    });
   });
 
   describe('handleOpenedChange', () => {
@@ -202,6 +245,51 @@ describe('SelectMultipleVirtualScrollComponent', () => {
       expect(component.filteredScrollItems()).toEqual(mockItems);
       expect(component.openedChange.emit).toHaveBeenCalledWith(false);
     });
+
+    it('recalculates the virtual scroll viewport size when opening', fakeAsync(() => {
+      const manyItems: MultipleSelectItem[] = Array.from(
+        { length: 250 },
+        (_, i) => ({ label: `Option ${i}`, value: i })
+      );
+      spyOn(component.openedChange, 'emit');
+      fixture.componentRef.setInput('control', new FormControl<number[]>([]));
+      fixture.componentRef.setInput('items', manyItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      tick();
+
+      expect(component.useVirtualScroll()).toBeTrue();
+
+      const viewport = component.virtualScrollViewport();
+      expect(viewport).toBeTruthy();
+      const checkViewportSizeSpy = spyOn(viewport!, 'checkViewportSize');
+
+      component.handleOpenedChange(true);
+      tick();
+
+      expect(checkViewportSizeSpy).toHaveBeenCalled();
+      expect(component.openedChange.emit).toHaveBeenCalledWith(true);
+    }));
+
+    it('does not touch the viewport when closing', fakeAsync(() => {
+      const manyItems: MultipleSelectItem[] = Array.from(
+        { length: 250 },
+        (_, i) => ({ label: `Option ${i}`, value: i })
+      );
+      fixture.componentRef.setInput('control', new FormControl<number[]>([]));
+      fixture.componentRef.setInput('items', manyItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      tick();
+
+      const viewport = component.virtualScrollViewport();
+      const checkViewportSizeSpy = spyOn(viewport!, 'checkViewportSize');
+
+      component.handleOpenedChange(false);
+      tick();
+
+      expect(checkViewportSizeSpy).not.toHaveBeenCalled();
+    }));
   });
 
   describe('selectAllClicked', () => {
