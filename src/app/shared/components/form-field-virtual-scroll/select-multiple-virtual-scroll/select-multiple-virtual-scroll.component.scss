@@ -47,3 +47,8 @@ mat-form-field {
     background-color: #dbdcdc;
   }
 }
+
+::ng-deep .compact-select-panel {
+  max-height: none !important;
+  overflow: hidden !important;
+}

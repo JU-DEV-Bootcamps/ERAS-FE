@@ -74,7 +74,7 @@ export class AssessmentsComponent implements OnInit {
     return forkJoin({
       services: this.juServicesService.getAllJuServices(),
       professionals: this.professionalsService.getAllProfessionals(),
-      students: this.studentService.getAllStudents(),
+      students: this.studentService.getAllStudentsLight(),
     }).pipe(
       map(({ services, professionals, students }) => {
         return {
@@ -85,7 +85,7 @@ export class AssessmentsComponent implements OnInit {
           ),
           services: mapFields(services.items, 'name', 'name'),
           professionals: mapFields(professionals.items, 'name', 'name'),
-          students: mapFields(students.items, 'name', 'id'),
+          students: mapFields(students, 'name', 'id'),
         };
       })
     );

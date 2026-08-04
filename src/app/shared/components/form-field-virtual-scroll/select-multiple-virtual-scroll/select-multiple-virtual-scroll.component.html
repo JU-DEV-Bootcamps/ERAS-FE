@@ -10,7 +10,7 @@
     [id]="id()"
     [formControl]="control()"
     [placeholder]="placeholder()"
-    (openedChange)="openedChange.emit($event)"
+    (openedChange)="handleOpenedChange($event)"
     (selectionChange)="updateSelection($event)"
     panelClass="compact-select-panel"
   >
