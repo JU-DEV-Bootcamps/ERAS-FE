@@ -13,6 +13,7 @@ enum FilterName {
   Assessment = 'assessment',
   Status = 'status',
   Type = 'type',
+  Risk = 'risk',
 }
 
 enum FilterType {

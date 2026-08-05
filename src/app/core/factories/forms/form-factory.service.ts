@@ -10,6 +10,7 @@ import { PasswordInputComponent } from './password-input/password-input.componen
 import { SearchableSelectComponent } from './searchable-select/searchable-select.component';
 import { UploadInputComponent } from './upload-input/upload-input.component';
 import { NumberInputComponent } from './number-input/number-input.component';
+import { CreatableInputComponent } from './creatable-input/creatable-input.component';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,7 @@ export class FormFactoryService {
     searchableSelect: SearchableSelectComponent,
     file: UploadInputComponent,
     number: NumberInputComponent,
+    creatableSelect: CreatableInputComponent,
   };
 
   getComponentByType(type: string): Type<DynamicInputComponent> {

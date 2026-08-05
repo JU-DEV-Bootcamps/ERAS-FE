@@ -46,6 +46,23 @@
     <span class="field-label">Student(s):</span>
     <span class="field-value">{{ displayStudents() }}</span>
   </div>
+  @if (data.riskLevelName) {
+    <div class="field-group">
+      <span class="field-label">Risk Level:</span>
+      <span class="field-value">
+        <app-intervention-pill-badge [value]="data.riskLevelName" />
+      </span>
+    </div>
+  }
+
+  @if (data.endRiskLevelName) {
+    <div class="field-group">
+      <span class="field-label">End Risk Level:</span>
+      <span class="field-value">
+        <app-intervention-pill-badge [value]="data.endRiskLevelName" />
+      </span>
+    </div>
+  }
 
   @if (data.area) {
     <div class="field-group">

@@ -4,9 +4,14 @@ import {
   InterventionType,
   InterventionMode,
   InterventionStatus,
+  RiskLevels,
 } from '@core/models/assessment.model';
 
-type PillValue = InterventionType | InterventionMode | InterventionStatus;
+type PillValue =
+  | InterventionType
+  | InterventionMode
+  | InterventionStatus
+  | RiskLevels;
 
 @Component({
   selector: 'app-intervention-pill-badge',
@@ -34,6 +39,9 @@ export class InterventionPillBadgeComponent {
     [InterventionStatus.Remitted]: 'Remitted',
     [InterventionStatus.InProgress]: 'In Progress',
     [InterventionStatus.Finalized]: 'Finalized',
+    [RiskLevels.Low]: 'Low',
+    [RiskLevels.Medium]: 'Medium',
+    [RiskLevels.High]: 'High',
   };
 
   private readonly classMap: Record<string, string> = {
@@ -44,5 +52,8 @@ export class InterventionPillBadgeComponent {
     [InterventionStatus.Remitted]: 'status-remitted',
     [InterventionStatus.InProgress]: 'status-in-progress',
     [InterventionStatus.Finalized]: 'status-finalized',
+    [RiskLevels.Low]: 'risk-level-low',
+    [RiskLevels.Medium]: 'risk-level-medium',
+    [RiskLevels.High]: 'risk-level-high',
   };
 }

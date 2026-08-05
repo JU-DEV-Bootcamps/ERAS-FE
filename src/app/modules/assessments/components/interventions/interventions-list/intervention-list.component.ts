@@ -77,6 +77,7 @@ export class InterventionListComponent {
     if (value != null) {
       this.loadInterventions(value);
       this.loadAssessment(value);
+      this.sortColumn.set(null);
     } else {
       this.interventions.set([]);
       this.assessment.set(null);
@@ -100,6 +101,7 @@ export class InterventionListComponent {
     'professional',
     'student',
     'area',
+    'risk',
     'status',
     'comment',
     'actions',
@@ -111,11 +113,46 @@ export class InterventionListComponent {
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
 
+  protected readonly sortColumn = signal<string | null>(null);
+  protected readonly sortDirection = signal<'asc' | 'desc'>('asc');
+
+  private readonly riskRank: Record<string, number> = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
+
   protected readonly pagedInterventions = computed(() => {
     const start = this.pageIndex() * this.pageSize;
     const end = start + this.pageSize;
-    return this.filteredInterventions().slice(start, end);
+    return this.sortedInterventions().slice(start, end);
   });
+
+  protected readonly sortedInterventions = computed(() => {
+    const rows = this.filteredInterventions();
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+    if (!column) return rows;
+
+    const sorted = [...rows].sort((a, b) => {
+      const cmp = this.compareByColumn(a, b, column);
+      return direction === 'asc' ? cmp : -cmp;
+    });
+    return sorted;
+  });
+
+  private compareByColumn(
+    a: InterventionRowViewModel,
+    b: InterventionRowViewModel,
+    column: string
+  ): number {
+    if (column === 'risk') {
+      const rankA = this.riskRank[a.riskLevelName!.toLowerCase()] ?? 0;
+      const rankB = this.riskRank[b.riskLevelName!.toLowerCase()] ?? 0;
+      return rankA - rankB;
+    }
+    return 0;
+  }
 
   protected readonly filteredInterventions = computed(() => {
     const filters = this.appliedFilters();
@@ -222,5 +259,15 @@ export class InterventionListComponent {
         this.isLoadingAssessment.set(false);
       },
     });
+  }
+
+  protected onSortClick(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.pageIndex.set(0);
   }
 }

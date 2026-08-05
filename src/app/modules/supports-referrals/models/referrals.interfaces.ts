@@ -44,6 +44,15 @@ export interface JuService {
   id: number;
 }
 
+export interface AddProfessionalResponse {
+  entity: AssignedProfessional;
+  message: string;
+  status: string;
+  success: boolean;
+  successfullImports: number;
+  validationErrors: string[];
+}
+
 export interface AssignedProfessional {
   audit: AuditModel;
   id: number;

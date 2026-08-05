@@ -25,7 +25,14 @@ export class InterventionFilterStrategy implements FilterStrategy<InterventionMo
         typeFilter &&
         (typeFilter.value as string[]).includes(intervention.kind);
 
-      return statusMatch && typeMatch;
+      const riskFilter = filters.find(
+        filter => filter.name === FilterName.Risk
+      );
+      const riskMatch =
+        riskFilter &&
+        (riskFilter.value as string[]).includes(intervention.riskLevelName!);
+
+      return statusMatch && typeMatch && riskMatch;
     });
   }
 }
