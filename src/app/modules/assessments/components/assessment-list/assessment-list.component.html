@@ -10,14 +10,24 @@
       </div>
       <h3>No Assessments yet</h3>
       <p>Get Started by creating your first assessment record</p>
-      <button mat-flat-button type="button" (click)="onCreateClick()">
+      <button
+        mat-flat-button
+        type="button"
+        [disabled]="lookupsLoading()"
+        (click)="onCreateClick()"
+      >
         Create Assessment
       </button>
     </div>
   </div>
 } @else {
   <div class="page-header">
-    <button mat-flat-button type="button" (click)="onCreateClick()">
+    <button
+      mat-flat-button
+      type="button"
+      [disabled]="lookupsLoading()"
+      (click)="onCreateClick()"
+    >
       <mat-icon>add</mat-icon>
       Create Assessment
     </button>
@@ -89,7 +99,7 @@
                     mat-icon-button
                     type="button"
                     matTooltip="Edit"
-                    [disabled]="item.status === 'Finalized'"
+                    [disabled]="lookupsLoading() || item.status === 'Finalized'"
                     (click)="onEditClick(item)"
                   >
                     <mat-icon>edit</mat-icon>
