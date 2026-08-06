@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { StudentResponse } from '../../models/student-request.model';
 import {
   StudentImport,
@@ -13,12 +13,16 @@ import { map, Observable } from 'rxjs';
 import { StudentRiskResponse } from '../../models/cohort.model';
 import { AnswerResponse } from '../../models/answer-request.model';
 import { sortArray } from '../../utils/helpers/sort';
+import { Cacheable } from '@core/utils/decorators/cacheable.decorator';
+import { CacheService } from '../cache.service';
+import { CacheableHost } from '../interfaces/cacheable-host';
 
 @Injectable({
   providedIn: 'root',
 })
-export class StudentService extends BaseApiService {
+export class StudentService extends BaseApiService implements CacheableHost {
   protected resource = 'students';
+  public readonly cacheService: CacheService = inject(CacheService);
 
   getStudentDetailsById(studentId: number, pagination: Pagination) {
     const params = new HttpParams()
@@ -27,6 +31,7 @@ export class StudentService extends BaseApiService {
     return this.get<StudentResponse>(studentId, params);
   }
 
+  @Cacheable()
   getAllStudents() {
     const params = new HttpParams().set('PageSize', 9999).set('Page', 0);
     return this.get<PagedResult<StudentModel>>('', params);
