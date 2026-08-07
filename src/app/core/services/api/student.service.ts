@@ -31,7 +31,6 @@ export class StudentService extends BaseApiService implements CacheableHost {
     return this.get<StudentResponse>(studentId, params);
   }
 
-  @Cacheable()
   getAllStudents() {
     const params = new HttpParams().set('PageSize', 9999).set('Page', 0);
     return this.get<PagedResult<StudentModel>>('', params);
@@ -184,6 +183,7 @@ export class StudentService extends BaseApiService implements CacheableHost {
     );
   }
 
+  @Cacheable()
   getAllStudentsLight() {
     return this.get<StudentLightModel[]>('light');
   }
