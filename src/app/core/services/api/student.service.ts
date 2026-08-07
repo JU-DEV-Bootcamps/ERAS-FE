@@ -5,7 +5,7 @@ import {
   StudentRiskAverage,
 } from '../interfaces/student.interface';
 import { BaseApiService } from './base-api.service';
-import { StudentModel } from '../../models/student.model';
+import { StudentLightModel, StudentModel } from '../../models/student.model';
 import { HttpParams } from '@angular/common/http';
 import { Pagination, ServerResponse } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
@@ -177,5 +177,9 @@ export class StudentService extends BaseApiService {
         .set('PageSize', pageSize.toString())
         .set('Page', page.toString())
     );
+  }
+
+  getAllStudentsLight() {
+    return this.get<StudentLightModel[]>('light');
   }
 }

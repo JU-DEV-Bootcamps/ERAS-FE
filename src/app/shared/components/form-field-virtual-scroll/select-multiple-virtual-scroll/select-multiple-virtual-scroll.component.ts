@@ -37,6 +37,8 @@ import {
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ModeType } from '@core/factories/forms/form-factory.interface';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { viewChild } from '@angular/core';
 
 @Component({
   selector: 'app-select-multiple-virtual-scroll',
@@ -94,6 +96,7 @@ export class SelectMultipleVirtualScrollComponent {
   );
   readonly displayMode = input<ModeType>('list');
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  readonly virtualScrollViewport = viewChild(CdkVirtualScrollViewport);
 
   constructor() {
     effect(onCleanup => {
@@ -192,6 +195,7 @@ export class SelectMultipleVirtualScrollComponent {
     if (!search) return this.scrollItems();
 
     const items = this.scrollItems();
+    const selectedValues = new Set(this.selectedItemsValues());
     const result: MultipleSelectItem[] = [];
 
     for (let i = 0; i < items.length; i++) {
@@ -203,11 +207,16 @@ export class SelectMultipleVirtualScrollComponent {
           .some(
             next =>
               !this.isGroupItem(next) &&
-              next.label.toLowerCase().includes(search)
+              (next.label.toLowerCase().includes(search) ||
+                selectedValues.has((next as MultipleSelectCommonItem).value))
           );
         if (hasMatch) result.push(item);
       } else {
-        if (item.label.toLowerCase().includes(search)) {
+        const commonItem = item as MultipleSelectCommonItem;
+        const matchesSearch = item.label.toLowerCase().includes(search);
+        const isPinned = selectedValues.has(commonItem.value);
+
+        if (matchesSearch || isPinned) {
           result.push(item);
         }
       }
@@ -224,6 +233,10 @@ export class SelectMultipleVirtualScrollComponent {
   handleOpenedChange(isOpen: boolean): void {
     if (!isOpen) {
       this.searchText.set('');
+    } else {
+      setTimeout(() => {
+        this.virtualScrollViewport()?.checkViewportSize();
+      });
     }
     this.openedChange.emit(isOpen);
   }
