@@ -248,7 +248,6 @@ export class ModalImportAnswersFormComponent implements OnInit {
     this.cosmicLatteService.getPollNames(configurationId).subscribe({
       next: data => {
         this.pollsNames = data;
-        console.log(this.pollsNames);
         this.configurationIsValid = data.length > 0;
         this.loadingSubject.next(false);
       },
