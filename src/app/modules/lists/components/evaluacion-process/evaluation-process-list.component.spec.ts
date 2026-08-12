@@ -283,6 +283,7 @@ describe('EvaluationProcessListComponent', () => {
           serviceProvider: null,
           serviceProviderId: 1,
         },
+        pollId: 'm0cK1D',
       };
 
       mockDialog.open.and.returnValue({
@@ -300,6 +301,7 @@ describe('EvaluationProcessListComponent', () => {
         startDate: selectedPoll.startDate,
         endDate: selectedPoll.endDate,
         evaluationId: evaluation.id,
+        pollId: selectedPoll.pollId,
       });
       expect(mockRouter.navigate).toHaveBeenCalledWith(['import-status', 12], {
         relativeTo: mockActivatedRoute,
