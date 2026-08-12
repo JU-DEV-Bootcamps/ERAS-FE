@@ -287,6 +287,7 @@ export class EvaluationProcessListComponent implements OnInit {
               startDate: result.startDate,
               endDate: result.endDate,
               evaluationId: data.id,
+              pollId: result.pollId,
             })
             .subscribe({
               next: res =>

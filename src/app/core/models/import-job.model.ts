@@ -60,6 +60,7 @@ export interface StartExtractionRequest {
   startDate?: string | null;
   endDate?: string | null;
   evaluationId: number;
+  pollId?: string;
 }
 
 /** Phases where the backend is actively working and the client should keep polling. */
