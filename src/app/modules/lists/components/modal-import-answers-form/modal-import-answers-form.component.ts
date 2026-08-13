@@ -204,6 +204,9 @@ export class ModalImportAnswersFormComponent implements OnInit {
 
     const rawValue = this.form.getRawValue();
     const pollName = rawValue.pollName.trim();
+    const pollId = this.pollsNames.find(
+      poll => poll.name.trim() === pollName
+    )?._id;
     const startDate = rawValue.start
       ? this.formatDate(new Date(rawValue.start))
       : null;
@@ -215,6 +218,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
       pollName: pollName,
       endDate: endDate,
       startDate: startDate,
+      pollId: pollId,
     };
 
     this.dialogRef.close(data);

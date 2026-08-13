@@ -4,4 +4,5 @@ export interface PollName {
   status: string;
   selectData: string;
   country: string;
+  _id?: string;
 }
