@@ -23,6 +23,7 @@ import { InterventionDetailComponent } from '../interventions-detail/interventio
 import {
   AssessmentModel,
   InterventionModel,
+  RiskLevels,
 } from '@core/models/assessment.model';
 import { InterventionService } from '@core/services/api/intervention.service';
 import {
@@ -102,6 +103,7 @@ export class InterventionListComponent {
     'student',
     'area',
     'risk',
+    'endRisk',
     'status',
     'comment',
     'actions',
@@ -224,6 +226,7 @@ export class InterventionListComponent {
   private mapToRow(item: InterventionModel): InterventionRowViewModel {
     return {
       ...item,
+      endRiskLevelName: item.endRiskLevelName ?? RiskLevels.None,
       studentDisplay: this.buildStudentDisplay(item),
       commentPreview: this.buildCommentPreview(item.comments),
     };

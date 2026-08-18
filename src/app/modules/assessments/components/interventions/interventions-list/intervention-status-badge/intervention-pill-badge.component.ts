@@ -39,6 +39,7 @@ export class InterventionPillBadgeComponent {
     [InterventionStatus.Remitted]: 'Remitted',
     [InterventionStatus.InProgress]: 'In Progress',
     [InterventionStatus.Finalized]: 'Finalized',
+    [RiskLevels.None]: '—',
     [RiskLevels.Low]: 'Low',
     [RiskLevels.Medium]: 'Medium',
     [RiskLevels.High]: 'High',

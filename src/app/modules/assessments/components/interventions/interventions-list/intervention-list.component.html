@@ -132,6 +132,13 @@
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="endRisk">
+            <th mat-header-cell *matHeaderCellDef>End Risk Level</th>
+            <td mat-cell *matCellDef="let item">
+              <app-intervention-pill-badge [value]="item.endRiskLevelName" />
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Status</th>
             <td mat-cell *matCellDef="let item">

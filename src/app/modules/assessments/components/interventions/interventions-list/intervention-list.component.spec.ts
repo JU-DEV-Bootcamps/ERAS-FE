@@ -36,6 +36,16 @@ describe('InterventionListComponent', () => {
     dateUtc: '2026-02-20',
   } as InterventionModel;
 
+  const intervention2: InterventionModel = {
+    id: 1,
+    assessmentId: 10,
+    comments: 'Test comment',
+    studentIds: [],
+    kind: InterventionType.Individual,
+    mode: InterventionMode.InPlace,
+    dateUtc: '2026-02-20',
+  } as InterventionModel;
+
   const assessment: AssessmentModel = {
     id: 10,
     status: AssessmentStatus.Remitted,
@@ -300,6 +310,7 @@ describe('InterventionListComponent', () => {
       id: 3,
       dateUtc: '2026-01-10',
       riskLevelName: RiskLevels.Low,
+      endRiskLevelName: RiskLevels.Low,
       studentDisplay: [],
       commentPreview: '',
     } as unknown as InterventionRowViewModel;
@@ -424,6 +435,37 @@ describe('InterventionListComponent', () => {
 
         const after = component['filteredInterventions']();
         expect(after.map(r => r.id)).toEqual(beforeOrder);
+      });
+
+      it('should use pagination', () => {
+        mockInterventionService.getByAssessment.and.returnValue(
+          of([
+            { ...intervention, id: 1, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 2, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 3, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 4, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 5, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 6, riskLevelName: RiskLevels.High },
+            { ...intervention2, id: 7, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 8, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 9, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 10, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 11, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 12, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 13, riskLevelName: RiskLevels.High },
+          ])
+        );
+        component.loadInterventions(10);
+        const newPageEvent: PageEvent = {
+          length: 13,
+          pageIndex: 1,
+          pageSize: 10,
+          previousPageIndex: 0,
+        };
+        component['onPageChange'](newPageEvent);
+
+        const result = component['pagedInterventions']();
+        expect(result.map(r => r.id)).toEqual([11, 12, 13]);
       });
     });
   });
