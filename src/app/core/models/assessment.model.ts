@@ -88,4 +88,5 @@ export enum RiskLevels {
   Low = 'Low',
   Medium = 'Medium',
   High = 'High',
+  None = 'None',
 }
