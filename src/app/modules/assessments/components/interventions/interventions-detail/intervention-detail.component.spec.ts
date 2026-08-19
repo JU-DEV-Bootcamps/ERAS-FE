@@ -2,6 +2,8 @@ import { InterventionRowViewModel } from '@core/models/assessment.model';
 import { InterventionDetailComponent } from './intervention-detail.component';
 import { InterventionService } from '@core/services/api/intervention.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 describe('InterventionDetailComponent', () => {
   let component: InterventionDetailComponent;
@@ -87,4 +89,28 @@ describe('InterventionDetailComponent', () => {
   it('should return default icon for other files', () => {
     expect(component.getFileIcon('file.docx')).toBe('insert_drive_file');
   });
+
+  it('should open attachment in a new tab and revoke the URL after download', fakeAsync(() => {
+    const blob = new Blob(['content'], { type: 'application/pdf' });
+    mockInterventionService.downloadAttachment.and.returnValue(of(blob));
+
+    const createObjectURLSpy = spyOn(URL, 'createObjectURL').and.returnValue(
+      'blob:fake-url'
+    );
+    const revokeObjectURLSpy = spyOn(URL, 'revokeObjectURL');
+    const windowOpenSpy = spyOn(window, 'open');
+
+    component.data = { ...row, id: 5 } as InterventionRowViewModel;
+    component.openAttachment('uploads/docs/file.pdf');
+
+    expect(mockInterventionService.downloadAttachment).toHaveBeenCalledWith(
+      5,
+      'file.pdf'
+    );
+    expect(createObjectURLSpy).toHaveBeenCalledWith(blob);
+    expect(windowOpenSpy).toHaveBeenCalledWith('blob:fake-url', '_blank');
+
+    tick(10000);
+    expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:fake-url');
+  }));
 });

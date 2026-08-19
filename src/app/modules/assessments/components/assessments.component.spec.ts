@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { AssessmentsComponent } from './assessments.component';
 import { provideHttpClient } from '@angular/common/http';
@@ -11,6 +11,9 @@ import { ProfessionalsService } from '@modules/supports-referrals/services/profe
 import { UserDataService } from '@core/services/access/user-data.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
+import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
+import { AssessmentListComponent } from './assessment-list/assessment-list.component';
+import { AssessmentModel } from '@core/models/assessment.model';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -24,9 +27,23 @@ interface AssessmentLookupsStudent {
 
 interface NewAssessmentModalData {
   students: AssessmentLookupsStudent[];
+  preselectedStudentId?: number;
 }
 
 type UserDataServiceUser = ReturnType<UserDataService['user']>;
+
+// The viewChild() signal for `listComponent` is private/readonly, so we
+// override it through this narrow shape instead of casting to `any`.
+interface WithListComponentSignal {
+  listComponent: () => AssessmentListComponent | undefined;
+}
+
+function setListComponent(
+  cmp: AssessmentsComponent,
+  mock: AssessmentListComponent
+): void {
+  (cmp as unknown as WithListComponentSignal).listComponent = () => mock;
+}
 
 describe('AssessmentsComponent', () => {
   let component: AssessmentsComponent;
@@ -37,6 +54,15 @@ describe('AssessmentsComponent', () => {
     { id: 1, name: 'Ana' },
     { id: 2, name: 'Beto' },
   ];
+
+  const dialogRefStub = {
+    afterClosed: () => of(null),
+  } as unknown as MatDialogRef<NewAssessmentModalComponent>;
+
+  const buildMockListComponent = (): jasmine.SpyObj<AssessmentListComponent> =>
+    jasmine.createSpyObj<AssessmentListComponent>('AssessmentListComponent', [
+      'loadAssessments',
+    ]);
 
   beforeEach(async () => {
     studentServiceSpy = jasmine.createSpyObj<StudentService>('StudentService', [
@@ -84,6 +110,10 @@ describe('AssessmentsComponent', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    history.replaceState({}, '');
+  });
+
   it('should create', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
@@ -109,5 +139,105 @@ describe('AssessmentsComponent', () => {
       { label: 'Ana', value: 1 },
       { label: 'Beto', value: 2 },
     ]);
+    expect(dialogData.preselectedStudentId).toBeUndefined();
+  });
+
+  it('should log an error and keep loading state when lookups fail to load', () => {
+    const consoleErrorSpy = spyOn(console, 'error');
+    const error = new Error('Failed');
+    studentServiceSpy.getAllStudentsLight.and.returnValue(
+      throwError(() => error)
+    );
+
+    fixture.detectChanges();
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error retrieving lookups',
+      error
+    );
+    // 'complete' never fires on error, so loading stays true
+    expect(component.lookupLoading()).toBeTrue();
+  });
+
+  it('should open the create modal with the preselected student and clear the history state', () => {
+    spyOnProperty(history, 'state', 'get').and.returnValue({
+      preselectedStudentId: 5,
+    });
+    const replaceStateSpy = spyOn(history, 'replaceState');
+    const openCreateModalSpy = spyOn(
+      component,
+      'openCreateModal'
+    ).and.callThrough();
+    spyOn(MatDialog.prototype, 'open').and.returnValue(dialogRefStub);
+
+    fixture.detectChanges();
+
+    expect(openCreateModalSpy).toHaveBeenCalledWith(5);
+    expect(replaceStateSpy).toHaveBeenCalledWith({}, '');
+  });
+
+  it('should not open the create modal when there is no preselected student id', () => {
+    spyOnProperty(history, 'state', 'get').and.returnValue({});
+    const openCreateModalSpy = spyOn(component, 'openCreateModal');
+
+    fixture.detectChanges();
+
+    expect(openCreateModalSpy).not.toHaveBeenCalled();
+  });
+
+  it('should open the edit modal with assessment and lookups data, and reload on close', () => {
+    const openSpy = spyOn(MatDialog.prototype, 'open').and.returnValue(
+      dialogRefStub
+    );
+    fixture.detectChanges();
+
+    setListComponent(component, buildMockListComponent());
+    const mockListComponent = buildMockListComponent();
+    setListComponent(component, mockListComponent);
+
+    const assessment = { id: 1 } as AssessmentModel;
+    component.openEditModal(assessment);
+
+    expect(openSpy).toHaveBeenCalledWith(
+      EditAssessmentModalComponent,
+      jasmine.objectContaining({
+        data: jasmine.objectContaining({ assessment }),
+      })
+    );
+    expect(mockListComponent.loadAssessments).toHaveBeenCalled();
+  });
+
+  it('should reload assessments after the create modal closes', () => {
+    spyOn(MatDialog.prototype, 'open').and.returnValue(dialogRefStub);
+    fixture.detectChanges();
+
+    const mockListComponent = buildMockListComponent();
+    setListComponent(component, mockListComponent);
+
+    component.openCreateModal();
+
+    expect(mockListComponent.loadAssessments).toHaveBeenCalled();
+  });
+
+  it('should do nothing when deleting an assessment without an id', () => {
+    fixture.detectChanges();
+
+    const mockListComponent = buildMockListComponent();
+    setListComponent(component, mockListComponent);
+
+    component.openDeleteModal({ id: undefined } as AssessmentModel);
+
+    expect(mockListComponent.loadAssessments).not.toHaveBeenCalled();
+  });
+
+  it('should reload assessments when deleting an assessment with an id', () => {
+    fixture.detectChanges();
+
+    const mockListComponent = buildMockListComponent();
+    setListComponent(component, mockListComponent);
+
+    component.openDeleteModal({ id: 3 } as AssessmentModel);
+
+    expect(mockListComponent.loadAssessments).toHaveBeenCalled();
   });
 });
