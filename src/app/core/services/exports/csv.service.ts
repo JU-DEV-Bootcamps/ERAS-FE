@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { CSV_CONFIG } from '../../constants/csv';
 import Papa, { UnparseObject } from 'papaparse';
 import { BaseExportService } from './base-export.service';
-import { generateFileName } from '../../utils/file/file-name';
+import { FileNameUtils } from '../../utils/file/file-name';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +30,9 @@ export class CsvService extends BaseExportService {
       parsedObject = parsedObject.replace(regex, headers + CSV_CONFIG.newline);
     }
 
-    super.downloadTextFile(parsedObject, generateFileName(filePrefix));
+    super.downloadTextFile(
+      parsedObject,
+      FileNameUtils.generateFileName(filePrefix)
+    );
   }
 }
