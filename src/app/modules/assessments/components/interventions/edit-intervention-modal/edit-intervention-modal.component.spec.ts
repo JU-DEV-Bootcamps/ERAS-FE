@@ -70,6 +70,7 @@ describe('EditInterventionModalComponent', () => {
     interventionService.getByAssessment.and.returnValue(of([]));
     interventionService.upsertInterventions.and.returnValue(of([]));
     interventionService.uploadAttachments.and.returnValue(of(['']));
+    interventionService.deleteAttachment.and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, EditInterventionModalComponent],
@@ -226,5 +227,143 @@ describe('EditInterventionModalComponent', () => {
       'InProgress',
       'Finalized',
     ]);
+  });
+
+  describe('type value changes', () => {
+    it('should toggle isGroup, reset attendance and rebuild fields when type changes', () => {
+      component.attendedStudentIds.set(['1']);
+      component.attendedStudentIdsModel = ['1'];
+
+      component.form.get('type')?.setValue(InterventionType.Individual);
+
+      expect(component.isGroup()).toBeFalse();
+      expect(component.attendedStudentIds()).toEqual([]);
+      expect(component.attendedStudentIdsModel).toEqual([]);
+      expect(component.attendance().length).toBe(dialogData.students.length);
+      expect(
+        component.attendance().every(a => a.attended === false)
+      ).toBeTrue();
+    });
+
+    it('should not rebuild fields when type value does not change the group state', () => {
+      const fieldsBefore = component.formFields;
+
+      component.form.get('type')?.setValue(InterventionType.Group);
+
+      expect(component.formFields).toBe(fieldsBefore);
+    });
+  });
+
+  describe('status value changes', () => {
+    it('should disable riskLevelName and add endRiskLevelName when status becomes Finalized', () => {
+      component.form.get('status')?.setValue('Finalized');
+
+      expect(component.form.get('riskLevelName')?.disabled).toBeTrue();
+      expect(component.form.contains('endRiskLevelName')).toBeTrue();
+    });
+
+    it('should enable riskLevelName and remove endRiskLevelName when status is no longer Finalized', () => {
+      component.form.get('status')?.setValue('Finalized');
+      component.form.get('status')?.setValue('InProgress');
+
+      expect(component.form.get('riskLevelName')?.disabled).toBeFalse();
+      expect(component.form.contains('endRiskLevelName')).toBeFalse();
+    });
+  });
+
+  describe('onAttendanceChange normalization', () => {
+    it('should normalize a single string value into an array', () => {
+      component.onAttendanceChange('1');
+      expect(component.attendedStudentIds()).toEqual(['1']);
+    });
+
+    it('should normalize a null value into an empty array', () => {
+      component.onAttendanceChange(null);
+      expect(component.attendedStudentIds()).toEqual([]);
+    });
+  });
+
+  describe('submitIntervention', () => {
+    it('should show an error toast and not update when an attendee is not among the selected students', () => {
+      component.form.get('students')?.setValue(['1']);
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+
+      component.submitIntervention();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ title: 'Invalid attendance' }),
+        true
+      );
+      expect(interventionService.getByAssessment).not.toHaveBeenCalled();
+      expect(dialogRef.close).not.toHaveBeenCalled();
+    });
+
+    it('should proceed with the update when all attendees are among the selected students', () => {
+      component.form.get('students')?.setValue(['1', '2']);
+      component.attendedStudentIds.set(['1']);
+      component.attendedStudentIdsModel = ['1'];
+
+      component.submitIntervention();
+
+      expect(interventionService.getByAssessment).toHaveBeenCalled();
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
+    });
+
+    it('should not call the service when the form is invalid', () => {
+      const invalidForm = new FormGroup({
+        date: new FormControl(null),
+      });
+      Object.defineProperty(invalidForm, 'invalid', { get: () => true });
+      component.form = invalidForm;
+
+      component.submitIntervention();
+
+      expect(interventionService.getByAssessment).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getNewFilesToUpload', () => {
+    it('should return an empty array when uploadInput only contains existing filenames', () => {
+      component.form.get('uploadInput')?.setValue(['existing.pdf']);
+      const result = component['getNewFilesToUpload']();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('isSubmitDisabled', () => {
+    it('should be true when the form is pristine', () => {
+      expect(component.isSubmitDisabled).toBeTrue();
+    });
+
+    it('should be false when the form is valid and dirty', () => {
+      component.form.markAsDirty();
+      expect(component.isSubmitDisabled).toBeFalse();
+    });
+  });
+
+  describe('updateIntervention attachment handling', () => {
+    it('should delete removed attachments before updating', () => {
+      component.removeExistingAttachment(0);
+
+      component['updateIntervention']();
+
+      expect(interventionService.deleteAttachment).toHaveBeenCalledWith(
+        100,
+        'file1.pdf'
+      );
+      expect(interventionService.upsertInterventions).toHaveBeenCalled();
+    });
+
+    it('should upload new files when present', () => {
+      const newFile = new File(['x'], 'new.pdf');
+      component.form.get('uploadInput')?.setValue([newFile]);
+
+      component['updateIntervention']();
+
+      expect(interventionService.uploadAttachments).toHaveBeenCalledWith(100, [
+        newFile,
+      ]);
+    });
   });
 });
