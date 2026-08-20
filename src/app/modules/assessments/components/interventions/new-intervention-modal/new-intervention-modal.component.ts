@@ -97,6 +97,8 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   form!: FormGroup;
   isSubmitting = false;
 
+  private pendingIndividualStudentId?: number;
+
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
   readonly selectedStudentCount = computed(() => {
@@ -123,15 +125,18 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.buildFormFields();
   }
 
-  private buildFormFields(): void {
+  private buildFormFields(preselectedStudentId?: number): void {
     const isGroupForm = this.data.students.length > 1;
     const typeValueDefault = isGroupForm
       ? InterventionType.Group
       : InterventionType.Individual;
 
+    const individualDefaultId =
+      preselectedStudentId ?? this.data.students[0]?.value;
+
     const defaultStudentIds = this.isGroup()
       ? this.data.students.map(s => s.value)
-      : [this.data.students[0]?.value];
+      : [individualDefaultId];
     this.studentsSelected.set(defaultStudentIds);
 
     const topFields: DynamicField[] = [
@@ -151,7 +156,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         options: TYPE_OPTIONS,
         validators: [Validators.required],
         floatingLabel: 'always',
-        value: typeValueDefault,
+        value: this.isGroup() ? typeValueDefault : InterventionType.Individual,
         disabled: !isGroupForm,
       },
     ];
@@ -208,7 +213,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       options: this.data.students,
       validators: [Validators.required],
       floatingLabel: 'always',
-      value: this.data.students[0]?.value,
+      value: individualDefaultId,
     };
 
     const bottomFields: DynamicField[] = [
@@ -276,6 +281,14 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   setFormGroup(event: FormGroup): void {
     this.form = event;
 
+    if (this.pendingIndividualStudentId !== undefined) {
+      this.form.get('students')?.setValue(this.pendingIndividualStudentId, {
+        emitEvent: false,
+      });
+      this.form.markAsDirty();
+      this.pendingIndividualStudentId = undefined;
+    }
+
     this.form
       .get('type')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
@@ -283,7 +296,37 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
         const nowGroup = value === InterventionType.Group;
         if (nowGroup === this.isGroup()) return;
         this.isGroup.set(nowGroup);
-        this.buildFormFields();
+
+        const studentIdToKeep = this.pendingIndividualStudentId;
+        this.buildFormFields(nowGroup ? undefined : studentIdToKeep);
+
+        if (!nowGroup && studentIdToKeep !== undefined) {
+          setTimeout(() => {
+            this.form.get('students')?.setValue(studentIdToKeep, {
+              emitEvent: false,
+            });
+            this.form.markAsDirty();
+          });
+          this.pendingIndividualStudentId = undefined;
+        }
+      });
+
+    this.form
+      .get('students')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if (!this.isGroup()) return;
+
+        const selected: number[] = Array.isArray(value)
+          ? (value as number[])
+          : value !== null && value !== undefined
+            ? [value as number]
+            : [];
+
+        if (selected.length < 2) {
+          this.pendingIndividualStudentId = selected[0];
+          this.form.get('type')?.setValue(InterventionType.Individual);
+        }
       });
   }
 
