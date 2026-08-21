@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { EditInterventionModalComponent } from './edit-intervention-modal.component';
 import { InterventionService } from '@core/services/api/intervention.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
@@ -364,6 +369,48 @@ describe('EditInterventionModalComponent', () => {
       expect(interventionService.uploadAttachments).toHaveBeenCalledWith(100, [
         newFile,
       ]);
+    });
+  });
+
+  describe('students value changes (auto switch to individual)', () => {
+    it('should switch isGroup to false, reset attendance, and rebuild fields when selection drops below 2', fakeAsync(() => {
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+
+      component.form.get('students')?.setValue(['1']);
+      fixture.detectChanges();
+      tick();
+
+      expect(component.isGroup()).toBeFalse();
+      expect(component.form.get('type')?.value).toBe(
+        InterventionType.Individual
+      );
+      expect(component.attendedStudentIds()).toEqual([]);
+      expect(component.attendedStudentIdsModel).toEqual([]);
+      expect(
+        component.attendance().every(a => a.attended === false)
+      ).toBeTrue();
+    }));
+
+    it('should preserve the remaining student instead of defaulting to studentIds[0]', fakeAsync(() => {
+      component.form.get('students')?.setValue(['2']);
+      fixture.detectChanges();
+      tick();
+
+      const studentsField = component.formFields.find(
+        f => f.name === 'students'
+      );
+      expect(studentsField?.value).toBe('2');
+      expect(component.form.get('students')?.value as unknown).toBe('2');
+    }));
+
+    it('should not switch when 2 or more students remain selected', () => {
+      const fieldsBefore = component.formFields;
+
+      component.form.get('students')?.setValue(['1', '2']);
+
+      expect(component.isGroup()).toBeTrue();
+      expect(component.formFields).toBe(fieldsBefore);
     });
   });
 });

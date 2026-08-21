@@ -98,6 +98,8 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   formFields: DynamicField[] = [];
   form!: FormGroup;
 
+  private pendingIndividualStudentId?: number;
+
   attendance = signal<{ student: StudentLookup; attended: boolean }[]>([]);
   attendedStudentIds = signal<string[]>([]);
 
@@ -118,15 +120,18 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     this.buildFormFields();
   }
 
-  private buildFormFields(): void {
+  private buildFormFields(preselectedStudentId?: number): void {
     const isGroupForm = this.data.students.length > 1;
     const typeValueDefault = isGroupForm
       ? InterventionType.Group
       : InterventionType.Individual;
 
+    const individualDefaultId =
+      preselectedStudentId ?? this.data.intervention!.studentIds[0];
+
     const defaultStudentIds = this.isGroup()
       ? this.data.intervention!.studentIds
-      : [this.data.intervention!.studentIds[0]];
+      : [individualDefaultId];
     this.studentsSelected.set(defaultStudentIds);
 
     const topFields: DynamicField[] = [
@@ -146,10 +151,11 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         options: TYPE_OPTIONS,
         validators: [Validators.required],
         floatingLabel: 'always',
-        value: typeValueDefault,
+        value: this.isGroup() ? typeValueDefault : InterventionType.Individual,
         disabled: !isGroupForm,
       },
     ];
+
     const optionalFields: DynamicField[] = [
       {
         type: 'select',
@@ -203,7 +209,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       options: this.data.students,
       validators: [Validators.required],
       floatingLabel: 'always',
-      value: this.data.intervention!.studentIds[0],
+      value: individualDefaultId,
     };
 
     const bottomFields: DynamicField[] = [
@@ -284,9 +290,45 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         ];
   }
 
+  private applyIndividualSwitch(remainingStudentId?: number): void {
+    if (!this.isGroup()) return;
+
+    this.isGroup.set(false);
+    this.attendedStudentIds.set([]);
+    this.attendedStudentIdsModel = [];
+    this.buildAttendance();
+    this.buildFormFields(remainingStudentId);
+
+    this.form.get('type')?.setValue(InterventionType.Individual, {
+      emitEvent: false,
+    });
+
+    if (remainingStudentId !== undefined) {
+      setTimeout(() => {
+        this.form.get('students')?.setValue(remainingStudentId, {
+          emitEvent: false,
+        });
+        this.form.markAsDirty();
+      });
+    }
+  }
+
   setFormGroup(event: FormGroup): void {
     this.form = event;
     this.form.patchValue(this._prefillValues);
+
+    const liveType = this.isGroup()
+      ? InterventionType.Group
+      : InterventionType.Individual;
+    this.form.get('type')?.setValue(liveType, { emitEvent: false });
+
+    if (this.pendingIndividualStudentId !== undefined) {
+      this.form.get('students')?.setValue(this.pendingIndividualStudentId, {
+        emitEvent: false,
+      });
+      this.form.markAsDirty();
+      this.pendingIndividualStudentId = undefined;
+    }
 
     this.form
       .get('type')
@@ -294,11 +336,33 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       .subscribe(value => {
         const nowGroup = value === InterventionType.Group;
         if (nowGroup === this.isGroup()) return;
-        this.isGroup.set(nowGroup);
-        this.attendedStudentIds.set([]);
-        this.attendedStudentIdsModel = [];
-        this.buildAttendance();
-        this.buildFormFields();
+
+        if (nowGroup) {
+          this.isGroup.set(true);
+          this.attendedStudentIds.set([]);
+          this.attendedStudentIdsModel = [];
+          this.buildAttendance();
+          this.buildFormFields();
+        } else {
+          this.applyIndividualSwitch();
+        }
+      });
+
+    this.form
+      .get('students')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        if (!this.isGroup()) return;
+
+        const selected: number[] = Array.isArray(value)
+          ? (value as number[])
+          : value !== null && value !== undefined
+            ? [value as number]
+            : [];
+
+        if (selected.length < 2) {
+          this.applyIndividualSwitch(selected[0]);
+        }
       });
 
     this.form

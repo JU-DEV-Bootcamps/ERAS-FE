@@ -14,6 +14,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('NewInterventionModalComponent', () => {
   let component: NewInterventionModalComponent;
@@ -349,6 +350,92 @@ describe('NewInterventionModalComponent', () => {
         }),
         true
       );
+    });
+
+    describe('students value changes (auto switch to individual)', () => {
+      it('should switch isGroup to false and update the type control when selection drops below 2', fakeAsync(() => {
+        component.ngOnInit(); // isGroup = true (2 students)
+        const form = new FormGroup({
+          type: new FormControl(InterventionType.Group),
+          students: new FormControl<number | number[] | null>([1, 2]),
+        });
+        component.setFormGroup(form);
+
+        form.get('students')?.setValue([1]);
+        tick();
+
+        expect(component.isGroup()).toBeFalse();
+        expect(form.get('type')?.value).toBe(InterventionType.Individual);
+      }));
+
+      it('should rebuild fields with the single-select students field', fakeAsync(() => {
+        component.ngOnInit();
+        const form = new FormGroup({
+          type: new FormControl(InterventionType.Group),
+          students: new FormControl<number | number[] | null>([1, 2]),
+        });
+        component.setFormGroup(form);
+
+        form.get('students')?.setValue([1]);
+        tick();
+
+        const studentsField = component.formFields.find(
+          f => f.name === 'students'
+        );
+        expect(studentsField?.type).toBe('select');
+        expect(studentsField?.multipleSelect).toBeUndefined();
+      }));
+
+      it('should preserve the remaining student instead of defaulting to the first roster student', fakeAsync(() => {
+        component.ngOnInit();
+        const form = new FormGroup({
+          type: new FormControl(InterventionType.Group),
+          students: new FormControl<number | number[] | null>([1, 2]),
+        });
+        component.setFormGroup(form);
+
+        form.get('students')?.setValue([2]);
+        tick();
+
+        const studentsField = component.formFields.find(
+          f => f.name === 'students'
+        );
+        expect(studentsField?.value).toBe(2);
+        expect(form.get('students')?.value).toBe(2);
+      }));
+
+      it('should not switch when 2 or more students remain selected', () => {
+        component.ngOnInit();
+        const form = new FormGroup({
+          type: new FormControl(InterventionType.Group),
+          students: new FormControl<number | number[] | null>([1, 2]),
+        });
+        component.setFormGroup(form);
+        const fieldsBefore = component.formFields;
+
+        form.get('students')?.setValue([1, 2]);
+
+        expect(component.isGroup()).toBeTrue();
+        expect(component.formFields).toBe(fieldsBefore);
+      });
+
+      it('should not react to students changes when already individual', () => {
+        component.data = {
+          ...mockData,
+          students: [{ label: 'Student A', value: 1 }],
+        };
+        component.ngOnInit(); // isGroup = false (1 student)
+        const form = new FormGroup({
+          type: new FormControl(InterventionType.Individual),
+          students: new FormControl<number | number[] | null>(1),
+        });
+        component.setFormGroup(form);
+        const fieldsBefore = component.formFields;
+
+        form.get('students')?.setValue(1);
+
+        expect(component.formFields).toBe(fieldsBefore);
+      });
     });
   });
 });
