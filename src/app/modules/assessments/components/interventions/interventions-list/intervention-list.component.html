@@ -1,4 +1,4 @@
-@if (isLoading()) {
+@if (isLoading() || isLoadingAssessment()) {
   <div class="loading-state">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
@@ -39,23 +39,23 @@
     </div>
   </div>
 } @else {
-  @if (!statusFinalizedAssessment) {
-    <div class="page-header">
-      <button
-        mat-icon-button
-        matTooltip="Export CSV"
-        class="action-icon"
-        disableRipple
-        (click)="exportToCSV()"
-      >
-        <mat-icon class="material-symbols-outlined">ios_share</mat-icon>
-      </button>
+  <div class="page-header">
+    <button
+      mat-icon-button
+      matTooltip="Export CSV"
+      class="action-icon"
+      disableRipple
+      (click)="exportToCSV()"
+    >
+      <mat-icon class="material-symbols-outlined">ios_share</mat-icon>
+    </button>
+    @if (!statusFinalizedAssessment) {
       <button mat-flat-button type="button" (click)="onCreateClick()">
         <mat-icon>add</mat-icon>
         Create Intervention
       </button>
-    </div>
-  }
+    }
+  </div>
 
   <div
     class="push-layout-container"
