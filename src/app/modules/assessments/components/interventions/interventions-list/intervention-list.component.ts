@@ -33,10 +33,27 @@ import {
 import { AppliedFilter } from '@shared/components/list-filters/models/list-filters.interface';
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
 import { AssessmentService } from '@core/services/api/assessement.service';
+import { CsvService } from '@core/services/exports/csv.service';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
   commentPreview: string;
+}
+
+export interface ExportableIntervention {
+  id: string;
+  date: string;
+  type: string;
+  mode: string;
+  activity: string;
+  professional: string;
+  students: string;
+  emails: string;
+  area: string;
+  risk: string;
+  endRisk: string;
+  status: string;
+  comment: string;
 }
 
 @Component({
@@ -64,6 +81,7 @@ export class InterventionListComponent {
   private readonly interventionService = inject(InterventionService);
   private readonly assessmentService = inject(AssessmentService);
   private readonly filterStrategy = inject(InterventionFilterStrategy);
+  private readonly csvService = inject(CsvService);
 
   @Input() pageSize = 10;
 
@@ -272,5 +290,60 @@ export class InterventionListComponent {
       this.sortDirection.set('asc');
     }
     this.pageIndex.set(0);
+  }
+
+  exportToCSV(): void {
+    const dataToExport = this.filteredInterventions().map(intervention => {
+      let studentsNames = '';
+      let studentEmails = '';
+
+      if (Array.isArray(intervention.studentDisplay)) {
+        studentsNames = intervention.studentDisplay
+          .map(student => student.name)
+          .join();
+        studentEmails = intervention.studentDisplay
+          .map(student => student.email)
+          .join();
+      }
+
+      return {
+        id: intervention.id?.toString(),
+        date: intervention.dateUtc,
+        type: intervention.kind,
+        mode: intervention.mode,
+        activity: intervention.activity,
+        professional: intervention.professional,
+        students: studentsNames,
+        emails: studentEmails,
+        area: intervention.area,
+        risk: intervention.riskLevelName,
+        endRisk: intervention.endRiskLevelName,
+        status: intervention.status,
+        comment: intervention.comments,
+      } as ExportableIntervention;
+    });
+
+    const columns = [
+      'id',
+      'date',
+      'type',
+      'mode',
+      'activity',
+      'professional',
+      'students',
+      'emails',
+      'area',
+      'risk',
+      'endRisk',
+      'status',
+      'comment',
+    ];
+
+    this.csvService.exportToCSV(
+      dataToExport,
+      columns,
+      undefined,
+      'interventions'
+    );
   }
 }

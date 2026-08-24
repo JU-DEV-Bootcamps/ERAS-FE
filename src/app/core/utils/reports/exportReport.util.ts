@@ -1,5 +1,5 @@
 import { ElementRef, inject, Injectable } from '@angular/core';
-import { generateFileName } from '@core/utils/file/file-name';
+import { FileNameUtils } from '@core/utils/file/file-name';
 import { PdfService } from '@core/services/exports/pdf.service';
 import { ExportArgs } from '../../../modules/reports/components/summary-charts/types/export';
 import {
@@ -343,7 +343,9 @@ export class PdfHelper {
       });
     }
 
-    const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
+    const fileName = FileNameUtils.generateFileName(
+      args.fileName ?? DEFAULT_VALUES.fileName
+    );
     const cloned = this.printReportInfo(args.container, args.preProcess);
 
     const { width, height } = await this.measureAndPrepare(cloned);
@@ -368,7 +370,9 @@ export class PdfHelper {
 
   async exportCardToPdf(args: ExportArgs) {
     const element = args.container?.nativeElement as HTMLElement;
-    const fileName = generateFileName(args.fileName ?? DEFAULT_VALUES.fileName);
+    const fileName = FileNameUtils.generateFileName(
+      args.fileName ?? DEFAULT_VALUES.fileName
+    );
 
     const cloned = element.cloneNode(true) as HTMLElement;
 

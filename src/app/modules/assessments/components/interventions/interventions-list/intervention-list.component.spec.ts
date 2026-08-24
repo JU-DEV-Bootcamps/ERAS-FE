@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
+  ExportableIntervention,
   InterventionListComponent,
   InterventionRowViewModel,
 } from './intervention-list.component';
@@ -13,11 +14,13 @@ import {
   AssessmentStatus,
   InterventionMode,
   InterventionModel,
+  InterventionStatus,
   InterventionType,
   RiskLevels,
 } from '@core/models/assessment.model';
 import { of, throwError } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
+import { CsvService } from '@core/services/exports/csv.service';
 
 describe('InterventionListComponent', () => {
   let component: InterventionListComponent;
@@ -25,6 +28,7 @@ describe('InterventionListComponent', () => {
   let mockAssessmentService: jasmine.SpyObj<AssessmentService>;
   let mockInterventionService: jasmine.SpyObj<InterventionService>;
   let mockFilterStrategy: jasmine.SpyObj<InterventionFilterStrategy>;
+  let mockCsvService: jasmine.SpyObj<CsvService>;
 
   const intervention: InterventionModel = {
     id: 1,
@@ -59,6 +63,22 @@ describe('InterventionListComponent', () => {
     } as StudentProfileData,
   };
 
+  const exportableIntervention: ExportableIntervention = {
+    id: '1',
+    date: '2026-02-20',
+    type: 'Individual',
+    mode: 'InPlace',
+    activity: 'workshop',
+    professional: 'Test Professional',
+    students: 'Abby',
+    emails: 'aby@mail.com',
+    area: 'Academic',
+    risk: 'Medium',
+    endRisk: 'None',
+    status: 'Remitted',
+    comment: 'Test comment',
+  };
+
   beforeEach(async () => {
     mockAssessmentService = jasmine.createSpyObj('AssessmentService', [
       'getById',
@@ -69,6 +89,7 @@ describe('InterventionListComponent', () => {
     mockFilterStrategy = jasmine.createSpyObj('InterventionFilterStrategy', [
       'apply',
     ]);
+    mockCsvService = jasmine.createSpyObj('CsvService', ['exportToCSV']);
 
     await TestBed.configureTestingModule({
       imports: [InterventionListComponent],
@@ -76,6 +97,7 @@ describe('InterventionListComponent', () => {
         { provide: AssessmentService, useValue: mockAssessmentService },
         { provide: InterventionService, useValue: mockInterventionService },
         { provide: InterventionFilterStrategy, useValue: mockFilterStrategy },
+        { provide: CsvService, useValue: mockCsvService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -284,6 +306,49 @@ describe('InterventionListComponent', () => {
     );
     component.loadInterventions(10);
     expect(component['interventions']()[0].commentPreview).toBe('—');
+  });
+
+  it('should call exportToCsv with all filtered interventions', () => {
+    component.studentNamesLookup = studentLookup;
+    component['interventions'].set([
+      {
+        ...intervention,
+        activity: 'workshop',
+        professional: 'Test Professional',
+        area: 'Academic',
+        riskLevelName: RiskLevels.Medium,
+        endRiskLevelName: RiskLevels.None,
+        status: InterventionStatus.Remitted,
+        studentDisplay: [{ id: 1, name: 'Aby', email: 'aby@mail.test' }],
+        commentPreview: '',
+      },
+    ]);
+    mockFilterStrategy.apply.and.returnValue(component['interventions']());
+
+    const columns = [
+      'id',
+      'date',
+      'type',
+      'mode',
+      'activity',
+      'professional',
+      'students',
+      'emails',
+      'area',
+      'risk',
+      'endRisk',
+      'status',
+      'comment',
+    ];
+
+    component.exportToCSV();
+
+    expect(mockCsvService.exportToCSV).toHaveBeenCalledWith(
+      [exportableIntervention],
+      columns,
+      undefined,
+      'interventions'
+    );
   });
 
   describe('sorting behavior', () => {
