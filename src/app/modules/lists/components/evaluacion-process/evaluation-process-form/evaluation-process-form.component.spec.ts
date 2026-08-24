@@ -274,6 +274,18 @@ describe('EvaluationProcessFormComponent', () => {
       expect(component.form.get('pollName')?.disabled).toBe(true);
     });
 
+    it('should disable the pollName control by default when no evaluation is provided', () => {
+      component = createComponent({}, dependencies);
+
+      expect(component.form.get('pollName')?.disabled).toBeTrue();
+    });
+
+    it('should initialize configurationsLoaded as false', () => {
+      component = createComponent({}, dependencies);
+
+      expect(component.configurationsLoaded).toBeFalse();
+    });
+
     it('should populate pollDataSelected with injected data', () => {
       component = createComponent(mockDialogData, dependencies);
 
@@ -336,16 +348,37 @@ describe('EvaluationProcessFormComponent', () => {
     expect(component.form.dirty).toBeTrue();
   });
 
-  it('should set the selected configuration and fetch pollDetails', () => {
-    component = createComponent({}, dependencies);
-    const getPollDetailsSpy = spyOn(component, 'getPollDetails');
+  describe('onConfigurationChange', () => {
+    it('should set the selected configuration and fetch pollDetails', () => {
+      component = createComponent({}, dependencies);
+      const getPollDetailsSpy = spyOn(component, 'getPollDetails');
 
-    component.onConfigurationChange(mockConfigurations[0]);
+      component.onConfigurationChange(mockConfigurations[0]);
 
-    expect(component.selectedConfiguration).toEqual(mockConfigurations[0]);
-    expect(getPollDetailsSpy).toHaveBeenCalledOnceWith(
-      mockConfigurations[0].id
-    );
+      expect(component.selectedConfiguration).toEqual(mockConfigurations[0]);
+      expect(getPollDetailsSpy).toHaveBeenCalledOnceWith(
+        mockConfigurations[0].id
+      );
+    });
+
+    it('should enable the pollName control when a configuration is selected and no pollName exists yet', () => {
+      component = createComponent({}, dependencies);
+      spyOn(component, 'getPollDetails');
+      expect(component.form.get('pollName')?.disabled).toBeTrue();
+
+      component.onConfigurationChange(mockConfigurations[0]);
+
+      expect(component.form.get('pollName')?.disabled).toBeFalse();
+    });
+
+    it('should keep the pollName control disabled when editing an evaluation that already has a pollName', () => {
+      component = createComponent(mockDialogData, dependencies);
+      spyOn(component, 'getPollDetails');
+
+      component.onConfigurationChange(mockConfigurations[0]);
+
+      expect(component.form.get('pollName')?.disabled).toBeTrue();
+    });
   });
 
   describe('getServiceProviderName', () => {
@@ -466,6 +499,19 @@ describe('EvaluationProcessFormComponent', () => {
       expect(component.configurations).toEqual(mockConfigurations);
     });
 
+    it('should set configurationsLoaded to true after successfully getting configurations by userId', () => {
+      mockConfigurationsService.getConfigurationsByUserId.and.returnValue(
+        of(mockConfigurations)
+      );
+      component = createComponent({}, dependencies);
+      component.userId = 'user123';
+      expect(component.configurationsLoaded).toBeFalse();
+
+      component.getConfigurations();
+
+      expect(component.configurationsLoaded).toBeTrue();
+    });
+
     it('should notify an error when getting configurations by userId fails', () => {
       mockConfigurationsService.getConfigurationsByUserId.and.returnValue(
         throwError(() => ({ message: 'userId does not exist' }))
@@ -482,6 +528,18 @@ describe('EvaluationProcessFormComponent', () => {
         mockConfigurationsService.getConfigurationsByUserId
       ).toHaveBeenCalledOnceWith('user123');
       expect(mockNotifyService.error).toHaveBeenCalledOnceWith(errorMessage);
+    });
+
+    it('should set configurationsLoaded to true even when getting configurations by userId fails', () => {
+      mockConfigurationsService.getConfigurationsByUserId.and.returnValue(
+        throwError(() => ({ message: 'userId does not exist' }))
+      );
+      component = createComponent({}, dependencies);
+      component.userId = 'user123';
+
+      component.getConfigurations();
+
+      expect(component.configurationsLoaded).toBeTrue();
     });
 
     it('should get all configurations when there is an evaluation and select the matching configuration', () => {
@@ -508,6 +566,46 @@ describe('EvaluationProcessFormComponent', () => {
       );
     });
 
+    it('should set configurationsLoaded to true after successfully getting all configurations', () => {
+      mockConfigurationsService.getAllConfigurations.and.returnValue(
+        of(mockConfigurations)
+      );
+      component = createComponent(mockDialogData, dependencies);
+      spyOn(component, 'getPollDetails');
+
+      component.getConfigurations();
+
+      expect(component.configurationsLoaded).toBeTrue();
+    });
+
+    it('should keep the pollName control disabled when auto-selecting a configuration for an evaluation that already has a pollName', () => {
+      mockConfigurationsService.getAllConfigurations.and.returnValue(
+        of(mockConfigurations)
+      );
+      component = createComponent(mockDialogData, dependencies);
+      spyOn(component, 'getPollDetails');
+
+      component.getConfigurations();
+
+      expect(component.form.get('pollName')?.disabled).toBeTrue();
+    });
+
+    it('should enable the pollName control when auto-selecting a configuration for an evaluation without a pollName', () => {
+      mockConfigurationsService.getAllConfigurations.and.returnValue(
+        of(mockConfigurations)
+      );
+      const mockDataWithoutPollName: IDialogData = {
+        ...mockDialogData,
+        evaluation: { ...mockDialogData.evaluation!, pollName: '' },
+      };
+      component = createComponent(mockDataWithoutPollName, dependencies);
+      spyOn(component, 'getPollDetails');
+
+      component.getConfigurations();
+
+      expect(component.form.get('pollName')?.disabled).toBeFalse();
+    });
+
     it('should notify an error when getting configurations by userId fails', () => {
       mockConfigurationsService.getAllConfigurations.and.returnValue(
         throwError(() => ({ message: 'network error' }))
@@ -521,6 +619,17 @@ describe('EvaluationProcessFormComponent', () => {
 
       expect(mockConfigurationsService.getAllConfigurations).toHaveBeenCalled();
       expect(mockNotifyService.error).toHaveBeenCalledOnceWith(errorMessage);
+    });
+
+    it('should set configurationsLoaded to true even when getting all configurations fails', () => {
+      mockConfigurationsService.getAllConfigurations.and.returnValue(
+        throwError(() => ({ message: 'network error' }))
+      );
+      component = createComponent(mockDialogData, dependencies);
+
+      component.getConfigurations();
+
+      expect(component.configurationsLoaded).toBeTrue();
     });
   });
 
@@ -573,6 +682,7 @@ describe('EvaluationProcessFormComponent', () => {
       );
       const updateFunction = jasmine.createSpy('updateFunction');
       component = createComponent({ updateFunction }, dependencies);
+      component.form.get('pollName')?.enable();
       component.selectedConfiguration = mockConfigurations[0];
       component.selectedCountry = 'col';
       component.form.setValue({
@@ -603,6 +713,7 @@ describe('EvaluationProcessFormComponent', () => {
       );
 
       component = createComponent({}, dependencies);
+      component.form.get('pollName')?.enable();
       component.selectedConfiguration = mockConfigurations[0];
       component.selectedCountry = 'col';
       component.form.setValue({
@@ -626,6 +737,7 @@ describe('EvaluationProcessFormComponent', () => {
         throwError(() => ({ error: 'Error creating evaluation process' }))
       );
       component = createComponent({}, dependencies);
+      component.form.get('pollName')?.enable();
       component.selectedConfiguration = mockConfigurations[0];
       component.selectedCountry = 'col';
       component.form.setValue({
@@ -742,6 +854,7 @@ describe('EvaluationProcessFormComponent', () => {
         dependencies
       );
 
+      component.form.get('pollName')?.enable();
       component.selectedConfiguration = mockConfigurations[0];
       component.selectedCountry = 'col';
       component.form.setValue({
@@ -784,6 +897,7 @@ describe('EvaluationProcessFormComponent', () => {
         dependencies
       );
 
+      component.form.get('pollName')?.enable();
       component.selectedConfiguration = mockConfigurations[0];
       component.selectedCountry = 'col';
       component.form.setValue({

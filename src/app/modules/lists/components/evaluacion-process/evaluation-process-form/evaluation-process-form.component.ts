@@ -84,6 +84,7 @@ export class EvaluationProcessFormComponent implements OnInit {
   pollDataSelected: PollName | null = null;
   selectedConfiguration: ConfigurationsModel | null = null;
   userId = '';
+  configurationsLoaded = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -118,7 +119,7 @@ export class EvaluationProcessFormComponent implements OnInit {
       pollName: [
         {
           value: data?.evaluation?.pollName ? null : this.prefereToChooseLater,
-          disabled: !!data?.evaluation?.pollName,
+          disabled: true,
         },
         [Validators.required, Validators.maxLength(100)],
       ],
@@ -175,6 +176,19 @@ export class EvaluationProcessFormComponent implements OnInit {
   onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
     this.selectedConfiguration = selectedConfiguration;
     this.getPollDetails(selectedConfiguration.id);
+    this.enablePollNameIfAllowed();
+  }
+
+  private enablePollNameIfAllowed(): void {
+    const pollNameControl = this.form.get('pollName');
+    if (!pollNameControl) {
+      return;
+    }
+    if (this.selectedConfiguration && !this.data?.evaluation?.pollName) {
+      pollNameControl.enable();
+    } else {
+      pollNameControl.disable();
+    }
   }
 
   getServiceProviderName(
@@ -287,6 +301,7 @@ export class EvaluationProcessFormComponent implements OnInit {
         .subscribe({
           next: (data: ConfigurationsModel[]) => {
             this.configurations = data;
+            this.configurationsLoaded = true;
             const configuration = this.configurations.find(
               c => c.id === this.data.evaluation?.configurationId
             );
@@ -294,9 +309,11 @@ export class EvaluationProcessFormComponent implements OnInit {
               this.selectedConfiguration = configuration;
               this.form.get('configuration')?.setValue(configuration);
               this.getPollDetails(configuration.id);
+              this.enablePollNameIfAllowed();
             }
           },
           error: err => {
+            this.configurationsLoaded = true;
             this.notify.error(
               'Error: An error occurred while trying to get the configurations :' +
                 err.message
@@ -309,6 +326,7 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.configurationsService.getAllConfigurations().subscribe({
       next: (data: ConfigurationsModel[]) => {
         this.configurations = data;
+        this.configurationsLoaded = true;
         if (this.data.evaluation?.configurationId) {
           const configuration = this.configurations.find(
             c => c.id === this.data.evaluation?.configurationId
@@ -317,10 +335,12 @@ export class EvaluationProcessFormComponent implements OnInit {
             this.selectedConfiguration = configuration;
             this.form.get('configuration')?.setValue(configuration);
             this.getPollDetails(configuration.id);
+            this.enablePollNameIfAllowed();
           }
         }
       },
       error: err => {
+        this.configurationsLoaded = true;
         this.notify.error(
           'Error: An error occurred while trying to get the configurations :' +
             err.message

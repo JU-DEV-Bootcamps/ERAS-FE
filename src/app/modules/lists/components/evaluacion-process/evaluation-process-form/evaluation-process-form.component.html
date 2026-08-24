@@ -47,7 +47,7 @@
             form.get('name')?.touched
           "
         >
-            This field cannot contain only spaces.
+          This field cannot contain only spaces.
         </mat-error>
       </mat-form-field>
     </div>
@@ -79,15 +79,22 @@
           }
         </mat-select>
 
-        <mat-error
-          class="errorFormHint"
-          *ngIf="
-            form.get('configuration')?.hasError('required') &&
-            form.get('configuration')?.touched
-          "
-        >
-          You have to choose an option.
-        </mat-error>
+        @if (configurationsLoaded && configurations.length === 0) {
+          <mat-hint class="warningHint">
+            No configurations found. You need to create a configuration before
+            you can start an evaluation.
+          </mat-hint>
+        } @else {
+          <mat-error
+            class="errorFormHint"
+            *ngIf="
+              form.get('configuration')?.hasError('required') &&
+              form.get('configuration')?.touched
+            "
+          >
+            You have to choose an option.
+          </mat-error>
+        }
       </mat-form-field>
     </div>
 
@@ -116,15 +123,21 @@
           }
         </mat-select>
 
-        <mat-error
-          class="errorFormHint"
-          *ngIf="
-            form.get('pollName')?.hasError('required') &&
-            form.get('pollName')?.touched
-          "
-        >
-          You have to choose an option.
-        </mat-error>
+        @if (!selectedConfiguration) {
+          <mat-hint class="warningHint">
+            Select a configuration first to choose a poll.
+          </mat-hint>
+        } @else {
+          <mat-error
+            class="errorFormHint"
+            *ngIf="
+              form.get('pollName')?.hasError('required') &&
+              form.get('pollName')?.touched
+            "
+          >
+            You have to choose an option.
+          </mat-error>
+        }
       </mat-form-field>
     </div>
 
