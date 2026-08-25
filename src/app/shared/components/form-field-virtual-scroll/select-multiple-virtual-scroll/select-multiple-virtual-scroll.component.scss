@@ -48,7 +48,7 @@ mat-form-field {
   }
 }
 
-::ng-deep .compact-select-panel {
+::ng-deep .compact-select-panel-virtual {
   max-height: none !important;
-  overflow: hidden !important;
+  overflow: none !important;
 }
