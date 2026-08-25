@@ -56,24 +56,65 @@
         <div class="row">
           <mat-form-field class="input">
             <mat-label>Enter a date range</mat-label>
-            <mat-date-range-input [rangePicker]="picker" [required]="true">
+            <mat-date-range-input
+              [rangePicker]="picker"
+              [required]="true"
+              [min]="minDate"
+              [max]="maxDate"
+            >
               <input
                 matStartDate
-                placeholder="Start date"
+                appDateAutoFormat
+                placeholder="MM/DD/YYYY"
                 formControlName="start"
+                (dateInput)="form.updateValueAndValidity()"
               />
-              <input matEndDate placeholder="End date" formControlName="end" />
+              <input
+                matEndDate
+                appDateAutoFormat
+                placeholder="MM/DD/YYYY"
+                formControlName="end"
+                (dateInput)="form.updateValueAndValidity()"
+              />
             </mat-date-range-input>
             <mat-datepicker-toggle
               matIconSuffix
               [for]="picker"
             ></mat-datepicker-toggle>
             <mat-date-range-picker #picker></mat-date-range-picker>
+
             @if (
               form.get('start')?.hasError('required') ||
               form.get('end')?.hasError('required')
             ) {
               <mat-error>Required</mat-error>
+            } @else if (
+              form.hasError('dateRangeInvalid') &&
+              form.get('start')?.touched &&
+              form.get('end')?.touched
+            ) {
+              <mat-error>
+                The end date must be the same as or after the start date.
+              </mat-error>
+            } @else if (
+              form.get('start')?.hasError('matStartDateMin') ||
+              form.get('end')?.hasError('matEndDateMin')
+            ) {
+              <mat-error>
+                Date cannot be earlier than {{ minDate | date: 'MM/dd/yyyy' }}.
+              </mat-error>
+            } @else if (
+              form.get('start')?.hasError('matStartDateMax') ||
+              form.get('end')?.hasError('matEndDateMax')
+            ) {
+              <mat-error>
+                Date cannot be later than {{ maxDate | date: 'MM/dd/yyyy' }}.
+              </mat-error>
+            } @else if (
+              form.get('start')?.hasError('matStartDateInvalid') ||
+              form.get('end')?.hasError('matEndDateInvalid')
+            ) {
+              <mat-error>Enter a valid date.</mat-error>
             } @else {
               <mat-hint>Required</mat-hint>
             }

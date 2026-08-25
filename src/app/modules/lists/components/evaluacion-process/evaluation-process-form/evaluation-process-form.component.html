@@ -144,13 +144,25 @@
     <div class="row">
       <mat-form-field class="input">
         <mat-label>Choose a date range</mat-label>
-        <mat-date-range-input [rangePicker]="picker">
+        <mat-date-range-input
+          [rangePicker]="picker"
+          [min]="minDate"
+          [max]="maxDate"
+        >
           <input
             matStartDate
-            placeholder="Start date"
+            appDateAutoFormat
+            placeholder="MM/DD/YYYY"
             formControlName="startDate"
+            (dateInput)="form.updateValueAndValidity()"
           />
-          <input matEndDate placeholder="End date" formControlName="endDate" />
+          <input
+            matEndDate
+            appDateAutoFormat
+            placeholder="MM/DD/YYYY"
+            formControlName="endDate"
+            (dateInput)="form.updateValueAndValidity()"
+          />
         </mat-date-range-input>
         <mat-datepicker-toggle
           matIconSuffix
@@ -168,6 +180,47 @@
           "
         >
           This cannot be empty.
+        </mat-error>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.hasError('dateRangeInvalid') &&
+            form.get('startDate')?.touched &&
+            form.get('endDate')?.touched
+          "
+        >
+          The end date must be the same as or after the start date.
+        </mat-error>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('startDate')?.hasError('matStartDateMin') ||
+            form.get('endDate')?.hasError('matEndDateMin')
+          "
+        >
+          Date cannot be earlier than {{ minDate | date: 'MM/dd/yyyy' }}.
+        </mat-error>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('startDate')?.hasError('matStartDateMax') ||
+            form.get('endDate')?.hasError('matEndDateMax')
+          "
+        >
+          Date cannot be later than {{ maxDate | date: 'MM/dd/yyyy' }}.
+        </mat-error>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
+            form.get('startDate')?.hasError('matStartDateInvalid') ||
+            form.get('endDate')?.hasError('matEndDateInvalid')
+          "
+        >
+          Enter a valid date.
         </mat-error>
       </mat-form-field>
     </div>
