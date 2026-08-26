@@ -10,6 +10,11 @@
     [id]="id()"
     [formControl]="control()"
     [placeholder]="placeholder()"
+    [panelClass]="
+      useVirtualScroll()
+        ? 'compact-select-panel-virtual'
+        : 'compact-select-panel'
+    "
     (openedChange)="handleOpenedChange($event)"
     (selectionChange)="updateSelection($event)"
     panelClass="compact-select-panel"
