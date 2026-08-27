@@ -16,7 +16,7 @@
       [formControl]="control()"
       [placeholder]="
         isCreating()
-          ? (field().selectConfig?.addNewLabel ?? 'New' + field().label)
+          ? (field().selectConfig?.addNewLabel ?? 'New ' + field().label)
           : (field().placeholder ?? 'Search')
       "
       [matAutocomplete]="auto"

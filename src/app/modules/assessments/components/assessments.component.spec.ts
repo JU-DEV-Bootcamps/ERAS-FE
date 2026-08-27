@@ -49,6 +49,8 @@ describe('AssessmentsComponent', () => {
   let component: AssessmentsComponent;
   let fixture: ComponentFixture<AssessmentsComponent>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
+  let juServicesServiceSpy: jasmine.SpyObj<JuServicesService>;
+  let professionalsServiceSpy: jasmine.SpyObj<ProfessionalsService>;
 
   const lightStudents = [
     { id: 1, name: 'Ana' },
@@ -70,17 +72,17 @@ describe('AssessmentsComponent', () => {
     ]);
     studentServiceSpy.getAllStudentsLight.and.returnValue(of(lightStudents));
 
-    const juServicesServiceSpy = jasmine.createSpyObj<JuServicesService>(
+    juServicesServiceSpy = jasmine.createSpyObj<JuServicesService>(
       'JuServicesService',
-      ['getAllJuServices']
+      ['getAllJuServices', 'addNewService']
     );
     juServicesServiceSpy.getAllJuServices.and.returnValue(
       of({ items: [], count: 0 })
     );
 
-    const professionalsServiceSpy = jasmine.createSpyObj<ProfessionalsService>(
+    professionalsServiceSpy = jasmine.createSpyObj<ProfessionalsService>(
       'ProfessionalsService',
-      ['getAllProfessionals']
+      ['getAllProfessionals', 'addNewProfessional']
     );
     professionalsServiceSpy.getAllProfessionals.and.returnValue(
       of({ items: [], count: 0 })
@@ -152,7 +154,7 @@ describe('AssessmentsComponent', () => {
     fixture.detectChanges();
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error retrieving lookups',
+      'Error retrieving static lookups',
       error
     );
     // 'complete' never fires on error, so loading stays true
@@ -239,5 +241,50 @@ describe('AssessmentsComponent', () => {
     component.openDeleteModal({ id: 3 } as AssessmentModel);
 
     expect(mockListComponent.loadAssessments).toHaveBeenCalled();
+  });
+
+  it('should create a professional and return lookup value', () => {
+    professionalsServiceSpy.addNewProfessional.and.returnValue(
+      of({
+        id: 1,
+        name: 'Jane',
+        uuid: 'uuid',
+        audit: {
+          createdBy: 'test',
+          createdAt: new Date(),
+          modifiedBy: 'test',
+          modifiedAt: new Date(),
+        },
+      })
+    );
+    component['createProfessional']('Jane').subscribe(result => {
+      expect(result).toEqual({
+        label: 'Jane',
+        value: 'Jane',
+      });
+    });
+    expect(professionalsServiceSpy.addNewProfessional).toHaveBeenCalled();
+  });
+
+  it('should create a service', () => {
+    juServicesServiceSpy.addNewService.and.returnValue(
+      of({
+        id: 1,
+        name: 'Speech',
+        audit: {
+          createdBy: 'test',
+          createdAt: new Date(),
+          modifiedBy: 'test',
+          modifiedAt: new Date(),
+        },
+      })
+    );
+    component['createService']('Speech').subscribe(result => {
+      expect(result).toEqual({
+        label: 'Speech',
+        value: 'Speech',
+      });
+    });
+    expect(juServicesServiceSpy.addNewService).toHaveBeenCalled();
   });
 });
