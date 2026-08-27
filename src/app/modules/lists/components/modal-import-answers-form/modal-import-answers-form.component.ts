@@ -34,7 +34,10 @@ import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { NewConfigurationModalComponent } from '@shared/components/modals/new-configuration-modal/new-configuration-modal.component';
 import { RouterLink } from '@angular/router';
-import { dateRangeValidator } from '@core/utils/validators/date-range.validator';
+import {
+  dateRangeValidator,
+  yearRangeValidator,
+} from '@core/utils/validators/date-range.validator';
 import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.directive';
 
 @Component({
@@ -53,10 +56,9 @@ import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.dir
     MatDialogContent,
     ReactiveFormsModule,
     RouterLink,
-    DatePipe,
     DateAutoFormatDirective,
   ],
-  providers: [provideNativeDateAdapter(), DatePipe],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './modal-import-answers-form.component.html',
   styleUrl: './modal-import-answers-form.component.scss',
 })
@@ -97,17 +99,17 @@ export class ModalImportAnswersFormComponent implements OnInit {
       {
         configuration: new FormControl({ value: '', disabled: true }),
         pollName: new FormControl(
-          {
-            value: this.preselectedPollState?.pollName ?? '',
-            disabled: true,
-          },
+          { value: this.preselectedPollState?.pollName ?? '', disabled: true },
           [Validators.pattern(/^(?!\s*$).+/)]
         ),
         start: [
           this.preselectedPollState?.startDate ?? '',
-          Validators.required,
+          [Validators.required, yearRangeValidator(1900)],
         ],
-        end: [this.preselectedPollState?.endDate ?? '', Validators.required],
+        end: [
+          this.preselectedPollState?.endDate ?? '',
+          [Validators.required, yearRangeValidator(1900)],
+        ],
       },
       { validators: dateRangeValidator('start', 'end') }
     );
@@ -162,7 +164,6 @@ export class ModalImportAnswersFormComponent implements OnInit {
             ) || null;
 
           if (this.selectedConfiguration === null) {
-            // TODO: change this workaround when implementing the new role scheme
             console.warn(
               `No user configuration with id ${configurationId} was found. Using first user configuration`
             );

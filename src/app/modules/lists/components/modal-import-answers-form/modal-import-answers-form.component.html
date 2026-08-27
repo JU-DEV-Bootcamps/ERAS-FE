@@ -89,27 +89,17 @@
             ) {
               <mat-error>Required</mat-error>
             } @else if (
-              form.hasError('dateRangeInvalid') &&
-              form.get('start')?.touched &&
-              form.get('end')?.touched
+              form.get('start')?.hasError('yearMin') ||
+              form.get('end')?.hasError('yearMin')
             ) {
-              <mat-error>
-                The end date must be the same as or after the start date.
-              </mat-error>
+              <mat-error>The year cannot be earlier than 1900.</mat-error>
+            } @else if (form.hasError('dateRangeInvalid')) {
+              <mat-error>The end date must be after the start date.</mat-error>
             } @else if (
               form.get('start')?.hasError('matStartDateMin') ||
               form.get('end')?.hasError('matEndDateMin')
             ) {
-              <mat-error>
-                Date cannot be earlier than {{ minDate | date: 'MM/dd/yyyy' }}.
-              </mat-error>
-            } @else if (
-              form.get('start')?.hasError('matStartDateMax') ||
-              form.get('end')?.hasError('matEndDateMax')
-            ) {
-              <mat-error>
-                Date cannot be later than {{ maxDate | date: 'MM/dd/yyyy' }}.
-              </mat-error>
+              <mat-error>Date cannot be earlier than 01/01/1900.</mat-error>
             } @else if (
               form.get('start')?.hasError('matStartDateInvalid') ||
               form.get('end')?.hasError('matEndDateInvalid')

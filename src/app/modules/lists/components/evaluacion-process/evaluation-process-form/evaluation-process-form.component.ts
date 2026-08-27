@@ -1,5 +1,5 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { NgClass, NgIf } from '@angular/common';
 
 import {
   FormBuilder,
@@ -40,7 +40,10 @@ import { NotifyService } from '@core/services/notify.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 
-import { dateRangeValidator } from '@core/utils/validators/date-range.validator';
+import {
+  dateRangeValidator,
+  yearRangeValidator,
+} from '@core/utils/validators/date-range.validator';
 import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.directive';
 
 @Component({
@@ -57,11 +60,10 @@ import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.dir
     NgIf,
     NgClass,
     CountrySelectComponent,
-    DatePipe,
     DateAutoFormatDirective,
   ],
   templateUrl: './evaluation-process-form.component.html',
-  providers: [provideNativeDateAdapter(), DatePipe],
+  providers: [provideNativeDateAdapter()],
   styleUrl: './evaluation-process-form.component.scss',
 })
 export class EvaluationProcessFormComponent implements OnInit {
@@ -139,8 +141,14 @@ export class EvaluationProcessFormComponent implements OnInit {
           },
           [Validators.maxLength(50)],
         ],
-        startDate: [data?.evaluation?.startDate ?? '', Validators.required],
-        endDate: [data?.evaluation?.endDate ?? '', Validators.required],
+        startDate: [
+          data?.evaluation?.startDate ?? '',
+          [Validators.required, yearRangeValidator(1900)],
+        ],
+        endDate: [
+          data?.evaluation?.endDate ?? '',
+          [Validators.required, yearRangeValidator(1900)],
+        ],
       },
       { validators: dateRangeValidator('startDate', 'endDate') }
     );

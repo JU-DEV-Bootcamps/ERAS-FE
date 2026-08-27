@@ -173,10 +173,8 @@
         <mat-error
           class="errorFormHint"
           *ngIf="
-            (form.get('startDate')?.hasError('required') &&
-              form.get('startDate')?.touched) ||
-            (form.get('endDate')?.hasError('required') &&
-              form.get('endDate')?.touched)
+            form.get('startDate')?.hasError('required') ||
+            form.get('endDate')?.hasError('required')
           "
         >
           This cannot be empty.
@@ -185,9 +183,19 @@
         <mat-error
           class="errorFormHint"
           *ngIf="
+            form.get('startDate')?.hasError('yearMin') ||
+            form.get('endDate')?.hasError('yearMin')
+          "
+        >
+          The year cannot be earlier than 1900.
+        </mat-error>
+
+        <mat-error
+          class="errorFormHint"
+          *ngIf="
             form.hasError('dateRangeInvalid') &&
-            form.get('startDate')?.touched &&
-            form.get('endDate')?.touched
+            !form.get('startDate')?.hasError('yearMin') &&
+            !form.get('endDate')?.hasError('yearMin')
           "
         >
           The end date must be the same as or after the start date.
@@ -200,27 +208,7 @@
             form.get('endDate')?.hasError('matEndDateMin')
           "
         >
-          Date cannot be earlier than {{ minDate | date: 'MM/dd/yyyy' }}.
-        </mat-error>
-
-        <mat-error
-          class="errorFormHint"
-          *ngIf="
-            form.get('startDate')?.hasError('matStartDateMax') ||
-            form.get('endDate')?.hasError('matEndDateMax')
-          "
-        >
-          Date cannot be later than {{ maxDate | date: 'MM/dd/yyyy' }}.
-        </mat-error>
-
-        <mat-error
-          class="errorFormHint"
-          *ngIf="
-            form.get('startDate')?.hasError('matStartDateInvalid') ||
-            form.get('endDate')?.hasError('matEndDateInvalid')
-          "
-        >
-          Enter a valid date.
+          Date cannot be earlier than 01/01/1900.
         </mat-error>
       </mat-form-field>
     </div>

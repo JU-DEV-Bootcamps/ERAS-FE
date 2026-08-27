@@ -25,7 +25,7 @@ export function dateRangeValidator(
 
 export function yearRangeValidator(
   minYear: number,
-  maxYear: number
+  maxYear?: number
 ): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
@@ -37,8 +37,15 @@ export function yearRangeValidator(
       return null;
     }
     const year = date.getFullYear();
-    return year < minYear || year > maxYear
-      ? { yearOutOfRange: { min: minYear, max: maxYear } }
-      : null;
+
+    if (year < minYear) {
+      return { yearMin: { min: minYear, actual: year } };
+    }
+
+    if (maxYear && year > maxYear) {
+      return { yearMax: { max: maxYear, actual: year } };
+    }
+
+    return null;
   };
 }
