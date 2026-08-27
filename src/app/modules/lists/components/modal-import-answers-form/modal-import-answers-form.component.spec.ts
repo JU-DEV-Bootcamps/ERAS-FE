@@ -19,6 +19,7 @@ import { ServiceProviderModel } from '@core/models/service-providers.model';
 import { PollName } from '@core/models/poll-request.model';
 import { AuditModel } from '@core/models/common/audit.model';
 import Keycloak from 'keycloak-js';
+import { DatePipe } from '@angular/common';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -94,6 +95,7 @@ describe('ModalImportAnswersFormComponent', () => {
         RouterModule.forRoot([]),
       ],
       providers: [
+        DatePipe,
         {
           provide: UserDataService,
           useValue: {

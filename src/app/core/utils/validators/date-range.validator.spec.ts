@@ -76,66 +76,41 @@ describe('dateRangeValidator', () => {
 
 describe('yearRangeValidator', () => {
   it('should return null when value is empty', () => {
-    const control = new FormControl('', yearRangeValidator(1900, 2100));
-
+    const control = new FormControl('', yearRangeValidator(1900));
     expect(control.errors).toBeNull();
   });
 
   it('should return null when the date is invalid', () => {
-    const control = new FormControl(
-      'not-a-date',
-      yearRangeValidator(1900, 2100)
-    );
-
+    const control = new FormControl('not-a-date', yearRangeValidator(1900));
     expect(control.errors).toBeNull();
   });
 
-  it('should return yearOutOfRange when the year is below the minimum', () => {
+  it('should return yearMin when the year is below the minimum', () => {
     const control = new FormControl(
       new Date(1899, 0, 1),
-      yearRangeValidator(1900, 2100)
+      yearRangeValidator(1900)
     );
 
-    expect(control.hasError('yearOutOfRange')).toBeTrue();
-    expect(control.errors?.['yearOutOfRange']).toEqual({
+    expect(control.hasError('yearMin')).toBeTrue();
+    expect(control.errors?.['yearMin']).toEqual({
       min: 1900,
-      max: 2100,
+      actual: 1899,
     });
-  });
-
-  it('should return yearOutOfRange when the year is above the maximum', () => {
-    const control = new FormControl(
-      new Date(2101, 0, 1),
-      yearRangeValidator(1900, 2100)
-    );
-
-    expect(control.hasError('yearOutOfRange')).toBeTrue();
   });
 
   it('should return null when the year is within range', () => {
     const control = new FormControl(
       new Date(2025, 0, 1),
-      yearRangeValidator(1900, 2100)
+      yearRangeValidator(1900)
     );
-
     expect(control.errors).toBeNull();
   });
 
   it('should return null when the year equals the minimum boundary', () => {
     const control = new FormControl(
       new Date(1900, 0, 1),
-      yearRangeValidator(1900, 2100)
+      yearRangeValidator(1900)
     );
-
-    expect(control.errors).toBeNull();
-  });
-
-  it('should return null when the year equals the maximum boundary', () => {
-    const control = new FormControl(
-      new Date(2100, 11, 31),
-      yearRangeValidator(1900, 2100)
-    );
-
     expect(control.errors).toBeNull();
   });
 });
