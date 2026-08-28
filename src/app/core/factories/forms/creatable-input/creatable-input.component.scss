@@ -25,3 +25,22 @@ $font-text-md: var(--font-size-medium);
   background-color: #f0fdfa !important;
   border: 1px solid rgba($color: #000000, $alpha: 0.23);
 }
+
+.creation-error {
+  color: var(--mat-sys-error, #b3261e);
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  padding: 0 4px;
+}
+
+::ng-deep .has-creation-error .mdc-notched-outline__leading,
+::ng-deep .has-creation-error .mdc-notched-outline__notch,
+::ng-deep .has-creation-error .mdc-notched-outline__trailing {
+  border-color: var(--mat-sys-error, #b3261e) !important;
+}
+
+::ng-deep .has-creation-error .mat-mdc-form-field-label,
+::ng-deep .has-creation-error .mdc-floating-label {
+  color: var(--mat-sys-error, #b3261e) !important;
+}

@@ -1,7 +1,12 @@
 <div class="upload-field-wrapper">
+  @if (createError()) {
+    <div class="creation-error">{{ createError() }}</div>
+  }
+
   <mat-form-field
     [floatLabel]="field().floatingLabel ?? 'auto'"
     class="w-full"
+    [class.has-creation-error]="createError()"
     appearance="outline"
   >
     <mat-label>{{ field().label }}</mat-label>
@@ -13,6 +18,7 @@
       matInput
       #trigger="matAutocompleteTrigger"
       type="text"
+      maxlength="100"
       [formControl]="control()"
       [placeholder]="
         isCreating()
@@ -74,9 +80,7 @@
       }
     </mat-autocomplete>
 
-    @if (createError()) {
-      <mat-error>{{ createError() }}</mat-error>
-    } @else if (formUtils.isValidField(form(), field().name)) {
+    @if (formUtils.isValidField(form(), field().name)) {
       <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
     }
   </mat-form-field>

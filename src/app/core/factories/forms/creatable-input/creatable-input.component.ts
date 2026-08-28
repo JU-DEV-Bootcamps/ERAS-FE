@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { validateName } from '@core/utils/validators/name.validator';
 
 @Component({
   selector: 'app-creatable-component',
@@ -96,6 +97,13 @@ export class CreatableInputComponent implements DynamicInputComponent {
 
     if (!name || !onCreateFn || this.hasExactMatch()) return;
 
+    const validationError = validateName(this.searchTerm());
+    if (validationError) {
+      this.createError.set(validationError);
+      trigger.closePanel();
+      return;
+    }
+
     this.isSaving.set(true);
     this.createError.set(null);
 
@@ -112,6 +120,7 @@ export class CreatableInputComponent implements DynamicInputComponent {
         },
         error: err => {
           this.createError.set(err?.error?.message);
+          trigger.closePanel();
         },
       });
   }
