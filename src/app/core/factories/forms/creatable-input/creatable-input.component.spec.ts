@@ -101,7 +101,7 @@ describe('CreatableInputComponent', () => {
     component.searchTerm.set('abc');
     component.isCreating.set(true);
     component.onOptionSelected(option);
-    expect(form.get('category')?.value).toEqual(option);
+    expect(form.get('category')?.value).toEqual(option.value);
     expect(component.searchTerm()).toBe('abc');
     expect(component.isCreating()).toBeFalse();
   });

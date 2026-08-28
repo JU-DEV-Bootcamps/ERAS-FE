@@ -71,17 +71,8 @@ describe('NewAssessmentModalComponent', () => {
       students: new FormControl([1]),
       date: new FormControl('2024-01-01', Validators.required),
       submitter: new FormControl('teacher'),
-      service: new FormControl({
-        label: 'Speech',
-        value: 'speech',
-      }),
-      professional: new FormControl(
-        {
-          label: 'Professional',
-          value: 'professional',
-        },
-        Validators.required
-      ),
+      service: new FormControl('speech'),
+      professional: new FormControl('professional', Validators.required),
       professionalComment: new FormControl('Comment'),
     });
   });
