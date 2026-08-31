@@ -104,11 +104,11 @@ export class ModalImportAnswersFormComponent implements OnInit {
         ),
         start: [
           this.preselectedPollState?.startDate ?? '',
-          [Validators.required, yearRangeValidator(1900)],
+          [Validators.required, yearRangeValidator(1900, 2100)],
         ],
         end: [
           this.preselectedPollState?.endDate ?? '',
-          [Validators.required, yearRangeValidator(1900)],
+          [Validators.required, yearRangeValidator(1900, 2100)],
         ],
       },
       { validators: dateRangeValidator('start', 'end') }

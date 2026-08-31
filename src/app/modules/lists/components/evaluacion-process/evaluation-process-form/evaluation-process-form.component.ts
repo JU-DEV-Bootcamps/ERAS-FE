@@ -143,11 +143,11 @@ export class EvaluationProcessFormComponent implements OnInit {
         ],
         startDate: [
           data?.evaluation?.startDate ?? '',
-          [Validators.required, yearRangeValidator(1900)],
+          [Validators.required, yearRangeValidator(1900, 2100)],
         ],
         endDate: [
           data?.evaluation?.endDate ?? '',
-          [Validators.required, yearRangeValidator(1900)],
+          [Validators.required, yearRangeValidator(1900, 2100)],
         ],
       },
       { validators: dateRangeValidator('startDate', 'endDate') }

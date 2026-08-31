@@ -19,7 +19,9 @@ export function dateRangeValidator(
       return null;
     }
 
-    return endDate < startDate ? { dateRangeInvalid: true } : null;
+    return endDate.getTime() < startDate.getTime()
+      ? { dateRangeInvalid: true }
+      : null;
   };
 }
 

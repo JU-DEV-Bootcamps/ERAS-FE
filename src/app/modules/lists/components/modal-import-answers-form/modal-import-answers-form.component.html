@@ -58,21 +58,18 @@
             <mat-label>Enter a date range</mat-label>
             <mat-date-range-input
               [rangePicker]="picker"
-              [required]="true"
               [min]="minDate"
               [max]="maxDate"
             >
               <input
                 matStartDate
                 appDateAutoFormat
-                placeholder="MM/DD/YYYY"
                 formControlName="start"
                 (dateInput)="form.updateValueAndValidity()"
               />
               <input
                 matEndDate
                 appDateAutoFormat
-                placeholder="MM/DD/YYYY"
                 formControlName="end"
                 (dateInput)="form.updateValueAndValidity()"
               />
@@ -87,26 +84,29 @@
               form.get('start')?.hasError('required') ||
               form.get('end')?.hasError('required')
             ) {
-              <mat-error>Required</mat-error>
+              <mat-error>This field is required.</mat-error>
             } @else if (
               form.get('start')?.hasError('yearMin') ||
-              form.get('end')?.hasError('yearMin')
-            ) {
-              <mat-error>The year cannot be earlier than 1900.</mat-error>
-            } @else if (form.hasError('dateRangeInvalid')) {
-              <mat-error>The end date must be after the start date.</mat-error>
-            } @else if (
               form.get('start')?.hasError('matStartDateMin') ||
+              form.get('end')?.hasError('yearMin') ||
               form.get('end')?.hasError('matEndDateMin')
             ) {
               <mat-error>Date cannot be earlier than 01/01/1900.</mat-error>
             } @else if (
-              form.get('start')?.hasError('matStartDateInvalid') ||
-              form.get('end')?.hasError('matEndDateInvalid')
+              form.get('start')?.hasError('yearMax') ||
+              form.get('start')?.hasError('matStartDateMax') ||
+              form.get('start')?.hasError('matDatepickerMax') ||
+              form.get('end')?.hasError('yearMax') ||
+              form.get('end')?.hasError('matEndDateMax') ||
+              form.get('end')?.hasError('matDatepickerMax')
+            ) {
+              <mat-error>Date cannot be later than 12/31/2100.</mat-error>
+            } @else if (form.hasError('dateRangeInvalid')) {
+              <mat-error>The end date must be after the start date.</mat-error>
+            } @else if (
+              form.get('start')?.invalid || form.get('end')?.invalid
             ) {
               <mat-error>Enter a valid date.</mat-error>
-            } @else {
-              <mat-hint>Required</mat-hint>
             }
           </mat-form-field>
         </div>
