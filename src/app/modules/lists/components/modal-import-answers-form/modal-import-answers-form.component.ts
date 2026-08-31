@@ -58,7 +58,7 @@ import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.dir
     RouterLink,
     DateAutoFormatDirective,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './modal-import-answers-form.component.html',
   styleUrl: './modal-import-answers-form.component.scss',
 })
