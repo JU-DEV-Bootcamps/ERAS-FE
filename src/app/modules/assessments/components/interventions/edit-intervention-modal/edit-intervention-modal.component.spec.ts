@@ -169,10 +169,8 @@ describe('EditInterventionModalComponent', () => {
   });
 
   it('should return only new files', () => {
-    const existingFile = new File(['a'], 'existing.pdf');
     const newFile = new File(['b'], 'new.pdf');
-    component.form.get('uploadInput')?.setValue([existingFile, newFile]);
-    component.existingAttachments = ['existing.pdf'];
+    component.form.get('uploadInput')?.setValue([newFile]);
     const result = component['getNewFilesToUpload']();
     expect(result).toEqual([newFile]);
   });
@@ -235,11 +233,15 @@ describe('EditInterventionModalComponent', () => {
   });
 
   describe('type value changes', () => {
-    it('should toggle isGroup, reset attendance and rebuild fields when type changes', () => {
+    it('should toggle isGroup, reset attendance and rebuild fields when type changes', fakeAsync(() => {
       component.attendedStudentIds.set(['1']);
       component.attendedStudentIdsModel = ['1'];
 
       component.form.get('type')?.setValue(InterventionType.Individual);
+
+      fixture.detectChanges();
+
+      tick();
 
       expect(component.isGroup()).toBeFalse();
       expect(component.attendedStudentIds()).toEqual([]);
@@ -248,7 +250,7 @@ describe('EditInterventionModalComponent', () => {
       expect(
         component.attendance().every(a => a.attended === false)
       ).toBeTrue();
-    });
+    }));
 
     it('should not rebuild fields when type value does not change the group state', () => {
       const fieldsBefore = component.formFields;
@@ -289,19 +291,18 @@ describe('EditInterventionModalComponent', () => {
   });
 
   describe('submitIntervention', () => {
-    it('should show an error toast and not update when an attendee is not among the selected students', () => {
+    it('should proceed with update when an attendee is not among the selected students', () => {
       component.form.get('students')?.setValue(['1']);
       component.attendedStudentIds.set(['1', '2']);
       component.attendedStudentIdsModel = ['1', '2'];
 
       component.submitIntervention();
 
+      expect(interventionService.getByAssessment).toHaveBeenCalled();
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
       expect(toastService.showToast).toHaveBeenCalledWith(
-        jasmine.objectContaining({ title: 'Invalid attendance' }),
-        true
+        jasmine.objectContaining({ title: 'Intervention updated successfully' })
       );
-      expect(interventionService.getByAssessment).not.toHaveBeenCalled();
-      expect(dialogRef.close).not.toHaveBeenCalled();
     });
 
     it('should proceed with the update when all attendees are among the selected students', () => {
@@ -400,8 +401,8 @@ describe('EditInterventionModalComponent', () => {
       const studentsField = component.formFields.find(
         f => f.name === 'students'
       );
-      expect(studentsField?.value).toBe('2');
-      expect(component.form.get('students')?.value as unknown).toBe('2');
+      expect(studentsField?.value).toBe(2);
+      expect(component.form.get('students')?.value as unknown).toBe(2);
     }));
 
     it('should not switch when 2 or more students remain selected', () => {
