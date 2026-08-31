@@ -222,6 +222,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         options: RISK_OPTIONS,
         validators: [Validators.required],
         floatingLabel: 'always',
+        selectConfig: { displayMode: 'chips' },
         value: currentValues.riskLevelName || RISK_OPTIONS.at(1)?.label,
       },
       {
@@ -233,6 +234,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         ),
         validators: [Validators.required],
         floatingLabel: 'always',
+        selectConfig: { displayMode: 'chips' },
         value: currentValues.status || intervention.status,
       },
       {
@@ -283,6 +285,10 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
           ...bottomFields,
           ...optionalFields,
         ];
+
+    if (this.form?.contains('endRiskLevelName')) {
+      this.appendEndRiskLevelField();
+    }
   }
 
   private handleTypeSwitch(targetType: InterventionType): void {
@@ -417,6 +423,11 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         this.attendedStudentIds().includes(String(student.value));
     });
 
+    const endRiskLevelName =
+      v.endRiskLevelName && v.endRiskLevelName !== ''
+        ? v.endRiskLevelName
+        : null;
+
     return {
       assessmentId: this.data.assessmentId,
       intervention: {
@@ -433,7 +444,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         attachments: [],
         riskLevelName: v.riskLevelName,
         status: v.status,
-        endRiskLevelName: v.endRiskLevelName,
+        endRiskLevelName,
       },
     };
   }
@@ -519,21 +530,41 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     return uploadInputValue as File[];
   }
 
+  private appendEndRiskLevelField(): void {
+    if (this.formFields.some(f => f.name === 'endRiskLevelName')) return;
+    this.formFields = [
+      ...this.formFields,
+      {
+        type: 'select',
+        name: 'endRiskLevelName',
+        label: 'End Risk Level',
+        options: RISK_OPTIONS,
+        validators: [Validators.required],
+        floatingLabel: 'always',
+        selectConfig: { displayMode: 'chips' },
+        value: this.data.intervention?.endRiskLevelName || undefined,
+      },
+    ];
+  }
+
   private addEndRiskLevelField(): void {
-    if (this.form.contains('endRiskLevelName')) return;
-    this.form.addControl(
-      'endRiskLevelName',
-      new FormControl(this.data.intervention?.endRiskLevelName ?? '', [
-        Validators.required,
-      ])
-    );
-    this.buildFormFields();
+    if (!this.form.contains('endRiskLevelName')) {
+      this.form.addControl(
+        'endRiskLevelName',
+        new FormControl(this.data.intervention?.endRiskLevelName ?? '', [
+          Validators.required,
+        ])
+      );
+    }
+    this.appendEndRiskLevelField();
   }
 
   private removeEndRiskLevelField(): void {
     if (this.form.contains('endRiskLevelName')) {
       this.form.removeControl('endRiskLevelName');
-      this.buildFormFields();
     }
+    this.formFields = this.formFields.filter(
+      f => f.name !== 'endRiskLevelName'
+    );
   }
 }
