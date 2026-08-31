@@ -29,6 +29,8 @@ import {
   EditAssessmentModel,
 } from '@modules/assessments/models/assessments.interfaces';
 import { Subscription } from 'rxjs';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { MatIconModule } from '@angular/material/icon';
 
 const STATUS_OPTIONS = [
   {
@@ -62,13 +64,14 @@ const STATUS_OPTIONS = [
 
 @Component({
   selector: 'app-edit-assessment-modal',
-  imports: [FormFactoryComponent, MatDialogModule, NgClass],
+  imports: [FormFactoryComponent, MatDialogModule, MatIconModule, NgClass],
   templateUrl: './edit-assessment-modal.component.html',
   styleUrl: '../../styles/assessments-modal-styles.scss',
 })
 export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
   private readonly assessmentsService = inject(AssessmentService);
   private readonly toastService = inject(ToastNotificationService);
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
@@ -91,6 +94,10 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       submitter: data.assessment.createdBy,
       status: data.assessment.status,
     };
+
+    this.unsavedChangesGuard.attach(this.dialogRef, () =>
+      this.formHasChanges()
+    );
 
     this.formFields = [
       {
@@ -183,6 +190,12 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         );
       },
     });
+  }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.formHasChanges())
+      .subscribe();
   }
 
   protected submitAssessment() {

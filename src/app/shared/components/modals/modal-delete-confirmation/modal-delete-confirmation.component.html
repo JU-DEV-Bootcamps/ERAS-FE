@@ -11,10 +11,10 @@
       alt="warning icon"
       class="delete-confirmation-modal-body-icon"
     />
-    <span
-      >Are you sure you want to delete this item?<br />
-      This action cannot be undone.
-    </span>
+    <span>{{
+      data.subtitle ??
+        'Are you sure you want to delete this item? This action cannot be undone.'
+    }}</span>
     <div
       *ngIf="error() !== null"
       class="delete-confirmation-modal-error-banner"
@@ -39,7 +39,7 @@
         [disabled]="isLoading()"
         (click)="onCancel()"
       >
-        Cancel
+        {{ data.cancelText ?? 'Cancel' }}
       </button>
 
       <button
@@ -48,7 +48,7 @@
         [disabled]="isLoading()"
         (click)="onConfirm()"
       >
-        Delete
+        {{ data.confirmText ?? 'Delete' }}
       </button>
     </div>
   </div>

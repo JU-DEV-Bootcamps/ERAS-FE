@@ -34,6 +34,7 @@ import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { NewConfigurationModalComponent } from '@shared/components/modals/new-configuration-modal/new-configuration-modal.component';
 import { RouterLink } from '@angular/router';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 @Component({
   selector: 'app-modal-import-answers-form',
@@ -71,6 +72,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
   private dialogService: DialogService = inject(DialogService);
   private cosmicLatteService: CosmicLatteService = inject(CosmicLatteService);
   private errorShown = false;
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   dialogRef: MatDialogRef<NewConfigurationModalComponent> = inject(
     MatDialogRef<NewConfigurationModalComponent>
@@ -98,6 +100,8 @@ export class ModalImportAnswersFormComponent implements OnInit {
       start: [this.preselectedPollState?.startDate ?? '', Validators.required],
       end: [this.preselectedPollState?.endDate ?? '', Validators.required],
     });
+
+    this.unsavedChangesGuard.attach(this.dialogRef, () => this.form.dirty);
   }
 
   ngOnInit() {
@@ -149,7 +153,6 @@ export class ModalImportAnswersFormComponent implements OnInit {
             ) || null;
 
           if (this.selectedConfiguration === null) {
-            // TODO: change this workaround when implementing the new role scheme
             console.warn(
               `No user configuration with id ${configurationId} was found. Using first user configuration`
             );

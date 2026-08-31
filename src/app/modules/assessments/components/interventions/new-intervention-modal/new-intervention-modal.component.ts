@@ -51,6 +51,7 @@ import {
   RISK_OPTIONS,
   TYPE_OPTIONS,
 } from '../interventions.constants';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 export interface StudentLookup {
   value: number;
@@ -85,6 +86,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
@@ -118,7 +120,12 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   constructor(
     public dialogRef: MatDialogRef<NewInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
-  ) {}
+  ) {
+    this.unsavedChangesGuard.attach(
+      this.dialogRef,
+      () => this.form?.dirty ?? false
+    );
+  }
 
   ngOnInit(): void {
     this.isGroup.set(this.data.students.length > 1);
@@ -368,6 +375,12 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
           this.dialogRef.close(true);
         },
       });
+  }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form?.dirty ?? false)
+      .subscribe();
   }
 
   private buildPayload(): AddInterventionPayload {

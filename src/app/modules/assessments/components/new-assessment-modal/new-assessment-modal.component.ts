@@ -2,6 +2,7 @@ import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, inject, Inject } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import {
   MAT_DIALOG_DATA,
   MatDialogRef,
@@ -20,16 +21,18 @@ import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { AssessmentsLookups } from '@modules/assessments/models/assessments.interfaces';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 @Component({
   selector: 'app-new-assessment-modal',
-  imports: [FormFactoryComponent, MatDialogModule, NgClass],
+  imports: [FormFactoryComponent, MatDialogModule, MatIconModule, NgClass],
   templateUrl: './new-assessment-modal.component.html',
   styleUrl: '../../styles/assessments-modal-styles.scss',
 })
 export class NewAssessmentModalComponent implements FormCreation {
   private readonly assessmentsService = inject(AssessmentService);
   private readonly toastService = inject(ToastNotificationService);
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
@@ -40,6 +43,11 @@ export class NewAssessmentModalComponent implements FormCreation {
     public dialogRef: MatDialogRef<NewAssessmentModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: AssessmentsLookups
   ) {
+    this.unsavedChangesGuard.attach(
+      this.dialogRef,
+      () => this.form?.dirty ?? false
+    );
+
     this.formFields = [
       {
         type: 'searchableSelect',
@@ -109,6 +117,12 @@ export class NewAssessmentModalComponent implements FormCreation {
 
   closeAndResetDialog() {
     this.dialogRef.close();
+  }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form?.dirty ?? false)
+      .subscribe();
   }
 
   setFormGroup(event: FormGroup) {
