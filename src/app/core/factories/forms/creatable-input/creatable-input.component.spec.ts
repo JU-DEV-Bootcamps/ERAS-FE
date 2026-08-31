@@ -93,7 +93,7 @@ describe('CreatableInputComponent', () => {
     expect(component.searchTerm()).toBe('hello');
     expect(component.createError()).toBeNull();
   });
-  it('should set the control value and not reset state', () => {
+  it('should set the control value and reset state', () => {
     const option = {
       label: 'Apple',
       value: 1,
@@ -102,8 +102,13 @@ describe('CreatableInputComponent', () => {
     component.isCreating.set(true);
     component.onOptionSelected(option);
     expect(form.get('category')?.value).toEqual(option.value);
-    expect(component.searchTerm()).toBe('abc');
+    expect(component.searchTerm()).toBe('');
     expect(component.isCreating()).toBeFalse();
+  });
+  it('should keep state when starting the creation of a new option', () => {
+    component.searchTerm.set('New opt');
+    component.startCreating();
+    expect(component.searchTerm()).toBe('New opt');
   });
   it('should enable creating mode and clear errors', () => {
     component.createError.set('error');
