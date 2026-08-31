@@ -35,7 +35,7 @@
             class="save"
             color="primary"
             type="button"
-            [disabled]="!searchTerm().trim()"
+            [disabled]="hasExactMatch()"
             (click)="save(trigger)"
           >
             Save
@@ -56,7 +56,7 @@
       [displayWith]="displayFn"
       (optionSelected)="onOptionSelected($event.option.value)"
     >
-      @if (field().selectConfig?.onCreateRecord && !hasExactMatch()) {
+      @if (field().selectConfig?.onCreateRecord && !isCreating()) {
         <mat-option class="add-new-option" (click)="startCreating()">
           <mat-icon>add</mat-icon>
           {{ field().selectConfig?.addNewLabel ?? 'New ' + field().label }}
