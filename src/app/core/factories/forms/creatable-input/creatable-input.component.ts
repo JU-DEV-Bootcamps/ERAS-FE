@@ -120,7 +120,6 @@ export class CreatableInputComponent implements DynamicInputComponent {
         },
         error: err => {
           this.createError.set(err?.error?.message);
-          trigger.closePanel();
         },
       });
   }
