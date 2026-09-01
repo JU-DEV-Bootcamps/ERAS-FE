@@ -75,7 +75,8 @@ export class CreatableInputComponent implements DynamicInputComponent {
   }
 
   onOptionSelected(option: Lookup): void {
-    this.control()?.setValue(option);
+    this.control()?.setValue(option.value);
+    this.searchTerm.set('');
     this.isCreating.set(false);
   }
 
