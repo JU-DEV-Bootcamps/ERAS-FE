@@ -34,6 +34,11 @@ import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { NewConfigurationModalComponent } from '@shared/components/modals/new-configuration-modal/new-configuration-modal.component';
 import { RouterLink } from '@angular/router';
+import {
+  dateRangeValidator,
+  yearRangeValidator,
+} from '@core/utils/validators/date-range.validator';
+import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.directive';
 
 @Component({
   selector: 'app-modal-import-answers-form',
@@ -51,6 +56,7 @@ import { RouterLink } from '@angular/router';
     MatDialogContent,
     ReactiveFormsModule,
     RouterLink,
+    DateAutoFormatDirective,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './modal-import-answers-form.component.html',
@@ -85,19 +91,28 @@ export class ModalImportAnswersFormComponent implements OnInit {
   configurationIsValid = false;
   connectionError = false;
 
+  readonly minDate = new Date(1900, 0, 1);
+  readonly maxDate = new Date(2100, 11, 31);
+
   constructor() {
-    this.form = this.fb.group({
-      configuration: new FormControl({ value: '', disabled: true }),
-      pollName: new FormControl(
-        {
-          value: this.preselectedPollState?.pollName ?? '',
-          disabled: true,
-        },
-        [Validators.pattern(/^(?!\s*$).+/)]
-      ),
-      start: [this.preselectedPollState?.startDate ?? '', Validators.required],
-      end: [this.preselectedPollState?.endDate ?? '', Validators.required],
-    });
+    this.form = this.fb.group(
+      {
+        configuration: new FormControl({ value: '', disabled: true }),
+        pollName: new FormControl(
+          { value: this.preselectedPollState?.pollName ?? '', disabled: true },
+          [Validators.pattern(/^(?!\s*$).+/)]
+        ),
+        start: [
+          this.preselectedPollState?.startDate ?? '',
+          [Validators.required, yearRangeValidator(1900, 2100)],
+        ],
+        end: [
+          this.preselectedPollState?.endDate ?? '',
+          [Validators.required, yearRangeValidator(1900, 2100)],
+        ],
+      },
+      { validators: dateRangeValidator('start', 'end') }
+    );
   }
 
   ngOnInit() {
@@ -149,7 +164,6 @@ export class ModalImportAnswersFormComponent implements OnInit {
             ) || null;
 
           if (this.selectedConfiguration === null) {
-            // TODO: change this workaround when implementing the new role scheme
             console.warn(
               `No user configuration with id ${configurationId} was found. Using first user configuration`
             );
