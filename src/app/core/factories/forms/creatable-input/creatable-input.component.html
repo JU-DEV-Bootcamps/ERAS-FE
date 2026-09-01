@@ -82,6 +82,10 @@
     }
   </mat-form-field>
 
+  @if (isCreating() && searchTerm().trim() && hasExactMatch()) {
+    <div class="creation-error">{{ field().label }} already exists</div>
+  }
+
   @if (createError()) {
     <div class="creation-error">{{ createError() }}</div>
   }
