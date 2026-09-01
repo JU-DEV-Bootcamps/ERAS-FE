@@ -2,6 +2,7 @@
   <mat-form-field
     [floatLabel]="field().floatingLabel ?? 'auto'"
     class="w-full"
+    [class.has-creation-error]="createError()"
     appearance="outline"
   >
     <mat-label>{{ field().label }}</mat-label>
@@ -13,6 +14,7 @@
       matInput
       #trigger="matAutocompleteTrigger"
       type="text"
+      maxlength="100"
       [formControl]="control()"
       [placeholder]="
         isCreating()
@@ -20,6 +22,7 @@
           : (field().placeholder ?? 'Search')
       "
       [matAutocomplete]="auto"
+      [matAutocompleteDisabled]="isCreating()"
       [disabled]="isSaving()"
       (input)="onInput($any($event.target).value)"
     />
@@ -74,10 +77,16 @@
       }
     </mat-autocomplete>
 
-    @if (createError()) {
-      <mat-error>{{ createError() }}</mat-error>
-    } @else if (formUtils.isValidField(form(), field().name)) {
+    @if (formUtils.isValidField(form(), field().name)) {
       <mat-error>{{ formUtils.getFieldError(form(), field()) }}</mat-error>
     }
   </mat-form-field>
+
+  @if (isCreating() && searchTerm().trim() && hasExactMatch()) {
+    <div class="creation-error">{{ field().label }} already exists</div>
+  }
+
+  @if (createError()) {
+    <div class="creation-error">{{ createError() }}</div>
+  }
 </div>
