@@ -13,7 +13,7 @@ import {
   InterventionType,
 } from '@core/models/assessment.model';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
+import { EMPTY, of, throwError } from 'rxjs';
 
 describe('EditInterventionModalComponent', () => {
   let component: EditInterventionModalComponent;
@@ -70,7 +70,13 @@ describe('EditInterventionModalComponent', () => {
       'showToast',
     ]);
 
-    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    dialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    dialogRef.backdropClick.and.returnValue(EMPTY);
+    dialogRef.keydownEvents.and.returnValue(EMPTY);
 
     interventionService.getByAssessment.and.returnValue(of([]));
     interventionService.upsertInterventions.and.returnValue(of([]));

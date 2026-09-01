@@ -6,7 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { of, throwError } from 'rxjs';
+import { EMPTY, of, throwError } from 'rxjs';
 
 import { EditAssessmentModalComponent } from './edit-assessment-modal.component';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
@@ -75,7 +75,13 @@ describe('EditAssessmentModalComponent', () => {
       'showToast',
     ]);
 
-    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    dialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    dialogRef.backdropClick.and.returnValue(EMPTY);
+    dialogRef.keydownEvents.and.returnValue(EMPTY);
 
     await TestBed.configureTestingModule({
       imports: [EditAssessmentModalComponent, ReactiveFormsModule],

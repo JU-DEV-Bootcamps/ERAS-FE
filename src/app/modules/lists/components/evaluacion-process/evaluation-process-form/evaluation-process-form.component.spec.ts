@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { EvaluationProcessFormComponent } from './evaluation-process-form.component';
-import { of, throwError } from 'rxjs';
+import { of, throwError, EMPTY } from 'rxjs';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatDialogRef } from '@angular/material/dialog';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
@@ -164,7 +164,14 @@ describe('EvaluationProcessFormComponent', () => {
 
   beforeEach(async () => {
     fb = new FormBuilder();
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    mockDialogRef.backdropClick.and.returnValue(EMPTY);
+    mockDialogRef.keydownEvents.and.returnValue(EMPTY);
+
     mockUserDataService = jasmine.createSpyObj('UserDataService', [], {
       user: signal({ id: 'user123' }),
     });
