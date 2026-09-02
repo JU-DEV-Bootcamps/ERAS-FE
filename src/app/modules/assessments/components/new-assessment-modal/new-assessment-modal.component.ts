@@ -129,6 +129,13 @@ export class NewAssessmentModalComponent implements FormCreation {
     this.form = event;
   }
 
+  private extractOptionValue(raw: unknown): string {
+    if (raw && typeof raw === 'object' && 'value' in raw) {
+      return (raw as { value: string }).value;
+    }
+    return raw as string;
+  }
+
   submitAssessment() {
     if (this.form.valid && !this.isSubmitting) {
       this.isSubmitting = true;
@@ -136,9 +143,11 @@ export class NewAssessmentModalComponent implements FormCreation {
       const newAssessment: AssessmentModel = {
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
-        service: this.form.value.service,
-        assignedProfessional: this.form.value.professional,
-        studentIds: this.form.value.students,
+        service: this.extractOptionValue(this.form.value.service),
+        assignedProfessional: this.extractOptionValue(
+          this.form.value.professional
+        ),
+        studentIds: Array.from(new Set<string>(this.form.value.students)),
         comments: this.form.value.professionalComment,
         status: AssessmentStatus.Remitted,
         interventions: [],

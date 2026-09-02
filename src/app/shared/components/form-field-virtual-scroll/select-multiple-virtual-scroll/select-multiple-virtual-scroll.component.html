@@ -19,11 +19,17 @@
     (openedChange)="handleOpenedChange($event)"
     panelClass="compact-select-panel"
   >
-    <div style="display: none" aria-hidden="true">
-      @for (val of selectedItemsValues(); track val) {
-        <mat-option [value]="val">{{ val }}</mat-option>
-      }
-    </div>
+    @if (useVirtualScroll()) {
+      +
+      <div style="display: none" aria-hidden="true">
+        +
+        @for (val of selectedItemsValues(); track val) {
+          + <mat-option [value]="val">{{ val }}</mat-option> +
+        }
+        +
+      </div>
+      +
+    }
     <mat-select-trigger>
       @if (displayMode() === 'chips') {
         <mat-chip-grid #chipGrid>

@@ -198,6 +198,13 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       .requestClose(this.dialogRef, () => this.formHasChanges())
       .subscribe();
   }
+  
+  private extractOptionValue(raw: unknown): string {
+    if (raw && typeof raw === 'object' && 'value' in raw) {
+      return (raw as { value: string }).value;
+    }
+    return raw as string;
+  }
 
   protected submitAssessment() {
     if (this.form.valid) {
@@ -205,8 +212,10 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         id: this.data.assessment.id,
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
-        service: this.form.value.service,
-        assignedProfessional: this.form.value.professional,
+        service: this.extractOptionValue(this.form.value.service),
+        assignedProfessional: this.extractOptionValue(
+          this.form.value.professional
+        ),
         studentIds: Array.from(new Set<string>(this.form.value.students)),
         comments: this.form.value.professionalComment,
         status: this.form.value.status,

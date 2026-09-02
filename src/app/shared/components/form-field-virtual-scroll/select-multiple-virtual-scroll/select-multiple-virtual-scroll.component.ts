@@ -166,7 +166,8 @@ export class SelectMultipleVirtualScrollComponent {
     });
 
     effect(() => {
-      this.control().patchValue(this.selectedItemsValues());
+      const deduped = this.dedupeById(this.selectedItemsValues());
+      this.control().patchValue(deduped);
       this.selectedItemsLabels.set(this.getItemSelection());
     });
 
@@ -331,17 +332,19 @@ export class SelectMultipleVirtualScrollComponent {
   }
 
   onOptionToggle(event: MatOptionSelectionChange, value: SelectAllValue): void {
+    console.log('toggle fired', {
+      isUserInput: event.isUserInput,
+      selected: event.source.selected,
+      value,
+    });
     if (!event.isUserInput) {
       return;
     }
     const valueId = this.getValueId(value);
-    this.selectedItemsValues.update(values =>
-      event.source.selected
-        ? values.some(v => this.getValueId(v) === valueId)
-          ? values
-          : [...values, value]
-        : values.filter(v => this.getValueId(v) !== valueId)
-    );
+    this.selectedItemsValues.update(values => {
+      const withoutValue = values.filter(v => this.getValueId(v) !== valueId);
+      return event.source.selected ? [...withoutValue, value] : withoutValue;
+    });
   }
 
   add(event: MatChipInputEvent): void {
