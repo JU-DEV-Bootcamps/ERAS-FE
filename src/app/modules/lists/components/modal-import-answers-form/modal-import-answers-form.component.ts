@@ -115,6 +115,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
       },
       { validators: dateRangeValidator('start', 'end') }
     );
+    this.unsavedChangesGuard.attach(this.dialogRef, () => this.form.dirty);
   }
 
   ngOnInit() {
@@ -282,5 +283,13 @@ export class ModalImportAnswersFormComponent implements OnInit {
   onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
     this.selectedConfiguration = selectedConfiguration;
     this.getPollDetails(selectedConfiguration.id);
+  }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form.dirty)
+      .subscribe(closed => {
+        if (closed) this.resetForm();
+      });
   }
 }
