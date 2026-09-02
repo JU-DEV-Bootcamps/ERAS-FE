@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { validateName } from '@core/utils/validators/name.validator';
 
 @Component({
   selector: 'app-creatable-component',
@@ -75,7 +76,8 @@ export class CreatableInputComponent implements DynamicInputComponent {
   }
 
   onOptionSelected(option: Lookup): void {
-    this.control()?.setValue(option);
+    this.control()?.setValue(option.value);
+    this.searchTerm.set('');
     this.isCreating.set(false);
   }
 
@@ -96,6 +98,13 @@ export class CreatableInputComponent implements DynamicInputComponent {
     const onCreateFn = this.field().selectConfig?.onCreateRecord;
 
     if (!name || !onCreateFn || this.hasExactMatch()) return;
+
+    const validationError = validateName(this.searchTerm());
+    if (validationError) {
+      this.createError.set(validationError);
+      trigger.closePanel();
+      return;
+    }
 
     this.isSaving.set(true);
     this.createError.set(null);

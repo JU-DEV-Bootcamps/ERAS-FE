@@ -144,13 +144,23 @@
     <div class="row">
       <mat-form-field class="input">
         <mat-label>Choose a date range</mat-label>
-        <mat-date-range-input [rangePicker]="picker">
+        <mat-date-range-input
+          [rangePicker]="picker"
+          [min]="minDate"
+          [max]="maxDate"
+        >
           <input
             matStartDate
-            placeholder="Start date"
+            appDateAutoFormat
             formControlName="startDate"
+            (dateInput)="form.updateValueAndValidity()"
           />
-          <input matEndDate placeholder="End date" formControlName="endDate" />
+          <input
+            matEndDate
+            appDateAutoFormat
+            formControlName="endDate"
+            (dateInput)="form.updateValueAndValidity()"
+          />
         </mat-date-range-input>
         <mat-datepicker-toggle
           matIconSuffix
@@ -159,15 +169,48 @@
         <mat-date-range-picker #picker></mat-date-range-picker>
 
         <mat-error
-          class="errorFormHint"
           *ngIf="
-            (form.get('startDate')?.hasError('required') &&
-              form.get('startDate')?.touched) ||
-            (form.get('endDate')?.hasError('required') &&
-              form.get('endDate')?.touched)
+            form.get('startDate')?.hasError('required') ||
+            form.get('endDate')?.hasError('required')
           "
         >
           This cannot be empty.
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            form.get('startDate')?.hasError('yearMin') ||
+            form.get('startDate')?.hasError('matStartDateMin') ||
+            form.get('endDate')?.hasError('yearMin') ||
+            form.get('endDate')?.hasError('matEndDateMin')
+          "
+        >
+          The year cannot be earlier than 1900.
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            form.hasError('dateRangeInvalid') &&
+            !form.get('startDate')?.hasError('yearMax') &&
+            !form.get('endDate')?.hasError('yearMax') &&
+            !form.get('startDate')?.hasError('yearMin') &&
+            !form.get('endDate')?.hasError('yearMin')
+          "
+        >
+          The end date must be the same as or after the start date.
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            form.get('startDate')?.hasError('yearMax') ||
+            form.get('startDate')?.hasError('matStartDateMax') ||
+            form.get('startDate')?.hasError('matDatepickerMax') ||
+            form.get('endDate')?.hasError('yearMax') ||
+            form.get('endDate')?.hasError('matEndDateMax') ||
+            form.get('endDate')?.hasError('matDatepickerMax')
+          "
+        >
+          The year cannot be later than 2100.
         </mat-error>
       </mat-form-field>
     </div>

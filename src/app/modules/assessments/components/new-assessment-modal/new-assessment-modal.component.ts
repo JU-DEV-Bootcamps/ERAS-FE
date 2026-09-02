@@ -136,8 +136,8 @@ export class NewAssessmentModalComponent implements FormCreation {
       const newAssessment: AssessmentModel = {
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
-        service: this.form.value.service.value,
-        assignedProfessional: this.form.value.professional.value,
+        service: this.form.value.service,
+        assignedProfessional: this.form.value.professional,
         studentIds: this.form.value.students,
         comments: this.form.value.professionalComment,
         status: AssessmentStatus.Remitted,

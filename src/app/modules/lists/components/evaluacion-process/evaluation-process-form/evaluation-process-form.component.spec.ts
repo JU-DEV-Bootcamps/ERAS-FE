@@ -22,6 +22,7 @@ import { ServiceProvidersService } from '@core/services/api/service-providers.se
 import { NotifyService } from '@core/services/notify.service';
 import { PollName } from '@core/models/poll-request.model';
 import { CreateEvaluationModel } from '@core/models/evaluation-request.model';
+import { DatePipe } from '@angular/common';
 
 interface IDialogData {
   evaluation?: EvaluationModel;
@@ -198,13 +199,13 @@ describe('EvaluationProcessFormComponent', () => {
     mockKeycloak.loadUserProfile.and.resolveTo({ id: 'user123' });
 
     await TestBed.configureTestingModule({
-      declarations: [],
       imports: [
         EvaluationProcessFormComponent,
         HttpClientTestingModule,
         ReactiveFormsModule,
       ],
       providers: [
+        DatePipe,
         { provide: CosmicLatteService, useValue: mockCosmicLatteService },
         { provide: EvaluationsService, useValue: mockEvaluationService },
         { provide: Keycloak, useValue: mockKeycloak },

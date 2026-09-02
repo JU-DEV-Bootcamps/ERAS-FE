@@ -34,6 +34,11 @@ import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { NewConfigurationModalComponent } from '@shared/components/modals/new-configuration-modal/new-configuration-modal.component';
 import { RouterLink } from '@angular/router';
+import {
+  dateRangeValidator,
+  yearRangeValidator,
+} from '@core/utils/validators/date-range.validator';
+import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.directive';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 @Component({
@@ -52,6 +57,7 @@ import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard
     MatDialogContent,
     ReactiveFormsModule,
     RouterLink,
+    DateAutoFormatDirective,
   ],
   providers: [provideNativeDateAdapter(), DatePipe],
   templateUrl: './modal-import-answers-form.component.html',
@@ -87,21 +93,28 @@ export class ModalImportAnswersFormComponent implements OnInit {
   configurationIsValid = false;
   connectionError = false;
 
-  constructor() {
-    this.form = this.fb.group({
-      configuration: new FormControl({ value: '', disabled: true }),
-      pollName: new FormControl(
-        {
-          value: this.preselectedPollState?.pollName ?? '',
-          disabled: true,
-        },
-        [Validators.pattern(/^(?!\s*$).+/)]
-      ),
-      start: [this.preselectedPollState?.startDate ?? '', Validators.required],
-      end: [this.preselectedPollState?.endDate ?? '', Validators.required],
-    });
+  readonly minDate = new Date(1900, 0, 1);
+  readonly maxDate = new Date(2100, 11, 31);
 
-    this.unsavedChangesGuard.attach(this.dialogRef, () => this.form.dirty);
+  constructor() {
+    this.form = this.fb.group(
+      {
+        configuration: new FormControl({ value: '', disabled: true }),
+        pollName: new FormControl(
+          { value: this.preselectedPollState?.pollName ?? '', disabled: true },
+          [Validators.pattern(/^(?!\s*$).+/)]
+        ),
+        start: [
+          this.preselectedPollState?.startDate ?? '',
+          [Validators.required, yearRangeValidator(1900, 2100)],
+        ],
+        end: [
+          this.preselectedPollState?.endDate ?? '',
+          [Validators.required, yearRangeValidator(1900, 2100)],
+        ],
+      },
+      { validators: dateRangeValidator('start', 'end') }
+    );
   }
 
   ngOnInit() {
