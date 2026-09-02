@@ -20,6 +20,7 @@ import { PollName } from '@core/models/poll-request.model';
 import { AuditModel } from '@core/models/common/audit.model';
 import Keycloak from 'keycloak-js';
 import { DatePipe } from '@angular/common';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -147,6 +148,7 @@ describe('ModalImportAnswersFormComponent', () => {
       pollName: 'Test Poll',
       startDate: '2023-01-01',
       endDate: '2023-12-31',
+      ...dialogData,
     };
 
     fixture.detectChanges();
