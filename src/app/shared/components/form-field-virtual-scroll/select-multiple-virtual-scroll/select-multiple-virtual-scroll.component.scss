@@ -1,7 +1,8 @@
 .viewport {
-  /* Show 5 mat-option on select */
-  height: calc(5 * 48px);
-  max-height: calc(5 * 48px);
+  height: 240px;
+  width: 100%;
+  background: transparent;
+  contain: content;
 }
 
 mat-form-field {
@@ -51,4 +52,16 @@ mat-form-field {
 ::ng-deep .compact-select-panel-virtual {
   max-height: none !important;
   overflow: none !important;
+}
+.group-option,
+.group-header {
+  height: 48px !important;
+  line-height: 48px !important;
+  margin: 0 !important;
+}
+
+::ng-deep .compact-select-panel {
+  max-height: none !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
