@@ -3,7 +3,7 @@ import {
   InterventionModel,
   InterventionType,
 } from '@core/models/assessment.model';
-import { of, throwError } from 'rxjs';
+import { of, throwError, EMPTY } from 'rxjs';
 import {
   NewInterventionDialogData,
   NewInterventionModalComponent,
@@ -56,7 +56,13 @@ describe('NewInterventionModalComponent', () => {
     mockToastService = jasmine.createSpyObj('ToastNotificationService', [
       'showToast',
     ]);
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    mockDialogRef.backdropClick.and.returnValue(EMPTY);
+    mockDialogRef.keydownEvents.and.returnValue(EMPTY);
 
     await TestBed.configureTestingModule({
       imports: [NewInterventionModalComponent],

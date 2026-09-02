@@ -39,6 +39,7 @@ import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { NotifyService } from '@core/services/notify.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { UserDataService } from '@core/services/access/user-data.service';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 import {
   dateRangeValidator,
@@ -84,6 +85,7 @@ export class EvaluationProcessFormComponent implements OnInit {
   configurationsService = inject(ConfigurationsService);
   serviceProvidersService = inject(ServiceProvidersService);
   private readonly notify = inject(NotifyService);
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   configurations: ConfigurationsModel[] = [];
   serviceProviders: ServiceProviderModel[] = [];
@@ -152,6 +154,8 @@ export class EvaluationProcessFormComponent implements OnInit {
       },
       { validators: dateRangeValidator('startDate', 'endDate') }
     );
+
+    this.unsavedChangesGuard.attach(this.dialogRef, () => this.form.dirty);
 
     if (data) {
       this.title = this.data.title ?? 'New evaluation process';
@@ -223,6 +227,15 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.dialogRef.close();
     this.resetForm();
   }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form.dirty)
+      .subscribe(closed => {
+        if (closed) this.resetForm();
+      });
+  }
+
   deleteEvaluation() {
     if (this.data.deleteFunction) {
       this.data.deleteFunction(this.data.evaluation!.id!);

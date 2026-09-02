@@ -39,6 +39,7 @@ import {
   yearRangeValidator,
 } from '@core/utils/validators/date-range.validator';
 import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.directive';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 @Component({
   selector: 'app-modal-import-answers-form',
@@ -77,6 +78,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
   private dialogService: DialogService = inject(DialogService);
   private cosmicLatteService: CosmicLatteService = inject(CosmicLatteService);
   private errorShown = false;
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   dialogRef: MatDialogRef<NewConfigurationModalComponent> = inject(
     MatDialogRef<NewConfigurationModalComponent>
@@ -113,6 +115,7 @@ export class ModalImportAnswersFormComponent implements OnInit {
       },
       { validators: dateRangeValidator('start', 'end') }
     );
+    this.unsavedChangesGuard.attach(this.dialogRef, () => this.form.dirty);
   }
 
   ngOnInit() {
@@ -280,5 +283,13 @@ export class ModalImportAnswersFormComponent implements OnInit {
   onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
     this.selectedConfiguration = selectedConfiguration;
     this.getPollDetails(selectedConfiguration.id);
+  }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form.dirty)
+      .subscribe(closed => {
+        if (closed) this.resetForm();
+      });
   }
 }

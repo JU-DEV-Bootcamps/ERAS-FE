@@ -1,8 +1,6 @@
 <mat-dialog-content class="modal">
   <span class="closeButtonContainer">
-    <mat-icon class="closeModalButton" (click)="closeAndResetDialog()"
-      >close</mat-icon
-    >
+    <mat-icon class="closeModalButton" (click)="requestClose()">close</mat-icon>
   </span>
 
   <p class="modalTitle">{{ title }}</p>
@@ -224,11 +222,7 @@
         Delete
       </button>
 
-      <button
-        type="button"
-        class="modalCancelButton"
-        (click)="closeAndResetDialog()"
-      >
+      <button type="button" class="modalCancelButton" (click)="requestClose()">
         Cancel
       </button>
 

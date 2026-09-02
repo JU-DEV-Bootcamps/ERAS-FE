@@ -11,7 +11,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { of, throwError } from 'rxjs';
+import { of, throwError, EMPTY } from 'rxjs';
 import { AssessmentStatus } from '@core/models/assessment.model';
 
 describe('NewAssessmentModalComponent', () => {
@@ -44,7 +44,13 @@ describe('NewAssessmentModalComponent', () => {
       'showToast',
     ]);
 
-    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    dialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    dialogRef.backdropClick.and.returnValue(EMPTY);
+    dialogRef.keydownEvents.and.returnValue(EMPTY);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, NewAssessmentModalComponent],

@@ -55,6 +55,7 @@ import {
   StudentLookup,
   TYPE_OPTIONS,
 } from '../interventions.constants';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 export interface NewInterventionDialogData {
   assessmentId: number;
@@ -88,6 +89,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   private _prefillValues: Record<string, unknown> = {};
   existingAttachments: string[] = [];
@@ -111,7 +113,12 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   constructor(
     public dialogRef: MatDialogRef<EditInterventionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: NewInterventionDialogData
-  ) {}
+  ) {
+    this.unsavedChangesGuard.attach(
+      this.dialogRef,
+      () => this.form?.dirty ?? false
+    );
+  }
 
   ngOnInit(): void {
     const intervention = this.data.intervention!;
@@ -407,6 +414,12 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   submitIntervention(): void {
     if (this.form.invalid) return;
     this.updateIntervention();
+  }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form?.dirty ?? false)
+      .subscribe();
   }
 
   private buildPayload(): AddInterventionPayload {

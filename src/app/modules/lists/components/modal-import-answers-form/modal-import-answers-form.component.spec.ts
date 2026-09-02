@@ -5,7 +5,7 @@ import {
 } from '@angular/material/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 
 import { ModalImportAnswersFormComponent } from './modal-import-answers-form.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -20,6 +20,7 @@ import { PollName } from '@core/models/poll-request.model';
 import { AuditModel } from '@core/models/common/audit.model';
 import Keycloak from 'keycloak-js';
 import { DatePipe } from '@angular/common';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -113,6 +114,7 @@ describe('ModalImportAnswersFormComponent', () => {
         { provide: CosmicLatteService, useValue: mockCosmicLatteService },
         { provide: DialogService, useValue: mockDialogService },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   }
 
@@ -129,7 +131,13 @@ describe('ModalImportAnswersFormComponent', () => {
     ]);
     mockDialogService = jasmine.createSpyObj('DialogService', ['openDialog']);
     mockDialogService.openDialog.and.returnValue(of({} as MatDialog));
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    mockDialogRef.backdropClick.and.returnValue(NEVER);
+    mockDialogRef.keydownEvents.and.returnValue(NEVER);
 
     mockServiceProvidersService.getAllServiceProviders.and.returnValue(
       of(mockServiceProviders)
@@ -141,6 +149,14 @@ describe('ModalImportAnswersFormComponent', () => {
     await configureTestBed(dialogData);
     fixture = TestBed.createComponent(ModalImportAnswersFormComponent);
     component = fixture.componentInstance;
+
+    component['preselectedPollState'] = {
+      pollName: 'Test Poll',
+      startDate: '2023-01-01',
+      endDate: '2023-12-31',
+      ...dialogData,
+    };
+
     fixture.detectChanges();
   }
 

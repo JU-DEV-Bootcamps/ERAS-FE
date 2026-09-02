@@ -2,7 +2,7 @@
   <h2 mat-dialog-title>
     {{ 'Edit Intervention' }}
   </h2>
-  <mat-icon mat-dialog-close>close</mat-icon>
+  <mat-icon (click)="requestClose()">close</mat-icon>
 </div>
 
 <div class="modal-content">
@@ -49,7 +49,9 @@
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button mat-dialog-close class="cancel-button">Cancel</button>
+    <button type="button" class="cancel-button" (click)="requestClose()">
+      Cancel
+    </button>
     <button
       class="action-button"
       type="submit"
