@@ -56,11 +56,23 @@
                 />
               </button>
               <mat-menu #chartMenu="matMenu" xPosition="before">
-                <button mat-menu-item (click)="toggleChart('heatmap')">
-                  Heatmap Chart
+                <button
+                  mat-menu-item
+                  (click)="toggleChart('heatmap')"
+                  [disabled]="heatmapChart"
+                  [class.selected-option]="heatmapChart"
+                >
+                  <span>Heatmap chart</span>
+                  <mat-icon class="check-icon">check</mat-icon>
                 </button>
-                <button mat-menu-item (click)="toggleChart('chart')">
-                  Column Chart
+                <button
+                  mat-menu-item
+                  (click)="toggleChart('chart')"
+                  [disabled]="!heatmapChart"
+                  [class.selected-option]="!heatmapChart"
+                >
+                  <span>Column chart</span>
+                  <mat-icon class="check-icon">check</mat-icon>
                 </button>
               </mat-menu>
             </div>

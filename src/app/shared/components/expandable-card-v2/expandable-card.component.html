@@ -16,11 +16,23 @@
     <img src="assets/icons/graphic.svg" alt="bar_chart" />
   </button>
   <mat-menu #chartMenu="matMenu">
-    <button mat-menu-item disabled="false" (click)="changeToHeatmap()">
-      Heatmap chart
+    <button
+      mat-menu-item
+      (click)="changeToHeatmap()"
+      [disabled]="selectedChart === 'heatmap'"
+      [class.selected-option]="selectedChart === 'heatmap'"
+    >
+      <span>Heatmap chart</span>
+      <mat-icon class="check-icon">check</mat-icon>
     </button>
-    <button mat-menu-item disabled="false" (click)="changeToColumn()">
-      Column chart
+    <button
+      mat-menu-item
+      (click)="changeToColumn()"
+      [disabled]="selectedChart === 'column'"
+      [class.selected-option]="selectedChart === 'column'"
+    >
+      <span>Column chart</span>
+      <mat-icon class="check-icon">check</mat-icon>
     </button>
   </mat-menu>
   <button

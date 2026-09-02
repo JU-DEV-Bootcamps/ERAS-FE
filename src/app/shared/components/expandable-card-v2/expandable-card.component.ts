@@ -19,6 +19,8 @@ import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { ChartSkeletonComponent } from './chart-skeleton.component';
+import { MatSelectModule } from '@angular/material/select';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-expandable-card',
@@ -27,6 +29,8 @@ import { ChartSkeletonComponent } from './chart-skeleton.component';
     MatTooltipModule,
     MatMenuModule,
     ChartSkeletonComponent,
+    MatSelectModule,
+    CommonModule,
   ],
   templateUrl: './expandable-card.component.html',
   styleUrl: './expandable-card.component.scss',
@@ -58,6 +62,7 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
 
   isLoading = signal(true);
   private loadingTimer: ReturnType<typeof setTimeout> | null = null;
+  selectedChart: 'heatmap' | 'column' = 'heatmap';
 
   ngOnInit(): void {
     this.scheduleLoadingEnd(1200);
@@ -101,10 +106,12 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   changeToColumn(): void {
+    this.selectedChart = 'column';
     this.changeChart.emit('column');
   }
 
   changeToHeatmap(): void {
+    this.selectedChart = 'heatmap';
     this.changeChart.emit('heatmap');
   }
 }
