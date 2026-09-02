@@ -332,11 +332,6 @@ export class SelectMultipleVirtualScrollComponent {
   }
 
   onOptionToggle(event: MatOptionSelectionChange, value: SelectAllValue): void {
-    console.log('toggle fired', {
-      isUserInput: event.isUserInput,
-      selected: event.source.selected,
-      value,
-    });
     if (!event.isUserInput) {
       return;
     }

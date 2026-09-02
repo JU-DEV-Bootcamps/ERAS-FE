@@ -20,7 +20,6 @@ import {
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
 import { AssessmentModel } from '@core/models/assessment.model';
-import { Lookup } from '@core/models/lookup';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
@@ -272,16 +271,5 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       message: message,
       type: 'error',
     };
-  }
-
-  private _prepareCreatableInputOption(
-    value: string | number,
-    validOptions: Lookup[],
-    defaultValue: string | number
-  ) {
-    const availableValues = validOptions.map(option => option.value);
-    return (
-      availableValues.find(available => available === value) ?? defaultValue
-    );
   }
 }
