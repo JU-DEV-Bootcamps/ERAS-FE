@@ -7,46 +7,66 @@
   }
 
   <div class="form-container">
-    <app-select-virtual-scroll
-      [items]="evaluationsToScroll()"
-      [control]="filterForm.controls.selectedEvaluation"
-      [id]="'sl-evaluation'"
-      [label]="'Evaluation Process'"
-      (selectionChange)="handleEvaluationSelect($event)"
-    />
+    @if (evaluationsLoading()) {
+      <app-form-field-skeleton></app-form-field-skeleton>
+    } @else {
+      <app-select-virtual-scroll
+        [items]="evaluationsToScroll()"
+        [control]="filterForm.controls.selectedEvaluation"
+        [id]="'sl-evaluation'"
+        [label]="'Evaluation Process'"
+        (selectionChange)="handleEvaluationSelect($event)"
+      />
+    }
 
-    <app-select-multiple-virtual-scroll
-      [items]="cohortsToScroll()"
-      [control]="filterForm.controls.cohortIds"
-      [id]="'sl-cohort'"
-      [label]="'Cohort'"
-      (openedChange)="handleCohortSelect($event)"
-    />
+    @if (evaluationsLoading() || filtersLoading()) {
+      <app-form-field-skeleton></app-form-field-skeleton>
+    } @else {
+      <app-select-multiple-virtual-scroll
+        [items]="cohortsToScroll()"
+        [control]="filterForm.controls.cohortIds"
+        [id]="'sl-cohort'"
+        [label]="'Cohort'"
+        (openedChange)="handleCohortSelect($event)"
+      />
+    }
 
     @if (showVariables) {
-      <app-select-multiple-virtual-scroll
-        [items]="componentsToScroll()"
-        [control]="filterForm.controls.componentNames"
-        [id]="'sl-components'"
-        [label]="'Component'"
-        (openedChange)="handleComponentsSelect($event)"
-      />
+      @if (evaluationsLoading() || filtersLoading()) {
+        <app-form-field-skeleton></app-form-field-skeleton>
+      } @else {
+        <app-select-multiple-virtual-scroll
+          [items]="componentsToScroll()"
+          [control]="filterForm.controls.componentNames"
+          [id]="'sl-components'"
+          [label]="'Component'"
+          (openedChange)="handleComponentsSelect($event)"
+        />
+      }
 
-      <app-select-multiple-virtual-scroll
-        class="variable-field"
-        [control]="filterForm.controls.variables"
-        [id]="'sl-variables'"
-        [label]="'Variable'"
-        [groups]="variableSelectGroups()"
-        (openedChange)="handleVariableSelect($event)"
-      />
+      @if (evaluationsLoading() || filtersLoading()) {
+        <app-form-field-skeleton></app-form-field-skeleton>
+      } @else {
+        <app-select-multiple-virtual-scroll
+          class="variable-field"
+          [control]="filterForm.controls.variables"
+          [id]="'sl-variables'"
+          [label]="'Variable'"
+          [groups]="variableSelectGroups()"
+          (openedChange)="handleVariableSelect($event)"
+        />
+      }
     }
 
     <div class="button-container">
       <button
         mat-flat-button
         class="btn-apply"
-        [disabled]="filterForm.invalid || !filterForm.value.cohortIds?.length"
+        [disabled]="
+          filterForm.invalid ||
+          !filterForm.value.cohortIds?.length ||
+          filtersLoading()
+        "
         (click)="onApply()"
       >
         Apply

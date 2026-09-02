@@ -43,6 +43,7 @@ import {
 } from '@shared/components/form-field-virtual-scroll/interfaces/select';
 import { switchMap } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { FormFieldSkeletonComponent } from '@shared/components/load-skeleton/form-field-skeleton/form-field-skeleton.component';
 
 @Component({
   selector: 'app-poll-filters',
@@ -55,6 +56,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
     CommonModule,
     SelectMultipleVirtualScrollComponent,
     SelectVirtualScrollComponent,
+    FormFieldSkeletonComponent,
   ],
   providers: [DatePipe],
   templateUrl: './poll-filters.component.html',
@@ -134,6 +136,9 @@ export class PollFiltersComponent implements OnInit {
         })
       : [];
   });
+
+  readonly evaluationsLoading = signal(false);
+  readonly filtersLoading = signal(false);
 
   ngOnInit() {
     this._loadEvaluations();
@@ -281,6 +286,7 @@ export class PollFiltersComponent implements OnInit {
   }
 
   private _loadEvaluations() {
+    this.evaluationsLoading.set(true);
     this.evaluationsService
       .getAllEvalProc(this.pagination)
       .pipe(
@@ -295,8 +301,12 @@ export class PollFiltersComponent implements OnInit {
             e => e.status === 'Completed' || e.status === 'InProgress'
           );
           this.evaluations.set(completed);
+          this.evaluationsLoading.set(false);
         },
-        error: () => this.evaluations.set(null),
+        error: () => {
+          this.evaluations.set(null);
+          this.evaluationsLoading.set(false);
+        },
       });
   }
 
@@ -319,6 +329,7 @@ export class PollFiltersComponent implements OnInit {
   }
 
   private _getCohorts(pollUuid: string) {
+    this.filtersLoading.set(true);
     this.cohorts.set([]);
     this.variables.set([]);
     this._resetField('cohortIds');
@@ -332,9 +343,14 @@ export class PollFiltersComponent implements OnInit {
 
         if (this.showVariables) {
           this._getVariables(undefined, true);
+        } else {
+          this.filtersLoading.set(false);
         }
       },
-      error: () => this.cohorts.set([]),
+      error: () => {
+        this.cohorts.set([]);
+        this.filtersLoading.set(false);
+      },
     });
   }
 
@@ -347,7 +363,11 @@ export class PollFiltersComponent implements OnInit {
       .getVariablesByComponents(this.polls[0].uuid, [...namesToQuery], true)
       .subscribe({
         next: variables => {
-          if (!variables) return;
+          if (!variables) {
+            this.filtersLoading.set(false);
+            return;
+          }
+
           this.variablesClone = variables;
           this.variables.set(variables);
 
@@ -386,10 +406,13 @@ export class PollFiltersComponent implements OnInit {
           setTimeout(() => {
             this.filterForm.controls.variables.setValue(allVariableIds);
           });
+
+          this.filtersLoading.set(false);
         },
         error: () => {
           this.variables.set([]);
           this.variableSelectGroups.set([]);
+          this.filtersLoading.set(false);
         },
       });
   }
