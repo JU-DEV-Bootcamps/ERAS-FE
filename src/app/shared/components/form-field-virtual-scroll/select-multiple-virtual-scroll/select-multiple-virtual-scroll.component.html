@@ -20,7 +20,6 @@
     panelClass="compact-select-panel"
   >
     @if (useVirtualScroll()) {
-      +
       <div style="display: none" aria-hidden="true">
         +
         @for (val of selectedItemsValues(); track val) {
@@ -28,7 +27,6 @@
         }
         +
       </div>
-      +
     }
     <mat-select-trigger>
       @if (displayMode() === 'chips') {

@@ -302,11 +302,16 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     const isNowGroup = targetType === InterventionType.Group;
     this.isGroup.set(isNowGroup);
 
+    if (!isNowGroup) {
+      this.attendedStudentIds.set([]);
+      this.attendedStudentIdsModel = [];
+    }
+
+    const current = this.form.get('students')?.value;
     let nextStudentValue: number | number[];
     if (isNowGroup) {
       nextStudentValue = this.data.students.map(s => Number(s.value));
     } else {
-      const current = this.form.get('students')?.value;
       nextStudentValue = Array.isArray(current)
         ? Number(current[0])
         : Number(current);
@@ -316,13 +321,13 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
     setTimeout(() => {
       this.form.get('type')?.setValue(targetType, { emitEvent: false });
-      this.form
-        .get('students')
-        ?.setValue(nextStudentValue, { emitEvent: false });
+
+      const safeValue = Array.isArray(nextStudentValue)
+        ? nextStudentValue
+        : [nextStudentValue];
+      this.form.get('students')?.setValue(safeValue, { emitEvent: false });
 
       if (!isNowGroup) {
-        this.attendedStudentIds.set([]);
-        this.attendedStudentIdsModel = [];
         this.buildAttendance();
       }
       this.form.markAsDirty();
