@@ -303,3 +303,21 @@
     overflow-y: auto;
   }
 }
+
+.check-icon {
+  margin-top: 2px;
+  margin-right: -2px;
+  font-size: 18px;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.selected-option {
+  font-weight: 500;
+  background-color: var(--primary-50);
+}
+
+.selected-option > .check-icon {
+  opacity: 1;
+  visibility: visible;
+}
