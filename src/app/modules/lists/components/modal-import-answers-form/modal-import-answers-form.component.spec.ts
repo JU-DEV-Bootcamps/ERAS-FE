@@ -5,7 +5,7 @@ import {
 } from '@angular/material/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 
 import { ModalImportAnswersFormComponent } from './modal-import-answers-form.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -131,7 +131,13 @@ describe('ModalImportAnswersFormComponent', () => {
     ]);
     mockDialogService = jasmine.createSpyObj('DialogService', ['openDialog']);
     mockDialogService.openDialog.and.returnValue(of({} as MatDialog));
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockDialogRef = jasmine.createSpyObj('MatDialogRef', [
+      'close',
+      'backdropClick',
+      'keydownEvents',
+    ]);
+    mockDialogRef.backdropClick.and.returnValue(NEVER);
+    mockDialogRef.keydownEvents.and.returnValue(NEVER);
 
     mockServiceProvidersService.getAllServiceProviders.and.returnValue(
       of(mockServiceProviders)
