@@ -44,11 +44,17 @@ export class SelectAllDirective<T extends SelectAllValue>
     return all as (number | string)[];
   }
 
+  private toArray(value: unknown): T[] {
+    if (Array.isArray(value)) return value as T[];
+    if (value === null || value === undefined) return [];
+    return [value as T];
+  }
+
   private isAllSelected(selected: T[] | null | undefined): boolean {
     const allIds = this.getAllIds();
     if (allIds.length === 0) return false;
     const selectedIds = new Set(
-      (selected || [])
+      this.toArray(selected)
         .filter((s): s is T => s !== null && s !== undefined)
         .map(item =>
           typeof item === 'object' && item !== null && 'id' in item
@@ -67,7 +73,7 @@ export class SelectAllDirective<T extends SelectAllValue>
       this._matOption.deselect(false);
       return;
     }
-    if (this.isAllSelected(currentValue)) {
+    if (this.isAllSelected(this.toArray(currentValue))) {
       this._matOption.select(false);
     } else {
       this._matOption.deselect(false);
@@ -80,10 +86,6 @@ export class SelectAllDirective<T extends SelectAllValue>
 
     this._subscriptions.push(
       parentFormControl!.valueChanges.subscribe(value => {
-        // Deferred to a microtask so this doesn't run synchronously in the
-        // middle of the same click's onSelectionChange emission chain —
-        // otherwise it flips this option's `selected` state before our
-        // own onSelectionChange handler below gets a chance to read it.
         queueMicrotask(() => this._updateState(value));
       })
     );
@@ -111,7 +113,7 @@ export class SelectAllDirective<T extends SelectAllValue>
     );
 
     setTimeout(() => {
-      if (this.isAllSelected(parentFormControl?.value || [])) {
+      if (this.isAllSelected(this.toArray(parentFormControl?.value))) {
         this._matOption.select(false);
       }
     });
