@@ -5,10 +5,12 @@ import {
   EventEmitter,
   inject,
   Inject,
+  Injector,
   OnInit,
   signal,
   computed,
   DestroyRef,
+  afterNextRender,
 } from '@angular/core';
 import {
   FormControl,
@@ -90,6 +92,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   private readonly toastService = inject(ToastNotificationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
+  private readonly injector = inject(Injector);
 
   private _prefillValues: Record<string, unknown> = {};
   existingAttachments: string[] = [];
@@ -103,6 +106,9 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   attendance = signal<{ student: StudentLookup; attended: boolean }[]>([]);
   attendedStudentIds = signal<string[]>([]);
+
+  private formSettling = true;
+  private isSwitchingType = false;
 
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
@@ -122,7 +128,8 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   ngOnInit(): void {
     const intervention = this.data.intervention!;
-    this.isGroup.set(intervention.kind === InterventionType.Group);
+    const isActuallyGroup = intervention.kind === InterventionType.Group;
+    this.isGroup.set(isActuallyGroup);
     this.prefillForm();
     this.buildFormFields();
   }
@@ -300,48 +307,81 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   private handleTypeSwitch(targetType: InterventionType): void {
     const isNowGroup = targetType === InterventionType.Group;
-    this.isGroup.set(isNowGroup);
 
-    if (!isNowGroup) {
-      this.attendedStudentIds.set([]);
-      this.attendedStudentIdsModel = [];
-    }
-
-    const current = this.form.get('students')?.value;
     let nextStudentValue: number | number[];
     if (isNowGroup) {
       nextStudentValue = this.data.students.map(s => Number(s.value));
     } else {
+      const current = this.form.get('students')?.value;
       nextStudentValue = Array.isArray(current)
         ? Number(current[0])
         : Number(current);
     }
 
+    this.isSwitchingType = true;
+
+    this.form.get('type')?.setValue(targetType, { emitEvent: false });
+
+    this._prefillValues = {
+      ...this._prefillValues,
+      type: targetType,
+      students: nextStudentValue,
+    };
+
+    this.isGroup.set(isNowGroup);
     this.buildFormFields(nextStudentValue);
 
-    setTimeout(() => {
-      this.form.get('type')?.setValue(targetType, { emitEvent: false });
+    afterNextRender(
+      () => {
+        this.form.get('students')?.setValue(nextStudentValue, {
+          emitEvent: false,
+        });
 
-      const safeValue = Array.isArray(nextStudentValue)
-        ? nextStudentValue
-        : [nextStudentValue];
-      this.form.get('students')?.setValue(safeValue, { emitEvent: false });
+        if (!isNowGroup) {
+          this.attendedStudentIds.set([]);
+          this.attendedStudentIdsModel = [];
+          this.buildAttendance();
+        }
 
-      if (!isNowGroup) {
-        this.buildAttendance();
-      }
-      this.form.markAsDirty();
-    });
+        this.form.markAsDirty();
+        this.isSwitchingType = false;
+      },
+      { injector: this.injector }
+    );
   }
 
   setFormGroup(event: FormGroup): void {
     this.form = event;
-    this.form.patchValue(this._prefillValues);
+    this.formSettling = true;
+    this.form.patchValue(this._prefillValues, { emitEvent: false });
+    this.form
+      .get('type')
+      ?.setValue(this._prefillValues['type'], { emitEvent: false });
+
+    afterNextRender(
+      () => {
+        setTimeout(() => {
+          this.formSettling = false;
+          if (
+            this.isGroup() &&
+            !Array.isArray(this.form.get('students')?.value)
+          ) {
+            const val = this.form.get('students')?.value;
+            this.form
+              .get('students')
+              ?.setValue(val ? [val] : [], { emitEvent: false });
+          }
+        }, 100);
+      },
+      { injector: this.injector }
+    );
 
     this.form
       .get('type')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
+        if (this.formSettling) return;
+
         if (
           value ===
           (this.isGroup()
@@ -356,6 +396,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       .get('students')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value: string | number | (string | number)[]) => {
+        if (this.formSettling || this.isSwitchingType) return;
         if (this.isGroup() && Array.isArray(value) && value.length === 1) {
           this.handleTypeSwitch(InterventionType.Individual);
         }
@@ -377,6 +418,8 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   private prefillForm(): void {
     const iv = this.data.intervention!;
+    const isGroup = iv.kind === InterventionType.Group;
+
     this._prefillValues = {
       type: iv.kind,
       date: iv.dateUtc,
@@ -386,8 +429,13 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       comments: iv.comments,
       riskLevelName: iv.riskLevelName,
       status: iv.status,
-      students:
-        iv.kind === InterventionType.Group ? iv.studentIds : iv.studentIds[0],
+      students: isGroup
+        ? Array.isArray(iv.studentIds)
+          ? iv.studentIds
+          : []
+        : Array.isArray(iv.studentIds)
+          ? iv.studentIds[0]
+          : iv.studentIds,
     };
 
     const attended = Object.entries(iv.attendance ?? {})
