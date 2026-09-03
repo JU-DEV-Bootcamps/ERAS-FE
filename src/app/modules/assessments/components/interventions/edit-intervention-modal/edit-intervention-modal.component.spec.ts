@@ -243,12 +243,13 @@ describe('EditInterventionModalComponent', () => {
       component.ngOnInit();
       fixture.detectChanges();
 
+      component['formSettling'] = false;
+
       component.attendedStudentIds.set(['1']);
       expect(component.attendedStudentIds()).toEqual(['1']);
 
       component.form.get('type')?.setValue(InterventionType.Individual);
 
-      fixture.detectChanges();
       tick();
       fixture.detectChanges();
 
@@ -393,9 +394,10 @@ describe('EditInterventionModalComponent', () => {
       component.ngOnInit();
       fixture.detectChanges();
 
+      component['formSettling'] = false;
+
       component.form.get('students')?.setValue(['1']);
 
-      fixture.detectChanges();
       tick();
       fixture.detectChanges();
 
@@ -409,18 +411,21 @@ describe('EditInterventionModalComponent', () => {
       component.ngOnInit();
       fixture.detectChanges();
 
+      component['formSettling'] = false;
+
       component.form.get('students')?.setValue(['2']);
 
-      fixture.detectChanges();
       tick();
       fixture.detectChanges();
 
       const studentsField = component.formFields.find(
         f => f.name === 'students'
       );
+
       const val = Array.isArray(studentsField?.value)
         ? studentsField?.value[0]
-        : studentsField?.value;
+        : (studentsField?.value as unknown as number);
+
       expect(Number(val)).toBe(2);
     }));
 
@@ -429,8 +434,11 @@ describe('EditInterventionModalComponent', () => {
       tick();
       const fieldsBefore = component.formFields;
 
+      component['formSettling'] = false;
+
       component.form.get('students')?.setValue(['1', '2']);
       tick();
+      fixture.detectChanges();
 
       expect(component.isGroup()).toBeTrue();
       expect(component.formFields).toEqual(fieldsBefore);
