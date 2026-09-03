@@ -7,6 +7,9 @@ import {
   input,
   output,
   signal,
+  viewChildren,
+  ChangeDetectorRef,
+  inject,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {
@@ -14,7 +17,7 @@ import {
   MatFormFieldModule,
 } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 import {
   MultipleSelectCommonItem,
   MultipleSelectGroup,
@@ -26,7 +29,7 @@ import { SelectedItemsComponent } from '@modules/reports/components/poll-filters
 import { SelectAllValue } from '@shared/directives/select-all-value';
 import { UpperCasePipe } from '@angular/common';
 import { VIRTUAL_SCROLL_THRESHOLD } from '@core/constants/select';
-import { MatOptionSelectionChange } from '@angular/material/core';
+import { MatOption, MatOptionSelectionChange } from '@angular/material/core';
 import {
   MatChipInput,
   MatChipGrid,
@@ -39,6 +42,8 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ModeType } from '@core/factories/forms/form-factory.interface';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { viewChild } from '@angular/core';
+
+type SelectAllValueId = string | number;
 
 @Component({
   selector: 'app-select-multiple-virtual-scroll',
@@ -64,7 +69,7 @@ import { viewChild } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectMultipleVirtualScrollComponent {
-  readonly templateCacheSize = 10;
+  readonly templateCacheSize = 20;
   readonly itemSize = 48;
   readonly label = input<string>('');
   readonly id = input<string>('');
@@ -75,12 +80,13 @@ export class SelectMultipleVirtualScrollComponent {
     this.buildScrollItems()
   );
   readonly scrollItemsValues = computed<SelectAllValue[]>(() =>
-    this.scrollItems()
-      .filter(
-        (item): item is MultipleSelectCommonItem => !this.isGroupItem(item)
-      )
-
-      .map(scrollItem => scrollItem.value)
+    this.dedupeById(
+      this.scrollItems()
+        .filter(
+          (item): item is MultipleSelectCommonItem => !this.isGroupItem(item)
+        )
+        .map(scrollItem => scrollItem.value)
+    )
   );
   readonly openedChange = output<boolean>();
   readonly autoSelect = input<boolean>(true);
@@ -98,18 +104,57 @@ export class SelectMultipleVirtualScrollComponent {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly virtualScrollViewport = viewChild(CdkVirtualScrollViewport);
 
+  private readonly renderedOptions = viewChildren(MatOption);
+
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private getValueId(value: SelectAllValue): SelectAllValueId {
+    return value && typeof value === 'object' && 'id' in value
+      ? (value as { id: SelectAllValueId }).id
+      : (value as SelectAllValueId);
+  }
+
+  private dedupeById(values: SelectAllValue[]): SelectAllValue[] {
+    const seen = new Set<SelectAllValueId>();
+    const result: SelectAllValue[] = [];
+    for (const value of values) {
+      const valueId = this.getValueId(value);
+      if (!seen.has(valueId)) {
+        seen.add(valueId);
+        result.push(value);
+      }
+    }
+    return result;
+  }
+
+  compareFn = (o1: SelectAllValue, o2: SelectAllValue): boolean => {
+    return this.getValueId(o1) === this.getValueId(o2);
+  };
+
+  isSelected(value: SelectAllValue): boolean {
+    const valueId = this.getValueId(value);
+    return this.selectedItemsValues().some(v => this.getValueId(v) === valueId);
+  }
+
   constructor() {
     effect(onCleanup => {
       const currentItems = this.scrollItems();
       const defaultValue = this.scrollItemsValues();
       const ctrl = this.control();
+      const initialValues = this.inputControlValues();
 
-      // Account for edit modals with existing values
-      if (this.inputControlValues()) {
-        this.selectedItemsValues.set(this.inputControlValues());
+      if (initialValues) {
+        this.selectedItemsValues.set(this.dedupeById(initialValues));
       }
 
-      if (currentItems?.length > 0 && this.autoSelect()) {
+      const hasNoInitialSelection =
+        !initialValues || initialValues.length === 0;
+
+      if (
+        currentItems?.length > 0 &&
+        this.autoSelect() &&
+        hasNoInitialSelection
+      ) {
         const timeoutId = setTimeout(() => {
           ctrl.patchValue(defaultValue);
           this.selectedItemsValues.set(defaultValue);
@@ -121,9 +166,52 @@ export class SelectMultipleVirtualScrollComponent {
     });
 
     effect(() => {
-      this.control().patchValue(this.selectedItemsValues());
+      const deduped = this.dedupeById(this.selectedItemsValues());
+      this.control().patchValue(deduped);
       this.selectedItemsLabels.set(this.getItemSelection());
     });
+
+    effect(onCleanup => {
+      const viewport = this.virtualScrollViewport();
+      if (!viewport) return;
+
+      const subscription = viewport.renderedRangeStream.subscribe(() => {
+        requestAnimationFrame(() => {
+          this.syncRenderedOptionsSelection();
+          this.cdr.detectChanges();
+        });
+      });
+      onCleanup(() => subscription.unsubscribe());
+    });
+
+    effect(() => {
+      this.selectedItemsValues();
+      this.filteredScrollItems();
+      queueMicrotask(() => this.syncRenderedOptionsSelection());
+    });
+  }
+
+  private syncRenderedOptionsSelection(): void {
+    const currentValues = this.selectedItemsValues();
+    if (!currentValues) return;
+
+    const selectedIds = new Set(currentValues.map(v => this.getValueId(v)));
+    const options = this.renderedOptions();
+
+    for (const option of options) {
+      if (option.value === 'allValues' || option.disabled) continue;
+
+      const optionId = this.getValueId(option.value as SelectAllValue);
+      const shouldBeSelected = selectedIds.has(optionId);
+
+      if (shouldBeSelected !== option.selected) {
+        if (shouldBeSelected) {
+          option.select();
+        } else {
+          option.deselect();
+        }
+      }
+    }
   }
 
   buildScrollItems() {
@@ -158,10 +246,11 @@ export class SelectMultipleVirtualScrollComponent {
     } else {
       itemSelection = currentSelectionValues.map(
         (selectedItem: SelectAllValue) => {
-          const match = scrollItems.find(
-            (item: MultipleSelectItem) =>
-              !this.isGroupItem(item) && item.value === selectedItem
-          );
+          const selectedId = this.getValueId(selectedItem);
+          const match = scrollItems.find((item: MultipleSelectItem) => {
+            if (this.isGroupItem(item)) return false;
+            return this.getValueId(item.value) === selectedId;
+          });
 
           return match ? match.label : '';
         }
@@ -182,10 +271,7 @@ export class SelectMultipleVirtualScrollComponent {
     if (this.isGroupItem(item)) {
       return `group-${index}`;
     }
-    const value = item.value;
-    return typeof value === 'object' && value !== null && 'id' in value
-      ? value.id
-      : value;
+    return this.getValueId(item.value);
   }
 
   private readonly searchText = signal('');
@@ -195,7 +281,6 @@ export class SelectMultipleVirtualScrollComponent {
     if (!search) return this.scrollItems();
 
     const items = this.scrollItems();
-    const selectedValues = new Set(this.selectedItemsValues());
     const result: MultipleSelectItem[] = [];
 
     for (let i = 0; i < items.length; i++) {
@@ -207,16 +292,11 @@ export class SelectMultipleVirtualScrollComponent {
           .some(
             next =>
               !this.isGroupItem(next) &&
-              (next.label.toLowerCase().includes(search) ||
-                selectedValues.has((next as MultipleSelectCommonItem).value))
+              next.label.toLowerCase().includes(search)
           );
         if (hasMatch) result.push(item);
       } else {
-        const commonItem = item as MultipleSelectCommonItem;
-        const matchesSearch = item.label.toLowerCase().includes(search);
-        const isPinned = selectedValues.has(commonItem.value);
-
-        if (matchesSearch || isPinned) {
+        if (item.label.toLowerCase().includes(search)) {
           result.push(item);
         }
       }
@@ -236,46 +316,30 @@ export class SelectMultipleVirtualScrollComponent {
     } else {
       setTimeout(() => {
         this.virtualScrollViewport()?.checkViewportSize();
+        this.syncRenderedOptionsSelection();
       });
     }
     this.openedChange.emit(isOpen);
   }
 
-  selectAllClicked(selection: MatOptionSelectionChange) {
-    if (selection.isUserInput && !selection.source.selected) {
-      this.selectedItemsValues.set([]);
+  onSelectAllToggle(event: MatOptionSelectionChange): void {
+    if (!event.isUserInput) {
+      return;
     }
+    this.selectedItemsValues.set(
+      event.source.selected ? this.scrollItemsValues() : []
+    );
   }
 
-  updateSelection(selection: MatSelectChange<SelectAllValue[]>) {
-    if (selection.value.includes('allValues')) {
-      this.selectedItemsValues.set(this.scrollItemsValues());
-    } else {
-      this.selectedItemsValues.update(oldSelection => {
-        const newSelection: SelectAllValue[] = [...oldSelection];
-        const filteredItemsValues = this.filteredScrollItems().map(
-          item => (item as MultipleSelectCommonItem).value
-        );
-
-        // Add new selections while avoiding duplicates
-        newSelection.push(
-          ...selection.value.filter(item => !oldSelection.includes(item))
-        );
-
-        // Remove previously selected item if it is deselected
-        oldSelection.forEach(item => {
-          if (
-            filteredItemsValues.includes(item) &&
-            !selection.value.includes(item)
-          ) {
-            const index = newSelection.indexOf(item);
-            newSelection.splice(index, 1);
-          }
-        });
-
-        return newSelection;
-      });
+  onOptionToggle(event: MatOptionSelectionChange, value: SelectAllValue): void {
+    if (!event.isUserInput) {
+      return;
     }
+    const valueId = this.getValueId(value);
+    this.selectedItemsValues.update(values => {
+      const withoutValue = values.filter(v => this.getValueId(v) !== valueId);
+      return event.source.selected ? [...withoutValue, value] : withoutValue;
+    });
   }
 
   add(event: MatChipInputEvent): void {
@@ -292,8 +356,11 @@ export class SelectMultipleVirtualScrollComponent {
       event.chipInput?.clear();
       return;
     }
+    const itemId = this.getValueId(item.value);
     this.selectedItemsValues.update(values =>
-      values.includes(item.value) ? values : [...values, item.value]
+      values.some(v => this.getValueId(v) === itemId)
+        ? values
+        : [...values, item.value]
     );
     event.chipInput?.clear();
   }
@@ -305,8 +372,9 @@ export class SelectMultipleVirtualScrollComponent {
     if (!item || this.isGroupItem(item)) {
       return;
     }
+    const itemId = this.getValueId(item.value);
     this.selectedItemsValues.update(values =>
-      values.filter(value => value !== item.value)
+      values.filter(value => this.getValueId(value) !== itemId)
     );
   }
 }

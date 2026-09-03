@@ -12,7 +12,6 @@ import {
   MultipleSelectItem,
   SelectGroup,
 } from '../interfaces/select';
-import { MatSelectChange } from '@angular/material/select';
 import { MatOption, MatOptionSelectionChange } from '@angular/material/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 
@@ -39,6 +38,16 @@ describe('SelectMultipleVirtualScrollComponent', () => {
     return {
       target: { value },
     } as unknown as Event;
+  }
+
+  function createOptionSelectionEvent(
+    isUserInput: boolean,
+    selected: boolean
+  ): MatOptionSelectionChange {
+    return {
+      isUserInput,
+      source: { selected } as MatOption,
+    } as MatOptionSelectionChange;
   }
 
   beforeEach(async () => {
@@ -119,36 +128,103 @@ describe('SelectMultipleVirtualScrollComponent', () => {
     expect(selection).toEqual(['All']);
   });
 
-  it('should contain all items if Select all has been checked', () => {
-    const control = new FormControl<number[]>([]);
-    const selection = { value: ['allValues'] } as MatSelectChange;
-    const mockItemsValues = mockItems.map(
-      item => (item as MultipleSelectCommonItem).value as number
-    );
+  describe('onSelectAllToggle', () => {
+    it('selects all scroll item values when the user checks "Select all"', () => {
+      const control = new FormControl<number[]>([]);
+      const mockItemsValues = mockItems.map(
+        item => (item as MultipleSelectCommonItem).value as number
+      );
 
-    fixture.componentRef.setInput('control', control);
-    fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('control', control);
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
 
-    fixture.detectChanges();
+      component.onSelectAllToggle(createOptionSelectionEvent(true, true));
 
-    component.updateSelection(selection);
-    fixture.detectChanges();
+      expect(component.selectedItemsValues()).toEqual(mockItemsValues);
+    });
 
-    expect(component.selectedItemsValues()).toEqual(mockItemsValues);
+    it('clears the selection when the user deselects "Select all"', () => {
+      fixture.componentRef.setInput('control', new FormControl([]));
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      component.selectedItemsValues.set([1, 2]);
+
+      component.onSelectAllToggle(createOptionSelectionEvent(true, false));
+
+      expect(component.selectedItemsValues()).toEqual([]);
+    });
+
+    it('does nothing on a non-user-input event', () => {
+      fixture.componentRef.setInput('control', new FormControl([]));
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      component.selectedItemsValues.set([1, 2]);
+
+      component.onSelectAllToggle(createOptionSelectionEvent(false, false));
+
+      expect(component.selectedItemsValues()).toEqual([1, 2]);
+    });
   });
 
-  it('should add an item if selected', () => {
-    const control = new FormControl<number[]>([]);
-    const selection = { value: [3] } as MatSelectChange;
+  describe('onOptionToggle', () => {
+    it('adds an item when the user selects it', () => {
+      const control = new FormControl<number[]>([]);
 
-    fixture.componentRef.setInput('control', control);
-    fixture.componentRef.setInput('items', mockItems);
-    fixture.detectChanges();
+      fixture.componentRef.setInput('control', control);
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
 
-    component.updateSelection(selection);
-    fixture.detectChanges();
+      component.onOptionToggle(createOptionSelectionEvent(true, true), 1);
 
-    expect(component.selectedItemsValues()).toEqual([3]);
+      expect(component.selectedItemsValues()).toEqual([1]);
+    });
+
+    it('does not duplicate an item already selected', () => {
+      const control = new FormControl<number[]>([1]);
+
+      fixture.componentRef.setInput('control', control);
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      component.selectedItemsValues.set([1]);
+
+      component.onOptionToggle(createOptionSelectionEvent(true, true), 1);
+
+      expect(component.selectedItemsValues()).toEqual([1]);
+    });
+
+    it('removes an item when the user deselects it', () => {
+      const control = new FormControl<number[]>([]);
+
+      fixture.componentRef.setInput('control', control);
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      component.selectedItemsValues.set([1, 2]);
+
+      component.onOptionToggle(createOptionSelectionEvent(true, false), 1);
+
+      expect(component.selectedItemsValues()).toEqual([2]);
+    });
+
+    it('does nothing on a non-user-input event', () => {
+      const control = new FormControl<number[]>([]);
+
+      fixture.componentRef.setInput('control', control);
+      fixture.componentRef.setInput('items', mockItems);
+      fixture.componentRef.setInput('autoSelect', false);
+      fixture.detectChanges();
+      component.selectedItemsValues.set([1]);
+
+      component.onOptionToggle(createOptionSelectionEvent(false, true), 2);
+
+      expect(component.selectedItemsValues()).toEqual([1]);
+    });
   });
 
   describe('trackScrollItem', () => {
@@ -188,7 +264,7 @@ describe('SelectMultipleVirtualScrollComponent', () => {
       expect(result.length).toBe(2);
     });
 
-    it('pins an already-selected item even if it does not match the current search text', () => {
+    it('does not pin an already-selected item that does not match the current search text', () => {
       fixture.componentRef.setInput('control', new FormControl<number[]>([]));
       fixture.componentRef.setInput('items', mockItems);
       fixture.componentRef.setInput('autoSelect', false);
@@ -198,9 +274,7 @@ describe('SelectMultipleVirtualScrollComponent', () => {
 
       component.onSearch(createSearchEvent('Option 1'));
 
-      const result = component.filteredScrollItems();
-      expect(result).toContain(mockItems[0]);
-      expect(result).toContain(mockItems[1]);
+      expect(component.filteredScrollItems()).toEqual([mockItems[0]]);
     });
 
     it('does not pin an unselected item that does not match the search text', () => {
@@ -223,10 +297,10 @@ describe('SelectMultipleVirtualScrollComponent', () => {
       fixture.detectChanges();
 
       component.onSearch(createSearchEvent('Option 1'));
-      component.updateSelection({ value: [1] } as MatSelectChange);
+      component.onOptionToggle(createOptionSelectionEvent(true, true), 1);
 
       component.onSearch(createSearchEvent('Option 2'));
-      component.updateSelection({ value: [1, 2] } as MatSelectChange);
+      component.onOptionToggle(createOptionSelectionEvent(true, true), 2);
 
       expect(component.selectedItemsValues()).toEqual([1, 2]);
     });
@@ -292,40 +366,6 @@ describe('SelectMultipleVirtualScrollComponent', () => {
     }));
   });
 
-  describe('selectAllClicked', () => {
-    it('clears the selection when the user deselects "Select all"', () => {
-      fixture.componentRef.setInput('control', new FormControl([]));
-      fixture.componentRef.setInput('items', mockItems);
-      fixture.detectChanges();
-      component.selectedItemsValues.set([1, 2]);
-
-      const mockEvent = {
-        isUserInput: true,
-        source: { selected: false } as MatOption,
-      } as MatOptionSelectionChange;
-
-      component.selectAllClicked(mockEvent);
-
-      expect(component.selectedItemsValues()).toEqual([]);
-    });
-
-    it('does nothing on a non-user-input event', () => {
-      fixture.componentRef.setInput('control', new FormControl([]));
-      fixture.componentRef.setInput('items', mockItems);
-      fixture.detectChanges();
-      component.selectedItemsValues.set([1, 2]);
-
-      const mockEvent = {
-        isUserInput: false,
-        source: { selected: false } as MatOption,
-      } as MatOptionSelectionChange;
-
-      component.selectAllClicked(mockEvent);
-
-      expect(component.selectedItemsValues()).toEqual([1, 2]);
-    });
-  });
-
   describe('add / remove (chip mode)', () => {
     it('adds an item matching the typed label', () => {
       fixture.componentRef.setInput('control', new FormControl<number[]>([]));
@@ -379,6 +419,18 @@ describe('SelectMultipleVirtualScrollComponent', () => {
       tick();
 
       expect(control.value).toEqual([]);
+    }));
+
+    it('does not overwrite a preloaded selection (edit mode)', fakeAsync(() => {
+      const control = new FormControl<number[]>([2]);
+      fixture.componentRef.setInput('control', control);
+      fixture.componentRef.setInput('items', mockItems);
+
+      fixture.detectChanges();
+      tick();
+
+      expect(control.value).toEqual([2]);
+      expect(component.selectedItemsValues()).toEqual([2]);
     }));
   });
 });

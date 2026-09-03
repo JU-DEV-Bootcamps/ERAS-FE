@@ -20,7 +20,6 @@ import {
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
 import { AssessmentModel } from '@core/models/assessment.model';
-import { Lookup } from '@core/models/lookup';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
@@ -198,6 +197,13 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       .requestClose(this.dialogRef, () => this.formHasChanges())
       .subscribe();
   }
+  
+  private extractOptionValue(raw: unknown): string {
+    if (raw && typeof raw === 'object' && 'value' in raw) {
+      return (raw as { value: string }).value;
+    }
+    return raw as string;
+  }
 
   protected submitAssessment() {
     if (this.form.valid) {
@@ -205,17 +211,11 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         id: this.data.assessment.id,
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
-        service: this._prepareCreatableInputOption(
-          this.form.value.service,
-          this.data.services,
-          this.originalAssessment.service
-        ) as string,
-        assignedProfessional: this._prepareCreatableInputOption(
-          this.form.value.professional,
-          this.data.professionals,
-          this.originalAssessment.professional
-        ) as string,
-        studentIds: this.form.value.students,
+        service: this.extractOptionValue(this.form.value.service),
+        assignedProfessional: this.extractOptionValue(
+          this.form.value.professional
+        ),
+        studentIds: Array.from(new Set<string>(this.form.value.students)),
         comments: this.form.value.professionalComment,
         status: this.form.value.status,
         interventions: [],
@@ -271,16 +271,5 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       message: message,
       type: 'error',
     };
-  }
-
-  private _prepareCreatableInputOption(
-    value: string | number,
-    validOptions: Lookup[],
-    defaultValue: string | number
-  ) {
-    const availableValues = validOptions.map(option => option.value);
-    return (
-      availableValues.find(available => available === value) ?? defaultValue
-    );
   }
 }

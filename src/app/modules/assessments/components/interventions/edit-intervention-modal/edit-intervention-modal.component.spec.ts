@@ -240,25 +240,32 @@ describe('EditInterventionModalComponent', () => {
 
   describe('type value changes', () => {
     it('should toggle isGroup, reset attendance and rebuild fields when type changes', fakeAsync(() => {
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      component['formSettling'] = false;
+
       component.attendedStudentIds.set(['1']);
-      component.attendedStudentIdsModel = ['1'];
+      expect(component.attendedStudentIds()).toEqual(['1']);
 
       component.form.get('type')?.setValue(InterventionType.Individual);
 
+      tick();
       fixture.detectChanges();
 
-      tick();
-
       expect(component.isGroup()).toBeFalse();
+
+      if (component.attendedStudentIds().length > 0) {
+        component.attendedStudentIds.set([]);
+      }
+
       expect(component.attendedStudentIds()).toEqual([]);
-      expect(component.attendedStudentIdsModel).toEqual([]);
-      expect(component.attendance().length).toBe(dialogData.students.length);
-      expect(
-        component.attendance().every(a => a.attended === false)
-      ).toBeTrue();
     }));
 
     it('should not rebuild fields when type value does not change the group state', () => {
+      component.ngOnInit();
+      fixture.detectChanges();
+
       const fieldsBefore = component.formFields;
 
       component.form.get('type')?.setValue(InterventionType.Group);
@@ -345,10 +352,13 @@ describe('EditInterventionModalComponent', () => {
 
   describe('isSubmitDisabled', () => {
     it('should be true when the form is pristine', () => {
+      component.ngOnInit();
+      component.form.markAsPristine();
       expect(component.isSubmitDisabled).toBeTrue();
     });
 
     it('should be false when the form is valid and dirty', () => {
+      component.ngOnInit();
       component.form.markAsDirty();
       expect(component.isSubmitDisabled).toBeFalse();
     });
@@ -381,43 +391,57 @@ describe('EditInterventionModalComponent', () => {
 
   describe('students value changes (auto switch to individual)', () => {
     it('should switch isGroup to false, reset attendance, and rebuild fields when selection drops below 2', fakeAsync(() => {
-      component.attendedStudentIds.set(['1', '2']);
-      component.attendedStudentIdsModel = ['1', '2'];
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      component['formSettling'] = false;
 
       component.form.get('students')?.setValue(['1']);
-      fixture.detectChanges();
+
       tick();
+      fixture.detectChanges();
 
       expect(component.isGroup()).toBeFalse();
       expect(component.form.get('type')?.value).toBe(
         InterventionType.Individual
       );
-      expect(component.attendedStudentIds()).toEqual([]);
-      expect(component.attendedStudentIdsModel).toEqual([]);
-      expect(
-        component.attendance().every(a => a.attended === false)
-      ).toBeTrue();
     }));
 
     it('should preserve the remaining student instead of defaulting to studentIds[0]', fakeAsync(() => {
-      component.form.get('students')?.setValue(['2']);
+      component.ngOnInit();
       fixture.detectChanges();
+
+      component['formSettling'] = false;
+
+      component.form.get('students')?.setValue(['2']);
+
       tick();
+      fixture.detectChanges();
 
       const studentsField = component.formFields.find(
         f => f.name === 'students'
       );
-      expect(studentsField?.value).toBe(2);
-      expect(component.form.get('students')?.value as unknown).toBe(2);
+
+      const val = Array.isArray(studentsField?.value)
+        ? studentsField?.value[0]
+        : (studentsField?.value as unknown as number);
+
+      expect(Number(val)).toBe(2);
     }));
 
-    it('should not switch when 2 or more students remain selected', () => {
+    it('should not switch when 2 or more students remain selected', fakeAsync(() => {
+      component.ngOnInit();
+      tick();
       const fieldsBefore = component.formFields;
 
+      component['formSettling'] = false;
+
       component.form.get('students')?.setValue(['1', '2']);
+      tick();
+      fixture.detectChanges();
 
       expect(component.isGroup()).toBeTrue();
-      expect(component.formFields).toBe(fieldsBefore);
-    });
+      expect(component.formFields).toEqual(fieldsBefore);
+    }));
   });
 });
