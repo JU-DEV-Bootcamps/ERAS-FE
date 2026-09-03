@@ -1,34 +1,33 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { SidebarComponent } from './sidebar.component';
-import { SidebarService } from './sidebar.service';
-import { Menu, SIDEBAR_MENUS_OLD } from './sidebar.model';
-import { SIDEBAR_MENUS_NEW } from './sidebar v2/sidebar.model-v2';
+import { SidebarV2Component } from './sidebar.component-v2';
+import { SidebarService } from '../sidebar.service';
 
-describe('SidebarComponent', () => {
-  let component: SidebarComponent;
-  let fixture: ComponentFixture<SidebarComponent>;
+describe('SidebarV2Component', () => {
+  let component: SidebarV2Component;
+  let fixture: ComponentFixture<SidebarV2Component>;
   let sidebarService: jasmine.SpyObj<SidebarService>;
 
   beforeEach(async () => {
     const sidebarServiceSpy = jasmine.createSpyObj(
       'SidebarService',
-      ['closeMenu', 'toggleMenu', 'isRouteActive', 'getMenus'],
+      ['closeMenu', 'toggleMenu', 'isRouteActive'],
       { expandedMenu: jasmine.createSpy('expandedMenu') }
     );
     await TestBed.configureTestingModule({
-      imports: [SidebarComponent],
+      imports: [SidebarV2Component],
       providers: [
-        { provide: ActivatedRoute, useValue: {} },
         { provide: SidebarService, useValue: sidebarServiceSpy },
+        { provide: ActivatedRoute, useValue: {} },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(SidebarComponent);
+    fixture = TestBed.createComponent(SidebarV2Component);
     component = fixture.componentInstance;
     sidebarService = TestBed.inject(
       SidebarService
     ) as jasmine.SpyObj<SidebarService>;
+
     fixture.detectChanges();
   });
 
@@ -36,34 +35,14 @@ describe('SidebarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should use new sidebar menus when newSidebar is true', () => {
-    const newMenus = [{ label: 'New menu' }] as Menu[];
-    sidebarService.getMenus.and.returnValue(newMenus);
-    fixture.componentRef.setInput('newSidebar', true);
-    fixture.detectChanges();
-
-    expect(component.menuItems()).toEqual(newMenus);
-    expect(sidebarService.getMenus).toHaveBeenCalledWith(SIDEBAR_MENUS_NEW);
-  });
-
-  it('should use old sidebar menus when newSidebar is false', () => {
-    const oldMenus = [{ label: 'Old menu' }] as Menu[];
-    sidebarService.getMenus.and.returnValue(oldMenus);
-    fixture.componentRef.setInput('newSidebar', false);
-    fixture.detectChanges();
-
-    expect(sidebarService.getMenus).toHaveBeenCalledWith(SIDEBAR_MENUS_OLD);
-  });
-
   it('should click menu and toggle menu successfully when item has children', () => {
     const itemMenu = {
       label: 'normal',
       children: [{ label: 'child', route: 'child' }],
     };
-    component.collapsed.set(true);
     component.onMenuClick(itemMenu);
     expect(sidebarService.toggleMenu).toHaveBeenCalledWith('normal');
-    expect(component.collapsed()).toBeFalse();
+    expect(sidebarService.closeMenu).not.toHaveBeenCalled();
   });
 
   it('should click menu and close menu without children', () => {
