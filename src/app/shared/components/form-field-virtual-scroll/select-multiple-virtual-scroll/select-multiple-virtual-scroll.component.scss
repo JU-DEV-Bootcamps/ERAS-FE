@@ -49,10 +49,6 @@ mat-form-field {
   }
 }
 
-::ng-deep .compact-select-panel-virtual {
-  max-height: none !important;
-  overflow: none !important;
-}
 .group-option,
 .group-header {
   height: 48px !important;
@@ -60,8 +56,13 @@ mat-form-field {
   margin: 0 !important;
 }
 
-::ng-deep .compact-select-panel {
+::ng-deep .compact-select-panel-virtual {
   max-height: none !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  overflow: hidden !important;
+  border-radius: 4px;
+}
+
+::ng-deep .compact-select-panel-virtual .mat-mdc-select-panel {
+  max-height: none !important;
+  overflow: hidden !important;
 }
