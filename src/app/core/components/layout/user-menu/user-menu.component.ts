@@ -11,7 +11,6 @@ import { FeatureFlagsService } from '@core/components/feature-flags/feature-flag
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { Router } from '@angular/router';
 import { ERASRoles } from '@core/models/profile.model';
-import { environment } from 'src/environments/environment';
 import { ViewPermissions } from '@core/models/role-permissions.model';
 import { HasERASRolesDirective } from '@shared/directives/has-roles.directive';
 
@@ -40,7 +39,6 @@ export class UserMenuComponent {
   viewPermissions: ViewPermissions = {
     v2Button: [ERASRoles.ADMIN],
   };
-  resourceClient = environment.keycloak.clientId;
 
   logout() {
     this.userData.clear();
