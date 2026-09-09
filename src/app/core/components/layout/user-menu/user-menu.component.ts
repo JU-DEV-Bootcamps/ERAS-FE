@@ -11,6 +11,9 @@ import { FeatureFlagsService } from '@core/components/feature-flags/feature-flag
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { Router } from '@angular/router';
 import { ERASRoles } from '@core/models/profile.model';
+import { environment } from 'src/environments/environment';
+import { ViewPermissions } from '@core/models/role-permissions.model';
+import { HasERASRolesDirective } from '@shared/directives/has-roles.directive';
 
 @Component({
   selector: 'app-user-menu',
@@ -23,6 +26,7 @@ import { ERASRoles } from '@core/models/profile.model';
     MatMenuTrigger,
     MatSlideToggleModule,
     MatTooltipModule,
+    HasERASRolesDirective,
   ],
 })
 export class UserMenuComponent {
@@ -32,8 +36,11 @@ export class UserMenuComponent {
   private readonly router = inject(Router);
 
   user = this.userData.user;
-  isAdmin = computed(() => this.user()?.role === ERASRoles.ADMIN);
   v2Enabled = computed(() => this.featureFlags.isEnabled(FEATURE_FLAGS.home));
+  viewPermissions: ViewPermissions = {
+    v2Button: [ERASRoles.ADMIN],
+  };
+  resourceClient = environment.keycloak.clientId;
 
   logout() {
     this.userData.clear();
