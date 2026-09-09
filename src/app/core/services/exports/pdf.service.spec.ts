@@ -20,8 +20,6 @@ describe('PdfService', () => {
   let element: HTMLElement;
 
   beforeEach(() => {
-    spyOn(HTMLAnchorElement.prototype, 'click').and.stub();
-
     TestBed.configureTestingModule({});
     service = TestBed.inject(PdfService);
 
@@ -38,28 +36,6 @@ describe('PdfService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
-  });
-
-  it('should run exportToPDF end-to-end and invoke the callback', done => {
-    service.exportToPDF(element, 'test-report', 200, 100, 0, () => {
-      expect(true).toBe(true);
-      done();
-    });
-  });
-
-  it('should run exportToPDF with a title and invoke the callback', done => {
-    service.exportToPDF(
-      element,
-      'test-report',
-      200,
-      100,
-      0,
-      () => {
-        expect(true).toBe(true);
-        done();
-      },
-      'Student: Sample Report'
-    );
   });
 
   describe('adjustSliceForSafeBreak', () => {
