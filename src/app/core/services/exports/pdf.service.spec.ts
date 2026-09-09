@@ -20,6 +20,8 @@ describe('PdfService', () => {
   let element: HTMLElement;
 
   beforeEach(() => {
+    spyOn(HTMLAnchorElement.prototype, 'click').and.stub();
+
     TestBed.configureTestingModule({});
     service = TestBed.inject(PdfService);
 
