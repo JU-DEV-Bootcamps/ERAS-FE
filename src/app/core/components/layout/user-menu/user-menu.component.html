@@ -26,6 +26,7 @@
       Account and Information
     </button>
     <button
+      *appHasERASRoles="viewPermissions['platformSettings']"
       mat-menu-item
       class="menu-button option-button"
       (click)="redirectToSettings()"

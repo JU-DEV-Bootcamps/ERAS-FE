@@ -38,6 +38,7 @@ export class UserMenuComponent {
   v2Enabled = computed(() => this.featureFlags.isEnabled(FEATURE_FLAGS.home));
   viewPermissions: ViewPermissions = {
     v2Button: [ERASRoles.ADMIN],
+    platformSettings: [ERASRoles.ADMIN, ERASRoles.OFFICER],
   };
 
   logout() {
