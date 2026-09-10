@@ -90,4 +90,14 @@ describe('RecentAlertsComponent', () => {
     const result = component.getRiskLevelColor('UNKNOWN_LEVEL');
     expect(result).toBeDefined();
   });
+
+  it('should return default status label color if not found', () => {
+    const result = component.getStatusLabelColor('UNKNOWN_STATUS');
+    expect(result).toBeDefined();
+  });
+
+  it('should return default risk level label color if not found', () => {
+    const result = component.getRiskLevelLabelColor('UNKNOWN_LEVEL');
+    expect(result).toBeDefined();
+  });
 });
