@@ -35,7 +35,7 @@ import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { AssessmentStudentDataComponent } from './assessment-student-data/assessment-student-data.component';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
-import { AssessmentFetchStrategies } from '@modules/assessments/assessments-fetch.strategies';
+import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;

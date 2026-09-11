@@ -2,7 +2,8 @@ import { ERASRoles } from '@core/models/profile.model';
 import { Observable } from 'rxjs';
 
 interface FetchContext {
-  currentUserId: string;
+  currentUserId?: string;
+  assessmentId?: number;
 }
 
 type RoleFetchStrategy<TService, TResult> = (

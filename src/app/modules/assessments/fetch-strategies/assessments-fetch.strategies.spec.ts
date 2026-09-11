@@ -10,7 +10,7 @@ import { of } from 'rxjs';
 describe('AssessmentFetchStrategies', () => {
   let mockService: jasmine.SpyObj<AssessmentService>;
   const expectedAssessment: AssessmentModel = {
-    createdAtUtc: '2026-09-11T00:00:00>',
+    createdAtUtc: '2026-09-11T00:00:00Z',
     createdBy: 'TestUser',
     service: 'Test Service',
     studentIds: ['1', '2'],

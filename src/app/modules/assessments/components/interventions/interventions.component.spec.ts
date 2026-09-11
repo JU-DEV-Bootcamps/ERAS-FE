@@ -8,7 +8,6 @@ import {
   InterventionModel,
   InterventionType,
 } from '@core/models/assessment.model';
-import { AssessmentService } from '@core/services/api/assessement.service';
 import { of } from 'rxjs';
 import {
   AppliedFilter,
@@ -19,6 +18,7 @@ import { InterventionService } from '@core/services/api/intervention.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 
 // Helpers
 const assessments: AssessmentModel[] = [
@@ -60,19 +60,18 @@ describe('InterventionsComponent', () => {
   let component: InterventionsComponent;
   let fixture: ComponentFixture<InterventionsComponent>;
 
-  let assessmentServiceSpy: jasmine.SpyObj<AssessmentService>;
-
   let dialog: jasmine.SpyObj<MatDialog>;
   let interventionServiceSpy: jasmine.SpyObj<InterventionService>;
   let toastServiceSpy: jasmine.SpyObj<ToastNotificationService>;
+  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
+
   const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
   dialogRef.afterClosed.and.returnValue(of(undefined));
 
   beforeEach(async () => {
     dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
-
-    assessmentServiceSpy = jasmine.createSpyObj('AssessmentService', [
-      'getAll',
+    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
+      'resolve',
     ]);
     interventionServiceSpy = jasmine.createSpyObj<InterventionService>(
       'InterventionService',
@@ -83,19 +82,17 @@ describe('InterventionsComponent', () => {
       ['showToast']
     );
 
-    // dialogRef.afterClosed.and.returnValue(of(undefined));
-
-    assessmentServiceSpy.getAll.and.returnValue(of(assessments));
+    fetchResolverMock.resolve.and.returnValue(of(assessments));
     dialog.open.and.returnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [InterventionsComponent],
       providers: [
         provideHttpClient(),
-        { provide: AssessmentService, useValue: assessmentServiceSpy },
         { provide: InterventionService, useValue: interventionServiceSpy },
         { provide: ToastNotificationService, useValue: toastServiceSpy },
         { provide: MatDialog, useValue: dialog },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
       ],
     })
       .overrideComponent(InterventionsComponent, {
@@ -211,7 +208,6 @@ describe('InterventionsComponent', () => {
 
   it('should not open confirmation dialog without selected assessment', () => {
     component.onAssessmentChange(1);
-    // component['allAssessments'].set([]);
     component.confirmDelete(intervention);
     expect(dialog.open).toHaveBeenCalled();
   });
