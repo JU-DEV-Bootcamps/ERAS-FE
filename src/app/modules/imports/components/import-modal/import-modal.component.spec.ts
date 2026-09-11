@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ImportModalComponent } from './import-modal.component';
 import { ImportModalConfig } from '@core/models/import-modal-config.model';
 
@@ -153,6 +154,106 @@ describe('ImportModalComponent (simple)', () => {
     component.removeFile();
 
     expect(component.selectedFile).toBeNull();
+    expect(component.fileError).toBeNull();
+  });
+
+  it('should open file browser on click', () => {
+    create();
+
+    const clickSpy = spyOn(component.fileInputRef.nativeElement, 'click');
+
+    component.openFileBrowser();
+
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  it('should process file from input change', () => {
+    create();
+
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [file()] });
+    const event = { target: input } as unknown as Event;
+
+    component.onFileInputChange(event);
+
+    expect(component.selectedFile).toBeTruthy();
+    expect(component.fileError).toBeNull();
+    expect(input.value).toBe('');
+  });
+
+  it('should do nothing on input change when no file present', () => {
+    create();
+
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [] });
+    const event = { target: input } as unknown as Event;
+
+    component.onFileInputChange(event);
+
+    expect(component.selectedFile).toBeNull();
+  });
+
+  it('should NOT process drop when no file present', () => {
+    create();
+
+    const event = {
+      preventDefault() {
+        /* empty */
+      },
+      stopPropagation() {
+        /* empty */
+      },
+      dataTransfer: { files: [] },
+    } as unknown as DragEvent;
+
+    component.onDrop(event);
+
+    expect(component.selectedFile).toBeNull();
+  });
+
+  it('should NOT emit fileSelected when isLoading is true', () => {
+    create();
+
+    component.selectedFile = file();
+    component.isLoading = true;
+
+    spyOn(component.fileSelected, 'emit');
+
+    component.onPreviewImport();
+
+    expect(component.fileSelected.emit).not.toHaveBeenCalled();
+  });
+
+  it('should close dialogRef on cancel when present', () => {
+    create();
+
+    const dialogRefSpy = jasmine.createSpyObj<
+      MatDialogRef<ImportModalComponent>
+    >('MatDialogRef', ['close']);
+    component.dialogRef = dialogRefSpy;
+
+    component.onCancel();
+
+    expect(dialogRefSpy.close).toHaveBeenCalled();
+  });
+
+  it('should NOT throw on cancel when dialogRef is undefined', () => {
+    create();
+
+    component.dialogRef = undefined;
+
+    expect(() => component.onCancel()).not.toThrow();
+  });
+
+  it('should preload a file', () => {
+    create();
+
+    component.fileError = 'previous error';
+
+    const f = file();
+    component.preloadFile(f);
+
+    expect(component.selectedFile).toBe(f);
     expect(component.fileError).toBeNull();
   });
 });
