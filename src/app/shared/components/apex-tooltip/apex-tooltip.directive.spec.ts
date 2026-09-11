@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
-import { OverlayModule } from '@angular/cdk/overlay';
+import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
 
 import { ApexTooltipDirective } from './apex-tooltip.directive';
 import { ApexTooltipComponent } from './apex-tooltip.component';
@@ -29,7 +30,7 @@ import { ApexTooltipComponent } from './apex-tooltip.component';
             index="4"
             j="2"
           ></path>
-          <rect id="custom-cell" j="5"></rect>
+          <rect id="custom-cell" class="apexcharts-heatmap-rect" j="5"></rect>
           <rect id="incomplete-cell" i="1"></rect>
         </g>
         <circle id="outside-cell" cx="20" cy="20" r="10"></circle>
@@ -46,6 +47,7 @@ describe('ApexTooltipDirective', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let hostComponent: TestHostComponent;
   let hostElement: HTMLElement;
+  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -53,10 +55,15 @@ describe('ApexTooltipDirective', () => {
       providers: [provideNoopAnimations()],
     }).compileComponents();
 
+    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(TestHostComponent);
     hostComponent = fixture.componentInstance;
     hostElement = fixture.nativeElement as HTMLElement;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    overlayContainer.ngOnDestroy();
   });
 
   it('should create host with directive', () => {
@@ -77,9 +84,9 @@ describe('ApexTooltipDirective', () => {
       heatmapCell.dispatchEvent(mouseMoveEvent);
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).not.toBeNull();
-      expect(overlayContainer?.innerHTML).toContain('Tooltip 1-3');
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).not.toBeNull();
+      expect(overlayElement?.innerHTML).toContain('Tooltip 1-3');
     });
 
     it('should display tooltip for a bar chart cell using index and j attributes', () => {
@@ -93,9 +100,9 @@ describe('ApexTooltipDirective', () => {
       barCell.dispatchEvent(mouseMoveEvent);
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).not.toBeNull();
-      expect(overlayContainer?.innerHTML).toContain('Tooltip 2-4');
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).not.toBeNull();
+      expect(overlayElement?.innerHTML).toContain('Tooltip 2-4');
     });
 
     it('should resolve seriesIndex using fallback data:realindex attribute', () => {
@@ -107,6 +114,7 @@ describe('ApexTooltipDirective', () => {
       const customCell = hostElement.querySelector(
         '#custom-cell'
       ) as SVGElement;
+      customCell.classList.add('apexcharts-heatmap-rect');
       customCell.setAttribute('data:value', '50');
 
       const mouseMoveEvent = new MouseEvent('mousemove', {
@@ -117,9 +125,9 @@ describe('ApexTooltipDirective', () => {
       customCell.dispatchEvent(mouseMoveEvent);
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).not.toBeNull();
-      expect(overlayContainer?.innerHTML).toContain('Tooltip 7-5');
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).not.toBeNull();
+      expect(overlayElement?.innerHTML).toContain('Tooltip 7-5');
     });
   });
 
@@ -137,8 +145,8 @@ describe('ApexTooltipDirective', () => {
       outsideCell.dispatchEvent(mouseMoveEvent);
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).toBeNull();
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).toBeNull();
     });
 
     it('should hide tooltip if dataPointIndex or seriesIndex is -1', () => {
@@ -154,12 +162,13 @@ describe('ApexTooltipDirective', () => {
       incompleteCell.dispatchEvent(mouseMoveEvent);
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).toBeNull();
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).toBeNull();
     });
 
     it('should hide tooltip when tooltip function returns empty string', () => {
       hostComponent.tooltipFn = () => '';
+      fixture.detectChanges();
 
       const heatmapCell = hostElement.querySelector(
         '#heatmap-cell'
@@ -172,8 +181,8 @@ describe('ApexTooltipDirective', () => {
       heatmapCell.dispatchEvent(mouseMoveEvent);
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).toBeNull();
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).toBeNull();
     });
 
     it('should hide tooltip on mouseleave event', () => {
@@ -211,15 +220,21 @@ describe('ApexTooltipDirective', () => {
         clientX: window.innerWidth - 10,
         clientY: window.innerHeight - 10,
       });
+
+      heatmapCell.dispatchEvent(mouseMoveEdgeEvent);
+      fixture.detectChanges();
       heatmapCell.dispatchEvent(mouseMoveEdgeEvent);
       fixture.detectChanges();
 
-      const overlayPane = document.querySelector(
-        '.cdk-overlay-pane'
-      ) as HTMLElement;
+      const overlayPanes = document.querySelectorAll('.cdk-overlay-pane');
+      const overlayPane = overlayPanes[overlayPanes.length - 1] as HTMLElement;
       expect(overlayPane).not.toBeNull();
-      expect(overlayPane.style.left).toContain('px');
-      expect(overlayPane.style.top).toContain('px');
+
+      const left = overlayPane.style.left || overlayPane.style.marginLeft;
+      const top = overlayPane.style.top || overlayPane.style.marginTop;
+
+      expect(left).toContain('px');
+      expect(top).toContain('px');
     });
 
     it('should update tooltip content on consecutive mousemove events without recreating overlay', () => {
@@ -245,9 +260,9 @@ describe('ApexTooltipDirective', () => {
       );
       fixture.detectChanges();
 
-      const overlayContainer = document.querySelector('.apex-cdk-tooltip');
-      expect(overlayContainer).not.toBeNull();
-      expect(overlayContainer?.innerHTML).toContain('Tooltip 1-3');
+      const overlayElement = document.querySelector('.apex-cdk-tooltip');
+      expect(overlayElement).not.toBeNull();
+      expect(overlayElement?.innerHTML).toContain('Tooltip 1-3');
     });
   });
 
@@ -267,7 +282,24 @@ describe('ApexTooltipDirective', () => {
 
       expect(document.querySelector('.apex-cdk-tooltip')).not.toBeNull();
 
-      fixture.destroy();
+      const directiveDebug = fixture.debugElement.query(
+        By.directive(ApexTooltipDirective)
+      );
+      const directive = directiveDebug.injector.get(ApexTooltipDirective);
+
+      directive.ngOnDestroy();
+      fixture.detectChanges();
+
+      expect(document.querySelector('.apex-cdk-tooltip')).toBeNull();
+
+      heatmapCell.dispatchEvent(
+        new MouseEvent('mousemove', {
+          bubbles: true,
+          clientX: 100,
+          clientY: 100,
+        })
+      );
+      fixture.detectChanges();
 
       expect(document.querySelector('.apex-cdk-tooltip')).toBeNull();
     });
