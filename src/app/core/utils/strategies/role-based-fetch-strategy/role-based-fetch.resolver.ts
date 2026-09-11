@@ -1,6 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { RoleFetchStrategyMap } from './role-based-fetch.types';
+import { FetchContext, RoleFetchStrategyMap } from './role-based-fetch.types';
 import { Observable, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -10,7 +10,8 @@ export class RoleBasedFetchResolver {
 
   resolve<TService, TResult>(
     service: TService,
-    strategies: RoleFetchStrategyMap<TService, TResult>
+    strategies: RoleFetchStrategyMap<TService, TResult>,
+    contextOverride?: FetchContext
   ): Observable<TResult> {
     const currentUser = this.user();
 
@@ -23,6 +24,9 @@ export class RoleBasedFetchResolver {
 
     const strategy = strategies[role];
 
-    return strategy(service, { currentUserId: currentUser.id ?? '' });
+    return strategy(service, {
+      currentUserId: currentUser.id ?? '',
+      ...contextOverride,
+    });
   }
 }
