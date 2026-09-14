@@ -18,6 +18,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 
 describe('AssessmentListComponent', () => {
   let component: AssessmentListComponent;
@@ -27,6 +28,7 @@ describe('AssessmentListComponent', () => {
   let matDialog: jasmine.SpyObj<MatDialog>;
   let modalDeleteService: jasmine.SpyObj<ModalDeleteConfirmationService>;
   let toastService: jasmine.SpyObj<ToastNotificationService>;
+  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
 
   const buildAssessment = (
     overrides: Partial<AssessmentModel> = {}
@@ -48,11 +50,13 @@ describe('AssessmentListComponent', () => {
 
   beforeEach(async () => {
     assessmentService = jasmine.createSpyObj('AssessmentService', [
-      'getAll',
       'deleteAssessment',
       'clearCache',
     ]);
-    assessmentService.getAll.and.returnValue(of([buildAssessment()]));
+    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
+      'resolve',
+    ]);
+    fetchResolverMock.resolve.and.returnValue(of([buildAssessment()]));
 
     matDialog = jasmine.createSpyObj('MatDialog', ['open']);
 
@@ -74,6 +78,7 @@ describe('AssessmentListComponent', () => {
           useValue: modalDeleteService,
         },
         { provide: ToastNotificationService, useValue: toastService },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -94,13 +99,13 @@ describe('AssessmentListComponent', () => {
     it('should load and map assessments on success', () => {
       fixture.detectChanges();
 
-      expect(assessmentService.getAll).toHaveBeenCalled();
+      expect(fetchResolverMock.resolve).toHaveBeenCalled();
       expect(component['assessments']().length).toBe(1);
       expect(component['isLoading']()).toBeFalse();
     });
 
     it('should fall back to "No student assigned" when studentIds is empty', () => {
-      assessmentService.getAll.and.returnValue(
+      fetchResolverMock.resolve.and.returnValue(
         of([buildAssessment({ studentIds: [] })])
       );
 
@@ -113,7 +118,8 @@ describe('AssessmentListComponent', () => {
 
     it('should truncate long comments in the preview', () => {
       const longComment = 'x'.repeat(80);
-      assessmentService.getAll.and.returnValue(
+
+      fetchResolverMock.resolve.and.returnValue(
         of([buildAssessment({ comments: longComment })])
       );
 
@@ -125,7 +131,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should show "—" when there are no comments', () => {
-      assessmentService.getAll.and.returnValue(
+      fetchResolverMock.resolve.and.returnValue(
         of([buildAssessment({ comments: '' })])
       );
 
@@ -135,7 +141,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should mark Remitted and InProgress as editable, Finalized as not', () => {
-      assessmentService.getAll.and.returnValue(
+      fetchResolverMock.resolve.and.returnValue(
         of([
           buildAssessment({ id: 1, status: AssessmentStatus.Remitted }),
           buildAssessment({ id: 2, status: AssessmentStatus.InProgress }),
@@ -152,8 +158,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should clear the list and stop loading on error', () => {
-      spyOn(console, 'error');
-      assessmentService.getAll.and.returnValue(
+      fetchResolverMock.resolve.and.returnValue(
         throwError(() => new Error('network error'))
       );
 
@@ -161,7 +166,9 @@ describe('AssessmentListComponent', () => {
 
       expect(component['assessments']()).toEqual([]);
       expect(component['isLoading']()).toBeFalse();
-      expect(console.error).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'error' })
+      );
     });
   });
 
@@ -172,7 +179,8 @@ describe('AssessmentListComponent', () => {
         buildAssessment({ id: 2 }),
         buildAssessment({ id: 3 }),
       ];
-      assessmentService.getAll.and.returnValue(of(list));
+
+      fetchResolverMock.resolve.and.returnValue(of(list));
       component.pageSize = 2;
 
       fixture.detectChanges();
@@ -213,13 +221,13 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should close and reload on closePanelRefreshing', () => {
-      assessmentService.getAll.calls.reset();
+      fetchResolverMock.resolve.calls.reset();
       component['selectedAssessment'].set(component['assessments']()[0]);
 
       component['closePanelRefreshing']();
 
       expect(component['selectedAssessment']()).toBeNull();
-      expect(assessmentService.getAll).toHaveBeenCalled();
+      expect(fetchResolverMock.resolve).toHaveBeenCalled();
     });
 
     it('should emit editClicked', () => {

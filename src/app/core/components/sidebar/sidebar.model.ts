@@ -1,13 +1,21 @@
+import { ERASRoles } from '@core/models/profile.model';
+
 export interface Menu {
   label: string;
   icon?: string;
   route?: string;
   children?: Menu[];
   forProduction?: boolean;
+  requiredRoles?: ERASRoles[];
 }
 
 export const SIDEBAR_MENUS_OLD: Menu[] = [
-  { label: 'Home', icon: 'home', route: '/home' },
+  {
+    label: 'Home',
+    icon: 'home',
+    route: '/home',
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
+  },
   {
     label: 'Student Monitoring',
     icon: 'groups',
@@ -30,18 +38,22 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         label: 'Dynamic Charts',
         icon: 'description',
         route: '/reports-v1/dynamic-charts',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
       {
         label: 'Summary Charts',
         icon: 'find_in_page',
         route: '/reports-v1/summary-charts',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
       {
         label: 'Polls Answered',
         icon: 'poll',
         route: '/reports-v1/polls-answered',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
     ],
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
   },
   {
     label: 'Lists',
@@ -51,13 +63,16 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         label: 'Evaluation Processes',
         icon: 'fact_check_outline',
         route: '/evaluation-process',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
       {
         label: 'Students List',
         icon: 'school',
         route: '/list-students-by-poll',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
     ],
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
   },
   {
     label: 'Imports',
@@ -67,8 +82,10 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         label: 'Import Students',
         icon: 'person_add',
         route: '/students',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
     ],
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
   },
   {
     label: 'Settings',
@@ -78,7 +95,9 @@ export const SIDEBAR_MENUS_OLD: Menu[] = [
         label: 'Service Providers',
         icon: 'check_circle',
         route: '/cosmic-latte',
+        requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
       },
     ],
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
   },
 ];
