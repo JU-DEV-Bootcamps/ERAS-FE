@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SummaryColumnChartsComponent } from './summary-column-charts.component';
+import { SummaryColumnChartsV2Component } from './summary-column-charts-v2.component';
 import {
   AnswerDetail,
   PollAvgComponent,
@@ -8,13 +8,10 @@ import {
 } from '@core/models/summary.model';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
-import { ErasModalService } from '@shared/components/modals/eras-modal/eras-modal.service';
-import RiskDetailsComponent from '../risk-details/risk-details.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 interface ChartDataPoint {
-  x: string;
   y: number;
   data: PollAvgQuestion[];
   meta: string[];
@@ -37,10 +34,9 @@ type CustomTooltipFn = (opts: {
   w: unknown;
 }) => string;
 
-describe('SummaryColumnChartsComponent', () => {
-  let component: SummaryColumnChartsComponent;
-  let fixture: ComponentFixture<SummaryColumnChartsComponent>;
-  let erasModalServiceSpy: jasmine.SpyObj<ErasModalService>;
+describe('SummaryColumnChartsV2Component', () => {
+  let component: SummaryColumnChartsV2Component;
+  let fixture: ComponentFixture<SummaryColumnChartsV2Component>;
   let capturedOnSelect: ChartSelectCallback | undefined;
 
   const mockQuestions: PollAvgQuestion[] = [
@@ -85,11 +81,7 @@ describe('SummaryColumnChartsComponent', () => {
   };
 
   beforeEach(async () => {
-    erasModalServiceSpy = jasmine.createSpyObj('ErasModalService', [
-      'openComponent',
-    ]);
     capturedOnSelect = undefined;
-
     spyOn(ColumnChartUtils, 'createChartBase').and.callFake(
       (onSelect: unknown) => {
         capturedOnSelect = onSelect as ChartSelectCallback;
@@ -100,19 +92,16 @@ describe('SummaryColumnChartsComponent', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [SummaryColumnChartsComponent],
-      providers: [
-        { provide: ErasModalService, useValue: erasModalServiceSpy },
-        provideNoopAnimations(),
-      ],
+      imports: [SummaryColumnChartsV2Component],
+      providers: [provideNoopAnimations()],
       schemas: [NO_ERRORS_SCHEMA],
     })
-      .overrideComponent(SummaryColumnChartsComponent, {
+      .overrideComponent(SummaryColumnChartsV2Component, {
         set: { template: '' },
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(SummaryColumnChartsComponent);
+    fixture = TestBed.createComponent(SummaryColumnChartsV2Component);
     component = fixture.componentInstance;
   });
 
@@ -128,9 +117,9 @@ describe('SummaryColumnChartsComponent', () => {
       expect(component.chartOptions()).toEqual({});
     });
 
-    it('should build chart options when components and data inputs are provided', () => {
+    it('should build chart options when components input is provided', () => {
       fixture.componentRef.setInput('components', mockReport);
-      fixture.componentRef.setInput('data', 'Summary Report');
+      fixture.componentRef.setInput('data', 'Report Title');
       fixture.detectChanges();
 
       const options = component.chartOptions();
@@ -142,7 +131,7 @@ describe('SummaryColumnChartsComponent', () => {
   });
 
   describe('Series and Answer Risk Processing', () => {
-    it('should properly group questions by rounded risk level and deduplicate emails in meta', () => {
+    it('should properly group questions by rounded risk level and deduplicate emails', () => {
       fixture.componentRef.setInput('components', mockReport);
       fixture.detectChanges();
 
@@ -161,7 +150,7 @@ describe('SummaryColumnChartsComponent', () => {
     });
   });
 
-  describe('_showRiskDetails onSelect handling', () => {
+  describe('openPanel emission (_emitPanelData)', () => {
     beforeEach(() => {
       fixture.componentRef.setInput('components', mockReport);
       fixture.componentRef.setInput('pollUuid', 'poll-123');
@@ -170,7 +159,9 @@ describe('SummaryColumnChartsComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should call erasModalService.openComponent with correct modalData when onSelect is triggered', () => {
+    it('should emit openPanel with correct data when onSelect is triggered with questions', () => {
+      spyOn(component.openPanel, 'emit');
+
       const options = component.chartOptions();
       const series = options.series as unknown as ChartSeries[];
       const seriesIndex = series.findIndex(s => s.data[0]?.data.length > 0);
@@ -178,41 +169,61 @@ describe('SummaryColumnChartsComponent', () => {
       expect(capturedOnSelect).toBeDefined();
       capturedOnSelect?.(0, seriesIndex, series);
 
-      expect(erasModalServiceSpy.openComponent).toHaveBeenCalledWith({
-        component: RiskDetailsComponent,
-        data: {
-          riskGroup: series[seriesIndex].data[0],
-          pollUuid: 'poll-123',
-          cohorts: [10, 20],
-          componentName: 'ansiedad',
-          evaluationId: 99,
-        },
-        title: `ansiedad: ${series[seriesIndex].name} Details`,
+      expect(component.openPanel.emit).toHaveBeenCalledWith({
+        cohortIds: [10, 20],
+        pollUuid: 'poll-123',
+        componentName: 'ansiedad' as ComponentValueType,
+        title: `${mockComponents[0].description}: ${series[seriesIndex].name} Details`,
+        questions: [mockQuestions[0]],
+        evaluationId: 99,
       });
     });
 
-    it('should fallback to empty string for componentName if components is not available', () => {
+    it('should not emit openPanel if the selected group has no questions', () => {
+      spyOn(component.openPanel, 'emit');
+
       const options = component.chartOptions();
       const series = options.series as unknown as ChartSeries[];
+      const emptySeriesIndex = series.findIndex(
+        s => s.data[0]?.data.length === 0
+      );
 
-      fixture.componentRef.setInput('components', undefined);
+      capturedOnSelect?.(0, emptySeriesIndex, series);
+
+      expect(component.openPanel.emit).not.toHaveBeenCalled();
+    });
+
+    it('should not emit openPanel if pollUuid is missing', () => {
+      spyOn(component.openPanel, 'emit');
+      fixture.componentRef.setInput('pollUuid', undefined);
       fixture.detectChanges();
 
-      capturedOnSelect?.(0, 0, series);
+      const options = component.chartOptions();
+      const series = options.series as unknown as ChartSeries[];
+      const seriesIndex = series.findIndex(s => s.data[0]?.data.length > 0);
 
-      expect(erasModalServiceSpy.openComponent).toHaveBeenCalledWith(
-        jasmine.objectContaining({
-          title: `: ${series[0].name} Details`,
-          data: jasmine.objectContaining({
-            componentName: '',
-          }),
-        })
-      );
+      capturedOnSelect?.(0, seriesIndex, series);
+
+      expect(component.openPanel.emit).not.toHaveBeenCalled();
+    });
+
+    it('should not emit openPanel if cohortsIds is empty', () => {
+      spyOn(component.openPanel, 'emit');
+      fixture.componentRef.setInput('cohortsIds', []);
+      fixture.detectChanges();
+
+      const options = component.chartOptions();
+      const series = options.series as unknown as ChartSeries[];
+      const seriesIndex = series.findIndex(s => s.data[0]?.data.length > 0);
+
+      capturedOnSelect?.(0, seriesIndex, series);
+
+      expect(component.openPanel.emit).not.toHaveBeenCalled();
     });
   });
 
   describe('Tooltip Customization', () => {
-    it('should generate custom HTML for tooltip using TooltipChartComponent', () => {
+    it('should generate custom HTML for tooltip using TooltipChartV2Component', () => {
       fixture.componentRef.setInput('components', mockReport);
       fixture.detectChanges();
 

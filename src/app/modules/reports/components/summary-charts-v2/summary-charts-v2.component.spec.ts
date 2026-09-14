@@ -12,10 +12,31 @@ import { StudentService } from '@core/services/api/student.service';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { ReportService } from '@core/services/api/report.service';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
-import { AnswerDetail, PollAvgComponent } from '@core/models/summary.model';
+import {
+  AnswerDetail,
+  GetQueryResponse,
+  PollAvgComponent,
+  PollAvgQuestion,
+  PollAvgReport,
+} from '@core/models/summary.model';
 import { provideHttpClient } from '@angular/common/http';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ColumnRiskPanelData } from './column-risk-panel/column-risk-panel.component';
 import { DetailsPanelData } from '@shared/components/panels/details-panel-v2/details-panel.component';
+import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
+
+type ChartClickFn = (
+  e: unknown,
+  chart: unknown,
+  options: { dataPointIndex: number; seriesIndex: number }
+) => void;
+
+type TooltipCustomFn = (options: {
+  seriesIndex: number;
+  dataPointIndex: number;
+  series: unknown[];
+  w: unknown;
+}) => string;
 
 describe('SummaryChartsV2Component', () => {
   let component: SummaryChartsV2Component;
@@ -57,11 +78,24 @@ describe('SummaryChartsV2Component', () => {
           useValue: jasmine.createSpyObj<MatDialog>('MatDialog', ['open']),
         },
         provideHttpClient(),
+        provideNoopAnimations(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SummaryChartsV2Component);
     component = fixture.componentInstance;
+  });
+
+  describe('columns and columnTemplates', () => {
+    it('should define table columns and templates correctly', () => {
+      expect(component.columns.length).toBe(2);
+      expect(component.columns[0].key).toBe('studentName');
+      expect(component.columns[1].key).toBe('email');
+
+      expect(component.columnTemplates.length).toBe(1);
+      expect(component.columnTemplates[0].key).toBe('avgRiskLevel');
+      expect(component.columnTemplates[0].isTemplate).toBeTrue();
+    });
   });
 
   describe('getRiskColor', () => {
@@ -77,7 +111,7 @@ describe('SummaryChartsV2Component', () => {
   });
 
   describe('toggleExpand', () => {
-    it('should return the isExpanded  value', () => {
+    it('should return the isExpanded value', () => {
       component.isExpanded = true;
       component.toggleExpand();
       expect(component.isExpanded).toBeFalse();
@@ -114,7 +148,7 @@ describe('SummaryChartsV2Component', () => {
       expect(reportService.getAvgPoolReport).not.toHaveBeenCalled();
     });
 
-    it('should handle report success', () => {
+    it('should handle report success with empty components', () => {
       const response = {
         status: '200',
         body: {
@@ -123,7 +157,9 @@ describe('SummaryChartsV2Component', () => {
         },
       };
 
-      reportService.getAvgPoolReport.and.returnValue(of(response));
+      reportService.getAvgPoolReport.and.returnValue(
+        of(response as unknown as GetQueryResponse<PollAvgReport>)
+      );
       reportService.getHMSeriesFromAvgReport.and.returnValue([]);
       reportService.regroupSummaryByColor.and.returnValue([]);
 
@@ -135,6 +171,199 @@ describe('SummaryChartsV2Component', () => {
       expect(component.components()).toEqual(response.body);
       expect(component.hasNoResults).toBeTrue();
       expect(component.isLoading).toBeFalse();
+    });
+
+    it('should handle report success with components present', () => {
+      const response = {
+        status: '200',
+        body: {
+          components: [
+            {
+              description: 'academico',
+              averageRisk: 2,
+              questions: [],
+            },
+          ],
+          pollCount: 10,
+        },
+      };
+
+      reportService.getAvgPoolReport.and.returnValue(
+        of(response as unknown as GetQueryResponse<PollAvgReport>)
+      );
+      reportService.getHMSeriesFromAvgReport.and.returnValue([]);
+      reportService.regroupSummaryByColor.and.returnValue([]);
+
+      component.pollUuid = 'poll-1';
+      component.cohortIds = [1];
+      component.isLoading = true;
+      component.getHeatMap();
+
+      expect(component.hasNoResults).toBeFalse();
+    });
+
+    it('should trigger dataPointSelection from chartOptions and open details panel if question exists', fakeAsync(() => {
+      const mockQuestion = {
+        question: 'Q1',
+        averageRisk: 2,
+        position: 0,
+        answersDetails: [],
+      } as unknown as PollAvgQuestion;
+
+      const response = {
+        status: '200',
+        body: {
+          components: [
+            {
+              description: 'academico',
+              text: 'Academico',
+              questions: [mockQuestion],
+            },
+          ],
+          pollCount: 10,
+        },
+      };
+      const mockSeries = [
+        {
+          description: 'academico',
+          text: 'Academico',
+          data: [{ x: 'Q1', y: 2, position: 0 }],
+        },
+      ];
+
+      reportService.getAvgPoolReport.and.returnValue(
+        of(response as unknown as GetQueryResponse<PollAvgReport>)
+      );
+      reportService.getHMSeriesFromAvgReport.and.returnValue(
+        mockSeries as unknown as ReturnType<
+          ReportService['getHMSeriesFromAvgReport']
+        >
+      );
+      reportService.regroupSummaryByColor.and.returnValue(
+        mockSeries as unknown as ReturnType<
+          ReportService['regroupSummaryByColor']
+        >
+      );
+
+      component.pollUuid = 'poll-1';
+      component.cohortIds = [1];
+      component.getHeatMap();
+
+      const clickHandler =
+        component.chartOptions.chart?.events?.dataPointSelection;
+      if (clickHandler) {
+        spyOn(component, 'openDetailsPanel');
+        (clickHandler as unknown as ChartClickFn)({}, undefined, {
+          dataPointIndex: 0,
+          seriesIndex: 0,
+        });
+        expect(component.openDetailsPanel).toHaveBeenCalledWith(
+          mockQuestion,
+          'academico' as ComponentValueType,
+          'Academico'
+        );
+      }
+      tick(50);
+    }));
+
+    it('should log error if question is not found when dataPointSelection is triggered', fakeAsync(() => {
+      const response = {
+        status: '200',
+        body: {
+          components: [
+            {
+              description: 'academico',
+              text: 'Academico',
+              questions: [],
+            },
+          ],
+          pollCount: 10,
+        },
+      };
+      const mockSeries = [
+        {
+          description: 'academico',
+          text: 'Academico',
+          data: [{ x: 'Q1', y: 2, position: 0 }],
+        },
+      ];
+
+      reportService.getAvgPoolReport.and.returnValue(
+        of(response as unknown as GetQueryResponse<PollAvgReport>)
+      );
+      reportService.getHMSeriesFromAvgReport.and.returnValue(
+        mockSeries as unknown as ReturnType<
+          ReportService['getHMSeriesFromAvgReport']
+        >
+      );
+      reportService.regroupSummaryByColor.and.returnValue(
+        mockSeries as unknown as ReturnType<
+          ReportService['regroupSummaryByColor']
+        >
+      );
+
+      component.pollUuid = 'poll-1';
+      component.cohortIds = [1];
+      component.getHeatMap();
+
+      const clickHandler =
+        component.chartOptions.chart?.events?.dataPointSelection;
+      if (clickHandler) {
+        spyOn(console, 'error');
+        (clickHandler as unknown as ChartClickFn)({}, undefined, {
+          dataPointIndex: 0,
+          seriesIndex: 0,
+        });
+        expect(console.error).toHaveBeenCalledWith(
+          'Error getting question from report.'
+        );
+      }
+      tick(50);
+    }));
+
+    it('should execute custom tooltip callback from chartOptions', () => {
+      const response = {
+        status: '200',
+        body: {
+          components: [],
+          pollCount: 10,
+        },
+      };
+      const mockSeries = [
+        {
+          description: 'academico',
+          data: [{ x: 'Cat1', y: 2, z: [] }],
+        },
+      ];
+
+      reportService.getAvgPoolReport.and.returnValue(
+        of(response as unknown as GetQueryResponse<PollAvgReport>)
+      );
+      reportService.getHMSeriesFromAvgReport.and.returnValue(
+        mockSeries as unknown as ReturnType<
+          ReportService['getHMSeriesFromAvgReport']
+        >
+      );
+      reportService.regroupSummaryByColor.and.returnValue(
+        mockSeries as unknown as ReturnType<
+          ReportService['regroupSummaryByColor']
+        >
+      );
+
+      component.pollUuid = 'poll-1';
+      component.cohortIds = [1];
+      component.getHeatMap();
+
+      const tooltipFn = component.chartOptions.tooltip?.custom;
+      if (typeof tooltipFn === 'function') {
+        const html = (tooltipFn as unknown as TooltipCustomFn)({
+          seriesIndex: 0,
+          dataPointIndex: 0,
+          series: [],
+          w: {},
+        });
+        expect(typeof html).toBe('string');
+      }
     });
 
     it('should handle report error', () => {
@@ -173,6 +402,81 @@ describe('SummaryChartsV2Component', () => {
           },
         ],
       };
+    });
+
+    it('should return question when a match is found', () => {
+      const report: { pollCount: number; components: PollAvgComponent[] } = {
+        pollCount: 1,
+        components: [
+          {
+            description: 'academico',
+            averageRisk: 2,
+            questions: [question],
+          },
+        ],
+      };
+
+      const result = component.getPollAvgQuestionFromSeries(
+        report,
+        'academico',
+        {
+          x: 'Question 1',
+          y: 3,
+          z: [],
+          position: 2,
+        }
+      );
+      expect(result).toEqual(question);
+    });
+
+    it('should return null when component is not found in report', () => {
+      const report: { pollCount: number; components: PollAvgComponent[] } = {
+        pollCount: 1,
+        components: [
+          {
+            description: 'academico',
+            averageRisk: 2,
+            questions: [question],
+          },
+        ],
+      };
+
+      const result = component.getPollAvgQuestionFromSeries(report, 'salud', {
+        x: 'Question 1',
+        y: 3,
+        z: [],
+        position: 2,
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should match question when question.position is undefined', () => {
+      const questionWithoutPosition = {
+        ...question,
+        position: undefined as unknown as number,
+      };
+      const report: { pollCount: number; components: PollAvgComponent[] } = {
+        pollCount: 1,
+        components: [
+          {
+            description: 'academico',
+            averageRisk: 2,
+            questions: [questionWithoutPosition],
+          },
+        ],
+      };
+
+      const result = component.getPollAvgQuestionFromSeries(
+        report,
+        'academico',
+        {
+          x: 'Question 1',
+          y: 3,
+          z: [],
+          position: 99,
+        }
+      );
+      expect(result).toEqual(questionWithoutPosition);
     });
 
     it('should return null when question does not match', () => {
@@ -255,6 +559,33 @@ describe('SummaryChartsV2Component', () => {
       expect(component.selectedPanelData()).toBeNull();
     });
 
+    it('should fallback to componentName when text is not provided', fakeAsync(() => {
+      component.pollUuid = 'poll-1';
+      component.cohortIds = [1, 2];
+      component.evaluationId = 10;
+      component.openDetailsPanel(
+        {
+          question: 'Question',
+          averageRisk: 2,
+          position: 1,
+          averageAnswer: 'gift',
+          answersDetails: [],
+        },
+        'academico'
+      );
+
+      expect(component.selectedPanelData()).toEqual({
+        cohortId: '1,2',
+        pollUuid: 'poll-1',
+        componentName: 'academico',
+        text: 'academico',
+        question: jasmine.objectContaining({ question: 'Question' }),
+        evaluationId: 10,
+      });
+      expect(component.isPanelOpen()).toBeTrue();
+      tick(50);
+    }));
+
     it('should use provided text', fakeAsync(() => {
       component.pollUuid = 'poll-1';
       component.cohortIds = [1];
@@ -276,6 +607,19 @@ describe('SummaryChartsV2Component', () => {
         'Custom text'
       );
       expect(component.selectedPanelData()?.text).toBe('Custom text');
+      tick(50);
+    }));
+  });
+
+  describe('closePanel', () => {
+    it('should close the panel and clear selected data', fakeAsync(() => {
+      component.isPanelOpen.set(true);
+      component.selectedPanelData.set({} as unknown as DetailsPanelData);
+
+      component.closePanel();
+
+      expect(component.isPanelOpen()).toBeFalse();
+      expect(component.selectedPanelData()).toBeNull();
       tick(50);
     }));
   });
@@ -313,7 +657,8 @@ describe('SummaryChartsV2Component', () => {
       expect(component.students).toEqual([]);
     });
 
-    it('should load students and heatmap for valid filters', () => {
+    it('should call closePanel, update metadata and load students/heatmap for valid filters', () => {
+      spyOn(component, 'closePanel');
       studentService.getAllAverageByCohortsAndPoll.and.returnValue(
         of({
           items: [],
@@ -338,10 +683,17 @@ describe('SummaryChartsV2Component', () => {
         uuid: 'poll-1',
         cohortIds: [1],
         variableIds: [1],
-        lastVersion: true,
+        lastVersion: false,
+        evaluationId: 88,
         selectedComponents: ['academico'],
       });
 
+      expect(component.closePanel).toHaveBeenCalled();
+      expect(component.title).toBe('Title');
+      expect(component.pollUuid).toBe('poll-1');
+      expect(component.cohortIds).toEqual([1]);
+      expect(component.lastVersion).toBeFalse();
+      expect(component.evaluationId).toBe(88);
       expect(component.isLoading).toBeFalse();
       expect(studentService.getAllAverageByCohortsAndPoll).toHaveBeenCalled();
       expect(reportService.getAvgPoolReport).toHaveBeenCalled();
@@ -349,7 +701,14 @@ describe('SummaryChartsV2Component', () => {
   });
 
   describe('toggleChart', () => {
-    it('should set heatmap when chart is heatmap', () => {
+    it('should set heatmap when chart is heatmap and close panels', () => {
+      component.isPanelOpen.set(true);
+      component.selectedPanelData.set({} as unknown as DetailsPanelData);
+      component.isColumnPanelOpen.set(true);
+      component.selectedColumnPanelData.set(
+        {} as unknown as ColumnRiskPanelData
+      );
+
       component.toggleChart('heatmap');
 
       expect(component.heatmapChart).toBeTrue();
@@ -518,6 +877,32 @@ describe('SummaryChartsV2Component', () => {
       expect(component.isLoading).toBeFalse();
     });
 
+    it('should set hasNoResults to false when count is 0 but components are present', () => {
+      studentService.getAllAverageByCohortsAndPoll.and.returnValue(
+        of({
+          items: [],
+          count: 0,
+        })
+      );
+
+      component.cohortIds = [1];
+      component.pollUuid = 'poll-1';
+      component.components.set({
+        components: [
+          { description: 'academico' },
+        ] as unknown as PollAvgComponent[],
+        pollCount: 1,
+      });
+
+      component.getStudentsByCohortAndPoll({
+        page: 0,
+        pageSize: 10,
+      });
+
+      expect(component.hasNoResults).toBeFalse();
+      expect(component.isLoading).toBeFalse();
+    });
+
     it('should handle student loading error', () => {
       studentService.getAllAverageByCohortsAndPoll.and.returnValue(
         throwError(() => new Error('error'))
@@ -554,13 +939,13 @@ describe('SummaryChartsV2Component', () => {
         riskLevel: 3,
         cohortIds: [1],
         pollUuid: '123',
-        componentName: 'academico',
+        componentName: 'academico' as ComponentValueType,
         title: 'Title',
         questions: [],
-      } as ColumnRiskPanelData;
+      } as unknown as ColumnRiskPanelData;
 
       component.isPanelOpen.set(true);
-      component.selectedPanelData.set({} as DetailsPanelData);
+      component.selectedPanelData.set({} as unknown as DetailsPanelData);
 
       component.openPanelFromColumn(data);
 
@@ -568,16 +953,20 @@ describe('SummaryChartsV2Component', () => {
       expect(component.isColumnPanelOpen()).toBeTrue();
       expect(component.isPanelOpen()).toBeFalse();
       expect(component.selectedPanelData()).toBeNull();
+      tick(50);
     }));
   });
 
   describe('closeColumnPanel', () => {
     it('should close the column panel and clear selected data', fakeAsync(() => {
       component.isColumnPanelOpen.set(true);
-      component.selectedColumnPanelData.set({} as ColumnRiskPanelData);
+      component.selectedColumnPanelData.set(
+        {} as unknown as ColumnRiskPanelData
+      );
       component.closeColumnPanel();
       expect(component.isColumnPanelOpen()).toBeFalse();
       expect(component.selectedColumnPanelData()).toBeNull();
+      tick(50);
     }));
   });
 
