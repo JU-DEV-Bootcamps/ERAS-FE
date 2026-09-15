@@ -34,7 +34,7 @@
 
   <div class="field-group">
     <span class="field-label">Activity:</span>
-    <span class="field-value">{{ data.activity || '—' }}</span>
+    <span class="field-value">{{ activityLabel(data.activity) || '—' }}</span>
   </div>
 
   <div class="field-group">
@@ -67,7 +67,7 @@
   @if (data.area) {
     <div class="field-group">
       <span class="field-label">Area:</span>
-      <span class="field-value">{{ data.area }}</span>
+      <span class="field-value">{{ areaLabel(data.area) }}</span>
     </div>
   }
 
