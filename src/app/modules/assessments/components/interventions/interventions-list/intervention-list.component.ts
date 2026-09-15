@@ -34,6 +34,11 @@ import { AppliedFilter } from '@shared/components/list-filters/models/list-filte
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { CsvService } from '@core/services/exports/csv.service';
+import {
+  ACTIVITY_OPTIONS,
+  AREA_OPTIONS,
+  getOptionLabel,
+} from '../interventions.constants';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -132,6 +137,14 @@ export class InterventionListComponent {
   protected readonly interventions = signal<InterventionRowViewModel[]>([]);
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
+
+  protected activityLabel(value: string | null | undefined): string {
+    return getOptionLabel(ACTIVITY_OPTIONS, value);
+  }
+
+  protected areaLabel(value: string | null | undefined): string {
+    return getOptionLabel(AREA_OPTIONS, value);
+  }
 
   protected readonly sortColumn = signal<string | null>(null);
   protected readonly sortDirection = signal<'asc' | 'desc'>('asc');
@@ -311,11 +324,11 @@ export class InterventionListComponent {
         date: intervention.dateUtc,
         type: intervention.kind,
         mode: intervention.mode,
-        activity: intervention.activity,
+        activity: this.activityLabel(intervention.activity),
         professional: intervention.professional,
         students: studentsNames,
         emails: studentEmails,
-        area: intervention.area,
+        area: this.areaLabel(intervention.area),
         risk: intervention.riskLevelName,
         endRisk: intervention.endRiskLevelName,
         status: intervention.status,
