@@ -470,13 +470,21 @@ describe('ImportAnswersPreviewComponent', () => {
 
   describe('checkScreenSize', () => {
     it('should mark isMobile true for narrow screens', () => {
-      spyOnProperty(window, 'innerWidth', 'get').and.returnValue(500);
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: 500,
+      });
       component.checkScreenSize();
       expect(component.isMobile).toBeTrue();
     });
 
     it('should mark isMobile false for wide screens', () => {
-      spyOnProperty(window, 'innerWidth', 'get').and.returnValue(1024);
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: 1024,
+      });
       component.checkScreenSize();
       expect(component.isMobile).toBeFalse();
     });
