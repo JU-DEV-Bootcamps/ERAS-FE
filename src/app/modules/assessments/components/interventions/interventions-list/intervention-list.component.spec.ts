@@ -68,7 +68,7 @@ describe('InterventionListComponent', () => {
     date: '2026-02-20',
     type: 'Individual',
     mode: 'InPlace',
-    activity: 'workshop',
+    activity: 'Workshop',
     professional: 'Test Professional',
     students: 'Abby',
     emails: 'aby@mail.com',

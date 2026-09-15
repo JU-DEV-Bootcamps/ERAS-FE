@@ -80,11 +80,11 @@ describe('CreatableInputComponent', () => {
     expect(component.displayFn(null)).toBe('');
   });
 
-  it('should return string value unchanged', () => {
-    expect(component.displayFn('abc')).toBe('abc');
+  it('should return title-cased string value', () => {
+    expect(component.displayFn('abc')).toBe('Abc');
   });
 
-  it('should return lookup label', () => {
+  it('should return title-cased lookup label', () => {
     expect(component.displayFn({ label: 'Test', value: 'Test' })).toBe('Test');
   });
   it('should update search term and clear errors', () => {
