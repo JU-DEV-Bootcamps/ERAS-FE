@@ -1,0 +1,106 @@
+<div class="attachment-manager">
+  <div class="attachment-manager__loading" *ngIf="isLoadingExisting()">
+    <mat-spinner diameter="24" />
+    <span>Loading attachments…</span>
+  </div>
+  <div
+    class="attachment-manager__section"
+    *ngIf="visibleExisting().length > 0 || markedForRemoval().size > 0"
+  >
+    <p class="attachment-manager__label">Existing attachments</p>
+    <mat-chip-set>
+      <mat-chip
+        *ngFor="let a of existingAttachments()"
+        [class.attachment-manager__chip--removed]="markedForRemoval().has(a.id)"
+      >
+        <mat-icon matChipAvatar>insert_drive_file</mat-icon>
+        <span class="attachment-manager__chip-name">
+          {{ display.fileName(a) }}
+        </span>
+        <span
+          class="attachment-manager__chip-size"
+          *ngIf="a.sizeBytes !== null"
+        >
+          {{ display.size(a) }}
+        </span>
+        <button
+          matChipRemove
+          [attr.aria-label]="
+            markedForRemoval().has(a.id) ? 'Undo remove' : 'Mark for removal'
+          "
+          (click)="toggleRemoveExisting(a.id)"
+        >
+          <mat-icon>{{
+            markedForRemoval().has(a.id) ? 'undo' : 'cancel'
+          }}</mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
+
+    <p class="attachment-manager__hint" *ngIf="markedForRemoval().size > 0">
+      {{ markedForRemoval().size }} attachment(s) will be removed on save.
+    </p>
+  </div>
+
+  <div class="attachment-manager__section" *ngIf="stagedFiles().length > 0">
+    <p class="attachment-manager__label">New attachments</p>
+
+    <mat-chip-set>
+      <mat-chip *ngFor="let s of stagedFiles()">
+        <mat-spinner
+          *ngIf="s.status === 'uploading'"
+          matChipAvatar
+          diameter="18"
+        />
+        <mat-icon
+          *ngIf="s.status === 'done'"
+          matChipAvatar
+          class="attachment-manager__icon--done"
+        >
+          check_circle
+        </mat-icon>
+        <mat-icon
+          *ngIf="s.status === 'error'"
+          matChipAvatar
+          class="attachment-manager__icon--error"
+        >
+          error
+        </mat-icon>
+
+        <span class="attachment-manager__chip-name">{{ s.file.name }}</span>
+
+        <button
+          *ngIf="s.status === 'error'"
+          mat-icon-button
+          class="attachment-manager__retry"
+          aria-label="Retry upload"
+          (click)="retryUpload(s)"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        <button
+          matChipRemove
+          aria-label="Remove staged file"
+          (click)="removeStaged(s)"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <div class="attachment-manager__upload">
+    <label class="attachment-manager__upload-btn" for="attachment-file-input">
+      <mat-icon>attach_file</mat-icon>
+      Add file(s)
+    </label>
+    <input
+      id="attachment-file-input"
+      type="file"
+      multiple
+      hidden
+      (change)="onFilesSelected($event)"
+    />
+  </div>
+</div>
