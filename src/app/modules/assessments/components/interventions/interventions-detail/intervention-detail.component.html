@@ -91,6 +91,7 @@
           <button
             class="attachment-item"
             type="button"
+            [disabled]="isDownloading(path)"
             (click)="openAttachment(path)"
           >
             <mat-icon class="attachment-icon">{{ getFileIcon(path) }}</mat-icon>

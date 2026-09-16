@@ -99,6 +99,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   totalStudentAnswers = 0;
   componentsAvg: ComponentsAvgModel[] = [];
   isGeneratingPDF = false;
+  isGeneratingCSV = false;
   processedPolls = new Set<number>();
 
   @Input({ required: true }) studentId!: number;
@@ -354,44 +355,52 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   }
 
   async exportCsv(): Promise<void> {
-    const d = this.studentDetails.entity;
-    const summaryRows: [string, string | number][] = [
-      ['Student Name', d.name],
-      ['Email', d.email],
-      ['UUID', d.uuid],
-      ['Enrolled Courses', d.studentDetail.enrolledCourses],
-      ['Graded Courses', d.studentDetail.gradedCourses],
-      ['Timely Submissions (%)', d.studentDetail.timeDeliveryRate],
-      ['Average Score', d.studentDetail.avgScore],
-      ['Below Average Courses', d.studentDetail.coursesUnderAvg],
-      ['Raw Score Diff', d.studentDetail.pureScoreDiff],
-      ['Std Score Diff', d.studentDetail.standardScoreDiff],
-      ['Days Since Last Access', d.studentDetail.lastAccessDays],
-    ];
+    if (this.isGeneratingCSV) return;
+    this.isGeneratingCSV = true;
 
-    const allAnswers = await this.fetchAllStudentAnswers();
+    try {
+      const d = this.studentDetails.entity;
+      const summaryRows: [string, string | number][] = [
+        ['Student Name', d.name],
+        ['Email', d.email],
+        ['UUID', d.uuid],
+        ['Enrolled Courses', d.studentDetail.enrolledCourses],
+        ['Graded Courses', d.studentDetail.gradedCourses],
+        ['Timely Submissions (%)', d.studentDetail.timeDeliveryRate],
+        ['Average Score', d.studentDetail.avgScore],
+        ['Below Average Courses', d.studentDetail.coursesUnderAvg],
+        ['Raw Score Diff', d.studentDetail.pureScoreDiff],
+        ['Std Score Diff', d.studentDetail.standardScoreDiff],
+        ['Days Since Last Access', d.studentDetail.lastAccessDays],
+      ];
 
-    const summarySection = summaryRows
-      .map(([label, value]) => `"${label}","${value}"`)
-      .join('\n');
+      const allAnswers = await this.fetchAllStudentAnswers();
 
-    const answersHeader = '"Variable","Position","Component","Answer","Score"';
-    const answersRows = allAnswers
-      .map(
-        a =>
-          `"${a.variable}","${a.position}","${a.component}","${a.answer}","${a.score}"`
-      )
-      .join('\n');
+      const summarySection = summaryRows
+        .map(([label, value]) => `"${label}","${value}"`)
+        .join('\n');
 
-    const csvContent = `${summarySection}\n\n${answersHeader}\n${answersRows}`;
+      const answersHeader =
+        '"Variable","Position","Component","Answer","Score"';
+      const answersRows = allAnswers
+        .map(
+          a =>
+            `"${a.variable}","${a.position}","${a.component}","${a.answer}","${a.score}"`
+        )
+        .join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `student-${d.uuid || this.studentId}-details.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+      const csvContent = `${summarySection}\n\n${answersHeader}\n${answersRows}`;
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `student-${d.uuid || this.studentId}-details.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      this.isGeneratingCSV = false;
+    }
   }
 
   private async fetchAllStudentAnswers(): Promise<AnswerResponse[]> {

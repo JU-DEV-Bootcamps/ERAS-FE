@@ -188,20 +188,26 @@ export class StudentsListComponent implements OnInit {
     });
   }
 
-  exportToCSV() {
+  async exportToCSV(): Promise<void> {
     if (this.isGenerating) return;
-
     this.isGenerating = true;
-    this.list()?.exportToCSV();
-    this.isGenerating = false;
+
+    try {
+      await this.list()?.exportToCSV();
+    } finally {
+      this.isGenerating = false;
+    }
   }
 
-  async exportToPdf() {
+  async exportToPdf(): Promise<void> {
     if (this.isGenerating) return;
-
     this.isGenerating = true;
-    this.list()?.exportToPdf();
-    this.isGenerating = false;
+
+    try {
+      await this.list()?.exportToPdf();
+    } finally {
+      this.isGenerating = false;
+    }
   }
 
   private flattenStudentModel(data: StudentModel[]): StudentModelFlat[] {

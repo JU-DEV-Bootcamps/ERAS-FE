@@ -135,6 +135,7 @@ export class InterventionListComponent {
 
   protected readonly sortColumn = signal<string | null>(null);
   protected readonly sortDirection = signal<'asc' | 'desc'>('asc');
+  protected readonly isGenerating = signal(false);
 
   private readonly riskRank: Record<string, number> = {
     high: 3,
@@ -293,57 +294,64 @@ export class InterventionListComponent {
   }
 
   exportToCSV(): void {
-    const dataToExport = this.filteredInterventions().map(intervention => {
-      let studentsNames = '';
-      let studentEmails = '';
+    if (this.isGenerating()) return;
+    this.isGenerating.set(true);
 
-      if (Array.isArray(intervention.studentDisplay)) {
-        studentsNames = intervention.studentDisplay
-          .map(student => student.name)
-          .join();
-        studentEmails = intervention.studentDisplay
-          .map(student => student.email)
-          .join();
-      }
+    try {
+      const dataToExport = this.filteredInterventions().map(intervention => {
+        let studentsNames = '';
+        let studentEmails = '';
 
-      return {
-        id: intervention.id?.toString(),
-        date: intervention.dateUtc,
-        type: intervention.kind,
-        mode: intervention.mode,
-        activity: intervention.activity,
-        professional: intervention.professional,
-        students: studentsNames,
-        emails: studentEmails,
-        area: intervention.area,
-        risk: intervention.riskLevelName,
-        endRisk: intervention.endRiskLevelName,
-        status: intervention.status,
-        comment: intervention.comments,
-      } as ExportableIntervention;
-    });
+        if (Array.isArray(intervention.studentDisplay)) {
+          studentsNames = intervention.studentDisplay
+            .map(student => student.name)
+            .join();
+          studentEmails = intervention.studentDisplay
+            .map(student => student.email)
+            .join();
+        }
 
-    const columns = [
-      'id',
-      'date',
-      'type',
-      'mode',
-      'activity',
-      'professional',
-      'students',
-      'emails',
-      'area',
-      'risk',
-      'endRisk',
-      'status',
-      'comment',
-    ];
+        return {
+          id: intervention.id?.toString(),
+          date: intervention.dateUtc,
+          type: intervention.kind,
+          mode: intervention.mode,
+          activity: intervention.activity,
+          professional: intervention.professional,
+          students: studentsNames,
+          emails: studentEmails,
+          area: intervention.area,
+          risk: intervention.riskLevelName,
+          endRisk: intervention.endRiskLevelName,
+          status: intervention.status,
+          comment: intervention.comments,
+        } as ExportableIntervention;
+      });
 
-    this.csvService.exportToCSV(
-      dataToExport,
-      columns,
-      undefined,
-      'interventions'
-    );
+      const columns = [
+        'id',
+        'date',
+        'type',
+        'mode',
+        'activity',
+        'professional',
+        'students',
+        'emails',
+        'area',
+        'risk',
+        'endRisk',
+        'status',
+        'comment',
+      ];
+
+      this.csvService.exportToCSV(
+        dataToExport,
+        columns,
+        undefined,
+        'interventions'
+      );
+    } finally {
+      this.isGenerating.set(false);
+    }
   }
 }

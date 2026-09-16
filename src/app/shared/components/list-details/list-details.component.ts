@@ -189,38 +189,48 @@ export class ListDetailsComponent<T extends object>
     return itemWithId;
   }
 
-  exportToCSV() {
+  async exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
-    const itemsToExport = this.itemsAreSelectable
-      ? this.getItemsToExport()
-      : this.items;
-    const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
-    ];
-    const columnKeys = columnsToExport.map(c => c.key);
-    const columnLabels = columnsToExport.map(c => c.label);
 
-    this.csvService.exportToCSV(
-      itemsToExport,
-      columnKeys as string[],
-      columnLabels
-    );
+    try {
+      await new Promise<void>(resolve =>
+        requestAnimationFrame(() => resolve())
+      );
 
-    this.isGenerating = false;
+      const itemsToExport = this.itemsAreSelectable
+        ? this.getItemsToExport()
+        : this.items;
+      const columnsToExport = [
+        ...new Set([...this.columns, ...this.exportColumns]),
+      ];
+      const columnKeys = columnsToExport.map(c => c.key);
+      const columnLabels = columnsToExport.map(c => c.label);
+
+      this.csvService.exportToCSV(
+        itemsToExport,
+        columnKeys as string[],
+        columnLabels
+      );
+    } finally {
+      this.isGenerating = false;
+    }
   }
 
   async exportToPdf() {
     if (this.isGenerating) return;
 
     this.isGenerating = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-      preProcess: 'list',
-    });
-    this.isGenerating = false;
+    try {
+      await this.pdfHelper.exportToPdf({
+        fileName: 'report_detail',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+        preProcess: 'list',
+      });
+    } finally {
+      this.isGenerating = false;
+    }
   }
 
   private getItemsToExport(): T[] {
