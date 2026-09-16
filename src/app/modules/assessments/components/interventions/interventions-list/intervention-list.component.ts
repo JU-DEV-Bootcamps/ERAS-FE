@@ -175,6 +175,11 @@ export class InterventionListComponent {
     return sorted;
   });
 
+  private capitalize(text?: string | null): string {
+    if (!text) return text ?? '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
   private compareByColumn(
     a: InterventionRowViewModel,
     b: InterventionRowViewModel,
@@ -329,7 +334,7 @@ export class InterventionListComponent {
           date: intervention.dateUtc,
           type: intervention.kind,
           mode: intervention.mode,
-          activity: intervention.activity,
+          activity: this.capitalize(intervention.activity),
           professional: intervention.professional,
           students: studentsNames,
           emails: studentEmails,
