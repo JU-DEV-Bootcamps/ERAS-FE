@@ -36,12 +36,14 @@
 
   <div class="field-group">
     <span class="field-label">Service:</span>
-    <span class="field-value">{{ data.service || '—' }}</span>
+    <span class="field-value">{{ (data.service | titlecase) || '—' }}</span>
   </div>
 
   <div class="field-group">
     <span class="field-label">Professional:</span>
-    <span class="field-value">{{ data.assignedProfessional || '—' }}</span>
+    <span class="field-value">{{
+      (data.assignedProfessional | titlecase) || '—'
+    }}</span>
   </div>
 
   <div class="field-group">

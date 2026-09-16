@@ -67,7 +67,7 @@
       }
 
       @for (option of filteredOptions(); track option.value) {
-        <mat-option [value]="option">{{ option.label }}</mat-option>
+        <mat-option [value]="option">{{ option.label | titlecase }}</mat-option>
       }
 
       @if (
