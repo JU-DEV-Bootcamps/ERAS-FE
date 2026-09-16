@@ -58,6 +58,10 @@ import {
   TYPE_OPTIONS,
 } from '../interventions.constants';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import {
+  ATTACHMENT_DISPLAY,
+  AttachmentModel,
+} from '@core/models/attachment.model';
 
 export interface NewInterventionDialogData {
   assessmentId: number;
@@ -95,7 +99,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   private readonly injector = inject(Injector);
 
   private _prefillValues: Record<string, unknown> = {};
-  existingAttachments: string[] = [];
+  existingAttachments: AttachmentModel[] = [];
   attachmentsToDelete: string[] = [];
   attendedStudentIdsModel: string[] = [];
 
@@ -272,7 +276,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
           allowedMimeTypes: ALLOWED_MIME_TYPES,
           onFileRemoved: i => this.removeExistingAttachment(i),
           prefillFileNames: (intervention.attachments ?? []).map(p =>
-            this.getFileName(p)
+            ATTACHMENT_DISPLAY.fileName(p)
           ),
         },
         floatingLabel: 'always',
@@ -576,15 +580,11 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   removeExistingAttachment(index: number): void {
     const pathToRemove = this.existingAttachments[index];
-    this.attachmentsToDelete.push(this.getFileName(pathToRemove));
+    this.attachmentsToDelete.push(String(pathToRemove.id));
     this.existingAttachments = this.existingAttachments.filter(
       (_, i) => i !== index
     );
     this.form.markAsDirty();
-  }
-
-  private getFileName(path: string): string {
-    return path?.split('/').pop() ?? '';
   }
 
   private getNewFilesToUpload(): File[] {
