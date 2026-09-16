@@ -1,4 +1,5 @@
 import { StudentProfileData } from '@modules/assessments/components/assessment-list/assessment-student-data/assessment-student-data.component';
+import { AttachmentModel } from './attachment.model';
 
 export interface AssessmentModel {
   id?: number;
@@ -46,7 +47,7 @@ export interface InterventionModel {
   attendance?: Record<number, boolean> | null;
 
   remarks?: string | null;
-  attachments?: string[] | null;
+  attachments?: AttachmentModel[] | null;
   uploadInput?: File[] | null;
   riskLevelName?: RiskLevels;
   endRiskLevelName?: RiskLevels;
