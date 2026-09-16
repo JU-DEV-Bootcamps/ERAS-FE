@@ -14,7 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { validateName } from '@core/utils/validators/name.validator';
 
 @Component({
@@ -29,6 +29,7 @@ import { validateName } from '@core/utils/validators/name.validator';
     MatFormFieldModule,
     CommonModule,
     MatAutocompleteModule,
+    TitleCasePipe,
   ],
   templateUrl: './creatable-input.component.html',
   styleUrl: './creatable-input.component.scss',
@@ -67,8 +68,16 @@ export class CreatableInputComponent implements DynamicInputComponent {
 
   displayFn = (value: string | Lookup | null): string => {
     if (!value) return '';
-    return typeof value === 'string' ? value : (value.label ?? '');
+    const label = typeof value === 'string' ? value : (value.label ?? '');
+    return this.toTitleCase(label);
   };
+
+  private toTitleCase(value: string): string {
+    return value.replace(
+      /\w\S*/g,
+      word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    );
+  }
 
   onInput(inputValue: string): void {
     this.searchTerm.set(inputValue);

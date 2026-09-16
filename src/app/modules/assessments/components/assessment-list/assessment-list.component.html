@@ -57,13 +57,15 @@
 
           <ng-container matColumnDef="service">
             <th mat-header-cell *matHeaderCellDef>Service</th>
-            <td mat-cell *matCellDef="let item">{{ item.service }}</td>
+            <td mat-cell *matCellDef="let item">
+              {{ item.service | titlecase }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="professional">
             <th mat-header-cell *matHeaderCellDef>Professional</th>
             <td mat-cell *matCellDef="let item">
-              {{ item.assignedProfessional || '—' }}
+              {{ (item.assignedProfessional | titlecase) || '—' }}
             </td>
           </ng-container>
 

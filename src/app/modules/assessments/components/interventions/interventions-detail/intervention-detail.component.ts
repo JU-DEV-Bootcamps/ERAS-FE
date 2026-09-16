@@ -6,6 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { InterventionPillBadgeComponent } from '../interventions-list/intervention-status-badge/intervention-pill-badge.component';
 import { InterventionRowViewModel } from '../interventions-list/intervention-list.component';
 import { InterventionService } from '@core/services/api/intervention.service';
+import {
+  ACTIVITY_OPTIONS,
+  AREA_OPTIONS,
+  getOptionLabel,
+} from '../interventions.constants';
 
 @Component({
   selector: 'app-intervention-detail',
@@ -35,6 +40,14 @@ export class InterventionDetailComponent {
       return this.data.studentDisplay.map(m => m.name).join(', ');
     }
     return this.data.studentDisplay;
+  }
+
+  protected activityLabel(value: string | null | undefined): string {
+    return getOptionLabel(ACTIVITY_OPTIONS, value);
+  }
+
+  protected areaLabel(value: string | null | undefined): string {
+    return getOptionLabel(AREA_OPTIONS, value);
   }
 
   onClose(): void {

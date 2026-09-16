@@ -65,6 +65,14 @@ export const AREA_OPTIONS = [
   { value: 'vocational', label: 'Vocational' },
 ];
 
+export function getOptionLabel(
+  options: { value: string; label: string }[],
+  value: string | null | undefined
+): string {
+  if (!value) return '';
+  return options.find(option => option.value === value)?.label ?? value;
+}
+
 export const MODE_OPTIONS = [
   { value: InterventionMode.InPlace, label: 'In place' },
   { value: InterventionMode.Remote, label: 'Remote' },
