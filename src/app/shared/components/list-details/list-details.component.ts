@@ -189,32 +189,26 @@ export class ListDetailsComponent<T extends object>
     return itemWithId;
   }
 
-  async exportToCSV() {
+  exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
 
-    try {
-      await new Promise<void>(resolve =>
-        requestAnimationFrame(() => resolve())
-      );
+    const itemsToExport = this.itemsAreSelectable
+      ? this.getItemsToExport()
+      : this.items;
+    const columnsToExport = [
+      ...new Set([...this.columns, ...this.exportColumns]),
+    ];
+    const columnKeys = columnsToExport.map(c => c.key);
+    const columnLabels = columnsToExport.map(c => c.label);
 
-      const itemsToExport = this.itemsAreSelectable
-        ? this.getItemsToExport()
-        : this.items;
-      const columnsToExport = [
-        ...new Set([...this.columns, ...this.exportColumns]),
-      ];
-      const columnKeys = columnsToExport.map(c => c.key);
-      const columnLabels = columnsToExport.map(c => c.label);
+    this.csvService.exportToCSV(
+      itemsToExport,
+      columnKeys as string[],
+      columnLabels
+    );
 
-      this.csvService.exportToCSV(
-        itemsToExport,
-        columnKeys as string[],
-        columnLabels
-      );
-    } finally {
-      this.isGenerating = false;
-    }
+    this.isGenerating = false;
   }
 
   async exportToPdf() {
