@@ -91,10 +91,10 @@
           <button
             class="attachment-item"
             type="button"
-            (click)="openAttachment(path)"
+            (click)="openAttachment('pathWillUpdated')"
           >
-            <mat-icon class="attachment-icon">{{ getFileIcon(path) }}</mat-icon>
-            <span class="attachment-name">{{ getFileName(path) }}</span>
+            <mat-icon class="attachment-icon">{{ getFileIcon('') }}</mat-icon>
+            <span class="attachment-name">'Unknown file'</span>
             <mat-icon class="attachment-open-icon">open_in_new</mat-icon>
           </button>
         }
