@@ -7,10 +7,17 @@ export interface AttachmentModel extends BaseModel {
   mimeType: string | null;
   sizeBytes: number | null;
   contentHash: string;
-  createdAtUtc: string;
-  createdBy: string;
-  storageKey: string;
-  storageProvider: string;
+  createdAtUtc?: string;
+  createdBy?: string;
+  storageKey?: string;
+  storageProvider?: string;
+}
+
+export interface StagedFile {
+  localId: string;
+  file: File;
+  attachmentId: number | null;
+  status: 'uploading' | 'done' | 'error';
 }
 
 export const ATTACHMENT_DISPLAY = {

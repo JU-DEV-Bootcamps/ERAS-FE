@@ -91,3 +91,28 @@ export enum RiskLevels {
   High = 'High',
   None = 'None',
 }
+
+export interface UpdateInterventionDto {
+  id?: number;
+  dateUtc: string;
+  activity?: string | null;
+  area?: string | null;
+  numberOfParticipants?: number | null;
+  professional?: string | null;
+  comments?: string | null;
+  studentIds: number[];
+  attendance?: Record<number, boolean> | null;
+  mode: InterventionMode;
+  kind: InterventionType;
+  status?: InterventionStatus;
+  remarks?: string | null;
+  uploadInput?: File[] | null;
+  riskLevelName?: RiskLevels;
+  endRiskLevelName?: RiskLevels;
+}
+
+export interface UpdateInterventionModel {
+  updateInterventionDto: UpdateInterventionDto;
+  attachmentIdsToRemove: number[];
+  draftSessionId: number;
+}
