@@ -21,11 +21,17 @@ import { AuditModel } from '@core/models/common/audit.model';
 import Keycloak from 'keycloak-js';
 import { DatePipe } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 
 const keycloakMock = {
   token: 'fake-token',
   logout: jasmine.createSpy('logout'),
 };
+
+interface UserProfileMock {
+  id?: string;
+  name: string;
+}
 
 describe('ModalImportAnswersFormComponent', () => {
   let component: ModalImportAnswersFormComponent;
@@ -38,6 +44,8 @@ describe('ModalImportAnswersFormComponent', () => {
   let mockDialogRef: jasmine.SpyObj<
     MatDialogRef<ModalImportAnswersFormComponent>
   >;
+  let mockUnsavedChangesGuard: jasmine.SpyObj<UnsavedChangesGuardService>;
+  let mockUserDataService: { user: jasmine.Spy<() => UserProfileMock> };
 
   const mockAudit: AuditModel = {
     createdBy: 'System',
@@ -78,14 +86,15 @@ describe('ModalImportAnswersFormComponent', () => {
     },
   ];
 
-  const mockPollNames: PollName[] = [
+  const mockPollNames: (PollName & { _id?: string })[] = [
     {
       parent: 'evaluationSets:1',
       name: 'Poll A',
       status: 'InProgress',
       selectData: 'PollA',
       country: 'col',
-    },
+      _id: 'poll-123',
+    } as unknown as PollName,
   ];
 
   function configureTestBed(dialogData: Record<string, unknown>) {
@@ -99,9 +108,7 @@ describe('ModalImportAnswersFormComponent', () => {
         DatePipe,
         {
           provide: UserDataService,
-          useValue: {
-            user: () => ({ id: 'user123', name: 'Test User' }),
-          },
+          useValue: mockUserDataService,
         },
         { provide: Keycloak, useValue: keycloakMock },
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
@@ -113,12 +120,22 @@ describe('ModalImportAnswersFormComponent', () => {
         },
         { provide: CosmicLatteService, useValue: mockCosmicLatteService },
         { provide: DialogService, useValue: mockDialogService },
+        {
+          provide: UnsavedChangesGuardService,
+          useValue: mockUnsavedChangesGuard,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   }
 
   beforeEach(() => {
+    mockUserDataService = {
+      user: jasmine
+        .createSpy('user')
+        .and.returnValue({ id: 'user123', name: 'Test User' }),
+    };
+
     mockConfigurationsService = jasmine.createSpyObj('ConfigurationsService', [
       'getConfigurationsByUserId',
     ]);
@@ -138,6 +155,12 @@ describe('ModalImportAnswersFormComponent', () => {
     ]);
     mockDialogRef.backdropClick.and.returnValue(NEVER);
     mockDialogRef.keydownEvents.and.returnValue(NEVER);
+
+    mockUnsavedChangesGuard = jasmine.createSpyObj(
+      'UnsavedChangesGuardService',
+      ['attach', 'requestClose']
+    );
+    mockUnsavedChangesGuard.requestClose.and.returnValue(of(true));
 
     mockServiceProvidersService.getAllServiceProviders.and.returnValue(
       of(mockServiceProviders)
@@ -185,6 +208,17 @@ describe('ModalImportAnswersFormComponent', () => {
       expect(component.form.get('start')?.value).toBe('2025-01-01');
       expect(component.form.get('end')?.value).toBe('2025-02-01');
     });
+
+    it('should execute the guard attach dirty callback', async () => {
+      await createComponent();
+
+      const attachCall = mockUnsavedChangesGuard.attach.calls.mostRecent();
+      const dirtyCallback = attachCall.args[1];
+
+      expect(dirtyCallback()).toBeFalse();
+      component.form.markAsDirty();
+      expect(dirtyCallback()).toBeTrue();
+    });
   });
 
   describe('ngOnInit', () => {
@@ -194,6 +228,18 @@ describe('ModalImportAnswersFormComponent', () => {
       expect(
         mockConfigurationsService.getConfigurationsByUserId
       ).toHaveBeenCalledOnceWith('user123');
+    });
+
+    it('should pass empty string when user profile id is missing (branch coverage)', async () => {
+      mockUserDataService.user.and.returnValue({
+        id: undefined,
+        name: 'No ID',
+      });
+      await createComponent();
+
+      expect(
+        mockConfigurationsService.getConfigurationsByUserId
+      ).toHaveBeenCalledWith('');
     });
 
     it('should call getServiceProviders', async () => {
@@ -223,6 +269,19 @@ describe('ModalImportAnswersFormComponent', () => {
       expect(mockDialogService.openDialog).toHaveBeenCalled();
       expect(component.form.pristine).toBeTrue();
       expect(component.form.untouched).toBeTrue();
+    });
+
+    it('should not open dialog if errorShown is already true (branch false)', async () => {
+      mockServiceProvidersService.getAllServiceProviders.and.returnValue(
+        throwError(() => ({ message: 'network error' }))
+      );
+
+      await createComponent();
+      mockDialogService.openDialog.calls.reset();
+
+      component.getServiceProviders();
+
+      expect(mockDialogService.openDialog).not.toHaveBeenCalled();
     });
   });
 
@@ -273,6 +332,39 @@ describe('ModalImportAnswersFormComponent', () => {
       expect(component.connectionError).toBeTrue();
       expect(mockDialogService.openDialog).toHaveBeenCalled();
       expect(mockDialogRef.close).toHaveBeenCalled();
+    });
+
+    it('should not reopen error dialog if errorShown is already true (branch false)', async () => {
+      mockConfigurationsService.getConfigurationsByUserId.and.returnValue(
+        throwError(() => ({ message: 'network error' }))
+      );
+
+      await createComponent();
+      mockDialogService.openDialog.calls.reset();
+
+      component.getUserConfigurations('user123');
+
+      expect(mockDialogService.openDialog).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('_fillUpState', () => {
+    it('should update preselectedPollState when history.state has pollName (branch true)', async () => {
+      await createComponent();
+
+      spyOnProperty(history, 'state', 'get').and.returnValue({
+        pollName: 'History Poll Name',
+        startDate: '2024-05-01',
+        endDate: '2024-06-01',
+      });
+
+      component['_fillUpState'](mockConfigurations[0]);
+
+      expect(component['preselectedPollState'].pollName).toBe(
+        'History Poll Name'
+      );
+      expect(component['preselectedPollState'].startDate).toBe('2024-05-01');
+      expect(component['preselectedPollState'].endDate).toBe('2024-06-01');
     });
   });
 
@@ -353,6 +445,13 @@ describe('ModalImportAnswersFormComponent', () => {
 
       expect(component.formatDate(new Date('invalid'))).toBe('');
     });
+
+    it('should return empty string when datePipe.transform returns null (branch fallback)', async () => {
+      await createComponent();
+      spyOn(component['datePipe'], 'transform').and.returnValue(null);
+
+      expect(component.formatDate(new Date(2025, 0, 15))).toBe('');
+    });
   });
 
   describe('resetForm', () => {
@@ -401,9 +500,75 @@ describe('ModalImportAnswersFormComponent', () => {
           pollName: 'Poll A',
           startDate: '2025-01-01',
           endDate: '2025-02-01',
-          pollId: mockPollNames[0]._id,
+          pollId: 'poll-123',
         })
       );
+    });
+
+    it('should submit null for startDate, endDate and pollId when not provided or unmatched (branches coverage)', async () => {
+      await createComponent();
+      component.selectedConfiguration = mockConfigurations[0];
+      component.pollsNames = [];
+
+      component.form.get('configuration')?.enable();
+      component.form.get('pollName')?.enable();
+      component.form.setValue({
+        configuration: mockConfigurations[0],
+        pollName: 'Unmatched Poll',
+        start: '',
+        end: '',
+      });
+
+      spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+
+      component.onSubmit();
+
+      expect(mockDialogRef.close).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          configuration: mockConfigurations[0],
+          pollName: 'Unmatched Poll',
+          startDate: null,
+          endDate: null,
+          pollId: undefined,
+        })
+      );
+    });
+  });
+
+  describe('requestClose', () => {
+    it('should reset form when closed is true (branch true)', async () => {
+      await createComponent();
+      spyOn(component, 'resetForm');
+      mockUnsavedChangesGuard.requestClose.and.returnValue(of(true));
+
+      component.requestClose();
+
+      expect(mockUnsavedChangesGuard.requestClose).toHaveBeenCalled();
+      expect(component.resetForm).toHaveBeenCalled();
+    });
+
+    it('should not reset form when closed is false (branch false)', async () => {
+      await createComponent();
+      spyOn(component, 'resetForm');
+      mockUnsavedChangesGuard.requestClose.and.returnValue(of(false));
+
+      component.requestClose();
+
+      expect(component.resetForm).not.toHaveBeenCalled();
+    });
+
+    it('should pass dirty callback to requestClose', async () => {
+      await createComponent();
+      mockUnsavedChangesGuard.requestClose.and.returnValue(of(false));
+      component.form.markAsDirty();
+
+      component.requestClose();
+
+      const requestCloseCall =
+        mockUnsavedChangesGuard.requestClose.calls.mostRecent();
+      const dirtyCallback = requestCloseCall.args[1];
+
+      expect(dirtyCallback()).toBeTrue();
     });
   });
 });
