@@ -1,15 +1,3 @@
-// import { Component } from '@angular/core';
-
-// @Component({
-//   selector: 'app-attachment-manager',
-//   imports: [],
-//   templateUrl: './attachment-manager.component.html',
-//   styleUrl: './attachment-manager.component.scss',
-// })
-// export class AttachmentManagerComponent {
-
-// }
-// attachment-manager.component.ts
 import {
   Component,
   computed,
@@ -27,14 +15,8 @@ import { AttachmentApiService } from '@core/services/api/attachments.service';
 import {
   ATTACHMENT_DISPLAY,
   AttachmentModel,
+  StagedFile,
 } from '@core/models/attachment.model';
-
-interface StagedFile {
-  localId: string;
-  file: File;
-  attachmentId: number | null;
-  status: 'uploading' | 'done' | 'error';
-}
 
 @Component({
   standalone: true,
@@ -138,7 +120,7 @@ export class AttachmentManagerComponent implements OnInit {
     }
   }
 
-  private addStagedPlaceholder(file: File): void {
+  addStagedPlaceholder(file: File): void {
     const staged: StagedFile = {
       localId: `${file.name}-${Date.now()}`,
       file,
