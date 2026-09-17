@@ -192,6 +192,7 @@ export class ListDetailsComponent<T extends object>
   exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
+
     const itemsToExport = this.itemsAreSelectable
       ? this.getItemsToExport()
       : this.items;
@@ -214,13 +215,16 @@ export class ListDetailsComponent<T extends object>
     if (this.isGenerating) return;
 
     this.isGenerating = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-      preProcess: 'list',
-    });
-    this.isGenerating = false;
+    try {
+      await this.pdfHelper.exportToPdf({
+        fileName: 'report_detail',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+        preProcess: 'list',
+      });
+    } finally {
+      this.isGenerating = false;
+    }
   }
 
   private getItemsToExport(): T[] {

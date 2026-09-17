@@ -353,12 +353,12 @@ describe('ListDetailsComponent', () => {
       expect(component.isGenerating).toBeFalse();
     });
 
-    it('should leave isGenerating stuck as true if exportToPdf rejects (missing try/finally)', async () => {
+    it('should reset isGenerating to false even if exportToPdf rejects (try/finally)', async () => {
       pdfHelperSpy.exportToPdf.and.returnValue(Promise.reject('export failed'));
 
       await expectAsync(component.exportToPdf()).toBeRejected();
 
-      expect(component.isGenerating).toBeTrue();
+      expect(component.isGenerating).toBeFalse();
     });
   });
 });

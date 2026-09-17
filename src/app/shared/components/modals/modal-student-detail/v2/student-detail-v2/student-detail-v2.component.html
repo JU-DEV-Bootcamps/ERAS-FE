@@ -22,6 +22,7 @@
         matTooltip="Export"
         class="action-icon"
         disableRipple
+        [disabled]="isGeneratingCSV"
         (click)="exportCsv()"
       >
         <mat-icon class="material-symbols-outlined">ios_share</mat-icon>

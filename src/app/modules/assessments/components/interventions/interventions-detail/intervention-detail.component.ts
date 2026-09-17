@@ -33,6 +33,8 @@ export class InterventionDetailComponent {
 
   @Output() close = new EventEmitter<void>();
 
+  private readonly downloadingAttachments = new Set<string>();
+
   displayStudents(): string {
     if (Array.isArray(this.data.studentDisplay)) {
       return this.data.studentDisplay.map(m => m.name).join(', ');
@@ -52,16 +54,30 @@ export class InterventionDetailComponent {
     this.close.emit();
   }
 
+  isDownloading(relativePath: string): boolean {
+    return this.downloadingAttachments.has(relativePath);
+  }
+
   openAttachment(relativePath: string): void {
+    if (this.downloadingAttachments.has(relativePath)) return;
+    this.downloadingAttachments.add(relativePath);
+
     const fileName = relativePath.split('/').pop() ?? relativePath;
     const interventionId = this.data.id!;
 
     this.interventionService
       .downloadAttachment(interventionId, fileName)
-      .subscribe(blob => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      .subscribe({
+        next: blob => {
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+          this.downloadingAttachments.delete(relativePath);
+        },
+        error: error => {
+          console.error(error);
+          this.downloadingAttachments.delete(relativePath);
+        },
       });
   }
 

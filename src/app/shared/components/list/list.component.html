@@ -25,12 +25,14 @@
         </div>
       } @else {
         <mat-menu #menu="matMenu">
-          <button mat-button (click)="exportToCSV()">To CSV</button>
+          <button mat-button [disabled]="isGenerating" (click)="exportToCSV()">
+            To CSV
+          </button>
           <br />
           <button
             id="print-button"
             mat-button
-            [disabled]="isGenerating"
+            [disabled]="!selectedExportFormat || isGenerating"
             (click)="exportToPdf()"
           >
             To PDF
