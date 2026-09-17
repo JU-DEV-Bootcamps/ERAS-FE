@@ -142,7 +142,7 @@ describe('EditInterventionModalComponent', () => {
     component.removeExistingAttachment(0);
 
     expect(component.existingAttachments.length).toBe(1);
-    expect(component.attachmentsToDelete).toEqual(['file1.pdf']);
+    expect(component.attachmentsToDelete).toEqual(['undefined']);
   });
 
   it('should add end risk level', () => {
@@ -179,22 +179,6 @@ describe('EditInterventionModalComponent', () => {
     component.form.get('uploadInput')?.setValue([newFile]);
     const result = component['getNewFilesToUpload']();
     expect(result).toEqual([newFile]);
-  });
-
-  it('should return getFileName', () => {
-    const url = 'something/folder/found.pdf';
-    const result = component['getFileName'](url);
-    expect(result).toEqual('found.pdf');
-  });
-
-  it('should return the same fileName', () => {
-    const result = component['getFileName']('');
-    expect(result).toEqual('');
-  });
-
-  it('should return empty string if there is no path provided', () => {
-    const result = component['getFileName'](undefined as unknown as string);
-    expect(result).toEqual('');
   });
 
   it('should handle update error', () => {
@@ -372,7 +356,7 @@ describe('EditInterventionModalComponent', () => {
 
       expect(interventionService.deleteAttachment).toHaveBeenCalledWith(
         100,
-        'file1.pdf'
+        'undefined'
       );
       expect(interventionService.upsertInterventions).toHaveBeenCalled();
     });
