@@ -11,6 +11,7 @@ import {
   computed,
   DestroyRef,
   afterNextRender,
+  ViewChild,
 } from '@angular/core';
 import {
   FormControl,
@@ -34,15 +35,13 @@ import {
 import {
   InterventionType,
   InterventionModel,
+  UpdateInterventionModel,
+  UpdateInterventionPayload,
 } from '@core/models/assessment.model';
-import {
-  AddInterventionPayload,
-  InterventionService,
-} from '@core/services/api/intervention.service';
+import { InterventionService } from '@core/services/api/intervention.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { of, concatMap, Observable, forkJoin } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ACTIVITY_OPTIONS,
@@ -58,10 +57,8 @@ import {
   TYPE_OPTIONS,
 } from '../interventions.constants';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
-import {
-  ATTACHMENT_DISPLAY,
-  AttachmentModel,
-} from '@core/models/attachment.model';
+import { ATTACHMENT_DISPLAY, StagedFile } from '@core/models/attachment.model';
+import { AttachmentManagerComponent } from '@shared/components/attachment-manager/attachment-manager.component';
 
 export interface NewInterventionDialogData {
   assessmentId: number;
@@ -84,6 +81,7 @@ export interface NewInterventionDialogData {
     NgClass,
     NgFor,
     ReactiveFormsModule,
+    AttachmentManagerComponent,
   ],
   templateUrl: './edit-intervention-modal.component.html',
   styleUrls: [
@@ -98,15 +96,17 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
   private readonly injector = inject(Injector);
 
-  private _prefillValues: Record<string, unknown> = {};
-  existingAttachments: AttachmentModel[] = [];
-  attachmentsToDelete: string[] = [];
+  @ViewChild('attachmentManager')
+  private readonly attachmentManager!: AttachmentManagerComponent;
+
+  // private _prefillValues: Record<string, unknown> = {};
   attendedStudentIdsModel: string[] = [];
 
   isGroup = signal<boolean>(false);
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
   form!: FormGroup;
+  isSubmitting = signal(false);
 
   attendance = signal<{ student: StudentLookup; attended: boolean }[]>([]);
   attendedStudentIds = signal<string[]>([]);
@@ -117,7 +117,12 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   readonly numberOfParticipants = computed(() => this.data.students.length);
 
   get isSubmitDisabled(): boolean {
-    return !this.form || this.form.invalid || this.form.pristine;
+    return (
+      !this.form ||
+      this.form.invalid ||
+      this.form.pristine ||
+      this.isSubmitting()
+    );
   }
 
   constructor(
@@ -269,12 +274,13 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         type: 'file',
         name: 'uploadInput',
         label: 'Attached Document (s)',
+        hidden: true,
         fileConfig: {
           maxFiles: MAX_FILES,
           maxSizeMb: MAX_FILE_SIZE_BYTES,
           allowedExtensions: ALLOWED_EXTENSIONS,
           allowedMimeTypes: ALLOWED_MIME_TYPES,
-          onFileRemoved: i => this.removeExistingAttachment(i),
+          // onFileRemoved: i => this.removeExistingAttachment(i),
           prefillFileNames: (intervention.attachments ?? []).map(p =>
             ATTACHMENT_DISPLAY.fileName(p)
           ),
@@ -326,12 +332,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
     this.form.get('type')?.setValue(targetType, { emitEvent: false });
 
-    this._prefillValues = {
-      ...this._prefillValues,
-      type: targetType,
-      students: nextStudentValue,
-    };
-
     this.isGroup.set(isNowGroup);
     this.buildFormFields(nextStudentValue);
 
@@ -352,6 +352,39 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       },
       { injector: this.injector }
     );
+  }
+
+  private _prefillValues: Record<string, unknown> = {};
+
+  private prefillForm(): void {
+    const iv = this.data.intervention!;
+    const isGroup = iv.kind === InterventionType.Group;
+
+    this._prefillValues = {
+      type: iv.kind,
+      date: iv.dateUtc,
+      activity: iv.activity,
+      area: iv.area,
+      mode: iv.mode,
+      comments: iv.comments,
+      riskLevelName: iv.riskLevelName,
+      status: iv.status,
+      students: isGroup
+        ? Array.isArray(iv.studentIds)
+          ? iv.studentIds
+          : []
+        : Array.isArray(iv.studentIds)
+          ? iv.studentIds[0]
+          : iv.studentIds,
+    };
+
+    const attended = Object.entries(iv.attendance ?? {})
+      .filter(([, v]) => v)
+      .map(([k]) => String(k));
+
+    this.attendedStudentIds.set(attended);
+    this.attendedStudentIdsModel = attended;
+    // this.existingAttachments = iv.attachments ?? [];
   }
 
   setFormGroup(event: FormGroup): void {
@@ -420,37 +453,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       });
   }
 
-  private prefillForm(): void {
-    const iv = this.data.intervention!;
-    const isGroup = iv.kind === InterventionType.Group;
-
-    this._prefillValues = {
-      type: iv.kind,
-      date: iv.dateUtc,
-      activity: iv.activity,
-      area: iv.area,
-      mode: iv.mode,
-      comments: iv.comments,
-      riskLevelName: iv.riskLevelName,
-      status: iv.status,
-      students: isGroup
-        ? Array.isArray(iv.studentIds)
-          ? iv.studentIds
-          : []
-        : Array.isArray(iv.studentIds)
-          ? iv.studentIds[0]
-          : iv.studentIds,
-    };
-
-    const attended = Object.entries(iv.attendance ?? {})
-      .filter(([, v]) => v)
-      .map(([k]) => String(k));
-
-    this.attendedStudentIds.set(attended);
-    this.attendedStudentIdsModel = attended;
-    this.existingAttachments = iv.attachments ?? [];
-  }
-
   private buildAttendance(): void {
     this.attendance.set(
       this.data.students.map(student => ({ student, attended: false }))
@@ -468,9 +470,86 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     this.form.markAsDirty();
   }
 
+  onStagedFilesChange(staged: StagedFile[]): void {
+    const control = this.form?.get('uploadInput');
+    if (!control) return;
+
+    const hasUploading = staged.some(s => s.status === 'uploading');
+    const hasError = staged.some(s => s.status === 'error');
+
+    if (hasUploading) {
+      control.setErrors({ uploading: true });
+    } else if (hasError) {
+      control.setErrors({ uploadError: true });
+    } else {
+      control.setErrors(null);
+    }
+
+    control.markAsDirty();
+  }
+
   submitIntervention(): void {
-    if (this.form.invalid) return;
-    this.updateIntervention();
+    if (this.form.invalid || this.isSubmitting()) return;
+    // this.updateIntervention();
+    this.isSubmitting.set(true);
+
+    const payload = this.buildPayload();
+    const values = this.form.getRawValue();
+
+    const interventionDto: UpdateInterventionPayload = {
+      dateUtc: new Date(values.date).toISOString(),
+      activity: values.activity,
+      area: values.area,
+      numberOfParticipants: payload.intervention['numberOfParticipants'],
+      professional: values.professional,
+      comments: values.comments,
+      studentIds: payload.intervention['studentIds'],
+      attendance: payload.intervention['attendance'],
+      mode: values.mode,
+      kind: values.kind,
+      status: values.status,
+      remarks: values.remarks,
+      uploadInput: values.uploadInput,
+      riskLevelName: values.riskLevelName,
+      endRiskLevelName: values.endRiskLevelName,
+    };
+
+    const { draftSessionId, attachmentIdsToRemove } =
+      this.attachmentManager.getPendingChanges();
+
+    const payloadUpdate: UpdateInterventionModel = {
+      updateInterventionDto: interventionDto,
+      attachmentIdsToRemove,
+      draftSessionId,
+    };
+
+    this.interventionService
+      .updateIntervention(
+        this.data.assessmentId,
+        this.data.intervention!.id!,
+        payloadUpdate
+      )
+      .subscribe({
+        next: () => {
+          this.toastService.showToast({
+            title: 'Intervention updated successfully',
+            message: 'The intervention has been updated.',
+            type: 'success',
+          });
+          this.dialogRef.close(true);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.toastService.showToast(
+            {
+              title: 'Update Failed',
+              message: `${err.statusText}: ${err.error?.title ?? 'Error.'}`,
+              type: 'error',
+            },
+            true
+          );
+          this.isSubmitting.set(false);
+        },
+      });
   }
 
   requestClose(): void {
@@ -479,7 +558,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       .subscribe();
   }
 
-  private buildPayload(): AddInterventionPayload {
+  private buildPayload() {
     const v = this.form.getRawValue();
     const rawStudents = v.students as string | number | (string | number)[];
     const studentIds: number[] =
@@ -519,73 +598,73 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     };
   }
 
-  private updateIntervention(): void {
-    const iv = this.data.intervention!;
-    const payload = this.buildPayload();
-    const updated: InterventionModel = {
-      ...iv,
-      ...payload.intervention,
-      id: iv.id,
-      attachments: this.existingAttachments,
-    } as InterventionModel;
+  // private updateIntervention(): void {
+  //   const iv = this.data.intervention!;
+  //   const payload = this.buildPayload();
+  //   const updated: InterventionModel = {
+  //     ...iv,
+  //     ...payload.intervention,
+  //     id: iv.id,
+  //     attachments: this.existingAttachments,
+  //   } as InterventionModel;
 
-    const deleteObs: Observable<unknown> = this.attachmentsToDelete.length
-      ? forkJoin(
-          this.attachmentsToDelete.map(fileName =>
-            this.interventionService.deleteAttachment(iv.id!, fileName)
-          )
-        )
-      : of(null);
+  //   const deleteObs: Observable<unknown> = this.attachmentsToDelete.length
+  //     ? forkJoin(
+  //         this.attachmentsToDelete.map(fileName =>
+  //           this.interventionService.deleteAttachment(iv.id!, fileName)
+  //         )
+  //       )
+  //     : of(null);
 
-    deleteObs
-      .pipe(
-        concatMap(() =>
-          this.interventionService.getByAssessment(this.data.assessmentId)
-        ),
-        concatMap((existing: InterventionModel[]) => {
-          const merged = existing.map(e => (e.id === iv.id ? updated : e));
-          return this.interventionService.upsertInterventions(
-            this.data.assessmentId,
-            merged
-          );
-        }),
-        concatMap(() => {
-          const filesToUpload = this.getNewFilesToUpload();
-          return filesToUpload.length
-            ? this.interventionService.uploadAttachments(iv.id!, filesToUpload)
-            : of(null);
-        })
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            title: 'Intervention updated successfully',
-            message: 'The intervention has been updated.',
-            type: 'success',
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.toastService.showToast(
-            {
-              title: 'Update Failed',
-              message: `${err.statusText}: ${err.error?.title ?? 'Error.'}`,
-              type: 'error',
-            },
-            true
-          );
-        },
-      });
-  }
+  //   deleteObs
+  //     .pipe(
+  //       concatMap(() =>
+  //         this.interventionService.getByAssessment(this.data.assessmentId)
+  //       ),
+  //       concatMap((existing: InterventionModel[]) => {
+  //         const merged = existing.map(e => (e.id === iv.id ? updated : e));
+  //         return this.interventionService.upsertInterventions(
+  //           this.data.assessmentId,
+  //           merged
+  //         );
+  //       }),
+  //       concatMap(() => {
+  //         const filesToUpload = this.getNewFilesToUpload();
+  //         return filesToUpload.length
+  //           ? this.interventionService.uploadAttachments(iv.id!, filesToUpload)
+  //           : of(null);
+  //       })
+  //     )
+  //     .subscribe({
+  //       next: () => {
+  //         this.toastService.showToast({
+  //           title: 'Intervention updated successfully',
+  //           message: 'The intervention has been updated.',
+  //           type: 'success',
+  //         });
+  //         this.dialogRef.close(true);
+  //       },
+  //       error: (err: HttpErrorResponse) => {
+  //         this.toastService.showToast(
+  //           {
+  //             title: 'Update Failed',
+  //             message: `${err.statusText}: ${err.error?.title ?? 'Error.'}`,
+  //             type: 'error',
+  //           },
+  //           true
+  //         );
+  //       },
+  //     });
+  // }
 
-  removeExistingAttachment(index: number): void {
-    const pathToRemove = this.existingAttachments[index];
-    this.attachmentsToDelete.push(String(pathToRemove.id));
-    this.existingAttachments = this.existingAttachments.filter(
-      (_, i) => i !== index
-    );
-    this.form.markAsDirty();
-  }
+  // removeExistingAttachment(index: number): void {
+  //   const pathToRemove = this.existingAttachments[index];
+  //   this.attachmentsToDelete.push(String(pathToRemove.id));
+  //   this.existingAttachments = this.existingAttachments.filter(
+  //     (_, i) => i !== index
+  //   );
+  //   this.form.markAsDirty();
+  // }
 
   private getNewFilesToUpload(): File[] {
     const uploadInputValue = this.form.get('uploadInput')?.value as

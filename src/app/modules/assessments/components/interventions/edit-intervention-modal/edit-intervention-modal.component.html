@@ -13,6 +13,14 @@
         (formReady)="setFormGroup($event)"
       ></app-form-factory>
 
+      <app-attachment-manager
+        #attachmentManager
+        [entityType]="'interventions'"
+        [entityId]="data.intervention!.id!"
+        (stagedFilesChange)="onStagedFilesChange($event)"
+      >
+      </app-attachment-manager>
+
       <div class="attendance-section">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Attendance</mat-label>
