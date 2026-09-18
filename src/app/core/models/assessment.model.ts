@@ -92,7 +92,7 @@ export enum RiskLevels {
   None = 'None',
 }
 
-export interface UpdateInterventionDto {
+export interface UpdateInterventionPayload {
   id?: number;
   dateUtc: string;
   activity?: string | null;
@@ -112,7 +112,7 @@ export interface UpdateInterventionDto {
 }
 
 export interface UpdateInterventionModel {
-  updateInterventionDto: UpdateInterventionDto;
+  updateInterventionDto: UpdateInterventionPayload;
   attachmentIdsToRemove: number[];
-  draftSessionId: number;
+  draftSessionId: number | null;
 }
