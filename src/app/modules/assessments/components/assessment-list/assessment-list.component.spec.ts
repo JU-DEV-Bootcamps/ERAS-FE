@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import {
   AssessmentListComponent,
@@ -16,8 +18,6 @@ import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-
 import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('AssessmentListComponent', () => {
   let component: AssessmentListComponent;
@@ -99,14 +99,31 @@ describe('AssessmentListComponent', () => {
       expect(component['isLoading']()).toBeFalse();
     });
 
-    it('should fall back to "No student assigned" when studentIds is empty', () => {
+    it('should reset pageIndex to maxPage when pageIndex exceeds maxPage (branch true)', () => {
+      component['pageIndex'].set(3);
       assessmentService.getAll.and.returnValue(
-        of([buildAssessment({ studentIds: [] })])
+        of([buildAssessment({ id: 1 })])
       );
 
-      fixture.detectChanges();
+      component.loadAssessments();
+
+      expect(component['pageIndex']()).toBe(0);
+    });
+
+    it('should fall back to "No student assigned" when studentIds is empty or undefined', () => {
+      assessmentService.getAll.and.returnValue(
+        of([
+          buildAssessment({ id: 1, studentIds: [] }),
+          buildAssessment({ id: 2, studentIds: undefined }),
+        ])
+      );
+
+      component.loadAssessments();
 
       expect(component['assessments']()[0].studentDisplay).toBe(
+        'No student assigned'
+      );
+      expect(component['assessments']()[1].studentDisplay).toBe(
         'No student assigned'
       );
     });
@@ -117,21 +134,41 @@ describe('AssessmentListComponent', () => {
         of([buildAssessment({ comments: longComment })])
       );
 
-      fixture.detectChanges();
+      component.loadAssessments();
 
       const preview = component['assessments']()[0].commentPreview;
       expect(preview.endsWith('...')).toBeTrue();
       expect(preview.length).toBeLessThan(longComment.length);
     });
 
-    it('should show "—" when there are no comments', () => {
+    it('should keep short comments intact without truncation (branch <= 60)', () => {
       assessmentService.getAll.and.returnValue(
-        of([buildAssessment({ comments: '' })])
+        of([buildAssessment({ comments: 'Short remarks' })])
       );
 
-      fixture.detectChanges();
+      component.loadAssessments();
+
+      expect(component['assessments']()[0].commentPreview).toBe(
+        'Short remarks'
+      );
+    });
+
+    it('should show "—" when comments is empty, null, undefined or whitespace', () => {
+      assessmentService.getAll.and.returnValue(
+        of([
+          buildAssessment({ id: 1, comments: '' }),
+          buildAssessment({ id: 2, comments: undefined }),
+          buildAssessment({ id: 3, comments: null }),
+          buildAssessment({ id: 4, comments: '   ' }),
+        ])
+      );
+
+      component.loadAssessments();
 
       expect(component['assessments']()[0].commentPreview).toBe('—');
+      expect(component['assessments']()[1].commentPreview).toBe('—');
+      expect(component['assessments']()[2].commentPreview).toBe('—');
+      expect(component['assessments']()[3].commentPreview).toBe('—');
     });
 
     it('should mark Remitted and InProgress as editable, Finalized as not', () => {
@@ -143,7 +180,7 @@ describe('AssessmentListComponent', () => {
         ])
       );
 
-      fixture.detectChanges();
+      component.loadAssessments();
 
       const rows = component['assessments']();
       expect(rows[0].isEditable).toBeTrue();
@@ -157,7 +194,7 @@ describe('AssessmentListComponent', () => {
         throwError(() => new Error('network error'))
       );
 
-      fixture.detectChanges();
+      component.loadAssessments();
 
       expect(component['assessments']()).toEqual([]);
       expect(component['isLoading']()).toBeFalse();
@@ -175,7 +212,7 @@ describe('AssessmentListComponent', () => {
       assessmentService.getAll.and.returnValue(of(list));
       component.pageSize = 2;
 
-      fixture.detectChanges();
+      component.loadAssessments();
 
       expect(component['pagedAssessments']().length).toBe(2);
 
@@ -186,7 +223,7 @@ describe('AssessmentListComponent', () => {
   });
 
   describe('output emitters', () => {
-    beforeEach(() => fixture.detectChanges());
+    beforeEach(() => component.loadAssessments());
 
     it('should emit createClicked', () => {
       spyOn(component.createClicked, 'emit');
@@ -242,7 +279,7 @@ describe('AssessmentListComponent', () => {
   });
 
   describe('onDeleteClick', () => {
-    beforeEach(() => fixture.detectChanges());
+    beforeEach(() => component.loadAssessments());
 
     it('should do nothing when the item id is undefined', () => {
       component['onDeleteClick']({ ...buildAssessment(), id: undefined });
@@ -283,7 +320,7 @@ describe('AssessmentListComponent', () => {
         afterClosed: () => of(true),
       } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
       assessmentService.deleteAssessment.and.returnValue(
-        throwError(() => ({ statusText: 'Bad Request' }))
+        throwError(() => new HttpErrorResponse({ statusText: 'Bad Request' }))
       );
       const item = buildAssessment({ status: AssessmentStatus.Finalized });
 
@@ -305,7 +342,7 @@ describe('AssessmentListComponent', () => {
         afterClosed: () => of(true),
       } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
       assessmentService.deleteAssessment.and.returnValue(
-        throwError(() => ({ statusText: 'Not Found' }))
+        throwError(() => new HttpErrorResponse({ statusText: 'Not Found' }))
       );
       const item = buildAssessment({ status: AssessmentStatus.Remitted });
 
@@ -323,7 +360,7 @@ describe('AssessmentListComponent', () => {
 
   describe('onCreateIntervention', () => {
     it('should open NewInterventionModalComponent with mapped student options', () => {
-      fixture.detectChanges();
+      component.loadAssessments();
       const row: AssessmentRowViewModel = {
         ...buildAssessment(),
         studentDisplay: '',
@@ -339,6 +376,32 @@ describe('AssessmentListComponent', () => {
           data: jasmine.objectContaining({
             assessmentId: row.id,
             students: [{ value: 12, label: 'Jane Doe', riskLevel: 0 }],
+          }),
+        })
+      );
+    });
+
+    it('should fallback to empty string when assignedProfessional is undefined and handle undefined students (branches coverage)', () => {
+      component.loadAssessments();
+      const row: AssessmentRowViewModel = {
+        ...buildAssessment({
+          assignedProfessional: undefined,
+          students: undefined,
+        }),
+        studentDisplay: '',
+        commentPreview: '',
+        isEditable: true,
+      };
+
+      component['onCreateIntervention'](row);
+
+      expect(matDialog.open).toHaveBeenCalledWith(
+        NewInterventionModalComponent,
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({
+            assessmentId: row.id,
+            professional: { value: '', label: '' },
+            students: undefined,
           }),
         })
       );
