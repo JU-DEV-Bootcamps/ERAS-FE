@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
-import { InterventionModel } from '@core/models/assessment.model';
+import {
+  InterventionModel,
+  UpdateInterventionModel,
+  UpdateInterventionPayload,
+} from '@core/models/assessment.model';
 
 export interface AddInterventionPayload {
   assessmentId: number;
@@ -38,7 +42,7 @@ export class InterventionService extends BaseApiService {
     );
   }
 
-  updateIntervention(
+  updateInterventionOld(
     assessmentId: number,
     interventionId: number,
     intervention: InterventionModel
@@ -46,6 +50,17 @@ export class InterventionService extends BaseApiService {
     return this.put<InterventionModel, InterventionModel>(
       `${assessmentId}/interventions/${interventionId}`,
       intervention
+    );
+  }
+
+  updateIntervention(
+    assessmentId: number,
+    interventionId: number,
+    payload: UpdateInterventionModel
+  ): Observable<UpdateInterventionPayload> {
+    return this.put<UpdateInterventionModel, UpdateInterventionPayload>(
+      `${assessmentId}/interventions/${interventionId}`,
+      payload
     );
   }
 

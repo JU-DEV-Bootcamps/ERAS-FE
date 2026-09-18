@@ -20,6 +20,10 @@ export interface StagedFile {
   status: 'uploading' | 'done' | 'error';
 }
 
+export interface DraftModel {
+  draftId: number;
+}
+
 export const ATTACHMENT_DISPLAY = {
   fileName: (a: AttachmentModel): string =>
     a.originalFileName ?? 'Unknown file',

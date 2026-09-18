@@ -39,6 +39,7 @@ export interface DynamicField {
   type: FieldType;
   name: string;
   label: string;
+  hidden?: boolean;
   placeholder?: string;
   validators?: (ValidatorFn | string)[];
   value?: ValueType;
