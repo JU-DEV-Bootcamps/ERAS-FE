@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { Observable } from 'rxjs';
-import { AttachmentModel } from '@core/models/attachment.model';
+import { AttachmentModel, DraftModel } from '@core/models/attachment.model';
 import { HttpParams } from '@angular/common/http';
 
 @Injectable({
@@ -39,7 +39,7 @@ export class AttachmentApiService extends BaseApiService {
     return this.delete<void>(`${attachmentId}`);
   }
 
-  createDraftSession(): Observable<number> {
-    return this.post<void, number>('/drafts', undefined);
+  createDraftSession(): Observable<DraftModel> {
+    return this.post<void, DraftModel>('drafts', undefined);
   }
 }
