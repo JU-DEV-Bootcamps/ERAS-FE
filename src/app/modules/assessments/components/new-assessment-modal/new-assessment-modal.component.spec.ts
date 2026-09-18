@@ -1,10 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { NewAssessmentModalComponent } from './new-assessment-modal.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
-import { AssessmentService } from '@core/services/api/assessement.service';
-import { ToastNotificationService } from '@core/services/toast-notification.service';
 import {
   FormControl,
   FormGroup,
@@ -12,7 +8,16 @@ import {
   Validators,
 } from '@angular/forms';
 import { of, throwError, EMPTY } from 'rxjs';
-import { AssessmentStatus } from '@core/models/assessment.model';
+
+import { NewAssessmentModalComponent } from './new-assessment-modal.component';
+import { AssessmentService } from '@core/services/api/assessement.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import {
+  AssessmentStatus,
+  AssessmentModel,
+} from '@core/models/assessment.model';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { AssessmentsLookups } from '@modules/assessments/models/assessments.interfaces';
 
 describe('NewAssessmentModalComponent', () => {
   let component: NewAssessmentModalComponent;
@@ -20,8 +25,9 @@ describe('NewAssessmentModalComponent', () => {
   let assessmentService: jasmine.SpyObj<AssessmentService>;
   let toastService: jasmine.SpyObj<ToastNotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<NewAssessmentModalComponent>>;
+  let unsavedChangesGuard: jasmine.SpyObj<UnsavedChangesGuardService>;
 
-  const data = {
+  const data: AssessmentsLookups = {
     students: [
       { label: 'John', value: 1 },
       { label: 'Jane', value: 2 },
@@ -52,6 +58,12 @@ describe('NewAssessmentModalComponent', () => {
     dialogRef.backdropClick.and.returnValue(EMPTY);
     dialogRef.keydownEvents.and.returnValue(EMPTY);
 
+    unsavedChangesGuard = jasmine.createSpyObj('UnsavedChangesGuardService', [
+      'attach',
+      'requestClose',
+    ]);
+    unsavedChangesGuard.requestClose.and.returnValue(of(true));
+
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, NewAssessmentModalComponent],
       providers: [
@@ -64,6 +76,10 @@ describe('NewAssessmentModalComponent', () => {
         {
           provide: MatDialogRef,
           useValue: dialogRef,
+        },
+        {
+          provide: UnsavedChangesGuardService,
+          useValue: unsavedChangesGuard,
         },
         provideHttpClient(),
       ],
@@ -83,7 +99,7 @@ describe('NewAssessmentModalComponent', () => {
     });
   });
 
-  describe('constructor', () => {
+  describe('constructor and initial setup', () => {
     it('should create', () => {
       expect(component).toBeTruthy();
     });
@@ -108,11 +124,68 @@ describe('NewAssessmentModalComponent', () => {
     });
   });
 
+  describe('constructor fallback branches', () => {
+    it('should use empty array for students when preselectedStudentId is not provided and null for submitter when profiles are empty', async () => {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ReactiveFormsModule, NewAssessmentModalComponent],
+        providers: [
+          { provide: AssessmentService, useValue: assessmentService },
+          { provide: ToastNotificationService, useValue: toastService },
+          {
+            provide: MAT_DIALOG_DATA,
+            useValue: {
+              ...data,
+              preselectedStudentId: undefined,
+              profiles: [],
+            } as unknown as AssessmentsLookups,
+          },
+          { provide: MatDialogRef, useValue: dialogRef },
+          {
+            provide: UnsavedChangesGuardService,
+            useValue: unsavedChangesGuard,
+          },
+          provideHttpClient(),
+        ],
+      }).compileComponents();
+
+      const customFixture = TestBed.createComponent(
+        NewAssessmentModalComponent
+      );
+      const customComponent = customFixture.componentInstance;
+
+      expect(customComponent.formFields[0].value).toEqual([]);
+      expect(customComponent.formFields[2].value).toBeNull();
+    });
+  });
+
   describe('closeAndResetDialog', () => {
     it('should close dialog', () => {
       component.closeAndResetDialog();
 
       expect(dialogRef.close).toHaveBeenCalled();
+    });
+  });
+
+  describe('unsavedChangesGuard and requestClose', () => {
+    it('should call requestClose on guard', () => {
+      component.requestClose();
+      expect(unsavedChangesGuard.requestClose).toHaveBeenCalled();
+    });
+
+    it('should evaluate the dirty callback passed to attach', () => {
+      const attachCall = unsavedChangesGuard.attach.calls.mostRecent();
+      const dirtyFn = attachCall.args[1];
+
+      component.form = undefined as unknown as FormGroup;
+      expect(dirtyFn()).toBeFalse();
+
+      component.form = new FormGroup({});
+      component.form.markAsPristine();
+      expect(dirtyFn()).toBeFalse();
+
+      component.form.markAsDirty();
+      expect(dirtyFn()).toBeTrue();
     });
   });
 
@@ -129,6 +202,17 @@ describe('NewAssessmentModalComponent', () => {
   });
 
   describe('submitAssessment', () => {
+    it('should not submit when form is invalid (branch false)', () => {
+      const invalidForm = new FormGroup({
+        date: new FormControl(null, Validators.required),
+      });
+      component.form = invalidForm;
+
+      component.submitAssessment();
+
+      expect(assessmentService.createAssessment).not.toHaveBeenCalled();
+    });
+
     it('should not submit while already submitting', () => {
       component.isSubmitting = true;
 
@@ -137,8 +221,37 @@ describe('NewAssessmentModalComponent', () => {
       expect(assessmentService.createAssessment).not.toHaveBeenCalled();
     });
 
-    it('should create assessment successfully', () => {
-      const response = {
+    it('should extract value from object options correctly (extractOptionValue object branch)', () => {
+      component.form = new FormGroup({
+        students: new FormControl(['1']),
+        date: new FormControl('2024-01-01', Validators.required),
+        submitter: new FormControl('teacher'),
+        service: new FormControl({
+          value: 'speech_therapy',
+          label: 'Speech Therapy',
+        }),
+        professional: new FormControl({
+          value: 'prof1',
+          label: 'Professional 1',
+        }),
+        professionalComment: new FormControl('Comment'),
+      });
+
+      assessmentService.createAssessment.and.returnValue(
+        of({ studentIds: ['1'] } as unknown as AssessmentModel)
+      );
+
+      component.submitAssessment();
+
+      const request =
+        assessmentService.createAssessment.calls.mostRecent().args[0];
+      expect(request.service).toBe('speech_therapy');
+      expect(request.assignedProfessional).toBe('prof1');
+    });
+
+    it('should create assessment successfully with string options', () => {
+      const response: AssessmentModel = {
+        id: 10,
         createdAtUtc: '2024-01-01',
         createdBy: '',
         service: 'speech',
@@ -150,6 +263,7 @@ describe('NewAssessmentModalComponent', () => {
       };
       assessmentService.createAssessment.and.returnValue(of(response));
       component.submitAssessment();
+
       expect(assessmentService.createAssessment).toHaveBeenCalled();
 
       const request =
@@ -162,13 +276,11 @@ describe('NewAssessmentModalComponent', () => {
       expect(request.status).toBe(AssessmentStatus.Remitted);
 
       expect(toastService.showToast).toHaveBeenCalled();
-
       expect(assessmentService.clearCache).toHaveBeenCalled();
-
       expect(dialogRef.close).toHaveBeenCalled();
     });
 
-    it('should handle createAssessment error', () => {
+    it('should handle createAssessment error and use error title when available', () => {
       const error = new HttpErrorResponse({
         status: 400,
         statusText: 'Bad Request',
@@ -180,7 +292,6 @@ describe('NewAssessmentModalComponent', () => {
       assessmentService.createAssessment.and.returnValue(
         throwError(() => error)
       );
-
       spyOn(console, 'error');
 
       component.submitAssessment();
@@ -195,7 +306,6 @@ describe('NewAssessmentModalComponent', () => {
       );
 
       expect(component.isSubmitting).toBeFalse();
-
       expect(console.error).toHaveBeenCalledWith(error);
     });
   });
@@ -209,7 +319,7 @@ describe('NewAssessmentModalComponent', () => {
         service: 'new',
         status: AssessmentStatus.Finalized,
         interventions: [],
-      });
+      } as unknown as AssessmentModel);
       expect(toast.message).not.toContain('other');
     });
 
@@ -221,30 +331,13 @@ describe('NewAssessmentModalComponent', () => {
         service: 'new',
         status: AssessmentStatus.Finalized,
         interventions: [],
-      });
-      expect(toast.message).toContain('other 1 students');
+      } as unknown as AssessmentModel);
+      expect(toast.message).toContain('and other 1 students');
     });
   });
 
   describe('error toast', () => {
-    it('should use API error message', () => {
-      const toast = component['buildErrorToastDataObject'](
-        new HttpErrorResponse({
-          statusText: 'Bad Request',
-          error: {
-            title: 'Invalid data',
-          },
-        })
-      );
-
-      expect(toast).toEqual({
-        title: 'Form Submission Failed',
-        message: 'Bad Request: Invalid data',
-        type: 'error',
-      });
-    });
-
-    it('should use default error message', () => {
+    it('should use default error message when error title is missing (branch fallback)', () => {
       const toast = component['buildErrorToastDataObject'](
         new HttpErrorResponse({
           statusText: 'Bad Request',
