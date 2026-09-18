@@ -4,6 +4,7 @@ import {
   inject,
   input,
   OnInit,
+  output,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -17,6 +18,8 @@ import {
   AttachmentModel,
   StagedFile,
 } from '@core/models/attachment.model';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   standalone: true,
@@ -27,6 +30,8 @@ import {
     MatButtonModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
   ],
   templateUrl: './attachment-manager.component.html',
   styleUrl: './attachment-manager.component.scss',
@@ -41,6 +46,7 @@ export class AttachmentManagerComponent implements OnInit {
   markedForRemoval = signal<Set<number>>(new Set());
   stagedFiles = signal<StagedFile[]>([]);
   isLoadingExisting = signal(false);
+  stagedFilesChange = output<StagedFile[]>();
 
   private draftSessionId: number | null = null;
   private draftSessionPending = false;
@@ -54,6 +60,17 @@ export class AttachmentManagerComponent implements OnInit {
   readonly hasAnyContent = computed(
     () => this.visibleExisting().length > 0 || this.stagedFiles().length > 0
   );
+
+  errorMessage = computed(() => {
+    const uploading = this.stagedFiles().some(s => s.status === 'uploading');
+    const errors = this.stagedFiles().filter(s => s.status === 'error');
+    if (uploading) return 'Some files are still uploading…';
+    if (errors.length > 0)
+      return `${errors.length} file(s) failed to upload. Click the refresh icon to retry.`;
+    return null;
+  });
+
+  hasErrors = computed(() => this.errorMessage() !== null);
 
   ngOnInit(): void {
     const id = this.entityId();
@@ -99,8 +116,8 @@ export class AttachmentManagerComponent implements OnInit {
     if (!this.draftSessionId && !this.draftSessionPending) {
       this.draftSessionPending = true;
       this.attachmentApi.createDraftSession().subscribe({
-        next: draftId => {
-          this.draftSessionId = draftId;
+        next: response => {
+          this.draftSessionId = response.draftId;
           this.draftSessionPending = false;
           files.forEach(f => this.uploadOneFile(f));
         },
