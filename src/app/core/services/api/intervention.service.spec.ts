@@ -7,7 +7,12 @@ import {
   InterventionService,
   AddInterventionPayload,
 } from './intervention.service';
-import { InterventionModel } from '@core/models/assessment.model';
+import {
+  InterventionMode,
+  InterventionModel,
+  InterventionType,
+  UpdateInterventionModel,
+} from '@core/models/assessment.model';
 import { environment } from '../../../../environments/environment';
 
 describe('InterventionService', () => {
@@ -88,16 +93,26 @@ describe('InterventionService', () => {
 
   describe('updateIntervention', () => {
     it('should make a PUT request to :assessmentId/interventions/:interventionId', () => {
-      const intervention = { id: 5 } as unknown as InterventionModel;
+      const intervention = {
+        updateInterventionDto: {
+          id: 5,
+          dateUtc: '10/10/2026',
+          studentIds: [2],
+          mode: InterventionMode.InPlace,
+          kind: InterventionType.Individual,
+        },
+      } as unknown as UpdateInterventionModel;
 
       service.updateIntervention(10, 5, intervention).subscribe(res => {
-        expect(res).toEqual(intervention);
+        expect(res).toEqual(intervention.updateInterventionDto);
       });
 
       const req = httpMock.expectOne(`${baseUrl}/10/interventions/5`);
+
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(intervention);
-      req.flush(intervention);
+
+      req.flush(intervention.updateInterventionDto);
     });
   });
 

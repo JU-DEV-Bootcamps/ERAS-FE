@@ -57,7 +57,7 @@ import {
   TYPE_OPTIONS,
 } from '../interventions.constants';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
-import { ATTACHMENT_DISPLAY, StagedFile } from '@core/models/attachment.model';
+import { StagedFile } from '@core/models/attachment.model';
 import { AttachmentManagerComponent } from '@shared/components/attachment-manager/attachment-manager.component';
 
 export interface NewInterventionDialogData {
@@ -99,7 +99,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   @ViewChild('attachmentManager')
   private readonly attachmentManager!: AttachmentManagerComponent;
 
-  // private _prefillValues: Record<string, unknown> = {};
   attendedStudentIdsModel: string[] = [];
 
   isGroup = signal<boolean>(false);
@@ -280,10 +279,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
           maxSizeMb: MAX_FILE_SIZE_BYTES,
           allowedExtensions: ALLOWED_EXTENSIONS,
           allowedMimeTypes: ALLOWED_MIME_TYPES,
-          // onFileRemoved: i => this.removeExistingAttachment(i),
-          prefillFileNames: (intervention.attachments ?? []).map(p =>
-            ATTACHMENT_DISPLAY.fileName(p)
-          ),
         },
         floatingLabel: 'always',
       },
@@ -489,7 +484,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   submitIntervention(): void {
     if (this.form.invalid || this.isSubmitting()) return;
-    // this.updateIntervention();
     this.isSubmitting.set(true);
 
     const payload = this.buildPayload();
