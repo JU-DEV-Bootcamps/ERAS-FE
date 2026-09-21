@@ -18,8 +18,18 @@ import {
   AttachmentModel,
   StagedFile,
 } from '@core/models/attachment.model';
-import { ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  ReactiveFormsModule,
+  ValidationErrors,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormUtils } from '@core/utils/forms/form-utils';
+import { FileValidationService } from '@core/utils/file/file-validation.service';
+import {
+  ALLOWED_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+} from '@modules/assessments/components/interventions/interventions.constants';
 
 @Component({
   standalone: true,
@@ -38,18 +48,26 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 })
 export class AttachmentManagerComponent implements OnInit {
   private readonly attachmentApi = inject(AttachmentApiService);
+  private readonly fileValidation = inject(FileValidationService);
 
   entityType = input.required<string>();
   entityId = input<number | null>(null);
+
+  maxFiles = input<number>(5);
+  maxSizeMb = input<number>(10_485_760);
+  allowedMimeTypes = input<string[]>(ALLOWED_MIME_TYPES);
+  allowedExtensions = input<string>(ALLOWED_EXTENSIONS);
 
   existingAttachments = signal<AttachmentModel[]>([]);
   markedForRemoval = signal<Set<number>>(new Set());
   stagedFiles = signal<StagedFile[]>([]);
   isLoadingExisting = signal(false);
+  errorMessage = signal<string | null>(null);
   stagedFilesChange = output<StagedFile[]>();
 
   private draftSessionId: number | null = null;
   private draftSessionPending = false;
+  hostControl = input<AbstractControl | null>(null);
 
   readonly display = ATTACHMENT_DISPLAY;
 
@@ -60,15 +78,6 @@ export class AttachmentManagerComponent implements OnInit {
   readonly hasAnyContent = computed(
     () => this.visibleExisting().length > 0 || this.stagedFiles().length > 0
   );
-
-  errorMessage = computed(() => {
-    const uploading = this.stagedFiles().some(s => s.status === 'uploading');
-    const errors = this.stagedFiles().filter(s => s.status === 'error');
-    if (uploading) return 'Some files are still uploading…';
-    if (errors.length > 0)
-      return `${errors.length} file(s) failed to upload. Click the refresh icon to retry.`;
-    return null;
-  });
 
   hasErrors = computed(() => this.errorMessage() !== null);
 
@@ -102,6 +111,7 @@ export class AttachmentManagerComponent implements OnInit {
       }
       return next;
     });
+    this.notifyFormControl();
   }
 
   onFilesSelected(event: Event): void {
@@ -109,7 +119,48 @@ export class AttachmentManagerComponent implements OnInit {
     if (!input.files?.length) return;
     const files = Array.from(input.files);
     input.value = '';
-    this.stageFiles(files);
+    let accumulatedErrors: ValidationErrors = {};
+
+    const currentFiles = this.stagedFiles().map(s => s.file);
+    const currentTotalCount =
+      this.visibleExisting().length + this.stagedFiles().length;
+
+    const currentFileNames = currentFiles.map(s => s.name);
+    const existingFileNames = this.visibleExisting().map(
+      s => s.originalFileName
+    );
+    const validFiles: File[] = [];
+    for (const file of files) {
+      const errors = this.fileValidation.validate(
+        file,
+        [...currentFileNames, ...existingFileNames],
+        currentTotalCount,
+        {
+          maxFiles: this.maxFiles(),
+          maxSizeMb: this.maxSizeMb(),
+          allowedMimeTypes: this.allowedMimeTypes(),
+          allowedExtensions: this.allowedExtensions(),
+        }
+      );
+
+      if (errors) {
+        accumulatedErrors = { ...accumulatedErrors, ...errors };
+      } else {
+        validFiles.push(file);
+        currentFiles.push(file);
+      }
+    }
+    if (Object.keys(accumulatedErrors).length > 0) {
+      this.errorMessage.set(
+        FormUtils.getTextError(accumulatedErrors, 'Attached Document (s)')
+      );
+    } else {
+      this.errorMessage.set(null);
+    }
+
+    if (validFiles.length > 0) {
+      this.stageFiles(validFiles);
+    }
   }
 
   private stageFiles(files: File[]): void {
@@ -137,9 +188,10 @@ export class AttachmentManagerComponent implements OnInit {
     }
   }
 
-  addStagedPlaceholder(file: File): void {
+  private addStagedPlaceholder(file: File) {
+    const localId = `${file.name}-${Date.now()}`;
     const staged: StagedFile = {
-      localId: `${file.name}-${Date.now()}`,
+      localId: localId,
       file,
       attachmentId: null,
       status: 'uploading',
@@ -150,11 +202,11 @@ export class AttachmentManagerComponent implements OnInit {
   private uploadOneFile(file: File): void {
     const draftId = this.draftSessionId!;
     this.attachmentApi.upload('Temp', draftId, [file]).subscribe({
-      next: attachment => {
+      next: response => {
         this.stagedFiles.update(prev =>
           prev.map(s =>
             s.file === file
-              ? { ...s, attachmentId: attachment.id, status: 'done' }
+              ? { ...s, attachmentId: response[0].id, status: 'done' }
               : s
           )
         );
@@ -200,5 +252,28 @@ export class AttachmentManagerComponent implements OnInit {
       draftSessionId: this.draftSessionId,
       attachmentIdsToRemove: [...this.markedForRemoval()],
     };
+  }
+
+  private notifyFormControl(): void {
+    const control = this.hostControl();
+    if (!control) return;
+
+    const hasUploading = this.stagedFiles().some(s => s.status === 'uploading');
+    const hasUploadError = this.stagedFiles().some(s => s.status === 'error');
+    const hasPendingChanges =
+      this.stagedFiles().length > 0 || this.markedForRemoval().size > 0;
+
+    if (hasUploading) {
+      control.setErrors({ uploading: true });
+    } else if (hasUploadError) {
+      control.setErrors({ uploadError: true });
+    } else {
+      control.setErrors(null);
+    }
+
+    if (hasPendingChanges) {
+      control.markAsDirty();
+      control.markAsTouched();
+    }
   }
 }

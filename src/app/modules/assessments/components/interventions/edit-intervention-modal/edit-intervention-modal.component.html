@@ -18,6 +18,8 @@
         [entityType]="'interventions'"
         [entityId]="data.intervention!.id!"
         (stagedFilesChange)="onStagedFilesChange($event)"
+        [hostControl]="form.get('uploadInput') ?? null"
+        (stagedFilesChange)="onStagedFilesChange($event)"
       >
       </app-attachment-manager>
 
