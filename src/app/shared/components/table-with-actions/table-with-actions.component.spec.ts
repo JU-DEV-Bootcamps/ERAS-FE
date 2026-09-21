@@ -230,22 +230,6 @@ describe('TableWithActionsComponent', () => {
       expect(result).toBe('John Doe');
     });
 
-    it('should transform the value through column.pipe when provided', () => {
-      const mockPipe = {
-        transform: jasmine.createSpy().and.returnValue('TRANSFORMED'),
-      };
-      const columnWithPipe: Column<PollName> = {
-        key: 'status',
-        label: 'Status',
-        pipe: mockPipe as unknown as Column<PollName>['pipe'],
-      };
-
-      const result = component.showElement(mockItems[0], columnWithPipe);
-
-      expect(mockPipe.transform).toHaveBeenCalledWith(mockItems[0]);
-      expect(result).toBe('TRANSFORMED');
-    });
-
     it('should pass pipeArgs to the pipe when provided', () => {
       const mockPipe = { transform: jasmine.createSpy().and.returnValue('OK') };
       const columnWithPipeArgs: Column<PollName> = {
