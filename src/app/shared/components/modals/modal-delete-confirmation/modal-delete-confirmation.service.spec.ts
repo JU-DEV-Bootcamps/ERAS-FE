@@ -6,38 +6,37 @@ import { DeleteModalData } from './modal-delete-confirmation.interface';
 
 describe('ModalDeleteConfirmationService', () => {
   let service: ModalDeleteConfirmationService;
-  let matDialogSpy: jasmine.SpyObj<MatDialog>;
+  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let dialogRefSpy: jasmine.SpyObj<
+    MatDialogRef<ModalDeleteConfirmationComponent>
+  >;
+
+  const mockConfig: DeleteModalData = {
+    title: 'Delete item',
+    message: 'Are you sure you want to delete this item?',
+  } as DeleteModalData;
 
   beforeEach(() => {
-    matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    dialogSpy.open.and.returnValue(dialogRefSpy);
 
     TestBed.configureTestingModule({
-      providers: [
-        ModalDeleteConfirmationService,
-        { provide: MatDialog, useValue: matDialogSpy },
-      ],
+      providers: [{ provide: MatDialog, useValue: dialogSpy }],
     });
 
     service = TestBed.inject(ModalDeleteConfirmationService);
   });
 
-  it('should be created', () => {
+  it('should create the service', () => {
     expect(service).toBeTruthy();
   });
 
   describe('confirmDelete', () => {
-    it('should open the dialog with the correct component, configuration, and return the MatDialogRef', () => {
-      const mockConfig: DeleteModalData = {
-        title: 'Delete Item',
-      } as unknown as DeleteModalData;
+    it('should open the dialog with ModalDeleteConfirmationComponent and the given config as data', () => {
+      service.confirmDelete(mockConfig);
 
-      const mockDialogRef =
-        {} as MatDialogRef<ModalDeleteConfirmationComponent>;
-      matDialogSpy.open.and.returnValue(mockDialogRef);
-
-      const result = service.confirmDelete(mockConfig);
-
-      expect(matDialogSpy.open).toHaveBeenCalledWith(
+      expect(dialogSpy.open).toHaveBeenCalledWith(
         ModalDeleteConfirmationComponent,
         {
           data: mockConfig,
@@ -46,8 +45,11 @@ describe('ModalDeleteConfirmationService', () => {
           panelClass: 'delete-confirmation-modal',
         }
       );
+    });
 
-      expect(result).toBe(mockDialogRef);
+    it('should return the MatDialogRef from dialog.open', () => {
+      const result = service.confirmDelete(mockConfig);
+      expect(result).toBe(dialogRefSpy);
     });
   });
 });

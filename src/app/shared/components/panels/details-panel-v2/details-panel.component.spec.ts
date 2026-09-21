@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -18,6 +18,14 @@ import { EventAction, EventLoad } from '@core/models/load';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
 import { PollAvgQuestion } from '@core/models/summary.model';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
+import { getRiskColor, getRiskTextColor } from '@core/constants/riskLevel';
+import { PagedResult } from '@core/services/interfaces/page.type';
+
+interface VariableItem {
+  id: number;
+  name: string;
+  position: number;
+}
 
 describe('DetailsPanelComponent', () => {
   let component: DetailsPanelComponent;
@@ -42,7 +50,7 @@ describe('DetailsPanelComponent', () => {
     evaluationId: 10,
   };
 
-  const mockVariable = {
+  const mockVariable: VariableItem = {
     id: 99,
     name: 'How are you feeling?',
     position: 1,
@@ -82,17 +90,22 @@ describe('DetailsPanelComponent', () => {
       'isEnabled',
     ]);
 
+    const variablesResult: Observable<VariableItem[]> = of([mockVariable]);
     pollServiceSpy.getVariablesByComponents.and.returnValue(
-      of([mockVariable]) as unknown as ReturnType<
-        PollService['getVariablesByComponents']
+      variablesResult as unknown as ReturnType<
+        typeof pollServiceSpy.getVariablesByComponents
       >
     );
+
+    const studentsResult: Observable<
+      PagedResult<EvaluationDetailsStudentResponse>
+    > = of({
+      items: mockStudents,
+      count: mockStudents.length,
+    });
     evaluationDetailsServiceSpy.getStudentsByFilters.and.returnValue(
-      of({
-        items: mockStudents,
-        count: mockStudents.length,
-      }) as unknown as ReturnType<
-        EvaluationDetailsService['getStudentsByFilters']
+      studentsResult as unknown as ReturnType<
+        typeof evaluationDetailsServiceSpy.getStudentsByFilters
       >
     );
     featureFlagsSpy.isEnabled.and.returnValue(false);
@@ -182,6 +195,42 @@ describe('DetailsPanelComponent', () => {
     expect(component.totalStudentRisks()).toBe(3);
   });
 
+  it('should fall back to an empty studentList when the response has no items', () => {
+    const emptyResult: Observable<
+      PagedResult<EvaluationDetailsStudentResponse>
+    > = of({
+      items: undefined as unknown as EvaluationDetailsStudentResponse[],
+      count: undefined as unknown as number,
+    });
+    evaluationDetailsServiceSpy.getStudentsByFilters.and.returnValue(
+      emptyResult as unknown as ReturnType<
+        typeof evaluationDetailsServiceSpy.getStudentsByFilters
+      >
+    );
+    fixture.componentRef.setInput('data', mockPanelData);
+    fixture.detectChanges();
+
+    expect(component.studentList()).toEqual([]);
+  });
+
+  it('should fall back totalStudentRisks to items.length when count is missing', () => {
+    const partialResult: Observable<
+      PagedResult<EvaluationDetailsStudentResponse>
+    > = of({
+      items: mockStudents,
+      count: undefined as unknown as number,
+    });
+    evaluationDetailsServiceSpy.getStudentsByFilters.and.returnValue(
+      partialResult as unknown as ReturnType<
+        typeof evaluationDetailsServiceSpy.getStudentsByFilters
+      >
+    );
+    fixture.componentRef.setInput('data', mockPanelData);
+    fixture.detectChanges();
+
+    expect(component.totalStudentRisks()).toBe(mockStudents.length);
+  });
+
   it('should not call services when data is null', () => {
     fixture.componentRef.setInput('data', mockPanelData);
     fixture.detectChanges();
@@ -194,10 +243,13 @@ describe('DetailsPanelComponent', () => {
   });
 
   it('should skip loading students when no matching variable is found', () => {
+    const otherVariableResult: Observable<VariableItem[]> = of([
+      { id: 1, name: 'other question', position: 5 },
+    ]);
     pollServiceSpy.getVariablesByComponents.and.returnValue(
-      of([
-        { id: 1, name: 'other question', position: 5 },
-      ]) as unknown as ReturnType<PollService['getVariablesByComponents']>
+      otherVariableResult as unknown as ReturnType<
+        typeof pollServiceSpy.getVariablesByComponents
+      >
     );
     fixture.componentRef.setInput('data', mockPanelData);
     fixture.detectChanges();
@@ -231,6 +283,14 @@ describe('DetailsPanelComponent', () => {
       count: 3,
     } as unknown as PollAvgQuestion;
     expect(component.isPollAvgQuestion(countQuestion)).toBeFalse();
+  });
+
+  it('should return the color matching getRiskColor for a given risk level', () => {
+    expect(component.getRiskColor(3)).toBe(getRiskColor(3));
+  });
+
+  it('should return the text color matching getRiskTextColor for a given risk level', () => {
+    expect(component.getTextRiskColor(3)).toBe(getRiskTextColor(3));
   });
 
   // --- modal opening (feature flag branching) ---
