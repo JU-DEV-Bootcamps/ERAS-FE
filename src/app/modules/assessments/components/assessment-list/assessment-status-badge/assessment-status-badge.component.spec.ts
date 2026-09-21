@@ -73,4 +73,20 @@ describe('AssessmentStatusBadge', () => {
       expect(pill.classList.contains(testCase.cssClass)).toBeTrue();
     }
   });
+
+  describe('unmapped status fallback branches (?? operator)', () => {
+    it('should fallback to status string for label and "status-created" for cssClass', () => {
+      const unmappedStatus = 'PendingReview' as unknown as AssessmentStatus;
+      component.status = unmappedStatus;
+      fixture.detectChanges();
+
+      const pill = getStatusBadge();
+
+      expect(pill.textContent?.trim()).toBe('PendingReview');
+      expect(component['label']).toBe('PendingReview');
+
+      expect(pill.classList.contains('status-created')).toBeTrue();
+      expect(component['cssClass']).toBe('status-created');
+    });
+  });
 });
