@@ -39,6 +39,7 @@ export class FormFactoryComponent implements OnInit {
     this.fields().forEach((field: DynamicField) => {
       const initialValue = field.value ?? '';
       const isDisabled = field.disabled ?? false;
+      const isHidden = field.hidden ?? false;
 
       const resolvedValidators = (field.validators ?? [])
         .map(validator => {
@@ -53,7 +54,7 @@ export class FormFactoryComponent implements OnInit {
         .filter(Boolean);
 
       controls[field.name] = [
-        { value: initialValue, disabled: isDisabled },
+        { value: initialValue, disabled: isDisabled, hidden: isHidden },
         resolvedValidators,
       ];
     });

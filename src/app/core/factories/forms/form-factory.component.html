@@ -1,9 +1,11 @@
 <form [formGroup]="form">
   @for (field of fields(); track $index) {
-    <ng-container
-      [ngComponentOutlet]="factory.getComponentByType(field.type)"
-      [ngComponentOutletInputs]="{ field: field, form: form }"
-    >
-    </ng-container>
+    @if (!field.hidden) {
+      <ng-container
+        [ngComponentOutlet]="factory.getComponentByType(field.type)"
+        [ngComponentOutletInputs]="{ field: field, form: form }"
+      >
+      </ng-container>
+    }
   }
 </form>

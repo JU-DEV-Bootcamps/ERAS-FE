@@ -28,7 +28,7 @@ export type ValueType =
 
 export type FormControlTuple = Record<
   string,
-  [{ value: ValueType; disabled: boolean }, ValidatorFn[]]
+  [{ value: ValueType; disabled: boolean; hidden: boolean }, ValidatorFn[]]
 >;
 export type FormDataTuple = Record<string, ValueType>;
 
