@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ServiceCardReadableComponent } from './service-card-readable.component';
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
@@ -163,14 +163,101 @@ describe('ServiceCardReadableComponent', () => {
     expect(component.serviceCards.length).toBe(0);
   });
 
-  // it('should default isActive to false when healthCheck returns null status', () => {
-  //   userDataServiceMock.user.and.returnValue(mockUser);
-  //   configurationsServiceMock.getConfigurationsByUserId.and.returnValue(of(mockConfigurations));
-  //   serviceProvidersServiceMock.getAllServiceProviders.and.returnValue(of(mockProviders));
-  //   cosmicLatteServiceMock.healthCheck.and.returnValue(of(null));
+  it('should default isActive to false when healthCheck returns a falsy status', () => {
+    userDataServiceMock.user.and.returnValue(mockUser);
+    configurationsServiceMock.getConfigurationsByUserId.and.returnValue(
+      of(mockConfigurations)
+    );
+    serviceProvidersServiceMock.getAllServiceProviders.and.returnValue(
+      of(mockProviders)
+    );
+    cosmicLatteServiceMock.healthCheck.and.returnValue(
+      of({ status: undefined, dateTime: 'dd/mm/yy' } as unknown as {
+        status: boolean;
+        dateTime: string;
+      })
+    );
 
-  //   fixture.detectChanges();
+    fixture.detectChanges();
 
-  //   expect(component.serviceCards[0].isActive).toBeFalse();
-  // });
+    expect(component.serviceCards[0].isActive).toBeFalse();
+  });
+
+  it('should fall back to empty strings when no matching provider is found', () => {
+    userDataServiceMock.user.and.returnValue(mockUser);
+    configurationsServiceMock.getConfigurationsByUserId.and.returnValue(
+      of([{ ...mockConfigurations[0], serviceProviderId: 999 }])
+    );
+    serviceProvidersServiceMock.getAllServiceProviders.and.returnValue(
+      of(mockProviders)
+    );
+    cosmicLatteServiceMock.healthCheck.and.returnValue(
+      of({ status: true, dateTime: 'dd/mm/yy' })
+    );
+
+    fixture.detectChanges();
+
+    expect(component.serviceCards[0].serviceProviderName).toBe('');
+    expect(component.serviceCards[0].createdBy).toBe('');
+  });
+
+  it('should build a card per configuration when there are multiple', () => {
+    const secondConfig = {
+      ...mockConfigurations[0],
+      id: 2,
+      configurationName: 'Second Config',
+    };
+    userDataServiceMock.user.and.returnValue(mockUser);
+    configurationsServiceMock.getConfigurationsByUserId.and.returnValue(
+      of([mockConfigurations[0], secondConfig])
+    );
+    serviceProvidersServiceMock.getAllServiceProviders.and.returnValue(
+      of(mockProviders)
+    );
+    cosmicLatteServiceMock.healthCheck.and.returnValue(
+      of({ status: true, dateTime: 'dd/mm/yy' })
+    );
+
+    fixture.detectChanges();
+
+    expect(component.serviceCards.length).toBe(2);
+    expect(component.serviceCards.map(c => c.configurationName)).toEqual([
+      'Test Config',
+      'Second Config',
+    ]);
+  });
+
+  it('should log an error and leave serviceCards empty if the outer forkJoin fails', () => {
+    const consoleSpy = spyOn(console, 'error');
+    userDataServiceMock.user.and.returnValue(mockUser);
+    configurationsServiceMock.getConfigurationsByUserId.and.returnValue(
+      throwError(() => new Error('boom'))
+    );
+    serviceProvidersServiceMock.getAllServiceProviders.and.returnValue(of([]));
+
+    fixture.detectChanges();
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(component.serviceCards).toEqual([]);
+    expect(cosmicLatteServiceMock.healthCheck).not.toHaveBeenCalled();
+  });
+
+  it('should log an error if the inner cards forkJoin (healthCheck) fails', () => {
+    const consoleSpy = spyOn(console, 'error');
+    userDataServiceMock.user.and.returnValue(mockUser);
+    configurationsServiceMock.getConfigurationsByUserId.and.returnValue(
+      of(mockConfigurations)
+    );
+    serviceProvidersServiceMock.getAllServiceProviders.and.returnValue(
+      of(mockProviders)
+    );
+    cosmicLatteServiceMock.healthCheck.and.returnValue(
+      throwError(() => new Error('healthcheck failed'))
+    );
+
+    fixture.detectChanges();
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(component.serviceCards).toEqual([]);
+  });
 });

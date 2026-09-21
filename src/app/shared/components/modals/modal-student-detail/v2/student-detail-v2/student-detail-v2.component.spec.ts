@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Swiper } from 'swiper/types';
 
 import { StudentDetailV2Component } from './student-detail-v2.component';
 import { StudentService } from '@core/services/api/student.service';
@@ -15,6 +16,10 @@ import { ComponentsAvgModel } from '@core/models/components-avg.model';
 import { AnswerResponse } from '@core/models/answer-request.model';
 import { PagedResult } from '@core/services/interfaces/page.type';
 import * as RiskLevel from '@core/constants/riskLevel';
+
+interface SwiperEventTarget extends EventTarget {
+  swiper: Swiper;
+}
 
 describe('StudentDetailV2Component', () => {
   let component: StudentDetailV2Component;
@@ -216,6 +221,19 @@ describe('StudentDetailV2Component', () => {
     });
   });
 
+  describe('getComponentsAvg error branch', () => {
+    it('should log an error if getComponentsRiskByPollForStudent fails', () => {
+      const consoleSpy = spyOn(console, 'error');
+      pollInsServiceSpy.getComponentsRiskByPollForStudent.and.returnValue(
+        throwError(() => new Error('boom'))
+      );
+
+      component.getComponentsAvg(1, 10);
+
+      expect(consoleSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('getStudentAnswersByPoll', () => {
     it('should not call the service when pollId is 0', () => {
       component.getStudentAnswersByPoll(1, 0);
@@ -267,7 +285,58 @@ describe('StudentDetailV2Component', () => {
     });
   });
 
-  describe('buildChartSeries', () => {
+  describe('onSlideChange branches', () => {
+    it('should change selected poll and fetch answers if the slide index has a valid poll', () => {
+      component.studentPolls = mockPolls;
+
+      const swiperEventTarget = {
+        swiper: { activeIndex: 1 } as Swiper,
+      } as unknown as SwiperEventTarget;
+
+      const event = {
+        target: swiperEventTarget,
+      } as unknown as Event;
+
+      component.onSlideChange(event);
+
+      expect(component.selectedPoll).toBe(20);
+      expect(studentServiceSpy.getStudentAnswersByPoll).toHaveBeenCalledWith(
+        1,
+        20,
+        component.pagination
+      );
+    });
+
+    it('should clear answers if the slide index exceeds valid polls (branch else)', () => {
+      component.studentPolls = mockPolls;
+      component.studentAnswers = mockAnswersPage.items;
+
+      const swiperEventTarget = {
+        swiper: { activeIndex: 99 } as Swiper,
+      } as unknown as SwiperEventTarget;
+
+      const event = {
+        target: swiperEventTarget,
+      } as unknown as Event;
+
+      component.onSlideChange(event);
+
+      expect(component.studentAnswers).toEqual([]);
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when event.target has no swiper property', () => {
+      component.studentAnswers = mockAnswersPage.items;
+      const event = { target: {} } as unknown as Event;
+
+      component.onSlideChange(event);
+
+      expect(component.studentAnswers).toEqual(mockAnswersPage.items);
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('buildChartSeries branches', () => {
     it('should group and order components by pollId following COMPONENT_ORDER', () => {
       component.componentsAvg = [
         { pollId: 10, name: 'academico', componentAvg: 3.256 },
@@ -290,6 +359,22 @@ describe('StudentDetailV2Component', () => {
       expect(data[0].y).toBe(1.5);
     });
 
+    it('should push components not in COMPONENT_ORDER to the end (branch index === -1)', () => {
+      component.componentsAvg = [
+        { pollId: 10, name: 'unknown1', componentAvg: 1 },
+        { pollId: 10, name: 'socioeconomico', componentAvg: 2 },
+        { pollId: 10, name: 'unknown2', componentAvg: 3 },
+      ] as ComponentsAvgModel[];
+
+      component.buildChartSeries();
+
+      const series = component.chartSeriesByPollId[10];
+      const data = series[0].data as { x: string }[];
+      expect(data[0].x).toBe('Socioeconomico');
+      expect(data[1].x).toBe('Unknown1');
+      expect(data[2].x).toBe('Unknown2');
+    });
+
     it('should produce no series when componentsAvg is empty', () => {
       component.componentsAvg = [];
       component.buildChartSeries();
@@ -308,7 +393,26 @@ describe('StudentDetailV2Component', () => {
     });
   });
 
-  describe('exportCsv', () => {
+  describe('fetchAllStudentAnswers branches', () => {
+    it('should return an empty array if no poll is selected (branch !this.selectedPoll)', async () => {
+      component.selectedPoll = 0;
+      const result = await component['fetchAllStudentAnswers']();
+      expect(result).toEqual([]);
+    });
+
+    it('should return the full list of answers when a poll is selected', async () => {
+      component.selectedPoll = 10;
+      studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
+        of(mockAnswersPage)
+      );
+
+      const result = await component['fetchAllStudentAnswers']();
+
+      expect(result).toEqual(mockAnswersPage.items);
+    });
+  });
+
+  describe('exportCsv branches', () => {
     it('should build and trigger a CSV download using all fetched answers', async () => {
       component.ngOnInit();
       studentServiceSpy.getStudentAnswersByPoll.calls.reset();
@@ -331,9 +435,18 @@ describe('StudentDetailV2Component', () => {
       expect(clickSpy).toHaveBeenCalled();
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
+
+    it('should return early if CSV is already generating (branch isGeneratingCSV)', async () => {
+      component.isGeneratingCSV = true;
+      const createElementSpy = spyOn(document, 'createElement');
+
+      await component.exportCsv();
+
+      expect(createElementSpy).not.toHaveBeenCalled();
+    });
   });
 
-  describe('exportReportPdf', () => {
+  describe('exportReportPdf branches', () => {
     it('should delegate to PdfHelper.exportToPdf and reset the generating flag', async () => {
       component.ngOnInit();
       pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
@@ -346,6 +459,39 @@ describe('StudentDetailV2Component', () => {
           preProcess: 'student-detail',
         })
       );
+      expect(component.isGeneratingPDF).toBeFalse();
+    });
+
+    it('should fetch all answers when totalStudentAnswers > pagination.pageSize (branch true) before exporting', async () => {
+      component.ngOnInit();
+      component.totalStudentAnswers = 50;
+
+      pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
+      studentServiceSpy.getStudentAnswersByPoll.calls.reset();
+      studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
+        of(mockAnswersPage)
+      );
+
+      await component.exportReportPdf();
+
+      expect(studentServiceSpy.getStudentAnswersByPoll).toHaveBeenCalledWith(
+        1,
+        10,
+        { page: 0, pageSize: 50 }
+      );
+      expect(pdfHelperSpy.exportToPdf).toHaveBeenCalled();
+    });
+
+    it('should delegate to PdfHelper.exportToPdf directly without fetching if items fit in current page', async () => {
+      component.ngOnInit();
+      component.totalStudentAnswers = 5;
+      pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
+      studentServiceSpy.getStudentAnswersByPoll.calls.reset();
+
+      await component.exportReportPdf();
+
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+      expect(pdfHelperSpy.exportToPdf).toHaveBeenCalled();
       expect(component.isGeneratingPDF).toBeFalse();
     });
 
