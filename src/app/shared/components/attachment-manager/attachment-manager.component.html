@@ -9,6 +9,7 @@
     <mat-chip-grid #chipGrid>
       <mat-chip-set>
         <mat-chip
+          class="selected-chip"
           *ngFor="let a of existingAttachments()"
           [class.attachment-manager-chip--removed]="
             markedForRemoval().has(a.id)
@@ -37,12 +38,9 @@
           </button>
         </mat-chip>
       </mat-chip-set>
-      <p class="attachment-manager-hint" *ngIf="markedForRemoval().size > 0">
-        {{ markedForRemoval().size }} attachment(s) will be removed on save.
-      </p>
 
       @for (staged of stagedFiles(); track staged.localId) {
-        <mat-chip-row
+        <mat-chip
           class="selected-chip"
           [class.selected-chip--uploading]="staged.status === 'uploading'"
           [class.selected-chip--error]="staged.status === 'error'"
@@ -68,7 +66,7 @@
           <button matChipRemove aria-label="Remove file">
             <mat-icon>cancel</mat-icon>
           </button>
-        </mat-chip-row>
+        </mat-chip>
       }
     </mat-chip-grid>
 

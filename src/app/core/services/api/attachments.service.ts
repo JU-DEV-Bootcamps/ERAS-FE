@@ -10,7 +10,11 @@ import { HttpParams } from '@angular/common/http';
 export class AttachmentApiService extends BaseApiService {
   protected resource = 'attachments';
 
-  upload(entityType: string, entityId: number, files: File[]) {
+  upload(
+    entityType: string,
+    entityId: number,
+    files: File[]
+  ): Observable<AttachmentModel[]> {
     const formData = new FormData();
     files.forEach(file => {
       formData.append('Files', file);
@@ -18,7 +22,7 @@ export class AttachmentApiService extends BaseApiService {
     const params = new HttpParams()
       .set('EntityType', entityType)
       .set('EntityId', entityId);
-    return this.post<FormData, AttachmentModel>(
+    return this.post<FormData, AttachmentModel[]>(
       `?${params.toString()}`,
       formData
     );

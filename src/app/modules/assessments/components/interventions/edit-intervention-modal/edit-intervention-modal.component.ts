@@ -384,7 +384,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
     this.attendedStudentIds.set(attended);
     this.attendedStudentIdsModel = attended;
-    // this.existingAttachments = iv.attachments ?? [];
   }
 
   setFormGroup(event: FormGroup): void {
@@ -501,7 +500,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       activity: values.activity,
       area: values.area,
       numberOfParticipants: payload.intervention['numberOfParticipants'],
-      professional: values.professional,
+      professional: values.professionalId,
       comments: values.comments,
       studentIds: payload.intervention['studentIds'],
       attendance: payload.intervention['attendance'],
@@ -596,83 +595,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         endRiskLevelName,
       },
     };
-  }
-
-  // private updateIntervention(): void {
-  //   const iv = this.data.intervention!;
-  //   const payload = this.buildPayload();
-  //   const updated: InterventionModel = {
-  //     ...iv,
-  //     ...payload.intervention,
-  //     id: iv.id,
-  //     attachments: this.existingAttachments,
-  //   } as InterventionModel;
-
-  //   const deleteObs: Observable<unknown> = this.attachmentsToDelete.length
-  //     ? forkJoin(
-  //         this.attachmentsToDelete.map(fileName =>
-  //           this.interventionService.deleteAttachment(iv.id!, fileName)
-  //         )
-  //       )
-  //     : of(null);
-
-  //   deleteObs
-  //     .pipe(
-  //       concatMap(() =>
-  //         this.interventionService.getByAssessment(this.data.assessmentId)
-  //       ),
-  //       concatMap((existing: InterventionModel[]) => {
-  //         const merged = existing.map(e => (e.id === iv.id ? updated : e));
-  //         return this.interventionService.upsertInterventions(
-  //           this.data.assessmentId,
-  //           merged
-  //         );
-  //       }),
-  //       concatMap(() => {
-  //         const filesToUpload = this.getNewFilesToUpload();
-  //         return filesToUpload.length
-  //           ? this.interventionService.uploadAttachments(iv.id!, filesToUpload)
-  //           : of(null);
-  //       })
-  //     )
-  //     .subscribe({
-  //       next: () => {
-  //         this.toastService.showToast({
-  //           title: 'Intervention updated successfully',
-  //           message: 'The intervention has been updated.',
-  //           type: 'success',
-  //         });
-  //         this.dialogRef.close(true);
-  //       },
-  //       error: (err: HttpErrorResponse) => {
-  //         this.toastService.showToast(
-  //           {
-  //             title: 'Update Failed',
-  //             message: `${err.statusText}: ${err.error?.title ?? 'Error.'}`,
-  //             type: 'error',
-  //           },
-  //           true
-  //         );
-  //       },
-  //     });
-  // }
-
-  // removeExistingAttachment(index: number): void {
-  //   const pathToRemove = this.existingAttachments[index];
-  //   this.attachmentsToDelete.push(String(pathToRemove.id));
-  //   this.existingAttachments = this.existingAttachments.filter(
-  //     (_, i) => i !== index
-  //   );
-  //   this.form.markAsDirty();
-  // }
-
-  private getNewFilesToUpload(): File[] {
-    const uploadInputValue = this.form.get('uploadInput')?.value as
-      | (File | string)[]
-      | null;
-    if (!uploadInputValue?.length || typeof uploadInputValue[0] === 'string')
-      return [];
-    return uploadInputValue as File[];
   }
 
   private appendEndRiskLevelField(): void {
