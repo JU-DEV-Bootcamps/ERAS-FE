@@ -102,7 +102,7 @@ describe('AttachmentApiService', () => {
 
       service.createDraftSession();
 
-      expect(postSpy).toHaveBeenCalledWith('/drafts', undefined);
+      expect(postSpy).toHaveBeenCalledWith('drafts', undefined);
     });
   });
 });
