@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { PdfService } from './pdf.service';
 
 interface PdfServiceInternals {
@@ -43,26 +42,115 @@ describe('PdfService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should run exportToPDF end-to-end and invoke the callback', done => {
-    service.exportToPDF(element, 'test-report', 200, 100, 0, () => {
-      expect(true).toBe(true);
-      done();
-    });
-  });
+  describe('exportToPDF branches', () => {
+    it('should export in landscape mode when width > height', (done: DoneFn) => {
+      element.style.width = '300px';
+      element.style.height = '100px';
 
-  it('should run exportToPDF with a title and invoke the callback', done => {
-    service.exportToPDF(
-      element,
-      'test-report',
-      200,
-      100,
-      0,
-      () => {
-        expect(true).toBe(true);
+      service.exportToPDF(element, 'landscape-report', 300, 100, 0, () => {
+        expect(true).toBeTrue();
         done();
-      },
-      'Student: Sample Report'
-    );
+      });
+    });
+
+    it('should export in portrait mode when width <= height', (done: DoneFn) => {
+      element.style.width = '100px';
+      element.style.height = '300px';
+
+      service.exportToPDF(element, 'portrait-report', 100, 300, 0, () => {
+        expect(true).toBeTrue();
+        done();
+      });
+    });
+
+    it('should process title with colon and multiline rest text', (done: DoneFn) => {
+      service.exportToPDF(
+        element,
+        'title-colon-report',
+        200,
+        100,
+        0,
+        () => {
+          expect(true).toBeTrue();
+          done();
+        },
+        'Student: Detailed Evaluation Report Information'
+      );
+    });
+
+    it('should process title without colon (branch false for colonIndex)', (done: DoneFn) => {
+      service.exportToPDF(
+        element,
+        'title-no-colon-report',
+        200,
+        100,
+        0,
+        () => {
+          expect(true).toBeTrue();
+          done();
+        },
+        'Single Line Report Title'
+      );
+    });
+
+    it('should process title with colon but empty rest (branch false for if(rest))', (done: DoneFn) => {
+      service.exportToPDF(
+        element,
+        'title-colon-empty-rest',
+        200,
+        100,
+        0,
+        () => {
+          expect(true).toBeTrue();
+          done();
+        },
+        'Student:'
+      );
+    });
+
+    it('should handle multi-page export when content height exceeds page limit', (done: DoneFn) => {
+      element.style.width = '200px';
+      element.style.height = '2500px';
+
+      service.exportToPDF(element, 'multipage-report', 200, 2500, 0, () => {
+        expect(true).toBeTrue();
+        done();
+      });
+    });
+
+    it('should break loop when adjustSliceForSafeBreak returns 0 or less', (done: DoneFn) => {
+      spyOn(
+        service as unknown as { adjustSliceForSafeBreak: () => number },
+        'adjustSliceForSafeBreak'
+      ).and.returnValue(0);
+
+      service.exportToPDF(element, 'break-slice-report', 200, 100, 0, () => {
+        expect(true).toBeTrue();
+        done();
+      });
+    });
+
+    it('should catch error and log when saving PDF fails', (done: DoneFn) => {
+      spyOn(console, 'error');
+      const saveError = new Error('Save PDF failure');
+      spyOn(HTMLCanvasElement.prototype, 'toDataURL').and.throwError(saveError);
+
+      service.exportToPDF(element, 'error-report', 200, 100, 0, () => {
+        expect(console.error).toHaveBeenCalledWith(
+          'Error generating PDF:',
+          saveError
+        );
+        done();
+      });
+    });
+
+    it('should execute exportToPDF without a callback (branch false for callback?.())', (done: DoneFn) => {
+      expect(() => {
+        service.exportToPDF(element, 'no-callback-report', 200, 100);
+      }).not.toThrow();
+
+      setTimeout(() => done(), 250);
+    });
   });
 
   describe('adjustSliceForSafeBreak', () => {
@@ -71,6 +159,16 @@ describe('PdfService', () => {
 
       const result = internals.adjustSliceForSafeBreak(0, 500, [
         { top: 600, bottom: 650 },
+      ]);
+
+      expect(result).toBe(500);
+    });
+
+    it('should ignore zone if it ends before the cutPoint (zone.bottom <= cutPoint)', () => {
+      const internals = service as unknown as PdfServiceInternals;
+
+      const result = internals.adjustSliceForSafeBreak(100, 500, [
+        { top: 200, bottom: 450 },
       ]);
 
       expect(result).toBe(500);

@@ -8,7 +8,6 @@ import {
   InterventionModel,
   InterventionType,
 } from '@core/models/assessment.model';
-import { AssessmentService } from '@core/services/api/assessement.service';
 import { of, throwError } from 'rxjs';
 import {
   AppliedFilter,
@@ -19,6 +18,7 @@ import { InterventionService } from '@core/services/api/intervention.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 
 const assessments: AssessmentModel[] = [
   {
@@ -59,19 +59,18 @@ describe('InterventionsComponent', () => {
   let component: InterventionsComponent;
   let fixture: ComponentFixture<InterventionsComponent>;
 
-  let assessmentServiceSpy: jasmine.SpyObj<AssessmentService>;
-
   let dialog: jasmine.SpyObj<MatDialog>;
   let interventionServiceSpy: jasmine.SpyObj<InterventionService>;
   let toastServiceSpy: jasmine.SpyObj<ToastNotificationService>;
+  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
+
   const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
   dialogRef.afterClosed.and.returnValue(of(undefined));
 
   beforeEach(async () => {
     dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
-
-    assessmentServiceSpy = jasmine.createSpyObj('AssessmentService', [
-      'getAll',
+    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
+      'resolve',
     ]);
     interventionServiceSpy = jasmine.createSpyObj<InterventionService>(
       'InterventionService',
@@ -82,17 +81,17 @@ describe('InterventionsComponent', () => {
       ['showToast']
     );
 
-    assessmentServiceSpy.getAll.and.returnValue(of(assessments));
+    fetchResolverMock.resolve.and.returnValue(of(assessments));
     dialog.open.and.returnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [InterventionsComponent],
       providers: [
         provideHttpClient(),
-        { provide: AssessmentService, useValue: assessmentServiceSpy },
         { provide: InterventionService, useValue: interventionServiceSpy },
         { provide: ToastNotificationService, useValue: toastServiceSpy },
         { provide: MatDialog, useValue: dialog },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
       ],
     })
       .overrideComponent(InterventionsComponent, {
@@ -188,18 +187,18 @@ describe('InterventionsComponent', () => {
   });
 
   it('should handle errors while loading assessments', () => {
-    const consoleErrorSpy = spyOn(console, 'error');
-    assessmentServiceSpy.getAll.and.returnValue(
+    fetchResolverMock.resolve.and.returnValue(
       throwError(() => new Error('network error'))
     );
 
     fixture.detectChanges();
 
     expect(component.isLoadingAssessments()).toBe(false);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Failed to load assessments',
-      jasmine.any(Error)
-    );
+    expect(toastServiceSpy.showToast).toHaveBeenCalledWith({
+      type: 'error',
+      title: 'Error fetching assessments',
+      message: 'network error',
+    });
   });
 
   it('should use the provided student data when building the student lookup', () => {
@@ -222,7 +221,7 @@ describe('InterventionsComponent', () => {
         interventions: [],
       },
     ];
-    assessmentServiceSpy.getAll.and.returnValue(of(assessmentsWithStudents));
+    fetchResolverMock.resolve.and.returnValue(of(assessmentsWithStudents));
 
     fixture.detectChanges();
 

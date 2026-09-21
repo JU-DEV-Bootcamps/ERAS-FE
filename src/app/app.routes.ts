@@ -5,6 +5,8 @@ import { LayoutComponent } from '@core/components/layout/layout.component';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
 import { ROUTE_METADATA } from '@core/utils/routing/route-metadata';
+import { canActivateAuthRole } from '@core/auth/guards/auth-role.guard';
+import { ERASRoles } from '@core/models/profile.model';
 
 export const routes: Routes = [
   {
@@ -24,7 +26,11 @@ export const routes: Routes = [
       },
       {
         path: 'reports',
-        canActivate: [featureFlagGuard(FEATURE_FLAGS.reportsV2)],
+        canActivate: [
+          canActivateAuthRole,
+          featureFlagGuard(FEATURE_FLAGS.reportsV2),
+        ],
+        data: ROUTE_METADATA.REPORTS,
         loadChildren: () =>
           import('./modules/reports/reports.routes').then(
             m => m.REPORTS_ROUTES
@@ -32,6 +38,8 @@ export const routes: Routes = [
       },
       {
         path: 'reports-v1',
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.REPORTS_V1,
         loadChildren: () =>
           import('./modules/reports/reports.routes').then(
             m => m.REPORTS_ROUTES_V1
@@ -39,6 +47,7 @@ export const routes: Routes = [
       },
       {
         path: 'cosmic-latte',
+        canActivate: [canActivateAuthRole],
         data: ROUTE_METADATA.COSMIC_LATTE,
         loadComponent: () =>
           import('./modules/settings/cosmic-latte.component').then(
@@ -47,6 +56,7 @@ export const routes: Routes = [
       },
       {
         path: 'evaluation-process',
+        canActivateChild: [canActivateAuthRole],
         children: [
           {
             path: '',
@@ -76,6 +86,7 @@ export const routes: Routes = [
       },
       {
         path: 'list-students-by-poll',
+        canActivate: [canActivateAuthRole],
         data: ROUTE_METADATA.LIST_STUDENTS,
         loadComponent: () =>
           import(
@@ -84,6 +95,7 @@ export const routes: Routes = [
       },
       {
         path: 'students',
+        canActivate: [canActivateAuthRole],
         data: ROUTE_METADATA.STUDENTS,
         loadComponent: () =>
           import('./modules/students/students-container.component').then(
@@ -92,6 +104,7 @@ export const routes: Routes = [
       },
       {
         path: 'assessments',
+        canActivate: [canActivateAuthRole],
         loadChildren: () =>
           import('./modules/assessments/assessments.routes').then(
             m => m.ASSESSMENT_ROUTES
@@ -107,6 +120,8 @@ export const routes: Routes = [
       },
       {
         path: '_unused',
+        canActivate: [canActivateAuthRole],
+        data: { roles: [ERASRoles.ADMIN] },
         loadChildren: () =>
           import('./modules/_unused/unused.routes').then(m => m.UNUSED_ROUTES),
       },

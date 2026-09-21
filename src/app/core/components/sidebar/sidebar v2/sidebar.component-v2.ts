@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Menu } from '../sidebar.model';
 import { SidebarService } from '../sidebar.service';
+import { HasERASRolesDirective } from '@shared/directives/has-roles.directive';
 
 @Component({
   selector: 'app-sidebar-v2',
@@ -17,6 +18,7 @@ import { SidebarService } from '../sidebar.service';
     MatListModule,
     MatIconModule,
     MatTooltipModule,
+    HasERASRolesDirective,
   ],
   templateUrl: './sidebar.component-v2.html',
   styleUrl: './sidebar.component-v2.scss',
