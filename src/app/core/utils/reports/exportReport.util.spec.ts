@@ -1,9 +1,13 @@
 import { ElementRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfService } from '@core/services/exports/pdf.service';
 import { FileNameUtils } from '@core/utils/file/file-name';
 import { ExportArgs } from '../../../modules/reports/components/summary-charts/types/export';
-import { SNACKBAR_CONF } from '../../../modules/reports/components/summary-charts/constants/export-conf';
+import {
+  DEFAULT_VALUES,
+  SNACKBAR_CONF,
+} from '../../../modules/reports/components/summary-charts/constants/export-conf';
 import { PdfHelper } from './exportReport.util';
 
 describe('PdfHelper', () => {
@@ -47,8 +51,10 @@ describe('PdfHelper', () => {
           <tr><th>Head</th><td>Data</td></tr>
         </table>
         <svg>
+          <tspan>Span Text</tspan>
           <g class="apexcharts-inner apexcharts-graphical"></g>
-          <g class="apexcharts-yaxis-label"><text x="100">Label</text></g>
+          <g class="apexcharts-yaxis-label"><text x="100">Label with X</text></g>
+          <g class="apexcharts-yaxis"><text>Label without X</text></g>
         </svg>
         <button id="action-btn">Click</button>
         <div id="print-button"></div>
@@ -70,6 +76,19 @@ describe('PdfHelper', () => {
       expect(container.querySelector('mat-paginator')).toBeNull();
       expect(container.querySelector('th')?.style.fontSize).toBe('1.3em');
       expect(container.querySelector('td')?.style.fontSize).toBe('1.3em');
+      expect(container.querySelector('tspan')?.style.fontSize).toBe('1.6em');
+    });
+
+    it('should safely handle student-detail when optional inner elements are missing (branch false checks)', () => {
+      const container = document.createElement('div');
+      container.innerHTML = `
+        <div class="card-performance"></div>
+        <div class="card-risk"></div>
+      `;
+
+      expect(() => {
+        service.preProcessHTML(container, 'student-detail');
+      }).not.toThrow();
     });
 
     it('should apply list preprocess rules and remove selection columns', () => {
@@ -107,6 +126,9 @@ describe('PdfHelper', () => {
       source.innerHTML = `
         <div id="swiper-container" effect="cube"></div>
         <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        <p>Paragraph</p>
         <div id="print-button"></div>
         <div class="form-container"></div>
         <div class="filter-container"></div>
@@ -142,6 +164,23 @@ describe('PdfHelper', () => {
       expect(cloned.textContent).toContain('Chart Title');
     });
 
+    it('should safely process canvas without title, legend or parent element (branch false checks)', () => {
+      const source = document.createElement('div');
+      source.innerHTML = `
+        <div class="apexcharts-canvas">
+          <svg>
+            <text class="apexcharts-title-text">   </text>
+          </svg>
+        </div>
+      `;
+
+      const mainContainer = new ElementRef(source);
+      const cloned = service.printReportInfo(mainContainer);
+
+      expect(cloned.querySelector('.container-card-list')).toBeNull();
+      expect(cloned.querySelector('.chart-container')).toBeNull();
+    });
+
     it('should call preProcessHTML when preProcess argument is provided', () => {
       const spy = spyOn(service, 'preProcessHTML');
       const source = document.createElement('div');
@@ -153,18 +192,68 @@ describe('PdfHelper', () => {
     });
   });
 
+  describe('measureAndPrepare branches', () => {
+    it('should calculate landscape dimensions and format SVG with existing viewBox', async () => {
+      const source = document.createElement('div');
+      source.innerHTML = `
+        <div style="height: 10px; width: 100%;"></div>
+        <div class="parent-canvas">
+          <div class="apexcharts-canvas">
+            <svg viewBox="0 0 500 300"></svg>
+          </div>
+        </div>
+      `;
+
+      pdfServiceSpy.exportToPDF.and.callFake((cloned, fileName, w) => {
+        expect(w).toBe(1056);
+        return Promise.resolve();
+      });
+
+      const args: ExportArgs = {
+        container: new ElementRef(source),
+      } as unknown as ExportArgs;
+
+      await service.exportToPdf(args);
+    });
+
+    it('should calculate portrait dimensions and fallback SVG attributes when missing', async () => {
+      const source = document.createElement('div');
+      source.innerHTML = `
+        <div style="height: 3000px; width: 100%;"></div>
+        <div class="apexcharts-canvas">
+          <svg></svg>
+        </div>
+        <div class="apexcharts-canvas"></div>
+      `;
+
+      pdfServiceSpy.exportToPDF.and.callFake((cloned, fileName, w) => {
+        expect(w).toBe(816);
+        return Promise.resolve();
+      });
+
+      const args: ExportArgs = {
+        container: new ElementRef(source),
+      } as unknown as ExportArgs;
+
+      await service.exportToPdf(args);
+    });
+  });
+
   describe('exportToPdf', () => {
     it('should process export and notify snackbar on start and completion', async () => {
       const source = document.createElement('div');
-      const snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+      const snackBarSpy = jasmine.createSpyObj<MatSnackBar>('MatSnackBar', [
+        'open',
+      ]);
       spyOn(FileNameUtils, 'generateFileName').and.returnValue(
         'file_report_2026'
       );
 
       pdfServiceSpy.exportToPDF.and.callFake(
         (cloned, fileName, w, h, m, callback) => {
+          document.body.appendChild(cloned);
           if (callback) callback();
-          return Promise.resolve() as unknown as Promise<void>;
+          return Promise.resolve();
         }
       );
 
@@ -195,6 +284,29 @@ describe('PdfHelper', () => {
         jasmine.objectContaining({ duration: SNACKBAR_CONF.duration })
       );
     });
+
+    it('should export without snackbar and fallback to default fileName when not provided', async () => {
+      const source = document.createElement('div');
+      spyOn(FileNameUtils, 'generateFileName').and.callThrough();
+
+      pdfServiceSpy.exportToPDF.and.callFake(
+        (cloned, fileName, w, h, m, callback) => {
+          if (callback) callback();
+          return Promise.resolve();
+        }
+      );
+
+      const args: ExportArgs = {
+        container: new ElementRef(source),
+      } as unknown as ExportArgs;
+
+      await service.exportToPdf(args);
+
+      expect(FileNameUtils.generateFileName).toHaveBeenCalledWith(
+        DEFAULT_VALUES.fileName
+      );
+      expect(pdfServiceSpy.exportToPDF).toHaveBeenCalled();
+    });
   });
 
   describe('exportCardToPdf', () => {
@@ -206,19 +318,26 @@ describe('PdfHelper', () => {
         <div class="card-actions">Actions</div>
       `;
 
+      Object.defineProperty(source, 'offsetWidth', {
+        value: 500,
+        configurable: true,
+      });
+
       spyOn(FileNameUtils, 'generateFileName').and.returnValue(
         'file_card_2026'
       );
 
       pdfServiceSpy.exportToPDF.and.callFake(
         (cloned, fileName, w, h, m, callback) => {
+          document.body.appendChild(cloned);
           if (callback) callback();
-          return Promise.resolve() as unknown as Promise<void>;
+          return Promise.resolve();
         }
       );
 
       const args: ExportArgs = {
         container: new ElementRef(source),
+        fileName: 'custom-card-file',
         title: 'Card Title',
       } as unknown as ExportArgs;
 
@@ -233,6 +352,26 @@ describe('PdfHelper', () => {
         jasmine.any(Function),
         'Card Title'
       );
+    });
+
+    it('should handle card without collapsible content', async () => {
+      const source = document.createElement('div');
+      source.innerHTML = `<div>Simple content without collapsible classes</div>`;
+
+      pdfServiceSpy.exportToPDF.and.callFake(
+        (cloned, fileName, w, h, m, callback) => {
+          if (callback) callback();
+          return Promise.resolve();
+        }
+      );
+
+      const args: ExportArgs = {
+        container: new ElementRef(source),
+      } as unknown as ExportArgs;
+
+      await service.exportCardToPdf(args);
+
+      expect(pdfServiceSpy.exportToPDF).toHaveBeenCalled();
     });
   });
 });
