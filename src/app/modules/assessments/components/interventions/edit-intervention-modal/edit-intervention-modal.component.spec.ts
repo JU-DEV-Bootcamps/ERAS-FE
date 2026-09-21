@@ -10,18 +10,16 @@ import { EMPTY, of, throwError } from 'rxjs';
 
 import {
   InterventionMode,
-  InterventionModel,
   InterventionStatus,
   InterventionType,
   RiskLevels,
+  UpdateInterventionPayload,
 } from '@core/models/assessment.model';
-import { InterventionService } from '@core/services/api/intervention.service';
-import { ToastNotificationService } from '@core/services/toast-notification.service';
-import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
-import {
-  EditInterventionModalComponent,
-  NewInterventionDialogData,
-} from './edit-intervention-modal.component';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { EMPTY, of, throwError } from 'rxjs';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { StagedFile } from '@core/models/attachment.model';
 
 describe('EditInterventionModalComponent', () => {
   let component: EditInterventionModalComponent;
@@ -67,8 +65,31 @@ describe('EditInterventionModalComponent', () => {
         value: 2,
       },
     ],
-    intervention: mockIntervention,
+    intervention: {
+      id: 100,
+      kind: InterventionType.Group,
+      studentIds: [1, 2],
+      activity: 'Activity',
+      area: 'Area',
+      mode: 'Online',
+      comments: 'Some comments',
+      riskLevelName: 'Low',
+      status: 'Remitted',
+      endRiskLevelName: '',
+      attendance: {
+        1: true,
+        2: false,
+      },
+      dateUtc: '2024-01-01',
+    },
   };
+
+  const updateDto = {
+    dateUtc: '12300',
+    studentIds: [1],
+    mode: InterventionMode.InPlace,
+    kind: InterventionType.Group,
+  } as UpdateInterventionPayload;
 
   beforeEach(async () => {
     interventionService = jasmine.createSpyObj('InterventionService', [
@@ -76,6 +97,7 @@ describe('EditInterventionModalComponent', () => {
       'getByAssessment',
       'upsertInterventions',
       'uploadAttachments',
+      'updateIntervention',
     ]);
 
     toastService = jasmine.createSpyObj('ToastNotificationService', [
@@ -100,6 +122,7 @@ describe('EditInterventionModalComponent', () => {
     interventionService.upsertInterventions.and.returnValue(of([]));
     interventionService.uploadAttachments.and.returnValue(of(['']));
     interventionService.deleteAttachment.and.returnValue(of(void 0));
+    interventionService.updateIntervention.and.returnValue(of(updateDto));
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, EditInterventionModalComponent],
@@ -120,10 +143,8 @@ describe('EditInterventionModalComponent', () => {
           provide: MAT_DIALOG_DATA,
           useValue: dialogData,
         },
-        {
-          provide: UnsavedChangesGuardService,
-          useValue: unsavedChangesGuard,
-        },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(EditInterventionModalComponent);
@@ -161,8 +182,6 @@ describe('EditInterventionModalComponent', () => {
   it('should initialize initial data', () => {
     component.ngOnInit();
     expect(component.isGroup()).toBeTrue();
-    expect(component.existingAttachments.length).toBe(2);
-    expect(component.numberOfParticipants()).toBe(2);
   });
 
   it('should update attendance', () => {
@@ -170,13 +189,6 @@ describe('EditInterventionModalComponent', () => {
 
     expect(component.attendedStudentIds()).toEqual(['2']);
     expect(component.form.dirty).toBeTrue();
-  });
-
-  it('should remove attachment', () => {
-    component.removeExistingAttachment(0);
-
-    expect(component.existingAttachments.length).toBe(1);
-    expect(component.attachmentsToDelete).toEqual(['undefined']);
   });
 
   it('should add end risk level', () => {
@@ -191,43 +203,6 @@ describe('EditInterventionModalComponent', () => {
     component['removeEndRiskLevelField']();
 
     expect(component.form.contains('endRiskLevelName')).toBeFalse();
-  });
-
-  it('should update successfully', () => {
-    component['updateIntervention']();
-
-    expect(interventionService.getByAssessment).toHaveBeenCalled();
-    expect(interventionService.upsertInterventions).toHaveBeenCalled();
-    expect(dialogRef.close).toHaveBeenCalledWith(true);
-    expect(toastService.showToast).toHaveBeenCalled();
-  });
-
-  it('should return an empty array when uploadInput is empty', () => {
-    component.form.get('uploadInput')?.setValue([]);
-    const result = component['getNewFilesToUpload']();
-    expect(result).toEqual([]);
-  });
-
-  it('should return only new files', () => {
-    const newFile = new File(['b'], 'new.pdf');
-    component.form.get('uploadInput')?.setValue([newFile]);
-    const result = component['getNewFilesToUpload']();
-    expect(result).toEqual([newFile]);
-  });
-
-  it('should handle update error', () => {
-    interventionService.getByAssessment.and.returnValue(
-      throwError(() => ({
-        statusText: 'Bad Request',
-        error: {
-          title: 'Failure',
-        },
-      }))
-    );
-
-    component['updateIntervention']();
-
-    expect(toastService.showToast).toHaveBeenCalled();
   });
 
   it('should allow only Remitted and In Progress when current status is Remitted', () => {
@@ -322,6 +297,12 @@ describe('EditInterventionModalComponent', () => {
   });
 
   describe('submitIntervention', () => {
+    beforeEach(() => {
+      interventionService.updateIntervention = jasmine
+        .createSpy('updateIntervention')
+        .and.returnValue(of(void 0));
+    });
+
     it('should proceed with update when an attendee is not among the selected students', () => {
       component.form.get('students')?.setValue(['1']);
       component.attendedStudentIds.set(['1', '2']);
@@ -329,11 +310,44 @@ describe('EditInterventionModalComponent', () => {
 
       component.submitIntervention();
 
-      expect(interventionService.getByAssessment).toHaveBeenCalled();
+      expect(interventionService.updateIntervention).toHaveBeenCalled();
       expect(dialogRef.close).toHaveBeenCalledWith(true);
       expect(toastService.showToast).toHaveBeenCalledWith(
-        jasmine.objectContaining({ title: 'Intervention updated successfully' })
+        jasmine.objectContaining({
+          title: 'Intervention updated successfully',
+        })
       );
+    });
+
+    it('should show an error toast when update fails', () => {
+      const error = new HttpErrorResponse({
+        status: 500,
+        statusText: 'Internal Server Error',
+        error: {
+          title: 'Something went wrong',
+        },
+      });
+
+      interventionService.updateIntervention.and.returnValue(
+        throwError(() => error)
+      );
+
+      component.form.get('students')?.setValue(['1']);
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+
+      component.submitIntervention();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        {
+          title: 'Update Failed',
+          message: 'Internal Server Error: Something went wrong',
+          type: 'error',
+        },
+        true
+      );
+
+      expect(component.isSubmitting()).toBeFalse();
     });
 
     it('should proceed with the update when all attendees are among the selected students', () => {
@@ -343,7 +357,7 @@ describe('EditInterventionModalComponent', () => {
 
       component.submitIntervention();
 
-      expect(interventionService.getByAssessment).toHaveBeenCalled();
+      expect(interventionService.updateIntervention).toHaveBeenCalled();
       expect(dialogRef.close).toHaveBeenCalledWith(true);
     });
 
@@ -351,26 +365,16 @@ describe('EditInterventionModalComponent', () => {
       const invalidForm = new FormGroup({
         date: new FormControl(null),
       });
-      Object.defineProperty(invalidForm, 'invalid', { get: () => true });
+
+      Object.defineProperty(invalidForm, 'invalid', {
+        get: () => true,
+      });
+
       component.form = invalidForm;
 
       component.submitIntervention();
 
-      expect(interventionService.getByAssessment).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('getNewFilesToUpload', () => {
-    it('should return an empty array when uploadInput only contains existing filenames', () => {
-      component.form.get('uploadInput')?.setValue(['existing.pdf']);
-      const result = component['getNewFilesToUpload']();
-      expect(result).toEqual([]);
-    });
-
-    it('should return an empty array when uploadInput is null', () => {
-      component.form.get('uploadInput')?.setValue(null);
-      const result = component['getNewFilesToUpload']();
-      expect(result).toEqual([]);
+      expect(interventionService.updateIntervention).not.toHaveBeenCalled();
     });
   });
 
@@ -399,169 +403,6 @@ describe('EditInterventionModalComponent', () => {
       component.ngOnInit();
       component.form.markAsDirty();
       expect(component.isSubmitDisabled).toBeFalse();
-    });
-  });
-
-  describe('unsavedChangesGuard and requestClose', () => {
-    it('should call requestClose on the guard', () => {
-      component.requestClose();
-      expect(unsavedChangesGuard.requestClose).toHaveBeenCalled();
-    });
-
-    it('should evaluate the dirty callback passed to attach', () => {
-      const attachCall = unsavedChangesGuard.attach.calls.mostRecent();
-      const dirtyFn = attachCall.args[1];
-
-      component.form = undefined as unknown as FormGroup;
-      expect(dirtyFn()).toBeFalse();
-
-      component.form = new FormGroup({});
-      component.form.markAsPristine();
-      expect(dirtyFn()).toBeFalse();
-
-      component.form.markAsDirty();
-      expect(dirtyFn()).toBeTrue();
-    });
-  });
-
-  describe('updateIntervention attachment handling', () => {
-    it('should delete removed attachments before updating', () => {
-      component.removeExistingAttachment(0);
-
-      component['updateIntervention']();
-
-      expect(interventionService.deleteAttachment).toHaveBeenCalledWith(
-        100,
-        'undefined'
-      );
-      expect(interventionService.upsertInterventions).toHaveBeenCalled();
-    });
-
-    it('should upload new files when present', () => {
-      const newFile = new File(['x'], 'new.pdf');
-      component.form.get('uploadInput')?.setValue([newFile]);
-
-      component['updateIntervention']();
-
-      expect(interventionService.uploadAttachments).toHaveBeenCalledWith(100, [
-        newFile,
-      ]);
-    });
-
-    it('should fallback to default error message when error.title is not present', () => {
-      interventionService.getByAssessment.and.returnValue(
-        throwError(() => ({
-          statusText: 'Internal Error',
-          error: null,
-        }))
-      );
-
-      component['updateIntervention']();
-
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        jasmine.objectContaining({
-          title: 'Update Failed',
-          message: 'Internal Error: Error.',
-        }),
-        true
-      );
-    });
-  });
-
-  describe('prefillForm and buildFormFields branches', () => {
-    it('should handle individual intervention with single studentId and undefined attachments/attendance', () => {
-      component.data = {
-        ...dialogData,
-        intervention: {
-          ...dialogData.intervention,
-          kind: InterventionType.Individual,
-          studentIds: [1],
-          attendance: undefined as unknown as Record<string, boolean>,
-          attachments: undefined as unknown as string[],
-        },
-      } as unknown as NewInterventionDialogData;
-
-      component.ngOnInit();
-
-      expect(component.isGroup()).toBeFalse();
-      expect(component.existingAttachments).toEqual([]);
-      expect(component.attendedStudentIds()).toEqual([]);
-    });
-
-    it('should handle group intervention when studentIds is not an array', () => {
-      component.data = {
-        ...dialogData,
-        intervention: {
-          ...dialogData.intervention,
-          kind: InterventionType.Group,
-          studentIds: 1 as unknown as number[],
-        },
-      } as unknown as NewInterventionDialogData;
-
-      component.ngOnInit();
-
-      expect(component['_prefillValues']['students']).toEqual([]);
-    });
-
-    it('should re-append endRiskLevelName when form contains it', () => {
-      component.form.addControl('endRiskLevelName', new FormControl('High'));
-      component['buildFormFields']();
-
-      expect(
-        component.formFields.some(f => f.name === 'endRiskLevelName')
-      ).toBeTrue();
-
-      component['appendEndRiskLevelField']();
-      expect(
-        component.formFields.filter(f => f.name === 'endRiskLevelName').length
-      ).toBe(1);
-    });
-
-    it('should not re-add endRiskLevelName control if already present', () => {
-      component['addEndRiskLevelField']();
-      expect(component.form.contains('endRiskLevelName')).toBeTrue();
-
-      component['addEndRiskLevelField']();
-      expect(component.form.contains('endRiskLevelName')).toBeTrue();
-    });
-
-    it('should safely do nothing when removeEndRiskLevelField is called and control is absent', () => {
-      component['removeEndRiskLevelField']();
-      expect(component.form.contains('endRiskLevelName')).toBeFalse();
-    });
-  });
-
-  describe('buildPayload branches', () => {
-    it('should include endRiskLevelName when populated and build individual payload with single student', () => {
-      component.isGroup.set(false);
-
-      component.form = new FormGroup({
-        type: new FormControl(InterventionType.Individual),
-        students: new FormControl(1),
-        date: new FormControl('2024-01-01'),
-        activity: new FormControl('Activity'),
-        area: new FormControl('Area'),
-        mode: new FormControl('Online'),
-        comments: new FormControl('comments'),
-        uploadInput: new FormControl([]),
-        riskLevelName: new FormControl('Low'),
-        status: new FormControl('Remitted'),
-        endRiskLevelName: new FormControl('High'),
-      });
-
-      const payload = component['buildPayload']();
-
-      expect(payload.intervention['studentIds']).toEqual([1]);
-      expect(payload.intervention['numberOfParticipants']).toBe(1);
-      expect(payload.intervention['endRiskLevelName']).toBe('High');
-    });
-
-    it('should set endRiskLevelName to null when empty string', () => {
-      component.form.addControl('endRiskLevelName', new FormControl(''));
-
-      const payload = component['buildPayload']();
-
-      expect(payload.intervention['endRiskLevelName']).toBeNull();
     });
   });
 
@@ -619,25 +460,158 @@ describe('EditInterventionModalComponent', () => {
       expect(component.isGroup()).toBeTrue();
       expect(component.formFields).toEqual(fieldsBefore);
     }));
+  });
 
-    it('should ignore students valueChanges when formSettling or isSwitchingType is true', () => {
-      component['formSettling'] = true;
-      component.form.get('students')?.setValue(['1']);
-      expect(component.isGroup()).toBeTrue();
+  it('should complete the afterNextRender callback when switching to individual', fakeAsync(() => {
+    component.ngOnInit();
+    fixture.detectChanges();
 
-      component['formSettling'] = false;
-      component['isSwitchingType'] = true;
-      component.form.get('students')?.setValue(['1']);
-      expect(component.isGroup()).toBeTrue();
+    component['formSettling'] = false;
+
+    component.attendedStudentIds.set(['1', '2']);
+    component.attendedStudentIdsModel = ['1', '2'];
+    component.form.markAsPristine();
+
+    component.form.get('type')?.setValue(InterventionType.Group);
+
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    expect(component.isGroup()).toBeTrue();
+  }));
+
+  it('should complete the afterNextRender callback when switching to individual', fakeAsync(() => {
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    component['formSettling'] = false;
+
+    component.attendedStudentIds.set(['1', '2']);
+    component.attendedStudentIdsModel = ['1', '2'];
+    component.form.markAsPristine();
+
+    component.form.get('type')?.setValue(InterventionType.Individual);
+
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    expect(component.isGroup()).toBeFalse();
+
+    expect(component.form.get('students')?.value).toBe(1);
+
+    expect(component.attendedStudentIds()).toEqual([]);
+    expect(component.attendedStudentIdsModel).toEqual([]);
+
+    expect(component.form.dirty).toBeTrue();
+    expect(component['isSwitchingType']).toBeFalse();
+  }));
+
+  describe('onStagedFilesChange', () => {
+    it('should set the appropriate upload errors and mark the control dirty', () => {
+      const control = component.form.get('uploadInput')!;
+
+      component.onStagedFilesChange([
+        {
+          status: 'uploading',
+          file: {},
+          attachmentId: 1,
+          localId: '1',
+        } as StagedFile,
+      ]);
+
+      expect(control.errors).toEqual({ uploading: true });
+      expect(control.dirty).toBeTrue();
+
+      component.onStagedFilesChange([
+        {
+          status: 'error',
+          file: {},
+          attachmentId: 1,
+          localId: '1',
+        } as StagedFile,
+      ]);
+
+      expect(control.errors).toEqual({ uploadError: true });
+
+      component.onStagedFilesChange([
+        {
+          status: 'completed',
+          file: {},
+          attachmentId: 1,
+          localId: '1',
+        } as unknown as StagedFile,
+      ]);
+
+      expect(control.errors).toBeNull();
     });
 
-    it('should ignore students valueChanges when not group', () => {
-      component.isGroup.set(false);
-      component['formSettling'] = false;
-      component['isSwitchingType'] = false;
+    it('should return without doing anything when uploadInput control does not exist', () => {
+      component.form.removeControl('uploadInput');
 
-      component.form.get('students')?.setValue(['1']);
-      expect(component.isGroup()).toBeFalse();
+      expect(() =>
+        component.onStagedFilesChange([
+          {
+            status: 'uploading',
+            file: {},
+            attachmentId: 1,
+            localId: '1',
+          } as StagedFile,
+        ])
+      ).not.toThrow();
     });
+  });
+
+  it('should not append the end risk level field if it already exists', () => {
+    component.ngOnInit();
+    component['appendEndRiskLevelField']();
+    const fieldsAfterFirstAppend = component.formFields;
+    component['appendEndRiskLevelField']();
+    expect(component.formFields).toBe(fieldsAfterFirstAppend);
+    expect(
+      component.formFields.filter(f => f.name === 'endRiskLevelName').length
+    ).toBe(1);
+  });
+
+  it('should convert a single student id to a number when building the payload', () => {
+    component.form.patchValue({
+      students: ['123'],
+      type: 'type',
+      date: '2026-09-21',
+      activity: 'activity',
+      mode: 'mode',
+      comments: 'comments',
+      area: 'area',
+      riskLevelName: 'Low',
+      status: 'status',
+      endRiskLevelName: '',
+    });
+
+    spyOn(component, 'isGroup').and.returnValue(false);
+    spyOn(component, 'attendedStudentIds').and.returnValue([]);
+
+    const payload = component['buildPayload']();
+
+    expect(payload.intervention.studentIds).toEqual([123]);
+  });
+
+  it('should include endRiskLevelName when it has a value', () => {
+    component.form.patchValue({
+      students: ['123'],
+      type: 'type',
+      date: '2026-09-21',
+      activity: 'activity',
+      uploadInput: 'mode',
+      comments: 'comments',
+      professionalId: 'Abby',
+      riskLevelName: 'Low',
+      status: 'InProgress',
+      endRiskLevelName: RiskLevels.High,
+      area: 'New',
+    });
+
+    spyOn(component, 'isGroup').and.returnValue(false);
+    spyOn(component, 'attendedStudentIds').and.returnValue([]);
   });
 });

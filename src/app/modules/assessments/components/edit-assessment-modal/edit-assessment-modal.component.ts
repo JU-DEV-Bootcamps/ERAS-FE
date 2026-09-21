@@ -197,7 +197,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
       .requestClose(this.dialogRef, () => this.formHasChanges())
       .subscribe();
   }
-  
+
   private extractOptionValue(raw: unknown): string {
     if (raw && typeof raw === 'object' && 'value' in raw) {
       return (raw as { value: string }).value;
