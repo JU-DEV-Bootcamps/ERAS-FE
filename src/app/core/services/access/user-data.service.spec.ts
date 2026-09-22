@@ -1,15 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import keycloak from 'keycloak-js';
+import keycloak, { KeycloakProfile } from 'keycloak-js';
 import { UserDataService } from './user-data.service';
 import { ERASRoles, Profile } from '@core/models/profile.model';
+import { environment } from 'src/environments/environment';
 
 interface KeycloakMock {
   loadUserProfile: () => Promise<unknown>;
+  resourceAccess?: Record<string, { roles: string[] }>;
 }
 
 describe('UserDataService', () => {
   let service: UserDataService;
   let mockKeycloak: jasmine.SpyObj<KeycloakMock>;
+
+  const clientId = environment.keycloak.clientId;
 
   beforeEach(() => {
     mockKeycloak = jasmine.createSpyObj('Keycloak', ['loadUserProfile']);
@@ -33,8 +37,8 @@ describe('UserDataService', () => {
     service = TestBed.inject(UserDataService);
 
     expect(service.user()).toEqual(profile);
-    expect(sessionStorage.getItem('erasUserProfile')).toEqual(
-      JSON.stringify(profile)
+    expect(JSON.parse(sessionStorage.getItem('erasUserProfile')!)).toEqual(
+      profile
     );
   });
 
@@ -60,8 +64,8 @@ describe('UserDataService', () => {
 
     expect(mockKeycloak.loadUserProfile).toHaveBeenCalled();
     expect(service.user()).toEqual(profile);
-    expect(sessionStorage.getItem('erasUserProfile')).toEqual(
-      JSON.stringify(profile)
+    expect(JSON.parse(sessionStorage.getItem('erasUserProfile')!)).toEqual(
+      profile
     );
   });
 
@@ -82,5 +86,69 @@ describe('UserDataService', () => {
     service.clear();
     expect(service.user()).toBeNull();
     expect(sessionStorage.getItem('erasUserProfile')).toBeNull();
+  });
+
+  describe('role mapping (getUserRole via initUser)', () => {
+    const keycloakProfile = (): KeycloakProfile =>
+      ({ id: '10', firstName: 'Ada', lastName: 'Lovelace' }) as KeycloakProfile;
+
+    it('should map role to ADMIN when the ADMIN role is present', async () => {
+      mockKeycloak.resourceAccess = {
+        [clientId]: { roles: [ERASRoles.ADMIN, 'someOtherRole'] },
+      };
+      mockKeycloak.loadUserProfile.and.returnValue(
+        Promise.resolve(keycloakProfile())
+      );
+      service = TestBed.inject(UserDataService);
+      await service.initUser();
+
+      expect(service.user()?.role).toBe(ERASRoles.ADMIN);
+    });
+
+    it('should fall back to GUEST when no known ERAS role matches', async () => {
+      mockKeycloak.resourceAccess = {
+        [clientId]: { roles: ['unrelated-role'] },
+      };
+      mockKeycloak.loadUserProfile.and.returnValue(
+        Promise.resolve(keycloakProfile())
+      );
+      service = TestBed.inject(UserDataService);
+      await service.initUser();
+
+      expect(service.user()?.role).toBe(ERASRoles.GUEST);
+    });
+
+    it('should fall back to GUEST when resourceAccess is undefined', async () => {
+      mockKeycloak.resourceAccess = undefined;
+      mockKeycloak.loadUserProfile.and.returnValue(
+        Promise.resolve(keycloakProfile())
+      );
+      service = TestBed.inject(UserDataService);
+      await service.initUser();
+
+      expect(service.user()?.role).toBe(ERASRoles.GUEST);
+    });
+
+    it('BUG: throws when resourceAccess exists but has no entry for our clientId', async () => {
+      mockKeycloak.resourceAccess = { 'some-other-client': { roles: [] } };
+      mockKeycloak.loadUserProfile.and.returnValue(
+        Promise.resolve(keycloakProfile())
+      );
+      service = TestBed.inject(UserDataService);
+
+      await expectAsync(service.initUser()).toBeRejected();
+    });
+  });
+
+  describe('mapToProfileModel', () => {
+    it('should use only firstName for fullName when lastName is missing', async () => {
+      mockKeycloak.loadUserProfile.and.returnValue(
+        Promise.resolve({ id: '20', firstName: 'Grace' } as KeycloakProfile)
+      );
+      service = TestBed.inject(UserDataService);
+      await service.initUser();
+
+      expect(service.user()?.fullName).toBe('Grace');
+    });
   });
 });
