@@ -176,3 +176,7 @@ $color-accent-hover: #4a8a7c;
     background-color: #deeae8;
   }
 }
+
+:host mat-chip-grid {
+  max-width: 335px !important;
+}
