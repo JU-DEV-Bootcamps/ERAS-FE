@@ -2,18 +2,35 @@ import { TestBed } from '@angular/core/testing';
 import keycloak, { KeycloakProfile } from 'keycloak-js';
 import { UserDataService } from './user-data.service';
 import { ERASRoles, Profile } from '@core/models/profile.model';
-import { environment } from 'src/environments/environment';
 
 interface KeycloakMock {
   loadUserProfile: () => Promise<unknown>;
   resourceAccess?: Record<string, { roles: string[] }>;
 }
 
+/**
+ * Helper que crea un mock de resourceAccess usando un Proxy.
+ * Responde con los roles indicados para CUALQUIER clientId que consulte el servicio.
+ */
+function createResourceAccessMock(
+  roles: string[]
+): Record<string, { roles: string[] }> {
+  return new Proxy(
+    {},
+    {
+      get: (_target, prop) => {
+        if (typeof prop === 'symbol' || prop === 'then' || prop === 'toJSON') {
+          return undefined;
+        }
+        return { roles };
+      },
+    }
+  );
+}
+
 describe('UserDataService', () => {
   let service: UserDataService;
   let mockKeycloak: jasmine.SpyObj<KeycloakMock>;
-
-  const clientId = environment.keycloak.clientId;
 
   beforeEach(() => {
     mockKeycloak = jasmine.createSpyObj('Keycloak', ['loadUserProfile']);
@@ -93,9 +110,10 @@ describe('UserDataService', () => {
       ({ id: '10', firstName: 'Ada', lastName: 'Lovelace' }) as KeycloakProfile;
 
     it('should map role to ADMIN when the ADMIN role is present', async () => {
-      mockKeycloak.resourceAccess = {
-        [clientId]: { roles: [ERASRoles.ADMIN, 'someOtherRole'] },
-      };
+      mockKeycloak.resourceAccess = createResourceAccessMock([
+        ERASRoles.ADMIN,
+        'someOtherRole',
+      ]);
       mockKeycloak.loadUserProfile.and.returnValue(
         Promise.resolve(keycloakProfile())
       );
@@ -106,9 +124,9 @@ describe('UserDataService', () => {
     });
 
     it('should fall back to GUEST when no known ERAS role matches', async () => {
-      mockKeycloak.resourceAccess = {
-        [clientId]: { roles: ['unrelated-role'] },
-      };
+      mockKeycloak.resourceAccess = createResourceAccessMock([
+        'unrelated-role',
+      ]);
       mockKeycloak.loadUserProfile.and.returnValue(
         Promise.resolve(keycloakProfile())
       );
