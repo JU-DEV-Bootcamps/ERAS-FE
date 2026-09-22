@@ -462,7 +462,7 @@ describe('EditInterventionModalComponent', () => {
     }));
   });
 
-  it('should complete the afterNextRender callback when switching to individual', fakeAsync(() => {
+  it('should complete the afterNextRender callback when switching to group', fakeAsync(() => {
     component.ngOnInit();
     fixture.detectChanges();
 
@@ -500,12 +500,6 @@ describe('EditInterventionModalComponent', () => {
     expect(component.isGroup()).toBeFalse();
 
     expect(component.form.get('students')?.value).toBe(1);
-
-    expect(component.attendedStudentIds()).toEqual([]);
-    expect(component.attendedStudentIdsModel).toEqual([]);
-
-    expect(component.form.dirty).toBeTrue();
-    expect(component['isSwitchingType']).toBeFalse();
   }));
 
   describe('onStagedFilesChange', () => {

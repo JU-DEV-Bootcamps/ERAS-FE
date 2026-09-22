@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -28,6 +35,7 @@ import { CustomValidators } from '@core/utils/forms/custom-validators';
 export class FormFactoryComponent implements OnInit {
   formReady = output<FormGroup>();
   fields = input<DynamicField[]>([]);
+  fieldsToDisplay = signal<DynamicField[]>([]);
 
   form!: FormGroup;
   private _factory = inject(FormFactoryService);
@@ -39,8 +47,6 @@ export class FormFactoryComponent implements OnInit {
     this.fields().forEach((field: DynamicField) => {
       const initialValue = field.value ?? '';
       const isDisabled = field.disabled ?? false;
-      const isHidden = field.hidden ?? false;
-
       const resolvedValidators = (field.validators ?? [])
         .map(validator => {
           if (typeof validator === 'string') {
@@ -54,10 +60,11 @@ export class FormFactoryComponent implements OnInit {
         .filter(Boolean);
 
       controls[field.name] = [
-        { value: initialValue, disabled: isDisabled, hidden: isHidden },
+        { value: initialValue, disabled: isDisabled },
         resolvedValidators,
       ];
     });
+    this.fieldsToDisplay.set(this.fields().filter(field => !field.hidden));
     this.form = this._fb.group(controls);
     this.formReady.emit(this.form);
   }

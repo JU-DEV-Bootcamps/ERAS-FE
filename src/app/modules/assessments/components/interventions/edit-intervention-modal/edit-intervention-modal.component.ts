@@ -261,7 +261,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       },
       {
         type: 'select',
-        name: 'professionalId',
+        name: 'professional',
         label: 'Professional',
         options: [this.data.professional],
         validators: [Validators.required],
@@ -389,6 +389,9 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       .get('type')
       ?.setValue(this._prefillValues['type'], { emitEvent: false });
 
+    Object.values(this.form.controls).forEach(control => {
+      control.updateValueAndValidity({ emitEvent: false });
+    });
     afterNextRender(
       () => {
         setTimeout(() => {
@@ -494,7 +497,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       activity: values.activity,
       area: values.area,
       numberOfParticipants: payload.intervention['numberOfParticipants'],
-      professional: values.professionalId,
+      professional: values.professional,
       comments: values.comments,
       studentIds: payload.intervention['studentIds'],
       attendance: payload.intervention['attendance'],
