@@ -41,7 +41,7 @@ export class InterventionService extends BaseApiService {
   }
 
   createIntervention(
-    payload: AddInterventionPayload
+    payload: AddInterventionPayload & { draftSessionId: number | null }
   ): Observable<InterventionModel> {
     return this.post<AddInterventionPayload, InterventionModel>(
       'interventions',
