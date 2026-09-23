@@ -35,8 +35,11 @@ export class AttachmentApiService extends BaseApiService {
     return this.get<AttachmentModel[]>('', params);
   }
 
-  download(attachmentId: number) {
-    return this.get(`${attachmentId}/download`);
+  downloadAttachment(attachmentId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/attachments/${attachmentId}/download`,
+      { responseType: 'blob' }
+    );
   }
 
   deleteAttachment(attachmentId: number) {
