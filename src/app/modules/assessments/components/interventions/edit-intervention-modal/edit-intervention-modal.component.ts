@@ -380,9 +380,6 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     this.form = event;
     this.formSettling = true;
     this.form.patchValue(this._prefillValues, { emitEvent: false });
-    // this.form
-    //   .get('type')
-    //   ?.setValue(this.form.value['type'], { emitEvent: false });
 
     Object.values(this.form.controls).forEach(control => {
       control.updateValueAndValidity({ emitEvent: false });

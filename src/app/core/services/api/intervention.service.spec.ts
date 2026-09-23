@@ -56,9 +56,12 @@ describe('InterventionService', () => {
 
   describe('createIntervention', () => {
     it('should make a POST request to interventions with the given payload', () => {
-      const payload: AddInterventionPayload = {
+      const payload: AddInterventionPayload & {
+        draftSessionId: number | null;
+      } = {
         assessmentId: 10,
         intervention: { type: 'follow-up' },
+        draftSessionId: 123,
       };
       const mockResponse = { id: 1 } as unknown as InterventionModel;
 
