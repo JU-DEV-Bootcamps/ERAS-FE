@@ -93,6 +93,11 @@ export class SelectMultipleVirtualScrollComponent {
   readonly useVirtualScroll = computed(
     () => this.scrollItems().length > VIRTUAL_SCROLL_THRESHOLD
   );
+  readonly panelClass = computed(() =>
+    this.useVirtualScroll()
+      ? 'compact-select-panel compact-select-panel-virtual'
+      : 'compact-select-panel'
+  );
   readonly floatLabelSetup = input<FloatLabelType>('auto');
   readonly placeholder = input<string>('Search...');
   readonly selectedItemsValues = signal<SelectAllValue[]>([]);

@@ -11,13 +11,8 @@
     [formControl]="control()"
     [compareWith]="compareFn"
     [placeholder]="placeholder()"
-    [panelClass]="
-      useVirtualScroll()
-        ? 'compact-select-panel-virtual'
-        : 'compact-select-panel'
-    "
+    [panelClass]="panelClass()"
     (openedChange)="handleOpenedChange($event)"
-    panelClass="compact-select-panel"
   >
     @if (useVirtualScroll()) {
       <div style="display: none" aria-hidden="true">
