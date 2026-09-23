@@ -115,4 +115,15 @@ export class InterventionService extends BaseApiService {
       `interventions/${interventionId}/attachments/${fileName}`
     );
   }
+
+  replaceInterventionType(
+    assessmentId: number,
+    interventionId: number,
+    payload: UpdateInterventionModel
+  ): Observable<InterventionModel> {
+    return this.put<UpdateInterventionModel, InterventionModel>(
+      `${assessmentId}/interventions/${interventionId}/replace-type`,
+      payload
+    );
+  }
 }
