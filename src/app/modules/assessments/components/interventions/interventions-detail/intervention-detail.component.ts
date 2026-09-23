@@ -6,6 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { InterventionPillBadgeComponent } from '../interventions-list/intervention-status-badge/intervention-pill-badge.component';
 import { InterventionRowViewModel } from '../interventions-list/intervention-list.component';
 import { InterventionService } from '@core/services/api/intervention.service';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { AttachmentModel } from '@core/models/attachment.model';
 
 @Component({
   selector: 'app-intervention-detail',
@@ -23,8 +25,10 @@ import { InterventionService } from '@core/services/api/intervention.service';
 })
 export class InterventionDetailComponent {
   private readonly interventionService = inject(InterventionService);
+  private readonly attachmentService = inject(AttachmentApiService);
 
   @Input({ required: true }) data!: InterventionRowViewModel;
+  @Input({ required: false }) attachments: AttachmentModel[] = [];
 
   @Output() close = new EventEmitter<void>();
 
@@ -39,17 +43,12 @@ export class InterventionDetailComponent {
     this.close.emit();
   }
 
-  openAttachment(relativePath: string): void {
-    const fileName = relativePath.split('/').pop() ?? relativePath;
-    const interventionId = this.data.id!;
-
-    this.interventionService
-      .downloadAttachment(interventionId, fileName)
-      .subscribe(blob => {
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-      });
+  openAttachment(attachmentId: number): void {
+    this.attachmentService.downloadAttachment(attachmentId).subscribe(blob => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    });
   }
 
   getFileIcon(relativePath: string): string {

@@ -83,18 +83,22 @@
     <span class="field-value">{{ data.comments || '—' }}</span>
   </div>
 
-  @if (data.attachments?.length) {
+  @if (attachments.length > 0) {
     <div class="field-group">
       <span class="field-label">Evidences:</span>
       <div class="attachments-list">
-        @for (path of data.attachments!; track path) {
+        @for (attachment of attachments!; track attachment.id) {
           <button
             class="attachment-item"
             type="button"
-            (click)="openAttachment('pathWillUpdated')"
+            (click)="openAttachment(attachment.id)"
           >
-            <mat-icon class="attachment-icon">{{ getFileIcon('') }}</mat-icon>
-            <span class="attachment-name">'Unknown file'</span>
+            <mat-icon class="attachment-icon">{{
+              getFileIcon(attachment.originalFileName ?? '')
+            }}</mat-icon>
+            <span class="attachment-name">
+              {{ attachment.originalFileName ?? '' }}
+            </span>
             <mat-icon class="attachment-open-icon">open_in_new</mat-icon>
           </button>
         }

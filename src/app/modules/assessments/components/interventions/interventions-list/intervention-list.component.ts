@@ -34,6 +34,8 @@ import { AppliedFilter } from '@shared/components/list-filters/models/list-filte
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { CsvService } from '@core/services/exports/csv.service';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { AttachmentModel } from '@core/models/attachment.model';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -80,6 +82,7 @@ export interface ExportableIntervention {
 export class InterventionListComponent {
   private readonly interventionService = inject(InterventionService);
   private readonly assessmentService = inject(AssessmentService);
+  private readonly attachmentService = inject(AttachmentApiService);
   private readonly filterStrategy = inject(InterventionFilterStrategy);
   private readonly csvService = inject(CsvService);
 
@@ -132,6 +135,7 @@ export class InterventionListComponent {
   protected readonly interventions = signal<InterventionRowViewModel[]>([]);
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
+  protected readonly listAttachments = signal<AttachmentModel[]>([]);
 
   protected readonly sortColumn = signal<string | null>(null);
   protected readonly sortDirection = signal<'asc' | 'desc'>('asc');
@@ -201,10 +205,24 @@ export class InterventionListComponent {
 
   protected onViewClick(item: InterventionRowViewModel): void {
     this.selectedIntervention.set(item);
+    if (item.id === undefined) {
+      return;
+    }
+    this.attachmentService.list('interventions', item.id).subscribe({
+      next: data => {
+        this.listAttachments.set(data);
+      },
+      error: error => {
+        console.error('Failed to load attachments', error);
+        this.listAttachments.set([]);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   protected closeDetailPanel(): void {
     this.selectedIntervention.set(null);
+    this.listAttachments.set([]);
   }
 
   protected onEditClick(item: InterventionModel): void {
