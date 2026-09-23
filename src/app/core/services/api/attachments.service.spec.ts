@@ -102,4 +102,14 @@ describe('AttachmentApiService', () => {
       expect(postSpy).toHaveBeenCalledWith('drafts', undefined);
     });
   });
+
+  describe('deleteAttachment', () => {
+    it('should call delete endpoint', () => {
+      const deleteSpy = spyOn(service, 'delete').and.stub();
+
+      service.deleteAttachment(1);
+
+      expect(deleteSpy).toHaveBeenCalledWith('1');
+    });
+  });
 });

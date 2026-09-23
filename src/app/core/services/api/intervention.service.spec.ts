@@ -186,4 +186,39 @@ describe('InterventionService', () => {
       req.flush(null);
     });
   });
+
+  describe('replaceAttachment', () => {
+    it('should make a put request to replace an intervention', () => {
+      const intervention = {
+        updateInterventionDto: {
+          id: 5,
+          dateUtc: '10/10/2026',
+          studentIds: [2],
+          mode: InterventionMode.InPlace,
+          kind: InterventionType.Individual,
+        },
+      } as unknown as UpdateInterventionModel;
+
+      const result = {
+        id: 5,
+        dateUtc: '10/10/2026',
+        studentIds: [2],
+        mode: InterventionMode.InPlace,
+        kind: InterventionType.Individual,
+      } as unknown as InterventionModel;
+
+      service.replaceInterventionType(10, 5, intervention).subscribe(res => {
+        expect(res).toEqual(result);
+      });
+
+      const req = httpMock.expectOne(
+        `${baseUrl}/10/interventions/5/replace-type`
+      );
+
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(intervention);
+
+      req.flush(intervention.updateInterventionDto);
+    });
+  });
 });
