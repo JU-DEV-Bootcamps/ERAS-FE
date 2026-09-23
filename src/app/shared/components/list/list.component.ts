@@ -95,6 +95,10 @@ export class ListComponent<T extends object>
   @Input() allItems: T[] = [];
   @Input() areExportedAllItems = false;
   @Input() emptyTemplate?: TemplateRef<T>;
+  @Input() hasError = false;
+  @Input() errorDescription =
+    'Something went wrong loading this data. Please try again later.';
+  @Input() emptyDescription = 'No data available.';
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();

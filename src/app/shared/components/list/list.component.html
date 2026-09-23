@@ -47,8 +47,13 @@
     @if (!items.length) {
       @if (emptyTemplate) {
         <ng-container [ngTemplateOutlet]="emptyTemplate" />
+      } @else if (hasError) {
+        <app-empty-data-message
+          title="Something went wrong"
+          [description]="errorDescription"
+        />
       } @else {
-        <app-empty-data-message />
+        <app-empty-data-message [description]="emptyDescription" />
       }
     } @else {
       <app-table-with-actions

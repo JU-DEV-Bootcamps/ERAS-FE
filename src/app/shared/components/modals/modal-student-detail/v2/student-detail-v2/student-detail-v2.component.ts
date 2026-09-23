@@ -102,6 +102,11 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   isGeneratingCSV = false;
   processedPolls = new Set<number>();
 
+  studentDetailsError = false;
+  pollsError = false;
+  componentsAvgError = false;
+  answersError = false;
+
   @Input({ required: true }) studentId!: number;
 
   columns: Column<AnswerResponse>[] = [{ key: 'variable', label: 'Variable' }];
@@ -206,6 +211,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   }
 
   getStudentDetails(studentId: number) {
+    this.studentDetailsError = false;
     this.studentService
       .getStudentDetailsById(studentId, this.pagination)
       .pipe(takeUntil(this.destroy$))
@@ -214,11 +220,15 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
           this.studentDetails = data;
           this.getStudentPolls(studentId);
         },
-        error: error => console.error(error),
+        error: error => {
+          console.error(error);
+          this.studentDetailsError = true;
+        },
       });
   }
 
   getStudentPolls(studentId: number) {
+    this.pollsError = false;
     this.pollsService
       .getPollsByStudentId(studentId)
       .pipe(takeUntil(this.destroy$))
@@ -236,11 +246,15 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
             this.getStudentAnswersByPoll(studentId, this.selectedPoll);
           }
         },
-        error: error => console.error(error),
+        error: error => {
+          console.error(error);
+          this.pollsError = true;
+        },
       });
   }
 
   getComponentsAvg(studentId: number, pollId: number) {
+    this.componentsAvgError = false;
     this.pollInsService
       .getComponentsRiskByPollForStudent(studentId, pollId)
       .pipe(takeUntil(this.destroy$))
@@ -249,12 +263,16 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
           this.componentsAvg = [...this.componentsAvg, ...data];
           this.buildChartSeries();
         },
-        error: error => console.error(error),
+        error: error => {
+          console.error(error);
+          this.componentsAvgError = true;
+        },
       });
   }
 
   getStudentAnswersByPoll(studentId: number, pollId: number) {
     if (!pollId || pollId === 0) return;
+    this.answersError = false;
     this.studentService
       .getStudentAnswersByPoll(studentId, pollId, this.pagination)
       .pipe(takeUntil(this.destroy$))
@@ -263,7 +281,10 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
           this.studentAnswers = data.items;
           this.totalStudentAnswers = data.count;
         },
-        error: error => console.error(error),
+        error: error => {
+          console.error(error);
+          this.answersError = true;
+        },
       });
   }
 
@@ -283,10 +304,14 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   }
 
   buildChartSeries() {
-    const groupedByPoll: Record<
-      number,
-      { x: string; y: number; fillColor: string; _nameLower: string }[]
-    > = {};
+    interface PollChartItem {
+      x: string;
+      y: number;
+      fillColor: string;
+      _nameLower: string;
+    }
+
+    const groupedByPoll: Record<number, PollChartItem[]> = {};
 
     if (this.componentsAvg && this.componentsAvg.length > 0) {
       this.componentsAvg.forEach(item => {
@@ -303,8 +328,12 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
       });
     }
 
-    for (const pollId in groupedByPoll) {
-      groupedByPoll[pollId].sort((a, b) => {
+    const newSeries: Record<number, ApexAxisChartSeries> = {};
+
+    for (const [pollIdStr, items] of Object.entries(groupedByPoll)) {
+      const pollId = Number(pollIdStr);
+
+      items.sort((a, b) => {
         const indexA = this.COMPONENT_ORDER.findIndex(o =>
           a._nameLower.includes(o)
         );
@@ -313,14 +342,10 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
         );
         return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
       });
+
+      newSeries[pollId] = [{ name: 'Component Average', data: items }];
     }
 
-    const newSeries: Record<number, ApexAxisChartSeries> = {};
-    for (const pollId in groupedByPoll) {
-      newSeries[pollId] = [
-        { name: 'Component Average', data: groupedByPoll[pollId] },
-      ];
-    }
     this.chartSeriesByPollId = newSeries;
   }
 
