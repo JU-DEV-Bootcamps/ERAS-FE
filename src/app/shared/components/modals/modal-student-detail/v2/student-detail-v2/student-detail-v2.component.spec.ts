@@ -3,8 +3,8 @@ import { of, throwError } from 'rxjs';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Swiper } from 'swiper/types';
 import { ChartComponent } from 'ng-apexcharts';
-
 import { StudentDetailV2Component } from './student-detail-v2.component';
 import { StudentService } from '@core/services/api/student.service';
 import { PollService } from '@core/services/api/poll.service';
@@ -16,7 +16,10 @@ import { ComponentsAvgModel } from '@core/models/components-avg.model';
 import { AnswerResponse } from '@core/models/answer-request.model';
 import { PagedResult } from '@core/services/interfaces/page.type';
 import * as RiskLevel from '@core/constants/riskLevel';
-import { Swiper } from 'swiper/types';
+
+interface SwiperEventTarget extends EventTarget {
+  swiper: Swiper;
+}
 
 interface SwiperEventTarget extends EventTarget {
   swiper: Swiper;
@@ -448,6 +451,39 @@ describe('StudentDetailV2Component', () => {
       pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
       studentServiceSpy.getStudentAnswersByPoll.calls.reset();
 
+      studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
+        of(mockAnswersPage)
+      );
+
+      await component.exportReportPdf();
+
+      expect(studentServiceSpy.getStudentAnswersByPoll).toHaveBeenCalledWith(
+        1,
+        10,
+        { page: 0, pageSize: 50 }
+      );
+      expect(pdfHelperSpy.exportToPdf).toHaveBeenCalled();
+    });
+
+    it('should delegate to PdfHelper.exportToPdf directly without fetching if items fit in current page', async () => {
+      component.ngOnInit();
+      component.totalStudentAnswers = 5;
+      pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
+      studentServiceSpy.getStudentAnswersByPoll.calls.reset();
+
+      await component.exportReportPdf();
+
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+      expect(pdfHelperSpy.exportToPdf).toHaveBeenCalled();
+      expect(component.isGeneratingPDF).toBeFalse();
+    });
+
+    it('should fetch all answers when totalStudentAnswers > pagination.pageSize (branch true) before exporting', async () => {
+      component.ngOnInit();
+      component.totalStudentAnswers = 50;
+
+      pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
+      studentServiceSpy.getStudentAnswersByPoll.calls.reset();
       studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
         of(mockAnswersPage)
       );

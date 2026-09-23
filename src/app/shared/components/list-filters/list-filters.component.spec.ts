@@ -17,7 +17,6 @@ import {
   SingleSelectItem,
 } from '../form-field-virtual-scroll/interfaces/select';
 
-// Helpers and Stubs
 const appliedFilters: AppliedFilter[] = [
   {
     name: FilterName.Status,
@@ -199,5 +198,88 @@ describe('ListFiltersComponent', () => {
     component.onApply();
 
     expect(emitSpy).not.toHaveBeenCalled();
+  });
+
+  describe('string validators resolution', () => {
+    it('should resolve a string validator key against Validators and apply it', () => {
+      const fields: FilterField[] = [
+        {
+          disabled: false,
+          name: FilterName.Status,
+          label: 'testFilter1',
+          value: null,
+          type: FilterType.virtualSelect,
+          validators: ['required'],
+        },
+      ];
+      fixture.componentRef.setInput('filterFields', fields);
+      fixture.detectChanges();
+
+      expect(component.filtersForm.get(FilterName.Status)?.invalid).toBeTrue();
+      expect(
+        component.filtersForm.get(FilterName.Status)?.errors?.['required']
+      ).toBeTruthy();
+    });
+
+    it('should ignore an unrecognized string validator key without throwing', () => {
+      const fields: FilterField[] = [
+        {
+          disabled: false,
+          name: FilterName.Status,
+          label: 'testFilter1',
+          value: null,
+          type: FilterType.virtualSelect,
+          validators: ['notARealValidator'],
+        },
+      ];
+
+      expect(() => {
+        fixture.componentRef.setInput('filterFields', fields);
+        fixture.detectChanges();
+      }).not.toThrow();
+
+      expect(component.filtersForm.get(FilterName.Status)?.valid).toBeTrue();
+    });
+
+    it('should accept a validator passed directly as a function', () => {
+      const fields: FilterField[] = [
+        {
+          disabled: false,
+          name: FilterName.Status,
+          label: 'testFilter1',
+          value: null,
+          type: FilterType.virtualSelect,
+          validators: [Validators.required],
+        },
+      ];
+      fixture.componentRef.setInput('filterFields', fields);
+      fixture.detectChanges();
+
+      expect(component.filtersForm.get(FilterName.Status)?.invalid).toBeTrue();
+    });
+  });
+
+  describe('onApply value fallback', () => {
+    it('should emit null for a control whose value is null', () => {
+      const fields: FilterField[] = [
+        {
+          disabled: false,
+          name: FilterName.Status,
+          label: 'testFilter1',
+          value: null,
+          type: FilterType.virtualSelect,
+        },
+      ];
+      fixture.componentRef.setInput('filterFields', fields);
+      fixture.detectChanges();
+
+      const emitSpy = spyOn(component.appliedFilters, 'emit');
+
+      component.onApply();
+
+      expect(emitSpy).toHaveBeenCalledWith([
+        { name: FilterName.Status, value: null },
+      ]);
+    });
   });
 });

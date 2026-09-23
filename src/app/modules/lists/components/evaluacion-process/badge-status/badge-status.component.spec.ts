@@ -1,9 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { BadgeStatusComponent } from './badge-status.component';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
-import { By } from '@angular/platform-browser';
 import { EvaluationModel } from '@core/models/evaluation.model';
 
 describe('BadgeStatusComponent', () => {
@@ -12,12 +10,7 @@ describe('BadgeStatusComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        BadgeStatusComponent,
-        MatIconModule,
-        CommonModule,
-        EmptyDataComponent,
-      ],
+      imports: [BadgeStatusComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BadgeStatusComponent);
@@ -49,5 +42,20 @@ describe('BadgeStatusComponent', () => {
     expect(emptyData.nativeElement.textContent).toContain(
       'No evaluation process found'
     );
+  });
+
+  describe('getClassName', () => {
+    it('should replace spaces with underscores when value has spaces', () => {
+      expect(component.getClassName('Pending Review')).toBe('Pending_Review');
+    });
+
+    it('should return empty string when value is empty', () => {
+      expect(component.getClassName('')).toBe('');
+    });
+
+    it('should handle falsy values safely', () => {
+      expect(component.getClassName(null as unknown as string)).toBe('');
+      expect(component.getClassName(undefined as unknown as string)).toBe('');
+    });
   });
 });

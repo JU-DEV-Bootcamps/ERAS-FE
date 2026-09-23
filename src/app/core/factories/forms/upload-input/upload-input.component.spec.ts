@@ -99,7 +99,6 @@ describe('UploadInputComponent', () => {
         baseField({ fileConfig: { ...baseField().fileConfig, maxSizeMb: 1 } })
       );
       selectFiles([makeFile('big.pdf', 'application/pdf', 5)]);
-      // size (5 bytes) > maxSizeMb configured as 1 in validate() comparison
       expect(component.selectedFiles().length).toBe(0);
     });
 
@@ -223,8 +222,6 @@ describe('UploadInputComponent', () => {
     });
 
     it('should re-trigger maxFilesExceeded on selection even if under per-add maxFiles cap', () => {
-      // Edge case: prefill already at limit, further selection attempts should
-      // still be blocked by validate(), and control should remain invalid.
       const field = baseField({
         fileConfig: {
           ...baseField().fileConfig,
@@ -246,6 +243,57 @@ describe('UploadInputComponent', () => {
       setup(baseField());
       expect(component.selectedFiles().length).toBe(0);
       expect(form.get('uploadInput')?.errors).toBeFalsy();
+    });
+  });
+
+  describe('default config values', () => {
+    it('should apply default maxFiles/maxSizeMb/allowedMimeTypes when fileConfig is absent', () => {
+      const field = {
+        type: 'file',
+        name: 'uploadInput',
+        label: 'Docs',
+      } as DynamicField;
+      setup(field);
+
+      selectFiles([makeFile('doc1.pdf')]);
+      expect(component.selectedFiles().length).toBe(0);
+    });
+  });
+
+  describe('onFileSelected edge cases', () => {
+    beforeEach(() => setup(baseField()));
+
+    it('should do nothing if event.target.files is null', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      Object.defineProperty(input, 'files', { value: null });
+
+      component.onFileSelected({ target: input } as unknown as Event);
+
+      expect(component.selectedFiles().length).toBe(0);
+    });
+
+    it('should call onFileSelected callback for each accepted file', () => {
+      const onFileSelected = jasmine.createSpy('onFileSelected');
+      setup(
+        baseField({ fileConfig: { ...baseField().fileConfig, onFileSelected } })
+      );
+
+      selectFiles([makeFile('doc1.pdf')]);
+
+      expect(onFileSelected).toHaveBeenCalledWith(jasmine.any(File));
+    });
+
+    it('should call onFileRemoved callback with the removed index', () => {
+      const onFileRemoved = jasmine.createSpy('onFileRemoved');
+      setup(
+        baseField({ fileConfig: { ...baseField().fileConfig, onFileRemoved } })
+      );
+
+      selectFiles([makeFile('doc1.pdf'), makeFile('doc2.pdf')]);
+      component.removeFile(0);
+
+      expect(onFileRemoved).toHaveBeenCalledWith(0);
     });
   });
 });
