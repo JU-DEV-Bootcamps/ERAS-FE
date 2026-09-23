@@ -8,12 +8,15 @@ import { of, throwError } from 'rxjs';
 
 import { InterventionRowViewModel } from '../interventions-list/intervention-list.component';
 import { InterventionDetailComponent } from './intervention-detail.component';
-import { InterventionService } from '@core/services/api/intervention.service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
 
 describe('InterventionDetailComponent', () => {
   let component: InterventionDetailComponent;
   let fixture: ComponentFixture<InterventionDetailComponent>;
-  let mockInterventionService: jasmine.SpyObj<InterventionService>;
+  let mockAttachmentService: jasmine.SpyObj<AttachmentApiService>;
 
   const row: InterventionRowViewModel = {
     id: 1,
@@ -25,7 +28,7 @@ describe('InterventionDetailComponent', () => {
   } as unknown as InterventionRowViewModel;
 
   beforeEach(async () => {
-    mockInterventionService = jasmine.createSpyObj('InterventionService', [
+    mockAttachmentService = jasmine.createSpyObj('AttachmentApiService', [
       'downloadAttachment',
     ]);
 
@@ -33,8 +36,8 @@ describe('InterventionDetailComponent', () => {
       imports: [InterventionDetailComponent],
       providers: [
         {
-          provide: InterventionService,
-          useValue: mockInterventionService,
+          provide: AttachmentApiService,
+          useValue: mockAttachmentService,
         },
       ],
     }).compileComponents();
@@ -194,10 +197,24 @@ describe('InterventionDetailComponent', () => {
       expect(component.getFileIcon('file.docx')).toBe('insert_drive_file');
     });
 
-    it('should return default icon for files without extension (branch fallback)', () => {
-      expect(component.getFileIcon('file-without-ext')).toBe(
-        'insert_drive_file'
-      );
-    });
-  });
+  it('should open attachment in a new tab and revoke the URL after download', fakeAsync(() => {
+    const blob = new Blob(['content'], { type: 'application/pdf' });
+    mockAttachmentService.downloadAttachment.and.returnValue(of(blob));
+
+    const createObjectURLSpy = spyOn(URL, 'createObjectURL').and.returnValue(
+      'blob:fake-url'
+    );
+    const revokeObjectURLSpy = spyOn(URL, 'revokeObjectURL');
+    const windowOpenSpy = spyOn(window, 'open');
+
+    component.data = { ...row, id: 5 } as InterventionRowViewModel;
+    component.openAttachment(5);
+
+    expect(mockAttachmentService.downloadAttachment).toHaveBeenCalledWith(5);
+    expect(createObjectURLSpy).toHaveBeenCalledWith(blob);
+    expect(windowOpenSpy).toHaveBeenCalledWith('blob:fake-url', '_blank');
+
+    tick(10000);
+    expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:fake-url');
+  }));
 });

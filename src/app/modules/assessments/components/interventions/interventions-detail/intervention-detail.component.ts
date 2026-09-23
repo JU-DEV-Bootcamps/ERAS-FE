@@ -5,7 +5,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { InterventionPillBadgeComponent } from '../interventions-list/intervention-status-badge/intervention-pill-badge.component';
 import { InterventionRowViewModel } from '../interventions-list/intervention-list.component';
-import { InterventionService } from '@core/services/api/intervention.service';
 import { AttachmentApiService } from '@core/services/api/attachments.service';
 import { AttachmentModel } from '@core/models/attachment.model';
 import {
@@ -29,7 +28,6 @@ import {
   styleUrl: './intervention-detail.component.scss',
 })
 export class InterventionDetailComponent {
-  private readonly interventionService = inject(InterventionService);
   private readonly attachmentService = inject(AttachmentApiService);
 
   @Input({ required: true }) data!: InterventionRowViewModel;

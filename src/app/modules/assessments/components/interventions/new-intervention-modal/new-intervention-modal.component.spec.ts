@@ -22,6 +22,8 @@ import {
   NewInterventionDialogData,
   NewInterventionModalComponent,
 } from './new-intervention-modal.component';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('NewInterventionModalComponent', () => {
   let component: NewInterventionModalComponent;
@@ -90,6 +92,8 @@ describe('NewInterventionModalComponent', () => {
           provide: UnsavedChangesGuardService,
           useValue: mockUnsavedChangesGuard,
         },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
