@@ -312,6 +312,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
   private handleTypeSwitch(targetType: InterventionType): void {
     const isNowGroup = targetType === InterventionType.Group;
+    if (isNowGroup === this.isGroup()) return;
 
     let nextStudentValue: number | number[];
     if (isNowGroup) {
@@ -324,26 +325,20 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     }
 
     this.isSwitchingType = true;
-
-    this.form.get('type')?.setValue(targetType, { emitEvent: false });
-
     this.isGroup.set(isNowGroup);
     this.buildFormFields(nextStudentValue);
 
     afterNextRender(
       () => {
-        this.form.get('students')?.setValue(nextStudentValue, {
-          emitEvent: false,
-        });
-
-        if (!isNowGroup) {
-          this.attendedStudentIds.set([]);
-          this.attendedStudentIdsModel = [];
-          this.buildAttendance();
-        }
-
-        this.form.markAsDirty();
-        this.isSwitchingType = false;
+        setTimeout(() => {
+          this.form.get('type')?.setValue(targetType, { emitEvent: false });
+          const studentsControl = this.form.get('students');
+          if (studentsControl) {
+            studentsControl.setValue(nextStudentValue, { emitEvent: false });
+          }
+          this.form.markAsDirty();
+          this.isSwitchingType = false;
+        }, 50);
       },
       { injector: this.injector }
     );
@@ -385,9 +380,9 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     this.form = event;
     this.formSettling = true;
     this.form.patchValue(this._prefillValues, { emitEvent: false });
-    this.form
-      .get('type')
-      ?.setValue(this._prefillValues['type'], { emitEvent: false });
+    // this.form
+    //   .get('type')
+    //   ?.setValue(this.form.value['type'], { emitEvent: false });
 
     Object.values(this.form.controls).forEach(control => {
       control.updateValueAndValidity({ emitEvent: false });
@@ -502,7 +497,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       studentIds: payload.intervention['studentIds'],
       attendance: payload.intervention['attendance'],
       mode: values.mode,
-      kind: values.kind,
+      kind: payload.intervention!.kind,
       status: values.status,
       remarks: values.remarks,
       uploadInput: values.uploadInput,
@@ -513,39 +508,48 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     const { draftSessionId, attachmentIdsToRemove } =
       this.attachmentManager.getPendingChanges();
 
+    const typeChanged =
+      payload.intervention.kind !== this.data.intervention!.kind;
+
     const payloadUpdate: UpdateInterventionModel = {
       updateInterventionDto: interventionDto,
       attachmentIdsToRemove,
       draftSessionId,
     };
 
-    this.interventionService
-      .updateIntervention(
-        this.data.assessmentId,
-        this.data.intervention!.id!,
-        payloadUpdate
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            title: 'Intervention updated successfully',
-            message: 'The intervention has been updated.',
-            type: 'success',
-          });
-          this.dialogRef.close(true);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.toastService.showToast(
-            {
-              title: 'Update Failed',
-              message: `${err.statusText}: ${err.error?.title ?? 'Error.'}`,
-              type: 'error',
-            },
-            true
-          );
-          this.isSubmitting.set(false);
-        },
-      });
+    const request$ = typeChanged
+      ? this.interventionService.replaceInterventionType(
+          this.data.assessmentId,
+          this.data.intervention!.id!,
+          payloadUpdate
+        )
+      : this.interventionService.updateIntervention(
+          this.data.assessmentId,
+          this.data.intervention!.id!,
+          payloadUpdate
+        );
+
+    request$.subscribe({
+      next: () => {
+        this.toastService.showToast({
+          title: 'Intervention updated successfully',
+          message: 'The intervention has been updated.',
+          type: 'success',
+        });
+        this.dialogRef.close(true);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.toastService.showToast(
+          {
+            title: 'Update Failed',
+            message: `${err.statusText}: ${err.error?.title ?? 'Error.'}`,
+            type: 'error',
+          },
+          true
+        );
+        this.isSubmitting.set(false);
+      },
+    });
   }
 
   requestClose(): void {
@@ -562,6 +566,10 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         ? rawStudents.map(id => Number(id))
         : [Number(rawStudents)];
 
+    const kindIntervention = this.formFields.find(
+      field => field.name === 'type'
+    )?.value;
+
     const attendanceRecord: Record<number, boolean> = {};
     this.data.students.forEach(student => {
       attendanceRecord[Number(student.value)] =
@@ -576,7 +584,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     return {
       assessmentId: this.data.assessmentId,
       intervention: {
-        kind: v.type,
+        kind: v.type ?? kindIntervention,
         dateUtc: new Date(v.date).toISOString(),
         activity: v.activity,
         mode: v.mode,

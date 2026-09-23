@@ -3,9 +3,11 @@ import {
   Component,
   inject,
   input,
+  OnChanges,
   OnInit,
   output,
   signal,
+  SimpleChanges,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -32,7 +34,7 @@ import { CustomValidators } from '@core/utils/forms/custom-validators';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './form-factory.component.html',
 })
-export class FormFactoryComponent implements OnInit {
+export class FormFactoryComponent implements OnInit, OnChanges {
   formReady = output<FormGroup>();
   fields = input<DynamicField[]>([]);
   fieldsToDisplay = signal<DynamicField[]>([]);
@@ -42,6 +44,16 @@ export class FormFactoryComponent implements OnInit {
   private _fb = inject(FormBuilder);
 
   ngOnInit() {
+    this.rebuildForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['fields'] && !changes['fields'].firstChange) {
+      this.rebuildForm();
+    }
+  }
+
+  private rebuildForm(): void {
     const controls: FormControlTuple = {};
 
     this.fields().forEach((field: DynamicField) => {
