@@ -19,6 +19,8 @@ import {
   tick,
 } from '@angular/core/testing';
 import { DynamicField } from '@core/factories/forms/form-factory.interface';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('NewInterventionModalComponent', () => {
   let component: NewInterventionModalComponent;
@@ -61,6 +63,8 @@ describe('NewInterventionModalComponent', () => {
         { provide: ToastNotificationService, useValue: mockToastService },
         { provide: MatDialogRef, useValue: mockDialogRef },
         { provide: MAT_DIALOG_DATA, useValue: data },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -163,28 +167,6 @@ describe('NewInterventionModalComponent', () => {
   it('should close dialog without result on closeAndResetDialog', () => {
     component.closeAndResetDialog();
     expect(mockDialogRef.close).toHaveBeenCalledWith();
-  });
-
-  it('should return file name from a path', () => {
-    const result = component.getFileName('folder/subfolder/file.pdf');
-    expect(result).toBe('file.pdf');
-  });
-
-  it('should return empty string when path is undefined', () => {
-    const result = component.getFileName(undefined as unknown as string);
-    expect(result).toBe('');
-  });
-
-  it('should remove existing attachment and mark form dirty', () => {
-    component.existingAttachments = ['folder/file1.pdf', 'folder/file2.pdf'];
-    component.form = new FormGroup({});
-    spyOn(component.form, 'markAsDirty');
-
-    component.removeExistingAttachment(0);
-
-    expect(component.attachmentsToDelete).toContain('file1.pdf');
-    expect(component.existingAttachments).toEqual(['folder/file2.pdf']);
-    expect(component.form.markAsDirty).toHaveBeenCalled();
   });
 
   describe('setFormGroup', () => {

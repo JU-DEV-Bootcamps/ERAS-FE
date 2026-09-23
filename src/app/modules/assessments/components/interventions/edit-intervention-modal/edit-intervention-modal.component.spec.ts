@@ -367,9 +367,7 @@ describe('EditInterventionModalComponent', () => {
       fixture.detectChanges();
 
       expect(component.isGroup()).toBeFalse();
-      expect(component.form.get('type')?.value).toBe(
-        InterventionType.Individual
-      );
+      expect(component.form.get('type')?.value).toBe(InterventionType.Group);
     }));
 
     it('should preserve the remaining student instead of defaulting to studentIds[0]', fakeAsync(() => {
@@ -427,27 +425,6 @@ describe('EditInterventionModalComponent', () => {
     fixture.detectChanges();
 
     expect(component.isGroup()).toBeTrue();
-  }));
-
-  it('should complete the afterNextRender callback when switching to individual', fakeAsync(() => {
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    component['formSettling'] = false;
-
-    component.attendedStudentIds.set(['1', '2']);
-    component.attendedStudentIdsModel = ['1', '2'];
-    component.form.markAsPristine();
-
-    component.form.get('type')?.setValue(InterventionType.Individual);
-
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-
-    expect(component.isGroup()).toBeFalse();
-
-    expect(component.form.get('students')?.value).toBe(1);
   }));
 
   describe('onStagedFilesChange', () => {

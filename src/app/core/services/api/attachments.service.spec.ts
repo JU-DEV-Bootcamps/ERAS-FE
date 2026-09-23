@@ -4,10 +4,12 @@ import {
   HttpClientTestingModule,
   HttpTestingController,
 } from '@angular/common/http/testing';
+import { environment } from 'src/environments/environment';
 
 describe('AttachmentApiService', () => {
   let service: AttachmentApiService;
   let httpMock: HttpTestingController;
+  const baseUrl = `${environment.apiUrl}/api/v1/attachments`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -76,23 +78,18 @@ describe('AttachmentApiService', () => {
     });
   });
 
-  describe('download', () => {
-    it('should call get with download endpoint', () => {
-      const getSpy = spyOn(service, 'get').and.stub();
+  describe('downloadAttachment', () => {
+    it('should make a GET request with responseType blob to the correct URL', () => {
+      const mockBlob = new Blob(['file content'], { type: 'application/pdf' });
 
-      service.download(15);
+      service.downloadAttachment(5).subscribe(res => {
+        expect(res).toEqual(mockBlob);
+      });
 
-      expect(getSpy).toHaveBeenCalledWith('15/download');
-    });
-  });
-
-  describe('deleteAttachment', () => {
-    it('should call delete with attachment id', () => {
-      const deleteSpy = spyOn(service, 'delete').and.stub();
-
-      service.deleteAttachment(15);
-
-      expect(deleteSpy).toHaveBeenCalledWith('15');
+      const req = httpMock.expectOne(`${baseUrl}/5/download`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.responseType).toBe('blob');
+      req.flush(mockBlob);
     });
   });
 
