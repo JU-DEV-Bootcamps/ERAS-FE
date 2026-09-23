@@ -59,17 +59,6 @@ export class InterventionService extends BaseApiService {
     );
   }
 
-  updateInterventionOld(
-    assessmentId: number,
-    interventionId: number,
-    intervention: InterventionModel
-  ): Observable<InterventionModel> {
-    return this.put<InterventionModel, InterventionModel>(
-      `${assessmentId}/interventions/${interventionId}`,
-      intervention
-    );
-  }
-
   updateIntervention(
     assessmentId: number,
     interventionId: number,
