@@ -56,13 +56,38 @@ mat-form-field {
   margin: 0 !important;
 }
 
+::ng-deep .compact-select-panel:not(.compact-select-panel-virtual) {
+  .mat-mdc-select-panel {
+    min-width: max-content;
+    max-width: 360px;
+  }
+
+  .group-option,
+  .group-header {
+    height: auto !important;
+    min-height: 40px !important;
+    line-height: 1.3 !important;
+    padding-top: 12px;
+    padding-bottom: 12px;
+
+    .mdc-list-item__primary-text {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: unset !important;
+      display: block;
+    }
+  }
+}
+
 ::ng-deep .compact-select-panel-virtual {
   max-height: none !important;
   overflow: hidden !important;
   border-radius: 4px;
-}
 
-::ng-deep .compact-select-panel-virtual .mat-mdc-select-panel {
-  max-height: none !important;
-  overflow: hidden !important;
+  .mat-mdc-select-panel {
+    max-height: none !important;
+    overflow: hidden !important;
+    min-width: max-content;
+    max-width: 360px;
+  }
 }

@@ -32,11 +32,10 @@ export class GridComponent implements AfterViewInit, OnDestroy {
       for (const entry of entries) {
         const newWidth = entry.contentRect.width;
         const newHeight = entry.contentRect.height;
-        const newSpans = this.getSpans();
 
         this.width.set(newWidth);
         this.height.set(newHeight);
-        this.spans = newSpans;
+        this.spans = this.getSpans();
       }
     });
 
