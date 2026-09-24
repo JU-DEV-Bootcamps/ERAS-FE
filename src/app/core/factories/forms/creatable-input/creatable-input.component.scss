@@ -48,3 +48,7 @@ $font-text-md: var(--font-size-medium);
 ::ng-deep .has-creation-error .mdc-floating-label {
   color: var(--mat-sys-error, #b3261e) !important;
 }
+
+.input-text {
+  max-width: 300px;
+}
