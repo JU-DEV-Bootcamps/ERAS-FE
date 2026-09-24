@@ -1,0 +1,101 @@
+<div class="upload-field-wrapper" [class.field-error]="hasErrors()">
+  <mat-form-field
+    floatLabel="always"
+    class="w-full"
+    appearance="outline"
+    [class.field-error]="hasErrors()"
+  >
+    <mat-label>Attached Document (s)</mat-label>
+    <mat-chip-grid #chipGrid>
+      <mat-chip-set>
+        <mat-chip
+          class="selected-chip"
+          *ngFor="let a of existingAttachments()"
+          [class.attachment-manager-chip--removed]="
+            markedForRemoval().has(a.id)
+          "
+        >
+          <mat-icon matChipAvatar>insert_drive_file</mat-icon>
+          <span class="attachment-manager-chip-name">
+            {{ display.fileName(a) }}
+          </span>
+          <span
+            class="attachment-manager-chip-size"
+            *ngIf="a.sizeBytes !== null"
+          >
+            {{ display.size(a) }}
+          </span>
+          <button
+            matChipRemove
+            [attr.aria-label]="
+              markedForRemoval().has(a.id) ? 'Undo remove' : 'Mark for removal'
+            "
+            (click)="toggleRemoveExisting(a.id)"
+          >
+            <mat-icon>{{
+              markedForRemoval().has(a.id) ? 'undo' : 'cancel'
+            }}</mat-icon>
+          </button>
+        </mat-chip>
+      </mat-chip-set>
+
+      @for (staged of stagedFiles(); track staged.localId) {
+        <mat-chip
+          class="selected-chip"
+          [class.selected-chip--uploading]="staged.status === 'uploading'"
+          [class.selected-chip--error]="staged.status === 'error'"
+          (removed)="removeStaged(staged)"
+        >
+          @if (staged.status === 'uploading') {
+            <mat-spinner matChipAvatar diameter="16" />
+          } @else if (staged.status === 'error') {
+            <mat-icon
+              matChipAvatar
+              class="chip-icon--error"
+              (click)="retryUpload(staged)"
+              matTooltip="Click to retry"
+            >
+              refresh
+            </mat-icon>
+          } @else {
+            <mat-icon matChipAvatar class="chip-icon--done"
+              >check_circle</mat-icon
+            >
+          }
+          {{ staged.file.name }}
+          <button matChipRemove aria-label="Remove file">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip>
+      }
+    </mat-chip-grid>
+
+    <input
+      matInput
+      readonly
+      [placeholder]="hasAnyContent() ? '' : 'Upload File (s)'"
+      [matChipInputFor]="chipGrid"
+    />
+  </mat-form-field>
+
+  @if (hasErrors()) {
+    <p class="file-error-message">
+      {{ errorMessage() }}
+    </p>
+  }
+
+  @if (isLoadingExisting()) {
+    <p class="file-loading-message">Loading attachments…</p>
+  }
+
+  <input
+    #fileInput
+    type="file"
+    hidden
+    multiple
+    (change)="onFilesSelected($event)"
+  />
+  <button class="choose-file-button" type="button" (click)="fileInput.click()">
+    Choose File
+  </button>
+</div>

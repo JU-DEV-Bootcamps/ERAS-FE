@@ -1,0 +1,182 @@
+$inter: 'Inter', sans-serif;
+$font-text-md: var(--font-size-medium);
+$color-background: #f0f0f0;
+$color-accent: #5c9e8f;
+$color-accent-hover: #4a8a7c;
+
+.attachment-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  &-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &-label {
+    font-size: 12px;
+    margin: 0;
+  }
+
+  &-hint {
+    font-size: 12px;
+    color: var(--mat-sys-error);
+    margin: 0;
+  }
+
+  &-chip-name {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-chip-size {
+    font-size: 11px;
+    color: var(--mat-sys-on-surface-variant);
+    margin-left: 4px;
+  }
+
+  &-chip--removed {
+    opacity: 0.45;
+    text-decoration: line-through;
+  }
+
+  &-icon--done {
+    color: var(--mat-sys-primary);
+  }
+
+  &-icon--error {
+    color: var(--mat-sys-error);
+  }
+
+  &-retry {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+  }
+}
+
+.upload-field-wrapper {
+  position: relative;
+
+  &:has(.field-error) ::ng-deep {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__trailing {
+      border-color: #ba1a1a !important;
+    }
+
+    .mdc-text-field--outlined {
+      &:hover .mat-mdc-notch-piece {
+        border-bottom-color: #ba1a1a !important;
+      }
+    }
+
+    .mdc-notched-outline__notch {
+      border-bottom-color: #ba1a1a;
+    }
+
+    .mat-mdc-floating-label {
+      color: #ba1a1a !important;
+    }
+  }
+
+  &:has(.field-error) :host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  mat-form-field {
+    margin-bottom: 0;
+  }
+
+  &:has(.field-error) .choose-file-button {
+    top: 24%;
+  }
+}
+
+.selected-chip--uploading {
+  opacity: 0.7;
+}
+
+.selected-chip--error {
+  border-color: #ba1a1a !important;
+  text-decoration: line-through;
+
+  .chip-icon--error {
+    color: #ba1a1a;
+    cursor: pointer;
+    font-size: 18px;
+  }
+}
+
+.chip-icon--done {
+  color: #5c9e8f;
+  font-size: 18px;
+}
+
+.file-loading-message {
+  font-size: 0.75rem;
+  color: var(--color-neutral-500);
+  margin: 4px 0 0 16px;
+}
+
+.choose-file-button {
+  position: absolute;
+  right: 12px;
+  top: 34%;
+  transform: translateY(-50%);
+  color: $color-accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: $inter;
+  font-size: $font-text-md;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &:hover {
+    color: $color-accent-hover;
+    background-color: $color-background;
+  }
+}
+
+.file-error-message {
+  color: #ba1a1a;
+  font-size: 0.75rem;
+  margin: 4px 0 0 16px;
+  position: relative;
+  top: -20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:host ::ng-deep .mdc-evolution-chip__text-label,
+.mat-mdc-chip-action-label {
+  max-width: 260px;
+  display: block;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
+
+.selected-chip {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 1px solid $color-accent-hover;
+  &:hover {
+    background-color: #deeae8;
+  }
+}
+
+:host mat-chip-grid {
+  max-width: 335px !important;
+}

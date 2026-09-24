@@ -7,7 +7,12 @@ import {
   InterventionService,
   AddInterventionPayload,
 } from './intervention.service';
-import { InterventionModel } from '@core/models/assessment.model';
+import {
+  InterventionMode,
+  InterventionModel,
+  InterventionType,
+  UpdateInterventionModel,
+} from '@core/models/assessment.model';
 import { environment } from '../../../../environments/environment';
 
 describe('InterventionService', () => {
@@ -51,9 +56,12 @@ describe('InterventionService', () => {
 
   describe('createIntervention', () => {
     it('should make a POST request to interventions with the given payload', () => {
-      const payload: AddInterventionPayload = {
+      const payload: AddInterventionPayload & {
+        draftSessionId: number | null;
+      } = {
         assessmentId: 10,
         intervention: { type: 'follow-up' },
+        draftSessionId: 123,
       };
       const mockResponse = { id: 1 } as unknown as InterventionModel;
 
@@ -88,16 +96,26 @@ describe('InterventionService', () => {
 
   describe('updateIntervention', () => {
     it('should make a PUT request to :assessmentId/interventions/:interventionId', () => {
-      const intervention = { id: 5 } as unknown as InterventionModel;
+      const intervention = {
+        updateInterventionDto: {
+          id: 5,
+          dateUtc: '10/10/2026',
+          studentIds: [2],
+          mode: InterventionMode.InPlace,
+          kind: InterventionType.Individual,
+        },
+      } as unknown as UpdateInterventionModel;
 
       service.updateIntervention(10, 5, intervention).subscribe(res => {
-        expect(res).toEqual(intervention);
+        expect(res).toEqual(intervention.updateInterventionDto);
       });
 
       const req = httpMock.expectOne(`${baseUrl}/10/interventions/5`);
+
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(intervention);
-      req.flush(intervention);
+
+      req.flush(intervention.updateInterventionDto);
     });
   });
 
@@ -166,6 +184,41 @@ describe('InterventionService', () => {
       );
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
+    });
+  });
+
+  describe('replaceAttachment', () => {
+    it('should make a put request to replace an intervention', () => {
+      const intervention = {
+        updateInterventionDto: {
+          id: 5,
+          dateUtc: '10/10/2026',
+          studentIds: [2],
+          mode: InterventionMode.InPlace,
+          kind: InterventionType.Individual,
+        },
+      } as unknown as UpdateInterventionModel;
+
+      const result = {
+        id: 5,
+        dateUtc: '10/10/2026',
+        studentIds: [2],
+        mode: InterventionMode.InPlace,
+        kind: InterventionType.Individual,
+      } as unknown as InterventionModel;
+
+      service.replaceInterventionType(10, 5, intervention).subscribe(res => {
+        expect(res).toEqual(result);
+      });
+
+      const req = httpMock.expectOne(
+        `${baseUrl}/10/interventions/5/replace-type`
+      );
+
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(intervention);
+
+      req.flush(intervention.updateInterventionDto);
     });
   });
 });

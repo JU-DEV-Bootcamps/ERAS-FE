@@ -1,4 +1,5 @@
 import { StudentProfileData } from '@modules/assessments/components/assessment-list/assessment-student-data/assessment-student-data.component';
+import { AttachmentModel } from './attachment.model';
 
 export interface AssessmentModel {
   id?: number;
@@ -46,7 +47,7 @@ export interface InterventionModel {
   attendance?: Record<number, boolean> | null;
 
   remarks?: string | null;
-  attachments?: string[] | null;
+  attachments?: AttachmentModel[] | null;
   uploadInput?: File[] | null;
   riskLevelName?: RiskLevels;
   endRiskLevelName?: RiskLevels;
@@ -89,4 +90,29 @@ export enum RiskLevels {
   Medium = 'Medium',
   High = 'High',
   None = 'None',
+}
+
+export interface UpdateInterventionPayload {
+  id?: number;
+  dateUtc: string;
+  activity?: string | null;
+  area?: string | null;
+  numberOfParticipants?: number | null;
+  professional?: string | null;
+  comments?: string | null;
+  studentIds: number[];
+  attendance?: Record<number, boolean> | null;
+  mode: InterventionMode;
+  kind: InterventionType;
+  status?: InterventionStatus;
+  remarks?: string | null;
+  uploadInput?: File[] | null;
+  riskLevelName?: RiskLevels;
+  endRiskLevelName?: RiskLevels;
+}
+
+export interface UpdateInterventionModel {
+  updateInterventionDto: UpdateInterventionPayload;
+  attachmentIdsToRemove: number[];
+  draftSessionId: number | null;
 }

@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
   ComponentFixture,
@@ -22,6 +22,8 @@ import {
   NewInterventionDialogData,
   NewInterventionModalComponent,
 } from './new-intervention-modal.component';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { StagedFile } from '@core/models/attachment.model';
 
 describe('NewInterventionModalComponent', () => {
   let component: NewInterventionModalComponent;
@@ -90,6 +92,8 @@ describe('NewInterventionModalComponent', () => {
           provide: UnsavedChangesGuardService,
           useValue: mockUnsavedChangesGuard,
         },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -288,28 +292,6 @@ describe('NewInterventionModalComponent', () => {
     it('should close dialog without result on closeAndResetDialog', () => {
       component.closeAndResetDialog();
       expect(mockDialogRef.close).toHaveBeenCalledWith();
-    });
-
-    it('should return file name from a path', () => {
-      expect(component.getFileName('folder/subfolder/file.pdf')).toBe(
-        'file.pdf'
-      );
-    });
-
-    it('should return empty string when path is undefined', () => {
-      expect(component.getFileName(undefined as unknown as string)).toBe('');
-    });
-
-    it('should remove existing attachment and mark form dirty', () => {
-      component.existingAttachments = ['folder/file1.pdf', 'folder/file2.pdf'];
-      component.form = new FormGroup({});
-      spyOn(component.form, 'markAsDirty');
-
-      component.removeExistingAttachment(0);
-
-      expect(component.attachmentsToDelete).toContain('file1.pdf');
-      expect(component.existingAttachments).toEqual(['folder/file2.pdf']);
-      expect(component.form.markAsDirty).toHaveBeenCalled();
     });
   });
 
@@ -517,37 +499,6 @@ describe('NewInterventionModalComponent', () => {
       expect(mockInterventionService.createIntervention).not.toHaveBeenCalled();
     });
 
-    it('should submit group intervention and upload attachments when files are present', () => {
-      component.isGroup.set(true);
-      const mockFile = new File([''], 'doc.pdf');
-      component.form = buildValidFormGroup({
-        type: InterventionType.Group,
-        students: ['1', '2'],
-        uploadInput: [mockFile],
-      });
-
-      const created: InterventionModel = { id: 10 } as InterventionModel;
-      mockInterventionService.createIntervention.and.returnValue(of(created));
-      mockInterventionService.uploadAttachments.and.returnValue(
-        of(['doc.pdf'])
-      );
-
-      component.submitIntervention();
-
-      expect(mockInterventionService.createIntervention).toHaveBeenCalled();
-      expect(mockInterventionService.uploadAttachments).toHaveBeenCalledWith(
-        10,
-        [mockFile]
-      );
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        jasmine.objectContaining({
-          title: 'Intervention created successfully',
-          message: 'The group intervention has been registered.',
-        })
-      );
-      expect(mockDialogRef.close).toHaveBeenCalledWith(true);
-    });
-
     it('should use kindIntervention fallback when form.value.type is null', () => {
       component.isGroup.set(false);
       component.form = buildValidFormGroup({
@@ -632,6 +583,60 @@ describe('NewInterventionModalComponent', () => {
         true
       );
       expect(component.isSubmitting).toBeFalse();
+    });
+  });
+
+  describe('onStagedFilesChange', () => {
+    it('should set the appropriate upload errors and mark the control dirty', () => {
+      const control = component.form.get('uploadInput')!;
+
+      component.onStagedFilesChange([
+        {
+          status: 'uploading',
+          file: {},
+          attachmentId: 1,
+          localId: '1',
+        } as StagedFile,
+      ]);
+
+      expect(control.errors).toEqual({ uploading: true });
+      expect(control.dirty).toBeTrue();
+
+      component.onStagedFilesChange([
+        {
+          status: 'error',
+          file: {},
+          attachmentId: 1,
+          localId: '1',
+        } as StagedFile,
+      ]);
+
+      expect(control.errors).toEqual({ uploadError: true });
+
+      component.onStagedFilesChange([
+        {
+          status: 'completed',
+          file: {},
+          attachmentId: 1,
+          localId: '1',
+        } as unknown as StagedFile,
+      ]);
+
+      expect(control.errors).toBeNull();
+    });
+
+    it('should return without doing anything when uploadInput control does not exist', () => {
+      component.form.removeControl('uploadInput');
+      expect(() =>
+        component.onStagedFilesChange([
+          {
+            status: 'uploading',
+            file: {},
+            attachmentId: 1,
+            localId: '1',
+          } as StagedFile,
+        ])
+      ).not.toThrow();
     });
   });
 });
