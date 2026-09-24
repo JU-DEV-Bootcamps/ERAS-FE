@@ -12,10 +12,8 @@ describe('CreatableInputComponent', () => {
 
   let form: FormGroup;
   let field: Partial<DynamicField>;
-  // let control: FormControl;
 
   beforeEach(async () => {
-    // control = new FormControl(null);
     form = new FormGroup({
       category: new FormControl(null),
     });
@@ -102,6 +100,11 @@ describe('CreatableInputComponent', () => {
     component.isCreating.set(true);
     component.onOptionSelected(option);
     expect(form.get('category')?.value).toEqual(option.value);
+    expect(component.searchTerm()).toBe('');
+    expect(component.isCreating()).toBeFalse();
+  });
+  it('should not set the control value', () => {
+    component.onOptionSelected(undefined!);
     expect(component.searchTerm()).toBe('');
     expect(component.isCreating()).toBeFalse();
   });
