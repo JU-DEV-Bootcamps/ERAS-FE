@@ -1,7 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { ERASRoles, isErasRole, Profile } from '@core/models/profile.model';
+import { isErasRole, Profile } from '@core/models/profile.model';
 import keycloak, { KeycloakProfile } from 'keycloak-js';
-import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -25,28 +24,15 @@ export class UserDataService {
     this.saveToSession(profile);
   }
 
-  private getUserRole(): ERASRoles {
-    const { clientId } = environment.keycloak;
-    const resourceAccess = this.keycloak.resourceAccess;
-    const userRoles = resourceAccess
-      ? resourceAccess[clientId].roles
-      : undefined;
-
-    if (!userRoles) return ERASRoles.GUEST;
-
-    if (userRoles.includes(ERASRoles.ADMIN)) {
-      return ERASRoles.ADMIN;
-    } else {
-      return userRoles.find(role => isErasRole(role)) ?? ERASRoles.GUEST;
-    }
-  }
-
   private mapToProfileModel(userProfile: KeycloakProfile): Profile {
+    const userRole = this.keycloak.realmAccess?.roles.find(role =>
+      isErasRole(role)
+    );
     return {
       firstName: userProfile.firstName,
       id: userProfile.id,
       lastName: userProfile.lastName,
-      role: this.getUserRole(),
+      role: userRole ? userRole : 'User',
       fullName: userProfile.lastName
         ? `${userProfile.firstName} ${userProfile.lastName}`
         : userProfile.firstName,

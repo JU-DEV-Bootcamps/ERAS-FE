@@ -27,8 +27,6 @@ import {
   JuService,
 } from '@modules/supports-referrals/models/referrals.interfaces';
 import { Lookup } from '@core/models/lookup';
-import { PermissionsService } from '@core/services/permissions/permissions.service';
-import { ERASPermissions } from '@core/services/permissions/permission.policies';
 
 @Component({
   selector: 'app-assessments',
@@ -43,7 +41,6 @@ export class AssessmentsComponent implements OnInit {
   private readonly studentService = inject(StudentService);
   private readonly userDataService = inject(UserDataService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly permissionsService = inject(PermissionsService);
 
   private readonly listComponent = viewChild(AssessmentListComponent);
 
@@ -119,23 +116,6 @@ export class AssessmentsComponent implements OnInit {
 
   openCreateModal(preselectedStudentId?: number) {
     this.lookupLoading.set(true);
-    let modalData: AssessmentsLookups = {
-      ...this.lookups(),
-      preselectedStudentId,
-    };
-    if (this.permissionsService.can(ERASPermissions.CAN_CREATE_PROFESSIONALS)) {
-      modalData = {
-        ...modalData,
-        createProfessional: this.createProfessional.bind(this),
-      };
-    }
-
-    if (this.permissionsService.can(ERASPermissions.CAN_CREATE_SERVICES)) {
-      modalData = {
-        ...modalData,
-        createService: this.createService.bind(this),
-      };
-    }
     this.getVolatileLookups()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -148,7 +128,12 @@ export class AssessmentsComponent implements OnInit {
           this.lookupLoading.set(false);
           const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
             ...this.modalConfig,
-            data: modalData,
+            data: {
+              ...this.lookups(),
+              preselectedStudentId,
+              createProfessional: this.createProfessional.bind(this),
+              createService: this.createService.bind(this),
+            },
           });
 
           dialogRef

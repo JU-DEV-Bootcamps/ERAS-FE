@@ -3,7 +3,6 @@
   <mat-nav-list class="sidebar">
     <ng-container *ngFor="let item of menuItems()">
       <mat-list-item
-        *appHasERASRoles="item.requiredRoles ?? []"
         class="menu-item"
         [matTooltip]="item.label"
         [matTooltipPosition]="'after'"
@@ -26,18 +25,16 @@
         *ngIf="item.children && getExpandedMenu() === item.label"
         class="submenu"
       >
-        @for (child of item.children; track child) {
-          <a
-            *appHasERASRoles="child.requiredRoles ?? []"
-            class="submenu-item"
-            [routerLink]="child.route"
-            routerLinkActive="active-submenu"
-            [matTooltip]="child.label"
-            [matTooltipPosition]="'after'"
-          >
-            <span class="subtitle">{{ child.label }}</span>
-          </a>
-        }
+        <a
+          class="submenu-item"
+          *ngFor="let child of item.children"
+          [routerLink]="child.route"
+          routerLinkActive="active-submenu"
+          [matTooltip]="child.label"
+          [matTooltipPosition]="'after'"
+        >
+          <span class="subtitle">{{ child.label }}</span>
+        </a>
       </div>
     </ng-container>
   </mat-nav-list>
