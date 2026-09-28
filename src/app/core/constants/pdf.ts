@@ -6,3 +6,11 @@ export const PDF_CONFIG = {
     right: 15,
   },
 };
+
+export const ITEMS_PER_CHUNK_FEW = 100;
+
+export const ITEMS_PER_CHUNK_NORMAL = 50;
+
+export const ITEMS_PER_CHUNK_MANY = 30;
+
+export const ITEMS_PER_CHUNK_COMPLEX = 16;

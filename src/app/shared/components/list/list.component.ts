@@ -41,6 +41,7 @@ import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
 import { NgTemplateOutlet } from '@angular/common';
+import { ITEMS_PER_CHUNK_COMPLEX } from '@core/constants/pdf';
 
 export type TypeFile = 'csv' | 'pdf' | '';
 
@@ -247,7 +248,19 @@ export class ListComponent<T extends object>
           this.exportRequested.emit('pdf');
         });
       }
-      await this.exportWithAllItems();
+      const itemsToExport = this.getItemsToExport();
+
+      if (itemsToExport.length > 100) {
+        await this.exportWithChunks(itemsToExport);
+      } else {
+        await this.exportWithAllItems(itemsToExport);
+      }
+    } catch (error) {
+      console.error('PDF export error:', error);
+      this.snackBar.open('Error exporting PDF. Please try again.', 'Close', {
+        duration: 5000,
+        panelClass: 'snackbar-error',
+      });
     } finally {
       this.isGenerating = false;
       this.exporting.emit(false);
@@ -259,18 +272,15 @@ export class ListComponent<T extends object>
       item => 'isSelected' in item && item.isSelected
     );
 
-    // No items selected so export them all
     if (selectedItems.length === 0) {
-      return this.items;
+      return this.allItems?.length ? this.allItems : this.items;
     }
 
     return selectedItems;
   }
 
-  private async exportWithAllItems() {
+  private async exportWithAllItems(itemsToExport: T[]) {
     const originalItems = this.items;
-    const itemsToExport = this.allItems?.length ? this.allItems : this.items;
-
     this.items = itemsToExport;
     this.cdr.detectChanges();
     await new Promise(r => requestAnimationFrame(() => setTimeout(r, 150)));
@@ -280,6 +290,7 @@ export class ListComponent<T extends object>
       container: this.contentToExport,
       snackBar: this.snackBar,
       preProcess: 'list',
+      title: this.title,
     });
 
     this.items = originalItems;
@@ -309,5 +320,40 @@ export class ListComponent<T extends object>
     );
 
     this.isGenerating = false;
+  }
+
+  private async exportWithChunks(itemsToExport: T[]): Promise<void> {
+    const chunkSize = ITEMS_PER_CHUNK_COMPLEX;
+    const totalChunks = Math.ceil(itemsToExport.length / chunkSize);
+    const originalItems = this.items;
+
+    await this.pdfHelper.exportToPdfChunked({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+      preProcess: 'list',
+      title: this.title,
+      totalChunks,
+
+      getChunkElement: async i => {
+        this.items = itemsToExport.slice(i * chunkSize, (i + 1) * chunkSize);
+        this.data = new MatTableDataSource(this.items);
+        this.cdr.detectChanges();
+        await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+
+        return this.pdfHelper.printReportInfo(
+          this.contentToExport.nativeElement,
+          'list'
+        );
+      },
+
+      onChunkDone: async (i, total) => {
+        if (i === total - 1) {
+          this.items = originalItems;
+          this.data = new MatTableDataSource(this.items);
+          this.cdr.detectChanges();
+        }
+      },
+    });
   }
 }
