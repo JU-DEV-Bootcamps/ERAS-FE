@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import keycloak, { KeycloakProfile } from 'keycloak-js';
+import { of, throwError } from 'rxjs';
 import { UserDataService } from './user-data.service';
+import { UsersService } from '@core/services/api/users.service';
 import { ERASRoles, Profile } from '@core/models/profile.model';
 
 interface KeycloakMock {
@@ -11,12 +13,16 @@ interface KeycloakMock {
 describe('UserDataService', () => {
   let service: UserDataService;
   let mockKeycloak: jasmine.SpyObj<KeycloakMock>;
+  let mockUsersService: jasmine.SpyObj<UsersService>;
 
   beforeEach(() => {
     mockKeycloak = jasmine.createSpyObj('Keycloak', ['loadUserProfile']);
+    mockUsersService = jasmine.createSpyObj('UsersService', ['sync']);
+    mockUsersService.sync.and.returnValue(of({}));
     TestBed.configureTestingModule({
       providers: [
         { provide: keycloak, useValue: mockKeycloak },
+        { provide: UsersService, useValue: mockUsersService },
         UserDataService,
       ],
     });
@@ -64,6 +70,7 @@ describe('UserDataService', () => {
     expect(JSON.parse(sessionStorage.getItem('erasUserProfile')!)).toEqual(
       profile
     );
+    expect(mockUsersService.sync).toHaveBeenCalled();
   });
 
   it('Should not fill again the user if it was already loaded, at initUser method', async () => {
@@ -73,6 +80,21 @@ describe('UserDataService', () => {
     await service.initUser();
     expect(mockKeycloak.loadUserProfile).not.toHaveBeenCalled();
     expect(service.user()).toEqual(profile);
+    expect(mockUsersService.sync).not.toHaveBeenCalled();
+  });
+
+  it('Should not throw if syncing the ERAS user profile with the backend fails', async () => {
+    const keycloakProfile = { firstName: 'user1', id: '5' } as KeycloakProfile;
+    mockKeycloak.loadUserProfile.and.returnValue(
+      Promise.resolve(keycloakProfile)
+    );
+    mockUsersService.sync.and.returnValue(
+      throwError(() => new Error('network error'))
+    );
+    service = TestBed.inject(UserDataService);
+
+    await expectAsync(service.initUser()).toBeResolved();
+    expect(service.user()?.id).toBe('5');
   });
 
   it('Should clean up user and session storage, when clear method is trigger.', async () => {

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SidebarComponent } from './sidebar.component';
 import { SidebarService } from './sidebar.service';
@@ -28,6 +30,8 @@ describe('SidebarComponent', () => {
         { provide: ActivatedRoute, useValue: {} },
         { provide: SidebarService, useValue: sidebarServiceSpy },
         { provide: Keycloak, useValue: keycloakMock },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 
