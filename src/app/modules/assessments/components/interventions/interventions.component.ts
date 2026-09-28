@@ -46,6 +46,8 @@ import { EditInterventionModalComponent } from './edit-intervention-modal/edit-i
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 
 @Component({
   selector: 'app-interventions',
@@ -65,13 +67,14 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './interventions.component.scss',
 })
 export class InterventionsComponent implements OnInit {
-  private readonly assessmentService = inject(AssessmentService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly matDialog = inject(MatDialog);
 
+  private readonly assessmentService = inject(AssessmentService);
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
+  private readonly fetchResolver = inject(RoleBasedFetchResolver);
 
   readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
   private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
@@ -127,8 +130,8 @@ export class InterventionsComponent implements OnInit {
   private loadAssessments(): void {
     this.isLoadingAssessments.set(true);
 
-    this.assessmentService
-      .getAll()
+    this.fetchResolver
+      .resolve(this.assessmentService, AssessmentFetchStrategies)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: assessments => {
@@ -149,7 +152,11 @@ export class InterventionsComponent implements OnInit {
           this.studentNamesLookup.set(lookup);
         },
         error: err => {
-          console.error('Failed to load assessments', err);
+          this.toastService.showToast({
+            type: 'error',
+            title: 'Error fetching assessments',
+            message: err.message,
+          });
           this.isLoadingAssessments.set(false);
         },
       });

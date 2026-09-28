@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import keycloak, { KeycloakProfile } from 'keycloak-js';
 import { UserDataService } from './user-data.service';
-import { Profile } from '@core/models/profile.model';
+import { ERASRoles, Profile } from '@core/models/profile.model';
 
 interface KeycloakMock {
   loadUserProfile: () => Promise<unknown>;
@@ -52,7 +52,7 @@ describe('UserDataService', () => {
       firstName: 'user1',
       id: '2',
       lastName: 'last1',
-      role: 'User',
+      role: ERASRoles.GUEST,
       fullName: 'user1 last1',
     } as Profile;
     mockKeycloak.loadUserProfile.and.returnValue(Promise.resolve(profile));

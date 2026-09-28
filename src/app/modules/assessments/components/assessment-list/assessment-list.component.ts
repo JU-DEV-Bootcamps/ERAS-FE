@@ -34,6 +34,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { AssessmentStudentDataComponent } from './assessment-student-data/assessment-student-data.component';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -68,6 +70,7 @@ export class AssessmentListComponent implements OnInit {
   private readonly matDialog = inject(MatDialog);
   private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
   private readonly toastService = inject(ToastNotificationService);
+  private readonly fetchResolver = inject(RoleBasedFetchResolver);
 
   @Input() pageSize = 10;
 
@@ -189,24 +192,30 @@ export class AssessmentListComponent implements OnInit {
   loadAssessments(): void {
     this.isLoading.set(true);
 
-    this.assessmentService.getAll().subscribe({
-      next: data => {
-        this.assessments.set(data.map(item => this.mapToRow(item)));
-        const maxPage = Math.max(
-          0,
-          Math.ceil(this.assessments().length / this.pageSize) - 1
-        );
-        if (this.pageIndex() > maxPage) {
-          this.pageIndex.set(maxPage);
-        }
-        this.isLoading.set(false);
-      },
-      error: error => {
-        console.error('Failed to load assessments', error);
-        this.assessments.set([]);
-        this.isLoading.set(false);
-      },
-    });
+    this.fetchResolver
+      .resolve(this.assessmentService, AssessmentFetchStrategies)
+      .subscribe({
+        next: (data: AssessmentModel[]) => {
+          this.assessments.set(data.map(item => this.mapToRow(item)));
+          const maxPage = Math.max(
+            0,
+            Math.ceil(this.assessments().length / this.pageSize) - 1
+          );
+          if (this.pageIndex() > maxPage) {
+            this.pageIndex.set(maxPage);
+          }
+          this.isLoading.set(false);
+        },
+        error: error => {
+          this.toastService.showToast({
+            type: 'error',
+            title: 'Error fetching assessments',
+            message: error.message,
+          });
+          this.assessments.set([]);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private mapToRow(item: AssessmentModel): AssessmentRowViewModel {

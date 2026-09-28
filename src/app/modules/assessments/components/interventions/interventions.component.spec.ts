@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { InterventionsComponent } from './interventions.component';
 import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import Keycloak from 'keycloak-js';
 import {
   AssessmentModel,
   AssessmentStatus,
@@ -19,6 +21,16 @@ import { InterventionService } from '@core/services/api/intervention.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+
+const keycloakMock = {
+  token: 'fake-token',
+  logout: jasmine.createSpy('logout'),
+  loadUserProfile: jasmine
+    .createSpy('loadUserProfile')
+    .and.returnValue(Promise.resolve({})),
+  resourceAccess: {},
+};
 
 const assessments: AssessmentModel[] = [
   {
@@ -60,40 +72,45 @@ describe('InterventionsComponent', () => {
   let fixture: ComponentFixture<InterventionsComponent>;
 
   let assessmentServiceSpy: jasmine.SpyObj<AssessmentService>;
-
-  let dialog: jasmine.SpyObj<MatDialog>;
   let interventionServiceSpy: jasmine.SpyObj<InterventionService>;
   let toastServiceSpy: jasmine.SpyObj<ToastNotificationService>;
+  let fetchResolverSpy: jasmine.SpyObj<RoleBasedFetchResolver>;
+  let dialog: jasmine.SpyObj<MatDialog>;
   const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-  dialogRef.afterClosed.and.returnValue(of(undefined));
 
   beforeEach(async () => {
     dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
+    dialogRef.afterClosed.and.returnValue(of(undefined));
+    dialog.open.and.returnValue(dialogRef);
 
     assessmentServiceSpy = jasmine.createSpyObj('AssessmentService', [
       'getAll',
     ]);
-    interventionServiceSpy = jasmine.createSpyObj<InterventionService>(
-      'InterventionService',
-      ['deleteIntervention']
-    );
-    toastServiceSpy = jasmine.createSpyObj<ToastNotificationService>(
-      'ToastNotificationService',
-      ['showToast']
-    );
-
-    // dialogRef.afterClosed.and.returnValue(of(undefined));
-
     assessmentServiceSpy.getAll.and.returnValue(of(assessments));
-    dialog.open.and.returnValue(dialogRef);
+
+    fetchResolverSpy = jasmine.createSpyObj<RoleBasedFetchResolver>(
+      'RoleBasedFetchResolver',
+      ['resolve']
+    );
+    fetchResolverSpy.resolve.and.returnValue(of(assessments));
+
+    interventionServiceSpy = jasmine.createSpyObj('InterventionService', [
+      'deleteIntervention',
+    ]);
+    toastServiceSpy = jasmine.createSpyObj('ToastNotificationService', [
+      'showToast',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [InterventionsComponent],
       providers: [
         provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Keycloak, useValue: keycloakMock },
         { provide: AssessmentService, useValue: assessmentServiceSpy },
         { provide: InterventionService, useValue: interventionServiceSpy },
         { provide: ToastNotificationService, useValue: toastServiceSpy },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverSpy },
         { provide: MatDialog, useValue: dialog },
       ],
     })
@@ -190,15 +207,18 @@ describe('InterventionsComponent', () => {
   });
 
   it('should handle errors while loading assessments', () => {
-    spyOn(console, 'error');
-    assessmentServiceSpy.getAll.and.returnValue(
+    fetchResolverSpy.resolve.and.returnValue(
       throwError(() => new Error('network error'))
     );
 
-    fixture.detectChanges();
+    component.ngOnInit();
 
     expect(component.isLoadingAssessments()).toBe(false);
-    expect(console.error).toHaveBeenCalled();
+    expect(toastServiceSpy.showToast).toHaveBeenCalledWith({
+      type: 'error',
+      title: 'Error fetching assessments',
+      message: 'network error',
+    });
   });
 
   it('should use the provided student data when building the student lookup', () => {
@@ -221,9 +241,9 @@ describe('InterventionsComponent', () => {
         interventions: [],
       },
     ];
-    assessmentServiceSpy.getAll.and.returnValue(of(assessmentsWithStudents));
 
-    fixture.detectChanges();
+    fetchResolverSpy.resolve.and.returnValue(of(assessmentsWithStudents));
+    component.ngOnInit();
 
     expect(component.studentNamesLookup()['103']).toEqual({
       id: 103,
@@ -262,9 +282,8 @@ describe('InterventionsComponent', () => {
     expect(dialog.open).not.toHaveBeenCalled();
   });
 
-  it('should not open confirmation dialog without selected assessment', () => {
+  it('should open confirmation dialog when assessment is selected', () => {
     component.onAssessmentChange(1);
-    // component['allAssessments'].set([]);
     component.confirmDelete(intervention);
     expect(dialog.open).toHaveBeenCalled();
   });
