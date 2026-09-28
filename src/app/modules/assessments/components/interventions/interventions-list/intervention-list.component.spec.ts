@@ -21,11 +21,13 @@ import {
 import { of, throwError } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { CsvService } from '@core/services/exports/csv.service';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
 
 describe('InterventionListComponent', () => {
   let component: InterventionListComponent;
   let fixture: ComponentFixture<InterventionListComponent>;
   let mockAssessmentService: jasmine.SpyObj<AssessmentService>;
+  let mockAttachmentService: jasmine.SpyObj<AttachmentApiService>;
   let mockInterventionService: jasmine.SpyObj<InterventionService>;
   let mockFilterStrategy: jasmine.SpyObj<InterventionFilterStrategy>;
   let mockCsvService: jasmine.SpyObj<CsvService>;
@@ -90,11 +92,15 @@ describe('InterventionListComponent', () => {
       'apply',
     ]);
     mockCsvService = jasmine.createSpyObj('CsvService', ['exportToCSV']);
+    mockAttachmentService = jasmine.createSpyObj('AttachmentApiService', [
+      'list',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [InterventionListComponent],
       providers: [
         { provide: AssessmentService, useValue: mockAssessmentService },
+        { provide: AttachmentApiService, useValue: mockAttachmentService },
         { provide: InterventionService, useValue: mockInterventionService },
         { provide: InterventionFilterStrategy, useValue: mockFilterStrategy },
         { provide: CsvService, useValue: mockCsvService },
@@ -231,6 +237,19 @@ describe('InterventionListComponent', () => {
   });
 
   it('should select intervention on view click', () => {
+    mockAttachmentService.list.and.returnValue(
+      of([
+        {
+          id: 2,
+          entityType: '',
+          entityId: 1,
+          originalFileName: 'string',
+          mimeType: 'string',
+          sizeBytes: 1,
+          contentHash: 'string',
+        },
+      ])
+    );
     const row = {
       ...intervention,
       studentDisplay: [],

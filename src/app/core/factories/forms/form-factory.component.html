@@ -1,5 +1,5 @@
 <form [formGroup]="form">
-  @for (field of fields(); track $index) {
+  @for (field of fieldsToDisplay(); track $index) {
     <ng-container
       [ngComponentOutlet]="factory.getComponentByType(field.type)"
       [ngComponentOutletInputs]="{ field: field, form: form }"
