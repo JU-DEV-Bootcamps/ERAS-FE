@@ -269,6 +269,34 @@ describe('EditInterventionModalComponent', () => {
       expect(component.form.get('riskLevelName')?.disabled).toBeFalse();
       expect(component.form.contains('endRiskLevelName')).toBeFalse();
     });
+
+    it('should not reassign formFields (and trigger a form rebuild) when switching between non-Finalized statuses', () => {
+      const fieldsBefore = component.formFields;
+
+      component.form.get('status')?.setValue('InProgress');
+
+      expect(component.formFields).toBe(fieldsBefore);
+    });
+
+    it('should keep other unsaved field edits when moving status away from Remitted', () => {
+      component.form.get('activity')?.setValue('workshop');
+      component.form.get('activity')?.markAsDirty();
+
+      component.form.get('status')?.setValue('InProgress');
+
+      expect(component.form.get('status')?.value).toBe('InProgress');
+      expect(component.form.get('activity')?.value).toBe('workshop');
+    });
+
+    it('should keep Finalized selected (not revert to the original status) on the first transition, since adding endRiskLevelName still rebuilds the form', () => {
+      component.form.get('activity')?.setValue('workshop');
+
+      component.form.get('status')?.setValue('Finalized');
+      fixture.detectChanges();
+
+      expect(component.form.get('status')?.value).toBe('Finalized');
+      expect(component.form.get('activity')?.value).toBe('workshop');
+    });
   });
 
   describe('onAttendanceChange normalization', () => {
@@ -295,6 +323,25 @@ describe('EditInterventionModalComponent', () => {
       expect(dialogRef.close).toHaveBeenCalledWith(true);
       expect(toastService.showToast).toHaveBeenCalledWith(
         jasmine.objectContaining({ title: 'Intervention updated successfully' })
+      );
+    });
+
+    it('should send null (not an empty string) when endRiskLevelName has not been picked', () => {
+      component.form.get('students')?.setValue(['1']);
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+      component.form.addControl('endRiskLevelName', new FormControl(''));
+
+      component.submitIntervention();
+
+      expect(interventionService.updateIntervention).toHaveBeenCalledWith(
+        jasmine.any(Number),
+        jasmine.any(Number),
+        jasmine.objectContaining({
+          updateInterventionDto: jasmine.objectContaining({
+            endRiskLevelName: null,
+          }),
+        })
       );
     });
 
