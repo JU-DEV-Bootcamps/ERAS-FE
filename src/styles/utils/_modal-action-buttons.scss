@@ -1,0 +1,60 @@
+@use 'index.scss' as main-styles;
+
+// Shape/typography shared by every button in a dialog actions row.
+@mixin button-base {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 100px;
+  font-size: main-styles.get-font-size(body, large);
+  font-weight: 500;
+  line-height: 125%;
+  height: 40px;
+  width: 80px;
+  padding: 10px 16px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  @media (min-width: 500px) {
+    padding: 10px 16px;
+    width: 100px;
+  }
+}
+
+// Cancel / primary action / disabled look used by the assessment modals.
+@mixin modal-action-buttons {
+  .action-button,
+  .cancel-button {
+    @include button-base;
+  }
+
+  .action-button {
+    background-color: var(--primary-700);
+    color: white;
+
+    &:hover {
+      background-color: main-styles.get-color(primary, 30);
+    }
+  }
+
+  .cancel-button {
+    background-color: transparent;
+    color: var(--primary-700);
+
+    &:hover {
+      background-color: main-styles.get-color(neutral, 90);
+    }
+  }
+
+  .disabled-button {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  mat-dialog-actions {
+    gap: 8px;
+  }
+}

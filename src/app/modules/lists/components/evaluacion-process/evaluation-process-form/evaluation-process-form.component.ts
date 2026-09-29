@@ -185,6 +185,18 @@ export class EvaluationProcessFormComponent implements OnInit {
     }
   }
 
+  get isEditMode(): boolean {
+    return !!this.data?.evaluation;
+  }
+
+  /**
+   * Create is usable as soon as the form is valid.
+   * In edit mode it also requires changes (dirty) to avoid a no-op update.
+   */
+  get isSubmitDisabled(): boolean {
+    return this.form.invalid || (this.isEditMode && this.form.pristine);
+  }
+
   async ngOnInit() {
     const profile = this.userData.user()!;
     this.userId = (profile && profile.id) || '';
