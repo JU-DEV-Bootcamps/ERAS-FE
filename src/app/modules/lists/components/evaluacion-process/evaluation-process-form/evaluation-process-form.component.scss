@@ -1,4 +1,5 @@
 @use 'index.scss' as main-styles;
+@use 'modal-action-buttons' as modal-actions;
 
 .modal {
   padding-top: 25px;
@@ -58,45 +59,16 @@
     @media (min-width: 500px) {
       margin: 16px;
     }
-    button {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-color: main-styles.get-color(primary, 50);
-      color: white;
-      border: none;
-      border-radius: 100px;
-      font-size: main-styles.get-font-size(body, large);
-      font-weight: 500;
-      line-height: 125%;
-      height: 40px;
-      width: 80px;
-      padding: 10px 16px;
-      &:hover {
-        background-color: main-styles.get-color(primary, 30);
-      }
-      @media (min-width: 500px) {
-        padding: 10px 16px;
-        width: 200px;
-        width: 100px;
-      }
-    }
-    .modalCancelButton {
-      width: 100px;
-      background-color: main-styles.get-color(neutral, 70);
-      &:hover {
-        background-color: main-styles.get-color(neutral, 50);
-      }
-    }
+
+    @include modal-actions.modal-action-buttons;
+
     .modalDeleteButton {
       background-color: main-styles.get-color(error, 70);
+      color: white;
+      @include modal-actions.button-base;
       &:hover {
         background-color: main-styles.get-color(error, 50);
       }
-    }
-    .disabledButton {
-      opacity: 0.5;
-      pointer-events: none;
     }
   }
 }
