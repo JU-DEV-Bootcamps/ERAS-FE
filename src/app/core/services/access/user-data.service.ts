@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ERASRoles, isErasRole, Profile } from '@core/models/profile.model';
+import { UsersService } from '@core/services/api/users.service';
 import keycloak, { KeycloakProfile } from 'keycloak-js';
 import { environment } from 'src/environments/environment';
 
@@ -12,6 +13,7 @@ export class UserDataService {
   user = computed(() => this._user());
 
   private readonly keycloak = inject(keycloak);
+  private readonly usersService = inject(UsersService);
 
   constructor() {
     this.loadFromSession();
@@ -23,6 +25,14 @@ export class UserDataService {
     const keycloakProfile = await this.keycloak.loadUserProfile();
     const profile = this.mapToProfileModel(keycloakProfile);
     this.saveToSession(profile);
+    this.syncWithBackend();
+  }
+
+  private syncWithBackend(): void {
+    this.usersService.sync().subscribe({
+      error: (error: unknown) =>
+        console.error('Failed to sync ERAS user profile with backend', error),
+    });
   }
 
   private getUserRole(): ERASRoles {
