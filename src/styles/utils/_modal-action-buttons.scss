@@ -1,6 +1,5 @@
 @use 'index.scss' as main-styles;
 
-// Shape/typography shared by every button in a dialog actions row.
 @mixin button-base {
   flex-direction: column;
   justify-content: center;
@@ -24,7 +23,6 @@
   }
 }
 
-// Cancel / primary action / disabled look used by the assessment modals.
 @mixin modal-action-buttons {
   .action-button,
   .cancel-button {
