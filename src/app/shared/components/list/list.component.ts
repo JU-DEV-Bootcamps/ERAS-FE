@@ -45,6 +45,8 @@ import { ITEMS_PER_CHUNK_COMPLEX } from '@core/constants/pdf';
 
 export type TypeFile = 'csv' | 'pdf' | '';
 
+const WAIT_ALL_ITEMS_TIMEOUT_MS = 30000;
+
 @Component({
   selector: 'app-list',
   imports: [
@@ -226,14 +228,28 @@ export class ListComponent<T extends object>
   exportToCSV() {
     if (this.isGenerating) return;
     if (this.areExportedAllItems) {
-      const waitForItems = new Promise<void>(resolve => {
-        this.pendingExportResolve = resolve;
-      });
-      this.exportRequested.emit('csv');
-      waitForItems.then(() => this._exportItemsToCsv());
+      this.waitForAllItems('csv').then(() => this._exportItemsToCsv());
       return;
     }
     this._exportItemsToCsv();
+  }
+
+  private waitForAllItems(type: TypeFile): Promise<void> {
+    if (this.allItems?.length) {
+      this.exportRequested.emit(type);
+      return Promise.resolve();
+    }
+    return new Promise<void>(resolve => {
+      const timeout = setTimeout(() => {
+        this.pendingExportResolve = null;
+        resolve();
+      }, WAIT_ALL_ITEMS_TIMEOUT_MS);
+      this.pendingExportResolve = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+      this.exportRequested.emit(type);
+    });
   }
 
   async exportToPdf() {
@@ -243,10 +259,7 @@ export class ListComponent<T extends object>
     this.exporting.emit(true);
     try {
       if (this.areExportedAllItems) {
-        await new Promise<void>(resolve => {
-          this.pendingExportResolve = resolve;
-          this.exportRequested.emit('pdf');
-        });
+        await this.waitForAllItems('pdf');
       }
       const itemsToExport = this.getItemsToExport();
 

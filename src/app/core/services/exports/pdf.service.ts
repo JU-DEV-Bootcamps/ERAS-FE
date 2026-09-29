@@ -18,7 +18,7 @@ export class PdfService extends BaseExportService {
     title?: string,
     avoidBreakSelector = 'tr, .mat-mdc-row, .mat-row'
   ) {
-    const scale = 1.5;
+    const scale = 2;
     const forbiddenZones = this.getForbiddenZones(
       element,
       avoidBreakSelector,

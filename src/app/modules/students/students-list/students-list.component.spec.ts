@@ -20,6 +20,7 @@ import { ImportPreviewStudentsComponent } from '@modules/imports/components/impo
 import { MandatoryColumns } from '@modules/imports/components/import-preview-students/import-preview-students.model';
 import { StudentImport } from '@core/services/interfaces/student.interface';
 import { StudentModelPreview } from '@shared/components/list/types/preview';
+import { ListComponent } from '@shared/components/list/list.component';
 
 const mockActivatedRoute = {
   snapshot: { paramMap: { get: () => null } },
@@ -53,12 +54,12 @@ const buildStudent = (overrides: Partial<StudentModel> = {}): StudentModel =>
   }) as StudentModel;
 
 interface ListLike {
+  areExportedAllItems: boolean;
   exportToCSV(): Promise<void>;
   exportToPdf(): Promise<void>;
 }
 
 interface StudentsListComponentPrivate {
-  list: () => ListLike | undefined;
   handlePreviewImport(
     file: File,
     instance: ImportModalComponent,
@@ -269,7 +270,8 @@ describe('StudentsListComponent', () => {
         'exportToPdf',
       ]);
       listSpy.exportToCSV.and.returnValue(Promise.resolve());
-      asPrivate(component).list = () => listSpy;
+      component.listComponent =
+        listSpy as unknown as ListComponent<StudentModelFlat>;
 
       const promise = component.exportToCSV();
       expect(component.isGenerating).toBeTrue();
@@ -277,6 +279,7 @@ describe('StudentsListComponent', () => {
       await promise;
 
       expect(listSpy.exportToCSV).toHaveBeenCalled();
+      expect(listSpy.areExportedAllItems).toBeTrue();
       expect(component.isGenerating).toBeFalse();
     });
 
@@ -286,7 +289,8 @@ describe('StudentsListComponent', () => {
         'exportToPdf',
       ]);
       listSpy.exportToCSV.and.returnValue(Promise.reject(new Error('fail')));
-      asPrivate(component).list = () => listSpy;
+      component.listComponent =
+        listSpy as unknown as ListComponent<StudentModelFlat>;
 
       await expectAsync(component.exportToCSV()).toBeRejected();
 
@@ -299,7 +303,8 @@ describe('StudentsListComponent', () => {
         'exportToPdf',
       ]);
       listSpy.exportToCSV.and.returnValue(Promise.resolve());
-      asPrivate(component).list = () => listSpy;
+      component.listComponent =
+        listSpy as unknown as ListComponent<StudentModelFlat>;
       component.isGenerating = true;
 
       await component.exportToCSV();
@@ -315,11 +320,13 @@ describe('StudentsListComponent', () => {
         'exportToPdf',
       ]);
       listSpy.exportToPdf.and.returnValue(Promise.resolve());
-      asPrivate(component).list = () => listSpy;
+      component.listComponent =
+        listSpy as unknown as ListComponent<StudentModelFlat>;
 
       await component.exportToPdf();
 
       expect(listSpy.exportToPdf).toHaveBeenCalled();
+      expect(listSpy.areExportedAllItems).toBeTrue();
       expect(component.isGenerating).toBeFalse();
     });
 
@@ -329,12 +336,79 @@ describe('StudentsListComponent', () => {
         'exportToPdf',
       ]);
       listSpy.exportToPdf.and.returnValue(Promise.resolve());
-      asPrivate(component).list = () => listSpy;
+      component.listComponent =
+        listSpy as unknown as ListComponent<StudentModelFlat>;
       component.isGenerating = true;
 
       await component.exportToPdf();
 
       expect(listSpy.exportToPdf).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('loadStudents complete', () => {
+    it('should set isLoading to false when the observable completes', () => {
+      component.isLoading = true;
+      studentServiceSpy.getData.and.returnValue(of({ items: [], count: 0 }));
+
+      component.loadStudents();
+
+      expect(component.isLoading).toBeFalse();
+      expect(component.students).toEqual([]);
+    });
+  });
+
+  describe('loadAllStudents', () => {
+    it('should fetch every page until all students are loaded', async () => {
+      studentServiceSpy.getData.and.returnValues(
+        of({ items: [buildStudent({ id: 1 })], count: 2 }),
+        of({ items: [buildStudent({ id: 2 })], count: 2 })
+      );
+
+      await component.loadAllStudents();
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledWith({
+        page: 0,
+        pageSize: 100,
+      });
+      expect(studentServiceSpy.getData).toHaveBeenCalledWith({
+        page: 1,
+        pageSize: 100,
+      });
+      expect(component.allStudents.map(s => s.id)).toEqual([1, 2]);
+    });
+
+    it('should resolve without populating allStudents on error', async () => {
+      studentServiceSpy.getData.and.returnValue(
+        throwError(() => new Error('network error'))
+      );
+
+      await component.loadAllStudents();
+
+      expect(component.allStudents).toEqual([]);
+    });
+  });
+
+  describe('onExportRequested', () => {
+    it('should load all students only the first time', async () => {
+      const loadAllSpy = spyOn(component, 'loadAllStudents').and.returnValue(
+        Promise.resolve()
+      );
+
+      await component.onExportRequested('csv');
+      await component.onExportRequested('pdf');
+
+      expect(loadAllSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('onExporting', () => {
+    it('should update the isExporting signal', async () => {
+      await component.onExporting(true);
+      expect(component.isExporting()).toBeTrue();
+
+      await component.onExporting(false);
+      expect(component.isExporting()).toBeFalse();
     });
   });
 

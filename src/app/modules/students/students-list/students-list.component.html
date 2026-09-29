@@ -1,3 +1,9 @@
+@if (isExporting()) {
+  <div class="export-overlay">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="export-overlay__label">Generating PDF...</p>
+  </div>
+}
 @if (isLoading) {
   <mat-spinner />
 } @else {
