@@ -185,6 +185,14 @@ export class EvaluationProcessFormComponent implements OnInit {
     }
   }
 
+  get isEditMode(): boolean {
+    return !!this.data?.evaluation;
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.form.invalid || (this.isEditMode && this.form.pristine);
+  }
+
   async ngOnInit() {
     const profile = this.userData.user()!;
     this.userId = (profile && profile.id) || '';

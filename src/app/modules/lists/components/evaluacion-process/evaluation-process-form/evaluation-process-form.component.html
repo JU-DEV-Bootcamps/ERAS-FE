@@ -222,17 +222,15 @@
         Delete
       </button>
 
-      <button type="button" class="modalCancelButton" (click)="requestClose()">
+      <button type="button" class="cancel-button" (click)="requestClose()">
         Cancel
       </button>
 
       <button
-        class="modalMainButton"
+        class="action-button"
         type="submit"
-        [ngClass]="{
-          disabledButton: form.invalid || form.pristine,
-        }"
-        [disabled]="form.invalid || form.pristine"
+        [ngClass]="{ 'disabled-button': isSubmitDisabled }"
+        [disabled]="isSubmitDisabled"
       >
         {{ buttonText }}
       </button>
