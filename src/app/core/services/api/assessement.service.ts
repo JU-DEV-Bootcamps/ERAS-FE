@@ -27,16 +27,12 @@ export class AssessmentService extends BaseApiService {
     return this.assessmentsCache$;
   }
 
-  // TODO: Implement this after API Endpoints had been implemented
-  getByCreator(creator: string): Observable<AssessmentModel[]> {
-    console.log(`Getting assessments for ${creator}`);
-    return this.get<AssessmentModel[]>('');
+  getByCreator(creatorSub: string): Observable<AssessmentModel[]> {
+    return this.get<AssessmentModel[]>(`by-creator/${creatorSub}`);
   }
 
-  // TODO: Implement this after API Endpoints had been implemented
-  getByProfessional(professional: string): Observable<AssessmentModel[]> {
-    console.log(`Getting assessments for ${professional}`);
-    return this.get<AssessmentModel[]>('');
+  getByProfessional(professionalSub: string): Observable<AssessmentModel[]> {
+    return this.get<AssessmentModel[]>(`by-professional/${professionalSub}`);
   }
 
   getById(id: string): Observable<AssessmentModel> {

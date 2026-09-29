@@ -101,6 +101,11 @@ export class InterventionListComponent {
   }
   private _studentNamesLookup: Record<string, StudentProfileData> = {};
 
+  @Input() set professionalDisplayLookup(value: Record<string, string>) {
+    this._professionalDisplayLookup = value;
+  }
+  private _professionalDisplayLookup: Record<string, string> = {};
+
   readonly assessmentId = signal<number | null>(null);
   @Input() set assessmentIdInput(value: number | null) {
     this.assessmentId.set(value);
@@ -291,7 +296,13 @@ export class InterventionListComponent {
       endRiskLevelName: item.endRiskLevelName ?? RiskLevels.None,
       studentDisplay: this.buildStudentDisplay(item),
       commentPreview: this.buildCommentPreview(item.comments),
+      professional: this.resolveProfessionalDisplay(item.professional),
     };
+  }
+
+  private resolveProfessionalDisplay(raw?: string | null): string {
+    if (!raw) return raw ?? '';
+    return this._professionalDisplayLookup[raw] ?? raw;
   }
 
   private buildStudentDisplay(

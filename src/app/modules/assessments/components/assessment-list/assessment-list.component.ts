@@ -36,11 +36,16 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { AssessmentStudentDataComponent } from './assessment-student-data/assessment-student-data.component';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
+import { UsersService } from '@core/services/api/users.service';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
   commentPreview: string;
   isEditable: boolean;
+  submitterDisplay: string;
+  professionalDisplay: string;
 }
 
 @Component({
@@ -71,6 +76,14 @@ export class AssessmentListComponent implements OnInit {
   private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
   private readonly toastService = inject(ToastNotificationService);
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
+  private readonly usersService = inject(UsersService);
+  private readonly permissionsService = inject(PermissionsService);
+
+  private userDisplayNameBySub = new Map<string, string>();
+
+  protected readonly canManageAssessment = computed(() =>
+    this.permissionsService.can(ERASPermissions.CAN_MANAGE_ASSESSMENT)
+  );
 
   @Input() pageSize = 10;
 
@@ -107,7 +120,26 @@ export class AssessmentListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadAssessments();
+    this.loadUserDisplayNames();
+  }
+
+  private loadUserDisplayNames(): void {
+    this.usersService.getByRole().subscribe({
+      next: users => {
+        this.userDisplayNameBySub = new Map(
+          users
+            .filter(user => !!user.sub)
+            .map(user => [
+              user.sub as string,
+              `${user.firstName} ${user.lastName}`.trim() || user.email,
+            ])
+        );
+        this.loadAssessments();
+      },
+      error: () => {
+        this.loadAssessments();
+      },
+    });
   }
 
   protected onPageChange(event: PageEvent): void {
@@ -182,7 +214,7 @@ export class AssessmentListComponent implements OnInit {
         assessmentId: assessment.id,
         professional: {
           value: assessment.assignedProfessional ?? '',
-          label: assessment.assignedProfessional ?? '',
+          label: assessment.professionalDisplay,
         },
         students,
       },
@@ -228,7 +260,16 @@ export class AssessmentListComponent implements OnInit {
       studentDisplay: display,
       commentPreview: this.buildCommentPreview(item.comments),
       isEditable: this.isItemEditable(item.status),
+      submitterDisplay: this.resolveDisplayName(item.createdBy),
+      professionalDisplay: item.assignedProfessional
+        ? this.resolveDisplayName(item.assignedProfessional)
+        : '—',
     };
+  }
+
+  private resolveDisplayName(sub?: string | null): string {
+    if (!sub) return '—';
+    return this.userDisplayNameBySub.get(sub) ?? sub;
   }
 
   private buildCommentPreview(comments?: string | null): string {

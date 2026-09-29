@@ -489,7 +489,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       activity: values.activity,
       area: values.area,
       numberOfParticipants: payload.intervention['numberOfParticipants'],
-      professional: values.professional,
+      professional: this.data.professional.label,
       comments: values.comments,
       studentIds: payload.intervention['studentIds'],
       attendance: payload.intervention['attendance'],

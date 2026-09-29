@@ -18,6 +18,8 @@ import { ModalDeleteConfirmationComponent } from '@shared/components/modals/moda
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { UsersService } from '@core/services/api/users.service';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 
 describe('AssessmentListComponent', () => {
   let component: AssessmentListComponent;
@@ -28,6 +30,8 @@ describe('AssessmentListComponent', () => {
   let modalDeleteService: jasmine.SpyObj<ModalDeleteConfirmationService>;
   let toastService: jasmine.SpyObj<ToastNotificationService>;
   let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
+  let usersService: jasmine.SpyObj<UsersService>;
+  let permissionsService: jasmine.SpyObj<PermissionsService>;
 
   const buildAssessment = (
     overrides: Partial<AssessmentModel> = {}
@@ -68,6 +72,12 @@ describe('AssessmentListComponent', () => {
       'showToast',
     ]);
 
+    usersService = jasmine.createSpyObj('UsersService', ['getByRole']);
+    usersService.getByRole.and.returnValue(of([]));
+
+    permissionsService = jasmine.createSpyObj('PermissionsService', ['can']);
+    permissionsService.can.and.returnValue(true);
+
     await TestBed.configureTestingModule({
       imports: [AssessmentListComponent],
       providers: [
@@ -78,6 +88,8 @@ describe('AssessmentListComponent', () => {
         },
         { provide: ToastNotificationService, useValue: toastService },
         { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
+        { provide: UsersService, useValue: usersService },
+        { provide: PermissionsService, useValue: permissionsService },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -392,6 +404,8 @@ describe('AssessmentListComponent', () => {
         studentDisplay: '',
         commentPreview: '',
         isEditable: true,
+        submitterDisplay: '',
+        professionalDisplay: 'Master',
       };
 
       component['onCreateIntervention'](row);
@@ -417,6 +431,8 @@ describe('AssessmentListComponent', () => {
         studentDisplay: '',
         commentPreview: '',
         isEditable: true,
+        submitterDisplay: '',
+        professionalDisplay: '',
       };
 
       component['onCreateIntervention'](row);

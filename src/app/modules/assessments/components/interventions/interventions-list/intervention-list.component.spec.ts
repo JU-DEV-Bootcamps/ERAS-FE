@@ -303,6 +303,24 @@ describe('InterventionListComponent', () => {
     );
   });
 
+  it('should resolve a raw professional sub to its display name using the lookup', () => {
+    component.professionalDisplayLookup = { 'sub-123': 'Jane Smith' };
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, professional: 'sub-123' }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].professional).toBe('Jane Smith');
+  });
+
+  it('should keep the stored value when it is not a known sub', () => {
+    component.professionalDisplayLookup = { 'sub-123': 'Jane Smith' };
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, professional: 'Already A Name' }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].professional).toBe('Already A Name');
+  });
+
   it('should truncate long comments', () => {
     const longComment = 'a'.repeat(100);
     fetchResolverMock.resolve.and.returnValue(

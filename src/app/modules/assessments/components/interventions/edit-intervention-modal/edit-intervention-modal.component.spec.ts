@@ -297,6 +297,24 @@ describe('EditInterventionModalComponent', () => {
         jasmine.objectContaining({ title: 'Intervention updated successfully' })
       );
     });
+
+    it('should submit the resolved professional display name, not the raw form value', () => {
+      component.form.get('students')?.setValue(['1']);
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+
+      component.submitIntervention();
+
+      expect(interventionService.updateIntervention).toHaveBeenCalledWith(
+        jasmine.any(Number),
+        jasmine.any(Number),
+        jasmine.objectContaining({
+          updateInterventionDto: jasmine.objectContaining({
+            professional: 'John Doe',
+          }),
+        })
+      );
+    });
     it('should show an error toast when update fails', () => {
       const error = new HttpErrorResponse({
         status: 500,

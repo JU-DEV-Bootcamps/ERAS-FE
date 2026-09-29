@@ -23,6 +23,7 @@ describe('CreatableInputComponent', () => {
         { label: 'Device1', value: 'device1' },
         { label: 'Device2', value: 'device2' },
         { label: 'Device3', value: 'device3' },
+        { label: 'Claudio C', value: 'sub-guid-99' },
       ],
       selectConfig: {},
     } as DynamicField;
@@ -78,8 +79,12 @@ describe('CreatableInputComponent', () => {
     expect(component.displayFn(null)).toBe('');
   });
 
-  it('should return title-cased string value', () => {
+  it('should return title-cased string value when it matches no option', () => {
     expect(component.displayFn('abc')).toBe('Abc');
+  });
+
+  it('should look up the matching option label when the value is a raw id/sub distinct from its label', () => {
+    expect(component.displayFn('sub-guid-99')).toBe('Claudio C');
   });
 
   it('should return title-cased lookup label', () => {

@@ -28,14 +28,14 @@ describe('PermissionsService', () => {
 
   it('can method should return false if userRole is undefined', () => {
     userSignal.set({});
-    const response = service.can(ERASPermissions.CAN_CREATE_PROFESSIONALS);
+    const response = service.can(ERASPermissions.CAN_CREATE_SERVICES);
 
     expect(response).toBeFalse();
   });
 
   it('can method should return true if PermissionCheck returns true', () => {
     userSignal.set({ role: ERASRoles.ADMIN });
-    const response = service.can(ERASPermissions.CAN_CREATE_PROFESSIONALS);
+    const response = service.can(ERASPermissions.CAN_CREATE_SERVICES);
 
     expect(response).toBeTrue();
   });
@@ -43,7 +43,7 @@ describe('PermissionsService', () => {
   it('can method should return false if PermissionCheck returns false', () => {
     userSignal.set({ role: ERASRoles.PROFESSIONAL });
 
-    const response = service.can(ERASPermissions.CAN_CREATE_PROFESSIONALS);
+    const response = service.can(ERASPermissions.CAN_CREATE_SERVICES);
 
     expect(response).toBeFalse();
   });

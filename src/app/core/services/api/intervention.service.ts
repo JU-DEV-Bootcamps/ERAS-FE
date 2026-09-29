@@ -23,21 +23,22 @@ export class InterventionService extends BaseApiService {
     return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
   }
 
-  // TODO: Implement this after API Endpoints had been implemented
   getByAssessmentAndCreator(
     assessmentId: number,
-    creator: string
+    creatorSub: string
   ): Observable<InterventionModel[]> {
-    console.log(`Getting interventions for ${creator}`);
-    return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
+    return this.get<InterventionModel[]>(
+      `${assessmentId}/interventions/by-creator/${creatorSub}`
+    );
   }
 
   getByAssessmentAndAssignedProfessional(
     assessmentId: number,
-    professional: string
+    professionalSub: string
   ): Observable<InterventionModel[]> {
-    console.log(`Getting interventions for ${professional}`);
-    return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
+    return this.get<InterventionModel[]>(
+      `${assessmentId}/interventions/by-professional/${professionalSub}`
+    );
   }
 
   createIntervention(

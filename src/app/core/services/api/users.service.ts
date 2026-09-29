@@ -1,7 +1,17 @@
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
+
+/** Mirrors the backend's `ErasUserDTO` — a real Keycloak-synced ERAS account. */
+export interface ErasUserProfile {
+  sub: string | null;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -17,5 +27,15 @@ export class UsersService extends BaseApiService {
    */
   sync(): Observable<unknown> {
     return this.post('sync', {});
+  }
+
+  /**
+   * Lists real ERAS users, optionally filtered by role (e.g. to populate an "assigned
+   * professional" picker with actual accounts instead of a disconnected name catalog,
+   * or — with no role — to resolve any user's sub back to a display name).
+   */
+  getByRole(role?: string): Observable<ErasUserProfile[]> {
+    const params = role ? new HttpParams().set('role', role) : new HttpParams();
+    return this.get<ErasUserProfile[]>('', params);
   }
 }

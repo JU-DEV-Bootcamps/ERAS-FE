@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
 import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { UsersService } from '@core/services/api/users.service';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -75,6 +76,7 @@ describe('InterventionsComponent', () => {
   let interventionServiceSpy: jasmine.SpyObj<InterventionService>;
   let toastServiceSpy: jasmine.SpyObj<ToastNotificationService>;
   let fetchResolverSpy: jasmine.SpyObj<RoleBasedFetchResolver>;
+  let usersServiceSpy: jasmine.SpyObj<UsersService>;
   let dialog: jasmine.SpyObj<MatDialog>;
   const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
 
@@ -101,6 +103,9 @@ describe('InterventionsComponent', () => {
       'showToast',
     ]);
 
+    usersServiceSpy = jasmine.createSpyObj('UsersService', ['getByRole']);
+    usersServiceSpy.getByRole.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [InterventionsComponent],
       providers: [
@@ -111,6 +116,7 @@ describe('InterventionsComponent', () => {
         { provide: InterventionService, useValue: interventionServiceSpy },
         { provide: ToastNotificationService, useValue: toastServiceSpy },
         { provide: RoleBasedFetchResolver, useValue: fetchResolverSpy },
+        { provide: UsersService, useValue: usersServiceSpy },
         { provide: MatDialog, useValue: dialog },
       ],
     })

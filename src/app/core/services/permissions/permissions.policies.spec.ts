@@ -7,24 +7,6 @@ import {
 } from './permission.policies';
 
 describe('Permissions policy functions', () => {
-  describe('CAN_CREATE_PROFESSIONALS', () => {
-    const permissionCheck =
-      PermissionChecks[ERASPermissions.CAN_CREATE_PROFESSIONALS];
-    const enabledRoles =
-      PermissionsRoles[ERASPermissions.CAN_CREATE_PROFESSIONALS];
-
-    it('should return true for ERAS Administrator', () => {
-      expect(permissionCheck(ERASRoles.ADMIN, enabledRoles)).toBeTrue();
-    });
-
-    it('should return false for ERAS Students Service Officer', () => {
-      expect(permissionCheck(ERASRoles.OFFICER, enabledRoles)).toBeFalse();
-    });
-
-    it('should return false for ERAS Professional', () => {
-      expect(permissionCheck(ERASRoles.PROFESSIONAL, enabledRoles)).toBeFalse();
-    });
-  });
   describe('CAN_CREATE_SERVICES', () => {
     const permissionCheck =
       PermissionChecks[ERASPermissions.CAN_CREATE_SERVICES];
@@ -118,6 +100,24 @@ describe('Permissions policy functions', () => {
       expect(
         permissionCheck(ERASRoles.PROFESSIONAL, enabledRoles, context)
       ).toBeFalse();
+    });
+  });
+  describe('CAN_MANAGE_ASSESSMENT', () => {
+    const permissionCheck =
+      PermissionChecks[ERASPermissions.CAN_MANAGE_ASSESSMENT];
+    const enabledRoles =
+      PermissionsRoles[ERASPermissions.CAN_MANAGE_ASSESSMENT];
+
+    it('should return true for ERAS Administrator', () => {
+      expect(permissionCheck(ERASRoles.ADMIN, enabledRoles)).toBeTrue();
+    });
+
+    it('should return true for ERAS Students Service Officer', () => {
+      expect(permissionCheck(ERASRoles.OFFICER, enabledRoles)).toBeTrue();
+    });
+
+    it('should return false for ERAS Professional', () => {
+      expect(permissionCheck(ERASRoles.PROFESSIONAL, enabledRoles)).toBeFalse();
     });
   });
 });
