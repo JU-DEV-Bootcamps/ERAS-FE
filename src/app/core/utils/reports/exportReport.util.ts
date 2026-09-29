@@ -1,14 +1,19 @@
-import { ElementRef, inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { FileNameUtils } from '@core/utils/file/file-name';
 import { PdfService } from '@core/services/exports/pdf.service';
-import { ExportArgs } from '../../../modules/reports/components/summary-charts/types/export';
 import {
   DEFAULT_VALUES,
   SNACKBAR_CONF,
   STYLE_CONF,
 } from '../../../modules/reports/components/summary-charts/constants/export-conf';
-
-const LETTER_PX = { portrait: 816, landscape: 1056 };
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas-pro';
+import { PDF_CONFIG } from '@core/constants/pdf';
+import {
+  ExportArgs,
+  ExportArgsChunked,
+  LETTER_PX,
+} from '@modules/reports/components/summary-charts/types/export';
 
 @Injectable({ providedIn: 'root' })
 export class PdfHelper {
@@ -231,8 +236,7 @@ export class PdfHelper {
     if (processes[key]) processes[key](clonedElement);
   }
 
-  printReportInfo(mainContainer: ElementRef, preProcess?: string): HTMLElement {
-    const source = mainContainer.nativeElement as HTMLElement;
+  printReportInfo(source: HTMLElement, preProcess?: string): HTMLElement {
     const cloned = source.cloneNode(true) as HTMLElement;
 
     if (preProcess) this.preProcessHTML(cloned, preProcess);
@@ -306,7 +310,7 @@ export class PdfHelper {
                 series.style.alignItems = 'center';
               });
             canvas.parentElement.insertBefore(legendClone, canvas);
-            legend.style.display = 'none'; // hide original
+            legend.style.display = 'none';
           }
         }
       });
@@ -335,7 +339,141 @@ export class PdfHelper {
     return cloned;
   }
 
-  async exportToPdf(args: ExportArgs) {
+  async exportToPdfChunked(args: ExportArgsChunked): Promise<void> {
+    if (args.snackBar) {
+      args.snackBar.open('Starting PDF export...', 'Close', {
+        duration: 3000,
+        panelClass: 'snackbar-info',
+      });
+    }
+
+    const fileName = FileNameUtils.generateFileName(
+      args.fileName ?? DEFAULT_VALUES.fileName
+    );
+    const totalItems = args.totalChunks;
+    const chunks = totalItems;
+
+    const pdf = new jsPDF('p', 'mm', 'letter');
+    let isFirstPage = true;
+
+    for (let i = 0; i < chunks; i++) {
+      const element = await args.getChunkElement(i, chunks);
+      const { width, height } = await this.measureAndPrepare(element);
+
+      const canvases = await this.renderChunkToCanvases(element, width, height);
+
+      for (const canvas of canvases) {
+        if (!isFirstPage) pdf.addPage();
+        this.addCanvasToPage(pdf, canvas, isFirstPage ? args.title : undefined);
+        isFirstPage = false;
+      }
+      if (document.body.contains(element)) {
+        document.body.removeChild(element);
+      }
+
+      const progress = Math.round(((i + 1) / chunks) * 100);
+      if (args.snackBar) {
+        args.snackBar.dismiss();
+        args.snackBar.open(`Exporting: ${progress}%`, 'Close', {
+          duration: 2000,
+          panelClass: 'snackbar-info',
+        });
+      }
+      await args.onChunkDone?.(i, chunks);
+    }
+
+    pdf.save(`${fileName}.pdf`);
+    args.callback?.();
+  }
+
+  private async renderChunkToCanvases(
+    element: HTMLElement,
+    width: number,
+    height: number
+  ): Promise<HTMLCanvasElement[]> {
+    const scale = 2;
+    const canvases: HTMLCanvasElement[] = [];
+    try {
+      const canvas = await html2canvas(element, {
+        scale,
+        useCORS: true,
+        logging: false,
+        removeContainer: true,
+        width,
+        height,
+        windowWidth: width,
+        windowHeight: height,
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+      });
+
+      const pageHeightPx = scale * 792;
+      if (canvas.height > pageHeightPx * 1.5) {
+        const numPages = Math.ceil(canvas.height / pageHeightPx);
+        for (let i = 0; i < numPages; i++) {
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = Math.min(
+            pageHeightPx,
+            canvas.height - i * pageHeightPx
+          );
+          pageCanvas
+            .getContext('2d')!
+            .drawImage(
+              canvas,
+              0,
+              i * pageHeightPx,
+              canvas.width,
+              pageCanvas.height,
+              0,
+              0,
+              canvas.width,
+              pageCanvas.height
+            );
+          canvases.push(pageCanvas);
+        }
+      } else {
+        canvases.push(canvas);
+      }
+    } catch (err) {
+      console.error('Error rendering chunk to canvas:', err);
+      throw err;
+    }
+    return canvases;
+  }
+
+  private addCanvasToPage(
+    pdf: jsPDF,
+    canvas: HTMLCanvasElement,
+    title?: string
+  ): void {
+    const {
+      top: marginTop,
+      left: marginLeft,
+      right: marginRight,
+    } = PDF_CONFIG.margin;
+
+    const pageWidth = pdf.internal.pageSize.width;
+    const imgWidth = pageWidth - marginLeft - marginRight;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let yPosition = marginTop;
+
+    if (title) {
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      const lines = pdf.splitTextToSize(
+        title,
+        pageWidth - marginLeft - marginRight
+      );
+      yPosition += lines.length * 5 + 5;
+    }
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    pdf.addImage(imgData, 'JPEG', marginLeft, yPosition, imgWidth, imgHeight);
+  }
+
+  async exportToPdf(args: ExportArgs): Promise<void> {
     if (args.snackBar) {
       args.snackBar.open(SNACKBAR_CONF.message_start, 'Close', {
         duration: SNACKBAR_CONF.duration,
@@ -346,36 +484,42 @@ export class PdfHelper {
     const fileName = FileNameUtils.generateFileName(
       args.fileName ?? DEFAULT_VALUES.fileName
     );
-    const cloned = this.printReportInfo(args.container, args.preProcess);
-
-    const { width, height } = await this.measureAndPrepare(cloned);
-
+    const processed = this.printReportInfo(
+      args.container.nativeElement,
+      args.preProcess
+    );
+    const { width, height } = await this.measureAndPrepare(processed);
     return this.pdfService.exportToPDF(
-      cloned,
+      processed,
       fileName,
       width,
       height,
       0,
       () => {
-        if (document.body.contains(cloned)) document.body.removeChild(cloned);
+        if (document.body.contains(processed)) {
+          document.body.removeChild(processed);
+        }
         if (args.snackBar) {
           args.snackBar.open(SNACKBAR_CONF.message_end, 'OK', {
             duration: SNACKBAR_CONF.duration,
             panelClass: SNACKBAR_CONF.panel_class,
           });
         }
-      }
+      },
+      args.title
     );
   }
 
-  async exportCardToPdf(args: ExportArgs) {
+  async exportCardToPdf(args: ExportArgs): Promise<void> {
     const element = args.container?.nativeElement as HTMLElement;
     const fileName = FileNameUtils.generateFileName(
       args.fileName ?? DEFAULT_VALUES.fileName
     );
 
-    const cloned = element.cloneNode(true) as HTMLElement;
-
+    const cloned = this.printReportInfo(
+      args.container.nativeElement,
+      args.preProcess
+    );
     const collapsibleContent = cloned.querySelector<HTMLElement>(
       '.card, .card-body, [class*="content"]'
     );
@@ -389,7 +533,6 @@ export class PdfHelper {
         opacity: '1',
       });
     }
-
     cloned
       .querySelectorAll<HTMLElement>(
         '.pdf-export, .expand-toggle, .change-to-column, .card-actions, [class*="export"], [class*="toggle"]'
@@ -408,7 +551,9 @@ export class PdfHelper {
       height,
       0,
       () => {
-        if (document.body.contains(cloned)) document.body.removeChild(cloned);
+        if (document.body.contains(cloned)) {
+          document.body.removeChild(cloned);
+        }
       },
       args.title
     );
