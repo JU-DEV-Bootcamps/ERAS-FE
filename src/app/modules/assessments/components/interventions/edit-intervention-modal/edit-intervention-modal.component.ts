@@ -380,6 +380,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   setFormGroup(event: FormGroup): void {
     this.form = event;
     this.formSettling = true;
+    const isRebuildFromLiveEdit = this._pendingRebuildValues !== null;
     const valuesToApply = this._pendingRebuildValues ?? this._prefillValues;
     this._pendingRebuildValues = null;
     this.form.patchValue(valuesToApply, { emitEvent: false });
@@ -387,6 +388,10 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     Object.values(this.form.controls).forEach(control => {
       control.updateValueAndValidity({ emitEvent: false });
     });
+
+    if (isRebuildFromLiveEdit) {
+      this.form.markAsDirty();
+    }
     afterNextRender(
       () => {
         setTimeout(() => {

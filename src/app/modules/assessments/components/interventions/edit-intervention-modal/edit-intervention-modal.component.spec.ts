@@ -297,6 +297,13 @@ describe('EditInterventionModalComponent', () => {
       expect(component.form.get('status')?.value).toBe('Finalized');
       expect(component.form.get('activity')?.value).toBe('workshop');
     });
+
+    it('should mark the form dirty right away after the Finalized rebuild, without requiring another edit to enable Save', () => {
+      component.form.get('status')?.setValue('Finalized');
+      fixture.detectChanges();
+
+      expect(component.form.dirty).toBeTrue();
+    });
   });
 
   describe('onAttendanceChange normalization', () => {

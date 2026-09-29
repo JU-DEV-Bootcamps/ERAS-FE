@@ -293,11 +293,14 @@ export class InterventionListComponent {
   private mapToRow(item: InterventionModel): InterventionRowViewModel {
     return {
       ...item,
-      endRiskLevelName: item.endRiskLevelName ?? RiskLevels.None,
       studentDisplay: this.buildStudentDisplay(item),
       commentPreview: this.buildCommentPreview(item.comments),
       professional: this.resolveProfessionalDisplay(item.professional),
     };
+  }
+
+  protected resolveEndRiskDisplay(value?: RiskLevels | null): RiskLevels {
+    return value ?? RiskLevels.None;
   }
 
   private resolveProfessionalDisplay(raw?: string | null): string {

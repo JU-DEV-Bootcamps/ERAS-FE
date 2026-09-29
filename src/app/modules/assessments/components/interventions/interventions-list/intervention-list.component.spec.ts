@@ -321,6 +321,25 @@ describe('InterventionListComponent', () => {
     expect(component['interventions']()[0].professional).toBe('Already A Name');
   });
 
+  it('should not bake a display fallback into the row model for a never-set endRiskLevelName', () => {
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, endRiskLevelName: undefined }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].endRiskLevelName).toBeUndefined();
+  });
+
+  describe('resolveEndRiskDisplay', () => {
+    it('should fall back to None only for display, without touching the row', () => {
+      expect(component['resolveEndRiskDisplay'](undefined)).toBe(
+        RiskLevels.None
+      );
+      expect(component['resolveEndRiskDisplay'](RiskLevels.Low)).toBe(
+        RiskLevels.Low
+      );
+    });
+  });
+
   it('should truncate long comments', () => {
     const longComment = 'a'.repeat(100);
     fetchResolverMock.resolve.and.returnValue(
