@@ -14,7 +14,8 @@
       matInput
       #trigger="matAutocompleteTrigger"
       type="text"
-      maxlength="100"
+      [maxlength]="field().max ?? 100"
+      class="input-text"
       [formControl]="control()"
       [placeholder]="
         isCreating()

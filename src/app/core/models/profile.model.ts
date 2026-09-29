@@ -1,20 +1,18 @@
-enum ERASRoles {
-  ADMIN = 'ERAS Administrator',
-  PROFESSIONAL = 'ERAS Professional',
-  OFFICER = 'ERAS Student Services Officer',
-  GUEST = 'Guest',
-}
+export type ErasRole =
+  | 'Eras Admin'
+  | 'Professional'
+  | 'Student Service'
+  | 'User';
 
-interface Profile {
+export interface Profile {
   firstName?: string;
   id?: string;
   lastName?: string;
-  role?: ERASRoles;
+  role?: ErasRole;
   fullName?: string;
 }
 
-function isErasRole(role: string): role is ERASRoles {
-  return Object.values(ERASRoles).includes(role as ERASRoles);
+export function isErasRole(role: string): role is ErasRole {
+  const erasRoles = ['Eras Admin', 'Professional', 'Student Service', 'User'];
+  return erasRoles.includes(role);
 }
-
-export { ERASRoles, isErasRole, Profile };

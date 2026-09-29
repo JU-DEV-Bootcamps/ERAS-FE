@@ -18,7 +18,6 @@ import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-
 import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
-import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 
 describe('AssessmentListComponent', () => {
   let component: AssessmentListComponent;
@@ -28,7 +27,6 @@ describe('AssessmentListComponent', () => {
   let matDialog: jasmine.SpyObj<MatDialog>;
   let modalDeleteService: jasmine.SpyObj<ModalDeleteConfirmationService>;
   let toastService: jasmine.SpyObj<ToastNotificationService>;
-  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
 
   const buildAssessment = (
     overrides: Partial<AssessmentModel> = {}
@@ -50,13 +48,11 @@ describe('AssessmentListComponent', () => {
 
   beforeEach(async () => {
     assessmentService = jasmine.createSpyObj('AssessmentService', [
+      'getAll',
       'deleteAssessment',
       'clearCache',
     ]);
-    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
-      'resolve',
-    ]);
-    fetchResolverMock.resolve.and.returnValue(of([buildAssessment()]));
+    assessmentService.getAll.and.returnValue(of([buildAssessment()]));
 
     matDialog = jasmine.createSpyObj('MatDialog', ['open']);
 
@@ -78,7 +74,6 @@ describe('AssessmentListComponent', () => {
           useValue: modalDeleteService,
         },
         { provide: ToastNotificationService, useValue: toastService },
-        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -99,24 +94,23 @@ describe('AssessmentListComponent', () => {
     it('should load and map assessments on success', () => {
       fixture.detectChanges();
 
-      expect(fetchResolverMock.resolve).toHaveBeenCalled();
+      expect(assessmentService.getAll).toHaveBeenCalled();
       expect(component['assessments']().length).toBe(1);
       expect(component['isLoading']()).toBeFalse();
     });
 
     it('should reset pageIndex to maxPage when pageIndex exceeds maxPage (branch true)', () => {
       component['pageIndex'].set(3);
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([buildAssessment({ id: 1 })])
       );
-
       component.loadAssessments();
 
       expect(component['pageIndex']()).toBe(0);
     });
 
     it('should fall back to "No student assigned" when studentIds is empty', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([buildAssessment({ studentIds: [] })])
       );
 
@@ -126,7 +120,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should fall back to "No student assigned" when studentIds is empty or undefined', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([
           buildAssessment({ id: 1, studentIds: [] }),
           buildAssessment({ id: 2, studentIds: undefined }),
@@ -145,8 +139,7 @@ describe('AssessmentListComponent', () => {
 
     it('should truncate long comments in the preview', () => {
       const longComment = 'x'.repeat(80);
-
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([buildAssessment({ comments: longComment })])
       );
 
@@ -158,7 +151,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should keep short comments intact without truncation (branch <= 60)', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([buildAssessment({ comments: 'Short remarks' })])
       );
 
@@ -170,7 +163,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should show "—" when there are no comments', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([buildAssessment({ comments: '' })])
       );
 
@@ -180,7 +173,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should show "—" when comments is empty, null, undefined or whitespace', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([
           buildAssessment({ id: 1, comments: '' }),
           buildAssessment({ id: 2, comments: undefined }),
@@ -198,7 +191,7 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should mark Remitted and InProgress as editable, Finalized as not', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      assessmentService.getAll.and.returnValue(
         of([
           buildAssessment({ id: 1, status: AssessmentStatus.Remitted }),
           buildAssessment({ id: 2, status: AssessmentStatus.InProgress }),
@@ -215,7 +208,8 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should clear the list and stop loading on error', () => {
-      fetchResolverMock.resolve.and.returnValue(
+      spyOn(console, 'error');
+      assessmentService.getAll.and.returnValue(
         throwError(() => new Error('network error'))
       );
 
@@ -223,9 +217,7 @@ describe('AssessmentListComponent', () => {
 
       expect(component['assessments']()).toEqual([]);
       expect(component['isLoading']()).toBeFalse();
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        jasmine.objectContaining({ type: 'error' })
-      );
+      expect(console.error).toHaveBeenCalled();
     });
   });
 
@@ -236,8 +228,7 @@ describe('AssessmentListComponent', () => {
         buildAssessment({ id: 2 }),
         buildAssessment({ id: 3 }),
       ];
-
-      fetchResolverMock.resolve.and.returnValue(of(list));
+      assessmentService.getAll.and.returnValue(of(list));
       component.pageSize = 2;
 
       component.loadAssessments();
@@ -278,13 +269,13 @@ describe('AssessmentListComponent', () => {
     });
 
     it('should close and reload on closePanelRefreshing', () => {
-      fetchResolverMock.resolve.calls.reset();
+      assessmentService.getAll.calls.reset();
       component['selectedAssessment'].set(component['assessments']()[0]);
 
       component['closePanelRefreshing']();
 
       expect(component['selectedAssessment']()).toBeNull();
-      expect(fetchResolverMock.resolve).toHaveBeenCalled();
+      expect(assessmentService.getAll).toHaveBeenCalled();
     });
 
     it('should emit editClicked', () => {

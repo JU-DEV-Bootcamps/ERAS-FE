@@ -27,18 +27,6 @@ export class AssessmentService extends BaseApiService {
     return this.assessmentsCache$;
   }
 
-  // TODO: Implement this after API Endpoints had been implemented
-  getByCreator(creator: string): Observable<AssessmentModel[]> {
-    console.log(`Getting assessments for ${creator}`);
-    return this.get<AssessmentModel[]>('');
-  }
-
-  // TODO: Implement this after API Endpoints had been implemented
-  getByProfessional(professional: string): Observable<AssessmentModel[]> {
-    console.log(`Getting assessments for ${professional}`);
-    return this.get<AssessmentModel[]>('');
-  }
-
   getById(id: string): Observable<AssessmentModel> {
     return this.get<AssessmentModel>(id);
   }

@@ -1,31 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import keycloak, { KeycloakProfile } from 'keycloak-js';
 import { UserDataService } from './user-data.service';
-import { ERASRoles, Profile } from '@core/models/profile.model';
+import { Profile } from '@core/models/profile.model';
 
 interface KeycloakMock {
   loadUserProfile: () => Promise<unknown>;
   resourceAccess?: Record<string, { roles: string[] }>;
-}
-
-/**
- * Helper que crea un mock de resourceAccess usando un Proxy.
- * Responde con los roles indicados para CUALQUIER clientId que consulte el servicio.
- */
-function createResourceAccessMock(
-  roles: string[]
-): Record<string, { roles: string[] }> {
-  return new Proxy(
-    {},
-    {
-      get: (_target, prop) => {
-        if (typeof prop === 'symbol' || prop === 'then' || prop === 'toJSON') {
-          return undefined;
-        }
-        return { roles };
-      },
-    }
-  );
 }
 
 describe('UserDataService', () => {
@@ -72,7 +52,7 @@ describe('UserDataService', () => {
       firstName: 'user1',
       id: '2',
       lastName: 'last1',
-      role: ERASRoles.GUEST,
+      role: 'User',
       fullName: 'user1 last1',
     } as Profile;
     mockKeycloak.loadUserProfile.and.returnValue(Promise.resolve(profile));
@@ -103,59 +83,6 @@ describe('UserDataService', () => {
     service.clear();
     expect(service.user()).toBeNull();
     expect(sessionStorage.getItem('erasUserProfile')).toBeNull();
-  });
-
-  describe('role mapping (getUserRole via initUser)', () => {
-    const keycloakProfile = (): KeycloakProfile =>
-      ({ id: '10', firstName: 'Ada', lastName: 'Lovelace' }) as KeycloakProfile;
-
-    it('should map role to ADMIN when the ADMIN role is present', async () => {
-      mockKeycloak.resourceAccess = createResourceAccessMock([
-        ERASRoles.ADMIN,
-        'someOtherRole',
-      ]);
-      mockKeycloak.loadUserProfile.and.returnValue(
-        Promise.resolve(keycloakProfile())
-      );
-      service = TestBed.inject(UserDataService);
-      await service.initUser();
-
-      expect(service.user()?.role).toBe(ERASRoles.ADMIN);
-    });
-
-    it('should fall back to GUEST when no known ERAS role matches', async () => {
-      mockKeycloak.resourceAccess = createResourceAccessMock([
-        'unrelated-role',
-      ]);
-      mockKeycloak.loadUserProfile.and.returnValue(
-        Promise.resolve(keycloakProfile())
-      );
-      service = TestBed.inject(UserDataService);
-      await service.initUser();
-
-      expect(service.user()?.role).toBe(ERASRoles.GUEST);
-    });
-
-    it('should fall back to GUEST when resourceAccess is undefined', async () => {
-      mockKeycloak.resourceAccess = undefined;
-      mockKeycloak.loadUserProfile.and.returnValue(
-        Promise.resolve(keycloakProfile())
-      );
-      service = TestBed.inject(UserDataService);
-      await service.initUser();
-
-      expect(service.user()?.role).toBe(ERASRoles.GUEST);
-    });
-
-    it('BUG: throws when resourceAccess exists but has no entry for our clientId', async () => {
-      mockKeycloak.resourceAccess = { 'some-other-client': { roles: [] } };
-      mockKeycloak.loadUserProfile.and.returnValue(
-        Promise.resolve(keycloakProfile())
-      );
-      service = TestBed.inject(UserDataService);
-
-      await expectAsync(service.initUser()).toBeRejected();
-    });
   });
 
   describe('mapToProfileModel', () => {

@@ -34,13 +34,13 @@ import { AppliedFilter } from '@shared/components/list-filters/models/list-filte
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { CsvService } from '@core/services/exports/csv.service';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { AttachmentModel } from '@core/models/attachment.model';
 import {
   ACTIVITY_OPTIONS,
   AREA_OPTIONS,
   getOptionLabel,
 } from '../interventions.constants';
-import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
-import { InterventionsFetchStrategies } from '@modules/assessments/fetch-strategies/interventions-fetch.strategies';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -87,9 +87,9 @@ export interface ExportableIntervention {
 export class InterventionListComponent {
   private readonly interventionService = inject(InterventionService);
   private readonly assessmentService = inject(AssessmentService);
+  private readonly attachmentService = inject(AttachmentApiService);
   private readonly filterStrategy = inject(InterventionFilterStrategy);
   private readonly csvService = inject(CsvService);
-  private readonly fetchResolver = inject(RoleBasedFetchResolver);
 
   @Input() pageSize = 10;
 
@@ -140,6 +140,7 @@ export class InterventionListComponent {
   protected readonly interventions = signal<InterventionRowViewModel[]>([]);
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
+  protected readonly listAttachments = signal<AttachmentModel[]>([]);
 
   protected activityLabel(value: string | null | undefined): string {
     return getOptionLabel(ACTIVITY_OPTIONS, value);
@@ -223,10 +224,24 @@ export class InterventionListComponent {
 
   protected onViewClick(item: InterventionRowViewModel): void {
     this.selectedIntervention.set(item);
+    if (item.id === undefined) {
+      return;
+    }
+    this.attachmentService.list('interventions', item.id).subscribe({
+      next: data => {
+        this.listAttachments.set(data);
+      },
+      error: error => {
+        console.error('Failed to load attachments', error);
+        this.listAttachments.set([]);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   protected closeDetailPanel(): void {
     this.selectedIntervention.set(null);
+    this.listAttachments.set([]);
   }
 
   protected onEditClick(item: InterventionModel): void {
@@ -241,30 +256,26 @@ export class InterventionListComponent {
     this.isLoading.set(true);
     this.pageIndex.set(0);
 
-    this.fetchResolver
-      .resolve(this.interventionService, InterventionsFetchStrategies, {
-        assessmentId,
-      })
-      .subscribe({
-        next: data => {
-          const rows = data.map(item => this.mapToRow(item));
-          this.hasInterventions.set(rows.length > 0);
-          this.interventions.set(rows);
+    this.interventionService.getByAssessment(assessmentId).subscribe({
+      next: data => {
+        const rows = data.map(item => this.mapToRow(item));
+        this.hasInterventions.set(rows.length > 0);
+        this.interventions.set(rows);
 
-          const current = this.selectedIntervention();
-          if (current) {
-            const refreshed = rows.find(r => r.id === current.id);
-            this.selectedIntervention.set(refreshed ?? null);
-          }
+        const current = this.selectedIntervention();
+        if (current) {
+          const refreshed = rows.find(r => r.id === current.id);
+          this.selectedIntervention.set(refreshed ?? null);
+        }
 
-          this.isLoading.set(false);
-        },
-        error: error => {
-          console.error('Failed to load interventions', error);
-          this.interventions.set([]);
-          this.isLoading.set(false);
-        },
-      });
+        this.isLoading.set(false);
+      },
+      error: error => {
+        console.error('Failed to load interventions', error);
+        this.interventions.set([]);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   private mapToRow(item: InterventionModel): InterventionRowViewModel {

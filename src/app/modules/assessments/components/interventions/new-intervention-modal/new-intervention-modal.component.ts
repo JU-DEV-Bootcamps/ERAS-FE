@@ -11,6 +11,7 @@ import {
   computed,
   DestroyRef,
   afterNextRender,
+  ViewChild,
 } from '@angular/core';
 import {
   FormGroup,
@@ -40,7 +41,6 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessment.model';
-import { map, of, concatMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ACTIVITY_OPTIONS,
@@ -54,6 +54,8 @@ import {
   TYPE_OPTIONS,
 } from '../interventions.constants';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { AttachmentManagerComponent } from '@shared/components/attachment-manager/attachment-manager.component';
+import { StagedFile } from '@core/models/attachment.model';
 
 export interface StudentLookup {
   value: number;
@@ -80,6 +82,7 @@ export interface NewInterventionDialogData {
     MatSelectModule,
     NgClass,
     ReactiveFormsModule,
+    AttachmentManagerComponent,
   ],
   templateUrl: './new-intervention-modal.component.html',
   styleUrl: '../../../styles/assessments-modal-styles.scss',
@@ -90,6 +93,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
   private readonly injector = inject(Injector);
+
+  @ViewChild('attachmentManagerNew')
+  private readonly attachmentManagerNew!: AttachmentManagerComponent;
 
   existingAttachments: string[] = [];
   attachmentsToDelete: string[] = [];
@@ -265,6 +271,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
       {
         type: 'file',
         name: 'uploadInput',
+        hidden: true,
         label: 'Attached Document (s)',
         placeholder: 'Upload File (s)',
         fileConfig: {
@@ -272,7 +279,6 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
           maxSizeMb: MAX_FILE_SIZE_BYTES,
           allowedExtensions: ALLOWED_EXTENSIONS,
           allowedMimeTypes: ALLOWED_MIME_TYPES,
-          onFileRemoved: fileIndex => this.removeExistingAttachment(fileIndex),
           prefillFileNames: [],
         },
         floatingLabel: 'always',
@@ -382,17 +388,10 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
 
     const payload = this.buildPayload();
     this.isSubmitting = true;
+    const { draftSessionId } = this.attachmentManagerNew.getPendingChanges();
 
     this.interventionService
-      .createIntervention(payload)
-      .pipe(
-        concatMap((created: InterventionModel) => {
-          if (this.form.value.uploadInput.length === 0) return of(created);
-          return this.interventionService
-            .uploadAttachments(created.id!, this.form.value.uploadInput)
-            .pipe(map(() => created));
-        })
-      )
+      .createIntervention({ ...payload, draftSessionId })
       .subscribe({
         next: () => {
           const toast: ToastNotificationData = {
@@ -458,17 +457,21 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     this.dialogRef.close();
   }
 
-  removeExistingAttachment(index: number): void {
-    const pathToRemove = this.existingAttachments[index];
-    this.attachmentsToDelete.push(this.getFileName(pathToRemove));
-    this.existingAttachments = this.existingAttachments.filter(
-      (_, i) => i !== index
-    );
-    this.form.markAsDirty();
-  }
+  onStagedFilesChange(staged: StagedFile[]): void {
+    const control = this.form?.get('uploadInput');
+    if (!control) return;
 
-  getFileName(path: string): string {
-    if (path === undefined) return '';
-    return path.split('/').pop() ?? path;
+    const hasUploading = staged.some(s => s.status === 'uploading');
+    const hasError = staged.some(s => s.status === 'error');
+
+    if (hasUploading) {
+      control.setErrors({ uploading: true });
+    } else if (hasError) {
+      control.setErrors({ uploadError: true });
+    } else {
+      control.setErrors(null);
+    }
+
+    control.markAsDirty();
   }
 }

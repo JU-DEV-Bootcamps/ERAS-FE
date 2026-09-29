@@ -8,7 +8,6 @@ import { FeatureFlagsService } from './feature-flags.service';
 import { environment } from 'src/environments/environment';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { FEATURE_FLAGS } from './feature-flags';
-import { ERASRoles } from '@core/models/profile.model';
 
 describe('FeatureFlagsService', () => {
   let service: FeatureFlagsService;
@@ -22,9 +21,7 @@ describe('FeatureFlagsService', () => {
   beforeEach(() => {
     queryParams = {};
     userDataMock = {
-      user: jasmine
-        .createSpy('user')
-        .and.returnValue({ role: ERASRoles.ADMIN }),
+      user: jasmine.createSpy('user').and.returnValue({ role: 'Eras Admin' }),
     };
 
     TestBed.configureTestingModule({
@@ -88,23 +85,23 @@ describe('FeatureFlagsService', () => {
 
   it('isEnabled should return true when ?v2=true regardless of role', () => {
     queryParams = { v2: 'true' };
-    userDataMock.user.and.returnValue({ role: ERASRoles.PROFESSIONAL });
+    userDataMock.user.and.returnValue({ role: 'User' });
     expect(service.isEnabled('anyFlag')).toBeTrue();
   });
 
   it('isEnabled should return true when the specific flag query param is true', () => {
     queryParams = { myFlag: 'true' };
-    userDataMock.user.and.returnValue({ role: ERASRoles.OFFICER });
+    userDataMock.user.and.returnValue({ role: 'User' });
     expect(service.isEnabled('myFlag')).toBeTrue();
   });
 
   it('isEnabled should return false for non-admin users with no override', () => {
-    userDataMock.user.and.returnValue({ role: ERASRoles.GUEST });
+    userDataMock.user.and.returnValue({ role: 'User' });
     expect(service.isEnabled('someFlag')).toBeFalse();
   });
 
   it('isEnabled should return backend value for admin users with no override', () => {
-    userDataMock.user.and.returnValue({ role: ERASRoles.ADMIN });
+    userDataMock.user.and.returnValue({ role: 'Eras Admin' });
     service.loadFlags().subscribe();
     httpMock.expectOne(baseUrl).flush(mockFlags);
 

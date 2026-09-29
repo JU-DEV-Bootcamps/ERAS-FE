@@ -14,8 +14,6 @@ import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessme
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
 import { AssessmentListComponent } from './assessment-list/assessment-list.component';
 import { AssessmentModel } from '@core/models/assessment.model';
-import { PermissionsService } from '@core/services/permissions/permissions.service';
-import { ERASPermissions } from '@core/services/permissions/permission.policies';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -53,7 +51,6 @@ describe('AssessmentsComponent', () => {
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
   let juServicesServiceSpy: jasmine.SpyObj<JuServicesService>;
   let professionalsServiceSpy: jasmine.SpyObj<ProfessionalsService>;
-  let permissionsServiceSpy: jasmine.SpyObj<PermissionsService>;
 
   const lightStudents = [
     { id: 1, name: 'Ana' },
@@ -91,12 +88,6 @@ describe('AssessmentsComponent', () => {
       of({ items: [], count: 0 })
     );
 
-    permissionsServiceSpy = jasmine.createSpyObj<PermissionsService>(
-      'PermissionsService',
-      ['can']
-    );
-    permissionsServiceSpy.can.and.returnValue(false);
-
     const userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
       'UserDataService',
       ['user']
@@ -112,7 +103,6 @@ describe('AssessmentsComponent', () => {
         { provide: JuServicesService, useValue: juServicesServiceSpy },
         { provide: ProfessionalsService, useValue: professionalsServiceSpy },
         { provide: UserDataService, useValue: userDataServiceSpy },
-        { provide: PermissionsService, useValue: permissionsServiceSpy },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -194,71 +184,6 @@ describe('AssessmentsComponent', () => {
     fixture.detectChanges();
 
     expect(openCreateModalSpy).not.toHaveBeenCalled();
-  });
-
-  describe('openCreateModal permissions branches', () => {
-    it('should attach createProfessional and createService callbacks when user has permissions', () => {
-      permissionsServiceSpy.can.and.callFake((perm: string) => {
-        return (
-          perm === ERASPermissions.CAN_CREATE_PROFESSIONALS ||
-          perm === ERASPermissions.CAN_CREATE_SERVICES
-        );
-      });
-
-      const openSpy = spyOn(MatDialog.prototype, 'open').and.returnValue(
-        dialogRefStub
-      );
-
-      fixture.detectChanges();
-      component.openCreateModal();
-
-      const dialogData = openSpy.calls.mostRecent().args[1]
-        ?.data as NewAssessmentModalData;
-
-      expect(dialogData.createProfessional).toBeDefined();
-      expect(dialogData.createService).toBeDefined();
-    });
-
-    it('should not attach createProfessional or createService when user lacks permissions', () => {
-      permissionsServiceSpy.can.and.returnValue(false);
-
-      const openSpy = spyOn(MatDialog.prototype, 'open').and.returnValue(
-        dialogRefStub
-      );
-
-      fixture.detectChanges();
-      component.openCreateModal();
-
-      const dialogData = openSpy.calls.mostRecent().args[1]
-        ?.data as NewAssessmentModalData;
-
-      expect(dialogData.createProfessional).toBeUndefined();
-      expect(dialogData.createService).toBeUndefined();
-    });
-
-    it('should log error and reset lookupLoading when getVolatileLookups fails in openCreateModal', () => {
-      const consoleErrorSpy = spyOn(console, 'error');
-      const openSpy = spyOn(MatDialog.prototype, 'open');
-      const error = new Error('Services error');
-      juServicesServiceSpy.getAllJuServices.and.returnValue(
-        throwError(() => error)
-      );
-
-      fixture.detectChanges();
-      component.openCreateModal();
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('error: ', error);
-      expect(component.lookupLoading()).toBeFalse();
-      expect(openSpy).not.toHaveBeenCalled();
-    });
-
-    it('should safely handle listComponent being undefined when create modal closes', () => {
-      spyOn(MatDialog.prototype, 'open').and.returnValue(dialogRefStub);
-      fixture.detectChanges();
-      setListComponent(component, undefined);
-
-      expect(() => component.openCreateModal()).not.toThrow();
-    });
   });
 
   describe('openEditModal', () => {

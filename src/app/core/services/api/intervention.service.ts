@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
-import { InterventionModel } from '@core/models/assessment.model';
+import {
+  InterventionModel,
+  UpdateInterventionModel,
+  UpdateInterventionPayload,
+} from '@core/models/assessment.model';
 
 export interface AddInterventionPayload {
   assessmentId: number;
@@ -19,25 +23,8 @@ export class InterventionService extends BaseApiService {
     return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
   }
 
-  // TODO: Implement this after API Endpoints had been implemented
-  getByAssessmentAndCreator(
-    assessmentId: number,
-    creator: string
-  ): Observable<InterventionModel[]> {
-    console.log(`Getting interventions for ${creator}`);
-    return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
-  }
-
-  getByAssessmentAndAssignedProfessional(
-    assessmentId: number,
-    professional: string
-  ): Observable<InterventionModel[]> {
-    console.log(`Getting interventions for ${professional}`);
-    return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
-  }
-
   createIntervention(
-    payload: AddInterventionPayload
+    payload: AddInterventionPayload & { draftSessionId: number | null }
   ): Observable<InterventionModel> {
     return this.post<AddInterventionPayload, InterventionModel>(
       'interventions',
@@ -58,11 +45,11 @@ export class InterventionService extends BaseApiService {
   updateIntervention(
     assessmentId: number,
     interventionId: number,
-    intervention: InterventionModel
-  ): Observable<InterventionModel> {
-    return this.put<InterventionModel, InterventionModel>(
+    payload: UpdateInterventionModel
+  ): Observable<UpdateInterventionPayload> {
+    return this.put<UpdateInterventionModel, UpdateInterventionPayload>(
       `${assessmentId}/interventions/${interventionId}`,
-      intervention
+      payload
     );
   }
 
@@ -98,6 +85,17 @@ export class InterventionService extends BaseApiService {
   deleteAttachment(interventionId: number, fileName: string): Observable<void> {
     return this.delete<void>(
       `interventions/${interventionId}/attachments/${fileName}`
+    );
+  }
+
+  replaceInterventionType(
+    assessmentId: number,
+    interventionId: number,
+    payload: UpdateInterventionModel
+  ): Observable<InterventionModel> {
+    return this.put<UpdateInterventionModel, InterventionModel>(
+      `${assessmentId}/interventions/${interventionId}/replace-type`,
+      payload
     );
   }
 }

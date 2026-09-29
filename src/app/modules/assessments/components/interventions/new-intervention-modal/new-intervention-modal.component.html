@@ -12,6 +12,16 @@
         [fields]="formFields"
         (formReady)="setFormGroup($event)"
       ></app-form-factory>
+      <app-attachment-manager
+        #attachmentManagerNew
+        [entityType]="'interventions'"
+        [entityId]="null"
+        [maxFiles]="5"
+        [maxSizeMb]="10485760"
+        [hostControl]="form.get('uploadInput') ?? null"
+        (stagedFilesChange)="onStagedFilesChange($event)"
+      >
+      </app-attachment-manager>
     </div>
   </mat-dialog-content>
 
