@@ -34,6 +34,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { getRiskColor } from '@core/constants/riskLevel';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 register();
 
@@ -85,6 +86,7 @@ export class StudentDetailComponent implements OnDestroy {
   };
 
   studentService = inject(StudentService);
+  exportStateService = inject(ExportStateService);
   pdfHelper = inject(PdfHelper);
   pollsService = inject(PollService);
   pollInsService = inject(PollInstanceService);
@@ -283,6 +285,7 @@ export class StudentDetailComponent implements OnDestroy {
     if (this.isGeneratingPDF) return;
 
     this.isGeneratingPDF = true;
+    this.exportStateService.startExport('pdf', 0);
 
     await this.pdfHelper.exportToPdf({
       fileName: 'student-detail',

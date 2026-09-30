@@ -48,7 +48,7 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-charts/summary-column-charts/summary-column-charts.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 @Component({
   selector: 'app-students-risk',
@@ -67,7 +67,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     PollFiltersComponent,
     MatMenuModule,
     SummaryColumnChartsComponent,
-    MatProgressSpinner,
   ],
   templateUrl: './summary-charts.component.html',
   styleUrl: './summary-charts.component.scss',
@@ -75,6 +74,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 export class SummaryChartsComponent {
   studentService = inject(StudentService);
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
   private injector = inject(EnvironmentInjector);
@@ -228,17 +228,20 @@ export class SummaryChartsComponent {
   async exportReportPdf() {
     if (this.isGeneratingPDF) return;
     this.isGeneratingPDF = true;
+    this.exportStateService.startExport('pdf', 0);
 
-    // Let ApexCharts finish any pending redraws before we clone
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-    await this.pdfHelper.exportToPdf({
-      fileName: 'cohort_report',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-    });
-
-    this.isGeneratingPDF = false;
+      await this.pdfHelper.exportToPdf({
+        fileName: 'cohort_report',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+      });
+    } finally {
+      this.isGeneratingPDF = false;
+      this.exportStateService.endExport();
+    }
   }
 
   openDetailsModal(
@@ -265,6 +268,8 @@ export class SummaryChartsComponent {
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
     this.evaluationId = filters.evaluationId;
+    this.allStudentsLoaded = false;
+    this.allStudents = [];
 
     if (!filters.uuid || !filters.cohortIds?.length) {
       this.chartOptions = {};

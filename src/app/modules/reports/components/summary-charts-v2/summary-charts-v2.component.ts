@@ -44,7 +44,6 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   DetailsPanelComponent,
   DetailsPanelData,
@@ -74,7 +73,6 @@ import { ExportStateService } from '@core/services/exports/export-state.service'
     PollFiltersComponent,
     MatMenuModule,
     SummaryColumnChartsV2Component,
-    MatProgressSpinner,
     DetailsPanelComponent,
     ColumnRiskPanelComponent,
   ],
