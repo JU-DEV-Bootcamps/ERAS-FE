@@ -118,6 +118,46 @@ describe('canActivateAuthRole', () => {
     expect(routerSpy.parseUrl).not.toHaveBeenCalled();
   });
 
+  it('should resolve roles using environment-specific role names, not the local ones', async () => {
+    environment.roleNames = {
+      administrator: 'admin',
+      officer: 'Student Services Officer',
+      professional: 'Professional',
+    };
+    const route = {
+      data: { roles: [ERASRoles.PROFESSIONAL] },
+    } as unknown as ActivatedRouteSnapshot;
+    mockKeycloak.authenticated = true;
+    mockKeycloak.resourceAccess = {
+      'public-client': { roles: ['Professional'] },
+    };
+
+    const result = await executeGuard(route);
+
+    expect(result).toBeTrue();
+    expect(routerSpy.parseUrl).not.toHaveBeenCalled();
+  });
+
+  it('should not match the local dev role name when a different one is configured', async () => {
+    environment.roleNames = {
+      administrator: 'admin',
+      officer: 'Student Services Officer',
+      professional: 'Professional',
+    };
+    const route = {
+      data: { roles: [ERASRoles.ADMIN] },
+    } as unknown as ActivatedRouteSnapshot;
+    mockKeycloak.authenticated = true;
+    mockKeycloak.resourceAccess = {
+      'public-client': { roles: ['ERAS Administrator'] },
+    };
+
+    const result = await executeGuard(route);
+
+    expect(routerSpy.parseUrl).toHaveBeenCalledWith('/home');
+    expect(result).toBe(mockUrlTree);
+  });
+
   it('should redirect to /home if no resourceRoles are found', async () => {
     const route = {
       data: { roles: [ERASRoles.ADMIN] },

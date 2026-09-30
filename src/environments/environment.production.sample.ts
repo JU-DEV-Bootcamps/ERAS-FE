@@ -12,4 +12,9 @@ export const environment = {
     realm: '__KEYCLOAK_REALM__',
     clientId: '__CLIENT_ID__',
   },
+  roleNames: {
+    administrator: 'admin',
+    officer: 'Student Services Officer',
+    professional: 'Professional',
+  },
 };

@@ -37,9 +37,16 @@ const isAccessAllowed = async (
 
     if (!userRoles) return false;
 
-    if (userRoles.includes(ERASRoles.ADMIN as string)) return true;
+    const { administrator, officer, professional } = environment.roleNames;
 
-    return userRoles.some(role => roles.includes(role as ERASRoles));
+    if (userRoles.includes(administrator)) return true;
+
+    const resolvedRoles: ERASRoles[] = [];
+    if (userRoles.includes(officer)) resolvedRoles.push(ERASRoles.OFFICER);
+    if (userRoles.includes(professional))
+      resolvedRoles.push(ERASRoles.PROFESSIONAL);
+
+    return resolvedRoles.some(role => roles.includes(role));
   };
 
   if (authenticated && hasRequiredRole(requiredRoles)) {

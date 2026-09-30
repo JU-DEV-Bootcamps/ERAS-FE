@@ -13,8 +13,4 @@ interface Profile {
   fullName?: string;
 }
 
-function isErasRole(role: string): role is ERASRoles {
-  return Object.values(ERASRoles).includes(role as ERASRoles);
-}
-
-export { ERASRoles, isErasRole, Profile };
+export { ERASRoles, Profile };
