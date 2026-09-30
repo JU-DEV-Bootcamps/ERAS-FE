@@ -126,7 +126,7 @@ export class PdfService extends BaseExportService {
             );
 
           pdf.addImage(
-            tmp.toDataURL('image/jpeg', 0.92),
+            tmp.toDataURL('image/jpeg', 0.75),
             'JPEG',
             marginLeft,
             offsetTop,

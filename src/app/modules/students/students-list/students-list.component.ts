@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -9,7 +9,10 @@ import {
   Pagination,
   ServerResponse,
 } from '@core/services/interfaces/server.type';
-import { ListComponent } from '@shared/components/list/list.component';
+import {
+  ListComponent,
+  TypeFile,
+} from '@shared/components/list/list.component';
 import { ActionDatas } from '@shared/components/list/types/action';
 import { Column } from '@shared/components/list/types/column';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
@@ -63,11 +66,12 @@ export class StudentsListComponent implements OnInit {
   private readonly lastAccessPipe = new LastAccessPipe();
   private readonly featureFlags = inject(FeatureFlagsService);
 
-  private readonly list = viewChild(ListComponent);
+  @ViewChild('listComponent') listComponent!: ListComponent<StudentModelFlat>;
 
   dataStudents = new MatTableDataSource<StudentModelFlat>([]);
   students: StudentModelFlat[] = [];
   totalStudents = 0;
+  allStudents: StudentModelFlat[] = [];
   pagination: Pagination = {
     pageSize: 10,
     page: 0,
@@ -75,6 +79,8 @@ export class StudentsListComponent implements OnInit {
   isLoading = true;
   itemsAreSelectable = true;
   isGenerating = false;
+  isExporting = signal<boolean>(false);
+  private allStudentsLoaded = false;
 
   columns: Column<StudentModelFlat>[] = [
     {
@@ -145,6 +151,37 @@ export class StudentsListComponent implements OnInit {
     });
   }
 
+  loadAllStudents(): Promise<void> {
+    return new Promise(resolve => {
+      const batchPageSize = 100;
+      let page = 0;
+      let allItems: StudentModel[] = [];
+
+      const fetchPage = () => {
+        this.studentService
+          .getData({
+            page,
+            pageSize: batchPageSize,
+          })
+          .subscribe({
+            next: response => {
+              allItems = [...allItems, ...response.items];
+              if (allItems.length < response.count) {
+                page++;
+                fetchPage();
+              } else {
+                this.allStudents = this.flattenStudentModel(allItems);
+                resolve();
+              }
+            },
+            error: () => resolve(),
+          });
+      };
+
+      fetchPage();
+    });
+  }
+
   handleLoadCalled(event: EventLoad) {
     this.pagination = {
       page: event.page,
@@ -193,18 +230,36 @@ export class StudentsListComponent implements OnInit {
     this.isGenerating = true;
 
     try {
-      await this.list()?.exportToCSV();
+      this.listComponent.areExportedAllItems = true;
+      await this.listComponent.exportToCSV();
     } finally {
       this.isGenerating = false;
     }
   }
 
+  async onExportRequested(event: TypeFile) {
+    void event;
+    if (!this.allStudentsLoaded) {
+      await this.loadAllStudents();
+      this.allStudentsLoaded = true;
+    }
+  }
+
+  async onExporting(processExport: boolean) {
+    console.log('sadly');
+
+    this.isExporting.set(processExport);
+  }
+
   async exportToPdf(): Promise<void> {
+    console.log('hey export');
+
     if (this.isGenerating) return;
     this.isGenerating = true;
 
     try {
-      await this.list()?.exportToPdf();
+      this.listComponent.areExportedAllItems = true;
+      this.listComponent.exportToPdf();
     } finally {
       this.isGenerating = false;
     }

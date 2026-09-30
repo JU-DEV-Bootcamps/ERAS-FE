@@ -1,3 +1,9 @@
+@if (isExporting()) {
+  <div class="export-overlay">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p class="export-overlay__label">Generating PDF...</p>
+  </div>
+}
 @if (isLoading) {
   <mat-spinner />
 } @else {
@@ -43,14 +49,19 @@
   </div>
 
   <app-list
+    #listComponent
     (loadCalled)="handleLoadCalled($event)"
+    (exportRequested)="onExportRequested($event)"
+    (exporting)="onExporting($event)"
     (actionCalled)="handleActionCalled($event)"
+    [showExportDropdown]="true"
     [columns]="columns"
     [items]="students"
     [totalItems]="totalStudents"
     [actionDatas]="actionDatas"
     [itemsAreSelectable]="itemsAreSelectable"
     [externalExport]="true"
+    [allItems]="allStudents"
   >
   </app-list>
 }

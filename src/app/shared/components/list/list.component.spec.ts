@@ -37,7 +37,11 @@ describe('ListComponent', () => {
 
   beforeEach(async () => {
     csvServiceSpy = jasmine.createSpyObj('CsvService', ['exportToCSV']);
-    pdfHelperSpy = jasmine.createSpyObj('PdfHelper', ['exportToPdf']);
+    pdfHelperSpy = jasmine.createSpyObj('PdfHelper', [
+      'exportToPdf',
+      'exportToPdfChunked',
+      'printReportInfo',
+    ]);
     pdfHelperSpy.exportToPdf.and.returnValue(Promise.resolve());
 
     await TestBed.configureTestingModule({
@@ -435,6 +439,60 @@ describe('ListComponent', () => {
     });
   });
 
+  describe('exportToPdf when allItems is already loaded', () => {
+    beforeEach(() => {
+      component.columns = mockColumns;
+      component.contentToExport = {
+        nativeElement: document.createElement('div'),
+      } as ElementRef;
+    });
+
+    it('should not wait for ngOnChanges on a second export', async () => {
+      component.allItems = [{ name: 'John', status: 'Active' }];
+      component.areExportedAllItems = true;
+      const exportRequestedSpy = spyOn(component.exportRequested, 'emit');
+
+      await component.exportToPdf();
+      await component.exportToPdf();
+
+      expect(exportRequestedSpy).toHaveBeenCalledTimes(2);
+      expect(pdfHelperSpy.exportToPdf).toHaveBeenCalledTimes(2);
+      expect(component.isGenerating).toBeFalse();
+    });
+
+    it('should export CSV immediately when allItems is already loaded', async () => {
+      component.allItems = [{ name: 'John', status: 'Active' }];
+      component.areExportedAllItems = true;
+
+      component.exportToCSV();
+      await Promise.resolve();
+
+      expect(csvServiceSpy.exportToCSV).toHaveBeenCalled();
+    });
+  });
+
+  describe('exportToPdf wait timeout', () => {
+    beforeEach(() => jasmine.clock().install());
+    afterEach(() => jasmine.clock().uninstall());
+
+    it('should stop waiting when the parent never provides allItems', async () => {
+      component.areExportedAllItems = true;
+      const exportSpy = spyOn(
+        component as unknown as { getItemsToExport: () => TestItem[] },
+        'getItemsToExport'
+      ).and.throwError('stop');
+      spyOn(console, 'error');
+
+      const promise = component.exportToPdf();
+      jasmine.clock().tick(30000);
+      await promise;
+
+      expect(exportSpy).toHaveBeenCalled();
+      expect(component['pendingExportResolve']).toBeNull();
+      expect(component.isGenerating).toBeFalse();
+    });
+  });
+
   describe('ngOnChanges', () => {
     it('should resolve pendingExportResolve when allItems changes and has items', () => {
       const resolveSpy = jasmine.createSpy('resolve');
@@ -484,6 +542,108 @@ describe('ListComponent', () => {
           },
         });
       }).not.toThrow();
+    });
+  });
+  describe('ngAfterContentInit', () => {
+    it('should register templates by their local name', () => {
+      const namedTpl = {
+        _declarationTContainer: { localNames: ['badgeTemplate'] },
+      };
+      const unnamedTpl = {};
+      component.templates = [
+        namedTpl,
+        unnamedTpl,
+      ] as unknown as typeof component.templates;
+
+      component.ngAfterContentInit();
+
+      expect(component.templateMap.get('badgeTemplate')).toBe(
+        namedTpl as never
+      );
+      expect(component.templateMap.size).toBe(1);
+    });
+  });
+
+  describe('exportToPdf (selection, chunks and errors)', () => {
+    beforeEach(() => {
+      component.columns = mockColumns;
+      component.contentToExport = {
+        nativeElement: document.createElement('div'),
+      } as ElementRef;
+    });
+
+    it('should export only the selected items', async () => {
+      const selected: TestItem = {
+        name: 'John',
+        status: 'Active',
+        isSelected: true,
+      };
+      component.items = [selected, { name: 'Jane', status: 'Inactive' }];
+      let itemsDuringExport: TestItem[] = [];
+      pdfHelperSpy.exportToPdf.and.callFake(async () => {
+        itemsDuringExport = component.items;
+      });
+
+      await component.exportToPdf();
+
+      expect(itemsDuringExport).toEqual([selected]);
+    });
+
+    it('should use the chunked export for more than 100 items and restore items', async () => {
+      const displayed: TestItem[] = [{ name: 'John', status: 'Active' }];
+      const all: TestItem[] = Array.from({ length: 101 }, (_, i) => ({
+        name: `n${i}`,
+        status: 's',
+      }));
+      component.items = displayed;
+      component.allItems = all;
+      const chunkEl = document.createElement('div');
+      pdfHelperSpy.printReportInfo.and.returnValue(chunkEl);
+
+      const chunkSizes: number[] = [];
+      let returnedEl: HTMLElement | undefined;
+      pdfHelperSpy.exportToPdfChunked.and.callFake(async args => {
+        for (let i = 0; i < args.totalChunks; i++) {
+          returnedEl = await args.getChunkElement(i, args.totalChunks);
+          chunkSizes.push(component.items.length);
+          await args.onChunkDone?.(i, args.totalChunks);
+        }
+      });
+
+      await component.exportToPdf();
+
+      expect(pdfHelperSpy.exportToPdfChunked).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          fileName: 'report_detail',
+          preProcess: 'list',
+        })
+      );
+      expect(returnedEl).toBe(chunkEl);
+      expect(chunkSizes.reduce((a, b) => a + b, 0)).toBe(101);
+      expect(component.items).toEqual(displayed);
+      expect(component.data.data).toEqual(displayed);
+    });
+
+    it('should log the error and notify via snackbar when the export fails', async () => {
+      const consoleErrorSpy = spyOn(console, 'error');
+      const snackBar = TestBed.inject(
+        MatSnackBar
+      ) as jasmine.SpyObj<MatSnackBar>;
+      component.items = [{ name: 'John', status: 'Active' }];
+      pdfHelperSpy.exportToPdf.and.returnValue(Promise.reject(new Error('x')));
+
+      await component.exportToPdf();
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'PDF export error:',
+        jasmine.any(Error)
+      );
+      expect(snackBar.open).toHaveBeenCalledWith(
+        'Error exporting PDF. Please try again.',
+        'Close',
+        jasmine.objectContaining({ panelClass: 'snackbar-error' })
+      );
+      expect(component.isGenerating).toBeFalse();
     });
   });
 });

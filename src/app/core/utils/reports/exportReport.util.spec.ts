@@ -3,12 +3,16 @@ import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfService } from '@core/services/exports/pdf.service';
 import { FileNameUtils } from '@core/utils/file/file-name';
-import { ExportArgs } from '../../../modules/reports/components/summary-charts/types/export';
+import {
+  ExportArgs,
+  ExportArgsChunked,
+} from '../../../modules/reports/components/summary-charts/types/export';
 import {
   DEFAULT_VALUES,
   SNACKBAR_CONF,
 } from '../../../modules/reports/components/summary-charts/constants/export-conf';
 import { PdfHelper } from './exportReport.util';
+import jsPDF from 'jspdf';
 
 describe('PdfHelper', () => {
   let service: PdfHelper;
@@ -149,8 +153,7 @@ describe('PdfHelper', () => {
         <div class="chart-container"></div>
       `;
 
-      const mainContainer = new ElementRef(source);
-      const cloned = service.printReportInfo(mainContainer);
+      const cloned = service.printReportInfo(source);
 
       expect(
         cloned.querySelector('#swiper-container')?.hasAttribute('effect')
@@ -174,8 +177,7 @@ describe('PdfHelper', () => {
         </div>
       `;
 
-      const mainContainer = new ElementRef(source);
-      const cloned = service.printReportInfo(mainContainer);
+      const cloned = service.printReportInfo(source);
 
       expect(cloned.querySelector('.container-card-list')).toBeNull();
       expect(cloned.querySelector('.chart-container')).toBeNull();
@@ -184,9 +186,8 @@ describe('PdfHelper', () => {
     it('should call preProcessHTML when preProcess argument is provided', () => {
       const spy = spyOn(service, 'preProcessHTML');
       const source = document.createElement('div');
-      const mainContainer = new ElementRef(source);
 
-      service.printReportInfo(mainContainer, 'list');
+      service.printReportInfo(source, 'list');
 
       expect(spy).toHaveBeenCalledWith(jasmine.any(HTMLElement), 'list');
     });
@@ -276,7 +277,8 @@ describe('PdfHelper', () => {
         jasmine.any(Number),
         jasmine.any(Number),
         0,
-        jasmine.any(Function)
+        jasmine.any(Function),
+        undefined
       );
       expect(snackBarSpy.open).toHaveBeenCalledWith(
         SNACKBAR_CONF.message_end,
@@ -372,6 +374,180 @@ describe('PdfHelper', () => {
       await service.exportCardToPdf(args);
 
       expect(pdfServiceSpy.exportToPDF).toHaveBeenCalled();
+    });
+  });
+  describe('exportToPdfChunked', () => {
+    interface PdfHelperPrivate {
+      renderChunkToCanvases: (
+        el: HTMLElement,
+        w: number,
+        h: number
+      ) => Promise<HTMLCanvasElement[]>;
+      addCanvasToPage: (
+        pdf: jsPDF,
+        canvas: HTMLCanvasElement,
+        title?: string
+      ) => void;
+    }
+    let privateHelper: PdfHelperPrivate;
+    let saveSpy: jasmine.Spy | undefined;
+    let addPageSpy: jasmine.Spy | undefined;
+
+    // jsPDF defines its methods per instance, so spy on the instance the
+    // helper creates the first time it adds a canvas to a page.
+    const spyAddCanvasToPage = () =>
+      spyOn(privateHelper, 'addCanvasToPage').and.callFake(pdf => {
+        if (!saveSpy) {
+          saveSpy = spyOn(pdf, 'save');
+          addPageSpy = spyOn(pdf, 'addPage').and.callThrough();
+        }
+      });
+
+    beforeEach(() => {
+      privateHelper = service as unknown as PdfHelperPrivate;
+      saveSpy = undefined;
+      addPageSpy = undefined;
+    });
+
+    it('should render every chunk, add pages, report progress and save the file', async () => {
+      const canvas = document.createElement('canvas');
+      spyOn(privateHelper, 'renderChunkToCanvases').and.returnValue(
+        Promise.resolve([canvas, canvas])
+      );
+      const addCanvasSpy = spyAddCanvasToPage();
+      spyOn(FileNameUtils, 'generateFileName').and.returnValue('chunked');
+      const snackBarSpy = jasmine.createSpyObj<MatSnackBar>('MatSnackBar', [
+        'open',
+        'dismiss',
+      ]);
+      const onChunkDone = jasmine
+        .createSpy('onChunkDone')
+        .and.returnValue(Promise.resolve());
+      const callback = jasmine.createSpy('callback');
+
+      const args: ExportArgsChunked = {
+        container: new ElementRef(document.createElement('div')),
+        fileName: 'report',
+        title: 'My Title',
+        snackBar: snackBarSpy,
+        totalChunks: 2,
+        getChunkElement: () => Promise.resolve(document.createElement('div')),
+        onChunkDone,
+        callback,
+      } as unknown as ExportArgsChunked;
+
+      await service.exportToPdfChunked(args);
+
+      expect(addCanvasSpy).toHaveBeenCalledTimes(4);
+      expect(addCanvasSpy.calls.argsFor(0)[2]).toBe('My Title');
+      expect(addCanvasSpy.calls.argsFor(1)[2]).toBeUndefined();
+      expect(addPageSpy).toHaveBeenCalledTimes(3);
+      expect(onChunkDone).toHaveBeenCalledWith(0, 2);
+      expect(onChunkDone).toHaveBeenCalledWith(1, 2);
+      expect(snackBarSpy.open).toHaveBeenCalledWith(
+        'Exporting: 100%',
+        'Close',
+        jasmine.any(Object)
+      );
+      expect(saveSpy).toHaveBeenCalledWith('chunked.pdf');
+      expect(callback).toHaveBeenCalled();
+    });
+
+    it('should work without snackbar, onChunkDone or callback', async () => {
+      spyOn(privateHelper, 'renderChunkToCanvases').and.returnValue(
+        Promise.resolve([document.createElement('canvas')])
+      );
+      spyAddCanvasToPage();
+
+      const args = {
+        container: new ElementRef(document.createElement('div')),
+        totalChunks: 1,
+        getChunkElement: () => Promise.resolve(document.createElement('div')),
+      } as unknown as ExportArgsChunked;
+
+      await expectAsync(service.exportToPdfChunked(args)).toBeResolved();
+      expect(saveSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('renderChunkToCanvases (private)', () => {
+    const render = (el: HTMLElement, w: number, h: number) =>
+      (
+        service as unknown as {
+          renderChunkToCanvases: (
+            el: HTMLElement,
+            w: number,
+            h: number
+          ) => Promise<HTMLCanvasElement[]>;
+        }
+      ).renderChunkToCanvases(el, w, h);
+
+    const buildElement = (height: number) => {
+      const el = document.createElement('div');
+      el.style.width = '100px';
+      el.style.height = `${height}px`;
+      document.body.appendChild(el);
+      return el;
+    };
+
+    it('should return a single canvas for short content', async () => {
+      const el = buildElement(100);
+
+      const canvases = await render(el, 100, 100);
+
+      expect(canvases.length).toBe(1);
+      el.remove();
+    });
+
+    it('should split tall content into several page canvases', async () => {
+      const el = buildElement(2000);
+
+      const canvases = await render(el, 100, 2000);
+
+      expect(canvases.length).toBeGreaterThan(1);
+      el.remove();
+    });
+  });
+
+  describe('addCanvasToPage (private)', () => {
+    const addCanvas = (pdf: jsPDF, canvas: HTMLCanvasElement, t?: string) =>
+      (
+        service as unknown as {
+          addCanvasToPage: (
+            pdf: jsPDF,
+            canvas: HTMLCanvasElement,
+            title?: string
+          ) => void;
+        }
+      ).addCanvasToPage(pdf, canvas, t);
+
+    const buildCanvas = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 100;
+      canvas.height = 50;
+      return canvas;
+    };
+
+    it('should add the image and reserve space for the title', () => {
+      const pdf = new jsPDF('p', 'mm', 'letter');
+      const addImageSpy = spyOn(pdf, 'addImage').and.callThrough();
+      const setFontSpy = spyOn(pdf, 'setFont').and.callThrough();
+
+      addCanvas(pdf, buildCanvas(), 'Title');
+
+      expect(setFontSpy).toHaveBeenCalledWith('helvetica', 'bold');
+      expect(addImageSpy).toHaveBeenCalled();
+    });
+
+    it('should add the image without title', () => {
+      const pdf = new jsPDF('p', 'mm', 'letter');
+      const addImageSpy = spyOn(pdf, 'addImage').and.callThrough();
+      const setFontSpy = spyOn(pdf, 'setFont').and.callThrough();
+
+      addCanvas(pdf, buildCanvas());
+
+      expect(setFontSpy).not.toHaveBeenCalled();
+      expect(addImageSpy).toHaveBeenCalled();
     });
   });
 });
