@@ -163,4 +163,38 @@ describe('AssessmentService', () => {
       req.flush(null);
     });
   });
+
+  describe('getByCreator', () => {
+    it('should make a GET request to /by-creator/{sub}', () => {
+      const mockResponse: AssessmentModel[] = [
+        { id: 1 } as unknown as AssessmentModel,
+      ];
+
+      service.getByCreator('creator-sub').subscribe(res => {
+        expect(res).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/by-creator/creator-sub`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('getByProfessional', () => {
+    it('should make a GET request to /by-professional/{sub}', () => {
+      const mockResponse: AssessmentModel[] = [
+        { id: 1 } as unknown as AssessmentModel,
+      ];
+
+      service.getByProfessional('professional-sub').subscribe(res => {
+        expect(res).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(
+        `${baseUrl}/by-professional/professional-sub`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+  });
 });

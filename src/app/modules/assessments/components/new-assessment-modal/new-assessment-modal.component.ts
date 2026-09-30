@@ -100,9 +100,6 @@ export class NewAssessmentModalComponent implements FormCreation {
         options: this.data.professionals,
         validators: [Validators.required],
         floatingLabel: 'always',
-        selectConfig: {
-          onCreateRecord: this.data.createProfessional,
-        },
       },
       {
         type: 'textarea',

@@ -70,6 +70,8 @@ describe('AssessmentDetailDialogComponent', () => {
       studentDisplay: '',
       commentPreview: '',
       isEditable: true,
+      submitterDisplay: '',
+      professionalDisplay: '',
       students: [
         {
           id: 10,

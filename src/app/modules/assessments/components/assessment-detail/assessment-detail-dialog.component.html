@@ -41,14 +41,12 @@
 
   <div class="field-group">
     <span class="field-label">Professional:</span>
-    <span class="field-value">{{
-      (data.assignedProfessional | titlecase) || '—'
-    }}</span>
+    <span class="field-value">{{ data.professionalDisplay }}</span>
   </div>
 
   <div class="field-group">
     <span class="field-label">Submitter:</span>
-    <span class="field-value">{{ data.createdBy || '—' }}</span>
+    <span class="field-value">{{ data.submitterDisplay }}</span>
   </div>
 
   <div class="field-group">

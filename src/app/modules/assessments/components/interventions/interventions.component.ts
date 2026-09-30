@@ -48,6 +48,7 @@ import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { UsersService } from '@core/services/api/users.service';
 
 @Component({
   selector: 'app-interventions',
@@ -75,6 +76,9 @@ export class InterventionsComponent implements OnInit {
   private readonly interventionService = inject(InterventionService);
   private readonly toastService = inject(ToastNotificationService);
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
+  private readonly usersService = inject(UsersService);
+
+  private userDisplayNameBySub = new Map<string, string>();
 
   readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
   private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
@@ -84,6 +88,9 @@ export class InterventionsComponent implements OnInit {
   readonly studentNamesLookup: WritableSignal<
     Record<string, StudentProfileData>
   > = signal({});
+
+  readonly professionalDisplayLookup: WritableSignal<Record<string, string>> =
+    signal({});
 
   readonly selectedAssessmentId: WritableSignal<number | null> = signal(null);
 
@@ -113,7 +120,34 @@ export class InterventionsComponent implements OnInit {
   @ViewChild('interventionList') interventionList!: InterventionListComponent;
 
   ngOnInit(): void {
-    this.loadAssessments();
+    this.loadUserDisplayNames();
+  }
+
+  private loadUserDisplayNames(): void {
+    this.usersService.getByRole().subscribe({
+      next: users => {
+        this.userDisplayNameBySub = new Map(
+          users
+            .filter(user => !!user.sub)
+            .map(user => [
+              user.sub as string,
+              `${user.firstName} ${user.lastName}`.trim() || user.email,
+            ])
+        );
+        this.professionalDisplayLookup.set(
+          Object.fromEntries(this.userDisplayNameBySub)
+        );
+        this.loadAssessments();
+      },
+      error: () => {
+        this.loadAssessments();
+      },
+    });
+  }
+
+  private resolveDisplayName(sub?: string | null): string {
+    if (!sub) return '';
+    return this.userDisplayNameBySub.get(sub) ?? sub;
   }
 
   handleFilters(filters: AppliedFilter[]) {
@@ -281,8 +315,8 @@ export class InterventionsComponent implements OnInit {
 
     const students = assessment.studentIds.map((id, index) => ({
       value: id,
-      label: assessment.students?.[index].name ?? id,
-      riskLevel: assessment.students?.[index].avgRiskLevel ?? 0,
+      label: assessment.students?.[index]?.name ?? id,
+      riskLevel: assessment.students?.[index]?.avgRiskLevel ?? 0,
     }));
 
     this.matDialog
@@ -293,7 +327,7 @@ export class InterventionsComponent implements OnInit {
           assessmentId: assessment.id!,
           professional: {
             value: assessment.assignedProfessional ?? '',
-            label: assessment.assignedProfessional ?? '',
+            label: this.resolveDisplayName(assessment.assignedProfessional),
           },
           students,
         },
@@ -327,7 +361,7 @@ export class InterventionsComponent implements OnInit {
           assessmentId: assessment.id!,
           professional: {
             value: assessment.assignedProfessional ?? '',
-            label: assessment.assignedProfessional ?? '',
+            label: this.resolveDisplayName(assessment.assignedProfessional),
           },
           students,
           intervention,

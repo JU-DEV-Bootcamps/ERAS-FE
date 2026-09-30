@@ -10,9 +10,13 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { JuServicesService } from '@modules/supports-referrals/services/juServices.service';
-import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
 import { StudentService } from '@core/services/api/student.service';
 import { UserDataService } from '@core/services/access/user-data.service';
+import {
+  ErasUserProfile,
+  UsersService,
+} from '@core/services/api/users.service';
+import { ERASRoles } from '@core/models/profile.model';
 import { forkJoin, map, Observable, of } from 'rxjs';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { AssessmentsLookups } from '../models/assessments.interfaces';
@@ -22,10 +26,7 @@ import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessme
 import { AssessmentModel } from '@core/models/assessment.model';
 import { EditAssessmentModalComponent } from './edit-assessment-modal/edit-assessment-modal.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  AssignedProfessional,
-  JuService,
-} from '@modules/supports-referrals/models/referrals.interfaces';
+import { JuService } from '@modules/supports-referrals/models/referrals.interfaces';
 import { Lookup } from '@core/models/lookup';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
@@ -39,7 +40,7 @@ import { ERASPermissions } from '@core/services/permissions/permission.policies'
 export class AssessmentsComponent implements OnInit {
   private readonly matDialog = inject(MatDialog);
   private readonly juServicesService = inject(JuServicesService);
-  private readonly professionalsService = inject(ProfessionalsService);
+  private readonly usersService = inject(UsersService);
   private readonly studentService = inject(StudentService);
   private readonly userDataService = inject(UserDataService);
   private readonly destroyRef = inject(DestroyRef);
@@ -67,9 +68,7 @@ export class AssessmentsComponent implements OnInit {
   ngOnInit(): void {
     this.lookupLoading.set(true);
     forkJoin({
-      profiles: of(
-        mapFields([this.userDataService.user()!], 'fullName', 'fullName')
-      ),
+      profiles: of(mapFields([this.userDataService.user()!], 'fullName', 'id')),
       students: this.studentService
         .getAllStudentsLight()
         .pipe(map(students => mapFields(students, 'name', 'id'))),
@@ -79,7 +78,10 @@ export class AssessmentsComponent implements OnInit {
         next: ({ profiles, students }) => {
           this.lookups.update(current => ({ ...current, profiles, students }));
         },
-        error: err => console.error('Error retrieving static lookups', err),
+        error: err => {
+          console.error('Error retrieving static lookups', err);
+          this.lookupLoading.set(false);
+        },
         complete: () => {
           this.lookupLoading.set(false);
           this.checkPreselectedStudent();
@@ -95,16 +97,26 @@ export class AssessmentsComponent implements OnInit {
         page: 0,
         pageSize: 1000,
       }),
-      professionals: this.professionalsService.getAllProfessionals({
-        page: 0,
-        pageSize: 1000,
-      }),
+      professionals: this.usersService.getByRole(ERASRoles.PROFESSIONAL),
     }).pipe(
       map(({ services, professionals }) => ({
         services: mapFields(services.items, 'name', 'name'),
-        professionals: mapFields(professionals.items, 'name', 'name'),
+        professionals: this.mapProfessionalsToLookups(professionals),
       }))
     );
+  }
+
+  private mapProfessionalsToLookups(
+    professionals: ErasUserProfile[]
+  ): Lookup[] {
+    return professionals
+      .filter(professional => !!professional.sub)
+      .map(professional => ({
+        label:
+          `${professional.firstName} ${professional.lastName}`.trim() ||
+          professional.email,
+        value: professional.sub!,
+      }));
   }
 
   private checkPreselectedStudent(): void {
@@ -123,12 +135,6 @@ export class AssessmentsComponent implements OnInit {
       ...this.lookups(),
       preselectedStudentId,
     };
-    if (this.permissionsService.can(ERASPermissions.CAN_CREATE_PROFESSIONALS)) {
-      modalData = {
-        ...modalData,
-        createProfessional: this.createProfessional.bind(this),
-      };
-    }
 
     if (this.permissionsService.can(ERASPermissions.CAN_CREATE_SERVICES)) {
       modalData = {
@@ -195,28 +201,6 @@ export class AssessmentsComponent implements OnInit {
     if (assessment.id === undefined) return;
     this.listComponent()?.loadAssessments();
   }
-
-  private createProfessional = (name: string): Observable<Lookup> => {
-    const newProfessional: AssignedProfessional = {
-      id: 0,
-      name: name,
-      uuid: crypto.randomUUID(),
-      audit: {
-        createdBy: 'configurator',
-        createdAt: new Date(),
-        modifiedBy: 'configurator',
-        modifiedAt: new Date(),
-      },
-    };
-    return this.professionalsService.addNewProfessional(newProfessional).pipe(
-      map(
-        (created: AssignedProfessional): Lookup => ({
-          label: created.name,
-          value: created.name,
-        })
-      )
-    );
-  };
 
   private createService = (newService: string): Observable<Lookup> => {
     const service: JuService = {

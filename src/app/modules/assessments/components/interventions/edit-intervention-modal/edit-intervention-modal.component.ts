@@ -345,6 +345,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   }
 
   private _prefillValues: Record<string, unknown> = {};
+  private _pendingRebuildValues: Record<string, unknown> | null = null;
 
   private prefillForm(): void {
     const iv = this.data.intervention!;
@@ -379,11 +380,18 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
   setFormGroup(event: FormGroup): void {
     this.form = event;
     this.formSettling = true;
-    this.form.patchValue(this._prefillValues, { emitEvent: false });
+    const isRebuildFromLiveEdit = this._pendingRebuildValues !== null;
+    const valuesToApply = this._pendingRebuildValues ?? this._prefillValues;
+    this._pendingRebuildValues = null;
+    this.form.patchValue(valuesToApply, { emitEvent: false });
 
     Object.values(this.form.controls).forEach(control => {
       control.updateValueAndValidity({ emitEvent: false });
     });
+
+    if (isRebuildFromLiveEdit) {
+      this.form.markAsDirty();
+    }
     afterNextRender(
       () => {
         setTimeout(() => {
@@ -489,7 +497,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       activity: values.activity,
       area: values.area,
       numberOfParticipants: payload.intervention['numberOfParticipants'],
-      professional: values.professional,
+      professional: this.data.professional.label,
       comments: values.comments,
       studentIds: payload.intervention['studentIds'],
       attendance: payload.intervention['attendance'],
@@ -499,7 +507,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       remarks: values.remarks,
       uploadInput: values.uploadInput,
       riskLevelName: values.riskLevelName,
-      endRiskLevelName: values.endRiskLevelName,
+      endRiskLevelName: payload.intervention['endRiskLevelName'],
     };
 
     const { draftSessionId, attachmentIdsToRemove } =
@@ -625,6 +633,8 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         ])
       );
     }
+    if (this.formFields.some(f => f.name === 'endRiskLevelName')) return;
+    this._pendingRebuildValues = this.form.getRawValue();
     this.appendEndRiskLevelField();
   }
 
@@ -632,6 +642,8 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     if (this.form.contains('endRiskLevelName')) {
       this.form.removeControl('endRiskLevelName');
     }
+    if (!this.formFields.some(f => f.name === 'endRiskLevelName')) return;
+    this._pendingRebuildValues = this.form.getRawValue();
     this.formFields = this.formFields.filter(
       f => f.name !== 'endRiskLevelName'
     );
