@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 export type ExportType = 'csv' | 'pdf' | null;
+const CSV_OVERLAY_DELAY_MS = 400;
 
 @Injectable({
   providedIn: 'root',
@@ -8,16 +9,16 @@ export type ExportType = 'csv' | 'pdf' | null;
 export class ExportStateService {
   exportType = signal<ExportType>(null);
   isExporting = signal<boolean>(false);
+  shouldShowOverlay = signal<boolean>(false);
   progress = signal<number>(0);
   estimatedTimeRemaining = signal<number>(0);
   message = signal<string>('');
 
-  private itemCount = 0;
   private startTime = 0;
+  private overlayTimer: ReturnType<typeof setTimeout> | null = null;
 
   startExport(type: ExportType, itemCount = 0): void {
     this.exportType.set(type);
-    this.itemCount = itemCount;
     this.startTime = Date.now();
     this.progress.set(0);
 
@@ -31,10 +32,25 @@ export class ExportStateService {
     this.message.set(message);
 
     this.isExporting.set(true);
+
+    if (type === 'pdf') {
+      this.shouldShowOverlay.set(true);
+    } else {
+      this.overlayTimer = setTimeout(() => {
+        if (this.isExporting()) {
+          this.shouldShowOverlay.set(true);
+        }
+      }, CSV_OVERLAY_DELAY_MS);
+    }
   }
 
   endExport(): void {
+    if (this.overlayTimer !== null) {
+      clearTimeout(this.overlayTimer);
+      this.overlayTimer = null;
+    }
     this.isExporting.set(false);
+    this.shouldShowOverlay.set(false);
     this.exportType.set(null);
     this.progress.set(0);
     this.message.set('');

@@ -14,7 +14,7 @@ import { ExportStateService } from '@core/services/exports/export-state.service'
 export class ExportLoadingOverlayComponent {
   exportStateService = inject(ExportStateService);
 
-  showOverlay = computed(() => this.exportStateService.isExporting());
+  showOverlay = computed(() => this.exportStateService.shouldShowOverlay());
   displayMessage = computed(() => this.exportStateService.message());
   progress = computed(() => this.exportStateService.progress());
   exportType = computed(() => this.exportStateService.exportType());

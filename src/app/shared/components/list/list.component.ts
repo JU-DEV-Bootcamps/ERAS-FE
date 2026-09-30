@@ -37,6 +37,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
@@ -72,6 +73,7 @@ export class ListComponent<T extends object>
 {
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
 
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
@@ -113,6 +115,7 @@ export class ListComponent<T extends object>
   @Output() exporting = new EventEmitter<boolean>();
   @Output() exportRequested = new EventEmitter<TypeFile>();
   private pendingExportResolve: (() => void) | null = null;
+  private allItemsStale = false;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 
@@ -148,11 +151,15 @@ export class ListComponent<T extends object>
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['items'] && !changes['items'].firstChange) {
+      this.allItemsStale = true;
+    }
     if (
       changes['allItems'] &&
       this.allItems?.length &&
       this.pendingExportResolve
     ) {
+      this.allItemsStale = false;
       const resolve = this.pendingExportResolve;
       this.pendingExportResolve = null;
       resolve();
@@ -227,15 +234,23 @@ export class ListComponent<T extends object>
 
   exportToCSV() {
     if (this.isGenerating) return;
+    this.isGenerating = true;
+    this.exportStateService.startExport('csv', this.items.length);
     if (this.areExportedAllItems) {
-      this.waitForAllItems('csv').then(() => this._exportItemsToCsv());
+      this.waitForAllItems('csv').then(() => {
+        this._exportItemsToCsv();
+        this.isGenerating = false;
+        this.exportStateService.endExport();
+      });
       return;
     }
     this._exportItemsToCsv();
+    this.isGenerating = false;
+    this.exportStateService.endExport();
   }
 
   private waitForAllItems(type: TypeFile): Promise<void> {
-    if (this.allItems?.length) {
+    if (this.allItems?.length && !this.allItemsStale) {
       this.exportRequested.emit(type);
       return Promise.resolve();
     }
@@ -244,19 +259,20 @@ export class ListComponent<T extends object>
         this.pendingExportResolve = null;
         resolve();
       }, WAIT_ALL_ITEMS_TIMEOUT_MS);
+
       this.pendingExportResolve = () => {
         clearTimeout(timeout);
         resolve();
       };
+
       this.exportRequested.emit(type);
     });
   }
 
   async exportToPdf() {
-    if (this.isGenerating) return;
-
-    this.isGenerating = true;
     this.exporting.emit(true);
+    this.exportStateService.startExport('pdf', this.items.length);
+
     try {
       if (this.areExportedAllItems) {
         await this.waitForAllItems('pdf');
@@ -275,7 +291,7 @@ export class ListComponent<T extends object>
         panelClass: 'snackbar-error',
       });
     } finally {
-      this.isGenerating = false;
+      this.exportStateService.endExport();
       this.exporting.emit(false);
     }
   }
@@ -311,8 +327,6 @@ export class ListComponent<T extends object>
     this.cdr.detectChanges();
   }
   private _exportItemsToCsv() {
-    if (this.isGenerating) return;
-    this.isGenerating = true;
     const itemsToExport = this.itemsAreSelectable
       ? this.getItemsToExport()
       : (this.allItems ?? this.items);
@@ -331,8 +345,7 @@ export class ListComponent<T extends object>
       columnKeys as string[],
       columnLabels
     );
-
-    this.isGenerating = false;
+    // this.isGenerating = false;
   }
 
   private async exportWithChunks(itemsToExport: T[]): Promise<void> {
@@ -361,6 +374,7 @@ export class ListComponent<T extends object>
       },
 
       onChunkDone: async (i, total) => {
+        this.exportStateService.updateProgress(i + 1, total);
         if (i === total - 1) {
           this.items = originalItems;
           this.data = new MatTableDataSource(this.items);
