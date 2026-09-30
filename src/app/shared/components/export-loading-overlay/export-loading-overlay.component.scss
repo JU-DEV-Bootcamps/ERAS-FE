@@ -1,0 +1,42 @@
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(149, 149, 149, 0.322);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 999;
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &-label {
+    font-size: var(--font-size-large, 1.1rem);
+    color: var(--color-neutral-700, #333);
+    text-align: center;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  &-progress {
+    width: 200px;
+    height: 4px;
+    margin-top: 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    backdrop-filter: none;
+    background-color: rgba(149, 149, 149, 0.5);
+
+    ::ng-deep .mat-progress-spinner {
+      display: none;
+    }
+  }
+}

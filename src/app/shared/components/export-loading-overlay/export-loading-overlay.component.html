@@ -1,0 +1,15 @@
+@if (showOverlay()) {
+  <div class="export-overlay" role="status" [attr.aria-label]="overlayLabel()">
+    <div class="export-overlay-content">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="export-overlay-label">{{ displayMessage() }}</p>
+      @if (showProgressBar()) {
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progress()"
+          class="export-overlay-progress"
+        ></mat-progress-bar>
+      }
+    </div>
+  </div>
+}
