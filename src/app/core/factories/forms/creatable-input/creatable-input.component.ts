@@ -68,8 +68,17 @@ export class CreatableInputComponent implements DynamicInputComponent {
 
   displayFn = (value: string | Lookup | null): string => {
     if (!value) return '';
-    const label = typeof value === 'string' ? value : (value.label ?? '');
-    return this.toTitleCase(label);
+
+    if (typeof value !== 'string') {
+      return this.toTitleCase(value.label ?? '');
+    }
+
+    // The control's initial/selected value is often just the option's `value`
+    // (e.g. an id/sub distinct from its display label) — look it up so we show
+    // the label, not the raw value, falling back to the value itself otherwise.
+    const options = (this.field().options ?? []) as Lookup[];
+    const match = options.find(option => option.value === value);
+    return this.toTitleCase(match ? match.label : value);
   };
 
   private toTitleCase(value: string): string {

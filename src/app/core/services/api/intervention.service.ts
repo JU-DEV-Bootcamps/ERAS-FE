@@ -23,6 +23,24 @@ export class InterventionService extends BaseApiService {
     return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
   }
 
+  getByAssessmentAndCreator(
+    assessmentId: number,
+    creatorSub: string
+  ): Observable<InterventionModel[]> {
+    return this.get<InterventionModel[]>(
+      `${assessmentId}/interventions/by-creator/${creatorSub}`
+    );
+  }
+
+  getByAssessmentAndAssignedProfessional(
+    assessmentId: number,
+    professionalSub: string
+  ): Observable<InterventionModel[]> {
+    return this.get<InterventionModel[]>(
+      `${assessmentId}/interventions/by-professional/${professionalSub}`
+    );
+  }
+
   createIntervention(
     payload: AddInterventionPayload & { draftSessionId: number | null }
   ): Observable<InterventionModel> {

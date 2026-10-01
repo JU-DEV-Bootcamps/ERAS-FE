@@ -37,7 +37,6 @@ describe('NewAssessmentModalComponent', () => {
     professionals: [{ label: 'Professional', value: 'professional' }],
     preselectedStudentId: 1,
     createService: jasmine.createSpy(),
-    createProfessional: jasmine.createSpy(),
   };
 
   beforeEach(async () => {

@@ -7,12 +7,16 @@ import {
   UrlTree,
 } from '@angular/router';
 import { inject } from '@angular/core';
+import { ERASRoles } from '@core/models/profile.model';
+import { environment } from 'src/environments/environment';
 
 /**
- * The logic below is a simple example, please make it more robust when implementing in your application.
- *
- * Reason: isAccessGranted is not validating the resource, since it is merging all roles. Two resources might
- * have the same role name and it makes sense to validate it more granular.
+ * Validates whether user has the required roles to access
+ * the provided route.
+ * @param route route to validate.
+ * @param __ route state.
+ * @param authData snapshot of auth data from Keycloak.
+ * @returns { Promise<boolean | UrlTree> }
  */
 const isAccessAllowed = async (
   route: ActivatedRouteSnapshot,
@@ -20,23 +24,37 @@ const isAccessAllowed = async (
   authData: AuthGuardData
 ): Promise<boolean | UrlTree> => {
   const { authenticated, grantedRoles } = authData;
+  const { clientId } = environment.keycloak;
 
-  const requiredRole = route.data['role'];
-  if (!requiredRole) {
-    return false;
+  const requiredRoles = route.data['roles'] as ERASRoles[] | undefined;
+  if (!requiredRoles) {
+    return true;
   }
 
-  const hasRequiredRole = (role: string): boolean =>
-    Object.values(grantedRoles.resourceRoles).some(roles =>
-      roles.includes(role)
-    );
+  const hasRequiredRole = (roles: ERASRoles[]): boolean => {
+    const userRoles: string[] | undefined =
+      grantedRoles.resourceRoles[clientId];
 
-  if (authenticated && hasRequiredRole(requiredRole)) {
+    if (!userRoles) return false;
+
+    const { administrator, officer, professional } = environment.roleNames;
+
+    if (userRoles.includes(administrator)) return true;
+
+    const resolvedRoles: ERASRoles[] = [];
+    if (userRoles.includes(officer)) resolvedRoles.push(ERASRoles.OFFICER);
+    if (userRoles.includes(professional))
+      resolvedRoles.push(ERASRoles.PROFESSIONAL);
+
+    return resolvedRoles.some(role => roles.includes(role));
+  };
+
+  if (authenticated && hasRequiredRole(requiredRoles)) {
     return true;
   }
 
   const router = inject(Router);
-  return router.parseUrl('/forbidden');
+  return router.parseUrl('/home');
 };
 
 export const canActivateAuthRole =

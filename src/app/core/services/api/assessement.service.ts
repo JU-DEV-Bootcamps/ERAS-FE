@@ -27,6 +27,14 @@ export class AssessmentService extends BaseApiService {
     return this.assessmentsCache$;
   }
 
+  getByCreator(creatorSub: string): Observable<AssessmentModel[]> {
+    return this.get<AssessmentModel[]>(`by-creator/${creatorSub}`);
+  }
+
+  getByProfessional(professionalSub: string): Observable<AssessmentModel[]> {
+    return this.get<AssessmentModel[]>(`by-professional/${professionalSub}`);
+  }
+
   getById(id: string): Observable<AssessmentModel> {
     return this.get<AssessmentModel>(id);
   }

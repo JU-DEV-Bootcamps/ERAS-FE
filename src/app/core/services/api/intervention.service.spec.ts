@@ -54,6 +54,44 @@ describe('InterventionService', () => {
     });
   });
 
+  describe('getByAssessmentAndCreator', () => {
+    it('should make a GET request to :assessmentId/interventions/by-creator/:sub', () => {
+      const mockResponse: InterventionModel[] = [
+        { id: 1 } as unknown as InterventionModel,
+      ];
+
+      service.getByAssessmentAndCreator(10, 'creator-sub').subscribe(res => {
+        expect(res).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(
+        `${baseUrl}/10/interventions/by-creator/creator-sub`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('getByAssessmentAndAssignedProfessional', () => {
+    it('should make a GET request to :assessmentId/interventions/by-professional/:sub', () => {
+      const mockResponse: InterventionModel[] = [
+        { id: 1 } as unknown as InterventionModel,
+      ];
+
+      service
+        .getByAssessmentAndAssignedProfessional(10, 'professional-sub')
+        .subscribe(res => {
+          expect(res).toEqual(mockResponse);
+        });
+
+      const req = httpMock.expectOne(
+        `${baseUrl}/10/interventions/by-professional/professional-sub`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+  });
+
   describe('createIntervention', () => {
     it('should make a POST request to interventions with the given payload', () => {
       const payload: AddInterventionPayload & {

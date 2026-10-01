@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { FEATURE_FLAGS } from './feature-flags';
 import { environment } from 'src/environments/environment';
 import { UserDataService } from '@core/services/access/user-data.service';
+import { ERASRoles } from '@core/models/profile.model';
 
 interface FeatureFlag {
   id: number;
@@ -42,7 +43,7 @@ export class FeatureFlagsService {
   });
 
   private isAdminUser = computed(
-    () => this.userData.user()?.role === 'Eras Admin'
+    () => this.userData.user()?.role === ERASRoles.ADMIN
   );
 
   loadFlags(): Observable<void> {

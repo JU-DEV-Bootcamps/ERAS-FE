@@ -11,6 +11,7 @@ import { SidebarService } from './sidebar.service';
 import { SIDEBAR_MENUS_OLD } from './sidebar.model';
 import { SIDEBAR_MENUS_NEW } from './sidebar v2/sidebar.model-v2';
 import { SidebarV2Component } from './sidebar v2/sidebar.component-v2';
+import { HasERASRolesDirective } from '@shared/directives/has-roles.directive';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,6 +22,7 @@ import { SidebarV2Component } from './sidebar v2/sidebar.component-v2';
     MatIconModule,
     MatTooltipModule,
     SidebarV2Component,
+    HasERASRolesDirective,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',

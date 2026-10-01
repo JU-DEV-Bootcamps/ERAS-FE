@@ -22,6 +22,7 @@ import { of, throwError } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { CsvService } from '@core/services/exports/csv.service';
 import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 
 describe('InterventionListComponent', () => {
   let component: InterventionListComponent;
@@ -31,6 +32,7 @@ describe('InterventionListComponent', () => {
   let mockInterventionService: jasmine.SpyObj<InterventionService>;
   let mockFilterStrategy: jasmine.SpyObj<InterventionFilterStrategy>;
   let mockCsvService: jasmine.SpyObj<CsvService>;
+  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
 
   const intervention: InterventionModel = {
     id: 1,
@@ -95,6 +97,9 @@ describe('InterventionListComponent', () => {
     mockAttachmentService = jasmine.createSpyObj('AttachmentApiService', [
       'list',
     ]);
+    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
+      'resolve',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [InterventionListComponent],
@@ -104,6 +109,7 @@ describe('InterventionListComponent', () => {
         { provide: InterventionService, useValue: mockInterventionService },
         { provide: InterventionFilterStrategy, useValue: mockFilterStrategy },
         { provide: CsvService, useValue: mockCsvService },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -117,7 +123,7 @@ describe('InterventionListComponent', () => {
   });
 
   it('should load interventions and assessment when assessmentIdInput is set', () => {
-    mockInterventionService.getByAssessment.and.returnValue(of([]));
+    fetchResolverMock.resolve.and.returnValue(of([]));
     mockAssessmentService.getById.and.returnValue(of(assessment));
     mockFilterStrategy.apply.and.returnValue([]);
 
@@ -148,18 +154,17 @@ describe('InterventionListComponent', () => {
 
   it('should load interventions', () => {
     component.studentNamesLookup = studentLookup;
-    mockInterventionService.getByAssessment.and.returnValue(of([intervention]));
+    fetchResolverMock.resolve.and.returnValue(of([intervention]));
     mockFilterStrategy.apply.and.callFake(items => items);
     component.loadInterventions(10);
 
-    expect(mockInterventionService.getByAssessment).toHaveBeenCalledWith(10);
     expect(component['isLoading']()).toBeFalse();
     expect(component['hasInterventions']()).toBeTrue();
     expect(component['interventions']().length).toBe(1);
   });
 
   it('should handle intervention load error', () => {
-    mockInterventionService.getByAssessment.and.returnValue(
+    fetchResolverMock.resolve.and.returnValue(
       throwError(() => new Error('error'))
     );
     spyOn(console, 'error');
@@ -175,7 +180,7 @@ describe('InterventionListComponent', () => {
       ...intervention,
       comments: 'Updated',
     };
-    mockInterventionService.getByAssessment.and.returnValue(of([updated]));
+    fetchResolverMock.resolve.and.returnValue(of([updated]));
     component['selectedIntervention'].set({
       ...updated,
       studentDisplay: [],
@@ -298,9 +303,46 @@ describe('InterventionListComponent', () => {
     );
   });
 
+  it('should resolve a raw professional sub to its display name using the lookup', () => {
+    component.professionalDisplayLookup = { 'sub-123': 'Jane Smith' };
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, professional: 'sub-123' }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].professional).toBe('Jane Smith');
+  });
+
+  it('should keep the stored value when it is not a known sub', () => {
+    component.professionalDisplayLookup = { 'sub-123': 'Jane Smith' };
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, professional: 'Already A Name' }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].professional).toBe('Already A Name');
+  });
+
+  it('should not bake a display fallback into the row model for a never-set endRiskLevelName', () => {
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, endRiskLevelName: undefined }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].endRiskLevelName).toBeUndefined();
+  });
+
+  describe('resolveEndRiskDisplay', () => {
+    it('should fall back to None only for display, without touching the row', () => {
+      expect(component['resolveEndRiskDisplay'](undefined)).toBe(
+        RiskLevels.None
+      );
+      expect(component['resolveEndRiskDisplay'](RiskLevels.Low)).toBe(
+        RiskLevels.Low
+      );
+    });
+  });
+
   it('should truncate long comments', () => {
     const longComment = 'a'.repeat(100);
-    mockInterventionService.getByAssessment.and.returnValue(
+    fetchResolverMock.resolve.and.returnValue(
       of([
         {
           ...intervention,
@@ -315,7 +357,7 @@ describe('InterventionListComponent', () => {
   });
 
   it('should show dash when comments are empty', () => {
-    mockInterventionService.getByAssessment.and.returnValue(
+    fetchResolverMock.resolve.and.returnValue(
       of([
         {
           ...intervention,
@@ -474,7 +516,7 @@ describe('InterventionListComponent', () => {
       });
 
       it('should sort by risk level when sortColumn is "risk"', () => {
-        mockInterventionService.getByAssessment.and.returnValue(
+        fetchResolverMock.resolve.and.returnValue(
           of([
             { ...intervention, id: 1, riskLevelName: RiskLevels.Low },
             { ...intervention, id: 2, riskLevelName: RiskLevels.High },
@@ -488,7 +530,7 @@ describe('InterventionListComponent', () => {
       });
 
       it('should reverse order when direction toggles to desc', () => {
-        mockInterventionService.getByAssessment.and.returnValue(
+        fetchResolverMock.resolve.and.returnValue(
           of([
             { ...intervention, id: 1, riskLevelName: RiskLevels.Low },
             { ...intervention, id: 2, riskLevelName: RiskLevels.High },
@@ -504,7 +546,7 @@ describe('InterventionListComponent', () => {
       });
 
       it('should not mutate the original filteredInterventions array', () => {
-        mockInterventionService.getByAssessment.and.returnValue(
+        fetchResolverMock.resolve.and.returnValue(
           of([
             { ...intervention, id: 1, dateUtc: '2026-01-10' },
             { ...intervention, id: 2, dateUtc: '2026-03-01' },
@@ -522,7 +564,7 @@ describe('InterventionListComponent', () => {
       });
 
       it('should use pagination', () => {
-        mockInterventionService.getByAssessment.and.returnValue(
+        fetchResolverMock.resolve.and.returnValue(
           of([
             { ...intervention, id: 1, riskLevelName: RiskLevels.High },
             { ...intervention, id: 2, riskLevelName: RiskLevels.High },

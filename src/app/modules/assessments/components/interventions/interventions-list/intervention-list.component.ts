@@ -41,6 +41,8 @@ import {
   AREA_OPTIONS,
   getOptionLabel,
 } from '../interventions.constants';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { InterventionsFetchStrategies } from '@modules/assessments/fetch-strategies/interventions-fetch.strategies';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -90,6 +92,7 @@ export class InterventionListComponent {
   private readonly attachmentService = inject(AttachmentApiService);
   private readonly filterStrategy = inject(InterventionFilterStrategy);
   private readonly csvService = inject(CsvService);
+  private readonly fetchResolver = inject(RoleBasedFetchResolver);
 
   @Input() pageSize = 10;
 
@@ -97,6 +100,11 @@ export class InterventionListComponent {
     this._studentNamesLookup = value;
   }
   private _studentNamesLookup: Record<string, StudentProfileData> = {};
+
+  @Input() set professionalDisplayLookup(value: Record<string, string>) {
+    this._professionalDisplayLookup = value;
+  }
+  private _professionalDisplayLookup: Record<string, string> = {};
 
   readonly assessmentId = signal<number | null>(null);
   @Input() set assessmentIdInput(value: number | null) {
@@ -256,35 +264,48 @@ export class InterventionListComponent {
     this.isLoading.set(true);
     this.pageIndex.set(0);
 
-    this.interventionService.getByAssessment(assessmentId).subscribe({
-      next: data => {
-        const rows = data.map(item => this.mapToRow(item));
-        this.hasInterventions.set(rows.length > 0);
-        this.interventions.set(rows);
+    this.fetchResolver
+      .resolve(this.interventionService, InterventionsFetchStrategies, {
+        assessmentId,
+      })
+      .subscribe({
+        next: data => {
+          const rows = data.map(item => this.mapToRow(item));
+          this.hasInterventions.set(rows.length > 0);
+          this.interventions.set(rows);
 
-        const current = this.selectedIntervention();
-        if (current) {
-          const refreshed = rows.find(r => r.id === current.id);
-          this.selectedIntervention.set(refreshed ?? null);
-        }
+          const current = this.selectedIntervention();
+          if (current) {
+            const refreshed = rows.find(r => r.id === current.id);
+            this.selectedIntervention.set(refreshed ?? null);
+          }
 
-        this.isLoading.set(false);
-      },
-      error: error => {
-        console.error('Failed to load interventions', error);
-        this.interventions.set([]);
-        this.isLoading.set(false);
-      },
-    });
+          this.isLoading.set(false);
+        },
+        error: error => {
+          console.error('Failed to load interventions', error);
+          this.interventions.set([]);
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private mapToRow(item: InterventionModel): InterventionRowViewModel {
     return {
       ...item,
-      endRiskLevelName: item.endRiskLevelName ?? RiskLevels.None,
       studentDisplay: this.buildStudentDisplay(item),
       commentPreview: this.buildCommentPreview(item.comments),
+      professional: this.resolveProfessionalDisplay(item.professional),
     };
+  }
+
+  protected resolveEndRiskDisplay(value?: RiskLevels | null): RiskLevels {
+    return value ?? RiskLevels.None;
+  }
+
+  private resolveProfessionalDisplay(raw?: string | null): string {
+    if (!raw) return raw ?? '';
+    return this._professionalDisplayLookup[raw] ?? raw;
   }
 
   private buildStudentDisplay(

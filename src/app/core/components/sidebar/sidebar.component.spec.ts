@@ -1,9 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SidebarComponent } from './sidebar.component';
 import { SidebarService } from './sidebar.service';
 import { Menu, SIDEBAR_MENUS_OLD } from './sidebar.model';
 import { SIDEBAR_MENUS_NEW } from './sidebar v2/sidebar.model-v2';
+import Keycloak from 'keycloak-js';
+
+const keycloakMock = {
+  loadUserProfile: jasmine.createSpy('loadUserProfile'),
+  resourceAccess: {},
+};
 
 describe('SidebarComponent', () => {
   let component: SidebarComponent;
@@ -21,6 +29,9 @@ describe('SidebarComponent', () => {
       providers: [
         { provide: ActivatedRoute, useValue: {} },
         { provide: SidebarService, useValue: sidebarServiceSpy },
+        { provide: Keycloak, useValue: keycloakMock },
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ],
     }).compileComponents();
 

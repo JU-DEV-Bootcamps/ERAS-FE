@@ -7,7 +7,7 @@ import Keycloak from 'keycloak-js';
 import { AssessmentsComponent } from './assessments.component';
 import { StudentService } from '@core/services/api/student.service';
 import { JuServicesService } from '@modules/supports-referrals/services/juServices.service';
-import { ProfessionalsService } from '@modules/supports-referrals/services/professionals.service';
+import { UsersService } from '@core/services/api/users.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NewAssessmentModalComponent } from './new-assessment-modal/new-assessment-modal.component';
@@ -28,7 +28,6 @@ interface AssessmentLookupsStudent {
 interface NewAssessmentModalData {
   students: AssessmentLookupsStudent[];
   preselectedStudentId?: number;
-  createProfessional?: (name: string) => unknown;
   createService?: (name: string) => unknown;
 }
 
@@ -50,7 +49,7 @@ describe('AssessmentsComponent', () => {
   let fixture: ComponentFixture<AssessmentsComponent>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
   let juServicesServiceSpy: jasmine.SpyObj<JuServicesService>;
-  let professionalsServiceSpy: jasmine.SpyObj<ProfessionalsService>;
+  let usersServiceSpy: jasmine.SpyObj<UsersService>;
 
   const lightStudents = [
     { id: 1, name: 'Ana' },
@@ -80,19 +79,20 @@ describe('AssessmentsComponent', () => {
       of({ items: [], count: 0 })
     );
 
-    professionalsServiceSpy = jasmine.createSpyObj<ProfessionalsService>(
-      'ProfessionalsService',
-      ['getAllProfessionals', 'addNewProfessional']
-    );
-    professionalsServiceSpy.getAllProfessionals.and.returnValue(
-      of({ items: [], count: 0 })
-    );
+    usersServiceSpy = jasmine.createSpyObj<UsersService>('UsersService', [
+      'getByRole',
+      'sync',
+    ]);
+    usersServiceSpy.getByRole.and.returnValue(of([]));
 
     const userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
       'UserDataService',
       ['user']
     );
-    const fakeUser = { fullName: 'Test User' } as UserDataServiceUser;
+    const fakeUser = {
+      id: 'test-user-sub',
+      fullName: 'Test User',
+    } as UserDataServiceUser;
     userDataServiceSpy.user.and.returnValue(fakeUser);
 
     await TestBed.configureTestingModule({
@@ -101,7 +101,7 @@ describe('AssessmentsComponent', () => {
         { provide: Keycloak, useValue: keycloakMock },
         { provide: StudentService, useValue: studentServiceSpy },
         { provide: JuServicesService, useValue: juServicesServiceSpy },
-        { provide: ProfessionalsService, useValue: professionalsServiceSpy },
+        { provide: UsersService, useValue: usersServiceSpy },
         { provide: UserDataService, useValue: userDataServiceSpy },
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -144,7 +144,7 @@ describe('AssessmentsComponent', () => {
     expect(dialogData.preselectedStudentId).toBeUndefined();
   });
 
-  it('should log an error and keep loading state when lookups fail to load', () => {
+  it('should log an error and clear loading state when lookups fail to load', () => {
     const consoleErrorSpy = spyOn(console, 'error');
     const error = new Error('Failed');
     studentServiceSpy.getAllStudentsLight.and.returnValue(
@@ -157,7 +157,7 @@ describe('AssessmentsComponent', () => {
       'Error retrieving static lookups',
       error
     );
-    expect(component.lookupLoading()).toBeTrue();
+    expect(component.lookupLoading()).toBeFalse();
   });
 
   it('should open the create modal with the preselected student and clear the history state', () => {
@@ -212,9 +212,7 @@ describe('AssessmentsComponent', () => {
       const consoleErrorSpy = spyOn(console, 'error');
       const openSpy = spyOn(MatDialog.prototype, 'open');
       const error = new Error('Professionals error');
-      professionalsServiceSpy.getAllProfessionals.and.returnValue(
-        throwError(() => error)
-      );
+      usersServiceSpy.getByRole.and.returnValue(throwError(() => error));
 
       fixture.detectChanges();
       component.openEditModal({ id: 1 } as AssessmentModel);
@@ -283,30 +281,7 @@ describe('AssessmentsComponent', () => {
     });
   });
 
-  describe('createProfessional and createService helper methods', () => {
-    it('should create a professional and return lookup value', () => {
-      professionalsServiceSpy.addNewProfessional.and.returnValue(
-        of({
-          id: 1,
-          name: 'Jane',
-          uuid: 'uuid',
-          audit: {
-            createdBy: 'test',
-            createdAt: new Date(),
-            modifiedBy: 'test',
-            modifiedAt: new Date(),
-          },
-        })
-      );
-      component['createProfessional']('Jane').subscribe(result => {
-        expect(result).toEqual({
-          label: 'Jane',
-          value: 'Jane',
-        });
-      });
-      expect(professionalsServiceSpy.addNewProfessional).toHaveBeenCalled();
-    });
-
+  describe('createService helper method', () => {
     it('should create a service', () => {
       juServicesServiceSpy.addNewService.and.returnValue(
         of({
