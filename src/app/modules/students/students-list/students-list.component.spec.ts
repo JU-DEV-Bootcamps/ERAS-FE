@@ -816,4 +816,101 @@ describe('StudentsListComponent', () => {
       );
     });
   });
+
+  describe('handleActionCalled — not found branch', () => {
+    it('should warn when student is not in the list', () => {
+      const warnSpy = spyOn(console, 'warn');
+      const event = { item: { id: 9999 } } as unknown as EventAction;
+
+      component.handleActionCalled(event);
+
+      expect(warnSpy).toHaveBeenCalledWith('Student not found on array.');
+    });
+  });
+
+  describe('loadStudents — preserves isSelected', () => {
+    it('should keep isSelected true for already-selected students', () => {
+      studentServiceSpy.getData.and.returnValue(
+        of({ items: [buildStudent({ id: 1 })], count: 1 })
+      );
+      component.students = [
+        { ...buildStudent({ id: 1 }), isSelected: true } as StudentModel & {
+          isSelected: boolean;
+        },
+      ] as unknown as typeof component.students;
+
+      component.loadStudents();
+
+      expect(component.students[0].isSelected).toBeTrue();
+    });
+
+    it('should set isSelected false for new students not in existing list', () => {
+      studentServiceSpy.getData.and.returnValue(
+        of({ items: [buildStudent({ id: 99 })], count: 1 })
+      );
+      component.students = [];
+
+      component.loadStudents();
+
+      expect(component.students[0].isSelected).toBeFalse();
+    });
+  });
+
+  describe('exportToPdf — guard', () => {
+    it('should not start export when isGenerating is true', async () => {
+      const listSpy = jasmine.createSpyObj<ListLike>('ListComponent', [
+        'exportToCSV',
+        'exportToPdf',
+      ]);
+      listSpy.exportToPdf.and.returnValue(Promise.resolve());
+      component.listComponent =
+        listSpy as unknown as ListComponent<StudentModelFlat>;
+      component.isGenerating = true;
+
+      await component.exportToPdf();
+
+      expect(listSpy.exportToPdf).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onExporting', () => {
+    it('should set isExporting signal to true and then false', async () => {
+      await component.onExporting(true);
+      expect(component.isExporting()).toBeTrue();
+      await component.onExporting(false);
+      expect(component.isExporting()).toBeFalse();
+    });
+  });
+
+  describe('loadAllStudents — error handling', () => {
+    it('should resolve with empty allStudents on API error', async () => {
+      studentServiceSpy.getData.and.returnValue(
+        throwError(() => new Error('network error'))
+      );
+
+      await component.loadAllStudents();
+
+      expect(component.allStudents).toEqual([]);
+    });
+  });
+
+  describe('openStudentDetails — feature flag', () => {
+    it('should open V2 modal when feature flag is enabled', () => {
+      featureFlagsSpy.isEnabled.and.returnValue(true);
+      component.openStudentDetails(component.students[0]);
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        ModalStudentDetailV2Component,
+        jasmine.any(Object)
+      );
+    });
+
+    it('should open V1 modal when feature flag is disabled', () => {
+      featureFlagsSpy.isEnabled.and.returnValue(false);
+      component.openStudentDetails(component.students[0]);
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        ModalStudentDetailComponent,
+        jasmine.any(Object)
+      );
+    });
+  });
 });

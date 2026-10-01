@@ -361,4 +361,107 @@ describe('ListDetailsComponent', () => {
       expect(component.isGenerating).toBeFalse();
     });
   });
+
+  describe('getItemById — additional branches', () => {
+    it('should return null when item has no readOnly id key', () => {
+      const collection: TestItem[] = [
+        { [idKey]: '1', name: 'John', status: 'Active' },
+      ];
+      const result = component.getItemById(
+        { name: 'John', status: 'Active' } as TestItem,
+        collection
+      );
+      expect(result).toBeNull();
+    });
+
+    it('should return undefined when no item in collection matches the id', () => {
+      const collection: TestItem[] = [
+        { [idKey]: '1', name: 'John', status: 'Active' },
+      ];
+      const result = component.getItemById(
+        { [idKey]: '999' } as TestItem,
+        collection
+      );
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('exportToCSV — additional branches', () => {
+    beforeEach(() => {
+      component.columns = mockColumns;
+    });
+
+    it('should export only selected items when some are marked selected', () => {
+      const items: TestItem[] = [
+        { name: 'John', status: 'Active', isSelected: true },
+        { name: 'Jane', status: 'Inactive', isSelected: false },
+      ];
+      component.items = items;
+      component.itemsAreSelectable = true;
+
+      component.exportToCSV();
+
+      expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
+        [items[0]],
+        ['name', 'status'],
+        ['Name', 'Status']
+      );
+    });
+
+    it('should export all items when itemsAreSelectable is true but none selected', () => {
+      const items: TestItem[] = [
+        { name: 'John', status: 'Active', isSelected: false },
+        { name: 'Jane', status: 'Inactive', isSelected: false },
+      ];
+      component.items = items;
+      component.itemsAreSelectable = true;
+
+      component.exportToCSV();
+
+      expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
+        items,
+        ['name', 'status'],
+        ['Name', 'Status']
+      );
+    });
+
+    it('should not export when isGenerating is true', () => {
+      component.isGenerating = true;
+      component.exportToCSV();
+      expect(csvServiceSpy.exportToCSV).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('exportTable — additional coverage', () => {
+    it('should call exportToCSV when typeExport is "csv"', () => {
+      const csvSpy = spyOn(component, 'exportToCSV');
+      component.exportTable('csv');
+      expect(csvSpy).toHaveBeenCalled();
+    });
+
+    it('should call exportToPdf for any non-csv value', () => {
+      const pdfSpy = spyOn(component, 'exportToPdf');
+      component.exportTable('xlsx');
+      expect(pdfSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('handleAction', () => {
+    it('should emit actionCalled with the given event', () => {
+      const emitSpy = spyOn(component.actionCalled, 'emit');
+      const event = { data: {}, event: new MouseEvent('click') } as never;
+      component.handleAction(event);
+      expect(emitSpy).toHaveBeenCalledWith(event);
+    });
+  });
+
+  describe('onPageChange — additional', () => {
+    it('should update currentPage, pageSize and emit loadCalled', () => {
+      const emitSpy = spyOn(component.loadCalled, 'emit');
+      component.onPageChange({ pageIndex: 3, pageSize: 50, length: 200 });
+      expect(component.currentPage).toBe(3);
+      expect(component.pageSize).toBe(50);
+      expect(emitSpy).toHaveBeenCalledWith({ page: 3, pageSize: 50 });
+    });
+  });
 });

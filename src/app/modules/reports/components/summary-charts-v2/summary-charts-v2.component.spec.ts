@@ -978,4 +978,121 @@ describe('SummaryChartsV2Component', () => {
       expect(component.isExporting()).toBeFalse();
     });
   });
+
+  describe('getRiskColor — boundary values', () => {
+    it('should return grey for value = 0 (< 1)', () => {
+      expect(component.getRiskColor(0)).toBe('#BDBDBD');
+    });
+
+    it('should return green for value = 1 (< 2)', () => {
+      expect(component.getRiskColor(1)).toBe('#43A047');
+    });
+
+    it('should return light green for value = 2 (< 3)', () => {
+      expect(component.getRiskColor(2)).toBe('#66BB6A');
+    });
+
+    it('should return yellow for value = 3 (< 4)', () => {
+      expect(component.getRiskColor(3)).toBe('#FDD835');
+    });
+
+    it('should return orange for value = 4 (< 5)', () => {
+      expect(component.getRiskColor(4)).toBe('#FFB74D');
+    });
+
+    it('should return red for value = 5 (>= 5)', () => {
+      expect(component.getRiskColor(5)).toBe('#EF5350');
+    });
+
+    it('should return red for value > 5', () => {
+      expect(component.getRiskColor(10)).toBe('#EF5350');
+    });
+  });
+
+  describe('toggleChart — closes both panels', () => {
+    it('should close heatmap and column panels when toggling to column', fakeAsync(() => {
+      component.isPanelOpen.set(true);
+      component.selectedPanelData.set({} as unknown as DetailsPanelData);
+      component.isColumnPanelOpen.set(true);
+
+      component.toggleChart('column');
+
+      expect(component.heatmapChart).toBeFalse();
+      expect(component.isPanelOpen()).toBeFalse();
+      expect(component.selectedPanelData()).toBeNull();
+      expect(component.isColumnPanelOpen()).toBeFalse();
+      tick(50);
+    }));
+  });
+
+  describe('isV2Enabled', () => {
+    it('should return true when feature flag is enabled', () => {
+      featureFlagsService.isEnabled.and.returnValue(true);
+      expect(component.isV2Enabled).toBeTrue();
+    });
+
+    it('should return false when feature flag is disabled', () => {
+      featureFlagsService.isEnabled.and.returnValue(false);
+      expect(component.isV2Enabled).toBeFalse();
+    });
+  });
+
+  describe('toggleExpand', () => {
+    it('should toggle isExpanded from false to true', () => {
+      component.isExpanded = false;
+      component.toggleExpand();
+      expect(component.isExpanded).toBeTrue();
+    });
+
+    it('should toggle isExpanded from true to false', () => {
+      component.isExpanded = true;
+      component.toggleExpand();
+      expect(component.isExpanded).toBeFalse();
+    });
+
+    it('should toggle multiple times', () => {
+      component.isExpanded = false;
+      component.toggleExpand();
+      component.toggleExpand();
+      expect(component.isExpanded).toBeFalse();
+    });
+  });
+
+  describe('getHeatMap — additional branches', () => {
+    it('should reset chartOptions when pollUuid is missing', () => {
+      component.pollUuid = '';
+      component.cohortIds = [1];
+      component.isLoading = true;
+      component.getHeatMap();
+      expect(component.chartOptions).toEqual({});
+      expect(component.isLoading).toBeFalse();
+      expect(reportService.getAvgPoolReport).not.toHaveBeenCalled();
+    });
+
+    it('should reset chartOptions when cohortIds is empty', () => {
+      component.pollUuid = 'poll-1';
+      component.cohortIds = [];
+      component.isLoading = true;
+      component.getHeatMap();
+      expect(component.chartOptions).toEqual({});
+      expect(component.isLoading).toBeFalse();
+    });
+  });
+
+  describe('openDetailsPanel — additional branches', () => {
+    it('should return when pollUuid is empty', () => {
+      component.pollUuid = '';
+      component.openDetailsPanel(
+        {
+          question: 'Q',
+          averageRisk: 1,
+          position: 0,
+          averageAnswer: '',
+          answersDetails: [],
+        },
+        'academico'
+      );
+      expect(component.isPanelOpen()).toBeFalse();
+    });
+  });
 });

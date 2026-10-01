@@ -811,4 +811,126 @@ describe('DynamicChartsV2Component', () => {
       expect(compPrivates.pendingTimeouts.length).toBe(0);
     });
   });
+
+  describe('generateHeatMap — additional branches', () => {
+    it('resets charts to empty state when API returns no body', () => {
+      component.uuid = 'u';
+      reportServiceSpy.getCountPoolReport.and.returnValue(
+        of(null as unknown as never)
+      );
+      component.generateHeatMap([1], [2]);
+      expect(component.hasNoResults).toBeTrue();
+      expect(component.chartsOptions.length).toBe(0);
+      expect(component.isLoading).toBeFalse();
+    });
+  });
+
+  describe('generateSeries — additional branches', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('uses fallback width of 400 when cardWidth is 0 (isAnyCardExpanded false)', () => {
+      const compPrivates = component as unknown as ComponentWithPrivates;
+      compPrivates.cardWidth.set(0);
+      const report = fakeCountReport(['Ansiedad']);
+      component.isAnyCardExpanded = false;
+      component.generateSeries(report as unknown as never);
+      expect(component.chartsOptions.length).toBe(1);
+    });
+
+    it('does not call openDetailsModal when click finds no matching question', () => {
+      component.uuid = 'poll-uuid';
+      component.cohortIds = '1';
+
+      const report = {
+        components: [
+          {
+            description: 'Ansiedad' as ComponentValueType,
+            text: 'Texto Ansiedad',
+            questions: [],
+          },
+        ],
+      } as unknown as PollCountReport;
+
+      const mockHMSeries = [
+        {
+          name: 'Ansiedad',
+          text: 'Texto Ansiedad',
+          description: 'Ansiedad',
+          data: [{ x: 0, y: 2, count: 5, z: 'Total: 5' }],
+        },
+      ];
+      const mockRegroup = [
+        { data: [{ x: 0, y: 2, z: 'Total: 5', totalFillers: 0 }] },
+      ];
+
+      reportServiceSpy.getHMSeriesFromCountComponent.and.returnValue(
+        mockHMSeries as unknown as HMSeriesReturn
+      );
+      reportServiceSpy.regroupDynamicByColor.and.returnValue(
+        mockRegroup as unknown as RegroupReturn
+      );
+
+      spyOn(component, 'openDetailsModal');
+      component.generateSeries(report);
+
+      const clickFn =
+        component.chartsOptions[0].chart?.events?.dataPointSelection;
+      if (clickFn) {
+        type ChartClickFn = (
+          e: unknown,
+          chart: unknown,
+          options: { dataPointIndex: number; seriesIndex: number }
+        ) => void;
+        (clickFn as unknown as ChartClickFn)({}, undefined, {
+          dataPointIndex: 0,
+          seriesIndex: 0,
+        });
+        expect(component.openDetailsModal).not.toHaveBeenCalled();
+      }
+    });
+  });
+
+  describe('getComponentOfChart — additional branch', () => {
+    it('returns lowercased component name stripped of prefix', () => {
+      expect(component.getComponentOfChart('Reporte: Depresion')).toBe(
+        'depresion'
+      );
+    });
+  });
+
+  describe('showEmpty — additional cases', () => {
+    it('is true when uuid is empty string', () => {
+      component.uuid = '' as unknown as null;
+      expect(component.showEmpty).toBeTrue();
+    });
+  });
+
+  describe('onExporting — additional case', () => {
+    it('toggles signal back and forth', async () => {
+      await component.onExporting(true);
+      expect(component.isExporting()).toBeTrue();
+      await component.onExporting(false);
+      expect(component.isExporting()).toBeFalse();
+    });
+  });
+
+  describe('getColumnData', () => {
+    it('returns questions clone from loaded components', () => {
+      const report = fakeCountReport(['Ansiedad']);
+      component.components.set(report as unknown as never);
+      const result = component.getColumnData(0);
+      expect(result.questions).toBeDefined();
+      expect(result.questions).not.toBe(report.components[0].questions);
+    });
+  });
+
+  describe('onChartTypeChange', () => {
+    it('stores the new chart type for the given index', () => {
+      component.componentsSelected = ['anxiety'];
+      component.onChartTypeChange(0, 'heatmap');
+      expect(component.getChartType(0)).toBe('heatmap');
+    });
+  });
 });

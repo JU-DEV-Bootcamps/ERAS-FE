@@ -550,4 +550,144 @@ describe('StudentDetailV2Component', () => {
       expect(completeSpy).toHaveBeenCalled();
     });
   });
+
+  describe('handleLoad — additional branches', () => {
+    it('should not fetch answers when selectedPoll is 0', () => {
+      component.selectedPoll = 0;
+      studentServiceSpy.getStudentAnswersByPoll.calls.reset();
+
+      component.handleLoad(1, { page: 2, pageSize: 20 });
+
+      expect(component.pagination).toEqual({ page: 2, pageSize: 20 });
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+    });
+
+    it('should fetch answers when selectedPoll is non-zero', () => {
+      component.selectedPoll = 10;
+      studentServiceSpy.getStudentAnswersByPoll.calls.reset();
+
+      component.handleLoad(1, { page: 1, pageSize: 5 });
+
+      expect(studentServiceSpy.getStudentAnswersByPoll).toHaveBeenCalledWith(
+        1,
+        10,
+        { page: 1, pageSize: 5 }
+      );
+    });
+  });
+
+  describe('getStudentAnswersByPoll — guard', () => {
+    it('should not call service when pollId is 0', () => {
+      component.getStudentAnswersByPoll(1, 0);
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+    });
+
+    it('should log error when service throws', () => {
+      const consoleSpy = spyOn(console, 'error');
+      studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
+        throwError(() => new Error('boom'))
+      );
+      component.getStudentAnswersByPoll(1, 10);
+      expect(consoleSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('buildChartSeries — additional branches', () => {
+    it('should produce empty chart series when componentsAvg is empty', () => {
+      component.componentsAvg = [];
+      component.buildChartSeries();
+      expect(component.chartSeriesByPollId).toEqual({});
+    });
+
+    it('should push unknown components to the end of the series', () => {
+      component.componentsAvg = [
+        { pollId: 10, name: 'unknown_component', componentAvg: 1 },
+        { pollId: 10, name: 'socioeconomico', componentAvg: 2 },
+      ] as ComponentsAvgModel[];
+
+      component.buildChartSeries();
+
+      const series = component.chartSeriesByPollId[10];
+      const data = series[0].data as { x: string }[];
+      expect(data[0].x).toBe('Socioeconomico');
+      expect(data[1].x).toBe('Unknown_component');
+    });
+  });
+
+  describe('capitalize', () => {
+    it('should capitalize the first letter', () => {
+      expect(component.capitalize('academico')).toBe('Academico');
+    });
+
+    it('should handle empty string without throwing', () => {
+      expect(() => component.capitalize('')).not.toThrow();
+      expect(component.capitalize('')).toBe('');
+    });
+
+    it('should leave already-capitalized strings unchanged', () => {
+      expect(component.capitalize('Academico')).toBe('Academico');
+    });
+  });
+
+  describe('getColorByRisk', () => {
+    it('should return a color string for any valid risk level', () => {
+      const result = component.getColorByRisk(3.9);
+      expect(typeof result).toBe('string');
+      expect(result.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('fetchAllStudentAnswers — branches', () => {
+    it('should return empty array when selectedPoll is 0', async () => {
+      component.selectedPoll = 0;
+      const result = await component['fetchAllStudentAnswers']();
+      expect(result).toEqual([]);
+    });
+
+    it('should fetch all answers when selectedPoll is set', async () => {
+      component.selectedPoll = 10;
+      studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
+        of(mockAnswersPage)
+      );
+      const result = await component['fetchAllStudentAnswers']();
+      expect(result).toEqual(mockAnswersPage.items);
+    });
+  });
+
+  describe('exportCsv — guard branch', () => {
+    it('should return immediately when isGeneratingCSV is true', async () => {
+      component.isGeneratingCSV = true;
+      const createElementSpy = spyOn(document, 'createElement');
+      await component.exportCsv();
+      expect(createElementSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('exportReportPdf — guard branch', () => {
+    it('should return immediately when isGeneratingPDF is true', async () => {
+      component.isGeneratingPDF = true;
+      await component.exportReportPdf();
+      expect(pdfHelperSpy.exportToPdf).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getComponentsAvg — error branch', () => {
+    it('should log error when service call fails', () => {
+      const consoleSpy = spyOn(console, 'error');
+      pollInsServiceSpy.getComponentsRiskByPollForStudent.and.returnValue(
+        throwError(() => new Error('fail'))
+      );
+      component.getComponentsAvg(1, 10);
+      expect(consoleSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('ngOnInit — polls empty branch', () => {
+    it('should not fetch answers when student has no polls', () => {
+      pollServiceSpy.getPollsByStudentId.and.returnValue(of([]));
+      component.ngOnInit();
+      expect(component.selectedPoll).toBe(0);
+      expect(studentServiceSpy.getStudentAnswersByPoll).not.toHaveBeenCalled();
+    });
+  });
 });
