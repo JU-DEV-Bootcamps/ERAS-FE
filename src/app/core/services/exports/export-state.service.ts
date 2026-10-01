@@ -1,7 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 
 export type ExportType = 'csv' | 'pdf' | null;
+export type ExportDisplayMode = 'blocking' | 'background';
+
 const CSV_OVERLAY_DELAY_MS = 400;
+const BACKGROUND_THRESHOLD_MS = 60_000;
 
 @Injectable({
   providedIn: 'root',
@@ -13,14 +16,26 @@ export class ExportStateService {
   progress = signal<number>(0);
   estimatedTimeRemaining = signal<number>(0);
   message = signal<string>('');
+  displayMode = signal<ExportDisplayMode>('blocking');
 
   private startTime = 0;
   private overlayTimer: ReturnType<typeof setTimeout> | null = null;
+  private backgroundTimer: ReturnType<typeof setTimeout> | null = null;
 
   startExport(type: ExportType, itemCount = 0): void {
     this.exportType.set(type);
     this.startTime = Date.now();
     this.progress.set(0);
+    this.displayMode.set('blocking');
+
+    if (this.backgroundTimer !== null) {
+      clearTimeout(this.backgroundTimer);
+    }
+    this.backgroundTimer = setTimeout(() => {
+      if (this.isExporting()) {
+        this.displayMode.set('background');
+      }
+    }, BACKGROUND_THRESHOLD_MS);
 
     const estimatedSeconds = this.calculateEstimatedTime(type, itemCount);
     this.estimatedTimeRemaining.set(estimatedSeconds);
@@ -49,11 +64,16 @@ export class ExportStateService {
       clearTimeout(this.overlayTimer);
       this.overlayTimer = null;
     }
+    if (this.backgroundTimer !== null) {
+      clearTimeout(this.backgroundTimer);
+      this.backgroundTimer = null;
+    }
     this.isExporting.set(false);
     this.shouldShowOverlay.set(false);
     this.exportType.set(null);
     this.progress.set(0);
     this.message.set('');
+    this.displayMode.set('blocking');
   }
 
   updateProgress(current: number, total: number): void {

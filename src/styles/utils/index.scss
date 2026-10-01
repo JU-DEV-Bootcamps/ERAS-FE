@@ -151,6 +151,10 @@ body {
   }
 }
 
+.high-z-snackbar {
+  z-index: 9999999 !important;
+}
+
 @keyframes slideInFromRight {
   from {
     transform: translateX(100%);

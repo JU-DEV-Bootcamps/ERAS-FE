@@ -1,15 +1,45 @@
 @if (showOverlay()) {
-  <div class="export-overlay" role="status" [attr.aria-label]="overlayLabel()">
-    <div class="export-overlay-content">
-      <mat-spinner diameter="48"></mat-spinner>
-      <p class="export-overlay-label">{{ displayMessage() }}</p>
-      @if (showProgressBar()) {
-        <mat-progress-bar
-          mode="determinate"
-          [value]="progress()"
-          class="export-overlay-progress"
-        ></mat-progress-bar>
-      }
+  @if (displayMode() === 'blocking') {
+    <div
+      class="export-overlay"
+      role="status"
+      [attr.aria-label]="overlayLabel()"
+    >
+      <div class="export-overlay-content">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="export-overlay-label">{{ displayMessage() }}</p>
+        @if (showProgressBar()) {
+          <mat-progress-bar
+            mode="determinate"
+            [value]="progress()"
+            class="export-overlay-progress"
+          ></mat-progress-bar>
+        }
+      </div>
     </div>
-  </div>
+  } @else if (!isDismissed()) {
+    <div class="export-toast" role="status" [attr.aria-label]="overlayLabel()">
+      <mat-spinner diameter="28"></mat-spinner>
+      <div class="export-toast-info">
+        <p class="export-toast-label">
+          {{ exportType() === 'pdf' ? 'Exporting PDF' : 'Exporting CSV' }}
+        </p>
+        <p class="export-toast-message">{{ displayMessage() }}</p>
+        @if (showProgressBar()) {
+          <mat-progress-bar
+            mode="determinate"
+            [value]="progress()"
+            class="export-toast-progress"
+          ></mat-progress-bar>
+        }
+      </div>
+      <button
+        class="export-toast-dismiss"
+        (click)="dismiss()"
+        aria-label="Dismiss export notification"
+      >
+        &#x2715;
+      </button>
+    </div>
+  }
 }

@@ -17,7 +17,7 @@ export const STYLE_CONF = {
 
 export const SNACKBAR_CONF = {
   duration: 3000,
-  panel_class: ['custom-snackbar'],
+  panel_class: ['custom-snackbar', 'high-z-snackbar'],
   message_start: 'Generating PDF...',
   message_end: 'PDF generated successfully',
 };

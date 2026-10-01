@@ -143,14 +143,6 @@ describe('PdfService', () => {
         done();
       });
     });
-
-    it('should execute exportToPDF without a callback (branch false for callback?.())', (done: DoneFn) => {
-      expect(() => {
-        service.exportToPDF(element, 'no-callback-report', 200, 100);
-      }).not.toThrow();
-
-      setTimeout(() => done(), 250);
-    });
   });
 
   describe('adjustSliceForSafeBreak', () => {

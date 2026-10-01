@@ -10,6 +10,7 @@ function makeServiceStub(
     message: string;
     progress: number;
     exportType: 'csv' | 'pdf' | null;
+    displayMode: 'blocking' | 'background';
   }> = {}
 ) {
   const cfg = {
@@ -17,6 +18,7 @@ function makeServiceStub(
     message: '',
     progress: 0,
     exportType: null as 'csv' | 'pdf' | null,
+    displayMode: 'blocking' as 'blocking' | 'background',
     ...overrides,
   };
 
@@ -25,6 +27,7 @@ function makeServiceStub(
     message: signal(cfg.message),
     progress: signal(cfg.progress),
     exportType: signal(cfg.exportType),
+    displayMode: signal(cfg.displayMode),
   };
 }
 

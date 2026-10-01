@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -19,6 +19,21 @@ export class ExportLoadingOverlayComponent {
   progress = computed(() => this.exportStateService.progress());
   exportType = computed(() => this.exportStateService.exportType());
   showProgressBar = computed(() => this.exportType() === 'pdf');
+  displayMode = computed(() => this.exportStateService.displayMode());
 
   overlayLabel = computed(() => `Export in progress: ${this.displayMessage()}`);
+
+  isDismissed = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (!this.showOverlay()) {
+        this.isDismissed.set(false);
+      }
+    });
+  }
+
+  dismiss(): void {
+    this.isDismissed.set(true);
+  }
 }
