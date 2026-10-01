@@ -25,10 +25,17 @@ interface AssessmentLookupsStudent {
   value: number;
 }
 
+interface LookupEntry {
+  label: string;
+  value: string;
+}
+
 interface NewAssessmentModalData {
   students: AssessmentLookupsStudent[];
   preselectedStudentId?: number;
   createService?: (name: string) => unknown;
+  services?: LookupEntry[];
+  professionals?: LookupEntry[];
 }
 
 type UserDataServiceUser = ReturnType<UserDataService['user']>;
@@ -142,6 +149,53 @@ describe('AssessmentsComponent', () => {
       { label: 'Beto', value: 2 },
     ]);
     expect(dialogData.preselectedStudentId).toBeUndefined();
+  });
+
+  it('should populate services and professionals on the first call to openCreateModal, without needing to reopen it', () => {
+    juServicesServiceSpy.getAllJuServices.and.returnValue(
+      of({
+        items: [
+          {
+            id: 1,
+            name: 'Counseling',
+            audit: {
+              createdBy: 'tester',
+              createdAt: new Date(),
+              modifiedBy: 'tester',
+              modifiedAt: new Date(),
+            },
+          },
+        ],
+        count: 1,
+      })
+    );
+    usersServiceSpy.getByRole.and.returnValue(
+      of([
+        {
+          sub: 'sub-1',
+          email: 'pro@test.com',
+          firstName: 'Pro',
+          lastName: 'Fessional',
+          role: 'ERAS Professional',
+        },
+      ])
+    );
+    const openSpy = spyOn(MatDialog.prototype, 'open').and.returnValue(
+      dialogRefStub
+    );
+
+    fixture.detectChanges();
+    component.openCreateModal();
+
+    const dialogData = openSpy.calls.mostRecent().args[1]
+      ?.data as NewAssessmentModalData;
+
+    expect(dialogData.services).toEqual([
+      { label: 'Counseling', value: 'Counseling' },
+    ]);
+    expect(dialogData.professionals).toEqual([
+      { label: 'Pro Fessional', value: 'sub-1' },
+    ]);
   });
 
   it('should log an error and clear loading state when lookups fail to load', () => {

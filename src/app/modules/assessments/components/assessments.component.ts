@@ -154,7 +154,7 @@ export class AssessmentsComponent implements OnInit {
           this.lookupLoading.set(false);
           const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
             ...this.modalConfig,
-            data: modalData,
+            data: { ...modalData, ...this.lookups() },
           });
 
           dialogRef
