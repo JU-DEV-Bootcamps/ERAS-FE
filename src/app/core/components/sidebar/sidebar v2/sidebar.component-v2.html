@@ -23,21 +23,22 @@
       <span matListItemTitle>{{ item.label }}</span>
     </mat-list-item>
 
-    <div
-      [ngIf]="item.children && getExpandedMenu() === item.label"
-      *appHasERASRoles="item.requiredRoles ?? []"
-      class="submenu"
-    >
-      @for (child of item.children; track child) {
-      <mat-list-item
-        *appHasERASRoles="child.requiredRoles ?? []"
-        class="submenu-item"
-        [routerLink]="child.route"
-        routerLinkActive="active-submenu"
+    <ng-container *appHasERASRoles="item.requiredRoles ?? []">
+      <div
+        *ngIf="item.children && getExpandedMenu() === item.label"
+        class="submenu"
       >
-        <span class="subtitle">{{ child.label }}</span>
-      </mat-list-item>
-      }
-    </div>
+        @for (child of item.children; track child) {
+        <mat-list-item
+          *appHasERASRoles="child.requiredRoles ?? []"
+          class="submenu-item"
+          [routerLink]="child.route"
+          routerLinkActive="active-submenu"
+        >
+          <span class="subtitle">{{ child.label }}</span>
+        </mat-list-item>
+        }
+      </div>
+    </ng-container>
   </ng-container>
 </mat-nav-list>

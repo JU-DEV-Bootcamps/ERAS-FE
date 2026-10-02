@@ -13,19 +13,6 @@ interface FeatureFlag {
   isEnabled: boolean;
 }
 
-/**
- * Service responsible for evaluating feature flags.
- *
- * Behavior:
- * 1. Flags are controlled by the backend (toggle in the user menu, admin-only),
- *    but that value only applies to admin users.
- * 2. Non-admin users always default to v1, regardless of the backend value,
- *    unless overridden via query params (see below).
- * 3. Any user can force-enable v2 for their own session via `?v2=true`,
- *    or an individual flag via `?flagName=true`. This works for any role
- *    and takes precedence over both the backend value and the admin check.
- */
-
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
   private readonly http = inject(HttpClient);
@@ -38,9 +25,58 @@ export class FeatureFlagsService {
 
   private _flagMeta = signal<FeatureFlag[]>([]);
 
-  private queryParams = computed(() => {
-    return this.router.routerState.root.snapshot.queryParams;
-  });
+  private readonly OVERRIDES_KEY = 'erasFeatureFlagOverrides';
+
+  private currentUrlParams(): Record<string, string> {
+    const fromWindow = Object.fromEntries(
+      new URLSearchParams(window.location.search)
+    );
+    const fromRouter = this.router.routerState.root.snapshot.queryParams;
+    return { ...fromWindow, ...fromRouter };
+  }
+
+  private readStoredOverrides(): Record<string, boolean> {
+    try {
+      return JSON.parse(sessionStorage.getItem(this.OVERRIDES_KEY) ?? '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  private captureOverrides(
+    params: Record<string, string>,
+    flag: string
+  ): Record<string, boolean> {
+    const overrides = this.readStoredOverrides();
+    let changed = false;
+
+    for (const key of new Set(['v2', flag, ...Object.values(FEATURE_FLAGS)])) {
+      if (params[key] === 'true' && overrides[key] !== true) {
+        overrides[key] = true;
+        changed = true;
+      } else if (params[key] === 'false' && key in overrides) {
+        delete overrides[key];
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      try {
+        sessionStorage.setItem(this.OVERRIDES_KEY, JSON.stringify(overrides));
+      } catch (error) {
+        console.warn('Could not persist feature flag overrides', error);
+      }
+    }
+    return overrides;
+  }
+
+  private clearOverrides(): void {
+    try {
+      sessionStorage.removeItem(this.OVERRIDES_KEY);
+    } catch (error) {
+      console.warn('Could not clear feature flag overrides', error);
+    }
+  }
 
   private isAdminUser = computed(
     () => this.userData.user()?.role === ERASRoles.ADMIN
@@ -68,10 +104,9 @@ export class FeatureFlagsService {
   }
 
   isEnabled(flag: string): boolean {
-    const params = this.queryParams();
+    const overrides = this.captureOverrides(this.currentUrlParams(), flag);
 
-    if (params['v2'] === 'true') return true;
-    if (params[flag] === 'true') return true;
+    if (overrides['v2'] || overrides[flag]) return true;
 
     if (!this.isAdminUser()) return false;
 
@@ -92,6 +127,7 @@ export class FeatureFlagsService {
       .put<void>(`${this.baseUrl}/${flag.id}`, { ...flag, isEnabled: enabled })
       .pipe(
         tap(() => {
+          this.clearOverrides();
           const mapped = Object.fromEntries(
             Object.values(FEATURE_FLAGS).map(f => [f, enabled])
           );

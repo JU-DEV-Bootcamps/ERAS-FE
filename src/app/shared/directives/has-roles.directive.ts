@@ -1,9 +1,10 @@
 import {
   Directive,
+  effect,
   inject,
-  Input,
-  OnInit,
+  input,
   TemplateRef,
+  untracked,
   ViewContainerRef,
 } from '@angular/core';
 import { ERASRoles } from '@core/models/profile.model';
@@ -12,31 +13,31 @@ import { UserDataService } from '@core/services/access/user-data.service';
 @Directive({
   selector: '[appHasERASRoles]',
 })
-export class HasERASRolesDirective implements OnInit {
+export class HasERASRolesDirective {
   private templateRef = inject(TemplateRef);
   private viewContainerRef = inject(ViewContainerRef);
   private _userDataService = inject(UserDataService);
-  @Input() appHasERASRoles: ERASRoles[] = [];
+  appHasERASRoles = input<ERASRoles[]>([]);
 
-  ngOnInit(): void {
-    this.updateView();
+  private hasView = false;
+
+  constructor() {
+    effect(() => {
+      const userRole = this._userDataService.user()?.role;
+      const allowed =
+        !!userRole && (this.appHasERASRoles() ?? []).includes(userRole);
+
+      untracked(() => this.updateView(allowed));
+    });
   }
 
-  private updateView(): void {
-    const hasPermissions = this.hasViewPermissions();
-
-    if (hasPermissions) {
+  private updateView(allowed: boolean): void {
+    if (allowed && !this.hasView) {
       this.viewContainerRef.createEmbeddedView(this.templateRef);
-    } else {
+      this.hasView = true;
+    } else if (!allowed && this.hasView) {
       this.viewContainerRef.clear();
+      this.hasView = false;
     }
-  }
-
-  private hasViewPermissions(): boolean {
-    const userRole = this._userDataService.user()?.role;
-
-    if (!userRole) return false;
-
-    return this.appHasERASRoles.includes(userRole);
   }
 }

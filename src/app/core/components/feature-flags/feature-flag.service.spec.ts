@@ -20,6 +20,7 @@ describe('FeatureFlagsService', () => {
   const mockFlags = [{ id: 1, name: 'v2', isEnabled: true }];
 
   beforeEach(() => {
+    sessionStorage.removeItem('erasFeatureFlagOverrides');
     queryParams = {};
     userDataMock = {
       user: jasmine
@@ -53,7 +54,10 @@ describe('FeatureFlagsService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    httpMock.verify();
+    sessionStorage.removeItem('erasFeatureFlagOverrides');
+  });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
@@ -98,6 +102,43 @@ describe('FeatureFlagsService', () => {
     expect(service.isEnabled('myFlag')).toBeTrue();
   });
 
+  it('isEnabled should keep a ?v2=true override after the param disappears (reload/navigation)', () => {
+    userDataMock.user.and.returnValue({ role: ERASRoles.PROFESSIONAL });
+    queryParams = { v2: 'true' };
+    expect(service.isEnabled('anyFlag')).toBeTrue();
+
+    queryParams = {};
+    expect(service.isEnabled('anyFlag')).toBeTrue();
+  });
+
+  it('isEnabled should keep a flag-specific override after the param disappears', () => {
+    userDataMock.user.and.returnValue({ role: ERASRoles.OFFICER });
+    queryParams = { myFlag: 'true' };
+    expect(service.isEnabled('myFlag')).toBeTrue();
+
+    queryParams = {};
+    expect(service.isEnabled('myFlag')).toBeTrue();
+    expect(service.isEnabled('otherFlag')).toBeFalse();
+  });
+
+  it('isEnabled should drop a stored override when the param is explicitly false', () => {
+    userDataMock.user.and.returnValue({ role: ERASRoles.PROFESSIONAL });
+    queryParams = { v2: 'true' };
+    expect(service.isEnabled('anyFlag')).toBeTrue();
+
+    queryParams = { v2: 'false' };
+    expect(service.isEnabled('anyFlag')).toBeFalse();
+
+    queryParams = {};
+    expect(service.isEnabled('anyFlag')).toBeFalse();
+  });
+
+  it('isEnabled should ignore corrupted stored overrides', () => {
+    sessionStorage.setItem('erasFeatureFlagOverrides', 'not-json');
+    userDataMock.user.and.returnValue({ role: ERASRoles.PROFESSIONAL });
+    expect(service.isEnabled('anyFlag')).toBeFalse();
+  });
+
   it('isEnabled should return false for non-admin users with no override', () => {
     userDataMock.user.and.returnValue({ role: ERASRoles.GUEST });
     expect(service.isEnabled('someFlag')).toBeFalse();
@@ -120,6 +161,20 @@ describe('FeatureFlagsService', () => {
     const req = httpMock.expectOne(`${baseUrl}/1`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body.isEnabled).toBeFalse();
+  });
+
+  it('toggle should clear stored query param overrides once it succeeds', () => {
+    service.loadFlags().subscribe();
+    httpMock.expectOne(baseUrl).flush(mockFlags);
+    userDataMock.user.and.returnValue({ role: ERASRoles.ADMIN });
+    queryParams = { v2: 'true' };
+    expect(service.isEnabled('anyFlag')).toBeTrue();
+    queryParams = {};
+
+    service.toggle('v2', false).subscribe();
+    httpMock.expectOne(`${baseUrl}/1`).flush(null);
+
+    expect(service.isEnabled('anyFlag')).toBeFalse();
   });
 
   it('toggle should warn and no-op if flag is not found in meta', () => {
