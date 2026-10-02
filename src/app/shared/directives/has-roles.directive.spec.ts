@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { HasERASRolesDirective } from './has-roles.directive';
 import { ERASRoles } from '@core/models/profile.model';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { UserDataService } from '@core/services/access/user-data.service';
+import { Profile } from '@core/models/profile.model';
 
 @Component({
   standalone: true,
@@ -88,5 +89,69 @@ describe('HasERASRolesDirective', () => {
     fixture.detectChanges();
 
     expect(getProtectedElement()).not.toBeNull();
+  });
+});
+
+describe('HasERASRolesDirective reactivity', () => {
+  let fixture: ComponentFixture<TestHostComponent>;
+  let hostComponent: TestHostComponent;
+  const user = signal<Profile | null>(null);
+
+  const protectedElement = () =>
+    fixture.debugElement.query(By.css('.protected-content'));
+
+  beforeEach(async () => {
+    user.set(null);
+    await TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+      providers: [{ provide: UserDataService, useValue: { user } }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TestHostComponent);
+    hostComponent = fixture.componentInstance;
+    hostComponent.roles = [ERASRoles.ADMIN];
+  });
+
+  it('should render once the user profile loads after the first render', () => {
+    fixture.detectChanges();
+    expect(protectedElement()).toBeNull();
+
+    user.set({ role: ERASRoles.ADMIN });
+    fixture.detectChanges();
+
+    expect(protectedElement()).not.toBeNull();
+  });
+
+  it('should remove the element when the user role stops matching', () => {
+    user.set({ role: ERASRoles.ADMIN });
+    fixture.detectChanges();
+    expect(protectedElement()).not.toBeNull();
+
+    user.set({ role: ERASRoles.PROFESSIONAL });
+    fixture.detectChanges();
+
+    expect(protectedElement()).toBeNull();
+  });
+
+  it('should re-evaluate when the required roles change', () => {
+    user.set({ role: ERASRoles.OFFICER });
+    fixture.detectChanges();
+    expect(protectedElement()).toBeNull();
+
+    hostComponent.roles = [ERASRoles.OFFICER];
+    fixture.detectChanges();
+
+    expect(protectedElement()).not.toBeNull();
+  });
+
+  it('should not recreate the view when nothing relevant changed', () => {
+    user.set({ role: ERASRoles.ADMIN });
+    fixture.detectChanges();
+    const first = protectedElement().nativeElement;
+
+    user.set({ role: ERASRoles.ADMIN, firstName: 'Updated' });
+    fixture.detectChanges();
+
+    expect(protectedElement().nativeElement).toBe(first);
   });
 });
