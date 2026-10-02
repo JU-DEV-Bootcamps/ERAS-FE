@@ -23,7 +23,7 @@ export class FormUtils {
       maxlength: () =>
         `${field} must have maximun ${errors['maxlength'].requiredLength} characters.`,
       maxFiles: () =>
-        `${field} The maximum ${errors['maxFiles'].max} file(s) allowed.`,
+        `${field} The maximum number of attached documents allowed is ${errors['maxFiles'].max}.`,
       maxSize: () =>
         `"${errors['maxSize'].fileName}" exceeds ${errors['maxSize'].maxMb / (1024 * 1024)}MB.`,
       fileFormat: () =>

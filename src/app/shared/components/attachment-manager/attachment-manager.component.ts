@@ -151,9 +151,7 @@ export class AttachmentManagerComponent implements OnInit {
       }
     }
     if (Object.keys(accumulatedErrors).length > 0) {
-      this.errorMessage.set(
-        FormUtils.getTextError(accumulatedErrors, 'Attached Document (s)')
-      );
+      this.errorMessage.set(FormUtils.getTextError(accumulatedErrors, ''));
     } else {
       this.errorMessage.set(null);
     }
