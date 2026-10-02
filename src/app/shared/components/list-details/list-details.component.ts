@@ -31,6 +31,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 import { FormsModule } from '@angular/forms';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
 import { defaultOptions, readOnlyColumns } from '../list/constants/list';
@@ -65,6 +66,7 @@ export class ListDetailsComponent<T extends object>
 {
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
 
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
@@ -192,29 +194,35 @@ export class ListDetailsComponent<T extends object>
   exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
+    this.exportStateService.startExport('csv', this.items.length);
 
-    const itemsToExport = this.itemsAreSelectable
-      ? this.getItemsToExport()
-      : this.items;
-    const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
-    ];
-    const columnKeys = columnsToExport.map(c => c.key);
-    const columnLabels = columnsToExport.map(c => c.label);
+    try {
+      const itemsToExport = this.itemsAreSelectable
+        ? this.getItemsToExport()
+        : this.items;
+      const columnsToExport = [
+        ...new Set([...this.columns, ...this.exportColumns]),
+      ];
+      const columnKeys = columnsToExport.map(c => c.key);
+      const columnLabels = columnsToExport.map(c => c.label);
 
-    this.csvService.exportToCSV(
-      itemsToExport,
-      columnKeys as string[],
-      columnLabels
-    );
-
-    this.isGenerating = false;
+      this.csvService.exportToCSV(
+        itemsToExport,
+        columnKeys as string[],
+        columnLabels
+      );
+    } finally {
+      this.isGenerating = false;
+      this.exportStateService.endExport();
+    }
   }
 
   async exportToPdf() {
     if (this.isGenerating) return;
 
     this.isGenerating = true;
+    this.exportStateService.startExport('pdf', this.items.length);
+
     try {
       await this.pdfHelper.exportToPdf({
         fileName: 'report_detail',
@@ -224,6 +232,7 @@ export class ListDetailsComponent<T extends object>
       });
     } finally {
       this.isGenerating = false;
+      this.exportStateService.endExport();
     }
   }
 

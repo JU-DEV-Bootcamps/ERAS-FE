@@ -34,6 +34,7 @@ import {
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -59,6 +60,7 @@ export class DynamicChartsComponent {
   chartsOptions: ApexOptions[] = [];
   evaluationId?: number | string;
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
 
@@ -169,12 +171,18 @@ export class DynamicChartsComponent {
     if (this.isGeneratingPDF) return;
 
     this.isGeneratingPDF = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-    });
-    this.isGeneratingPDF = false;
+    this.exportStateService.startExport('pdf', 0);
+
+    try {
+      await this.pdfHelper.exportToPdf({
+        fileName: 'report_detail',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+      });
+    } finally {
+      this.isGeneratingPDF = false;
+      this.exportStateService.endExport();
+    }
   }
 
   handleFilterSelect(filters: Filter) {

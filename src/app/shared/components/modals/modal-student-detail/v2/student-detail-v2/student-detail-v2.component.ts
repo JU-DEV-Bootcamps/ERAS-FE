@@ -36,6 +36,7 @@ import { getRiskColor } from '@core/constants/riskLevel';
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
 import { Router } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 register();
 
@@ -89,6 +90,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   };
 
   studentService = inject(StudentService);
+  exportStateService = inject(ExportStateService);
   pdfHelper = inject(PdfHelper);
   pollsService = inject(PollService);
   pollInsService = inject(PollInstanceService);
@@ -356,6 +358,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   async exportReportPdf() {
     if (this.isGeneratingPDF) return;
     this.isGeneratingPDF = true;
+    this.exportStateService.startExport('pdf', 0);
 
     const originalAnswers = this.studentAnswers;
     const originalPagination = { ...this.pagination };
@@ -375,6 +378,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
     } finally {
       this.studentAnswers = originalAnswers;
       this.pagination = originalPagination;
+      this.exportStateService.endExport();
       this.isGeneratingPDF = false;
     }
   }

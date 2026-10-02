@@ -47,6 +47,7 @@ import {
 import { StudentImport } from '@core/services/interfaces/student.interface';
 import { GENERAL_MESSAGES } from '@core/constants/messages';
 import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 @Component({
   selector: 'app-students-list',
@@ -65,6 +66,7 @@ export class StudentsListComponent implements OnInit {
   private readonly studentService = inject(StudentService);
   private readonly lastAccessPipe = new LastAccessPipe();
   private readonly featureFlags = inject(FeatureFlagsService);
+  private readonly exportStateService = inject(ExportStateService);
 
   @ViewChild('listComponent') listComponent!: ListComponent<StudentModelFlat>;
 
@@ -246,14 +248,10 @@ export class StudentsListComponent implements OnInit {
   }
 
   async onExporting(processExport: boolean) {
-    console.log('sadly');
-
     this.isExporting.set(processExport);
   }
 
   async exportToPdf(): Promise<void> {
-    console.log('hey export');
-
     if (this.isGenerating) return;
     this.isGenerating = true;
 

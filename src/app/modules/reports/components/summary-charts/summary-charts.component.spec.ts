@@ -805,4 +805,96 @@ describe('SummaryChartsComponent', () => {
       expect(component.showEmpty).toBeFalse();
     });
   });
+
+  describe('toggleChart — additional cases', () => {
+    it('should set heatmapChart to true for "heatmap"', () => {
+      component.heatmapChart = false;
+      component.toggleChart('heatmap');
+      expect(component.heatmapChart).toBeTrue();
+    });
+
+    it('should set heatmapChart to false for non-heatmap value', () => {
+      component.heatmapChart = true;
+      component.toggleChart('column');
+      expect(component.heatmapChart).toBeFalse();
+    });
+  });
+
+  describe('onExporting — additional', () => {
+    it('should set isExporting signal correctly', async () => {
+      await component.onExporting(true);
+      expect(component.isExporting()).toBeTrue();
+      await component.onExporting(false);
+      expect(component.isExporting()).toBeFalse();
+    });
+  });
+
+  describe('getHeatMap — additional error handling', () => {
+    it('should set hasNoResults to true on API error', () => {
+      reportServiceSpy.getAvgPoolReport.and.returnValue(
+        throwError(() => new Error('server error'))
+      );
+      component.pollUuid = 'poll-uuid';
+      component.cohortIds = [1];
+      component.getHeatMap();
+      expect(component.hasNoResults).toBeTrue();
+      expect(component.isLoading).toBeFalse();
+    });
+
+    it('should reset chartOptions and not call service when pollUuid is empty', () => {
+      component.pollUuid = '';
+      component.cohortIds = [1];
+      component.isLoading = true;
+      component.getHeatMap();
+      expect(reportServiceSpy.getAvgPoolReport).not.toHaveBeenCalled();
+      expect(component.chartOptions).toEqual({});
+      expect(component.isLoading).toBeFalse();
+    });
+  });
+
+  describe('openDetailsModal — additional cases', () => {
+    it('should use componentName as text when text is not provided', () => {
+      const question = { question: 'Q', averageRisk: 1 } as PollAvgQuestion;
+      component.pollUuid = 'poll-uuid';
+      component.cohortIds = [1];
+      component.evaluationId = 1;
+
+      component.openDetailsModal(question, 'FAMILIAR' as ComponentValueType);
+
+      expect(matDialogSpy.open).toHaveBeenCalledWith(
+        ModalQuestionDetailsComponent,
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({ text: 'FAMILIAR' }),
+        })
+      );
+    });
+
+    it('should not open dialog when pollUuid is missing', () => {
+      const question = { question: 'Q', averageRisk: 1 } as PollAvgQuestion;
+      component.pollUuid = '';
+      component.openDetailsModal(question, 'FAMILIAR' as ComponentValueType);
+      expect(matDialogSpy.open).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getPollAvgQuestionFromSeries — position mismatch', () => {
+    it('should return null when positions differ and both are defined', () => {
+      const report = {
+        components: [
+          {
+            description: 'Comp1',
+            questions: [{ question: 'Q1', averageRisk: 2, position: 1 }],
+          },
+        ],
+      } as unknown as PollAvgReport;
+
+      const result = component.getPollAvgQuestionFromSeries(report, 'Comp1', {
+        x: 'Q1',
+        y: 2,
+        position: 99,
+      } as SummarySerie);
+
+      expect(result).toBeNull();
+    });
+  });
 });

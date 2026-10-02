@@ -44,7 +44,6 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   DetailsPanelComponent,
   DetailsPanelData,
@@ -55,6 +54,7 @@ import {
 } from './column-risk-panel/column-risk-panel.component';
 import { SummaryColumnChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-column-charts-v2/summary-column-charts-v2.component';
 import { TooltipChartV2Component } from '../tooltip-chart-v2/tooltip-chart-v2.component';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 @Component({
   selector: 'app-students-risk',
@@ -73,7 +73,6 @@ import { TooltipChartV2Component } from '../tooltip-chart-v2/tooltip-chart-v2.co
     PollFiltersComponent,
     MatMenuModule,
     SummaryColumnChartsV2Component,
-    MatProgressSpinner,
     DetailsPanelComponent,
     ColumnRiskPanelComponent,
   ],
@@ -83,6 +82,7 @@ import { TooltipChartV2Component } from '../tooltip-chart-v2/tooltip-chart-v2.co
 export class SummaryChartsV2Component {
   studentService = inject(StudentService);
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
   private injector = inject(EnvironmentInjector);
@@ -261,16 +261,20 @@ export class SummaryChartsV2Component {
   async exportReportPdf() {
     if (this.isGeneratingPDF) return;
     this.isGeneratingPDF = true;
+    this.exportStateService.startExport('pdf', 0);
 
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-    await this.pdfHelper.exportToPdf({
-      fileName: 'cohort_report',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-    });
-
-    this.isGeneratingPDF = false;
+      await this.pdfHelper.exportToPdf({
+        fileName: 'cohort_report',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+      });
+    } finally {
+      this.isGeneratingPDF = false;
+      this.exportStateService.endExport();
+    }
   }
 
   openDetailsPanel(
@@ -320,6 +324,8 @@ export class SummaryChartsV2Component {
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
     this.evaluationId = filters.evaluationId;
+    this.allStudentsLoaded = false;
+    this.allStudents = [];
 
     if (!filters.uuid || !filters.cohortIds?.length) {
       this.chartOptions = {};

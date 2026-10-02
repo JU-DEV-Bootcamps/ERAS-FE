@@ -357,14 +357,16 @@ describe('ListComponent', () => {
       } as ElementRef;
     });
 
-    it('should not export when already generating', async () => {
+    it('should always emit exporting events even when isGenerating is true (no guard in exportToPdf)', async () => {
       const exportingSpy = spyOn(component.exporting, 'emit');
       component.isGenerating = true;
+      component.items = [{ name: 'John', status: 'Active' }];
 
       await component.exportToPdf();
 
-      expect(pdfHelperSpy.exportToPdf).not.toHaveBeenCalled();
-      expect(exportingSpy).not.toHaveBeenCalled();
+      expect(pdfHelperSpy.exportToPdf).toHaveBeenCalled();
+      expect(exportingSpy).toHaveBeenCalledWith(true);
+      expect(exportingSpy).toHaveBeenCalledWith(false);
     });
 
     it('should export using items when allItems was never populated', async () => {
@@ -561,6 +563,100 @@ describe('ListComponent', () => {
         namedTpl as never
       );
       expect(component.templateMap.size).toBe(1);
+    });
+  });
+
+  describe('ngOnChanges — additional branches', () => {
+    it('should mark allItemsStale when items change after first change', () => {
+      fixture.detectChanges();
+      component.ngOnChanges({
+        items: {
+          currentValue: [{ name: 'New', status: 'Active' }],
+          previousValue: [],
+          firstChange: false,
+          isFirstChange: () => false,
+        },
+      });
+      expect(component['allItemsStale']).toBeTrue();
+    });
+
+    it('should not mark allItemsStale on first change of items', () => {
+      component.ngOnChanges({
+        items: {
+          currentValue: [{ name: 'New', status: 'Active' }],
+          previousValue: [],
+          firstChange: true,
+          isFirstChange: () => true,
+        },
+      });
+      expect(component['allItemsStale']).toBeFalsy();
+    });
+
+    it('should not resolve pending export when allItems is empty array', () => {
+      const resolveSpy = jasmine.createSpy('resolve');
+      component['pendingExportResolve'] = resolveSpy;
+      component.allItems = [];
+
+      component.ngOnChanges({
+        allItems: {
+          currentValue: [],
+          previousValue: [],
+          firstChange: false,
+          isFirstChange: () => false,
+        },
+      });
+
+      expect(resolveSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getItemById — additional branches', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should return null when item has none of the readOnly id keys', () => {
+      const collection = [{ name: 'John', status: 'Active' }] as TestItem[];
+      const result = component.getItemById(
+        { name: 'John', status: 'Active' } as TestItem,
+        collection
+      );
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('exportTable — additional branches', () => {
+    it('should not export when selectedExportFormat is empty', () => {
+      const csvSpy = spyOn(component, 'exportToCSV');
+      const pdfSpy = spyOn(component, 'exportToPdf');
+      component.selectedExportFormat = '';
+
+      component.exportTable();
+
+      expect(csvSpy).not.toHaveBeenCalled();
+      expect(pdfSpy).not.toHaveBeenCalled();
+    });
+
+    it('should call exportToPdf for pdf format', () => {
+      const pdfSpy = spyOn(component, 'exportToPdf');
+      component.selectedExportFormat = 'pdf';
+      component.exportTable();
+      expect(pdfSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('exportToCSV — additional branches', () => {
+    beforeEach(() => {
+      component.columns = [
+        { key: 'name', label: 'Name' },
+        { key: 'status', label: 'Status' },
+      ];
+    });
+
+    it('should not export when isGenerating is true', () => {
+      component.isGenerating = true;
+      component.exportToCSV();
+      expect(csvServiceSpy.exportToCSV).not.toHaveBeenCalled();
     });
   });
 

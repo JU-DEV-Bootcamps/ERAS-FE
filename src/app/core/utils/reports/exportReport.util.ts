@@ -141,7 +141,7 @@ export class PdfHelper {
         ) as HTMLElement;
 
         if (cardPerformance) {
-          cardPerformance.style.width = '50%';
+          cardPerformance.style.width = '30%';
           cardPerformance.style.flex = '1';
 
           const cardTitle =
@@ -158,18 +158,45 @@ export class PdfHelper {
         }
 
         if (cardRisk) {
-          cardRisk.style.width = '50%';
+          cardRisk.style.width = '70%';
           cardRisk.style.flex = '1';
+          cardRisk.style.overflow = 'visible';
 
           const cardTitle = cardRisk.querySelector<HTMLElement>('.card-title');
-          if (cardTitle) cardTitle.style.fontSize = '13px';
+          if (cardTitle) cardTitle.style.fontSize = '12px';
 
-          const riskChartCanvas = cardRisk.querySelector(
-            '.apexcharts-canvas'
-          ) as HTMLElement;
+          const riskChartCanvas =
+            cardRisk.querySelector<HTMLElement>('.apexcharts-canvas');
           if (riskChartCanvas) {
-            riskChartCanvas.style.transform = 'scale(0.7)';
-            riskChartCanvas.style.transformOrigin = '35% center';
+            riskChartCanvas.style.overflow = 'visible';
+            const svg = riskChartCanvas.querySelector<SVGElement>('svg');
+            if (svg) {
+              const svgW = parseFloat(svg.getAttribute('width') ?? '0');
+              const svgH = parseFloat(svg.getAttribute('height') ?? '0');
+
+              if (svgW > 0 && svgH > 0) {
+                const LABEL_PADDING_PX = 190;
+                svg
+                  .querySelectorAll<SVGClipPathElement>('clipPath')
+                  .forEach(cp => {
+                    const rect = cp.querySelector('rect');
+                    if (rect) {
+                      const w = parseFloat(rect.getAttribute('width') ?? '0');
+                      if (w > 0)
+                        rect.setAttribute(
+                          'width',
+                          String(w + LABEL_PADDING_PX)
+                        );
+                    }
+                  });
+
+                svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+                svg.setAttribute('width', String(Math.round(svgW * 0.98)));
+                svg.setAttribute('height', String(Math.round(svgH * 0.7)));
+              }
+              svg.style.overflow = 'visible';
+              svg.style.transformOrigin = '0% 10%';
+            }
           }
         }
 
@@ -211,6 +238,7 @@ export class PdfHelper {
         yAxisLabels.forEach(label => {
           const currentX = parseFloat(label.getAttribute('x') ?? '0');
           label.setAttribute('x', String(currentX - 60));
+          label.style.fontSize = '0.6em';
         });
 
         const allButtons = clonedElement.querySelectorAll('button');
@@ -343,7 +371,7 @@ export class PdfHelper {
     if (args.snackBar) {
       args.snackBar.open('Starting PDF export...', 'Close', {
         duration: 3000,
-        panelClass: 'snackbar-info',
+        panelClass: ['high-z-snackbar', 'snackbar-info'],
       });
     }
 
@@ -376,7 +404,7 @@ export class PdfHelper {
         args.snackBar.dismiss();
         args.snackBar.open(`Exporting: ${progress}%`, 'Close', {
           duration: 2000,
-          panelClass: 'snackbar-info',
+          panelClass: ['high-z-snackbar', 'snackbar-info'],
         });
       }
       await args.onChunkDone?.(i, chunks);
