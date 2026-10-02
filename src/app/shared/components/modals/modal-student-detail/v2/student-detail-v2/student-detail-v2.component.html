@@ -22,7 +22,7 @@
         matTooltip="Export"
         class="action-icon"
         disableRipple
-        [disabled]="isGeneratingCSV"
+        [disabled]="isGeneratingCSV || !isFullyLoaded"
         (click)="exportCsv()"
       >
         <mat-icon class="material-symbols-outlined">ios_share</mat-icon>
@@ -33,6 +33,7 @@
         matTooltip="Download PDF"
         class="action-icon"
         disableRipple
+        [disabled]="!isFullyLoaded"
         (click)="exportReportPdf()"
       >
         <mat-icon class="material-symbols-outlined">print</mat-icon>
