@@ -94,6 +94,7 @@
   width: 24px;
   height: 24px;
   padding: 0;
+  color: #117473 !important;
 
   &::before,
   .mat-mdc-button-persistent-ripple,
@@ -102,7 +103,6 @@
   }
 
   mat-icon {
-    color: #117473 !important;
     font-size: 24px;
     font-family: 'Material Symbols Outlined' !important;
     font-variation-settings:
@@ -111,6 +111,10 @@
       'GRAD' 0,
       'opsz' 24 !important;
   }
+}
+
+.action-icon:disabled {
+  color: #9ca3af !important;
 }
 
 .create-assessment-btn {

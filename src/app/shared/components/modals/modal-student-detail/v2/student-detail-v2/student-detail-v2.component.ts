@@ -102,6 +102,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
   componentsAvg: ComponentsAvgModel[] = [];
   isGeneratingPDF = false;
   isGeneratingCSV = false;
+  isFullyLoaded = false;
   processedPolls = new Set<number>();
 
   studentDetailsError = false;
@@ -236,6 +237,9 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: PollModel[]) => {
+          if (data.length === 0) {
+            this.isFullyLoaded = true;
+          }
           this.studentPolls = data;
           data.forEach(poll => {
             if (!this.processedPolls.has(poll.id)) {
@@ -251,6 +255,7 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
         error: error => {
           console.error(error);
           this.pollsError = true;
+          this.isFullyLoaded = false;
         },
       });
   }
@@ -280,12 +285,14 @@ export class StudentDetailV2Component implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: PagedResult<AnswerResponse>) => {
+          this.isFullyLoaded = true;
           this.studentAnswers = data.items;
           this.totalStudentAnswers = data.count;
         },
         error: error => {
           console.error(error);
           this.answersError = true;
+          this.isFullyLoaded = false;
         },
       });
   }

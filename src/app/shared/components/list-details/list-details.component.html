@@ -42,7 +42,11 @@
   </div>
 </div>
 
-<button class="export-btn" [matMenuTriggerFor]="chartMenu">
+<button
+  class="export-btn"
+  [matMenuTriggerFor]="chartMenu"
+  [disabled]="!items.length"
+>
   <mat-icon>save_alt</mat-icon>
   <span class="label">Export Full Report</span>
 </button>
