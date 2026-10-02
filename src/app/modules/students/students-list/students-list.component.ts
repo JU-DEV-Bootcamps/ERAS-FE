@@ -246,14 +246,10 @@ export class StudentsListComponent implements OnInit {
   }
 
   async onExporting(processExport: boolean) {
-    console.log('sadly');
-
     this.isExporting.set(processExport);
   }
 
   async exportToPdf(): Promise<void> {
-    console.log('hey export');
-
     if (this.isGenerating) return;
     this.isGenerating = true;
 

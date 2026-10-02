@@ -94,7 +94,7 @@ describe('FormUtils', () => {
     it('should return correct message for maxFiles error', () => {
       const errors = { maxFiles: { max: 3 } };
       expect(FormUtils.getTextError(errors, label)).toBe(
-        'Field The maximum 3 file(s) allowed.'
+        'Field The maximum number of attached documents allowed is 3.'
       );
     });
 
