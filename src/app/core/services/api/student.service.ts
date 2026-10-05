@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { StudentResponse } from '../../models/student-request.model';
+import { StudentRegistrationModel } from '../../models/student-registration.model';
 import {
   StudentImport,
   StudentRiskAverage,
@@ -29,6 +30,27 @@ export class StudentService extends BaseApiService implements CacheableHost {
       .set('PageSize', pagination.pageSize)
       .set('Page', pagination.page);
     return this.get<StudentResponse>(studentId, params);
+  }
+
+  createManualStudent(
+    student: StudentRegistrationModel
+  ): Observable<StudentRegistrationModel> {
+    return this.post<StudentRegistrationModel>('manual', student);
+  }
+
+  getStudentProfile(studentId: number): Observable<StudentRegistrationModel> {
+    return this.get<StudentRegistrationModel>(`${studentId}/profile`);
+  }
+
+  updateStudentProfile(
+    studentId: number,
+    student: StudentRegistrationModel
+  ): Observable<StudentRegistrationModel> {
+    return this.put<StudentRegistrationModel>(`${studentId}/profile`, student);
+  }
+
+  deleteStudent(studentId: number): Observable<void> {
+    return this.delete<void>(studentId);
   }
 
   getAllStudents() {
