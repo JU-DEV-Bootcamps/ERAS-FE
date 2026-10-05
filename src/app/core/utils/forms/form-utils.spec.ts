@@ -137,6 +137,21 @@ describe('FormUtils', () => {
       );
     });
 
+    it('should return correct messages for the format errors', () => {
+      expect(FormUtils.getTextError({ pattern: {} }, label)).toBe(
+        'Field has an invalid format.'
+      );
+      expect(FormUtils.getTextError({ email: true }, label)).toBe(
+        'Field must be a valid email address.'
+      );
+      expect(FormUtils.getTextError({ futureDate: true }, label)).toBe(
+        'Field cannot be in the future.'
+      );
+      expect(FormUtils.getTextError({ sameAsPrimary: true }, label)).toBe(
+        'Field must be different from the primary one.'
+      );
+    });
+
     it('should return null if error is not recognized or empty', () => {
       expect(FormUtils.getTextError({}, label)).toBeNull();
       expect(

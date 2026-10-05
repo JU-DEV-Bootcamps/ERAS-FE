@@ -313,7 +313,7 @@ export class StudentsListComponent implements OnInit {
     this.deleteConfirmation
       .confirmDelete({
         title: 'Delete student',
-        subtitle: `Are you sure you want to delete ${student.name}? This action cannot be undone.`,
+        subtitle: `Are you sure you want to delete ${student.name}? The student will be removed from the list.`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
       })

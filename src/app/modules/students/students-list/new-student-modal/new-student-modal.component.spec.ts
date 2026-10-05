@@ -142,6 +142,37 @@ describe('NewStudentModalComponent', () => {
       ).toBeTrue();
     });
 
+    it('should offer countries as dropdowns and keep the state disabled until a country is chosen', async () => {
+      const { component } = await createComponent({ cohorts });
+      const field = (name: string) =>
+        component.formFields.find(f => f.name === name)!;
+
+      ['nationality', 'countryOfBirth', 'country', 'stateProvince'].forEach(
+        name => expect(field(name).type).withContext(name).toBe('select')
+      );
+      expect(field('country').options!.length).toBeGreaterThan(200);
+      expect(field('stateProvince').options).toEqual([]);
+      expect(component.form.get('stateProvince')?.disabled).toBeTrue();
+    });
+
+    it('should list only the states of the chosen country and clear the old one', async () => {
+      const { component } = await createComponent({ cohorts });
+      const stateField = component.formFields.find(
+        f => f.name === 'stateProvince'
+      )!;
+
+      component.form.get('country')?.setValue('Bolivia');
+      expect(component.form.get('stateProvince')?.enabled).toBeTrue();
+      expect(stateField.options!.map(o => o.label)).toContain('La Paz');
+
+      component.form.get('stateProvince')?.setValue('La Paz');
+      component.form.get('country')?.setValue('Peru');
+
+      expect(component.form.get('stateProvince')?.value).toBe('');
+      expect(stateField.options!.map(o => o.label)).not.toContain('La Paz');
+      expect(stateField.options!.length).toBeGreaterThan(0);
+    });
+
     it('should reject a secondary email equal to the primary one, even if the primary changes later', async () => {
       const { component } = await createComponent({ cohorts });
 
@@ -258,6 +289,30 @@ describe('NewStudentModalComponent', () => {
       expect(component.isViewing).toBeTrue();
       expect(component.form.disabled).toBeTrue();
       expect(component.form.get('firstName')?.value).toBe('Ana');
+    });
+
+    it('should keep a previously typed value visible and the state list tied to the saved country', async () => {
+      const { component } = await createComponent({
+        cohorts,
+        student: {
+          ...student,
+          country: 'Bolivia',
+          stateProvince: 'Murillo',
+          nationality: 'Bolivian',
+        },
+      });
+      const field = (name: string) =>
+        component.formFields.find(f => f.name === name)!;
+
+      expect(field('stateProvince').options!.map(o => o.value)).toContain(
+        'Murillo'
+      );
+      expect(field('stateProvince').options!.map(o => o.value)).toContain(
+        'La Paz'
+      );
+      expect(field('nationality').options!.map(o => o.value)).toContain(
+        'Bolivian'
+      );
     });
 
     it('should unlock the form when Edit is pressed', async () => {

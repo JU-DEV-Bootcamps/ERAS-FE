@@ -22,6 +22,11 @@ import {
 import { Lookup } from '@core/models/lookup';
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
+import {
+  COUNTRY_OPTIONS,
+  getRegionOptions,
+  withCurrentValue,
+} from '@core/utils/geo/geo-data';
 import { StudentService } from '@core/services/api/student.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
@@ -75,6 +80,7 @@ export class NewStudentModalComponent implements FormCreation {
   readonly isEditing: boolean;
   isViewing: boolean;
   private readonly opensEditable: boolean;
+  private stateField!: DynamicField;
 
   constructor(
     public dialogRef: MatDialogRef<NewStudentModalComponent, boolean>,
@@ -111,7 +117,33 @@ export class NewStudentModalComponent implements FormCreation {
     event.get('primaryEmail')?.valueChanges.subscribe(() => {
       event.get('secondaryEmail')?.updateValueAndValidity();
     });
-    if (this.isViewing) event.disable({ emitEvent: false });
+    event.get('country')?.valueChanges.subscribe(country => {
+      this.syncStateOptions(country as string, true);
+    });
+    if (this.isViewing) {
+      event.disable({ emitEvent: false });
+    } else {
+      this.syncStateOptions(event.get('country')?.value as string, false);
+    }
+  }
+
+  private syncStateOptions(country: string, clearSelection: boolean): void {
+    const control = this.form.get('stateProvince');
+    const regions = getRegionOptions(country);
+    const current = clearSelection ? null : (control?.value as string);
+
+    this.stateField.options = withCurrentValue(regions, current);
+    if (clearSelection) control?.setValue('', { emitEvent: false });
+
+    if (this.isViewing) return;
+    if (this.stateField.options.length === 0) {
+      control?.disable({ emitEvent: false });
+    } else if (
+      control?.disabled &&
+      !this.lockedFieldNames.includes('stateProvince')
+    ) {
+      control.enable({ emitEvent: false });
+    }
   }
 
   startEditing(): void {
@@ -121,6 +153,7 @@ export class NewStudentModalComponent implements FormCreation {
     this.lockedFieldNames.forEach(name =>
       this.form.get(name)?.disable({ emitEvent: false })
     );
+    this.syncStateOptions(this.form.get('country')?.value as string, false);
   }
 
   cancelEditing(): void {
@@ -230,20 +263,20 @@ export class NewStudentModalComponent implements FormCreation {
         ...common,
       },
       {
-        type: 'text',
+        type: 'select',
         name: 'nationality',
         label: 'Nationality/Citizenship',
-        placeholder: 'Enter nationality',
-        validators: optionalText(100),
+        placeholder: 'Select nationality',
+        options: withCurrentValue(COUNTRY_OPTIONS, student?.nationality),
         value: text(student?.nationality),
         ...common,
       },
       {
-        type: 'text',
+        type: 'select',
         name: 'countryOfBirth',
         label: 'Country of Birth',
-        placeholder: 'Enter country of birth',
-        validators: optionalText(100),
+        placeholder: 'Select country of birth',
+        options: withCurrentValue(COUNTRY_OPTIONS, student?.countryOfBirth),
         value: text(student?.countryOfBirth),
         ...common,
       },
@@ -257,6 +290,19 @@ export class NewStudentModalComponent implements FormCreation {
         ...common,
       },
     ];
+
+    this.stateField = {
+      type: 'select',
+      name: 'stateProvince',
+      label: 'State/Province',
+      placeholder: 'Select state or province',
+      options: withCurrentValue(
+        getRegionOptions(student?.country),
+        student?.stateProvince
+      ),
+      value: text(student?.stateProvince),
+      ...common,
+    };
 
     const contact: DynamicField[] = [
       {
@@ -297,23 +343,15 @@ export class NewStudentModalComponent implements FormCreation {
         ...common,
       },
       {
-        type: 'text',
+        type: 'select',
         name: 'country',
         label: 'Country',
-        placeholder: 'Enter country',
-        validators: optionalText(100),
+        placeholder: 'Select country',
+        options: withCurrentValue(COUNTRY_OPTIONS, student?.country),
         value: text(student?.country),
         ...common,
       },
-      {
-        type: 'text',
-        name: 'stateProvince',
-        label: 'State/Province',
-        placeholder: 'Enter state or province',
-        validators: optionalText(100),
-        value: text(student?.stateProvince),
-        ...common,
-      },
+      this.stateField,
       {
         type: 'text',
         name: 'city',

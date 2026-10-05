@@ -1080,7 +1080,12 @@ describe('StudentsListComponent', () => {
 
       component.handleActionCalled(manualEvent('deleteStudent'));
 
-      expect(deleteConfirmationSpy.confirmDelete).toHaveBeenCalled();
+      expect(deleteConfirmationSpy.confirmDelete).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          title: 'Delete student',
+          subtitle: jasmine.stringContaining('Ana Perez'),
+        })
+      );
       expect(studentServiceSpy.deleteStudent).toHaveBeenCalledWith(1);
       expect(loadSpy).toHaveBeenCalled();
     });
