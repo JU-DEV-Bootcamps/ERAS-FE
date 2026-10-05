@@ -379,6 +379,72 @@ describe('AttachmentManagerComponent', () => {
     expect(input.value).toBe('');
   });
 
+  it('should show error and not stage files when more files are selected than maxFiles', () => {
+    const files = Array.from(
+      { length: 7 },
+      (_, i) => new File(['content'], `file${i + 1}.pdf`)
+    );
+
+    const event = {
+      target: {
+        files,
+        value: 'selected',
+      },
+    } as unknown as Event;
+
+    component.onFilesSelected(event);
+
+    expect(component.stagedFiles().length).toBe(0);
+    expect(component.errorMessage()).toContain('5');
+    expect(attachmentApi.createDraftSession).not.toHaveBeenCalled();
+  });
+
+  it('should show error and not stage files when selected count exceeds remaining slots', () => {
+    component.existingAttachments.set([
+      { id: 1 } as AttachmentModel,
+      { id: 2 } as AttachmentModel,
+      { id: 3 } as AttachmentModel,
+      { id: 4 } as AttachmentModel,
+    ]);
+
+    const files = Array.from(
+      { length: 5 },
+      (_, i) => new File(['content'], `file${i + 1}.pdf`)
+    );
+
+    const event = {
+      target: {
+        files,
+        value: 'selected',
+      },
+    } as unknown as Event;
+
+    component.onFilesSelected(event);
+
+    expect(component.stagedFiles().length).toBe(0);
+    expect(component.errorMessage()).toContain('1');
+    expect(attachmentApi.createDraftSession).not.toHaveBeenCalled();
+  });
+
+  it('should show error and not stage files when no available slots remain', () => {
+    component.existingAttachments.set(
+      Array.from({ length: 5 }, (_, i) => ({ id: i + 1 }) as AttachmentModel)
+    );
+
+    const event = {
+      target: {
+        files: [new File(['content'], 'extra.pdf')],
+        value: 'selected',
+      },
+    } as unknown as Event;
+
+    component.onFilesSelected(event);
+
+    expect(attachmentApi.createDraftSession).not.toHaveBeenCalled();
+    expect(component.stagedFiles().length).toBe(0);
+    expect(component.errorMessage()).toContain('5');
+  });
+
   it('should do nothing when no files are selected', () => {
     const input = {
       files: null,

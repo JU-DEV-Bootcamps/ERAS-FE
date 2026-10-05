@@ -104,7 +104,11 @@ export class AttachmentManagerComponent implements OnInit {
   toggleRemoveExisting(attachmentId: number): void {
     this.markedForRemoval.update(prev => {
       const next = new Set(prev);
-      if (next.has(attachmentId)) {
+      if (
+        next.has(attachmentId) &&
+        this.stagedFiles().length + this.visibleExisting().length <
+          this.maxFiles()
+      ) {
         next.delete(attachmentId);
       } else {
         next.add(attachmentId);
@@ -117,20 +121,36 @@ export class AttachmentManagerComponent implements OnInit {
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-    const files = Array.from(input.files);
+    const currentTotalCount =
+      this.visibleExisting().length + this.stagedFiles().length;
+    const availableSlots = Math.max(0, this.maxFiles() - currentTotalCount);
+    const selectedFiles = Array.from(input.files);
     input.value = '';
+
+    if (availableSlots === 0) {
+      this.errorMessage.set(
+        `The maximum number of attached documents allowed is ${this.maxFiles()}.`
+      );
+      return;
+    }
+
+    if (selectedFiles.length > availableSlots) {
+      this.errorMessage.set(
+        `Too many files selected. Only ${availableSlots} more file${availableSlots === 1 ? '' : 's'} can be added.`
+      );
+      return;
+    }
+
     let accumulatedErrors: ValidationErrors = {};
 
     const currentFiles = this.stagedFiles().map(s => s.file);
-    const currentTotalCount =
-      this.visibleExisting().length + this.stagedFiles().length;
 
     const currentFileNames = currentFiles.map(s => s.name);
     const existingFileNames = this.visibleExisting().map(
       s => s.originalFileName
     );
     const validFiles: File[] = [];
-    for (const file of files) {
+    for (const file of selectedFiles) {
       const errors = this.fileValidation.validate(
         file,
         [...currentFileNames, ...existingFileNames],
