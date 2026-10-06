@@ -69,6 +69,9 @@ describe('ProfileEditFormComponent', () => {
 
     expect(component.profile).toEqual(mockProfile);
     expect(component.form.getRawValue()).toEqual({
+      name: `${mockProfile.firstName} ${mockProfile.lastName}`,
+      email: mockProfile.email,
+      role: mockProfile.role,
       employeeId: mockProfile.employeeId,
       department: mockProfile.department,
       phone: mockProfile.phone,
@@ -115,10 +118,12 @@ describe('ProfileEditFormComponent', () => {
       component.form.controls['phone'].setValue('+1 (555) 999-9999');
       component.save();
 
-      expect(mockUserProfileService.updateMyProfile).toHaveBeenCalledWith(
-        'user-1',
-        component.form.getRawValue()
-      );
+      expect(mockUserProfileService.updateMyProfile).toHaveBeenCalledWith({
+        employeeId: mockProfile.employeeId,
+        department: mockProfile.department,
+        phone: '+1 (555) 999-9999',
+        about: mockProfile.about,
+      });
       expect(savedSpy).toHaveBeenCalledWith(updatedProfile);
     });
 

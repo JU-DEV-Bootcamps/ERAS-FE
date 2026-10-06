@@ -21,7 +21,7 @@ export class UserProfileService extends BaseApiService {
     );
   }
 
-  updateMyProfile(userId: string, payload: UpdateUserProfileRequest) {
+  updateMyProfile(payload: UpdateUserProfileRequest) {
     return this.put<UpdateUserProfileRequest, UserProfile>(
       'me/profile',
       payload

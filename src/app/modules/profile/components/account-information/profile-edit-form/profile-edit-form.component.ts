@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -7,7 +7,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AVATAR_COLORS } from '@core/constants/avatarColors';
 import { FormFactoryComponent } from '@core/factories/forms/form-factory.component';
 import { DynamicField } from '@core/factories/forms/form-factory.interface';
-import { UserProfile } from '@core/models/user-profile.model';
+import {
+  UpdateUserProfileRequest,
+  UserProfile,
+} from '@core/models/user-profile.model';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UserProfileService } from '@core/services/api/user-profile.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
@@ -103,18 +106,21 @@ export class ProfileEditFormComponent implements OnInit {
             name: 'employeeId',
             label: 'Employee ID',
             value: profile.employeeId,
+            validators: [Validators.required],
           },
           {
             type: 'text',
             name: 'department',
             label: 'Department',
             value: profile.department,
+            validators: [Validators.required],
           },
           {
             type: 'text',
             name: 'phone',
             label: 'Phone',
             value: profile.phone,
+            validators: [Validators.required],
           },
           {
             type: 'textarea',
@@ -155,21 +161,26 @@ export class ProfileEditFormComponent implements OnInit {
     }
 
     this.isSaving = true;
+    const { employeeId, department, phone, about } = this.form.getRawValue();
+    const payload: UpdateUserProfileRequest = {
+      employeeId,
+      department,
+      phone,
+      about,
+    };
 
-    this.userProfileService
-      .updateMyProfile(userId, this.form.getRawValue())
-      .subscribe({
-        next: updatedProfile => {
-          this.saved.emit(updatedProfile);
-        },
-        error: error => {
-          this.isSaving = false;
-          console.error('Error while updating user profile', error);
-        },
-        complete: () => {
-          this.isSaving = false;
-        },
-      });
+    this.userProfileService.updateMyProfile(payload).subscribe({
+      next: updatedProfile => {
+        this.saved.emit(updatedProfile);
+      },
+      error: error => {
+        this.isSaving = false;
+        console.error('Error while updating user profile', error);
+      },
+      complete: () => {
+        this.isSaving = false;
+      },
+    });
   }
 
   cancel(): void {

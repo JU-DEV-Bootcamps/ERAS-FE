@@ -88,7 +88,7 @@ describe('UserProfileService', () => {
         ...payload,
       };
 
-      service.updateMyProfile('user-1', payload).subscribe(res => {
+      service.updateMyProfile(payload).subscribe(res => {
         expect(res).toEqual(mockResponse);
       });
 
@@ -101,7 +101,7 @@ describe('UserProfileService', () => {
     it('should map any HTTP error to an "Error updating user profile" error', () => {
       let capturedError: Error | undefined;
 
-      service.updateMyProfile('user-1', payload).subscribe({
+      service.updateMyProfile(payload).subscribe({
         next: () => fail('expected an error, not a success'),
         error: err => (capturedError = err),
       });
