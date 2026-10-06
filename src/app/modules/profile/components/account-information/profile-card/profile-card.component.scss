@@ -1,6 +1,13 @@
 $primary-color: #1e293b;
 $secondary-color: #64748b;
 
+:host {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .state-container {
   display: flex;
   align-items: center;
@@ -110,4 +117,12 @@ $secondary-color: #64748b;
   color: #475569;
   font-size: var(--font-size-medium);
   line-height: 22px;
+}
+
+.bottom-section {
+  display: flex;
+  justify-content: flex-end;
+  // margin-top: 24px;
+  // margin-bottom: 8px;
+  // margin-right: 8px;
 }

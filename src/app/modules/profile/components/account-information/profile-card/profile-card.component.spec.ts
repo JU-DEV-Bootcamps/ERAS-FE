@@ -90,4 +90,20 @@ describe('ProfileCardComponent', () => {
       expect(component.avatarColor).toBe(component.avatarColor);
     });
   });
+
+  describe('edit button', () => {
+    it('should emit "edit" when clicked', () => {
+      mockUserProfileService.getMyProfile.and.returnValue(of(mockProfile));
+      fixture.detectChanges();
+
+      const editSpy = jasmine.createSpy('edit');
+      component.edit.subscribe(editSpy);
+
+      const button: HTMLButtonElement =
+        fixture.nativeElement.querySelector('.edit-button');
+      button.click();
+
+      expect(editSpy).toHaveBeenCalled();
+    });
+  });
 });

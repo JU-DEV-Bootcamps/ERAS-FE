@@ -1,5 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserProfile } from '@core/models/user-profile.model';
 import { UserDataService } from '@core/services/access/user-data.service';
@@ -20,7 +22,12 @@ const AVATAR_COLORS = [
 
 @Component({
   selector: 'app-profile-card',
-  imports: [MatCardModule, MatProgressSpinnerModule],
+  imports: [
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './profile-card.component.html',
   styleUrl: './profile-card.component.scss',
 })
@@ -28,6 +35,8 @@ export class ProfileCardComponent implements OnInit {
   private readonly userProfileService = inject(UserProfileService);
   private readonly userData = inject(UserDataService);
   user = this.userData.user;
+
+  edit = output<void>();
 
   profile: UserProfile | null = null;
   isLoading = false;
