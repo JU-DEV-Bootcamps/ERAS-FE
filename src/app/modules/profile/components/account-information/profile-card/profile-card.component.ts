@@ -3,22 +3,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AVATAR_COLORS } from '@core/constants/avatarColors';
 import { UserProfile } from '@core/models/user-profile.model';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UserProfileService } from '@core/services/api/user-profile.service';
-
-const AVATAR_COLORS = [
-  '#EF4444',
-  '#F97316',
-  '#F59E0B',
-  '#84CC16',
-  '#10B981',
-  '#06B6D4',
-  '#3B82F6',
-  '#6366F1',
-  '#A855F7',
-  '#EC4899',
-];
 
 @Component({
   selector: 'app-profile-card',

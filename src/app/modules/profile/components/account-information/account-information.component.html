@@ -1,5 +1,9 @@
 <div class="container">
   <div class="section-profile">
-    <app-profile-card />
+    @if (isEditing()) {
+      <app-profile-edit-form (saved)="stopEdit()" (cancelled)="stopEdit()" />
+    } @else {
+      <app-profile-card (edit)="startEdit()" />
+    }
   </div>
 </div>

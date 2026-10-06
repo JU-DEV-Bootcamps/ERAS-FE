@@ -10,3 +10,8 @@ export interface UserProfile {
   role: string;
   about: string;
 }
+
+export type UpdateUserProfileRequest = Pick<
+  UserProfile,
+  'employeeId' | 'department' | 'phone' | 'about'
+>;
