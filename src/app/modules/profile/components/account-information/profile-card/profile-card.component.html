@@ -1,0 +1,51 @@
+@if (isLoading) {
+  <div class="state-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (hasError) {
+  <div class="state-container">
+    <p class="error-message">We couldn't load the profile information.</p>
+  </div>
+} @else if (profile) {
+  <div class="avatar-section">
+    <div class="avatar-wrapper">
+      <div
+        class="avatar-initials"
+        [style.background-color]="avatarColor"
+        [attr.aria-label]="
+          profile.firstName + ' ' + profile.lastName + ' avatar'
+        "
+      >
+        {{ initials }}
+      </div>
+      <span class="status-dot" aria-label="Online"></span>
+    </div>
+    <h2 class="full-name">{{ profile.firstName }} {{ profile.lastName }}</h2>
+    <p class="email">{{ profile.email }}</p>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="info-grid">
+    <div class="info-item">
+      <span class="label">Employee ID</span>
+      <span class="value">{{ profile.employeeId }}</span>
+    </div>
+    <div class="info-item">
+      <span class="label">Department</span>
+      <span class="value">{{ profile.department }}</span>
+    </div>
+    <div class="info-item">
+      <span class="label">Phone</span>
+      <span class="value">{{ profile.phone }}</span>
+    </div>
+    <div class="info-item">
+      <span class="label">Role</span>
+      <span class="value">{{ profile.role }}</span>
+    </div>
+    <div class="about-section">
+      <span class="label">About</span>
+      <p class="about-text">{{ profile.about }}</p>
+    </div>
+  </div>
+}

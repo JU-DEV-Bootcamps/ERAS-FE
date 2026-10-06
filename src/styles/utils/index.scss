@@ -28,6 +28,7 @@
     )};
   --font-size-header-small: #{theme-fonts.get-font-size('headline', 'small')};
   --font-size-header-medium: #{theme-fonts.get-font-size('headline', 'medium')};
+  --font-size-label-mediun: #{theme-fonts.get-font-size('label', 'medium')};
   --color-neutral-5: #f7f7f7;
   --color-neutral-50: #f7f6f6;
   --color-neutral-100: #f0efef;

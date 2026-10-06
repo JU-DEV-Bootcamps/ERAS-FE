@@ -1,0 +1,20 @@
+.container {
+  padding: 24px 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.section-profile {
+  grid-column-start: 1;
+  grid-column-end: 2;
+  height: 100%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 32px;
+  border-radius: 16px;
+  border: none;
+}
