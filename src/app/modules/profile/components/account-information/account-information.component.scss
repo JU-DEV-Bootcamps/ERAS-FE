@@ -3,16 +3,27 @@
   height: 90%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
 }
 
 .section-profile {
   grid-column-start: 1;
   grid-column-end: 2;
-  height: 100%;
+  height: 90%;
   background-color: white;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  margin: 0;
+  padding: 32px;
+  border-radius: 16px;
+  border: none;
+}
+
+.section-professional {
+  grid-column-start: 2;
+  grid-column-end: 5;
+  height: 90%;
+  background-color: white;
   margin: 0;
   padding: 32px;
   border-radius: 16px;

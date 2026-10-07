@@ -4,11 +4,20 @@ import { AccountInformationComponent } from './account-information.component';
 import { UserProfileService } from '@core/services/api/user-profile.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { ERASRoles, Profile } from '@core/models/profile.model';
 import { of } from 'rxjs';
 
 describe('AccountInformationComponent', () => {
   let component: AccountInformationComponent;
   let fixture: ComponentFixture<AccountInformationComponent>;
+  let userDataServiceSpy: jasmine.SpyObj<UserDataService>;
+
+  function setup(user: Profile | null): void {
+    userDataServiceSpy.user.and.returnValue(user);
+    fixture = TestBed.createComponent(AccountInformationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
 
   beforeEach(async () => {
     const userProfileServiceSpy = jasmine.createSpyObj('UserProfileService', [
@@ -16,7 +25,7 @@ describe('AccountInformationComponent', () => {
     ]);
     userProfileServiceSpy.getMyProfile.and.returnValue(of(null));
 
-    const userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
+    userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
       'UserDataService',
       ['user']
     );
@@ -40,13 +49,76 @@ describe('AccountInformationComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AccountInformationComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    setup(null);
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('professional info section', () => {
+    it('should not render for a non-professional role', () => {
+      setup({ role: ERASRoles.OFFICER });
+
+      const professionalInfo = fixture.debugElement.query(
+        el => el.name === 'app-professional-info'
+      );
+
+      expect(professionalInfo).toBeNull();
+    });
+
+    it('should render for the professional role', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+
+      const professionalInfo = fixture.debugElement.query(
+        el => el.name === 'app-professional-info'
+      );
+
+      expect(professionalInfo).not.toBeNull();
+    });
+
+    it('should start in view mode', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+
+      expect(component.isEditingProfessional()).toBeFalse();
+    });
+
+    it('should switch to edit mode when the card emits "edit"', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+
+      const cardDebugElement = fixture.debugElement.query(
+        el => el.name === 'app-professional-info'
+      );
+      cardDebugElement.triggerEventHandler('edit');
+
+      expect(component.isEditingProfessional()).toBeTrue();
+    });
+
+    it('should switch back to view mode when the edit form emits "cancelled"', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+      component.startEditProfessional();
+      fixture.detectChanges();
+
+      const editFormDebugElement = fixture.debugElement.query(
+        el => el.name === 'app-professional-info-edit-form'
+      );
+      editFormDebugElement.triggerEventHandler('cancelled');
+
+      expect(component.isEditingProfessional()).toBeFalse();
+    });
+
+    it('should switch back to view mode when the edit form emits "saved"', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+      component.startEditProfessional();
+      fixture.detectChanges();
+
+      const editFormDebugElement = fixture.debugElement.query(
+        el => el.name === 'app-professional-info-edit-form'
+      );
+      editFormDebugElement.triggerEventHandler('saved');
+
+      expect(component.isEditingProfessional()).toBeFalse();
+    });
   });
 
   it('should start in view mode', () => {

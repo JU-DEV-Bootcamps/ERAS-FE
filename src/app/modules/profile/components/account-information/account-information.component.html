@@ -6,4 +6,17 @@
       <app-profile-card (edit)="startEdit()" />
     }
   </div>
+
+  @if (isProfessional()) {
+    <div class="section-professional">
+      @if (isEditingProfessional()) {
+        <app-professional-info-edit-form
+          (saved)="stopEditProfessional()"
+          (cancelled)="stopEditProfessional()"
+        />
+      } @else {
+        <app-professional-info (edit)="startEditProfessional()" />
+      }
+    </div>
+  }
 </div>
