@@ -21,6 +21,15 @@ import { MandatoryColumns } from '@modules/imports/components/import-preview-stu
 import { StudentImport } from '@core/services/interfaces/student.interface';
 import { StudentModelPreview } from '@shared/components/list/types/preview';
 import { ListComponent } from '@shared/components/list/list.component';
+import { CohortService } from '@core/services/api/cohort.service';
+import { CohortModel } from '@core/models/cohort.model';
+import { ApiResponse } from '@core/models/api-response.model';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
+import { NewStudentModalComponent } from './new-student-modal/new-student-modal.component';
+import { StudentRegistrationModel } from '@core/models/student-registration.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 const mockActivatedRoute = {
   snapshot: { paramMap: { get: () => null } },
@@ -87,6 +96,9 @@ describe('StudentsListComponent', () => {
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
   let featureFlagsSpy: jasmine.SpyObj<FeatureFlagsService>;
   let csvCheckerSpy: jasmine.SpyObj<CsvCheckerService>;
+  let cohortServiceSpy: jasmine.SpyObj<CohortService>;
+  let toastSpy: jasmine.SpyObj<ToastNotificationService>;
+  let deleteConfirmationSpy: jasmine.SpyObj<ModalDeleteConfirmationService>;
 
   beforeEach(async () => {
     dialogSpy = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
@@ -99,6 +111,8 @@ describe('StudentsListComponent', () => {
     studentServiceSpy = jasmine.createSpyObj<StudentService>('StudentService', [
       'getData',
       'postData',
+      'getStudentProfile',
+      'deleteStudent',
     ]);
     studentServiceSpy.getData.and.returnValue(
       of({ items: [buildStudent()], count: 1 })
@@ -118,6 +132,30 @@ describe('StudentsListComponent', () => {
     csvCheckerSpy.getErrors.and.returnValue([]);
     csvCheckerSpy.getCSVData.and.returnValue([]);
 
+    cohortServiceSpy = jasmine.createSpyObj<CohortService>('CohortService', [
+      'getCohorts',
+    ]);
+    cohortServiceSpy.getCohorts.and.returnValue(
+      of({
+        body: [{ id: 3, name: 'Cohort 3' }],
+        success: true,
+        message: '',
+        validationErrors: null,
+      } as unknown as ApiResponse<CohortModel[]>)
+    );
+    toastSpy = jasmine.createSpyObj<ToastNotificationService>(
+      'ToastNotificationService',
+      ['showToast']
+    );
+    deleteConfirmationSpy =
+      jasmine.createSpyObj<ModalDeleteConfirmationService>(
+        'ModalDeleteConfirmationService',
+        ['confirmDelete']
+      );
+    deleteConfirmationSpy.confirmDelete.and.returnValue({
+      afterClosed: () => of(true),
+    } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+
     await TestBed.configureTestingModule({
       imports: [StudentsListComponent, HttpClientModule],
       providers: [
@@ -128,6 +166,12 @@ describe('StudentsListComponent', () => {
         { provide: StudentService, useValue: studentServiceSpy },
         { provide: FeatureFlagsService, useValue: featureFlagsSpy },
         { provide: CsvCheckerService, useValue: csvCheckerSpy },
+        { provide: CohortService, useValue: cohortServiceSpy },
+        { provide: ToastNotificationService, useValue: toastSpy },
+        {
+          provide: ModalDeleteConfirmationService,
+          useValue: deleteConfirmationSpy,
+        },
       ],
     }).compileComponents();
 
@@ -891,6 +935,192 @@ describe('StudentsListComponent', () => {
       await component.loadAllStudents();
 
       expect(component.allStudents).toEqual([]);
+    });
+  });
+
+  describe('openNewStudentModal', () => {
+    it('should load the cohorts and open the modal with them', () => {
+      component.openNewStudentModal();
+
+      expect(cohortServiceSpy.getCohorts).toHaveBeenCalled();
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [{ label: 'Cohort 3', value: 3 }] },
+        })
+      );
+      expect(component.isOpeningStudentModal).toBeFalse();
+    });
+
+    it('should reload the list only when the modal reports a saved student', () => {
+      const loadSpy = spyOn(component, 'loadStudents');
+      dialogSpy.open.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<unknown>);
+
+      component.openNewStudentModal();
+
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('should not reload the list when the modal is dismissed', () => {
+      const loadSpy = spyOn(component, 'loadStudents');
+      dialogSpy.open.and.returnValue({
+        afterClosed: () => of(undefined),
+      } as unknown as MatDialogRef<unknown>);
+
+      component.openNewStudentModal();
+
+      expect(loadSpy).not.toHaveBeenCalled();
+    });
+
+    it('should ignore clicks while the modal data is still loading', () => {
+      component.isOpeningStudentModal = true;
+
+      component.openNewStudentModal();
+
+      expect(cohortServiceSpy.getCohorts).not.toHaveBeenCalled();
+    });
+
+    it('should show an error toast and release the button when cohorts fail to load', () => {
+      spyOn(console, 'error');
+      cohortServiceSpy.getCohorts.and.returnValue(
+        throwError(() => new Error('boom'))
+      );
+
+      component.openNewStudentModal();
+
+      expect(dialogSpy.open).not.toHaveBeenCalled();
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'error' }),
+        true
+      );
+      expect(component.isOpeningStudentModal).toBeFalse();
+    });
+  });
+
+  describe('edit and delete actions', () => {
+    const manualEvent = (actionId: string): EventAction =>
+      ({
+        item: { id: 1 },
+        data: { id: actionId },
+      }) as unknown as EventAction;
+
+    it('should offer the profile to every student and delete only to manually created ones', () => {
+      const view = component.actionDatas.find(a => a.id === 'viewProfile') as {
+        isVisible?: (item: unknown) => boolean;
+      };
+      const remove = component.actionDatas.find(
+        a => a.id === 'deleteStudent'
+      ) as { isVisible: (item: unknown) => boolean };
+
+      expect(view.isVisible).toBeUndefined();
+      expect(
+        remove.isVisible({ hasProfile: false, isImported: false })
+      ).toBeFalse();
+      expect(
+        remove.isVisible({ hasProfile: true, isImported: false })
+      ).toBeTrue();
+      expect(
+        remove.isVisible({ hasProfile: true, isImported: true })
+      ).toBeFalse();
+    });
+
+    it('should open the profile modal with the loaded profile', () => {
+      const profile = {
+        studentId: 1,
+        firstName: 'Ana',
+      } as StudentRegistrationModel;
+      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+
+      component.handleActionCalled(manualEvent('viewProfile'));
+
+      expect(studentServiceSpy.getStudentProfile).toHaveBeenCalledWith(1);
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [], student: profile, hasProfile: false },
+        })
+      );
+    });
+
+    it('should tell the modal when the student already has a profile', () => {
+      const profile = { studentId: 1 } as StudentRegistrationModel;
+      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+      component.students = component.students.map(s => ({
+        ...s,
+        hasProfile: true,
+      }));
+
+      component.handleActionCalled(manualEvent('viewProfile'));
+
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [], student: profile, hasProfile: true },
+        })
+      );
+    });
+
+    it('should show an error toast when the profile cannot be loaded', () => {
+      spyOn(console, 'error');
+      studentServiceSpy.getStudentProfile.and.returnValue(
+        throwError(() => new Error('boom'))
+      );
+
+      component.handleActionCalled(manualEvent('viewProfile'));
+
+      expect(dialogSpy.open).not.toHaveBeenCalled();
+      expect(toastSpy.showToast).toHaveBeenCalled();
+    });
+
+    it('should delete the student after confirmation and reload the list', () => {
+      const loadSpy = spyOn(component, 'loadStudents');
+      studentServiceSpy.deleteStudent.and.returnValue(of(undefined));
+
+      component.handleActionCalled(manualEvent('deleteStudent'));
+
+      expect(deleteConfirmationSpy.confirmDelete).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          title: 'Delete student',
+          subtitle: jasmine.stringContaining('Ana Perez'),
+        })
+      );
+      expect(studentServiceSpy.deleteStudent).toHaveBeenCalledWith(1);
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('should not delete when the confirmation is declined', () => {
+      deleteConfirmationSpy.confirmDelete.and.returnValue({
+        afterClosed: () => of(false),
+      } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+
+      component.handleActionCalled(manualEvent('deleteStudent'));
+
+      expect(studentServiceSpy.deleteStudent).not.toHaveBeenCalled();
+    });
+
+    it('should surface the server message when the delete is rejected', () => {
+      spyOn(console, 'error');
+      studentServiceSpy.deleteStudent.and.returnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 409,
+              error: 'Student has related data',
+            })
+        )
+      );
+
+      component.handleActionCalled(manualEvent('deleteStudent'));
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          message: 'Student has related data',
+          type: 'error',
+        }),
+        true
+      );
     });
   });
 

@@ -24,6 +24,31 @@ describe('CustomValidators', () => {
     });
   });
 
+  describe('futureDate', () => {
+    const DAY = 24 * 60 * 60 * 1000;
+
+    it('should flag a date in the future', () => {
+      const control = new FormControl(new Date(Date.now() + DAY));
+      expect(CustomValidators['futureDate'](control)).toEqual({
+        futureDate: true,
+      });
+    });
+
+    it('should accept past and present dates', () => {
+      expect(
+        CustomValidators['futureDate'](new FormControl(new Date(2000, 0, 5)))
+      ).toBeNull();
+      expect(
+        CustomValidators['futureDate'](new FormControl(new Date()))
+      ).toBeNull();
+    });
+
+    it('should ignore empty or non-date values', () => {
+      expect(CustomValidators['futureDate'](new FormControl(''))).toBeNull();
+      expect(CustomValidators['futureDate'](new FormControl(null))).toBeNull();
+    });
+  });
+
   describe('forbiddenChars', () => {
     it('should return null if value is valid', () => {
       const control = new FormControl('validString123');

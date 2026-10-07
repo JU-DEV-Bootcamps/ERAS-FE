@@ -39,6 +39,8 @@
     <app-eras-button
       [textButton]="'New Student'"
       [iconButton]="'add'"
+      [disableButton]="isOpeningStudentModal"
+      (clickButton)="openNewStudentModal()"
     ></app-eras-button>
   </div>
 

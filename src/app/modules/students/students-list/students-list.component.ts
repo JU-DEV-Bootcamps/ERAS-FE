@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
@@ -48,6 +49,17 @@ import { StudentImport } from '@core/services/interfaces/student.interface';
 import { GENERAL_MESSAGES } from '@core/constants/messages';
 import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 import { ExportStateService } from '@core/services/exports/export-state.service';
+import { CohortService } from '@core/services/api/cohort.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Lookup } from '@core/models/lookup';
+import {
+  NewStudentModalComponent,
+  NewStudentModalData,
+} from './new-student-modal/new-student-modal.component';
 
 @Component({
   selector: 'app-students-list',
@@ -67,6 +79,9 @@ export class StudentsListComponent implements OnInit {
   private readonly lastAccessPipe = new LastAccessPipe();
   private readonly featureFlags = inject(FeatureFlagsService);
   private readonly exportStateService = inject(ExportStateService);
+  private readonly cohortService = inject(CohortService);
+  private readonly toastService = inject(ToastNotificationService);
+  private readonly deleteConfirmation = inject(ModalDeleteConfirmationService);
 
   @ViewChild('listComponent') listComponent!: ListComponent<StudentModelFlat>;
 
@@ -82,6 +97,8 @@ export class StudentsListComponent implements OnInit {
   itemsAreSelectable = true;
   isGenerating = false;
   isExporting = signal<boolean>(false);
+  /** Blocks the "New Student" button while the modal data loads (one at a time). */
+  isOpeningStudentModal = false;
   private allStudentsLoaded = false;
 
   columns: Column<StudentModelFlat>[] = [
@@ -115,6 +132,26 @@ export class StudentsListComponent implements OnInit {
       label: 'Actions',
       ngIconName: 'visibility',
       tooltip: 'See more details',
+    },
+    // Every student has a profile view; those without one start empty, prefilled
+    // with the name and email that already exist.
+    {
+      columnId: 'actions',
+      id: 'viewProfile',
+      label: 'Profile',
+      ngIconName: 'person',
+      tooltip: 'View profile',
+    },
+    {
+      columnId: 'actions',
+      id: 'deleteStudent',
+      label: 'Delete',
+      ngIconName: 'delete',
+      tooltip: 'Delete student',
+      isVisible: (item: unknown) => {
+        const student = item as StudentModelFlat;
+        return !!student.hasProfile && !student.isImported;
+      },
     },
   ];
 
@@ -199,7 +236,16 @@ export class StudentsListComponent implements OnInit {
     });
 
     if (student) {
-      this.openStudentDetails(student);
+      switch (event.data?.id) {
+        case 'viewProfile':
+          this.openStudentProfileModal(student);
+          break;
+        case 'deleteStudent':
+          this.confirmDeleteStudent(student);
+          break;
+        default:
+          this.openStudentDetails(student);
+      }
     } else {
       console.warn('Student not found on array.');
     }
@@ -225,6 +271,112 @@ export class StudentsListComponent implements OnInit {
       panelClass: 'border-modalbox-dialog',
       data: { studentId: student.id },
     });
+  }
+
+  openNewStudentModal(): void {
+    if (this.isOpeningStudentModal) return;
+    this.isOpeningStudentModal = true;
+
+    this.loadCohortLookups().subscribe({
+      next: cohorts => {
+        this.isOpeningStudentModal = false;
+        this.openStudentModal({ cohorts });
+      },
+      error: err => {
+        this.isOpeningStudentModal = false;
+        this.showError('Could not open the form', err);
+      },
+    });
+  }
+
+  openStudentProfileModal(student: StudentModelFlat): void {
+    if (this.isOpeningStudentModal) return;
+    this.isOpeningStudentModal = true;
+
+    this.studentService.getStudentProfile(student.id).subscribe({
+      next: profile => {
+        this.isOpeningStudentModal = false;
+        this.openStudentModal({
+          cohorts: [],
+          student: profile,
+          hasProfile: !!student.hasProfile,
+        });
+      },
+      error: err => {
+        this.isOpeningStudentModal = false;
+        this.showError('Could not load the student', err);
+      },
+    });
+  }
+
+  confirmDeleteStudent(student: StudentModelFlat): void {
+    this.deleteConfirmation
+      .confirmDelete({
+        title: 'Delete student',
+        subtitle: `Are you sure you want to delete ${student.name}? The student will be removed from the list.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (confirmed) this.deleteStudent(student);
+      });
+  }
+
+  private deleteStudent(student: StudentModelFlat): void {
+    this.studentService.deleteStudent(student.id).subscribe({
+      next: () => {
+        this.toastService.showToast({
+          title: 'Student deleted',
+          message: `${student.name} has been deleted.`,
+          type: 'success',
+        });
+        this.loadStudents();
+      },
+      error: (err: HttpErrorResponse) => {
+        const detail =
+          typeof err.error === 'string' && err.error.trim().length > 0
+            ? err.error
+            : 'Please try again later.';
+        console.error(err);
+        this.toastService.showToast(
+          {
+            title: 'Could not delete the student',
+            message: detail,
+            type: 'error',
+          },
+          true
+        );
+      },
+    });
+  }
+
+  private openStudentModal(data: NewStudentModalData): void {
+    const dialogRef = this.dialog.open(NewStudentModalComponent, {
+      autoFocus: false,
+      width: '1100px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      panelClass: 'student-modal-panel',
+      data,
+    });
+    dialogRef.afterClosed().subscribe(saved => {
+      if (saved) this.loadStudents();
+    });
+  }
+
+  private loadCohortLookups(): Observable<Lookup[]> {
+    return this.cohortService
+      .getCohorts()
+      .pipe(map(response => mapFields(response.body, 'name', 'id')));
+  }
+
+  private showError(title: string, error: unknown): void {
+    console.error(error);
+    this.toastService.showToast(
+      { title, message: 'Please try again later.', type: 'error' },
+      true
+    );
   }
 
   async exportToCSV(): Promise<void> {
@@ -269,6 +421,7 @@ export class StudentsListComponent implements OnInit {
       name: student.name,
       email: student.email,
       isImported: student.isImported,
+      hasProfile: student.hasProfile,
       cohortId: student.cohortId,
       cohort: student.cohort,
       studentId: student.studentDetail.studentId,

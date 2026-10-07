@@ -8,6 +8,7 @@ export interface StudentModel extends SelectableModel {
   name: string;
   email: string;
   isImported: boolean;
+  hasProfile?: boolean;
   studentDetail: StudentDetailModel;
   cohortId: number;
   cohort?: CohortModel;
