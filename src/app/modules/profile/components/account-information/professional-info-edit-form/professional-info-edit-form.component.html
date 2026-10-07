@@ -1,0 +1,21 @@
+<div class="form-body">
+  <app-form-factory
+    [fields]="formFields"
+    (formReady)="setFormGroup($event)"
+  ></app-form-factory>
+</div>
+
+<div class="actions">
+  <button mat-button type="button" color="primary" (click)="cancel()">
+    Cancel
+  </button>
+  <button
+    mat-flat-button
+    type="button"
+    color="primary"
+    [disabled]="form.invalid"
+    (click)="save()"
+  >
+    Save
+  </button>
+</div>

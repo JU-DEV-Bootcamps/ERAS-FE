@@ -1,0 +1,83 @@
+<div class="info-grid">
+  <div class="info-item">
+    <div class="icon-badge icon-blue">
+      <mat-icon>cloud_done</mat-icon>
+    </div>
+    <div class="info-text">
+      <span class="label">Position</span>
+      <span class="value">{{ profile().position }}</span>
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="icon-badge icon-green">
+      <mat-icon>school</mat-icon>
+    </div>
+    <div class="info-text">
+      <span class="label">Faculty</span>
+      <span class="value">{{ profile().faculty }}</span>
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="icon-badge icon-yellow">
+      <mat-icon>schedule</mat-icon>
+    </div>
+    <div class="info-text">
+      <span class="label">Office Hours</span>
+      <span class="value">{{ profile().officeHours }}</span>
+    </div>
+  </div>
+
+  <div class="info-item">
+    <div class="icon-badge icon-purple">
+      <mat-icon>assignment_turned_in</mat-icon>
+    </div>
+    <div class="info-text">
+      <span class="label">Active Evaluations</span>
+      <span class="value">{{ profile().activeEvaluations }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="subjects-section">
+  <span class="section-title">Subjects Taught</span>
+  <div class="chips">
+    @for (subject of profile().subjectsTaught; track subject) {
+      <span class="chip">{{ subject }}</span>
+    }
+  </div>
+</div>
+
+<div class="courses-section">
+  <span class="section-title">Courses Currently Teaching</span>
+  <table class="courses-table">
+    <thead>
+      <tr>
+        <th>Course Code</th>
+        <th>Course Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (course of profile().courses; track course.code) {
+        <tr>
+          <td class="course-code">{{ course.code }}</td>
+          <td class="course-name">{{ course.name }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="bottom-section">
+  <button
+    class="edit-button"
+    aria-label="Edit professional info"
+    mat-flat-button
+    type="button"
+    color="primary"
+    (click)="edit.emit()"
+  >
+    Edit
+  </button>
+</div>
