@@ -113,7 +113,7 @@ export class ProfileEditFormComponent implements OnInit {
             name: 'position',
             label: 'Position',
             value: profile.position,
-            validators: [Validators.required, Validators.maxLength(100)],
+            validators: [Validators.maxLength(100)],
           },
           {
             type: 'text',

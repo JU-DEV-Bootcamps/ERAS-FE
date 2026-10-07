@@ -141,15 +141,13 @@ describe('ProfileEditFormComponent', () => {
   });
 
   describe('validation', () => {
-    it('should require the position like the other editable fields', () => {
+    it('should let the profile be saved without a position', () => {
       fixture.detectChanges();
 
       component.form.controls['position'].setValue('');
 
-      expect(
-        component.form.controls['position'].hasError('required')
-      ).toBeTrue();
-      expect(component.form.invalid).toBeTrue();
+      expect(component.form.controls['position'].valid).toBeTrue();
+      expect(component.form.valid).toBeTrue();
     });
 
     it('should enforce the same maximum lengths as the API', () => {
