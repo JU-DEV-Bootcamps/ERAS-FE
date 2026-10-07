@@ -21,7 +21,11 @@
   </div>
   <hr />
   <div class="options-container">
-    <button mat-menu-item class="menu-button option-button">
+    <button
+      mat-menu-item
+      class="menu-button option-button"
+      (click)="redirectToAccountInformation()"
+    >
       <mat-icon>person</mat-icon>
       Account and Information
     </button>

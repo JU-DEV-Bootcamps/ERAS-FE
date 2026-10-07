@@ -66,4 +66,7 @@ export const ROUTE_METADATA = {
   RECENT_ALERTS: {
     headerTitle: 'Recent Alerts',
   },
+  ACCOUNT_AND_INFORMATION: {
+    headerTitle: 'Account & Information',
+  },
 } as const satisfies Record<string, AppRouteData>;

@@ -50,6 +50,10 @@ export class UserMenuComponent {
     this.router.navigate(['cosmic-latte']);
   }
 
+  redirectToAccountInformation() {
+    this.router.navigate(['account-and-information']);
+  }
+
   onV2Toggle(event: Event): void {
     const enabled = (event.target as HTMLInputElement).checked;
     this.featureFlags.toggle('v2', enabled).subscribe();

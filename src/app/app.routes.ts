@@ -119,6 +119,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'account-and-information',
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.ACCOUNT_AND_INFORMATION,
+        loadComponent: () =>
+          import('./modules/profile/components/account-information/account-information.component').then(
+            c => c.AccountInformationComponent
+          ),
+      },
+      {
         path: '_unused',
         canActivate: [canActivateAuthRole],
         data: { roles: [ERASRoles.ADMIN] },

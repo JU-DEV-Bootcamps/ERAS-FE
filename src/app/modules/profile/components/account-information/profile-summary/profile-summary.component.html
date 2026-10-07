@@ -1,0 +1,15 @@
+@if (profile()) {
+  <div class="tiles">
+    @for (tile of tiles(); track tile.key) {
+      <div class="tile" [attr.data-testid]="tile.key">
+        <span class="tile-icon" [class]="tile.tone">
+          <mat-icon>{{ tile.icon }}</mat-icon>
+        </span>
+        <div class="tile-text">
+          <span class="tile-label">{{ tile.label }}</span>
+          <span class="tile-value">{{ tile.value }}</span>
+        </div>
+      </div>
+    }
+  </div>
+}

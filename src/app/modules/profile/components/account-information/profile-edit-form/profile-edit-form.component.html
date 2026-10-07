@@ -1,0 +1,47 @@
+@if (isLoading) {
+  <div class="state-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (hasError) {
+  <div class="state-container">
+    <p class="error-message">We couldn't load the profile information.</p>
+  </div>
+} @else if (profile) {
+  <div class="data-container">
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <div
+          class="avatar-initials"
+          [style.background-color]="avatarColor"
+          [attr.aria-label]="
+            profile.firstName + ' ' + profile.lastName + ' avatar'
+          "
+        >
+          {{ initials }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <app-form-factory
+        [fields]="formFields"
+        (formReady)="setFormGroup($event)"
+      ></app-form-factory>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button mat-button type="button" color="primary" (click)="cancel()">
+      Cancel
+    </button>
+    <button
+      mat-flat-button
+      type="button"
+      color="primary"
+      [disabled]="form.invalid || isSaving"
+      (click)="save()"
+    >
+      Save
+    </button>
+  </div>
+}
