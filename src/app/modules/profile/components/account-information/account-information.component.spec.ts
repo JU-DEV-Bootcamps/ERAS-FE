@@ -1,20 +1,37 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AccountInformationComponent } from './account-information.component';
 import { UserProfileService } from '@core/services/api/user-profile.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { UserProfile } from '@core/models/user-profile.model';
+
+const summaryProfile: UserProfile = {
+  firstName: 'Roberto',
+  lastName: 'Alvarez',
+  email: 'roberto.alvarez@jala.university',
+  employeeId: '#EMP-2024-882',
+  department: 'Design',
+  position: 'Professor of Computer Science',
+  phone: '+1 (555) 123-4567',
+  role: 'ERAS Administrator',
+  about: 'Bio',
+  activeAssessmentsCount: 4,
+  activeInterventionsCount: 7,
+};
 
 describe('AccountInformationComponent', () => {
   let component: AccountInformationComponent;
   let fixture: ComponentFixture<AccountInformationComponent>;
+  let userProfileServiceSpy: jasmine.SpyObj<UserProfileService>;
 
   beforeEach(async () => {
-    const userProfileServiceSpy = jasmine.createSpyObj('UserProfileService', [
-      'getMyProfile',
-    ]);
-    userProfileServiceSpy.getMyProfile.and.returnValue(of(null));
+    userProfileServiceSpy = jasmine.createSpyObj<UserProfileService>(
+      'UserProfileService',
+      ['getMyProfile']
+    );
+    userProfileServiceSpy.getMyProfile.and.returnValue(of(summaryProfile));
 
     const userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
       'UserDataService',
@@ -84,5 +101,53 @@ describe('AccountInformationComponent', () => {
     editFormDebugElement.triggerEventHandler('saved');
 
     expect(component.isEditing()).toBeFalse();
+  });
+
+  describe('summary panel', () => {
+    it('should load the profile on init and hand it to the summary', () => {
+      expect(userProfileServiceSpy.getMyProfile).toHaveBeenCalled();
+      expect(component.summaryProfile()).toEqual(summaryProfile);
+      expect(
+        fixture.debugElement.query(el => el.name === 'app-profile-summary')
+      ).toBeTruthy();
+    });
+
+    it('should refresh the summary after the profile is saved', () => {
+      const updated = { ...summaryProfile, position: 'Dean' };
+      userProfileServiceSpy.getMyProfile.and.returnValue(of(updated));
+      const callsBefore = userProfileServiceSpy.getMyProfile.calls.count();
+
+      component.startEdit();
+      component.onSaved();
+
+      expect(component.isEditing()).toBeFalse();
+      expect(userProfileServiceSpy.getMyProfile.calls.count()).toBe(
+        callsBefore + 1
+      );
+      expect(component.summaryProfile()?.position).toBe('Dean');
+    });
+
+    it('should not refresh the summary when the edition is cancelled', () => {
+      const callsBefore = userProfileServiceSpy.getMyProfile.calls.count();
+
+      component.startEdit();
+      component.stopEdit();
+
+      expect(userProfileServiceSpy.getMyProfile.calls.count()).toBe(
+        callsBefore
+      );
+    });
+
+    it('should keep the previous summary and not crash when it cannot be reloaded', () => {
+      spyOn(console, 'error');
+      userProfileServiceSpy.getMyProfile.and.returnValue(
+        throwError(() => new Error('Error fetching user profile'))
+      );
+
+      component.onSaved();
+
+      expect(component.summaryProfile()).toEqual(summaryProfile);
+      expect(console.error).toHaveBeenCalled();
+    });
   });
 });
