@@ -54,6 +54,12 @@ describe('ImportStatusComponent', () => {
       extractedCount: 2,
       retryCount: 0,
       errorMessage: null,
+      returnedCount: 2,
+      skippedCount: 0,
+      skippedWithoutScore: 0,
+      skippedRequestFailed: 0,
+      skippedOutsideDateRange: 0,
+      skippedInvalidAnswers: 0,
       createdAtUtc: '2026-07-01T00:00:00Z',
       updatedAtUtc: '2026-07-01T00:00:00Z',
       ...overrides,
@@ -253,6 +259,78 @@ describe('ImportStatusComponent', () => {
       create();
       component.status = null;
       expect(component.progressLabel).toBe('');
+    });
+  });
+
+  describe('skipped respondents notice', () => {
+    it('should explain how many responses were skipped and why', () => {
+      create();
+      component.status = baseStatus({
+        returnedCount: 72,
+        skippedCount: 3,
+        skippedWithoutScore: 3,
+      });
+
+      expect(component.skippedTitle).toBe(
+        'Cosmic Latte returned 72 responses; 3 could not be imported.'
+      );
+      expect(component.skippedReasons).toEqual([
+        '3 without a score (usually not finished in Cosmic Latte)',
+      ]);
+    });
+
+    it('should list every reason that has skipped respondents', () => {
+      create();
+      component.status = baseStatus({
+        returnedCount: 80,
+        skippedCount: 10,
+        skippedWithoutScore: 1,
+        skippedRequestFailed: 2,
+        skippedOutsideDateRange: 3,
+        skippedInvalidAnswers: 4,
+      });
+
+      expect(component.skippedReasons.length).toBe(4);
+      expect(component.skippedReasons).toContain(
+        '2 could not be downloaded from Cosmic Latte'
+      );
+      expect(component.skippedReasons).toContain(
+        '3 finished outside the evaluation dates'
+      );
+      expect(component.skippedReasons).toContain(
+        '4 with missing or invalid name, email or cohort answers'
+      );
+    });
+
+    it('should show nothing when no respondent was skipped or there is no status', () => {
+      create();
+      component.status = baseStatus();
+      expect(component.skippedReasons).toEqual([]);
+
+      component.status = null;
+      expect(component.skippedReasons).toEqual([]);
+      expect(component.skippedTitle).toBe('');
+    });
+
+    it('should render the notice only when something was skipped', () => {
+      create();
+      component.status = baseStatus();
+      fixture.detectChanges();
+      expect(
+        fixture.nativeElement.querySelector('.import-status__notice')
+      ).toBeNull();
+
+      component.status = baseStatus({
+        returnedCount: 3,
+        skippedCount: 1,
+        skippedInvalidAnswers: 1,
+      });
+      fixture.detectChanges();
+      const notice = fixture.nativeElement.querySelector(
+        '.import-status__notice'
+      ) as HTMLElement;
+      expect(notice.textContent).toContain('1 could not be imported');
+      expect(notice.textContent).toContain('missing or invalid');
     });
   });
 

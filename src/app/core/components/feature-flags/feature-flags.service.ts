@@ -4,8 +4,6 @@ import { map, tap, Observable, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { FEATURE_FLAGS } from './feature-flags';
 import { environment } from 'src/environments/environment';
-import { UserDataService } from '@core/services/access/user-data.service';
-import { ERASRoles } from '@core/models/profile.model';
 
 interface FeatureFlag {
   id: number;
@@ -13,14 +11,16 @@ interface FeatureFlag {
   isEnabled: boolean;
 }
 
+const flagsSetTo = (Enabled: boolean): Record<string, boolean> =>
+  Object.fromEntries(Object.values(FEATURE_FLAGS).map(Flag => [Flag, Enabled]));
+
 @Injectable({ providedIn: 'root' })
 export class FeatureFlagsService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly userData = inject(UserDataService);
   private readonly baseUrl = environment.apiUrl + '/api/v1/feature-flags';
 
-  private _flags = signal<Record<string, boolean>>({});
+  private _flags = signal<Record<string, boolean>>(flagsSetTo(true));
   flags = computed(() => this._flags());
 
   private _flagMeta = signal<FeatureFlag[]>([]);
@@ -48,17 +48,21 @@ export class FeatureFlagsService {
     flag: string
   ): Record<string, boolean> {
     const overrides = this.readStoredOverrides();
-    let changed = false;
+    const before = JSON.stringify(overrides);
 
-    for (const key of new Set(['v2', flag, ...Object.values(FEATURE_FLAGS)])) {
-      if (params[key] === 'true' && overrides[key] !== true) {
+    this.captureVersionOverride(params, overrides);
+
+    const flagKeys = new Set([flag, ...Object.values(FEATURE_FLAGS)]);
+    for (const key of flagKeys) {
+      if (key === 'v1' || key === 'v2') continue;
+      if (params[key] === 'true') {
         overrides[key] = true;
-        changed = true;
-      } else if (params[key] === 'false' && key in overrides) {
+      } else if (params[key] === 'false') {
         delete overrides[key];
-        changed = true;
       }
     }
+
+    const changed = JSON.stringify(overrides) !== before;
 
     if (changed) {
       try {
@@ -70,6 +74,23 @@ export class FeatureFlagsService {
     return overrides;
   }
 
+  private captureVersionOverride(
+    params: Record<string, string>,
+    overrides: Record<string, boolean>
+  ): void {
+    if (params['v1'] === 'true' || params['v2'] === 'false') {
+      overrides['v1'] = true;
+      delete overrides['v2'];
+    }
+    if (params['v2'] === 'true') {
+      overrides['v2'] = true;
+      delete overrides['v1'];
+    }
+    if (params['v1'] === 'false') {
+      delete overrides['v1'];
+    }
+  }
+
   private clearOverrides(): void {
     try {
       sessionStorage.removeItem(this.OVERRIDES_KEY);
@@ -78,22 +99,15 @@ export class FeatureFlagsService {
     }
   }
 
-  private isAdminUser = computed(
-    () => this.userData.user()?.role === ERASRoles.ADMIN
-  );
-
   loadFlags(): Observable<void> {
     return this.http.get<FeatureFlag[]>(this.baseUrl).pipe(
       tap(flags => {
         this._flagMeta.set(flags);
 
         const v2Flag = flags.find(f => f.name === 'v2');
-        const v2Enabled = v2Flag?.isEnabled ?? false;
+        const v2Enabled = v2Flag?.isEnabled ?? true;
 
-        const mapped = Object.fromEntries(
-          Object.values(FEATURE_FLAGS).map(f => [f, v2Enabled])
-        );
-        this._flags.set(mapped);
+        this._flags.set(flagsSetTo(v2Enabled));
       }),
       map(() => void 0),
       catchError(err => {
@@ -106,9 +120,11 @@ export class FeatureFlagsService {
   isEnabled(flag: string): boolean {
     const overrides = this.captureOverrides(this.currentUrlParams(), flag);
 
-    if (overrides['v2'] || overrides[flag]) return true;
-
-    if (!this.isAdminUser()) return false;
+    if (overrides[flag]) return true;
+    if (overrides['v1'] && Object.values(FEATURE_FLAGS).includes(flag)) {
+      return false;
+    }
+    if (overrides['v2']) return true;
 
     return this._flags()[flag] ?? false;
   }
@@ -128,10 +144,7 @@ export class FeatureFlagsService {
       .pipe(
         tap(() => {
           this.clearOverrides();
-          const mapped = Object.fromEntries(
-            Object.values(FEATURE_FLAGS).map(f => [f, enabled])
-          );
-          this._flags.set(mapped);
+          this._flags.set(flagsSetTo(enabled));
         }),
         catchError(err => {
           console.error('Toggle failed:', err);
