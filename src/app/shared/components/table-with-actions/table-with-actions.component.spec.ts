@@ -63,6 +63,8 @@ describe('TableWithActionsComponent', () => {
   ];
 
   const originalInnerWidth = window.innerWidth;
+  const DESKTOP_WIDTH = 1024;
+  const MOBILE_WIDTH = 500;
 
   const setWindowWidth = (width: number) => {
     Object.defineProperty(window, 'innerWidth', {
@@ -77,6 +79,7 @@ describe('TableWithActionsComponent', () => {
   });
 
   beforeEach(async () => {
+    setWindowWidth(DESKTOP_WIDTH);
     await TestBed.configureTestingModule({
       imports: [
         MatTableModule,
@@ -104,8 +107,17 @@ describe('TableWithActionsComponent', () => {
   });
 
   it('should render action buttons in the Actions column', () => {
-    const rowInfos = fixture.debugElement.queryAll(By.css('.row-info'));
-    const actionButtons = fixture.debugElement.queryAll(
+    setWindowWidth(MOBILE_WIDTH);
+    const mobileFixture = TestBed.createComponent(
+      TableWithActionsComponent<PollName>
+    );
+    mobileFixture.componentInstance.items = mockItems;
+    mobileFixture.componentInstance.columns = mockColumns;
+    mobileFixture.componentRef.setInput('actionDatas', mockActionDatas);
+    mobileFixture.detectChanges();
+
+    const rowInfos = mobileFixture.debugElement.queryAll(By.css('.row-info'));
+    const actionButtons = mobileFixture.debugElement.queryAll(
       By.css('app-action-button')
     );
 
@@ -121,7 +133,7 @@ describe('TableWithActionsComponent', () => {
     });
 
     it('should set isMobile based on window width at init time', async () => {
-      setWindowWidth(500);
+      setWindowWidth(MOBILE_WIDTH);
       const localFixture = TestBed.createComponent(
         TableWithActionsComponent<PollName>
       );
