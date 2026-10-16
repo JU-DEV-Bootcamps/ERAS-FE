@@ -171,7 +171,7 @@ export class PollFiltersComponent implements OnInit {
 
     this._getPolls(newSelectedEvaluation);
     if (this.polls?.length) {
-      this._getCohorts(this.polls[0].uuid);
+      this._getCohorts(this.polls[0].uuid, newSelectedEvaluation.id);
     }
   }
 
@@ -328,13 +328,13 @@ export class PollFiltersComponent implements OnInit {
     this.filterForm.controls.variables.updateValueAndValidity();
   }
 
-  private _getCohorts(pollUuid: string) {
+  private _getCohorts(pollUuid: string, evaluationId?: number) {
     this.filtersLoading.set(true);
     this.cohorts.set([]);
     this.variables.set([]);
     this._resetField('cohortIds');
     this._resetField('variables');
-    this.cohortsService.getCohorts(pollUuid).subscribe({
+    this.cohortsService.getCohorts(pollUuid, true, evaluationId).subscribe({
       next: response => {
         this.cohorts.set(response.body);
         const allIds = response.body.map(c => c.id);
