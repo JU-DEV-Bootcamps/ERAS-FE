@@ -13,6 +13,8 @@ import { ServiceProviderModel } from '@core/models/service-providers.model';
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { UserDataService } from '@core/services/access/user-data.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { getHttpErrorMessage } from '@core/utils/helpers/http-error-message';
 
 import { ConfigurationCardComponent } from './configuration-card/configuration-card.component';
 import { NewConfigurationModalComponent } from '../../shared/components/modals/new-configuration-modal/new-configuration-modal.component';
@@ -38,6 +40,7 @@ export class CosmicLatteComponent implements OnInit {
   serviceProviders: ServiceProviderModel[] = [];
   readonly dialog = inject(MatDialog);
   private readonly userData = inject(UserDataService);
+  private readonly toastService = inject(ToastNotificationService);
   healthCheckStatus = true;
   userId = '';
 
@@ -74,14 +77,27 @@ export class CosmicLatteComponent implements OnInit {
         this.configurationsService
           .createConfiguration(newConfiguration)
           .subscribe({
-            next: response => {
-              console.log('Configuration created successfully', response);
+            next: () => {
+              this.toastService.showToast({
+                title: 'Configuration saved',
+                message: `"${newConfiguration.configurationName}" was created.`,
+                type: 'success',
+              });
+              this.loadConfigurations(this.userId);
             },
             error: error => {
               console.error('Error while creating configuration', error);
-            },
-            complete: () => {
-              this.loadConfigurations(this.userId);
+              this.toastService.showToast(
+                {
+                  title: 'Configuration not saved',
+                  message: getHttpErrorMessage(
+                    error,
+                    'The configuration could not be saved. Please try again.'
+                  ),
+                  type: 'error',
+                },
+                true
+              );
             },
           });
       }
