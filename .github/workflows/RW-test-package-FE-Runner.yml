@@ -150,6 +150,34 @@ jobs:
           username: ${{ inputs.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
       - name: Build and push Docker image
+        id: build_push_1
+        continue-on-error: true
+        timeout-minutes: 20
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ inputs.dockerhub_username }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
+      - name: Wait before Docker build attempt 2
+        if: steps.build_push_1.outcome == 'failure'
+        run: sleep 30
+      - name: Build and push Docker image (attempt 2)
+        id: build_push_2
+        if: steps.build_push_1.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 20
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ inputs.dockerhub_username }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
+      - name: Wait before Docker build attempt 3
+        if: steps.build_push_1.outcome == 'failure' && steps.build_push_2.outcome == 'failure'
+        run: sleep 30
+      - name: Build and push Docker image (attempt 3)
+        id: build_push_3
+        if: steps.build_push_1.outcome == 'failure' && steps.build_push_2.outcome == 'failure'
+        timeout-minutes: 20
         uses: docker/build-push-action@v2
         with:
           context: .
