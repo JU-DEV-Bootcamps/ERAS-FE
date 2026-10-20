@@ -114,7 +114,7 @@ jobs:
           path: coverage
 
   package:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: test
     steps:
       - name: Checkout
@@ -184,21 +184,7 @@ jobs:
           push: true
           tags: ${{ inputs.dockerhub_username }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
 
-      - name: Save FE tag as JSON
-        run: |
-          TAG="${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
-          echo "{\"ERAS-FE\": \"$TAG\"}" > fe_tag.json
-
-      - name: Build project
-        run: |
-          mkdir -p build-output
-          
-      - name: Verify files before zipping
-        run: |
-          test -f fe_tag.json || (echo "fe_tag.json not found" && exit 1)
-          test -d build-output || (echo "build-output directory not found" && exit 1)
-
-      - name: Save artifact locally
-        run: |
-          mkdir -p /home/ubuntu/Eras_versions/
-          zip -r /home/ubuntu/Eras_versions/eras-fe-tag.zip ./build-output fe_tag.json
+      - name: Publish the image tag
+        env:
+          IMAGE_TAG: ${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
+        run: echo "::notice title=eras-image-tag::${IMAGE_TAG}"
