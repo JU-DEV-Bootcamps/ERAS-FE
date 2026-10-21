@@ -11,6 +11,7 @@ import {
   TemplateRef,
   ViewChild,
   AfterContentInit,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -40,6 +41,7 @@ import { ActionDatas } from '../list/types/action';
 import { MapClass } from '../list/types/class';
 import { MatCardDetailsComponent } from '../mat-card-details/mat-card-details.component';
 import { NgTemplateOutlet } from '@angular/common';
+import { firstValueFrom, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-list-details',
@@ -87,6 +89,8 @@ export class ListDetailsComponent<T extends object>
   @Input() itemsAreSelectable = false;
   @Input() externalExport = false;
   @Input() emptyTemplate?: TemplateRef<T>;
+  /** Loads every item (ignoring pagination) so exports include all rows. */
+  @Input() exportItemsLoader?: () => Observable<T[]>;
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -97,6 +101,10 @@ export class ListDetailsComponent<T extends object>
   @Input() pageIndex = 0;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
+
+  // Set only while exporting so the table renders every row, not just the current page
+  exportItems: T[] | null = null;
+  private cdr = inject(ChangeDetectorRef);
 
   selectedExportFormat: 'csv' | 'pdf' | '' = '';
 
@@ -191,15 +199,19 @@ export class ListDetailsComponent<T extends object>
     return itemWithId;
   }
 
-  exportToCSV() {
+  async exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
-    this.exportStateService.startExport('csv', this.items.length);
+    this.exportStateService.startExport(
+      'csv',
+      this.totalItems || this.items.length
+    );
 
     try {
+      const allItems = await this.loadAllItems();
       const itemsToExport = this.itemsAreSelectable
-        ? this.getItemsToExport()
-        : this.items;
+        ? this.getItemsToExport(allItems)
+        : allItems;
       const columnsToExport = [
         ...new Set([...this.columns, ...this.exportColumns]),
       ];
@@ -221,9 +233,14 @@ export class ListDetailsComponent<T extends object>
     if (this.isGenerating) return;
 
     this.isGenerating = true;
-    this.exportStateService.startExport('pdf', this.items.length);
+    this.exportStateService.startExport(
+      'pdf',
+      this.totalItems || this.items.length
+    );
 
     try {
+      this.exportItems = await this.loadAllItems();
+      this.cdr.detectChanges();
       await this.pdfHelper.exportToPdf({
         fileName: 'report_detail',
         container: this.contentToExport,
@@ -231,19 +248,26 @@ export class ListDetailsComponent<T extends object>
         preProcess: 'list',
       });
     } finally {
+      this.exportItems = null;
+      this.cdr.detectChanges();
       this.isGenerating = false;
       this.exportStateService.endExport();
     }
   }
 
-  private getItemsToExport(): T[] {
-    const selectedItems = this.items.filter(
+  private async loadAllItems(): Promise<T[]> {
+    if (!this.exportItemsLoader) return this.items;
+    return firstValueFrom(this.exportItemsLoader());
+  }
+
+  private getItemsToExport(allItems: T[]): T[] {
+    const selectedItems = allItems.filter(
       item => 'isSelected' in item && item.isSelected
     );
 
     // No items selected so export them all
     if (selectedItems.length === 0) {
-      return this.items;
+      return allItems;
     }
 
     return selectedItems;

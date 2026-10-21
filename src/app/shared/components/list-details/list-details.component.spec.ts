@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ElementRef } from '@angular/core';
+import { of, throwError } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -229,23 +230,23 @@ describe('ListDetailsComponent', () => {
       component.columns = mockColumns;
     });
 
-    it('should not export when already generating', () => {
+    it('should not export when already generating', async () => {
       component.isGenerating = true;
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).not.toHaveBeenCalled();
     });
 
-    it('should reset isGenerating to false after exporting', () => {
+    it('should reset isGenerating to false after exporting', async () => {
       component.items = [{ name: 'John', status: 'Active' }];
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(component.isGenerating).toBeFalse();
     });
 
-    it('should export items directly when itemsAreSelectable is false', () => {
+    it('should export items directly when itemsAreSelectable is false', async () => {
       const items: TestItem[] = [
         { name: 'John', status: 'Active' },
         { name: 'Jane', status: 'Inactive' },
@@ -253,7 +254,7 @@ describe('ListDetailsComponent', () => {
       component.items = items;
       component.itemsAreSelectable = false;
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
         items,
@@ -262,7 +263,7 @@ describe('ListDetailsComponent', () => {
       );
     });
 
-    it('should export only the selected items when itemsAreSelectable is true and some are selected', () => {
+    it('should export only the selected items when itemsAreSelectable is true and some are selected', async () => {
       const items: TestItem[] = [
         { name: 'John', status: 'Active', isSelected: true },
         { name: 'Jane', status: 'Inactive', isSelected: false },
@@ -270,7 +271,7 @@ describe('ListDetailsComponent', () => {
       component.items = items;
       component.itemsAreSelectable = true;
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
         [items[0]],
@@ -279,7 +280,7 @@ describe('ListDetailsComponent', () => {
       );
     });
 
-    it('should export all items when itemsAreSelectable is true but none are selected', () => {
+    it('should export all items when itemsAreSelectable is true but none are selected', async () => {
       const items: TestItem[] = [
         { name: 'John', status: 'Active', isSelected: false },
         { name: 'Jane', status: 'Inactive', isSelected: false },
@@ -287,7 +288,7 @@ describe('ListDetailsComponent', () => {
       component.items = items;
       component.itemsAreSelectable = true;
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
         items,
@@ -296,7 +297,34 @@ describe('ListDetailsComponent', () => {
       );
     });
 
-    it('should merge columns and exportColumns, deduplicating identical entries', () => {
+    it('should export all items from exportItemsLoader instead of only the current page', async () => {
+      const currentPage: TestItem[] = [{ name: 'John', status: 'Active' }];
+      const allItems: TestItem[] = [
+        ...currentPage,
+        { name: 'Jane', status: 'Inactive' },
+        { name: 'Jim', status: 'Active' },
+      ];
+      component.items = currentPage;
+      component.exportItemsLoader = () => of(allItems);
+
+      await component.exportToCSV();
+
+      expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
+        allItems,
+        ['name', 'status'],
+        ['Name', 'Status']
+      );
+    });
+
+    it('should reset isGenerating to false if the loader fails', async () => {
+      component.exportItemsLoader = () => throwError(() => new Error('fail'));
+
+      await expectAsync(component.exportToCSV()).toBeRejected();
+
+      expect(component.isGenerating).toBeFalse();
+      expect(csvServiceSpy.exportToCSV).not.toHaveBeenCalled();
+    });
+    it('should merge columns and exportColumns, deduplicating identical entries', async () => {
       const sharedColumn: Column<TestItem> = { key: 'name', label: 'Name' };
       component.columns = [sharedColumn];
       component.exportColumns = [
@@ -305,7 +333,7 @@ describe('ListDetailsComponent', () => {
       ];
       component.items = [{ name: 'John', status: 'Active' }];
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
         jasmine.any(Array),
@@ -341,6 +369,22 @@ describe('ListDetailsComponent', () => {
       );
     });
 
+    it('should render all loaded items while exporting and restore afterward', async () => {
+      const allItems: TestItem[] = [
+        { name: 'John', status: 'Active' },
+        { name: 'Jane', status: 'Inactive' },
+      ];
+      component.exportItemsLoader = () => of(allItems);
+      let exportItemsDuringExport = null as TestItem[] | null;
+      pdfHelperSpy.exportToPdf.and.callFake(async () => {
+        exportItemsDuringExport = component.exportItems;
+      });
+
+      await component.exportToPdf();
+
+      expect(exportItemsDuringExport).toEqual(allItems);
+      expect(component.exportItems).toBeNull();
+    });
     it('should set isGenerating to true during export and back to false afterward', async () => {
       let isGeneratingDuringExport = false;
       pdfHelperSpy.exportToPdf.and.callFake(async () => {
@@ -391,7 +435,7 @@ describe('ListDetailsComponent', () => {
       component.columns = mockColumns;
     });
 
-    it('should export only selected items when some are marked selected', () => {
+    it('should export only selected items when some are marked selected', async () => {
       const items: TestItem[] = [
         { name: 'John', status: 'Active', isSelected: true },
         { name: 'Jane', status: 'Inactive', isSelected: false },
@@ -399,7 +443,7 @@ describe('ListDetailsComponent', () => {
       component.items = items;
       component.itemsAreSelectable = true;
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
         [items[0]],
@@ -408,7 +452,7 @@ describe('ListDetailsComponent', () => {
       );
     });
 
-    it('should export all items when itemsAreSelectable is true but none selected', () => {
+    it('should export all items when itemsAreSelectable is true but none selected', async () => {
       const items: TestItem[] = [
         { name: 'John', status: 'Active', isSelected: false },
         { name: 'Jane', status: 'Inactive', isSelected: false },
@@ -416,7 +460,7 @@ describe('ListDetailsComponent', () => {
       component.items = items;
       component.itemsAreSelectable = true;
 
-      component.exportToCSV();
+      await component.exportToCSV();
 
       expect(csvServiceSpy.exportToCSV).toHaveBeenCalledWith(
         items,
@@ -425,9 +469,9 @@ describe('ListDetailsComponent', () => {
       );
     });
 
-    it('should not export when isGenerating is true', () => {
+    it('should not export when isGenerating is true', async () => {
       component.isGenerating = true;
-      component.exportToCSV();
+      await component.exportToCSV();
       expect(csvServiceSpy.exportToCSV).not.toHaveBeenCalled();
     });
   });
