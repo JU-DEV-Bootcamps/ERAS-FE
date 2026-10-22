@@ -22,6 +22,17 @@ export const VALIDATION_MESSAGES = {
   CSV_SCAN_ERROR: 'Following errors detected',
 };
 
+export const STUDENT_PROFILE_MESSAGES = {
+  TITLE: 'Profile summary',
+  NOT_AVAILABLE: 'Not available',
+  LOAD_ERROR: 'Could not load the student profile. Please try again later.',
+  NO_RISKS: 'No risks identified.',
+  NO_SUPPORT: 'No support received.',
+  NO_COURSES: 'No current courses.',
+  THIRD_ATTEMPT: 'Third attempt',
+  CLOSE: 'Close',
+};
+
 export const GENERAL_MESSAGES = {
   ERROR_TITLE: 'Error',
   ERROR_IMPORT_TITLE: 'Error Importing file',
