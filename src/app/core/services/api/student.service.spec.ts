@@ -426,6 +426,14 @@ describe('StudentService', () => {
       req.flush(student);
     });
 
+    it('getStudentProfileSummary should GET /:id/profile', () => {
+      service.getStudentProfileSummary(3).subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/3/profile`);
+      expect(req.request.method).toBe('GET');
+      req.flush(student);
+    });
+
     it('updateStudentProfile should PUT /:id/profile', () => {
       service.updateStudentProfile(3, student).subscribe();
 
