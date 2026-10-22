@@ -60,6 +60,7 @@ import {
   NewStudentModalComponent,
   NewStudentModalData,
 } from './new-student-modal/new-student-modal.component';
+import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
 
 @Component({
   selector: 'app-students-list',
@@ -141,6 +142,13 @@ export class StudentsListComponent implements OnInit {
       label: 'Profile',
       ngIconName: 'person',
       tooltip: 'View profile',
+    },
+    {
+      columnId: 'actions',
+      id: 'profileSummary',
+      label: 'Profile summary',
+      ngIconName: 'badge',
+      tooltip: 'Profile summary',
     },
     {
       columnId: 'actions',
@@ -240,6 +248,9 @@ export class StudentsListComponent implements OnInit {
         case 'viewProfile':
           this.openStudentProfileModal(student);
           break;
+        case 'profileSummary':
+          this.openProfileSummaryModal(student);
+          break;
         case 'deleteStudent':
           this.confirmDeleteStudent(student);
           break;
@@ -269,6 +280,16 @@ export class StudentsListComponent implements OnInit {
       maxWidth: '95vw',
       maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
+      data: { studentId: student.id },
+    });
+  }
+
+  openProfileSummaryModal(student: StudentModelFlat): void {
+    this.dialog.open(StudentProfileSummaryModalComponent, {
+      autoFocus: false,
+      width: '1100px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
       data: { studentId: student.id },
     });
   }

@@ -6,6 +6,7 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import Keycloak from 'keycloak-js';
 import { EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
 import { StudentService } from '@core/services/api/student.service';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
@@ -1024,6 +1025,16 @@ describe('StudentsListComponent', () => {
       expect(
         remove.isVisible({ hasProfile: true, isImported: true })
       ).toBeFalse();
+    });
+
+    it('should open the profile summary modal fetching on demand', () => {
+      component.handleActionCalled(manualEvent('profileSummary'));
+
+      expect(studentServiceSpy.getStudentProfile).not.toHaveBeenCalled();
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        StudentProfileSummaryModalComponent,
+        jasmine.objectContaining({ data: { studentId: 1 } })
+      );
     });
 
     it('should open the profile modal with the loaded profile', () => {
