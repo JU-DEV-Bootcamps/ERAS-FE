@@ -13,8 +13,8 @@ export const environment = {
     clientId: '__CLIENT_ID__',
   },
   roleNames: {
-    administrator: 'ERAS Administrator',
-    officer: 'ERAS Student Services Officer',
-    professional: 'ERAS Professional',
+    administrator: 'admin',
+    officer: 'Student Services Officer',
+    professional: 'Professional',
   },
 };
