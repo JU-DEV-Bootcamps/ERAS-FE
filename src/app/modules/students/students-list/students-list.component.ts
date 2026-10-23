@@ -290,6 +290,7 @@ export class StudentsListComponent implements OnInit {
       width: '1100px',
       maxWidth: '95vw',
       maxHeight: '95vh',
+      panelClass: 'student-modal-panel',
       data: { studentId: student.id },
     });
   }

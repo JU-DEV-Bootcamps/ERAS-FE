@@ -36,7 +36,12 @@ export class StudentService extends BaseApiService implements CacheableHost {
   createManualStudent(
     student: StudentRegistrationModel
   ): Observable<StudentRegistrationModel> {
-    return this.post<StudentRegistrationModel>('manual', student);
+    // The BE requires a positive cohort id and links the new student to it.
+    const cohortId = Number(student.cohortId);
+    return this.post<StudentRegistrationModel>('manual', {
+      ...student,
+      cohortId: Number.isInteger(cohortId) && cohortId > 0 ? cohortId : null,
+    });
   }
 
   getStudentProfile(studentId: number): Observable<StudentRegistrationModel> {

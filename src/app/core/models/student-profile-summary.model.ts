@@ -11,14 +11,14 @@ export interface StudentCurrentCourse {
  * data is optional until the BE data migration is complete.
  */
 export interface StudentProfileSummaryModel extends StudentRegistrationModel {
-  stuId?: string | null;
+  sisId?: string | null;
   cohortName?: string | null;
   cgpa?: number | null;
   sapStatus?: string | null;
-  isThirdAttempt?: boolean | null;
+  isCurrentCourseThirdAttempt?: boolean | null;
   currentCourses?: StudentCurrentCourse[] | null;
   passedCourses?: number | null;
   failedCourses?: number | null;
-  risks?: string[] | null;
+  identifiedRisks?: string[] | null;
   supportReceived?: string[] | null;
 }

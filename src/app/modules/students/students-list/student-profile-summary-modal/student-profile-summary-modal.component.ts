@@ -10,7 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { STUDENT_PROFILE_MESSAGES } from '@core/constants/messages';
 import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
+import { CohortService } from '@core/services/api/cohort.service';
 import { StudentService } from '@core/services/api/student.service';
+import { catchError, forkJoin, map, of } from 'rxjs';
 
 export interface StudentProfileSummaryModalData {
   studentId: number;
@@ -25,6 +27,7 @@ export interface StudentProfileSummaryModalData {
 })
 export class StudentProfileSummaryModalComponent {
   private readonly studentService = inject(StudentService);
+  private readonly cohortService = inject(CohortService);
   private readonly data =
     inject<StudentProfileSummaryModalData>(MAT_DIALOG_DATA);
 
@@ -34,12 +37,26 @@ export class StudentProfileSummaryModalComponent {
   readonly hasError = signal(false);
 
   constructor() {
-    this.studentService
-      .getStudentProfileSummary(this.data.studentId)
+    // The BE returns the student's current `cohortId`; the name is resolved from the cohort list.
+    forkJoin({
+      profile: this.studentService.getStudentProfileSummary(
+        this.data.studentId
+      ),
+      cohorts: this.cohortService.getCohorts().pipe(
+        map(response => response.body ?? []),
+        catchError(() => of([]))
+      ),
+    })
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: profile => {
-          this.profile.set(profile);
+        next: ({ profile, cohorts }) => {
+          const cohortName =
+            profile.cohortId == null
+              ? profile.cohortName
+              : (cohorts.find(
+                  cohort => Number(cohort.id) === Number(profile.cohortId)
+                )?.name ?? profile.cohortName);
+          this.profile.set({ ...profile, cohortName });
           this.isLoading.set(false);
         },
         error: () => {

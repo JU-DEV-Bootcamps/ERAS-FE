@@ -43,17 +43,23 @@
 
   dt,
   .label {
-    font-size: 0.75rem;
+    font-size: 12px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--color-neutral-600);
+    color: var(--color-neutral-800);
   }
 
   dd {
     margin: 0.25rem 0 0;
-    font-weight: 500;
     word-break: break-word;
   }
+}
+
+.academic {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
 }
 
 .academic h3 {
@@ -100,13 +106,17 @@
     color: #b45309;
   }
 
-  .label,
-  .value {
+  .label {
     display: block;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1%;
+    text-transform: uppercase;
   }
 
   .value {
-    font-weight: 600;
+    display: block;
+    font-weight: 400;
   }
 }
 
@@ -124,7 +134,7 @@
   color: #1e40af;
   border-radius: 999px;
   padding: 0.125rem 0.625rem;
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
 }
 
 .third-attempt {

@@ -404,6 +404,7 @@ describe('StudentService', () => {
       firstName: 'Ana',
       lastName: 'Pérez',
       idPassportNumber: 'AB-1',
+      cohortId: 1,
       primaryEmail: 'ana@jala.university',
     };
 
@@ -416,6 +417,16 @@ describe('StudentService', () => {
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(student);
       req.flush({ ...student, studentId: 3 });
+    });
+
+    it('createManualStudent should send the cohort id as a number', () => {
+      service
+        .createManualStudent({ ...student, cohortId: '4' as unknown as number })
+        .subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/manual`);
+      expect(req.request.body.cohortId).toBe(4);
+      req.flush(student);
     });
 
     it('getStudentProfile should GET /:id/profile', () => {

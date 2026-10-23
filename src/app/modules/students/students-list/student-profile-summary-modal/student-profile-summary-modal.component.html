@@ -12,7 +12,7 @@
       <dl>
         <div>
           <dt>STU ID</dt>
-          <dd>{{ display(p.stuId) }}</dd>
+          <dd>{{ display(p.sisId) }}</dd>
         </div>
         <div>
           <dt>Mobile number</dt>
@@ -61,11 +61,11 @@
         </div>
       </div>
 
-      @if (p.isThirdAttempt) {
+      @if (p.isCurrentCourseThirdAttempt) {
         <span class="chip third-attempt">{{ messages.THIRD_ATTEMPT }}</span>
       }
 
-      <h3>Current courses</h3>
+      <h4>Current courses</h4>
       @if (p.currentCourses?.length) {
         <table class="courses">
           <thead>
@@ -89,10 +89,10 @@
         <p class="empty">{{ messages.NO_COURSES }}</p>
       }
 
-      <h3>Identified risks</h3>
-      @if (p.risks?.length) {
+      <h4>Identified risks</h4>
+      @if (p.identifiedRisks?.length) {
         <ul class="chips">
-          @for (risk of p.risks; track $index) {
+          @for (risk of p.identifiedRisks; track $index) {
             <li class="chip">{{ risk }}</li>
           }
         </ul>
@@ -100,7 +100,7 @@
         <p class="empty">{{ messages.NO_RISKS }}</p>
       }
 
-      <h3>Support received</h3>
+      <h4>Support received</h4>
       @if (p.supportReceived?.length) {
         <ul class="chips">
           @for (support of p.supportReceived; track $index) {

@@ -24,7 +24,7 @@ export const VALIDATION_MESSAGES = {
 
 export const STUDENT_PROFILE_MESSAGES = {
   TITLE: 'Profile summary',
-  NOT_AVAILABLE: 'Not available',
+  NOT_AVAILABLE: '-',
   LOAD_ERROR: 'Could not load the student profile. Please try again later.',
   NO_RISKS: 'No risks identified.',
   NO_SUPPORT: 'No support received.',
