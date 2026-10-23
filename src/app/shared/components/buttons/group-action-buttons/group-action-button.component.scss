@@ -1,0 +1,25 @@
+@use 'index.scss' as main-styles;
+
+.group-action-button {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.group-action-button button {
+  align-items: center;
+  background: main-styles.get-color('neutral-variant', 95);
+  border: none;
+  color: main-styles.get-color('primary', 30);
+  cursor: pointer;
+  display: flex;
+  height: 25px;
+  justify-content: center;
+  width: 25px;
+  mat-icon {
+    align-items: center;
+    display: flex;
+    font-size: 20px;
+    justify-content: center;
+  }
+}

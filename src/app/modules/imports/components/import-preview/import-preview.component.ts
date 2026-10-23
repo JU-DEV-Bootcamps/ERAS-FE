@@ -74,10 +74,11 @@ export class ImportPreviewComponent implements OnInit {
           this.importedPollData = data;
           this.loadingSubject.next(false);
           if (data.length < 1) {
-            this.dialogService.openDialog(
-              IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY,
-              'success'
-            );
+            this.dialogService
+              .openDialog(IMPORT_MESSAGES.ANSWERS_PREVIEW_EMPTY, 'success')
+              .subscribe(() => {
+                this.router.navigate(['/evaluation-process']);
+              });
           } else {
             this.dialogService.openDialog(
               IMPORT_MESSAGES.ANSWERS_PREVIEW_OK,

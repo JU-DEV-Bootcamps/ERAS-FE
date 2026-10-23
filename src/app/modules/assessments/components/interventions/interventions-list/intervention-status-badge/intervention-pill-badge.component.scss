@@ -1,0 +1,60 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.type-individual {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.type-group {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+.mode-inplace {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.mode-remote {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.status-in-progress {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.status-remitted {
+  background-color: #cdcde1;
+  color: #333399;
+}
+
+.status-finalized {
+  background-color: #afeae9;
+  color: #117473;
+}
+
+.risk-level-low {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.risk-level-medium {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.risk-level-high {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

@@ -1,0 +1,30 @@
+@mixin primary-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: get-color(primary, 50);
+  color: white;
+  border: none;
+  border-radius: 100px;
+  font-size: get-font-size(body, large);
+  font-weight: 500;
+  line-height: 125%;
+  height: 40px;
+  padding: 10px 16px;
+
+  &:hover {
+    background-color: get-color(primary, 30);
+  }
+
+  &:disabled {
+    background-color: get-color(neutral, 70);
+    color: get-color(neutral, 40);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  @media (min-width: 500px) {
+    width: 200px;
+  }
+}

@@ -1,0 +1,452 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { PageEvent } from '@angular/material/paginator';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  AssessmentListComponent,
+  AssessmentRowViewModel,
+} from './assessment-list.component';
+import {
+  AssessmentModel,
+  AssessmentStatus,
+} from '@core/models/assessment.model';
+import { AssessmentService } from '@core/services/api/assessement.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { NewInterventionModalComponent } from '../interventions/new-intervention-modal/new-intervention-modal.component';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { UsersService } from '@core/services/api/users.service';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
+
+describe('AssessmentListComponent', () => {
+  let component: AssessmentListComponent;
+  let fixture: ComponentFixture<AssessmentListComponent>;
+
+  let assessmentService: jasmine.SpyObj<AssessmentService>;
+  let matDialog: jasmine.SpyObj<MatDialog>;
+  let modalDeleteService: jasmine.SpyObj<ModalDeleteConfirmationService>;
+  let toastService: jasmine.SpyObj<ToastNotificationService>;
+  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
+  let usersService: jasmine.SpyObj<UsersService>;
+  let permissionsService: jasmine.SpyObj<PermissionsService>;
+
+  const buildAssessment = (
+    overrides: Partial<AssessmentModel> = {}
+  ): AssessmentModel => ({
+    id: 1,
+    createdAtUtc: '2026-03-30T00:00:00Z',
+    createdBy: 'Roberto Alvarez',
+    service: 'Student Services',
+    assignedProfessional: 'Master',
+    studentIds: ['12'],
+    students: [
+      { id: 12, name: 'Jane Doe', email: 'jane@mail.com', avgRiskLevel: 0 },
+    ],
+    comments: 'Some comment for preview testing',
+    status: AssessmentStatus.Remitted,
+    interventions: [],
+    ...overrides,
+  });
+
+  beforeEach(async () => {
+    assessmentService = jasmine.createSpyObj('AssessmentService', [
+      'deleteAssessment',
+      'clearCache',
+    ]);
+    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
+      'resolve',
+    ]);
+    fetchResolverMock.resolve.and.returnValue(of([buildAssessment()]));
+
+    matDialog = jasmine.createSpyObj('MatDialog', ['open']);
+
+    modalDeleteService = jasmine.createSpyObj(
+      'ModalDeleteConfirmationService',
+      ['confirmDelete']
+    );
+
+    toastService = jasmine.createSpyObj('ToastNotificationService', [
+      'showToast',
+    ]);
+
+    usersService = jasmine.createSpyObj('UsersService', ['getByRole']);
+    usersService.getByRole.and.returnValue(of([]));
+
+    permissionsService = jasmine.createSpyObj('PermissionsService', ['can']);
+    permissionsService.can.and.returnValue(true);
+
+    await TestBed.configureTestingModule({
+      imports: [AssessmentListComponent],
+      providers: [
+        { provide: AssessmentService, useValue: assessmentService },
+        {
+          provide: ModalDeleteConfirmationService,
+          useValue: modalDeleteService,
+        },
+        { provide: ToastNotificationService, useValue: toastService },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
+        { provide: UsersService, useValue: usersService },
+        { provide: PermissionsService, useValue: permissionsService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
+    }).compileComponents();
+
+    TestBed.overrideProvider(MatDialog, { useValue: matDialog });
+
+    fixture = TestBed.createComponent(AssessmentListComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
+
+  describe('loadAssessments', () => {
+    it('should load and map assessments on success', () => {
+      fixture.detectChanges();
+
+      expect(fetchResolverMock.resolve).toHaveBeenCalled();
+      expect(component['assessments']().length).toBe(1);
+      expect(component['isLoading']()).toBeFalse();
+    });
+
+    it('should reset pageIndex to maxPage when pageIndex exceeds maxPage (branch true)', () => {
+      component['pageIndex'].set(3);
+      fetchResolverMock.resolve.and.returnValue(
+        of([buildAssessment({ id: 1 })])
+      );
+      component.loadAssessments();
+
+      expect(component['pageIndex']()).toBe(0);
+    });
+
+    it('should fall back to "No student assigned" when studentIds is empty', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        of([buildAssessment({ studentIds: [] })])
+      );
+
+      component.loadAssessments();
+
+      expect(component['pageIndex']()).toBe(0);
+    });
+
+    it('should fall back to "No student assigned" when studentIds is empty or undefined', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        of([
+          buildAssessment({ id: 1, studentIds: [] }),
+          buildAssessment({ id: 2, studentIds: undefined }),
+        ])
+      );
+
+      component.loadAssessments();
+
+      expect(component['assessments']()[0].studentDisplay).toBe(
+        'No student assigned'
+      );
+      expect(component['assessments']()[1].studentDisplay).toBe(
+        'No student assigned'
+      );
+    });
+
+    it('should truncate long comments in the preview', () => {
+      const longComment = 'x'.repeat(80);
+
+      fetchResolverMock.resolve.and.returnValue(
+        of([buildAssessment({ comments: longComment })])
+      );
+
+      component.loadAssessments();
+
+      const preview = component['assessments']()[0].commentPreview;
+      expect(preview.endsWith('...')).toBeTrue();
+      expect(preview.length).toBeLessThan(longComment.length);
+    });
+
+    it('should keep short comments intact without truncation (branch <= 60)', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        of([buildAssessment({ comments: 'Short remarks' })])
+      );
+
+      component.loadAssessments();
+
+      expect(component['assessments']()[0].commentPreview).toBe(
+        'Short remarks'
+      );
+    });
+
+    it('should show "—" when there are no comments', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        of([buildAssessment({ comments: '' })])
+      );
+
+      component.loadAssessments();
+
+      expect(component['assessments']()[0].commentPreview).toBe('—');
+    });
+
+    it('should show "—" when comments is empty, null, undefined or whitespace', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        of([
+          buildAssessment({ id: 1, comments: '' }),
+          buildAssessment({ id: 2, comments: undefined }),
+          buildAssessment({ id: 3, comments: null }),
+          buildAssessment({ id: 4, comments: '   ' }),
+        ])
+      );
+
+      component.loadAssessments();
+
+      expect(component['assessments']()[0].commentPreview).toBe('—');
+      expect(component['assessments']()[1].commentPreview).toBe('—');
+      expect(component['assessments']()[2].commentPreview).toBe('—');
+      expect(component['assessments']()[3].commentPreview).toBe('—');
+    });
+
+    it('should mark Remitted and InProgress as editable, Finalized as not', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        of([
+          buildAssessment({ id: 1, status: AssessmentStatus.Remitted }),
+          buildAssessment({ id: 2, status: AssessmentStatus.InProgress }),
+          buildAssessment({ id: 3, status: AssessmentStatus.Finalized }),
+        ])
+      );
+
+      component.loadAssessments();
+
+      const rows = component['assessments']();
+      expect(rows[0].isEditable).toBeTrue();
+      expect(rows[1].isEditable).toBeTrue();
+      expect(rows[2].isEditable).toBeFalse();
+    });
+
+    it('should clear the list and stop loading on error', () => {
+      fetchResolverMock.resolve.and.returnValue(
+        throwError(() => new Error('network error'))
+      );
+
+      component.loadAssessments();
+
+      expect(component['assessments']()).toEqual([]);
+      expect(component['isLoading']()).toBeFalse();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'error' })
+      );
+    });
+  });
+
+  describe('pagination', () => {
+    it('should slice assessments according to pageIndex and pageSize', () => {
+      const list = [
+        buildAssessment({ id: 1 }),
+        buildAssessment({ id: 2 }),
+        buildAssessment({ id: 3 }),
+      ];
+
+      fetchResolverMock.resolve.and.returnValue(of(list));
+      component.pageSize = 2;
+
+      component.loadAssessments();
+
+      expect(component['pagedAssessments']().length).toBe(2);
+
+      component['onPageChange']({ pageIndex: 1 } as PageEvent);
+
+      expect(component['pagedAssessments']().length).toBe(1);
+    });
+  });
+
+  describe('output emitters', () => {
+    beforeEach(() => component.loadAssessments());
+
+    it('should emit createClicked', () => {
+      spyOn(component.createClicked, 'emit');
+      component['onCreateClick']();
+      expect(component.createClicked.emit).toHaveBeenCalled();
+    });
+
+    it('should emit viewClicked and set selectedAssessment', () => {
+      spyOn(component.viewClicked, 'emit');
+      const row = component['assessments']()[0];
+
+      component['onViewClick'](row);
+
+      expect(component.viewClicked.emit).toHaveBeenCalledWith(row);
+      expect(component['selectedAssessment']()).toBe(row);
+    });
+
+    it('should close the detail panel', () => {
+      component['selectedAssessment'].set(component['assessments']()[0]);
+
+      component['closeDetailPanel']();
+
+      expect(component['selectedAssessment']()).toBeNull();
+    });
+
+    it('should close and reload on closePanelRefreshing', () => {
+      fetchResolverMock.resolve.calls.reset();
+      component['selectedAssessment'].set(component['assessments']()[0]);
+
+      component['closePanelRefreshing']();
+
+      expect(component['selectedAssessment']()).toBeNull();
+      expect(fetchResolverMock.resolve).toHaveBeenCalled();
+    });
+
+    it('should emit editClicked', () => {
+      spyOn(component.editClicked, 'emit');
+      const row = component['assessments']()[0];
+
+      component['onEditClick'](row);
+
+      expect(component.editClicked.emit).toHaveBeenCalledWith(row);
+    });
+
+    it('should emit moreClicked', () => {
+      spyOn(component.moreClicked, 'emit');
+      const row = component['assessments']()[0];
+
+      component['onMoreClick'](row);
+
+      expect(component.moreClicked.emit).toHaveBeenCalledWith(row);
+    });
+  });
+
+  describe('onDeleteClick', () => {
+    beforeEach(() => component.loadAssessments());
+
+    it('should do nothing when the item id is undefined', () => {
+      component['onDeleteClick']({ ...buildAssessment(), id: undefined });
+      expect(modalDeleteService.confirmDelete).not.toHaveBeenCalled();
+    });
+
+    it('should not delete when the confirmation is cancelled', () => {
+      modalDeleteService.confirmDelete.and.returnValue({
+        afterClosed: () => of(false),
+      } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+
+      component['onDeleteClick'](buildAssessment());
+
+      expect(assessmentService.deleteAssessment).not.toHaveBeenCalled();
+    });
+
+    it('should delete, toast, clear cache and reload on success', () => {
+      modalDeleteService.confirmDelete.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+      const item = buildAssessment();
+      assessmentService.deleteAssessment.and.returnValue(of(item));
+      spyOn(component.deleteClicked, 'emit');
+
+      component['onDeleteClick'](item);
+
+      expect(assessmentService.deleteAssessment).toHaveBeenCalledWith(item.id!);
+      expect(component.deleteClicked.emit).toHaveBeenCalledWith(item);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'success' })
+      );
+      expect(assessmentService.clearCache).toHaveBeenCalled();
+    });
+
+    it('should show a status-based error toast when deletion is rejected', () => {
+      spyOn(console, 'error');
+      modalDeleteService.confirmDelete.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+      assessmentService.deleteAssessment.and.returnValue(
+        throwError(() => new HttpErrorResponse({ statusText: 'Bad Request' }))
+      );
+      const item = buildAssessment({ status: AssessmentStatus.Finalized });
+
+      component['onDeleteClick'](item);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          type: 'error',
+          message: jasmine.stringMatching('cannot be removed'),
+        }),
+        true
+      );
+      expect(component['isLoading']()).toBeFalse();
+    });
+
+    it('should show a not-found error toast for a Remitted item', () => {
+      spyOn(console, 'error');
+      modalDeleteService.confirmDelete.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+      assessmentService.deleteAssessment.and.returnValue(
+        throwError(() => new HttpErrorResponse({ statusText: 'Not Found' }))
+      );
+      const item = buildAssessment({ status: AssessmentStatus.Remitted });
+
+      component['onDeleteClick'](item);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          type: 'error',
+          message: jasmine.stringMatching('was not found'),
+        }),
+        true
+      );
+    });
+  });
+
+  describe('onCreateIntervention', () => {
+    it('should open NewInterventionModalComponent with mapped student options', () => {
+      component.loadAssessments();
+      const row: AssessmentRowViewModel = {
+        ...buildAssessment(),
+        studentDisplay: '',
+        commentPreview: '',
+        isEditable: true,
+        submitterDisplay: '',
+        professionalDisplay: 'Master',
+      };
+
+      component['onCreateIntervention'](row);
+
+      expect(matDialog.open).toHaveBeenCalledWith(
+        NewInterventionModalComponent,
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({
+            assessmentId: row.id,
+            students: [{ value: 12, label: 'Jane Doe', riskLevel: 0 }],
+          }),
+        })
+      );
+    });
+
+    it('should fallback to empty string when assignedProfessional is undefined and handle undefined students (branches coverage)', () => {
+      component.loadAssessments();
+      const row: AssessmentRowViewModel = {
+        ...buildAssessment({
+          assignedProfessional: undefined,
+          students: undefined,
+        }),
+        studentDisplay: '',
+        commentPreview: '',
+        isEditable: true,
+        submitterDisplay: '',
+        professionalDisplay: '',
+      };
+
+      component['onCreateIntervention'](row);
+
+      expect(matDialog.open).toHaveBeenCalledWith(
+        NewInterventionModalComponent,
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({
+            assessmentId: row.id,
+            professional: { value: '', label: '' },
+            students: undefined,
+          }),
+        })
+      );
+    });
+  });
+});

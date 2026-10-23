@@ -17,4 +17,5 @@ export interface PollInstance extends BaseModel {
   version: string;
   finishedAt: string;
   components: Component[];
+  isAlreadyImported?: boolean;
 }

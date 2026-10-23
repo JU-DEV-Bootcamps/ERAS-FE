@@ -1,0 +1,32 @@
+<div class="chart-overlay">
+  <div class="heatmap-skeleton">
+    <div class="skeleton-legend">
+      @for (color of skeletonColors; track $index) {
+        <div class="skeleton-legend-item">
+          <div class="skeleton-dot sh" [style.background]="color"></div>
+          <div class="skeleton-label sh"></div>
+        </div>
+      }
+    </div>
+    @for (row of skeletonRows; track $index) {
+      <div class="skeleton-row">
+        <div
+          class="skeleton-row-label sh"
+          [style.width.px]="row.labelWidth"
+        ></div>
+        <div class="skeleton-cells">
+          @for (cell of row.cells; track $index) {
+            @if (cell.width > 0) {
+              <div
+                class="skeleton-cell sh"
+                [style.width.px]="cell.width"
+                [style.background]="cell.color"
+                [style.animation-delay]="cell.delay + 's'"
+              ></div>
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

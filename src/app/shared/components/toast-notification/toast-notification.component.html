@@ -1,0 +1,19 @@
+@let toast = toast$ | async;
+@if (toast) {
+  <div @slideInOutTrigger class="toast-container">
+    <div class="icon">
+      @if (toast.type === 'success') {
+        <img src="assets/icons/success.svg" alt="Success" />
+      } @else {
+        <img src="assets/icons/error.svg" alt="Error" />
+      }
+    </div>
+    <div class="information-section">
+      <p class="toast-title">{{ toast.title }}</p>
+      <p class="toast-message">{{ toast.message }}</p>
+    </div>
+    <div class="close-button">
+      <mat-icon (click)="closeToast()">close</mat-icon>
+    </div>
+  </div>
+}

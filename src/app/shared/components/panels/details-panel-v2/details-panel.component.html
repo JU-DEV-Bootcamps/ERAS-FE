@@ -1,0 +1,48 @@
+<div class="details-panel">
+  <!-- Header -->
+  <div class="panel-header">
+    <h2 class="panel-title">Details</h2>
+    <button mat-icon-button (click)="close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (data(); as panelData) {
+    <div class="panel-body">
+      <div class="risk-row">
+        <span class="risk-label">Average answer risk:</span>
+        <span
+          class="risk-badge"
+          [style.backgroundColor]="getRiskColor(panelData.question.averageRisk)"
+          [style.color]="getTextRiskColor(panelData.question.averageRisk)"
+        >
+          {{ panelData.question.averageRisk }}
+        </span>
+      </div>
+
+      <!-- Question -->
+      <div class="question-section">
+        <span class="field-label">Question:</span>
+        <span class="field-value">{{ panelData.question.question }}</span>
+      </div>
+
+      <!-- Student list -->
+      <app-list-details
+        (loadCalled)="handleLoadCalled($event)"
+        (actionCalled)="handleActionCalled($event)"
+        [columns]="columns"
+        [columnTemplates]="columnTemplates"
+        [exportColumns]="exportColumns"
+        [exportItemsLoader]="exportItemsLoader"
+        [items]="studentList()"
+        [totalItems]="totalStudentRisks()"
+        [title]="'Answer Details'"
+        [actionDatas]="actionDatas"
+      >
+        <ng-template #riskLevel let-item>
+          <app-badge-risk-level [riskLevel]="item.riskLevel" />
+        </ng-template>
+      </app-list-details>
+    </div>
+  }
+</div>

@@ -4,6 +4,9 @@ export interface Filter {
   cohortIds: number[];
   variableIds: number[];
   lastVersion: boolean;
+  evaluationId?: number | string;
+  selectedComponentIndex?: number[];
+  selectedComponents: string[];
 }
 
 export type FormKey =

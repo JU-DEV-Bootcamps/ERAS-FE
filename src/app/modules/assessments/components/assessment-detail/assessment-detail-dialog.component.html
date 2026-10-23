@@ -1,0 +1,67 @@
+<h2 mat-dialog-title class="dialog-title">
+  Assessment Details
+  <button
+    mat-icon-button
+    class="close-btn"
+    aria-label="Close"
+    (click)="onClose()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-divider></mat-divider>
+
+<div class="dialog-content">
+  <div class="field-group">
+    <span class="field-label">Student(s):</span>
+    <div class="list-of-student">
+      <app-list-with-removal
+        [columns]="columns"
+        [items]="data.students ?? []"
+        [totalItems]="data.students ? data.students.length : 0"
+        [title]="'Answer Details'"
+        [actionDatas]="actionDatas"
+        (actionCalled)="onActionCalled($event)"
+      />
+    </div>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Status:</span>
+    <div class="field-value">
+      <app-assessment-status-badge [status]="data.status" />
+    </div>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Service:</span>
+    <span class="field-value">{{ (data.service | titlecase) || '—' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Professional:</span>
+    <span class="field-value">{{ data.professionalDisplay }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Submitter:</span>
+    <span class="field-value">{{ data.submitterDisplay }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Comment:</span>
+    <span class="field-value">{{ data.comments || '—' }}</span>
+  </div>
+</div>
+
+<div class="dialog-actions">
+  <button
+    mat-flat-button
+    class="create-intervention-btn"
+    type="button"
+    (click)="onCreateIntervention()"
+  >
+    Create Intervention
+  </button>
+</div>

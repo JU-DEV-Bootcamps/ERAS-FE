@@ -1,0 +1,414 @@
+import { CommonModule, DatePipe } from '@angular/common';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { InterventionPillBadgeComponent } from './intervention-status-badge/intervention-pill-badge.component';
+import { InterventionDetailComponent } from '../interventions-detail/intervention-detail.component';
+import {
+  AssessmentModel,
+  InterventionModel,
+  RiskLevels,
+} from '@core/models/assessment.model';
+import { InterventionService } from '@core/services/api/intervention.service';
+import {
+  StudentProfileData,
+  AssessmentStudentDataComponent,
+} from '../../assessment-list/assessment-student-data/assessment-student-data.component';
+import { AppliedFilter } from '@shared/components/list-filters/models/list-filters.interface';
+import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
+import { AssessmentService } from '@core/services/api/assessement.service';
+import { CsvService } from '@core/services/exports/csv.service';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { AttachmentModel } from '@core/models/attachment.model';
+import {
+  ACTIVITY_OPTIONS,
+  AREA_OPTIONS,
+  getOptionLabel,
+} from '../interventions.constants';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { InterventionsFetchStrategies } from '@modules/assessments/fetch-strategies/interventions-fetch.strategies';
+
+export interface InterventionRowViewModel extends InterventionModel {
+  studentDisplay: StudentProfileData[] | string;
+  commentPreview: string;
+}
+
+export interface ExportableIntervention {
+  id: string;
+  date: string;
+  type: string;
+  mode: string;
+  activity: string;
+  professional: string;
+  students: string;
+  emails: string;
+  area: string;
+  risk: string;
+  endRisk: string;
+  status: string;
+  comment: string;
+}
+
+@Component({
+  selector: 'app-intervention-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    DatePipe,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatMenuModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    MatTooltipModule,
+    InterventionPillBadgeComponent,
+    InterventionDetailComponent,
+    AssessmentStudentDataComponent,
+  ],
+  templateUrl: './intervention-list.component.html',
+  styleUrl: './intervention-list.component.scss',
+})
+export class InterventionListComponent {
+  private readonly interventionService = inject(InterventionService);
+  private readonly assessmentService = inject(AssessmentService);
+  private readonly attachmentService = inject(AttachmentApiService);
+  private readonly filterStrategy = inject(InterventionFilterStrategy);
+  private readonly csvService = inject(CsvService);
+  private readonly fetchResolver = inject(RoleBasedFetchResolver);
+
+  @Input() pageSize = 10;
+
+  @Input() set studentNamesLookup(value: Record<string, StudentProfileData>) {
+    this._studentNamesLookup = value;
+  }
+  private _studentNamesLookup: Record<string, StudentProfileData> = {};
+
+  @Input() set professionalDisplayLookup(value: Record<string, string>) {
+    this._professionalDisplayLookup = value;
+  }
+  private _professionalDisplayLookup: Record<string, string> = {};
+
+  readonly assessmentId = signal<number | null>(null);
+  @Input() set assessmentIdInput(value: number | null) {
+    this.assessmentId.set(value);
+    if (value != null) {
+      this.loadInterventions(value);
+      this.loadAssessment(value);
+      this.sortColumn.set(null);
+    } else {
+      this.interventions.set([]);
+      this.assessment.set(null);
+    }
+  }
+
+  protected readonly assessment = signal<AssessmentModel | null>(null);
+  protected readonly isLoadingAssessment = signal(false);
+
+  readonly appliedFilters = input<AppliedFilter[]>([]);
+
+  @Output() createClicked = new EventEmitter<void>();
+  @Output() editClicked = new EventEmitter<InterventionModel>();
+  @Output() deleteClicked = new EventEmitter<InterventionModel>();
+
+  protected readonly displayedColumns = [
+    'date',
+    'type',
+    'mode',
+    'activity',
+    'professional',
+    'student',
+    'area',
+    'risk',
+    'endRisk',
+    'status',
+    'comment',
+    'actions',
+  ];
+
+  protected readonly isLoading = signal(false);
+  protected readonly pageIndex = signal(0);
+  protected readonly interventions = signal<InterventionRowViewModel[]>([]);
+  protected readonly selectedIntervention =
+    signal<InterventionRowViewModel | null>(null);
+  protected readonly listAttachments = signal<AttachmentModel[]>([]);
+
+  protected activityLabel(value: string | null | undefined): string {
+    return getOptionLabel(ACTIVITY_OPTIONS, value);
+  }
+
+  protected areaLabel(value: string | null | undefined): string {
+    return getOptionLabel(AREA_OPTIONS, value);
+  }
+
+  protected readonly sortColumn = signal<string | null>(null);
+  protected readonly sortDirection = signal<'asc' | 'desc'>('asc');
+  protected readonly isGenerating = signal(false);
+
+  private readonly riskRank: Record<string, number> = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
+
+  protected readonly pagedInterventions = computed(() => {
+    const start = this.pageIndex() * this.pageSize;
+    const end = start + this.pageSize;
+    return this.sortedInterventions().slice(start, end);
+  });
+
+  protected readonly sortedInterventions = computed(() => {
+    const rows = this.filteredInterventions();
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+    if (!column) return rows;
+
+    const sorted = [...rows].sort((a, b) => {
+      const cmp = this.compareByColumn(a, b, column);
+      return direction === 'asc' ? cmp : -cmp;
+    });
+    return sorted;
+  });
+
+  private capitalize(text?: string | null): string {
+    if (!text) return text ?? '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  private compareByColumn(
+    a: InterventionRowViewModel,
+    b: InterventionRowViewModel,
+    column: string
+  ): number {
+    if (column === 'risk') {
+      const rankA = this.riskRank[a.riskLevelName!.toLowerCase()] ?? 0;
+      const rankB = this.riskRank[b.riskLevelName!.toLowerCase()] ?? 0;
+      return rankA - rankB;
+    }
+    return 0;
+  }
+
+  protected readonly filteredInterventions = computed(() => {
+    const filters = this.appliedFilters();
+    const filteredInterventionModels = this.filterStrategy.apply(
+      this.interventions(),
+      filters
+    );
+    return filteredInterventionModels.map(intervention =>
+      this.mapToRow(intervention)
+    );
+  });
+
+  protected readonly hasInterventions = signal(false);
+
+  get statusFinalizedAssessment(): boolean {
+    return this.assessment()?.status === 'Finalized';
+  }
+
+  protected onPageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+  }
+
+  protected onCreateClick(): void {
+    this.createClicked.emit();
+  }
+
+  protected onViewClick(item: InterventionRowViewModel): void {
+    this.selectedIntervention.set(item);
+    if (item.id === undefined) {
+      return;
+    }
+    this.attachmentService.list('interventions', item.id).subscribe({
+      next: data => {
+        this.listAttachments.set(data);
+      },
+      error: error => {
+        console.error('Failed to load attachments', error);
+        this.listAttachments.set([]);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  protected closeDetailPanel(): void {
+    this.selectedIntervention.set(null);
+    this.listAttachments.set([]);
+  }
+
+  protected onEditClick(item: InterventionModel): void {
+    this.editClicked.emit(item);
+  }
+
+  protected onDeleteClick(item: InterventionModel): void {
+    this.deleteClicked.emit(item);
+  }
+
+  loadInterventions(assessmentId: number): void {
+    this.isLoading.set(true);
+    this.pageIndex.set(0);
+
+    this.fetchResolver
+      .resolve(this.interventionService, InterventionsFetchStrategies, {
+        assessmentId,
+      })
+      .subscribe({
+        next: data => {
+          const rows = data.map(item => this.mapToRow(item));
+          this.hasInterventions.set(rows.length > 0);
+          this.interventions.set(rows);
+
+          const current = this.selectedIntervention();
+          if (current) {
+            const refreshed = rows.find(r => r.id === current.id);
+            this.selectedIntervention.set(refreshed ?? null);
+          }
+
+          this.isLoading.set(false);
+        },
+        error: error => {
+          console.error('Failed to load interventions', error);
+          this.interventions.set([]);
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  private mapToRow(item: InterventionModel): InterventionRowViewModel {
+    return {
+      ...item,
+      studentDisplay: this.buildStudentDisplay(item),
+      commentPreview: this.buildCommentPreview(item.comments),
+      professional: this.resolveProfessionalDisplay(item.professional),
+    };
+  }
+
+  protected resolveEndRiskDisplay(value?: RiskLevels | null): RiskLevels {
+    return value ?? RiskLevels.None;
+  }
+
+  private resolveProfessionalDisplay(raw?: string | null): string {
+    if (!raw) return raw ?? '';
+    return this._professionalDisplayLookup[raw] ?? raw;
+  }
+
+  private buildStudentDisplay(
+    item: InterventionModel
+  ): StudentProfileData[] | string {
+    if (item.studentIds?.length) {
+      return item.studentIds.map(id => this._studentNamesLookup[id]);
+    }
+    return 'No student assigned';
+  }
+
+  private buildCommentPreview(comments?: string | null): string {
+    if (!comments?.trim()) return '—';
+    return comments.length > 60
+      ? `${comments.slice(0, 60).trim()}...`
+      : comments;
+  }
+
+  private loadAssessment(assessmentId: number): void {
+    this.isLoadingAssessment.set(true);
+
+    this.assessmentService.getById(assessmentId.toString()).subscribe({
+      next: data => {
+        this.assessment.set(data);
+        this.isLoadingAssessment.set(false);
+      },
+      error: error => {
+        console.error('Failed to load assessment', error);
+        this.assessment.set(null);
+        this.isLoadingAssessment.set(false);
+      },
+    });
+  }
+
+  protected onSortClick(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.pageIndex.set(0);
+  }
+
+  exportToCSV(): void {
+    if (this.isGenerating()) return;
+    this.isGenerating.set(true);
+
+    try {
+      const dataToExport = this.filteredInterventions().map(intervention => {
+        let studentsNames = '';
+        let studentEmails = '';
+
+        if (Array.isArray(intervention.studentDisplay)) {
+          studentsNames = intervention.studentDisplay
+            .map(student => student.name)
+            .join();
+          studentEmails = intervention.studentDisplay
+            .map(student => student.email)
+            .join();
+        }
+
+        return {
+          id: intervention.id?.toString(),
+          date: intervention.dateUtc,
+          type: intervention.kind,
+          mode: intervention.mode,
+          activity: this.capitalize(intervention.activity),
+          professional: intervention.professional,
+          students: studentsNames,
+          emails: studentEmails,
+          area: intervention.area,
+          risk: intervention.riskLevelName,
+          endRisk: intervention.endRiskLevelName,
+          status: intervention.status,
+          comment: intervention.comments,
+        } as ExportableIntervention;
+      });
+
+      const columns = [
+        'id',
+        'date',
+        'type',
+        'mode',
+        'activity',
+        'professional',
+        'students',
+        'emails',
+        'area',
+        'risk',
+        'endRisk',
+        'status',
+        'comment',
+      ];
+
+      this.csvService.exportToCSV(
+        dataToExport,
+        columns,
+        undefined,
+        'interventions'
+      );
+    } finally {
+      this.isGenerating.set(false);
+    }
+  }
+}

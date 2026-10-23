@@ -1,4 +1,12 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  HostListener,
+  inject,
+  OnInit,
+  untracked,
+} from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -29,10 +37,20 @@ import { EvaluationProcessFormComponent } from './evaluation-process-form/evalua
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalComponent } from '@shared/components/modals/modal-dialog/modal-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RouteDataService } from '@core/services/route-data.service';
+import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { ModalImportAnswersFormComponent } from '@modules/lists/components/modal-import-answers-form/modal-import-answers-form.component';
 import { PreselectedPoll } from '@modules/imports/models/preselected-poll';
 import { Pagination } from '@core/services/interfaces/server.type';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { RouteDataService } from '@core/services/route-data.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import {
+  STATUS_COLORS,
+  STATUS_EVALUATIONS,
+  STATUS_LABEL_COLORS,
+  TOOLTIP_EVALUATIONS,
+} from '@core/constants/StatusEvaluation';
 
 @Component({
   selector: 'app-evaluation-process-list',
@@ -48,11 +66,18 @@ import { Pagination } from '@core/services/interfaces/server.type';
     MatTooltipModule,
   ],
   templateUrl: './evaluation-process-list.component.html',
+  styleUrls: [
+    '../../../home-v2/recent-alerts/recent-alerts.component.scss',
+    './evaluation-process-list.component.scss',
+  ],
 })
 export class EvaluationProcessListComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  private cosmicLatteService = inject(CosmicLatteService);
+  private toast = inject(ToastNotificationService);
+  private featureFlagsService = inject(FeatureFlagsService);
   private routeDataService = inject(RouteDataService);
 
   evaluationProcessService = inject(EvaluationsService);
@@ -100,8 +125,20 @@ export class EvaluationProcessListComponent implements OnInit {
       label: 'Actions',
       tooltip: '',
       ngIconName: 'drive_file_move',
-      text: 'Go to import',
+      text: 'New Import',
       isVisible: this.isVisible.bind(this),
+      isDisabled: (item: EvaluationModel) => item.pollName.trim() === '',
+    },
+    {
+      columnId: 'actions',
+      id: 'viewImport',
+      label: 'Actions',
+      tooltip: '',
+      ngIconName: 'visibility',
+      text: 'View Import',
+      isVisible: () =>
+        this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2),
+      isDisabled: (item: EvaluationModel) => !item.latestImportJobId,
     },
   ];
   evaluationProcessList: EvaluationModel[] = [];
@@ -113,6 +150,9 @@ export class EvaluationProcessListComponent implements OnInit {
     page: 0,
     pageSize: 10,
   };
+  displayV2 = computed(() =>
+    this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
+  );
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -122,6 +162,15 @@ export class EvaluationProcessListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isMobile = window.innerWidth < 600;
+  }
+
+  constructor() {
+    effect(() => {
+      this.displayV2();
+      untracked(() => {
+        this.getEvaluationProcess();
+      });
+    });
   }
 
   handleLoadCalled(event: EventLoad) {
@@ -134,12 +183,10 @@ export class EvaluationProcessListComponent implements OnInit {
 
   handleActionCalled(event: EventAction) {
     const actions: Record<string, (item: EvaluationModel) => void> = {
-      goImport: (element: EvaluationModel) => {
-        this.goToImport(element);
-      },
-      openModalDetails: (element: EvaluationModel) => {
-        this.openModalDetails(element);
-      },
+      goImport: (element: EvaluationModel) => this.goToImport(element),
+      openModalDetails: (element: EvaluationModel) =>
+        this.openModalDetails(element),
+      viewImport: (element: EvaluationModel) => this.viewImport(element),
     };
 
     if (actions[event.data.id]) {
@@ -147,20 +194,20 @@ export class EvaluationProcessListComponent implements OnInit {
     }
   }
 
-  getClassName(value: string): string {
-    return value ? value.replace(/\s+/g, '_') : '';
+  viewImport(data: EvaluationModel): void {
+    if (!data.latestImportJobId) return;
+
+    this.router.navigate(['import-status', data.latestImportJobId], {
+      relativeTo: this.route,
+    });
   }
 
   deleteEvaluationConfirmation(id: number) {
-    if (id) {
-      this.openAlertDialog(
-        `Are you sure you want to delete the evaluation?`,
-        'warning',
-        () => this.deleteEvaluation(id)
-      );
-    } else {
-      console.warn("id wasn't provided");
-    }
+    this.openAlertDialog(
+      `Are you sure you want to delete the evaluation?`,
+      'warning',
+      () => this.deleteEvaluation(id)
+    );
   }
 
   deleteEvaluation(id: number) {
@@ -228,7 +275,42 @@ export class EvaluationProcessListComponent implements OnInit {
       })
       .afterClosed()
       .subscribe((result: PreselectedPoll) => {
-        if (result) {
+        if (!result) return;
+        // Kick off the background extraction and go straight to the unified import view, which
+        // shows extraction progress and then the confirm/import step (no synchronous preview).
+
+        if (this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)) {
+          this.cosmicLatteService
+            .startExtraction({
+              evaluationSetName: result.pollName,
+              configurationId: result.configuration.id,
+              startDate: result.startDate,
+              endDate: result.endDate,
+              evaluationId: data.id,
+              pollId: result.pollId,
+            })
+            .subscribe({
+              next: res =>
+                this.router.navigate(['import-status', res.importJobId], {
+                  relativeTo: this.route,
+                }),
+              error: err => {
+                if (err.status === 400) {
+                  this.toast.showToast({
+                    type: 'error',
+                    title: 'Import failed',
+                    message: `${err.error.message}`,
+                  });
+                } else {
+                  this.toast.showToast({
+                    type: 'error',
+                    title: 'Import',
+                    message: 'Could not start the import extraction.',
+                  });
+                }
+              },
+            });
+        } else {
           this.routeDataService.updateRouteData({
             evaluationId: data.id,
             configuration: result.configuration,
@@ -237,9 +319,7 @@ export class EvaluationProcessListComponent implements OnInit {
             endDate: result.endDate,
           });
 
-          this.router.navigate(['import-preview'], {
-            relativeTo: this.route,
-          });
+          this.router.navigate(['import-preview'], { relativeTo: this.route });
         }
       });
   }
@@ -305,6 +385,9 @@ export class EvaluationProcessListComponent implements OnInit {
   }
 
   transformStatus(data: EvaluationModel[]): EvaluationModel[] {
+    if (this.displayV2()) {
+      return data;
+    }
     data.forEach((evaluation: EvaluationModel) => {
       evaluation.status = getStatusForEvaluationProcess(evaluation);
     });
@@ -317,6 +400,22 @@ export class EvaluationProcessListComponent implements OnInit {
 
   isVisible(item: EvaluationModel) {
     return !this.importPollsDisabled.includes(item.status);
+  }
+
+  getStatusLabel(status: string): string {
+    return STATUS_EVALUATIONS[status] ?? STATUS_EVALUATIONS['default'];
+  }
+
+  getStatusTooltip(status: string): string {
+    return TOOLTIP_EVALUATIONS[status] ?? TOOLTIP_EVALUATIONS['default'];
+  }
+
+  getStatusColor(status: string): string {
+    return STATUS_COLORS[status] ?? STATUS_COLORS['default'];
+  }
+
+  getStatusLabelColor(status: string): string {
+    return STATUS_LABEL_COLORS[status] ?? STATUS_LABEL_COLORS['default'];
   }
 
   private _updatePaginator() {

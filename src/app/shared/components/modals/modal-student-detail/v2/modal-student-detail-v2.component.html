@@ -1,0 +1,10 @@
+<div class="modal-header">
+  <h2 class="modal-title">Student Details</h2>
+  <button mat-icon-button [mat-dialog-close]="true">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <app-student-detail-v2 [studentId]="data.studentId" />
+</mat-dialog-content>

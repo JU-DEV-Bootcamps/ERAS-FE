@@ -37,7 +37,10 @@ import { ReportService } from '@core/services/api/report.service';
 import { StudentService } from '@core/services/api/student.service';
 
 import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.component';
-import { ListComponent } from '@shared/components/list/list.component';
+import {
+  ListComponent,
+  TypeFile,
+} from '@shared/components/list/list.component';
 import {
   ModalQuestionDetailsComponent,
   SelectedHMData,
@@ -45,6 +48,7 @@ import {
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { SummaryColumnChartsComponent } from '@modules/reports/components/summary-charts/summary-column-charts/summary-column-charts.component';
 import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 @Component({
   selector: 'app-students-risk',
@@ -70,9 +74,11 @@ import { TooltipChartComponent } from '../tooltip-chart/tooltip-chart.component'
 export class SummaryChartsComponent {
   studentService = inject(StudentService);
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
   reportService = inject(ReportService);
   private readonly dialog = inject(MatDialog);
   private injector = inject(EnvironmentInjector);
+  hasNoResults = false;
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
@@ -102,15 +108,19 @@ export class SummaryChartsComponent {
   selectedCohort?: CohortModel;
   lastVersion = true;
   pollUuid = '';
+  evaluationId?: number | string;
 
   students: StudentRiskAverage[] = [];
+  allStudents: StudentRiskAverage[] = [];
   totalStudents = 0;
 
   isLoading = false;
   isGeneratingPDF = false;
+  isExporting = signal<boolean>(false);
   title = '';
   components = signal<PollAvgReport | null>(null);
   heatmapChart = true;
+  private allStudentsLoaded = false;
 
   constructor(private snackBar: MatSnackBar) {}
 
@@ -121,64 +131,78 @@ export class SummaryChartsComponent {
   getHeatMap() {
     if (!this.pollUuid || !this.cohortIds.length) {
       this.chartOptions = {};
+      this.isLoading = false;
       return;
     }
 
     this.reportService
-      .getAvgPoolReport(this.pollUuid, this.cohortIds, this.lastVersion)
-      .subscribe(response => {
-        this.components.set(response.body);
+      .getAvgPoolReport(
+        this.pollUuid,
+        this.cohortIds,
+        this.lastVersion,
+        this.evaluationId
+      )
+      .subscribe({
+        next: response => {
+          this.components.set(response.body);
+          this.hasNoResults = !response.body?.components?.length;
 
-        const reportSeries = this.reportService.getHMSeriesFromAvgReport(
-          response.body
-        );
+          const reportSeries = this.reportService.getHMSeriesFromAvgReport(
+            response.body
+          );
+          const series = this.reportService.regroupSummaryByColor(reportSeries);
 
-        const series = this.reportService.regroupSummaryByColor(reportSeries);
-        this.chartOptions = GetChartOptions(
-          `${this.title}`,
-          series,
-          (x, y) => {
-            const component = series[y];
-            const serieQuestion = series[y].data[x];
-            const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
-              response.body,
-              component.description,
-              serieQuestion
-            );
-            if (!pollAvgQuestion) {
-              console.error('Error getting question from report.');
-            } else {
-              this.openDetailsModal(
-                pollAvgQuestion,
-                component.description as ComponentValueType,
-                component.text
+          this.chartOptions = GetChartOptions(
+            `${this.title}`,
+            series,
+            (x, y) => {
+              const component = series[y];
+              const serieQuestion = series[y].data[x];
+              const pollAvgQuestion = this.getPollAvgQuestionFromSeries(
+                response.body,
+                component.description,
+                serieQuestion
               );
+              if (!pollAvgQuestion) {
+                console.error('Error getting question from report.');
+              } else {
+                this.openDetailsModal(
+                  pollAvgQuestion,
+                  component.description as ComponentValueType,
+                  component.text
+                );
+              }
+            },
+            undefined,
+            (x, y) => {
+              const category = `Q: ${series[x].data[y].x}`;
+              const value = `Answer: ${series[x].data[y].y}`;
+              const answers = series[x].data[y].z;
+
+              const compRef = createComponent(TooltipChartComponent, {
+                environmentInjector: this.injector,
+              });
+
+              compRef.instance.value = value;
+              compRef.instance.category = category;
+              compRef.instance.answers = answers;
+
+              const container = document.createElement('div');
+              container.appendChild(compRef.location.nativeElement);
+              compRef.changeDetectorRef.detectChanges();
+
+              const html = container.innerHTML;
+              compRef.destroy();
+
+              return html;
             }
-          },
-          undefined,
-          (x, y) => {
-            const category = `Q: ${series[x].data[y].x}`;
-            const value = `Answer: ${series[x].data[y].y}`;
-            const answers = series[x].data[y].z;
-
-            const compRef = createComponent(TooltipChartComponent, {
-              environmentInjector: this.injector,
-            });
-
-            compRef.instance.value = value;
-            compRef.instance.category = category;
-            compRef.instance.answers = answers;
-
-            const container = document.createElement('div');
-            container.appendChild(compRef.location.nativeElement);
-            compRef.changeDetectorRef.detectChanges();
-
-            const html = container.innerHTML;
-            compRef.destroy();
-
-            return html;
-          }
-        );
+          );
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.hasNoResults = true;
+        },
       });
   }
 
@@ -203,14 +227,21 @@ export class SummaryChartsComponent {
 
   async exportReportPdf() {
     if (this.isGeneratingPDF) return;
-
     this.isGeneratingPDF = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'cohort_report',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-    });
-    this.isGeneratingPDF = false;
+    this.exportStateService.startExport('pdf', 0);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      await this.pdfHelper.exportToPdf({
+        fileName: 'cohort_report',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+      });
+    } finally {
+      this.isGeneratingPDF = false;
+      this.exportStateService.endExport();
+    }
   }
 
   openDetailsModal(
@@ -225,15 +256,28 @@ export class SummaryChartsComponent {
       componentName,
       text: text ?? componentName,
       question,
+      evaluationId: this.evaluationId,
     };
     this.dialog.open(ModalQuestionDetailsComponent, { data });
   }
 
   handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
     this.cohortIds = filters.cohortIds;
     this.title = filters.title;
     this.pollUuid = filters.uuid;
     this.lastVersion = filters.lastVersion;
+    this.evaluationId = filters.evaluationId;
+    this.allStudentsLoaded = false;
+    this.allStudents = [];
+
+    if (!filters.uuid || !filters.cohortIds?.length) {
+      this.chartOptions = {};
+      this.students = [];
+      return;
+    }
+
+    this.isLoading = true;
     this._loadStudents({ pageSize: 10, page: 0 });
     this.getHeatMap();
   }
@@ -242,13 +286,56 @@ export class SummaryChartsComponent {
     this.heatmapChart = chart === 'heatmap';
   }
 
+  loadAllStudents(): Promise<void> {
+    return new Promise(resolve => {
+      const batchPageSize = 100;
+      let page = 0;
+      let allItems: StudentRiskAverage[] = [];
+
+      const fetchPage = () => {
+        this.studentService
+          .getAllAverageByCohortsAndPoll({
+            page,
+            pageSize: batchPageSize,
+            cohortIds: this.cohortIds,
+            pollUuid: this.pollUuid,
+            lastVersion: this.lastVersion,
+            evaluationId: this.evaluationId,
+          })
+          .subscribe(response => {
+            allItems = [...allItems, ...response.items];
+            if (allItems.length < response.count) {
+              page++;
+              fetchPage();
+            } else {
+              this.allStudents = allItems;
+              resolve();
+            }
+          });
+      };
+
+      fetchPage();
+    });
+  }
+
+  async onExportRequested(event: TypeFile) {
+    void event;
+    if (!this.allStudentsLoaded) {
+      await this.loadAllStudents();
+      this.allStudentsLoaded = true;
+    }
+  }
+
+  async onExporting(processExport: boolean) {
+    this.isExporting.set(processExport);
+  }
+
   get showEmpty(): boolean {
     return !this.pollUuid;
   }
 
   private _loadStudents(event: EventLoad) {
     if (this.cohortIds.length && this.pollUuid) {
-      this.isLoading = true;
       this.studentService
         .getAllAverageByCohortsAndPoll({
           page: event.page,
@@ -256,15 +343,24 @@ export class SummaryChartsComponent {
           cohortIds: this.cohortIds,
           pollUuid: this.pollUuid,
           lastVersion: this.lastVersion,
+          evaluationId: this.evaluationId,
         })
-        .subscribe(response => {
-          this.students = response.items;
-          this.totalStudents = response.count;
-          this.isLoading = false;
+        .subscribe({
+          next: response => {
+            this.students = response.items;
+            this.totalStudents = response.count;
+            this.hasNoResults =
+              response.count === 0 && !this.components()?.components?.length;
+            this.isLoading = false;
+          },
+          error: () => {
+            this.isLoading = false;
+          },
         });
     } else {
       this.students = [];
       this.totalStudents = 0;
+      this.isLoading = false;
     }
   }
 }

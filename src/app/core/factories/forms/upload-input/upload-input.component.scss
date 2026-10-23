@@ -1,0 +1,106 @@
+$inter: 'Inter', sans-serif;
+$neutral-surface: var(--color-neutral-200);
+$font-text-md: var(--font-size-medium);
+
+$color-background: #f0f0f0;
+$color-accent: #5c9e8f;
+$color-accent-hover: #4a8a7c;
+
+.file-error-message {
+  color: #ba1a1a;
+  font-size: 0.75rem;
+  margin: 4px 0 0 16px;
+  position: relative;
+  top: -20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.choose-file-button {
+  position: absolute;
+  right: 12px;
+  top: 34%;
+  transform: translateY(-50%);
+  color: $color-accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: $inter;
+  font-size: $font-text-md;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &:hover {
+    color: $color-accent-hover;
+    background-color: $color-background;
+  }
+}
+
+.upload-field-wrapper {
+  position: relative;
+
+  &:has(.field-error) ::ng-deep {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__trailing {
+      border-color: #ba1a1a !important;
+    }
+
+    .mdc-text-field--outlined {
+      &:hover .mat-mdc-notch-piece {
+        border-bottom-color: #ba1a1a !important;
+      }
+    }
+
+    .mdc-notched-outline__notch {
+      border-bottom-color: #ba1a1a;
+    }
+
+    .mat-mdc-floating-label {
+      color: #ba1a1a !important;
+    }
+  }
+
+  &:has(.field-error) :host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  mat-form-field {
+    margin-bottom: 0;
+  }
+
+  &:has(.field-error) .choose-file-button {
+    top: 24%;
+  }
+}
+
+.selected-chip {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 1px solid $color-accent-hover;
+  &:hover {
+    background-color: #deeae8;
+  }
+}
+
+:host ::ng-deep .mdc-evolution-chip__action--primary {
+  overflow: hidden !important;
+  min-width: 0;
+}
+
+.mat-mdc-standard-chip,
+.mdc-evolution-chip__cell--primary,
+.mat-mdc-standard-chip,
+.mdc-evolution-chip__action--primary,
+.mat-mdc-standard-chip,
+.mat-mdc-chip-action-label {
+  max-width: 320px;
+}
+
+:host ::ng-deep .mdc-evolution-chip__text-label,
+.mat-mdc-chip-action-label {
+  max-width: 260px;
+  display: block;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}

@@ -5,12 +5,19 @@ mat-sidenav-container {
 }
 
 mat-sidenav {
-  background-color: main-styles.get-color('primary', 25);
-  color: main-styles.get-color('neutral', 70);
-  width: 70px;
   height: 100vh;
   border-radius: 0px 8px 8px 0px;
   transform-origin: left;
+
+  &.new-theme {
+    background-color: #117473;
+    color: white;
+  }
+
+  &.old-theme {
+    background-color: main-styles.get-color('primary', 25);
+    color: main-styles.get-color('neutral', 70);
+  }
 }
 
 button.expand-button {
@@ -40,22 +47,13 @@ mat-sidenav-content {
   transition: all 500ms ease-in-out !important;
 }
 
-mat-toolbar {
-  display: flex;
-  justify-content: space-between;
-  height: 50px;
-}
-
-.app-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: main-styles.get-color('primary', 30);
+mat-sidenav-content {
+  background-color: main-styles.get-color('neutral', 95);
 }
 
 .container {
   width: 100%;
-  max-width: 1200px;
   box-sizing: border-box;
   height: 90%;
-  padding: main-styles.get-size(padding, xl);
+  padding: 0 20px;
 }

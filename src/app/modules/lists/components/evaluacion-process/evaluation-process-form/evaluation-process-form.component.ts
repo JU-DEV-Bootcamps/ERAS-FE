@@ -1,5 +1,5 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { NgClass, NgIf } from '@angular/common';
 
 import {
   FormBuilder,
@@ -39,6 +39,13 @@ import { EvaluationsService } from '@core/services/api/evaluations.service';
 import { NotifyService } from '@core/services/notify.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { UserDataService } from '@core/services/access/user-data.service';
+import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+
+import {
+  dateRangeValidator,
+  yearRangeValidator,
+} from '@core/utils/validators/date-range.validator';
+import { DateAutoFormatDirective } from '@shared/directives/date-auto-format.directive';
 
 @Component({
   selector: 'app-evaluation-process-form',
@@ -50,14 +57,14 @@ import { UserDataService } from '@core/services/access/user-data.service';
     FormsModule,
     MatIcon,
     MatDialogModule,
-    MatFormFieldModule,
     MatInputModule,
     NgIf,
     NgClass,
     CountrySelectComponent,
+    DateAutoFormatDirective,
   ],
   templateUrl: './evaluation-process-form.component.html',
-  providers: [provideNativeDateAdapter(), DatePipe],
+  providers: [provideNativeDateAdapter()],
   styleUrl: './evaluation-process-form.component.scss',
 })
 export class EvaluationProcessFormComponent implements OnInit {
@@ -78,12 +85,17 @@ export class EvaluationProcessFormComponent implements OnInit {
   configurationsService = inject(ConfigurationsService);
   serviceProvidersService = inject(ServiceProvidersService);
   private readonly notify = inject(NotifyService);
+  private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
 
   configurations: ConfigurationsModel[] = [];
   serviceProviders: ServiceProviderModel[] = [];
   pollDataSelected: PollName | null = null;
   selectedConfiguration: ConfigurationsModel | null = null;
   userId = '';
+  configurationsLoaded = false;
+
+  readonly minDate = new Date(1900, 0, 1);
+  readonly maxDate = new Date(2100, 11, 31);
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -98,39 +110,52 @@ export class EvaluationProcessFormComponent implements OnInit {
     private fb: FormBuilder,
     private readonly userData: UserDataService
   ) {
-    this.form = this.fb.group({
-      name: [
-        data?.evaluation?.name ?? '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(50),
-          noWhitespaceValidator,
+    this.form = this.fb.group(
+      {
+        name: [
+          data?.evaluation?.name ?? '',
+          [
+            Validators.required,
+            Validators.minLength(3),
+            Validators.maxLength(50),
+            noWhitespaceValidator,
+          ],
         ],
-      ],
-      configuration: [
-        {
-          value: '',
-          disabled: !!data?.evaluation?.configurationId,
-        },
-        Validators.required,
-      ],
-      pollName: [
-        {
-          value: data?.evaluation?.pollName ? null : this.prefereToChooseLater,
-          disabled: !!data?.evaluation?.pollName,
-        },
-        [Validators.required, Validators.maxLength(100)],
-      ],
-      country: [
-        {
-          value: data?.evaluation?.country ?? '',
-        },
-        [Validators.maxLength(50)],
-      ],
-      startDate: [data?.evaluation?.startDate ?? '', Validators.required],
-      endDate: [data?.evaluation?.endDate ?? '', Validators.required],
-    });
+        configuration: [
+          {
+            value: '',
+            disabled: !!data?.evaluation?.configurationId,
+          },
+          Validators.required,
+        ],
+        pollName: [
+          {
+            value: data?.evaluation?.pollName
+              ? null
+              : this.prefereToChooseLater,
+            disabled: true,
+          },
+          [Validators.required, Validators.maxLength(100)],
+        ],
+        country: [
+          {
+            value: data?.evaluation?.country ?? '',
+          },
+          [Validators.maxLength(50)],
+        ],
+        startDate: [
+          data?.evaluation?.startDate ?? '',
+          [Validators.required, yearRangeValidator(1900, 2100)],
+        ],
+        endDate: [
+          data?.evaluation?.endDate ?? '',
+          [Validators.required, yearRangeValidator(1900, 2100)],
+        ],
+      },
+      { validators: dateRangeValidator('startDate', 'endDate') }
+    );
+
+    this.unsavedChangesGuard.attach(this.dialogRef, () => this.form.dirty);
 
     if (data) {
       this.title = this.data.title ?? 'New evaluation process';
@@ -160,6 +185,14 @@ export class EvaluationProcessFormComponent implements OnInit {
     }
   }
 
+  get isEditMode(): boolean {
+    return !!this.data?.evaluation;
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.form.invalid || (this.isEditMode && this.form.pristine);
+  }
+
   async ngOnInit() {
     const profile = this.userData.user()!;
     this.userId = (profile && profile.id) || '';
@@ -175,6 +208,19 @@ export class EvaluationProcessFormComponent implements OnInit {
   onConfigurationChange(selectedConfiguration: ConfigurationsModel): void {
     this.selectedConfiguration = selectedConfiguration;
     this.getPollDetails(selectedConfiguration.id);
+    this.enablePollNameIfAllowed();
+  }
+
+  private enablePollNameIfAllowed(): void {
+    const pollNameControl = this.form.get('pollName');
+    if (!pollNameControl) {
+      return;
+    }
+    if (this.selectedConfiguration && !this.data?.evaluation?.pollName) {
+      pollNameControl.enable();
+    } else {
+      pollNameControl.disable();
+    }
   }
 
   getServiceProviderName(
@@ -189,6 +235,15 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.dialogRef.close();
     this.resetForm();
   }
+
+  requestClose(): void {
+    this.unsavedChangesGuard
+      .requestClose(this.dialogRef, () => this.form.dirty)
+      .subscribe(closed => {
+        if (closed) this.resetForm();
+      });
+  }
+
   deleteEvaluation() {
     if (this.data.deleteFunction) {
       this.data.deleteFunction(this.data.evaluation!.id!);
@@ -213,7 +268,7 @@ export class EvaluationProcessFormComponent implements OnInit {
           configurationId: this.selectedConfiguration?.id,
           country: this.selectedCountry || this.form.value.country.alpha3,
         } as CreateEvaluationModel;
-        if (this.form.value.pollName.name === 'null') {
+        if (isEmpty(this.form.value.pollName.name)) {
           delete newProcess.pollName;
         }
         this.evaluationsService
@@ -287,6 +342,7 @@ export class EvaluationProcessFormComponent implements OnInit {
         .subscribe({
           next: (data: ConfigurationsModel[]) => {
             this.configurations = data;
+            this.configurationsLoaded = true;
             const configuration = this.configurations.find(
               c => c.id === this.data.evaluation?.configurationId
             );
@@ -294,9 +350,11 @@ export class EvaluationProcessFormComponent implements OnInit {
               this.selectedConfiguration = configuration;
               this.form.get('configuration')?.setValue(configuration);
               this.getPollDetails(configuration.id);
+              this.enablePollNameIfAllowed();
             }
           },
           error: err => {
+            this.configurationsLoaded = true;
             this.notify.error(
               'Error: An error occurred while trying to get the configurations :' +
                 err.message
@@ -309,6 +367,7 @@ export class EvaluationProcessFormComponent implements OnInit {
     this.configurationsService.getAllConfigurations().subscribe({
       next: (data: ConfigurationsModel[]) => {
         this.configurations = data;
+        this.configurationsLoaded = true;
         if (this.data.evaluation?.configurationId) {
           const configuration = this.configurations.find(
             c => c.id === this.data.evaluation?.configurationId
@@ -317,10 +376,12 @@ export class EvaluationProcessFormComponent implements OnInit {
             this.selectedConfiguration = configuration;
             this.form.get('configuration')?.setValue(configuration);
             this.getPollDetails(configuration.id);
+            this.enablePollNameIfAllowed();
           }
         }
       },
       error: err => {
+        this.configurationsLoaded = true;
         this.notify.error(
           'Error: An error occurred while trying to get the configurations :' +
             err.message

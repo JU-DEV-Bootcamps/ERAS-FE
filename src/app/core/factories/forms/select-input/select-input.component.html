@@ -1,9 +1,35 @@
-<mat-form-field class="w-full" appearance="outline">
+<mat-form-field
+  [floatLabel]="field().floatingLabel ?? 'auto'"
+  class="w-full"
+  appearance="outline"
+>
   <mat-label>{{ field().label }}</mat-label>
+
   <mat-select
     [formControlName]="field().name"
     [multiple]="field().multipleSelect"
+    [placeholder]="field().placeholder ?? 'Select option'"
   >
+    @if (field().selectConfig?.displayMode === 'chips') {
+      <mat-select-trigger>
+        @if (selectedOption(); as opt) {
+          <mat-chip-row
+            class="selected-chip"
+            (removed)="onRemoveChip()"
+            [style.backgroundColor]="getRiskLevelColor(opt.label)"
+            [style.color]="getRiskLevelLabelColor(opt.label)"
+          >
+            {{ opt.label }}
+            <button
+              matChipRemove
+              [style.color]="getRiskLevelLabelColor(opt.label)"
+            >
+              <mat-icon>cancel_outline</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-select-trigger>
+    }
     @for (option of field().options; track $index) {
       <mat-option [value]="option.value">{{ option.label }}</mat-option>
     }

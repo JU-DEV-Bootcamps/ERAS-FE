@@ -1,0 +1,30 @@
+<div class="recent-alerts">
+  <app-list
+    (loadCalled)="handleLoadCalled($event)"
+    [columns]="columns"
+    [columnTemplates]="columnTemplates"
+    [columnOrder]="allColumns"
+    [items]="alertsList"
+    [totalItems]="totalAlerts"
+    [isExportable]="false"
+  >
+    <ng-template #riskLevel let-element>
+      <span
+        [style.backgroundColor]="getRiskLevelColor(element.riskLevel)"
+        [style.color]="getRiskLevelLabelColor(element.riskLevel)"
+        class="badge"
+      >
+        {{ element.riskLevel }}
+      </span>
+    </ng-template>
+    <ng-template #status let-element>
+      <span
+        [style.backgroundColor]="getStatusColor(element.status)"
+        [style.color]="getStatusLabelColor(element.status)"
+        class="badge"
+      >
+        {{ getStatusLabel(element.status) }}
+      </span>
+    </ng-template>
+  </app-list>
+</div>

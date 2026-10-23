@@ -1,0 +1,598 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ExportableIntervention,
+  InterventionListComponent,
+  InterventionRowViewModel,
+} from './intervention-list.component';
+import { AssessmentService } from '@core/services/api/assessement.service';
+import { InterventionService } from '@core/services/api/intervention.service';
+import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { StudentProfileData } from '../../assessment-list/assessment-student-data/assessment-student-data.component';
+import {
+  AssessmentModel,
+  AssessmentStatus,
+  InterventionMode,
+  InterventionModel,
+  InterventionStatus,
+  InterventionType,
+  RiskLevels,
+} from '@core/models/assessment.model';
+import { of, throwError } from 'rxjs';
+import { PageEvent } from '@angular/material/paginator';
+import { CsvService } from '@core/services/exports/csv.service';
+import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+
+describe('InterventionListComponent', () => {
+  let component: InterventionListComponent;
+  let fixture: ComponentFixture<InterventionListComponent>;
+  let mockAssessmentService: jasmine.SpyObj<AssessmentService>;
+  let mockAttachmentService: jasmine.SpyObj<AttachmentApiService>;
+  let mockInterventionService: jasmine.SpyObj<InterventionService>;
+  let mockFilterStrategy: jasmine.SpyObj<InterventionFilterStrategy>;
+  let mockCsvService: jasmine.SpyObj<CsvService>;
+  let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
+
+  const intervention: InterventionModel = {
+    id: 1,
+    assessmentId: 10,
+    comments: 'Test comment',
+    studentIds: [1],
+    kind: InterventionType.Individual,
+    mode: InterventionMode.InPlace,
+    dateUtc: '2026-02-20',
+  } as InterventionModel;
+
+  const intervention2: InterventionModel = {
+    id: 1,
+    assessmentId: 10,
+    comments: 'Test comment',
+    studentIds: [],
+    kind: InterventionType.Individual,
+    mode: InterventionMode.InPlace,
+    dateUtc: '2026-02-20',
+  } as InterventionModel;
+
+  const assessment: AssessmentModel = {
+    id: 10,
+    status: AssessmentStatus.Remitted,
+  } as AssessmentModel;
+
+  const studentLookup: Record<string, StudentProfileData> = {
+    '1': {
+      id: 1,
+      name: 'Abby',
+      email: 'aby@mail.com',
+    } as StudentProfileData,
+  };
+
+  const exportableIntervention: ExportableIntervention = {
+    id: '1',
+    date: '2026-02-20',
+    type: 'Individual',
+    mode: 'InPlace',
+    activity: 'Workshop',
+    professional: 'Test Professional',
+    students: 'Abby',
+    emails: 'aby@mail.com',
+    area: 'Academic',
+    risk: 'Medium',
+    endRisk: 'None',
+    status: 'Remitted',
+    comment: 'Test comment',
+  };
+
+  beforeEach(async () => {
+    mockAssessmentService = jasmine.createSpyObj('AssessmentService', [
+      'getById',
+    ]);
+    mockInterventionService = jasmine.createSpyObj('InterventionService', [
+      'getByAssessment',
+    ]);
+    mockFilterStrategy = jasmine.createSpyObj('InterventionFilterStrategy', [
+      'apply',
+    ]);
+    mockCsvService = jasmine.createSpyObj('CsvService', ['exportToCSV']);
+    mockAttachmentService = jasmine.createSpyObj('AttachmentApiService', [
+      'list',
+    ]);
+    fetchResolverMock = jasmine.createSpyObj('RoleBasedFetchResolver', [
+      'resolve',
+    ]);
+
+    await TestBed.configureTestingModule({
+      imports: [InterventionListComponent],
+      providers: [
+        { provide: AssessmentService, useValue: mockAssessmentService },
+        { provide: AttachmentApiService, useValue: mockAttachmentService },
+        { provide: InterventionService, useValue: mockInterventionService },
+        { provide: InterventionFilterStrategy, useValue: mockFilterStrategy },
+        { provide: CsvService, useValue: mockCsvService },
+        { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(InterventionListComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should load interventions and assessment when assessmentIdInput is set', () => {
+    fetchResolverMock.resolve.and.returnValue(of([]));
+    mockAssessmentService.getById.and.returnValue(of(assessment));
+    mockFilterStrategy.apply.and.returnValue([]);
+
+    spyOn(component, 'loadInterventions');
+    component.assessmentIdInput = 10;
+    expect(component.assessmentId()).toBe(10);
+    expect(component.loadInterventions).toHaveBeenCalledWith(10);
+  });
+
+  it('should clear data when assessmentIdInput is null', () => {
+    component['interventions'].set([
+      {
+        studentDisplay: '',
+        commentPreview: '',
+        assessmentId: 0,
+        kind: InterventionType.Individual,
+        mode: InterventionMode.InPlace,
+        dateUtc: '',
+        studentIds: [],
+      },
+    ]);
+    component['assessment'].set(assessment);
+    component.assessmentIdInput = null;
+
+    expect(component['interventions']()).toEqual([]);
+    expect(component['assessment']()).toBeNull();
+  });
+
+  it('should load interventions', () => {
+    component.studentNamesLookup = studentLookup;
+    fetchResolverMock.resolve.and.returnValue(of([intervention]));
+    mockFilterStrategy.apply.and.callFake(items => items);
+    component.loadInterventions(10);
+
+    expect(component['isLoading']()).toBeFalse();
+    expect(component['hasInterventions']()).toBeTrue();
+    expect(component['interventions']().length).toBe(1);
+  });
+
+  it('should handle intervention load error', () => {
+    fetchResolverMock.resolve.and.returnValue(
+      throwError(() => new Error('error'))
+    );
+    spyOn(console, 'error');
+    component.loadInterventions(10);
+    expect(console.error).toHaveBeenCalled();
+    expect(component['interventions']()).toEqual([]);
+    expect(component['isLoading']()).toBeFalse();
+  });
+
+  it('should refresh selected intervention after reload', () => {
+    component.studentNamesLookup = studentLookup;
+    const updated = {
+      ...intervention,
+      comments: 'Updated',
+    };
+    fetchResolverMock.resolve.and.returnValue(of([updated]));
+    component['selectedIntervention'].set({
+      ...updated,
+      studentDisplay: [],
+      commentPreview: '',
+    });
+    component.loadInterventions(10);
+    expect(component['selectedIntervention']()?.comments).toBe('Updated');
+  });
+
+  it('should load assessment', () => {
+    mockAssessmentService.getById.and.returnValue(of(assessment));
+    component['loadAssessment'](10);
+    expect(mockAssessmentService.getById).toHaveBeenCalledWith('10');
+    expect(component['assessment']()).toEqual(assessment);
+    expect(component['isLoadingAssessment']()).toBeFalse();
+  });
+
+  it('should handle assessment load error', () => {
+    mockAssessmentService.getById.and.returnValue(
+      throwError(() => new Error())
+    );
+    spyOn(console, 'error');
+    component['loadAssessment'](10);
+    expect(console.error).toHaveBeenCalled();
+    expect(component['assessment']()).toBeNull();
+    expect(component['isLoadingAssessment']()).toBeFalse();
+  });
+
+  it('should return true when assessment is finalized', () => {
+    component['assessment'].set({
+      status: 'Finalized',
+    } as AssessmentModel);
+    expect(component.statusFinalizedAssessment).toBeTrue();
+  });
+
+  it('should return false when assessment is not finalized', () => {
+    component['assessment'].set({
+      status: AssessmentStatus.Remitted,
+    } as AssessmentModel);
+    expect(component.statusFinalizedAssessment).toBeFalse();
+  });
+
+  it('should emit create event', () => {
+    spyOn(component.createClicked, 'emit');
+    component['onCreateClick']();
+    expect(component.createClicked.emit).toHaveBeenCalled();
+  });
+
+  it('should emit edit event', () => {
+    spyOn(component.editClicked, 'emit');
+    component['onEditClick'](intervention);
+    expect(component.editClicked.emit).toHaveBeenCalledWith(intervention);
+  });
+
+  it('should emit delete event', () => {
+    spyOn(component.deleteClicked, 'emit');
+    component['onDeleteClick'](intervention);
+    expect(component.deleteClicked.emit).toHaveBeenCalledWith(intervention);
+  });
+
+  it('should select intervention on view click', () => {
+    mockAttachmentService.list.and.returnValue(
+      of([
+        {
+          id: 2,
+          entityType: '',
+          entityId: 1,
+          originalFileName: 'string',
+          mimeType: 'string',
+          sizeBytes: 1,
+          contentHash: 'string',
+        },
+      ])
+    );
+    const row = {
+      ...intervention,
+      studentDisplay: [],
+      commentPreview: '',
+    };
+    component['onViewClick'](row);
+    expect(component['selectedIntervention']()).toEqual(row);
+  });
+
+  it('should close detail panel', () => {
+    component['selectedIntervention'].set({
+      studentDisplay: '',
+      commentPreview: '',
+      assessmentId: 0,
+      kind: InterventionType.Individual,
+      mode: InterventionMode.InPlace,
+      dateUtc: '',
+      studentIds: [],
+    });
+    component['closeDetailPanel']();
+    expect(component['selectedIntervention']()).toBeNull();
+  });
+
+  it('should update page index', () => {
+    component['onPageChange']({
+      pageIndex: 2,
+      pageSize: 10,
+    } as PageEvent);
+    expect(component['pageIndex']()).toBe(2);
+  });
+
+  it('should use filter strategy', () => {
+    component.studentNamesLookup = studentLookup;
+    component['interventions'].set([
+      {
+        ...intervention,
+        studentDisplay: [],
+        commentPreview: '',
+      },
+    ]);
+    mockFilterStrategy.apply.and.returnValue(component['interventions']());
+    component['filteredInterventions']();
+    expect(mockFilterStrategy.apply).toHaveBeenCalledWith(
+      component['interventions'](),
+      component.appliedFilters()
+    );
+  });
+
+  it('should resolve a raw professional sub to its display name using the lookup', () => {
+    component.professionalDisplayLookup = { 'sub-123': 'Jane Smith' };
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, professional: 'sub-123' }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].professional).toBe('Jane Smith');
+  });
+
+  it('should keep the stored value when it is not a known sub', () => {
+    component.professionalDisplayLookup = { 'sub-123': 'Jane Smith' };
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, professional: 'Already A Name' }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].professional).toBe('Already A Name');
+  });
+
+  it('should not bake a display fallback into the row model for a never-set endRiskLevelName', () => {
+    fetchResolverMock.resolve.and.returnValue(
+      of([{ ...intervention, endRiskLevelName: undefined }])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].endRiskLevelName).toBeUndefined();
+  });
+
+  describe('resolveEndRiskDisplay', () => {
+    it('should fall back to None only for display, without touching the row', () => {
+      expect(component['resolveEndRiskDisplay'](undefined)).toBe(
+        RiskLevels.None
+      );
+      expect(component['resolveEndRiskDisplay'](RiskLevels.Low)).toBe(
+        RiskLevels.Low
+      );
+    });
+  });
+
+  it('should truncate long comments', () => {
+    const longComment = 'a'.repeat(100);
+    fetchResolverMock.resolve.and.returnValue(
+      of([
+        {
+          ...intervention,
+          comments: longComment,
+        },
+      ])
+    );
+    component.loadInterventions(10);
+    expect(
+      component['interventions']()[0].commentPreview.endsWith('...')
+    ).toBeTrue();
+  });
+
+  it('should show dash when comments are empty', () => {
+    fetchResolverMock.resolve.and.returnValue(
+      of([
+        {
+          ...intervention,
+          comments: '',
+        },
+      ])
+    );
+    component.loadInterventions(10);
+    expect(component['interventions']()[0].commentPreview).toBe('—');
+  });
+
+  it('should call exportToCsv with all filtered interventions', () => {
+    component.studentNamesLookup = studentLookup;
+    component['interventions'].set([
+      {
+        ...intervention,
+        activity: 'workshop',
+        professional: 'Test Professional',
+        area: 'Academic',
+        riskLevelName: RiskLevels.Medium,
+        endRiskLevelName: RiskLevels.None,
+        status: InterventionStatus.Remitted,
+        studentDisplay: [{ id: 1, name: 'Aby', email: 'aby@mail.test' }],
+        commentPreview: '',
+      },
+    ]);
+    mockFilterStrategy.apply.and.returnValue(component['interventions']());
+
+    const columns = [
+      'id',
+      'date',
+      'type',
+      'mode',
+      'activity',
+      'professional',
+      'students',
+      'emails',
+      'area',
+      'risk',
+      'endRisk',
+      'status',
+      'comment',
+    ];
+
+    component.exportToCSV();
+
+    expect(mockCsvService.exportToCSV).toHaveBeenCalledWith(
+      [exportableIntervention],
+      columns,
+      undefined,
+      'interventions'
+    );
+  });
+
+  describe('sorting behavior', () => {
+    const highRisk = {
+      ...intervention,
+      id: 1,
+      dateUtc: '2026-02-20',
+      riskLevelName: RiskLevels.High,
+      studentDisplay: [],
+      commentPreview: '',
+    } as unknown as InterventionRowViewModel;
+
+    const mediumRisk = {
+      ...intervention,
+      id: 2,
+      dateUtc: '2026-03-01',
+      riskLevelName: RiskLevels.Medium,
+      studentDisplay: [],
+      commentPreview: '',
+    } as unknown as InterventionRowViewModel;
+
+    const lowRisk = {
+      ...intervention,
+      id: 3,
+      dateUtc: '2026-01-10',
+      riskLevelName: RiskLevels.Low,
+      endRiskLevelName: RiskLevels.Low,
+      studentDisplay: [],
+      commentPreview: '',
+    } as unknown as InterventionRowViewModel;
+
+    describe('onSortClick', () => {
+      it('should set the new column and reset direction to "asc" when a different column is clicked', () => {
+        component['onSortClick']('risk');
+        expect(component['sortColumn']()).toBe('risk');
+        expect(component['sortDirection']()).toBe('asc');
+      });
+
+      it('should toggle direction when the same column is clicked again', () => {
+        component['onSortClick']('risk');
+        expect(component['sortDirection']()).toBe('asc');
+
+        component['onSortClick']('risk');
+        expect(component['sortDirection']()).toBe('desc');
+
+        component['onSortClick']('risk');
+        expect(component['sortDirection']()).toBe('asc');
+      });
+
+      it('should reset pageIndex to 0 when sorting changes', () => {
+        component['pageIndex'].set(2);
+        component['onSortClick']('risk');
+        expect(component['pageIndex']()).toBe(0);
+      });
+    });
+
+    describe('compareByColumn', () => {
+      it('should rank "high" above "medium" and "low" for the risk column', () => {
+        const result = component['compareByColumn'](
+          highRisk,
+          mediumRisk,
+          'risk'
+        );
+        expect(result).toBeGreaterThan(0);
+      });
+
+      it('should rank "low" below "medium" for the risk column', () => {
+        const result = component['compareByColumn'](
+          lowRisk,
+          mediumRisk,
+          'risk'
+        );
+        expect(result).toBeLessThan(0);
+      });
+
+      it('should return 0 when comparing equal risk levels', () => {
+        const anotherHigh = { ...highRisk, id: 4 };
+        const result = component['compareByColumn'](
+          highRisk,
+          anotherHigh,
+          'risk'
+        );
+        expect(result).toBe(0);
+      });
+
+      it('should fall back to string comparison for unknown columns', () => {
+        const itemA = {
+          ...highRisk,
+          activity: 'Aaa',
+        } as unknown as InterventionRowViewModel;
+        const itemB = {
+          ...mediumRisk,
+          activity: 'Bbb',
+        } as unknown as InterventionRowViewModel;
+        const result = component['compareByColumn'](itemA, itemB, 'activity');
+        expect(result).toBe(0);
+      });
+    });
+
+    describe('sortedInterventions', () => {
+      beforeEach(() => {
+        component.studentNamesLookup = studentLookup;
+        mockFilterStrategy.apply.and.callFake(items => items);
+      });
+
+      it('should sort by risk level when sortColumn is "risk"', () => {
+        fetchResolverMock.resolve.and.returnValue(
+          of([
+            { ...intervention, id: 1, riskLevelName: RiskLevels.Low },
+            { ...intervention, id: 2, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 3, riskLevelName: RiskLevels.Medium },
+          ])
+        );
+        component.loadInterventions(10);
+        component['onSortClick']('risk');
+        const result = component['sortedInterventions']();
+        expect(result.map(r => r.id)).toEqual([1, 3, 2]);
+      });
+
+      it('should reverse order when direction toggles to desc', () => {
+        fetchResolverMock.resolve.and.returnValue(
+          of([
+            { ...intervention, id: 1, riskLevelName: RiskLevels.Low },
+            { ...intervention, id: 2, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 3, riskLevelName: RiskLevels.Medium },
+          ])
+        );
+        component.loadInterventions(10);
+        component['onSortClick']('risk');
+        component['onSortClick']('risk');
+
+        const result = component['sortedInterventions']();
+        expect(result.map(r => r.id)).toEqual([2, 3, 1]);
+      });
+
+      it('should not mutate the original filteredInterventions array', () => {
+        fetchResolverMock.resolve.and.returnValue(
+          of([
+            { ...intervention, id: 1, dateUtc: '2026-01-10' },
+            { ...intervention, id: 2, dateUtc: '2026-03-01' },
+          ])
+        );
+        component.loadInterventions(10);
+
+        const before = component['filteredInterventions']();
+        const beforeOrder = before.map(r => r.id);
+
+        component['sortedInterventions']();
+
+        const after = component['filteredInterventions']();
+        expect(after.map(r => r.id)).toEqual(beforeOrder);
+      });
+
+      it('should use pagination', () => {
+        fetchResolverMock.resolve.and.returnValue(
+          of([
+            { ...intervention, id: 1, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 2, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 3, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 4, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 5, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 6, riskLevelName: RiskLevels.High },
+            { ...intervention2, id: 7, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 8, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 9, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 10, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 11, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 12, riskLevelName: RiskLevels.High },
+            { ...intervention, id: 13, riskLevelName: RiskLevels.High },
+          ])
+        );
+        component.loadInterventions(10);
+        const newPageEvent: PageEvent = {
+          length: 13,
+          pageIndex: 1,
+          pageSize: 10,
+          previousPageIndex: 0,
+        };
+        component['onPageChange'](newPageEvent);
+
+        const result = component['pagedInterventions']();
+        expect(result.map(r => r.id)).toEqual([11, 12, 13]);
+      });
+    });
+  });
+});

@@ -1,0 +1,21 @@
+<div class="eras-select">
+  <button type="button" class="select-trigger" (click)="toggle()">
+    <span class="label">{{ label() }}</span>
+    <span class="value">
+      {{ selected()?.label ?? placeholder() }}
+    </span>
+    <span class="chevron">▾</span>
+  </button>
+
+  @if (isOpen()) {
+    <ul class="dropdown">
+      @for (option of options(); track option.value) {
+        <li class="option">
+          <button type="button" class="option-button" (click)="select(option)">
+            {{ option.label }}
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

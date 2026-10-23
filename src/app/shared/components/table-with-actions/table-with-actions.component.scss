@@ -1,3 +1,13 @@
+$row-height: 48px;
+$table-border-radius: 8px;
+$border-color: #e3e2e2;
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
 table {
   text-align: left;
   width: 100%;
@@ -15,6 +25,46 @@ mat-card-actions {
 .mat-mdc-table {
   color: black;
   width: 100%;
+  border: 1px solid $border-color;
+  border-radius: $table-border-radius;
+}
+
+.mat-mdc-header-row {
+  background-color: #f0efef;
+  color: #64748b;
+  height: $row-height;
+}
+
+.mat-mdc-row {
+  height: $row-height;
+
+  &:last-of-type {
+    .mat-mdc-cell {
+      &:first-of-type {
+        border-bottom-left-radius: $table-border-radius;
+      }
+
+      &:last-of-type {
+        border-bottom-right-radius: $table-border-radius;
+      }
+    }
+  }
+}
+
+.mat-mdc-header-cell {
+  border-bottom: none;
+
+  &:first-of-type {
+    border-top-left-radius: $table-border-radius;
+  }
+
+  &:last-of-type {
+    border-top-right-radius: $table-border-radius;
+  }
+}
+
+.mat-mdc-cell {
+  border-bottom: 1px solid $border-color;
 }
 
 .row-mobile {
@@ -25,6 +75,7 @@ mat-card-actions {
 .row-info {
   margin-bottom: 0.25em;
 }
+
 .menu-button {
   border: none;
   border-radius: 15px;

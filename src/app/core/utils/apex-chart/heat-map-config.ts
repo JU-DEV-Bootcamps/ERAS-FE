@@ -5,7 +5,7 @@ import {
   RISK_TEXT_COLORS,
   getRiskGroup,
 } from '@core/constants/riskLevel';
-import { customTooltip } from '@core/utils/apex-chart/customTooltip';
+import { customTooltip } from './customTooltip';
 
 export function GetChartOptions(
   title: string,
@@ -15,9 +15,17 @@ export function GetChartOptions(
   tooltipCustomFunction?: (x: number, y: number) => string,
   fixColors = true
 ): ApexOptions {
+  const ROW_HEIGHT = 50;
+  const LEGEND_OFFSET = 60;
+  const calculatedHeight = Math.max(
+    300,
+    series.length * ROW_HEIGHT + LEGEND_OFFSET
+  );
+
   const options: ApexOptions = {
     series: series,
     chart: {
+      height: calculatedHeight,
       zoom: {
         enabled: false,
       },
@@ -40,6 +48,12 @@ export function GetChartOptions(
         },
       },
     },
+    legend: {
+      show: true,
+      showForSingleSeries: true,
+      position: 'top',
+      horizontalAlign: 'center',
+    },
     title: {
       text: title,
     },
@@ -55,6 +69,7 @@ export function GetChartOptions(
     plotOptions: {
       heatmap: {
         distributed: false,
+        // enableShades: false,
         ...(fixColors && {
           colorScale: {
             inverse: false,
@@ -94,7 +109,6 @@ export function GetChartOptions(
             const yValue = dataPoint.y;
             const zValue = dataPoint.z;
             const formattedZValue = zValue;
-
             return customTooltip(xValue, yValue, formattedZValue);
           }
         };

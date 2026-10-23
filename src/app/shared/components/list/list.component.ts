@@ -11,6 +11,9 @@ import {
   TemplateRef,
   ViewChild,
   AfterContentInit,
+  ChangeDetectorRef,
+  SimpleChanges,
+  OnChanges,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -34,12 +37,21 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { ExportStateService } from '@core/services/exports/export-state.service';
+import { FormsModule } from '@angular/forms';
 import { MapClass } from './types/class';
 import { EmptyDataComponent } from '../empty-data/empty-data.component';
+import { NgTemplateOutlet } from '@angular/common';
+import { ITEMS_PER_CHUNK_COMPLEX } from '@core/constants/pdf';
+
+export type TypeFile = 'csv' | 'pdf' | '';
+
+const WAIT_ALL_ITEMS_TIMEOUT_MS = 30000;
 
 @Component({
   selector: 'app-list',
   imports: [
+    FormsModule,
     MatProgressSpinnerModule,
     MatTableModule,
     MatPaginatorModule,
@@ -51,15 +63,17 @@ import { EmptyDataComponent } from '../empty-data/empty-data.component';
     MatTooltipModule,
     MatMenuModule,
     EmptyDataComponent,
+    NgTemplateOutlet,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })
 export class ListComponent<T extends object>
-  implements OnInit, AfterContentInit
+  implements OnInit, AfterContentInit, OnChanges
 {
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
 
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
@@ -76,6 +90,20 @@ export class ListComponent<T extends object>
   @Input() actionDatas: ActionDatas = [];
   @Input() title?: string;
   @Input() mapClass?: MapClass;
+  @Input() showExportDropdown = false;
+  @Input() itemsAreSelectable = false;
+  @Input() externalExport = false;
+  @Input() isExportable = true;
+  @Input() showPaginator = true;
+  @Input() columnOrder: Column<T>[] = [];
+  @Input() isItemDisabled?: (item: T) => boolean;
+  @Input() allItems: T[] = [];
+  @Input() areExportedAllItems = false;
+  @Input() emptyTemplate?: TemplateRef<T>;
+  @Input() hasError = false;
+  @Input() errorDescription =
+    'Something went wrong loading this data. Please try again later.';
+  @Input() emptyDescription = 'No data available.';
 
   @Output() loadCalled = new EventEmitter<EventLoad>();
   @Output() actionCalled = new EventEmitter<EventAction>();
@@ -84,10 +112,28 @@ export class ListComponent<T extends object>
   @Input() columnTemplates: Column<T>[] = [];
   @ViewChild('contentToExport', { static: false }) contentToExport!: ElementRef;
   @Input() pageIndex = 0;
+  @Output() exporting = new EventEmitter<boolean>();
+  @Output() exportRequested = new EventEmitter<TypeFile>();
+  private pendingExportResolve: (() => void) | null = null;
+  private allItemsStale = false;
 
   templateMap = new Map<string, TemplateRef<unknown>>();
 
-  constructor(private snackBar: MatSnackBar) {}
+  selectedExportFormat: TypeFile = '';
+
+  exportTable() {
+    if (!this.selectedExportFormat) return;
+    if (this.selectedExportFormat === 'csv') {
+      this.exportToCSV();
+    } else {
+      this.exportToPdf();
+    }
+  }
+
+  constructor(
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.load();
@@ -102,6 +148,22 @@ export class ListComponent<T extends object>
         this.templateMap.set(name, tpl);
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['items'] && !changes['items'].firstChange) {
+      this.allItemsStale = true;
+    }
+    if (
+      changes['allItems'] &&
+      this.allItems?.length &&
+      this.pendingExportResolve
+    ) {
+      this.allItemsStale = false;
+      const resolve = this.pendingExportResolve;
+      this.pendingExportResolve = null;
+      resolve();
+    }
   }
 
   onPageChange(pagination: PageEvent): void {
@@ -173,31 +235,152 @@ export class ListComponent<T extends object>
   exportToCSV() {
     if (this.isGenerating) return;
     this.isGenerating = true;
-    const columnsToExport = [
-      ...new Set([...this.columns, ...this.exportColumns]),
-    ];
-    const columnKeys = columnsToExport.map(c => c.key);
-    const columnLabels = columnsToExport.map(c => c.label);
-
-    this.csvService.exportToCSV(
-      this.items,
-      columnKeys as string[],
-      columnLabels
-    );
-
+    this.exportStateService.startExport('csv', this.items.length);
+    if (this.areExportedAllItems) {
+      this.waitForAllItems('csv').then(() => {
+        this._exportItemsToCsv();
+        this.isGenerating = false;
+        this.exportStateService.endExport();
+      });
+      return;
+    }
+    this._exportItemsToCsv();
     this.isGenerating = false;
+    this.exportStateService.endExport();
+  }
+
+  private waitForAllItems(type: TypeFile): Promise<void> {
+    if (this.allItems?.length && !this.allItemsStale) {
+      this.exportRequested.emit(type);
+      return Promise.resolve();
+    }
+    return new Promise<void>(resolve => {
+      const timeout = setTimeout(() => {
+        this.pendingExportResolve = null;
+        resolve();
+      }, WAIT_ALL_ITEMS_TIMEOUT_MS);
+
+      this.pendingExportResolve = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+
+      this.exportRequested.emit(type);
+    });
   }
 
   async exportToPdf() {
-    if (this.isGenerating) return;
+    this.exporting.emit(true);
+    this.exportStateService.startExport('pdf', this.items.length);
 
-    this.isGenerating = true;
+    try {
+      if (this.areExportedAllItems) {
+        await this.waitForAllItems('pdf');
+      }
+      const itemsToExport = this.getItemsToExport();
+
+      if (itemsToExport.length > 100) {
+        await this.exportWithChunks(itemsToExport);
+      } else {
+        await this.exportWithAllItems(itemsToExport);
+      }
+    } catch (error) {
+      console.error('PDF export error:', error);
+      this.snackBar.open('Error exporting PDF. Please try again.', 'Close', {
+        duration: 5000,
+        panelClass: 'snackbar-error',
+      });
+    } finally {
+      this.exportStateService.endExport();
+      this.exporting.emit(false);
+    }
+  }
+
+  private getItemsToExport(): T[] {
+    const selectedItems = this.items.filter(
+      item => 'isSelected' in item && item.isSelected
+    );
+
+    if (selectedItems.length === 0) {
+      return this.allItems?.length ? this.allItems : this.items;
+    }
+
+    return selectedItems;
+  }
+
+  private async exportWithAllItems(itemsToExport: T[]) {
+    const originalItems = this.items;
+    this.items = itemsToExport;
+    this.cdr.detectChanges();
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 150)));
+
     await this.pdfHelper.exportToPdf({
       fileName: 'report_detail',
       container: this.contentToExport,
       snackBar: this.snackBar,
       preProcess: 'list',
+      title: this.title,
     });
-    this.isGenerating = false;
+
+    this.items = originalItems;
+    this.showPaginator = true;
+    this.cdr.detectChanges();
+  }
+  private _exportItemsToCsv() {
+    const itemsToExport = this.itemsAreSelectable
+      ? this.getItemsToExport()
+      : (this.allItems ?? this.items);
+    const columnsToExport = [
+      ...new Set([
+        ...this.columns,
+        ...this.exportColumns,
+        ...this.columnTemplates,
+      ]),
+    ];
+    const columnKeys = columnsToExport.map(c => c.key);
+    const columnLabels = columnsToExport.map(c => c.label);
+
+    this.csvService.exportToCSV(
+      itemsToExport,
+      columnKeys as string[],
+      columnLabels
+    );
+    // this.isGenerating = false;
+  }
+
+  private async exportWithChunks(itemsToExport: T[]): Promise<void> {
+    const chunkSize = ITEMS_PER_CHUNK_COMPLEX;
+    const totalChunks = Math.ceil(itemsToExport.length / chunkSize);
+    const originalItems = this.items;
+
+    await this.pdfHelper.exportToPdfChunked({
+      fileName: 'report_detail',
+      container: this.contentToExport,
+      snackBar: this.snackBar,
+      preProcess: 'list',
+      title: this.title,
+      totalChunks,
+
+      getChunkElement: async i => {
+        this.items = itemsToExport.slice(i * chunkSize, (i + 1) * chunkSize);
+        this.data = new MatTableDataSource(this.items);
+        this.cdr.detectChanges();
+        await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+
+        return this.pdfHelper.printReportInfo(
+          this.contentToExport.nativeElement,
+          'list'
+        );
+      },
+
+      onChunkDone: async (i, total) => {
+        this.exportStateService.updateProgress(i + 1, total);
+        if (i === total - 1) {
+          this.items = originalItems;
+          this.data = new MatTableDataSource(this.items);
+          this.cdr.detectChanges();
+        }
+      },
+    });
   }
 }

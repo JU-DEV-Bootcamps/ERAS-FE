@@ -18,7 +18,7 @@ import {
 } from '@core/services/interfaces/student.interface';
 import { CsvCheckerService } from '@core/services/csv-checker.service';
 import { StudentService } from '@core/services/api/student.service';
-import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 
 @Component({
   selector: 'app-import-students',
@@ -51,28 +51,34 @@ export class ImportStudentsComponent {
     private studentService: StudentService
   ) {}
 
-  private openDialog(text: string, isSuccess: boolean): void {
+  openDialog(text: string, isSuccess: boolean): void {
+    openDialogWithStatus(
+      text,
+      isSuccess,
+      this.csvErrors,
+      this.fileError,
+      this.dialog,
+      () => this.openDetailsDialog()
+    );
+  }
+
+  private openDetailsDialog() {
     const buttonElement = document.activeElement as HTMLElement;
     buttonElement.blur(); // Remove focus from the button - avoid console warning
+
+    this.csvErrors = this.csvCheckerService.getErrors();
+
     this.dialog.open(ModalComponent, {
-      ...MODAL_DEFAULT_CONF,
+      width: 'auto',
+      height: 'auto',
+      minWidth: '50vw',
+      maxWidth: '80vw',
+      maxHeight: '90vh',
       data: {
-        isSuccess: isSuccess,
-        title: isSuccess
-          ? GENERAL_MESSAGES.SUCCESS_IMPORT_TITLE
-          : GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
-        message: this.csvErrors.length > 0 ? this.csvErrors : this.fileError,
-        success: {
-          details: text,
-        },
-        error: {
-          title: this.fileError != null ? this.fileError : text,
-          details:
-            this.csvErrors.length > 0
-              ? this.csvErrors
-              : [GENERAL_MESSAGES.ERROR_500],
-          message: `${text} ${this.selectedFile?.name}`,
-        },
+        type: 'error',
+        title: GENERAL_MESSAGES.ERROR_IMPORT_TITLE,
+        message: this.fileError,
+        details: this.csvErrors,
       },
     });
   }
@@ -95,6 +101,7 @@ export class ImportStudentsComponent {
   private rejectFile(msg: string): void {
     this.fileError = msg;
     this.selectedFile = null;
+    this.inputFile.nativeElement.value = '';
     this.openDialog(GENERAL_MESSAGES.DETAILS, false);
   }
 
@@ -117,7 +124,8 @@ export class ImportStudentsComponent {
       this.rejectFile(VALIDATION_MESSAGES.CSV_SCAN_ERROR);
       return;
     }
-    this.csvErrors = this.csvCheckerService.getErrors();
+
+    this.csvErrors = this.csvCheckerService.getSummarizedErrors();
 
     if (this.csvErrors.length > 0) {
       this.csvErrors = this.processErrors(this.csvErrors);
@@ -129,7 +137,7 @@ export class ImportStudentsComponent {
   }
 
   private processErrors(errors: string[]): string[] {
-    const maxErrorsToShow = 3;
+    const maxErrorsToShow = 5;
     const maxLength = 100;
     const processedErrors = errors.slice(0, maxErrorsToShow).map(error => {
       if (error.length > maxLength) {
@@ -140,7 +148,8 @@ export class ImportStudentsComponent {
 
     if (errors.length > maxErrorsToShow) {
       processedErrors.push(
-        `And ${errors.length - maxErrorsToShow} more rows with errors...`
+        `And ${errors.length - maxErrorsToShow} more rows with errors.`,
+        'See details for more information.'
       );
     }
 

@@ -34,6 +34,7 @@ import {
   SelectedHMData,
 } from '@shared/components/modals/modal-question-details/modal-question-details.component';
 import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
+import { ExportStateService } from '@core/services/exports/export-state.service';
 
 @Component({
   selector: 'app-dynamic-charts',
@@ -57,7 +58,9 @@ export class DynamicChartsComponent {
   uuid: string | null = null;
   cohorTitle: string | null = null;
   chartsOptions: ApexOptions[] = [];
+  evaluationId?: number | string;
   pdfHelper = inject(PdfHelper);
+  exportStateService = inject(ExportStateService);
   heatmapService = inject(HeatMapService);
   reportService = inject(ReportService);
 
@@ -74,16 +77,12 @@ export class DynamicChartsComponent {
     private cdr: ChangeDetectorRef
   ) {}
 
-  generateHeatMap(
-    cohortIds: number[],
-    variablesIds: number[],
-    lastVersion: boolean
-  ) {
+  generateHeatMap(cohortIds: number[], variablesIds: number[]) {
     if (this.uuid === null) return;
 
     this.isLoading = true;
     this.reportService
-      .getCountPoolReport(this.uuid, cohortIds, variablesIds, lastVersion)
+      .getCountPoolReport(this.uuid, cohortIds, variablesIds, this.evaluationId)
       .subscribe(data => {
         if (data) {
           this.components.set(data.body);
@@ -172,29 +171,32 @@ export class DynamicChartsComponent {
     if (this.isGeneratingPDF) return;
 
     this.isGeneratingPDF = true;
-    await this.pdfHelper.exportToPdf({
-      fileName: 'report_detail',
-      container: this.contentToExport,
-      snackBar: this.snackBar,
-    });
-    this.isGeneratingPDF = false;
+    this.exportStateService.startExport('pdf', 0);
+
+    try {
+      await this.pdfHelper.exportToPdf({
+        fileName: 'report_detail',
+        container: this.contentToExport,
+        snackBar: this.snackBar,
+      });
+    } finally {
+      this.isGeneratingPDF = false;
+      this.exportStateService.endExport();
+    }
   }
 
   handleFilterSelect(filters: Filter) {
     this.title = filters.title;
     this.uuid = filters.uuid;
     this.cohortIds = filters.cohortIds.join(',');
-    if (!filters.cohortIds || !filters.variableIds || !filters.lastVersion) {
+    this.evaluationId = filters.evaluationId;
+    if (!filters.cohortIds || !filters.variableIds) {
       this.chartsOptions = [];
       this.components.set(null);
       this.uuid = null;
       return;
     }
-    this.generateHeatMap(
-      filters.cohortIds,
-      filters.variableIds,
-      filters.lastVersion
-    );
+    this.generateHeatMap(filters.cohortIds, filters.variableIds);
   }
 
   openDetailsModal(
@@ -212,6 +214,7 @@ export class DynamicChartsComponent {
       text,
       question,
       riskLevel,
+      evaluationId: this.evaluationId,
     };
     this.dialog.open(ModalQuestionDetailsComponent, {
       width: 'clamp(320px, 50vw, 580px)',

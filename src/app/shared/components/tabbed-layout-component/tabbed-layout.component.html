@@ -1,0 +1,17 @@
+<div class="tabbed-wrapper">
+  <nav class="tabs-nav">
+    <ng-container *ngFor="let tab of tabs">
+      <a
+        class="tab-item"
+        [routerLink]="tab.route"
+        routerLinkActive="active-tab"
+      >
+        {{ tab.label }}
+      </a>
+    </ng-container>
+  </nav>
+
+  <div class="tabs-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

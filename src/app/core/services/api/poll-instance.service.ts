@@ -26,6 +26,7 @@ export class PollInstanceService extends BaseApiService {
     pageSize,
     lastVersion,
     pollUuid,
+    evaluationId,
   }: {
     cohortIds: number[];
     lastDays?: number;
@@ -33,6 +34,7 @@ export class PollInstanceService extends BaseApiService {
     pageSize: number;
     lastVersion: boolean;
     pollUuid: string;
+    evaluationId?: number | string;
   }) {
     let params = new HttpParams()
       .set('page', page)
@@ -44,6 +46,10 @@ export class PollInstanceService extends BaseApiService {
     cohortIds.forEach(id => {
       params = params.append('cohortId', id);
     });
+
+    if (evaluationId) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
 
     return this.get<ApiResponse<PagedResult<PollInstanceModel>>>(
       pollUuid,

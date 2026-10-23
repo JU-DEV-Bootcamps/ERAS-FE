@@ -4,8 +4,8 @@ import {
   inject,
   Input,
   OnDestroy,
-  SimpleChanges,
   OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { Subscription } from 'rxjs';
@@ -19,45 +19,77 @@ export class SelectAllDirective<T extends SelectAllValue>
   implements AfterViewInit, OnDestroy, OnChanges
 {
   @Input() allValues: T[] = [];
-  private _allValues: T[] = [];
 
   private _matSelect = inject(MatSelect);
   private _matOption = inject(MatOption);
-
   private _subscriptions: Subscription[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['allValues']) {
-      this._allValues = changes['allValues'].currentValue || [];
+      const ctrl = this._matSelect.ngControl?.control;
+      if (ctrl) {
+        setTimeout(() => {
+          this._updateState(ctrl.value);
+        });
+      }
     }
   }
-  private getAllIds(): number[] | string[] {
-    const all = this._allValues;
 
+  private getAllIds(): (number | string)[] {
+    const all = this.allValues;
+    if (!all || all.length === 0) return [];
     if (typeof all[0] === 'object' && all[0] !== null && 'id' in all[0]) {
-      return (all as { id: number }[]).map(item => item.id);
+      return (all as { id: number | string }[]).map(item => item.id);
     }
-    return typeof all[0] == 'string' ? (all as string[]) : (all as number[]);
+    return all as (number | string)[];
   }
 
-  private isAllSelected(selected: T[]): boolean {
-    selected = selected.filter(s => s);
+  private toArray(value: unknown): T[] {
+    if (Array.isArray(value)) return value as T[];
+    if (value === null || value === undefined) return [];
+    return [value as T];
+  }
+
+  private isAllSelected(selected: T[] | null | undefined): boolean {
     const allIds = this.getAllIds();
-    const selectedIds = Array.isArray(selected)
-      ? selected.map((item: T) =>
+    if (allIds.length === 0) return false;
+    const selectedIds = new Set(
+      this.toArray(selected)
+        .filter((s): s is T => s !== null && s !== undefined)
+        .map(item =>
           typeof item === 'object' && item !== null && 'id' in item
-            ? item.id
-            : item
+            ? (item as { id: string | number }).id
+            : (item as string | number)
         )
-      : [];
-    return allIds.length === selectedIds.length;
+    );
+    return (
+      selectedIds.size === allIds.length &&
+      allIds.every(id => selectedIds.has(id))
+    );
+  }
+
+  private _updateState(currentValue: T[] | null | undefined): void {
+    if (!this.allValues || this.allValues.length === 0) {
+      this._matOption.deselect(false);
+      return;
+    }
+    if (this.isAllSelected(this.toArray(currentValue))) {
+      this._matOption.select(false);
+    } else {
+      this._matOption.deselect(false);
+    }
   }
 
   ngAfterViewInit(): void {
     const parentSelect = this._matSelect;
-    const parentFormControl = parentSelect.ngControl.control;
+    const parentFormControl = this._matSelect.ngControl?.control;
 
-    // When select all option is clicked
+    this._subscriptions.push(
+      parentFormControl!.valueChanges.subscribe(value => {
+        queueMicrotask(() => this._updateState(value));
+      })
+    );
+
     this._subscriptions.push(
       this._matOption.onSelectionChange.subscribe(event => {
         if (event.isUserInput) {
@@ -71,23 +103,17 @@ export class SelectAllDirective<T extends SelectAllValue>
         }
       })
     );
-    // For changing select all based on other option selection
+
     this._subscriptions.push(
       parentSelect.optionSelectionChanges.subscribe(v => {
         if (v.isUserInput && v.source.value !== this._matOption.value) {
-          if (!v.source.selected) {
-            this._matOption.deselect(false);
-          } else {
-            if (this.isAllSelected(parentFormControl?.value || [])) {
-              this._matOption.select(false);
-            }
-          }
+          this._updateState(parentFormControl?.value);
         }
       })
     );
-    // If user has kept all values selected in select's form-control from the beginning
+
     setTimeout(() => {
-      if (this.isAllSelected(parentFormControl?.value || [])) {
+      if (this.isAllSelected(this.toArray(parentFormControl?.value))) {
         this._matOption.select(false);
       }
     });

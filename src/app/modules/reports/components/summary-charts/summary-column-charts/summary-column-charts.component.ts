@@ -32,9 +32,11 @@ export class SummaryColumnChartsComponent {
   pollUuid = input<string>();
   cohortsIds = input<number[]>();
   data = input();
+  evaluationId = input<number | string>();
 
   private injector = inject(EnvironmentInjector);
   private erasModalService = inject(ErasModalService);
+
   chartOptions = computed<Partial<ChartOptions>>(() => {
     const data = this.components();
     return data
@@ -60,6 +62,7 @@ export class SummaryColumnChartsComponent {
         pollUuid: this.pollUuid(),
         cohorts: this.cohortsIds(),
         componentName,
+        evaluationId: this.evaluationId(),
       },
       title: `${componentName}: ${series[y].name} Details`,
     };
@@ -74,7 +77,7 @@ export class SummaryColumnChartsComponent {
   ): Partial<ChartOptions> {
     return {
       title: ColumnChartUtils.createTitle(title),
-      chart: ColumnChartUtils.createChartBase(onSelect),
+      chart: ColumnChartUtils.createChartBase(onSelect, components.length),
       series: this._createSeries(components),
       plotOptions: ColumnChartUtils.createPlotOptions(),
       xaxis: ColumnChartUtils.createXAxis(

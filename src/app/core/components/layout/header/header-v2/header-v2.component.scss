@@ -1,0 +1,50 @@
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  height: 84px;
+  border-bottom: 1px solid var(--color-neutral-300);
+  padding: 0px 24px;
+}
+
+.app-title {
+  font-size: var(--font-size-header-medium);
+  font-weight: 500;
+  color: var(--primary-900);
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name,
+.user-role {
+  font-size: var(--font-size-medium);
+  line-height: 20px;
+  letter-spacing: 0.1px;
+}
+
+.user-name {
+  text-transform: capitalize;
+  font-weight: 600;
+  color: var(--color-neutral-900);
+}
+
+.user-role {
+  font-weight: 450;
+  color: var(--color-neutral-700);
+}
+
+mat-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 32px;
+  color: var(--primary-900);
+}

@@ -2,10 +2,29 @@ import { FormGroup, ValidatorFn } from '@angular/forms';
 import { EventEmitter, InputSignal } from '@angular/core';
 
 import { FormUtils } from '@core/utils/forms/form-utils';
-import { Lookup } from '@core/models/lookup';
+import { Lookup, LookupExtended } from '@core/models/lookup';
+import { FloatLabelType } from '@angular/material/form-field';
+import { Observable } from 'rxjs';
 
-export type FieldType = 'date' | 'select' | 'text' | 'textarea' | 'password';
-export type ValueType = string | number | boolean | Date | null;
+export type FieldType =
+  | 'date'
+  | 'select'
+  | 'text'
+  | 'textarea'
+  | 'password'
+  | 'searchableSelect'
+  | 'file'
+  | 'number'
+  | 'creatableSelect';
+
+export type ValueType =
+  | string
+  | number
+  | boolean
+  | Date
+  | null
+  | string[]
+  | number[];
 
 export type FormControlTuple = Record<
   string,
@@ -13,17 +32,29 @@ export type FormControlTuple = Record<
 >;
 export type FormDataTuple = Record<string, ValueType>;
 
+export type ModeType = 'list' | 'chips';
+
 // Used to model our formFields variables.
 export interface DynamicField {
   type: FieldType;
   name: string;
   label: string;
+  hidden?: boolean;
   placeholder?: string;
   validators?: (ValidatorFn | string)[];
   value?: ValueType;
-  options?: Lookup[];
+  options?: (Lookup | LookupExtended)[];
   multipleSelect?: boolean;
   disabled?: boolean;
+  floatingLabel?: FloatLabelType;
+  fileConfig?: FileFieldConfig;
+  selectConfig?: {
+    displayMode?: ModeType;
+    addNewLabel?: string;
+    onCreateRecord?: (name: string) => Observable<Lookup>;
+  };
+  max?: number;
+  min?: number;
 }
 
 // Used to implements a dynamic form.
@@ -37,4 +68,14 @@ export interface DynamicInputComponent {
   field: InputSignal<DynamicField>;
   form: InputSignal<FormGroup>;
   formUtils: typeof FormUtils;
+}
+
+export interface FileFieldConfig {
+  maxFiles?: number;
+  maxSizeMb?: number;
+  allowedMimeTypes?: string[];
+  allowedExtensions?: string;
+  onFileSelected?: (file: File) => void;
+  onFileRemoved?: (index: number) => void;
+  prefillFileNames?: string[];
 }

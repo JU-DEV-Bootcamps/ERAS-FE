@@ -1,0 +1,436 @@
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  WritableSignal,
+  ViewChild,
+  computed,
+  Signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
+import { AssessmentService } from '@core/services/api/assessement.service';
+import {
+  AssessmentModel,
+  AssessmentStatus,
+  InterventionModel,
+  InterventionType,
+  RiskLevels,
+} from '@core/models/assessment.model';
+import { InterventionListComponent } from './interventions-list/intervention-list.component';
+import { NewInterventionModalComponent } from './new-intervention-modal/new-intervention-modal.component';
+import { StudentProfileData } from '../assessment-list/assessment-student-data/assessment-student-data.component';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
+import { InterventionService } from '@core/services/api/intervention.service';
+import { ListFiltersComponent } from '@shared/components/list-filters/list-filters.component';
+import {
+  AppliedFilter,
+  FilterField,
+  FilterName,
+  FilterType,
+} from '@shared/components/list-filters/models/list-filters.interface';
+import {
+  MultipleSelectItem,
+  SingleSelectItem,
+} from '@shared/components/form-field-virtual-scroll/interfaces/select';
+import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { ToastNotificationData } from '@core/models/toast-notification.model';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
+import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { UsersService } from '@core/services/api/users.service';
+
+@Component({
+  selector: 'app-interventions',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatDialogModule,
+    InterventionListComponent,
+    ListFiltersComponent,
+  ],
+  templateUrl: './interventions.component.html',
+  styleUrl: './interventions.component.scss',
+})
+export class InterventionsComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly matDialog = inject(MatDialog);
+
+  private readonly assessmentService = inject(AssessmentService);
+  private readonly interventionService = inject(InterventionService);
+  private readonly toastService = inject(ToastNotificationService);
+  private readonly fetchResolver = inject(RoleBasedFetchResolver);
+  private readonly usersService = inject(UsersService);
+
+  private userDisplayNameBySub = new Map<string, string>();
+
+  readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
+  private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
+    []
+  );
+
+  readonly studentNamesLookup: WritableSignal<
+    Record<string, StudentProfileData>
+  > = signal({});
+
+  readonly professionalDisplayLookup: WritableSignal<Record<string, string>> =
+    signal({});
+
+  readonly selectedAssessmentId: WritableSignal<number | null> = signal(null);
+
+  private readonly statusLabelMap: Record<AssessmentStatus, string> = {
+    [AssessmentStatus.Remitted]: 'Remitted',
+    [AssessmentStatus.InProgress]: 'In Progress',
+    [AssessmentStatus.Finalized]: 'Finalized',
+  };
+
+  readonly appliedFilters = signal<AppliedFilter[]>([]);
+  readonly filters: Signal<FilterField[]> = computed(() => {
+    const assessmentOptions = this._mapToOptionAssessments(
+      this.allAssessments()
+    );
+    const statusOptions = this._mapStatus();
+    const typeOptions = this._mapTypes();
+    const riskOptions = this._mapRiskLevels();
+
+    return this._buildFilters({
+      assessmentOptions,
+      statusOptions,
+      typeOptions,
+      riskOptions,
+    });
+  });
+
+  @ViewChild('interventionList') interventionList!: InterventionListComponent;
+
+  ngOnInit(): void {
+    this.loadUserDisplayNames();
+  }
+
+  private loadUserDisplayNames(): void {
+    this.usersService.getByRole().subscribe({
+      next: users => {
+        this.userDisplayNameBySub = new Map(
+          users
+            .filter(user => !!user.sub)
+            .map(user => [
+              user.sub as string,
+              `${user.firstName} ${user.lastName}`.trim() || user.email,
+            ])
+        );
+        this.professionalDisplayLookup.set(
+          Object.fromEntries(this.userDisplayNameBySub)
+        );
+        this.loadAssessments();
+      },
+      error: () => {
+        this.loadAssessments();
+      },
+    });
+  }
+
+  private resolveDisplayName(sub?: string | null): string {
+    if (!sub) return '';
+    return this.userDisplayNameBySub.get(sub) ?? sub;
+  }
+
+  handleFilters(filters: AppliedFilter[]) {
+    const assessmentFilter = filters.find(
+      filter => filter.name === FilterName.Assessment
+    );
+    if (assessmentFilter && assessmentFilter.value) {
+      this.selectedAssessmentId.set(assessmentFilter.value as number);
+    }
+
+    this.appliedFilters.set(filters);
+  }
+
+  private loadAssessments(): void {
+    this.isLoadingAssessments.set(true);
+
+    this.fetchResolver
+      .resolve(this.assessmentService, AssessmentFetchStrategies)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: assessments => {
+          this.allAssessments.set(assessments);
+          this.isLoadingAssessments.set(false);
+
+          const lookup: Record<string, StudentProfileData> = {};
+          assessments.forEach(a => {
+            a.studentIds.forEach((id, index) => {
+              lookup[id] = a.students?.[index] ?? {
+                id: 0,
+                name: '',
+                email: '',
+                avgRiskLevel: 0,
+              };
+            });
+          });
+          this.studentNamesLookup.set(lookup);
+        },
+        error: err => {
+          this.toastService.showToast({
+            type: 'error',
+            title: 'Error fetching assessments',
+            message: err.message,
+          });
+          this.isLoadingAssessments.set(false);
+        },
+      });
+  }
+
+  private _buildFilters(
+    filtersOptions: Record<string, SingleSelectItem[] | MultipleSelectItem[]>
+  ) {
+    return [
+      {
+        name: FilterName.Assessment,
+        disabled: false,
+        label: 'Assessment',
+        type: FilterType.virtualSelect,
+        value: null,
+        options: filtersOptions['assessmentOptions'],
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Type,
+        disabled: false,
+        label: 'Type',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: filtersOptions['typeOptions'],
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Status,
+        disabled: false,
+        label: 'Status',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: filtersOptions['statusOptions'],
+        validators: [Validators.required],
+      },
+      {
+        name: FilterName.Risk,
+        disabled: false,
+        label: 'Risk Level',
+        type: FilterType.virtualMultiSelect,
+        value: null,
+        options: filtersOptions['riskOptions'],
+        validators: [Validators.required],
+      },
+    ];
+  }
+
+  private _mapToOptionAssessments(
+    assessments: AssessmentModel[]
+  ): SingleSelectItem[] {
+    return assessments.map(assessment => {
+      const date = new Date(assessment.createdAtUtc);
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+      });
+      const statusLabel =
+        this.statusLabelMap[assessment.status] ?? assessment.status;
+      return {
+        value: assessment.id!,
+        label: `${dateStr} – ${assessment.service} (${statusLabel})`,
+      };
+    });
+  }
+
+  private _mapStatus(): MultipleSelectItem[] {
+    const statusKeys: AssessmentStatus[] = Object.keys(
+      this.statusLabelMap
+    ) as AssessmentStatus[];
+    const interventionStatus = statusKeys;
+    return interventionStatus.map(statusKey => {
+      return {
+        label: this.statusLabelMap[statusKey as AssessmentStatus],
+        value: statusKey,
+      };
+    });
+  }
+
+  private _mapTypes(): MultipleSelectItem[] {
+    return [
+      {
+        label: InterventionType.Group,
+        value: InterventionType.Group,
+      },
+      {
+        label: InterventionType.Individual,
+        value: InterventionType.Individual,
+      },
+    ];
+  }
+
+  private _mapRiskLevels(): MultipleSelectItem[] {
+    return [
+      {
+        label: RiskLevels.Low,
+        value: RiskLevels.Low,
+      },
+      {
+        label: RiskLevels.Medium,
+        value: RiskLevels.Medium,
+      },
+      {
+        label: RiskLevels.High,
+        value: RiskLevels.High,
+      },
+    ];
+  }
+
+  onAssessmentChange(assessmentId: number | null): void {
+    this.selectedAssessmentId.set(assessmentId);
+  }
+
+  openCreateModal(): void {
+    if (this.selectedAssessmentId() == null) return;
+
+    const assessment = this.allAssessments().find(
+      a => a.id === this.selectedAssessmentId()
+    );
+    if (!assessment) return;
+
+    const students = assessment.studentIds.map((id, index) => ({
+      value: id,
+      label: assessment.students?.[index]?.name ?? id,
+      riskLevel: assessment.students?.[index]?.avgRiskLevel ?? 0,
+    }));
+
+    this.matDialog
+      .open(NewInterventionModalComponent, {
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: assessment.id!,
+          professional: {
+            value: assessment.assignedProfessional ?? '',
+            label: this.resolveDisplayName(assessment.assignedProfessional),
+          },
+          students,
+        },
+      })
+      .afterClosed()
+      .subscribe((created: boolean) => {
+        if (created) {
+          this.interventionList.loadInterventions(this.selectedAssessmentId()!);
+        }
+      });
+  }
+
+  openEditModal(intervention: InterventionModel): void {
+    if (this.selectedAssessmentId() == null) return;
+    const assessment = this.allAssessments().find(
+      a => a.id === this.selectedAssessmentId()
+    );
+    if (!assessment) return;
+
+    const students = assessment.studentIds.map((id, index) => ({
+      value: id,
+      label: assessment.students?.[index]?.name ?? String(id),
+      riskLevel: assessment.students?.[index]?.avgRiskLevel ?? 0,
+    }));
+
+    this.matDialog
+      .open(EditInterventionModalComponent, {
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: assessment.id!,
+          professional: {
+            value: assessment.assignedProfessional ?? '',
+            label: this.resolveDisplayName(assessment.assignedProfessional),
+          },
+          students,
+          intervention,
+        },
+      })
+      .afterClosed()
+      .subscribe((updated: boolean) => {
+        if (updated)
+          this.interventionList.loadInterventions(this.selectedAssessmentId()!);
+      });
+  }
+
+  confirmDelete(intervention: InterventionModel): void {
+    const assessmentId = this.selectedAssessmentId();
+    if (assessmentId == null) return;
+
+    this.matDialog
+      .open(ModalDeleteConfirmationComponent, {
+        width: '400px',
+        data: {
+          title: 'Delete Intervention',
+          subtitle:
+            'This will permanently remove the intervention and all its attachments.',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.interventionService
+          .deleteIntervention(assessmentId, intervention.id!)
+          .subscribe({
+            next: () => {
+              const toastData = this.buildSuccessToastDataObject(intervention);
+              this.toastService.showToast(toastData);
+              this.interventionList.loadInterventions(assessmentId);
+            },
+            error: err => {
+              const toastData = this.buildErrorToastDataObject(
+                intervention,
+                err
+              );
+              this.toastService.showToast(toastData, true);
+              console.error('Failed to delete intervention', err);
+            },
+          });
+      });
+  }
+  private buildSuccessToastDataObject(
+    item: InterventionModel
+  ): ToastNotificationData {
+    return {
+      title: 'Intervention removed successfully',
+      message: `Intervention with id: ${item.id} was removed`,
+      type: 'success',
+    };
+  }
+
+  private buildErrorToastDataObject(
+    item: InterventionModel,
+    error: HttpErrorResponse
+  ): ToastNotificationData {
+    const message =
+      item.status !== 'Remitted'
+        ? `The item with id: ${item.id} cannot be removed due to its status.`
+        : `${error.statusText}: The item was not found with id: ${item.id}`;
+    return {
+      title: 'Intervention removed failed',
+      message: message,
+      type: 'error',
+    };
+  }
+}

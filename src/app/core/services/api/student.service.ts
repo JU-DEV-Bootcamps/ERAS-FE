@@ -1,11 +1,12 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { StudentResponse } from '../../models/student-request.model';
+import { StudentRegistrationModel } from '../../models/student-registration.model';
 import {
   StudentImport,
   StudentRiskAverage,
 } from '../interfaces/student.interface';
 import { BaseApiService } from './base-api.service';
-import { StudentModel } from '../../models/student.model';
+import { StudentLightModel, StudentModel } from '../../models/student.model';
 import { HttpParams } from '@angular/common/http';
 import { Pagination, ServerResponse } from '../interfaces/server.type';
 import { PagedResult } from '../interfaces/page.type';
@@ -13,12 +14,16 @@ import { map, Observable } from 'rxjs';
 import { StudentRiskResponse } from '../../models/cohort.model';
 import { AnswerResponse } from '../../models/answer-request.model';
 import { sortArray } from '../../utils/helpers/sort';
+import { Cacheable } from '@core/utils/decorators/cacheable.decorator';
+import { CacheService } from '../cache.service';
+import { CacheableHost } from '../interfaces/cacheable-host';
 
 @Injectable({
   providedIn: 'root',
 })
-export class StudentService extends BaseApiService {
+export class StudentService extends BaseApiService implements CacheableHost {
   protected resource = 'students';
+  public readonly cacheService: CacheService = inject(CacheService);
 
   getStudentDetailsById(studentId: number, pagination: Pagination) {
     const params = new HttpParams()
@@ -27,9 +32,30 @@ export class StudentService extends BaseApiService {
     return this.get<StudentResponse>(studentId, params);
   }
 
+  createManualStudent(
+    student: StudentRegistrationModel
+  ): Observable<StudentRegistrationModel> {
+    return this.post<StudentRegistrationModel>('manual', student);
+  }
+
+  getStudentProfile(studentId: number): Observable<StudentRegistrationModel> {
+    return this.get<StudentRegistrationModel>(`${studentId}/profile`);
+  }
+
+  updateStudentProfile(
+    studentId: number,
+    student: StudentRegistrationModel
+  ): Observable<StudentRegistrationModel> {
+    return this.put<StudentRegistrationModel>(`${studentId}/profile`, student);
+  }
+
+  deleteStudent(studentId: number): Observable<void> {
+    return this.delete<void>(studentId);
+  }
+
   getAllStudents() {
     const params = new HttpParams().set('PageSize', 9999).set('Page', 0);
-    return this.get<PagedResult<StudentModel[]>>('', params);
+    return this.get<PagedResult<StudentModel>>('', params);
   }
 
   getAllAverageByCohortsAndPoll({
@@ -38,19 +64,34 @@ export class StudentService extends BaseApiService {
     cohortIds,
     pollUuid,
     lastVersion,
+    evaluationId,
   }: {
     cohortIds: number[];
     page: number;
     pageSize: number;
     pollUuid: string;
     lastVersion: boolean;
+    evaluationId?: number | string;
   }) {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('cohortIds', this.arrayAsStringParams(cohortIds))
       .set('pollUuid', pollUuid)
       .set('page', page)
       .set('pageSize', pageSize)
       .set('lastVersion', lastVersion);
+
+    if (cohortIds && cohortIds.length > 0) {
+      params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
+    }
+
+    if (
+      evaluationId !== undefined &&
+      evaluationId !== null &&
+      evaluationId !== ''
+    ) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
+
     return this.get<PagedResult<StudentRiskAverage>>('average', params).pipe(
       map(result => {
         result.items = sortArray(result.items, 'studentName');
@@ -162,5 +203,10 @@ export class StudentService extends BaseApiService {
         .set('PageSize', pageSize.toString())
         .set('Page', page.toString())
     );
+  }
+
+  @Cacheable()
+  getAllStudentsLight() {
+    return this.get<StudentLightModel[]>('light');
   }
 }

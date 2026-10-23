@@ -3,13 +3,15 @@
 @use 'theme-colors.scss' as theme-colors;
 @use 'theme-fonts.scss' as theme-fonts;
 
+@forward './_theme-components';
 @forward './apex-charts';
+@forward './buttons';
 @forward './forms';
+@forward './fullscreen';
 @forward './theme-breakpoints';
 @forward './theme-colors';
-@forward './theme-sizes';
 @forward './theme-fonts';
-@forward './_theme-components';
+@forward './theme-sizes';
 
 :root {
   --font-family-plain: 'Roboto', sans-serif;
@@ -17,10 +19,32 @@
   --font-weight-bold: theme-fonts.get-font-weight('bold');
   --font-weight-medium: theme-fonts.get-font-weight('medium');
   --font-weight-regular: theme-fonts.get-font-weight('regular');
-}
-
-mat-icon {
-  font-family: 'Material Icons', sans-serif;
+  --font-size-small: #{theme-fonts.get-font-size('body', 'small')};
+  --font-size-medium: #{theme-fonts.get-font-size('body', 'medium')};
+  --font-size-large: #{theme-fonts.get-font-size('body', 'large')};
+  --font-size-header-smaller: #{theme-fonts.get-font-size(
+      'headline',
+      'smaller'
+    )};
+  --font-size-header-small: #{theme-fonts.get-font-size('headline', 'small')};
+  --font-size-header-medium: #{theme-fonts.get-font-size('headline', 'medium')};
+  --font-size-label-mediun: #{theme-fonts.get-font-size('label', 'medium')};
+  --color-neutral-5: #f7f7f7;
+  --color-neutral-50: #f7f6f6;
+  --color-neutral-100: #f0efef;
+  --color-neutral-200: #e3e2e2;
+  --color-neutral-300: #d1d0d0;
+  --color-neutral-400: #bebbbc;
+  --color-neutral-500: #939090;
+  --color-neutral-600: #797676;
+  --color-neutral-700: #605e5e;
+  --color-neutral-800: #484646;
+  --color-neutral-900: #313030;
+  --color-white: #ffffff;
+  --primary-700: #117473;
+  --primary-900: #144d4d;
+  --primary-50: #f0fdfb;
+  --outline-neutral-200: 1px #c6c6c6 solid;
 }
 
 // Override Material Design Components
@@ -29,7 +53,7 @@ mat-icon {
 }
 
 // Select backgroud color
-.cdk-overlay-pane {
+.cdk-overlay-pane:not(.slide-in-panel) {
   background-color: white !important;
 }
 
@@ -95,3 +119,57 @@ body {
   height: 3rem;
   cursor: grab;
 }
+
+.slide-in-panel {
+  .mat-mdc-dialog-container,
+  .mdc-dialog__container,
+  .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+}
+.cdk-overlay-pane.slide-in-panel {
+  animation: slideInFromRight 250ms ease-out forwards;
+}
+
+.cdk-overlay-pane:not(.slide-in-panel) {
+  background-color: white !important;
+}
+
+.kpi-tooltip {
+  --mdc-plain-tooltip-container-color: var(--color-white);
+  --mdc-plain-tooltip-supporting-text-color: #484646;
+  font-family: var(--font-family-plain) !important;
+  font-size: var(--font-size-medium) !important;
+  max-width: 260px !important;
+  white-space: normal !important;
+  line-height: 1.5 !important;
+
+  .mdc-tooltip__surface {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+  }
+}
+
+.high-z-snackbar {
+  z-index: 9999999 !important;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@include mat.chips-overrides(
+  (
+    outline-width: 0px,
+    label-text-font: 'Inter',
+    container-shape-radius: 24px,
+    container-height: 28px,
+  )
+);

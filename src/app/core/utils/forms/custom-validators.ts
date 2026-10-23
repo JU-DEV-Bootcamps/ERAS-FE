@@ -14,6 +14,11 @@ export const CustomValidators: Record<string, ValidatorFn> = {
     }
     return null;
   },
+  futureDate: (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!(value instanceof Date)) return null;
+    return value.getTime() > Date.now() ? { futureDate: true } : null;
+  },
 };
 
 /**

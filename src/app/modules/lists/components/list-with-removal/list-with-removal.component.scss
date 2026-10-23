@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  width: 100%;
+}
+
+:host ::ng-deep .Email-label {
+  line-height: 16px;
+  font-size: 12px !important;
+  color: #6b7280;
+}
+
+.list-with-removal {
+  width: 100%;
+}

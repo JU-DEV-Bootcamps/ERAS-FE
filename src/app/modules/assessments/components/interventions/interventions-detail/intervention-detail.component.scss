@@ -1,0 +1,141 @@
+$primary: #117473;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.dialog-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0 24px;
+  width: 100%;
+  height: 64px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 28px;
+  color: #1f2937;
+  box-sizing: border-box;
+  flex: 0 0 64px;
+  border-color: #e5e7eb;
+}
+
+mat-divider {
+  border-color: #e5e7eb;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.close-btn {
+  color: #9ca3af;
+  flex-shrink: 0;
+  margin-right: -8px;
+
+  &:hover {
+    color: #6b7280;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.dialog-content {
+  padding: 20px 24px;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.field-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 23px;
+  color: #4b5563;
+}
+
+.field-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 23px;
+  color: #4b5563;
+  width: 100%;
+  word-break: break-word;
+}
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(17, 116, 115, 0.06);
+  border: 1px solid rgba(17, 116, 115, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(17, 116, 115, 0.12);
+  }
+}
+
+.attachment-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: $primary;
+  flex-shrink: 0;
+}
+
+.attachment-name {
+  flex: 1;
+  font-size: 13px;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-open-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}

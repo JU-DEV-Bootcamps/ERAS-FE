@@ -1,0 +1,44 @@
+<!-- New design -->
+<mat-nav-list class="sidebar">
+  <div class="sidebar-logo">
+    <img
+      src="assets/logo/ERAS_Logo_Dark.svg"
+      alt="ERAS Logo"
+      class="logo-img"
+    />
+  </div>
+  <div class="sidebar-divider"></div>
+
+  <ng-container *ngFor="let item of menuItems()">
+    <mat-list-item
+      *appHasERASRoles="item.requiredRoles ?? []"
+      class="menu-item"
+      [matTooltip]="item.label"
+      [matTooltipPosition]="'after'"
+      [class.active-parent]="isParentActive(item)"
+      (click)="onMenuClick(item)"
+      [routerLink]="item.route || null"
+    >
+      <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+      <span matListItemTitle>{{ item.label }}</span>
+    </mat-list-item>
+
+    <ng-container *appHasERASRoles="item.requiredRoles ?? []">
+      <div
+        *ngIf="item.children && getExpandedMenu() === item.label"
+        class="submenu"
+      >
+        @for (child of item.children; track child) {
+        <mat-list-item
+          *appHasERASRoles="child.requiredRoles ?? []"
+          class="submenu-item"
+          [routerLink]="child.route"
+          routerLinkActive="active-submenu"
+        >
+          <span class="subtitle">{{ child.label }}</span>
+        </mat-list-item>
+        }
+      </div>
+    </ng-container>
+  </ng-container>
+</mat-nav-list>

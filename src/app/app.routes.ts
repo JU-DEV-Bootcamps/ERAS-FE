@@ -1,23 +1,12 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@core/auth/guards/auth.guard';
 
-import { referralDetailsResolver } from '@modules/supports-referrals/resolvers/referrals-details.resolver';
-import { referralsResolver } from '@modules/supports-referrals/resolvers/referrals.resolver';
-
-import { CosmicLatteComponent } from '@modules/settings/cosmic-latte.component';
-import { DynamicChartsComponent } from '@modules/reports/components/dynamic-charts/dynamic-charts.component';
-import { EvaluationProcessListComponent } from '@modules/lists/components/evaluacion-process/evaluation-process-list.component';
-import { HomeComponent } from '@modules/home/home.component';
-import { ImportPreviewComponent } from '@modules/imports/components/import-preview/import-preview.component';
-import { ImportStudentsComponent } from '@modules/imports/components/import-students/import-students.component';
 import { LayoutComponent } from '@core/components/layout/layout.component';
-import { ListStudentsByPollComponent } from '@modules/lists/components/list-students-by-poll/list-students-by-poll.component';
-import { PollsAnsweredComponent } from '@modules/reports/components/polls-answered/polls-answered.component';
-import { RiskStudentsComponent } from '@modules/risk-students/risk-students.component';
-import { StudentMonitoringCohortsComponent } from '@modules/student-monitoring/student-monitoring-cohorts/student-monitoring-cohorts.component';
-import { StudentMonitoringDetailsComponent } from '@modules/student-monitoring/student-monitoring-details/student-monitoring-details.component';
-import { StudentMonitoringPollsComponent } from '@modules/student-monitoring/student-monitoring-polls/student-monitoring-polls.component';
-import { SummaryChartsComponent } from '@modules/reports/components/summary-charts/summary-charts.component';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { featureFlagGuard } from '@core/components/feature-flags/feature-flag.guard';
+import { ROUTE_METADATA } from '@core/utils/routing/route-metadata';
+import { canActivateAuthRole } from '@core/auth/guards/auth-role.guard';
+import { ERASRoles } from '@core/models/profile.model';
 
 export const routes: Routes = [
   {
@@ -30,93 +19,120 @@ export const routes: Routes = [
         redirectTo: 'home',
         pathMatch: 'full',
       },
-      { path: 'home', component: HomeComponent },
       {
-        path: 'reports/summary-charts',
-        component: SummaryChartsComponent,
-        data: { breadcrumb: 'Summary Charts' },
+        path: 'home',
+        loadChildren: () =>
+          import('./modules/home-v2/home.routes').then(m => m.HOME_ROUTES),
       },
       {
-        path: 'reports/polls-answered',
-        component: PollsAnsweredComponent,
-        data: { breadcrumb: 'Polls Answered' },
+        path: 'reports',
+        canActivate: [
+          canActivateAuthRole,
+          featureFlagGuard(FEATURE_FLAGS.reportsV2),
+        ],
+        data: ROUTE_METADATA.REPORTS,
+        loadChildren: () =>
+          import('./modules/reports/reports.routes').then(
+            m => m.REPORTS_ROUTES
+          ),
       },
       {
-        path: 'reports/dynamic-charts',
-        component: DynamicChartsComponent,
-        data: { breadcrumb: 'Dynamic Charts' },
+        path: 'reports-v1',
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.REPORTS_V1,
+        loadChildren: () =>
+          import('./modules/reports/reports.routes').then(
+            m => m.REPORTS_ROUTES_V1
+          ),
       },
       {
         path: 'cosmic-latte',
-        component: CosmicLatteComponent,
-        data: { breadcrumb: 'Cosmic Latte' },
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.COSMIC_LATTE,
+        loadComponent: () =>
+          import('./modules/settings/cosmic-latte.component').then(
+            m => m.CosmicLatteComponent
+          ),
       },
       {
         path: 'evaluation-process',
+        canActivateChild: [canActivateAuthRole],
         children: [
           {
             path: '',
-            component: EvaluationProcessListComponent,
-            data: { breadcrumb: 'Evaluation Process' },
+            loadComponent: () =>
+              import('./modules/lists/components/evaluacion-process/evaluation-process-list.component').then(
+                m => m.EvaluationProcessListComponent
+              ),
+            data: ROUTE_METADATA.EVALUATION_PROCESS,
           },
           {
             path: 'import-preview',
-            component: ImportPreviewComponent,
-            data: { breadcrumb: 'Import Answers' },
+            loadComponent: () =>
+              import('./modules/imports/components/import-preview/import-preview.component').then(
+                m => m.ImportPreviewComponent
+              ),
+            data: ROUTE_METADATA.IMPORT_PREVIEW,
+          },
+          {
+            path: 'import-status/:importJobId',
+            loadComponent: () =>
+              import('./modules/imports/components/import-status/import-status.component').then(
+                m => m.ImportStatusComponent
+              ),
+            data: ROUTE_METADATA.IMPORT_STATUS,
           },
         ],
-      },
-      {
-        path: 'import-students',
-        component: ImportStudentsComponent,
-        data: { breadcrumb: 'Import Students' },
       },
       {
         path: 'list-students-by-poll',
-        component: ListStudentsByPollComponent,
-        data: { breadcrumb: 'Students List By Poll' },
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.LIST_STUDENTS,
+        loadComponent: () =>
+          import('./modules/lists/components/list-students-by-poll/list-students-by-poll.component').then(
+            c => c.ListStudentsByPollComponent
+          ),
       },
       {
-        path: 'risk-students',
-        component: RiskStudentsComponent,
-        data: { breadcrumb: 'Risk Students' },
-      },
-
-      {
-        path: 'student-option',
-        component: StudentMonitoringPollsComponent,
-        data: { breadcrumb: 'Student Monitoring Polls' },
+        path: 'students',
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.STUDENTS,
+        loadComponent: () =>
+          import('./modules/students/students-container.component').then(
+            c => c.StudentsContainerComponent
+          ),
       },
       {
-        path: 'student-option/:pollUuid/:lastVersion',
-        component: StudentMonitoringCohortsComponent,
-        data: { breadcrumb: 'Student Monitoring Cohorts' },
+        path: 'assessments',
+        canActivate: [canActivateAuthRole],
+        loadChildren: () =>
+          import('./modules/assessments/assessments.routes').then(
+            m => m.ASSESSMENT_ROUTES
+          ),
       },
       {
-        path: 'student-option/:pollUuid/:lastVersion/:cohortId',
-        component: StudentMonitoringDetailsComponent,
-        data: { breadcrumb: 'Student Monitoring Details' },
+        path: 'recent-alerts',
+        data: ROUTE_METADATA.RECENT_ALERTS,
+        loadComponent: () =>
+          import('./modules/lists/components/recent-alerts-list/recent-alerts-list.component').then(
+            c => c.RecentAlertsListComponent
+          ),
       },
       {
-        path: 'supports-referrals',
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('@modules/supports-referrals/referrals.component'),
-            resolve: { referrals: referralsResolver },
-          },
-          {
-            path: 'details/:id',
-            loadComponent: () =>
-              import(
-                '@modules/supports-referrals/components/referral-detail/referral-detail.component'
-              ),
-            resolve: { referral: referralDetailsResolver },
-            data: { breadcrumb: 'Referral Details' },
-          },
-        ],
-        data: { breadcrumb: 'Referrals' },
+        path: 'account-and-information',
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.ACCOUNT_AND_INFORMATION,
+        loadComponent: () =>
+          import('./modules/profile/components/account-information/account-information.component').then(
+            c => c.AccountInformationComponent
+          ),
+      },
+      {
+        path: '_unused',
+        canActivate: [canActivateAuthRole],
+        data: { roles: [ERASRoles.ADMIN] },
+        loadChildren: () =>
+          import('./modules/_unused/unused.routes').then(m => m.UNUSED_ROUTES),
       },
     ],
   },

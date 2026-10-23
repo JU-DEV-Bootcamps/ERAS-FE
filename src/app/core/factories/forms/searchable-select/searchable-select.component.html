@@ -1,0 +1,9 @@
+<app-select-multiple-virtual-scroll
+  [control]="fieldControl()"
+  [items]="items()"
+  [label]="field().label"
+  [floatLabelSetup]="field().floatingLabel ?? 'auto'"
+  [placeholder]="field().placeholder ?? 'Select...'"
+  [autoSelect]="false"
+  [displayMode]="field().selectConfig?.displayMode ?? 'list'"
+></app-select-multiple-virtual-scroll>

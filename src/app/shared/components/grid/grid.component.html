@@ -1,0 +1,18 @@
+<mat-grid-list
+  [cols]="grid.cols"
+  [rowHeight]="grid.rowHeight"
+  [gutterSize]="grid.gutterSize.toString()"
+>
+  @for (tile of grid.tiles; track $index) {
+    <mat-grid-tile
+      [rowspan]="getRowspan($index)"
+      [colspan]="getColspan($index)"
+    >
+      <ng-container
+        [ngComponentOutlet]="tile.component"
+        [ngComponentOutletInputs]="tile.inputs"
+      >
+      </ng-container>
+    </mat-grid-tile>
+  }
+</mat-grid-list>

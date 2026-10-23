@@ -1,0 +1,119 @@
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { BaseApiService } from '@core/services/api/base-api.service';
+import {
+  InterventionModel,
+  UpdateInterventionModel,
+  UpdateInterventionPayload,
+} from '@core/models/assessment.model';
+
+export interface AddInterventionPayload {
+  assessmentId: number;
+  intervention: Record<string, unknown>;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class InterventionService extends BaseApiService {
+  protected resource = 'assessments';
+
+  getByAssessment(assessmentId: number): Observable<InterventionModel[]> {
+    return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
+  }
+
+  getByAssessmentAndCreator(
+    assessmentId: number,
+    creatorSub: string
+  ): Observable<InterventionModel[]> {
+    return this.get<InterventionModel[]>(
+      `${assessmentId}/interventions/by-creator/${creatorSub}`
+    );
+  }
+
+  getByAssessmentAndAssignedProfessional(
+    assessmentId: number,
+    professionalSub: string
+  ): Observable<InterventionModel[]> {
+    return this.get<InterventionModel[]>(
+      `${assessmentId}/interventions/by-professional/${professionalSub}`
+    );
+  }
+
+  createIntervention(
+    payload: AddInterventionPayload & { draftSessionId: number | null }
+  ): Observable<InterventionModel> {
+    return this.post<AddInterventionPayload, InterventionModel>(
+      'interventions',
+      payload
+    );
+  }
+
+  upsertInterventions(
+    assessmentId: number,
+    interventions: InterventionModel[]
+  ): Observable<InterventionModel[]> {
+    return this.put<InterventionModel[], InterventionModel[]>(
+      `${assessmentId}/interventions`,
+      interventions
+    );
+  }
+
+  updateIntervention(
+    assessmentId: number,
+    interventionId: number,
+    payload: UpdateInterventionModel
+  ): Observable<UpdateInterventionPayload> {
+    return this.put<UpdateInterventionModel, UpdateInterventionPayload>(
+      `${assessmentId}/interventions/${interventionId}`,
+      payload
+    );
+  }
+
+  deleteIntervention(
+    assessmentId: number,
+    interventionId: number
+  ): Observable<void> {
+    return this.delete<void>(`${assessmentId}/interventions/${interventionId}`);
+  }
+
+  uploadAttachments(
+    interventionId: number,
+    files: File[]
+  ): Observable<string[]> {
+    const formData = new FormData();
+    files.forEach(f => formData.append('files', f));
+    return this.postForm<string[]>(
+      `interventions/${interventionId}/attachments`,
+      formData
+    );
+  }
+
+  downloadAttachment(
+    interventionId: number,
+    fileName: string
+  ): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/assessments/interventions/${interventionId}/attachments/${fileName}`,
+      { responseType: 'blob' }
+    );
+  }
+
+  deleteAttachment(interventionId: number, fileName: string): Observable<void> {
+    return this.delete<void>(
+      `interventions/${interventionId}/attachments/${fileName}`
+    );
+  }
+
+  replaceInterventionType(
+    assessmentId: number,
+    interventionId: number,
+    payload: UpdateInterventionModel
+  ): Observable<InterventionModel> {
+    return this.put<UpdateInterventionModel, InterventionModel>(
+      `${assessmentId}/interventions/${interventionId}/replace-type`,
+      payload
+    );
+  }
+}

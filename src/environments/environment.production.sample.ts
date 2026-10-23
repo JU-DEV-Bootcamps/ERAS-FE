@@ -9,7 +9,12 @@ export const environment = {
   apiUrl: '__API_URL__',
   keycloak: {
     url: '__KEYCLOAK_URL__',
-    realm: 'jalasoft',
+    realm: '__KEYCLOAK_REALM__',
     clientId: '__CLIENT_ID__',
+  },
+  roleNames: {
+    administrator: 'admin',
+    officer: 'Student Services Officer',
+    professional: 'Professional',
   },
 };

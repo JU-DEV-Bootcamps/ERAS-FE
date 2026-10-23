@@ -14,4 +14,5 @@ export interface EvaluationModel extends BaseModel {
   evaluationPollId: number;
   polls: PollModel[];
   pollInstances: PollInstanceModel[];
+  latestImportJobId: number | null;
 }

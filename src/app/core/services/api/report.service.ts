@@ -12,7 +12,6 @@ import {
 } from '../../models/summary.model';
 import { Injectable } from '@angular/core';
 import { RiskCountReport } from '../../models/common/risk.model';
-import { fixedColorRange } from '@core/utils/apex-chart/heat-map-config';
 import { DynamicSerie, SummarySerie } from '../../models/heatmap-data.model';
 import {
   RISK_COLORS,
@@ -26,7 +25,8 @@ import {
   SummaryReport,
 } from '../../models/reports/reports-data.model';
 import { Observable, of } from 'rxjs';
-import { addCountPercentages } from '@core/utils/apex-chart/customTooltip';
+import { addCountPercentages } from '@core/utils/apex-chart/customTooltip-v2';
+import { fixedColorRange } from '@core/utils/apex-chart/chart.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -55,12 +55,16 @@ export class ReportService extends BaseApiService {
   getAvgPoolReport(
     pollInstanceUUID: string,
     cohortIds: number[],
-    lastVersion: boolean
+    lastVersion: boolean,
+    evaluationId?: number | string
   ) {
     let params = new HttpParams();
     params = params.set('lastVersion', lastVersion);
     if (cohortIds.length > 0)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
+    if (evaluationId) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
     return this.get<GetQueryResponse<PollAvgReport>>(
       `polls/${pollInstanceUUID}/avg`,
       params
@@ -71,7 +75,7 @@ export class ReportService extends BaseApiService {
     pollInstanceUuid: string,
     cohortIds: number[] | null,
     variableIds: number[],
-    lastVersion: boolean
+    evaluationId?: number | string
   ): Observable<GetQueryResponse<PollCountReport> | null> {
     if (!variableIds || !variableIds.length) return of(null);
 
@@ -79,9 +83,15 @@ export class ReportService extends BaseApiService {
       'variableIds',
       this.arrayAsStringParams(variableIds)
     );
-    params = params.set('lastVersion', lastVersion);
+    params = params.set('lastVersion', true);
+
     if (cohortIds != null)
       params = params.set('cohortIds', this.arrayAsStringParams(cohortIds));
+
+    if (evaluationId) {
+      params = params.set('evaluationId', evaluationId.toString());
+    }
+
     return this.get<GetQueryResponse<PollCountReport>>(
       `polls/${pollInstanceUuid}/count`,
       params
@@ -151,6 +161,7 @@ export class ReportService extends BaseApiService {
         }
         const groupedAnswers = Array.from(grouped.values());
 
+        // in order to reach V2 in z attribute returned, it was removed: <span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br>
         return {
           text: `${question.question}`,
           description: `${question.question}`,
@@ -160,7 +171,7 @@ export class ReportService extends BaseApiService {
               x: a.answerRisk,
               y: a.answerRisk,
               count: a.count,
-              z: `<span style="font-weight: bold;">Student${a.count > 1 ? 's' : ''} Answer = ${a.countPercentage}%:<span/><br> ${a.students
+              z: `${a.students
                 .map(ans => `${this.arrayAsStringParams([ans.email])}`)
                 .join(';')}`,
             };

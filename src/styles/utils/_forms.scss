@@ -2,11 +2,165 @@
   width: 100%;
 }
 
-// Generic forms styles
 mat-form-field {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
 mat-option[appselectall] {
   background-color: #c698f1 !important;
+}
+
+.compact-select-panel,
+.compact-autocomplete-panel {
+  .mat-mdc-option,
+  .mdc-list-item {
+    min-height: 36px !important;
+  }
+
+  .mat-mdc-option .mdc-list-item__primary-text {
+    color: var(--color-neutral-800);
+    font-size: 14px !important;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+  }
+
+  .mat-mdc-option .mat-icon,
+  .mat-mdc-option .mat-pseudo-checkbox-full {
+    margin-inline-end: 8px !important;
+  }
+}
+
+.mat-mdc-form-field-flex {
+  display: inline-flex;
+  align-items: center !important;
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px !important;
+}
+
+.compact-select {
+  --mat-form-field-container-height: 36px;
+
+  .mat-mdc-form-field-infix {
+    min-height: 36px;
+    padding-bottom: 4px;
+    display: flex;
+  }
+
+  .mat-mdc-input-element {
+    height: 100%;
+  }
+  .mat-mdc-floating-label {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.assessment-modal-panel,
+.student-modal-panel,
+.delete-confirmation-modal {
+  border-radius: 8px;
+}
+
+app-new-student-modal .section-headings,
+app-new-student-modal form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 24px;
+}
+
+app-new-student-modal .section-headings {
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+app-new-student-modal form {
+  grid-auto-flow: column;
+  grid-template-rows: repeat(8, auto);
+  row-gap: 8px;
+}
+
+app-new-student-modal mat-form-field {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  app-new-student-modal .section-headings {
+    display: none;
+  }
+
+  app-new-student-modal form {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+}
+
+.delete-confirmation-modal {
+  box-shadow: 1px var(--color-neutral-200) blur(3px);
+}
+
+app-edit-intervention-modal form,
+app-new-intervention-modal form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+app-edit-intervention-modal form > :nth-child(1),
+app-new-intervention-modal form > :nth-child(1),
+app-edit-intervention-modal form > :nth-child(2),
+app-new-intervention-modal form > :nth-child(2),
+app-edit-intervention-modal form > :nth-child(4),
+app-new-intervention-modal form > :nth-child(4),
+app-edit-intervention-modal form > :nth-child(5),
+app-new-intervention-modal form > :nth-child(5) {
+  width: calc(50% - 32px);
+  flex: 1 1 calc(50% - 16px);
+}
+
+app-edit-intervention-modal mat-form-field,
+app-new-intervention-modal mat-form-field {
+  margin-bottom: 0px;
+}
+
+app-new-intervention-modal
+  form
+  > :not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(4)):not(
+    :nth-child(5)
+  ) {
+  flex: 1 1 100%;
+}
+
+app-edit-intervention-modal
+  form
+  > :not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(4)):not(
+    :nth-child(5)
+  ) {
+  flex: 1 1 100%;
+}
+
+app-edit-assessment-modal form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+app-edit-assessment-modal form > :nth-child(2),
+app-edit-assessment-modal form > :nth-child(3) {
+  width: calc(50% - 32px);
+  flex: 1 1 calc(50% - 16px);
+}
+
+app-edit-assessment-modal form > :not(:nth-child(2)):not(:nth-child(3)) {
+  flex: 1 1 100%;
+}
+
+app-edit-assessment-modal mat-form-field {
+  margin-bottom: 0px;
 }

@@ -1,0 +1,84 @@
+.chart-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  padding: 52px 16px;
+  background: white;
+  border-radius: inherit;
+}
+
+.heatmap-skeleton {
+  width: 100%;
+  padding: 12px 8px;
+}
+
+.skeleton-legend {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-left: 180px;
+}
+
+.skeleton-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.skeleton-dot {
+  width: 28px;
+  height: 13px;
+  border-radius: 3px;
+  opacity: 0.5;
+}
+
+.skeleton-label {
+  width: 52px;
+  height: 9px;
+  border-radius: 3px;
+  background: #e5e7eb;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.skeleton-row-label {
+  height: 10px;
+  border-radius: 3px;
+  background: #e5e7eb;
+  flex-shrink: 0;
+}
+
+.skeleton-cells {
+  margin-left: 12px;
+  display: flex;
+  gap: 4px;
+}
+
+.skeleton-cell {
+  height: 28px;
+  border-radius: 3px;
+  opacity: 0.55;
+}
+
+.sh {
+  animation: heatmap-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes heatmap-shimmer {
+  0% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}

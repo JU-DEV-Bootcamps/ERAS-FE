@@ -1,0 +1,20 @@
+@if (item && actionData && actionData.label) {
+  @if (actionData.hasOwnProperty('text') && actionData.text) {
+    <button mat-button (click)="onButtonClick($event)" [disabled]="disabled">
+      <ng-container *ngTemplateOutlet="loadContent"></ng-container>
+    </button>
+  } @else {
+    <button
+      mat-button
+      color="primary"
+      (click)="onButtonClick($event)"
+      [disabled]="disabled"
+    >
+      <ng-container *ngTemplateOutlet="loadContent"></ng-container>
+    </button>
+  }
+}
+
+<ng-template #loadContent>
+  <ng-content> Execute </ng-content>
+</ng-template>

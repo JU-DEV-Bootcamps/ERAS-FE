@@ -33,10 +33,13 @@ import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.com
 import { ListComponent } from '@shared/components/list/list.component';
 import { ModalStudentDetailComponent } from '../../../../shared/components/modals/modal-student-detail/modal-student-detail.component';
 import { PollFiltersComponent } from '../../components/poll-filters/poll-filters.component';
+import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 interface DynamicPollInstance
-  extends PollInstanceModel,
-    Record<string, unknown> {}
+  extends PollInstanceModel, Record<string, unknown> {}
 
 @Component({
   selector: 'app-polls-answered',
@@ -61,6 +64,7 @@ interface DynamicPollInstance
 export class PollsAnsweredComponent implements OnInit {
   private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
+  private featureFlags = inject(FeatureFlagsService);
 
   transformPipe = new TimestampToDatePipe();
   columns: Column<DynamicPollInstance>[] = [
@@ -113,11 +117,13 @@ export class PollsAnsweredComponent implements OnInit {
   selectedCohortIds: number[] = [];
   selectedPollUuid = '';
   lastVersion = true;
+  evaluationId?: number | string;
 
   pageSize = 10;
   currentPage = 0;
 
   isMobile = false;
+  hasNoResults = false;
 
   ngOnInit(): void {
     this.loadCohortsList();
@@ -131,7 +137,7 @@ export class PollsAnsweredComponent implements OnInit {
 
   loadCohortsList(): void {
     this.cohortService
-      .getCohorts(this.selectedPollUuid, this.lastVersion)
+      .getCohorts(this.selectedPollUuid /*, this.lastVersion*/)
       .subscribe(data => {
         const defaultOpt: CohortModel = {
           name: 'All Cohorts',
@@ -163,6 +169,7 @@ export class PollsAnsweredComponent implements OnInit {
         pageSize: event.pageSize,
         lastVersion: this.lastVersion,
         pollUuid: this.selectedPollUuid,
+        evaluationId: this.evaluationId,
       })
       .subscribe(data => {
         const flatedArray = flattenArray(
@@ -186,6 +193,7 @@ export class PollsAnsweredComponent implements OnInit {
         pageSize: 10,
         lastVersion: this.lastVersion,
         pollUuid: this.selectedPollUuid,
+        evaluationId: this.evaluationId,
       })
       .subscribe(data => {
         const flatedArray = flattenArray(
@@ -196,17 +204,21 @@ export class PollsAnsweredComponent implements OnInit {
         this.pollInstances = sortArray(flatedArray, 'student.name');
 
         this.totalPollInstances = data.body.count;
+        this.hasNoResults = data.body.count === 0;
         this.loading = false;
       });
   }
 
   goToDetails(event: EventAction): void {
     const pollInstance: PollInstanceModel = event.item as PollInstanceModel;
-
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
       data: {
         studentId: pollInstance['student.id' as keyof PollInstanceModel],
@@ -215,9 +227,11 @@ export class PollsAnsweredComponent implements OnInit {
   }
 
   handleFilterSelect(filters: Filter) {
+    this.hasNoResults = false;
     this.selectedPollUuid = filters.uuid;
     this.selectedCohortIds = filters.cohortIds;
     this.lastVersion = filters.lastVersion;
+    this.evaluationId = filters.evaluationId;
     this.loading = true;
     this.load();
   }

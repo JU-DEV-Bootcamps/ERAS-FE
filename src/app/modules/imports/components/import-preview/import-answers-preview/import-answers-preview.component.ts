@@ -116,6 +116,12 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     if (changes['importedPollData']) {
       this.mapDataCreatedPoll(this.importedPollData);
       this.getInvalidStudents(this.studentPreviews);
+      const alreadyImported = this.importedPollData
+        .filter(p => p.isAlreadyImported)
+        .map(p => p.components[0].variables[0].answer.student.email);
+      this.studentExcludedEmailsSubject.next(alreadyImported);
+      this.allStudentsCheckedSubject.next(alreadyImported.length === 0);
+
       this.selectedStudents$ = this.studentExcludedEmails$.pipe(
         map(
           excluded =>
@@ -225,7 +231,7 @@ export class ImportAnswersPreviewComponent implements OnChanges {
         name: name,
         email: email,
         cohort: cohort,
-        save: true,
+        save: !data[i].isAlreadyImported,
       };
 
       studentPreviews.push(student);

@@ -1,0 +1,58 @@
+<div
+  class="card"
+  [class.card--expanded]="expanded"
+  [class.card--dimmed]="dimmed"
+  #cardRef
+>
+  <button class="pdf-export" matTooltip="Download pdf" (click)="onExportPdf()">
+    Export
+  </button>
+  <button
+    class="change-to-column"
+    matTooltip="Charts"
+    mat-icon-button
+    [matMenuTriggerFor]="chartMenu"
+  >
+    <img src="assets/icons/graphic.svg" alt="bar_chart" />
+  </button>
+  <mat-menu #chartMenu="matMenu">
+    <button
+      mat-menu-item
+      (click)="changeToHeatmap()"
+      [disabled]="selectedChart === 'heatmap'"
+      [class.selected-option]="selectedChart === 'heatmap'"
+    >
+      <span>Heatmap chart</span>
+      <mat-icon class="check-icon">check</mat-icon>
+    </button>
+    <button
+      mat-menu-item
+      (click)="changeToColumn()"
+      [disabled]="selectedChart === 'column'"
+      [class.selected-option]="selectedChart === 'column'"
+    >
+      <span>Column chart</span>
+      <mat-icon class="check-icon">check</mat-icon>
+    </button>
+  </mat-menu>
+  <button
+    class="toggle-btn"
+    [matTooltip]="expanded ? 'Collapse' : 'Expand'"
+    [attr.aria-label]="expanded ? 'Collapse' : 'Expand'"
+    (click)="onToggle()"
+    type="button"
+  >
+    <mat-icon [class.hidden]="!expanded">fullscreen_exit</mat-icon>
+    <img
+      src="assets/icons/expand.svg"
+      alt="expand_icon"
+      [class.hidden]="expanded"
+    />
+  </button>
+  <div class="card-body">
+    @if (isLoading()) {
+      <app-chart-skeleton />
+    }
+    <ng-content></ng-content>
+  </div>
+</div>

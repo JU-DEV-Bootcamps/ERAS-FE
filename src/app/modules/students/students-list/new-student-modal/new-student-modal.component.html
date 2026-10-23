@@ -1,0 +1,51 @@
+<div class="modal-header">
+  <h2 mat-dialog-title>{{ title }}</h2>
+  <mat-icon (click)="requestClose()">close</mat-icon>
+</div>
+<div class="modal-content">
+  <mat-dialog-content>
+    <div class="section-headings">
+      <h3>Personal Information</h3>
+      <h3>Contact Information</h3>
+      <h3>Academic Information</h3>
+    </div>
+    <app-form-factory
+      [fields]="formFields"
+      (formReady)="setFormGroup($event)"
+    ></app-form-factory>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    @if (isViewing) {
+      <button type="button" class="cancel-button" (click)="requestClose()">
+        Close
+      </button>
+      <button
+        type="button"
+        class="action-button"
+        data-testid="edit-student"
+        (click)="startEditing()"
+      >
+        Edit
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="cancel-button"
+        [disabled]="isSubmitting"
+        (click)="isEditing ? cancelEditing() : requestClose()"
+      >
+        Cancel
+      </button>
+      <button
+        class="action-button"
+        type="submit"
+        [ngClass]="{ 'disabled-button': form.invalid || form.pristine }"
+        [disabled]="form.invalid || form.pristine || isSubmitting"
+        (click)="submit()"
+      >
+        {{ submitLabel }}
+      </button>
+    }
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,118 @@
+import { StudentProfileData } from '@modules/assessments/components/assessment-list/assessment-student-data/assessment-student-data.component';
+import { AttachmentModel } from './attachment.model';
+
+export interface AssessmentModel {
+  id?: number;
+
+  createdAtUtc: string;
+  createdBy: string;
+  service: string;
+
+  assignedProfessional?: string | null;
+  studentIds: string[];
+  students?: StudentProfileData[];
+
+  diagnosis?: string | null;
+  objective?: string | null;
+  comments?: string | null;
+
+  plan?: InterventionPlanModel | null;
+
+  status: AssessmentStatus;
+
+  interventions: InterventionModel[];
+}
+
+export interface InterventionPlanModel {
+  sessionsPerWeek?: number | null;
+  scheduleNotes?: string | null;
+}
+
+export interface InterventionModel {
+  id?: number;
+  assessmentId: number;
+
+  kind: InterventionType;
+  mode: InterventionMode;
+  status?: InterventionStatus;
+
+  professional?: string | null;
+  dateUtc: string;
+  activity?: string | null;
+  comments?: string | null;
+
+  area?: string | null;
+  numberOfParticipants?: number | null;
+  studentIds: number[];
+  attendance?: Record<number, boolean> | null;
+
+  remarks?: string | null;
+  attachments?: AttachmentModel[] | null;
+  uploadInput?: File[] | null;
+  riskLevelName?: RiskLevels;
+  endRiskLevelName?: RiskLevels;
+}
+
+export interface InterventionAttendanceModel {
+  studentId: string;
+  attended: boolean;
+}
+
+export interface InterventionRowViewModel extends InterventionModel {
+  studentDisplay: string;
+  commentPreview: string;
+}
+
+export enum InterventionMode {
+  InPlace = 'InPlace',
+  Remote = 'Remote',
+}
+
+export enum InterventionType {
+  Individual = 'Individual',
+  Group = 'Group',
+}
+
+export enum AssessmentStatus {
+  Remitted = 'Remitted',
+  InProgress = 'InProgress',
+  Finalized = 'Finalized',
+}
+
+export enum InterventionStatus {
+  Remitted = 'Remitted',
+  InProgress = 'InProgress',
+  Finalized = 'Finalized',
+}
+
+export enum RiskLevels {
+  Low = 'Low',
+  Medium = 'Medium',
+  High = 'High',
+  None = 'None',
+}
+
+export interface UpdateInterventionPayload {
+  id?: number;
+  dateUtc: string;
+  activity?: string | null;
+  area?: string | null;
+  numberOfParticipants?: number | null;
+  professional?: string | null;
+  comments?: string | null;
+  studentIds: number[];
+  attendance?: Record<number, boolean> | null;
+  mode: InterventionMode;
+  kind: InterventionType;
+  status?: InterventionStatus;
+  remarks?: string | null;
+  uploadInput?: File[] | null;
+  riskLevelName?: RiskLevels;
+  endRiskLevelName?: RiskLevels;
+}
+
+export interface UpdateInterventionModel {
+  updateInterventionDto: UpdateInterventionPayload;
+  attachmentIdsToRemove: number[];
+  draftSessionId: number | null;
+}

@@ -1,24 +1,64 @@
-<mat-toolbar>
-  <div class="user-info">
+<div class="main-button-container">
+  <button [matMenuTriggerFor]="beforeMenu" class="main-button">
+    <!-- <mat-icon>account_circle</mat-icon> -->
+    <img src="assets/icons/avatarPlaceholder.svg" alt="avatar icon" />
+  </button>
+</div>
+
+<mat-menu
+  #beforeMenu="matMenu"
+  xPosition="before"
+  hasBackdrop="true"
+  class="user-menu-panel"
+>
+  <div class="user-info-container">
+    <!-- TODO: Add component/img for profile picture -->
+    <mat-icon class="profile-picture">account_circle</mat-icon>
+    <div class="user-info">
+      <p class="user-name">{{ user()?.firstName }} {{ user()?.lastName }}</p>
+      <p class="user-role">{{ user()?.role }}</p>
+    </div>
+  </div>
+  <hr />
+  <div class="options-container">
     <button
-      [matMenuTriggerFor]="beforeMenu"
-      #menuTrigger="matMenuTrigger"
-      (mouseenter)="menuTrigger.openMenu()"
-      (mouseleave)="mouseLeave(menuTrigger)"
+      mat-menu-item
+      class="menu-button option-button"
+      (click)="redirectToAccountInformation()"
     >
       <mat-icon>person</mat-icon>
+      Account and Information
     </button>
-    <mat-menu #beforeMenu="matMenu" xPosition="before" hasBackdrop="false">
-      <button
-        mat-menu-item
-        class="menu-button"
-        (click)="logout()"
-        (mouseenter)="mouseEnter(menuTrigger)"
-        (mouseleave)="mouseLeave(menuTrigger)"
-      >
-        <mat-icon>logout</mat-icon>
-        <span>Logout</span>
-      </button>
-    </mat-menu>
+    <button
+      *appHasERASRoles="viewPermissions['platformSettings']"
+      mat-menu-item
+      class="menu-button option-button"
+      (click)="redirectToSettings()"
+    >
+      <mat-icon>settings</mat-icon>
+      Platform Settings
+    </button>
+    <button
+      *appHasERASRoles="viewPermissions['v2Button']"
+      class="menu-button version-toggle-item"
+      (click)="$event.stopPropagation()"
+    >
+      <span class="toggle-label-text">Use V1</span>
+      <label class="simple-toggle">
+        <input
+          type="checkbox"
+          [checked]="v1Enabled()"
+          (change)="onV1Toggle($event)"
+        />
+        <span class="slider"></span>
+      </label>
+    </button>
   </div>
-</mat-toolbar>
+  <hr />
+  <div class="logout-container">
+    <button mat-menu-item class="menu-button logout-button" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Log out
+    </button>
+  </div>
+</mat-menu>

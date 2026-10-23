@@ -6,4 +6,5 @@ export interface PreselectedPoll {
   pollName: string;
   startDate: string;
   endDate: string;
+  pollId?: string;
 }

@@ -1,7 +1,8 @@
-import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import Keycloak from 'keycloak-js';
+import { from, switchMap, Observable } from 'rxjs';
 
 import { environment } from 'src/environments/environment';
 
@@ -9,6 +10,7 @@ import { environment } from 'src/environments/environment';
 export class AuthService {
   private keycloak = inject(Keycloak);
   private isInitialized = false;
+  private isLoggingOut = false;
   private TOKEN_KEY = 'keycloak_token';
   // TODO: save tokens on a more secure place, e.g. httpOnly cookies
   private REFRESH_TOKEN_KEY = 'keycloak_refreshToken';
@@ -58,31 +60,35 @@ export class AuthService {
   }
 
   logout() {
+    if (this.isLoggingOut) return;
+
+    if (!this.keycloak.authenticated) {
+      this.clearTokens();
+      return;
+    }
+
+    this.isLoggingOut = true;
     this.clearTokens();
     this.keycloak.logout();
   }
 
-  updateToken() {
+  async updateToken(): Promise<boolean> {
     try {
-      this.keycloak.updateToken(this.UPDATE_TOKEN_TIME).then(refreshed => {
-        if (refreshed) {
-          this.storeTokens();
-        } else {
-          this.clearTokens();
-        }
+      const refreshed = await this.keycloak.updateToken(this.UPDATE_TOKEN_TIME);
 
-        return refreshed;
-      });
+      if (refreshed) {
+        this.storeTokens();
+      } else {
+        this.clearTokens();
+      }
 
-      return false;
+      return refreshed;
     } catch (error) {
       console.error(
         'An error has ocured while refreshing the access token',
         error
       );
-      this.logout();
       this.clearTokens();
-
       return false;
     }
   }
@@ -95,21 +101,24 @@ export class AuthService {
     return this.keycloak.refreshToken;
   }
 
-  handleRefresh(req: HttpRequest<unknown>, next: HttpHandlerFn) {
-    const isRefreshed = this.updateToken();
+  handleRefresh(
+    req: HttpRequest<unknown>,
+    next: HttpHandlerFn
+  ): Observable<HttpEvent<unknown>> {
+    return from(this.updateToken()).pipe(
+      switchMap(isRefreshed => {
+        if (isRefreshed) {
+          const accessToken = this.getAccessToken();
+          const retryReq = req.clone({
+            setHeaders: { Authorization: `Bearer ${accessToken}` },
+          });
+          return next(retryReq);
+        }
 
-    if (isRefreshed) {
-      const accessToken = this.getAccessToken();
-      const retryReq = req.clone({
-        setHeaders: { Authorization: `Bearer ${accessToken}` },
-      });
-      return next(retryReq);
-    }
-
-    this.logout();
-    this.clearTokens();
-
-    return next(req);
+        this.logout();
+        return next(req);
+      })
+    );
   }
 
   isAuthenticated() {

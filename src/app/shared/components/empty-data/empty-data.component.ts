@@ -9,5 +9,5 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class EmptyDataComponent {
   @Input() title = '';
-  @Input() description = 'No data loaded.';
+  @Input() description = 'No data available.';
 }

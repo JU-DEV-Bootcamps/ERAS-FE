@@ -6,4 +6,9 @@ export const environment = {
     realm: 'your-keycloak-realm',
     clientId: 'your-keycloak-public-client',
   },
+  roleNames: {
+    administrator: 'ERAS Administrator',
+    officer: 'ERAS Student Services Officer',
+    professional: 'ERAS Professional',
+  },
 };

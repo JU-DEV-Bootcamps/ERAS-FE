@@ -28,6 +28,10 @@ import { Pagination } from '@core/services/interfaces/server.type';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 import { EvaluationDetailsStudentResponse } from '@core/models/evaluation-details-student.model';
+import { ModalStudentDetailV2Component } from '../modal-student-detail/v2/modal-student-detail-v2.component';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { ComponentType } from '@angular/cdk/portal';
 
 export interface SelectedHMData {
   cohortId: string;
@@ -36,6 +40,7 @@ export interface SelectedHMData {
   text?: string;
   question: PollAvgQuestion | PollCountQuestion;
   riskLevel?: number;
+  evaluationId?: number | string;
 }
 
 @Component({
@@ -64,6 +69,7 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   private reportService = inject(ReportService);
   private PollService = inject(PollService);
   private evaluationDetailsService = inject(EvaluationDetailsService);
+  private featureFlags = inject(FeatureFlagsService);
 
   studentList = signal<EvaluationDetailsStudentResponse[]>([]);
   totalStudentRisks = signal(0);
@@ -139,7 +145,8 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
         this.pagination.page,
         this.inputQuestion.riskLevel
           ? [this.inputQuestion.riskLevel]
-          : undefined
+          : undefined,
+        this.inputQuestion.evaluationId
       )
       .subscribe(data => {
         const items = (data?.items ?? []).sort((a, b) => {
@@ -163,12 +170,16 @@ export class ModalQuestionDetailsComponent implements AfterViewInit {
   }
 
   openStudentDetails(studentId: number): void {
-    this.dialog.open(ModalStudentDetailComponent, {
-      width: 'clamp(520px, 50vw, 980px)',
-      maxWidth: '90vw',
-      maxHeight: '60vh',
+    const showV2 = this.featureFlags.isEnabled(FEATURE_FLAGS.studentDetails);
+    const component: ComponentType<object> = showV2
+      ? ModalStudentDetailV2Component
+      : ModalStudentDetailComponent;
+    this.dialog.open(component, {
+      width: '1152px',
+      maxWidth: '95vw',
+      maxHeight: '921.59px',
       panelClass: 'border-modalbox-dialog',
-      data: { studentId: studentId },
+      data: { studentId },
     });
   }
 

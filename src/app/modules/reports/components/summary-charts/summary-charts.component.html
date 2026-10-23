@@ -1,7 +1,6 @@
 <h1 class="page-title">Summary Charts</h1>
 <h2 class="page-subtitle">{{ title }}</h2>
 <app-poll-filters
-  class="expanded"
   [showVariables]="false"
   (filters)="handleFilterSelect($event)"
 ></app-poll-filters>
@@ -9,6 +8,12 @@
 @if (showEmpty) {
   <app-empty-data-message
     description="Please select the required fields to generate the charts."
+  />
+} @else if (isLoading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (hasNoResults) {
+  <app-empty-data-message
+    description="No data found for the selected filters. Try adjusting your selection."
   />
 } @else {
   <ng-container>
@@ -42,39 +47,43 @@
       </mat-menu>
     </div>
   </ng-container>
-  @if (heatmapChart) {
-    <div class="chart-container">
-      <apx-chart
-        id="heatmap"
-        [series]="chartOptions.series!"
-        [chart]="chartOptions.chart!"
-        [xaxis]="chartOptions.xaxis!"
-        [yaxis]="chartOptions.yaxis!"
-        [colors]="chartOptions.colors!"
-        [plotOptions]="chartOptions.plotOptions!"
-        [title]="chartOptions.title!"
-        [tooltip]="chartOptions.tooltip!"
-      >
-      </apx-chart>
+  <div #contentToExport>
+    @if (heatmapChart) {
+      <div class="chart-container">
+        <apx-chart
+          id="heatmap"
+          [series]="chartOptions.series!"
+          [chart]="chartOptions.chart!"
+          [xaxis]="chartOptions.xaxis!"
+          [yaxis]="chartOptions.yaxis!"
+          [colors]="chartOptions.colors!"
+          [plotOptions]="chartOptions.plotOptions!"
+          [title]="chartOptions.title!"
+          [tooltip]="chartOptions.tooltip!"
+        >
+        </apx-chart>
+      </div>
+    } @else {
+      <app-summary-column-charts
+        [components]="components()!"
+        [pollUuid]="pollUuid"
+        [cohortsIds]="cohortIds"
+        [data]="title"
+        [evaluationId]="evaluationId"
+      ></app-summary-column-charts>
+    }
+    <div id="table-container">
+      <app-list
+        (loadCalled)="getStudentsByCohortAndPoll($event)"
+        (exportRequested)="onExportRequested($event)"
+        (exporting)="onExporting($event)"
+        [items]="students"
+        [totalItems]="totalStudents"
+        [columns]="columns"
+        [title]="'Students Risk'"
+        [showExportDropdown]="true"
+        [allItems]="allStudents"
+      />
     </div>
-  } @else {
-    <app-summary-column-charts
-      [components]="components()!"
-      [pollUuid]="pollUuid"
-      [cohortsIds]="cohortIds"
-      [data]="title"
-    ></app-summary-column-charts>
-  }
-
-  <div id="table-container">
-    <app-list
-      (actionCalled)="(null)"
-      (loadCalled)="getStudentsByCohortAndPoll($event)"
-      [items]="students"
-      [totalItems]="totalStudents"
-      [columns]="columns"
-      [actionDatas]="[]"
-      [title]="'Students Risk'"
-    />
   </div>
 }

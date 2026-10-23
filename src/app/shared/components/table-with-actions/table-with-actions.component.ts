@@ -1,4 +1,4 @@
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   Component,
   HostListener,
@@ -8,6 +8,11 @@ import {
   EventEmitter,
   TemplateRef,
   CUSTOM_ELEMENTS_SCHEMA,
+  input,
+  WritableSignal,
+  signal,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -27,8 +32,10 @@ import {
 import { EventAction } from '../../../core/models/load';
 import { Column } from '../list/types/column';
 import { MapClass } from '../list/types/class';
-
-import { ActionButtonComponent } from '../action-button/action-button.component';
+import { ActionButtonComponent } from '../buttons/action-button/action-button.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SelectedCheckboxComponent } from '@modules/students/students-list/selected-checkbox/selected-checkbox.component';
+import { OverflowTooltipDirective } from '@shared/directives/overflow-tooltip.directive';
 
 @Component({
   selector: 'app-table-with-actions',
@@ -37,7 +44,6 @@ import { ActionButtonComponent } from '../action-button/action-button.component'
     MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
-    TitleCasePipe,
     CommonModule,
     MatCardModule,
     ActionButtonComponent,
@@ -47,12 +53,17 @@ import { ActionButtonComponent } from '../action-button/action-button.component'
     MatMenu,
     MatMenuTrigger,
     MatMenuModule,
+    MatCheckboxModule,
+    SelectedCheckboxComponent,
+    OverflowTooltipDirective,
   ],
   templateUrl: './table-with-actions.component.html',
   styleUrls: ['./table-with-actions.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class TableWithActionsComponent<T extends object> implements OnInit {
+export class TableWithActionsComponent<T extends object>
+  implements OnInit, OnChanges
+{
   @Input() items: T[] = [];
   @Input() columns: Column<T>[] = [] as Column<T>[];
   @Input() templateMap: Map<string, TemplateRef<unknown>> = new Map<
@@ -60,16 +71,20 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     TemplateRef<unknown>
   >();
   @Input() columnTemplates: Column<T>[] = [];
-  @Input() actionDatas: ActionDatas = [];
+  actionDatas = input.required<ActionDatas>();
   @Input() mapClass?: MapClass;
+  @Input() itemsAreSelectable = false;
+  @Input() columnOrder: Column<T>[] = [];
+  @Input() isItemDisabled?: (item: T) => boolean;
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
-  dataSource: T[] = [];
-
   isMobile = false;
   totalItems = 0;
-  actionColumns = ['Actions'] as (keyof T)[];
+  actionColumns = ['Actions'];
+  displayedColumns: string[] = [];
+  allItemsSelected: WritableSignal<boolean> = signal<boolean>(false);
+  displayCache = new Map<T, Record<string, string>>();
 
   @HostListener('window:resize', ['$event'])
   onResize(event: UIEvent): void {
@@ -77,9 +92,19 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     this.isMobile = target.innerWidth < 768;
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['items']) {
+      this.buildDisplayCache();
+      Promise.resolve().then(() => {
+        this.allItemsSelected.set(this.areAllItemsSelected());
+      });
+    }
+  }
+
   ngOnInit() {
     this.isMobile = window.innerWidth < 768;
     this.totalItems = this.items.length;
+    this.displayedColumns = this.getAllColumns();
   }
 
   handleAction(event: EventAction) {
@@ -88,29 +113,8 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
 
   getColumnKeys() {
     return this.columns.map(column => {
-      return column.key;
+      return column.key.toString();
     });
-  }
-  getAllColumns() {
-    let columnKeys = this.getColumnKeys();
-
-    if (this.getTotalTemplateColumns() > 0) {
-      columnKeys = columnKeys.concat(this.columnTemplates.map(ct => ct.key));
-    }
-
-    if (this.getTotalActionDatas() > 0) {
-      columnKeys = columnKeys.concat(this.actionColumns);
-    }
-
-    return columnKeys;
-  }
-
-  getActionDatas() {
-    return this.actionDatas;
-  }
-
-  getTotalActionDatas() {
-    return this.getActionDatas().length;
   }
 
   getTotalTemplateColumns() {
@@ -147,9 +151,78 @@ export class TableWithActionsComponent<T extends object> implements OnInit {
     return isValidWithCondition;
   }
 
+  isDisabled(actionData: ActionData | ActionDataWithCondition<T>, item: T) {
+    const actionDataWC = actionData as ActionDataWithCondition<T>;
+    return actionDataWC.isDisabled ? actionDataWC.isDisabled(item) : false;
+  }
+
   hasTextAttribute() {
-    return this.actionDatas.some(
+    return this.actionDatas().some(
       (actionData: ActionData) => 'text' in actionData
     );
+  }
+
+  getAllColumns(): string[] {
+    const base = this.columnOrder.length
+      ? this.columnOrder.map(c => c.key.toString())
+      : [
+          ...this.columns.map(c => c.key.toString()),
+          ...this.columnTemplates.map(c => c.key.toString()),
+        ];
+
+    const result = [];
+    if (this.itemsAreSelectable) result.push('isSelected');
+    result.push(...base);
+    if (this.actionDatas().length > 0) result.push('Actions');
+    return result;
+  }
+
+  private areAllItemsSelected(): boolean {
+    const selectableItems = this.isItemDisabled
+      ? this.items.filter(item => !this.isItemDisabled!(item))
+      : this.items;
+    return (
+      selectableItems.length > 0 &&
+      selectableItems.every(item => 'isSelected' in item && item.isSelected)
+    );
+  }
+
+  private toggleItemsSelection(selected: boolean) {
+    this.items.forEach(item => {
+      if ('isSelected' in item) {
+        if (selected && this.isItemDisabled?.(item)) return;
+        item.isSelected = selected;
+      }
+    });
+    this.allItemsSelected.set(this.areAllItemsSelected());
+  }
+
+  itemChecked() {
+    if (this.isItemDisabled) {
+      this.items.forEach(item => {
+        if (this.isItemDisabled!(item) && 'isSelected' in item) {
+          item.isSelected = false;
+        }
+      });
+    }
+    this.allItemsSelected.set(this.areAllItemsSelected());
+  }
+
+  handleSelectAll() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    this.allItemsSelected()
+      ? this.toggleItemsSelection(false)
+      : this.toggleItemsSelection(true);
+  }
+
+  private buildDisplayCache(): void {
+    this.displayCache.clear();
+    for (const item of this.items ?? []) {
+      const row: Record<string, string> = {};
+      for (const col of this.columns ?? []) {
+        row[col.key.toString()] = this.showElement(item, col);
+      }
+      this.displayCache.set(item, row);
+    }
   }
 }

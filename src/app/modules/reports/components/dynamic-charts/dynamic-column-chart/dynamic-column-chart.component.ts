@@ -65,6 +65,7 @@ export class DynamicColumnChartComponent {
   components = input<PollCountReport>();
   identifier = input<string>();
   cohortsIds = input<string>();
+  evaluationId = input<number | string | undefined>();
 
   private injector = inject(EnvironmentInjector);
   private dialog = inject(MatDialog);
@@ -195,6 +196,7 @@ export class DynamicColumnChartComponent {
       text,
       question,
       riskLevel,
+      evaluationId: this.evaluationId(),
     };
 
     this.dialog.open(ModalQuestionDetailsComponent, {

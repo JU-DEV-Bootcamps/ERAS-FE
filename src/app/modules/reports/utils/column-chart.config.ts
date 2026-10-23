@@ -14,16 +14,21 @@ export class ColumnChartUtils {
     return {
       text: title,
       margin: 0,
-      offsetY: 0,
+      offsetY: 10,
     };
   }
 
   static createChartBase(
-    onSelect?: (x: number, y: number, series: ComponentRisk[]) => void
+    onSelect?: (x: number, y: number, series: ComponentRisk[]) => void,
+    componentCount = 5
   ): ApexChart {
+    const BAR_WIDTH = 20;
+    const MIN_HEIGHT = 580;
+    const calculatedHeight = Math.max(MIN_HEIGHT, componentCount * BAR_WIDTH);
+
     return {
       type: 'bar',
-      height: 650,
+      height: calculatedHeight,
       stacked: true,
       stackType: '100%',
       toolbar: { show: false },
@@ -56,7 +61,7 @@ export class ColumnChartUtils {
   }
 
   static createFill(): ApexFill {
-    return { opacity: 0.8 };
+    return { opacity: 1 };
   }
 
   static createLegend(): ApexLegend {

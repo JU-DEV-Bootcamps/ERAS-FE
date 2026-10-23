@@ -1,0 +1,108 @@
+<h2 mat-dialog-title class="dialog-title">
+  Intervention Details
+  <button
+    mat-icon-button
+    class="close-btn"
+    aria-label="Close"
+    (click)="onClose()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-divider></mat-divider>
+
+<div class="dialog-content">
+  <div class="field-group">
+    <span class="field-label">Date:</span>
+    <span class="field-value">{{ data.dateUtc | date: 'MM/dd/yyyy' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Type:</span>
+    <div class="field-value">
+      <app-intervention-pill-badge [value]="data.kind" />
+    </div>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Mode:</span>
+    <div class="field-value">
+      <app-intervention-pill-badge [value]="data.mode" />
+    </div>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Activity:</span>
+    <span class="field-value">{{ activityLabel(data.activity) || '—' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Professional:</span>
+    <span class="field-value">{{ data.professional || '—' }}</span>
+  </div>
+
+  <div class="field-group">
+    <span class="field-label">Student(s):</span>
+    <span class="field-value">{{ displayStudents() }}</span>
+  </div>
+  @if (data.riskLevelName) {
+    <div class="field-group">
+      <span class="field-label">Risk Level:</span>
+      <span class="field-value">
+        <app-intervention-pill-badge [value]="data.riskLevelName" />
+      </span>
+    </div>
+  }
+
+  @if (data.endRiskLevelName) {
+    <div class="field-group">
+      <span class="field-label">End Risk Level:</span>
+      <span class="field-value">
+        <app-intervention-pill-badge [value]="data.endRiskLevelName" />
+      </span>
+    </div>
+  }
+
+  @if (data.area) {
+    <div class="field-group">
+      <span class="field-label">Area:</span>
+      <span class="field-value">{{ areaLabel(data.area) }}</span>
+    </div>
+  }
+
+  @if (data.numberOfParticipants !== null) {
+    <div class="field-group">
+      <span class="field-label">Participants:</span>
+      <span class="field-value">{{ data.numberOfParticipants }}</span>
+    </div>
+  }
+
+  <div class="field-group">
+    <span class="field-label">Comments:</span>
+    <span class="field-value">{{ data.comments || '—' }}</span>
+  </div>
+
+  @if (attachments.length > 0) {
+    <div class="field-group">
+      <span class="field-label">Evidences:</span>
+      <div class="attachments-list">
+        @for (attachment of attachments!; track attachment.id) {
+          <button
+            class="attachment-item"
+            type="button"
+            (click)="openAttachment(attachment.id)"
+          >
+            <mat-icon class="attachment-icon">{{
+              getFileIcon(attachment.originalFileName ?? '')
+            }}</mat-icon>
+            <span class="attachment-name">
+              {{ attachment.originalFileName ?? '' }}
+            </span>
+            <mat-icon class="attachment-open-icon">open_in_new</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

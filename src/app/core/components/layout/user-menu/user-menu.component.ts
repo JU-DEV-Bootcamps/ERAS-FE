@@ -1,38 +1,61 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 
 import { MatIcon } from '@angular/material/icon';
-import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
-import { MatToolbar } from '@angular/material/toolbar';
+import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { UserDataService } from '@core/services/access/user-data.service';
 import { AuthService } from '@core/services/access/access.service';
+import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
+import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
+import { Router } from '@angular/router';
+import { ERASRoles } from '@core/models/profile.model';
+import { ViewPermissions } from '@core/models/role-permissions.model';
+import { HasERASRolesDirective } from '@shared/directives/has-roles.directive';
 
 @Component({
   selector: 'app-user-menu',
   templateUrl: './user-menu.component.html',
   styleUrls: ['./user-menu.component.scss'],
-  imports: [MatMenu, MatIcon, MatToolbar, MatMenuTrigger],
+  imports: [
+    MatMenu,
+    MatMenuModule,
+    MatIcon,
+    MatMenuTrigger,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    HasERASRolesDirective,
+  ],
 })
 export class UserMenuComponent {
-  timedOutCloser: ReturnType<typeof setTimeout> | null = null;
   private readonly authService = inject(AuthService);
   private readonly userData = inject(UserDataService);
+  private readonly featureFlags = inject(FeatureFlagsService);
+  private readonly router = inject(Router);
+
+  user = this.userData.user;
+  v1Enabled = computed(() => !this.featureFlags.isEnabled(FEATURE_FLAGS.home));
+  viewPermissions: ViewPermissions = {
+    v2Button: [ERASRoles.ADMIN],
+    platformSettings: [ERASRoles.ADMIN, ERASRoles.OFFICER],
+  };
 
   logout() {
     this.userData.clear();
     this.authService.logout();
   }
 
-  mouseEnter(trigger: MatMenuTrigger) {
-    if (this.timedOutCloser) {
-      clearTimeout(this.timedOutCloser);
-    }
-    trigger.openMenu();
+  redirectToSettings() {
+    this.router.navigate(['cosmic-latte']);
   }
 
-  mouseLeave(trigger: MatMenuTrigger) {
-    this.timedOutCloser = setTimeout(() => {
-      trigger.closeMenu();
-    }, 100);
+  redirectToAccountInformation() {
+    this.router.navigate(['account-and-information']);
+  }
+
+  onV1Toggle(event: Event): void {
+    const useV1 = (event.target as HTMLInputElement).checked;
+    this.featureFlags.toggle('v2', !useV1).subscribe();
   }
 }

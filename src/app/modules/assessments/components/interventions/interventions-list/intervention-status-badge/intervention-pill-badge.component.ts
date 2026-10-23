@@ -1,0 +1,60 @@
+import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import {
+  InterventionType,
+  InterventionMode,
+  InterventionStatus,
+  RiskLevels,
+} from '@core/models/assessment.model';
+
+type PillValue =
+  | InterventionType
+  | InterventionMode
+  | InterventionStatus
+  | RiskLevels;
+
+@Component({
+  selector: 'app-intervention-pill-badge',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './intervention-pill-badge.component.html',
+  styleUrl: './intervention-pill-badge.component.scss',
+})
+export class InterventionPillBadgeComponent {
+  @Input({ required: true }) value!: PillValue;
+
+  protected get label(): string {
+    return this.labelMap[this.value] ?? this.value;
+  }
+
+  protected get cssClass(): string {
+    return this.classMap[this.value] ?? '';
+  }
+
+  private readonly labelMap: Record<string, string> = {
+    [InterventionType.Individual]: 'Individual',
+    [InterventionType.Group]: 'Group',
+    [InterventionMode.InPlace]: 'In-Place',
+    [InterventionMode.Remote]: 'Remote',
+    [InterventionStatus.Remitted]: 'Remitted',
+    [InterventionStatus.InProgress]: 'In Progress',
+    [InterventionStatus.Finalized]: 'Finalized',
+    [RiskLevels.None]: '—',
+    [RiskLevels.Low]: 'Low',
+    [RiskLevels.Medium]: 'Medium',
+    [RiskLevels.High]: 'High',
+  };
+
+  private readonly classMap: Record<string, string> = {
+    [InterventionType.Individual]: 'type-individual',
+    [InterventionType.Group]: 'type-group',
+    [InterventionMode.InPlace]: 'mode-inplace',
+    [InterventionMode.Remote]: 'mode-remote',
+    [InterventionStatus.Remitted]: 'status-remitted',
+    [InterventionStatus.InProgress]: 'status-in-progress',
+    [InterventionStatus.Finalized]: 'status-finalized',
+    [RiskLevels.Low]: 'risk-level-low',
+    [RiskLevels.Medium]: 'risk-level-medium',
+    [RiskLevels.High]: 'risk-level-high',
+  };
+}

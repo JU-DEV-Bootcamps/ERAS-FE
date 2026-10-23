@@ -1,0 +1,49 @@
+<div class="details-panel">
+  <div class="panel-header">
+    <h2 class="panel-title">{{ data()?.title }}</h2>
+    <button mat-icon-button (click)="close()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (data(); as panelData) {
+    <div class="panel-body">
+      @for (risk of panelData.questions; track risk.position) {
+        <div class="risk-group">
+          <section>
+            <h3 class="risk-title">Q: {{ risk.question }}</h3>
+            <p>
+              <span class="highlighted-title">Most answered option: </span>
+              {{ risk.averageAnswer }}
+            </p>
+            <div class="answer-risk">
+              <h4 class="highlighted-title">Average Answer Risk:</h4>
+              <app-badge-risk-level [riskLevel]="risk.averageRisk" />
+            </div>
+          </section>
+
+          <section class="answer-details">
+            <h3 class="risk-title">Answer Details</h3>
+            <app-list
+              (loadCalled)="handleLoadCalled($event, risk)"
+              (actionCalled)="handleActionCalled($event)"
+              [columns]="columns"
+              [columnTemplates]="columnTemplates"
+              [items]="riskStudentData().get(risk.position)?.items ?? []"
+              [totalItems]="riskStudentData().get(risk.position)?.total ?? 0"
+              [actionDatas]="actionDatas"
+              [emptyTemplate]="loadingTemplate"
+            >
+              <ng-template #riskLevel let-item>
+                <app-badge-risk-level [riskLevel]="item.riskLevel" />
+              </ng-template>
+            </app-list>
+          </section>
+        </div>
+      }
+    </div>
+  }
+</div>
+<ng-template #loadingTemplate>
+  <mat-spinner diameter="32"></mat-spinner>
+</ng-template>

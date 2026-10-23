@@ -20,7 +20,8 @@ export interface ActionDataIcon extends BaseDataAction {
 }
 
 export interface ActionDataWithCondition<T> extends ActionDataIcon {
-  isVisible: (item: T) => boolean;
+  isVisible?: (item: T) => boolean;
+  isDisabled?: (item: T) => boolean;
 }
 
 export type ActionDatas<T = unknown> = (

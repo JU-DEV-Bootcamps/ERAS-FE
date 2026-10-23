@@ -4,6 +4,7 @@ export const IMPORT_MESSAGES = {
   ANSWERS_SUCCESS:
     'The survey’s answers were saved in the system successfully.',
   ANSWERS_PREVIEW_EMPTY: 'No data found, try other parameters.',
+  ANSWERS_IMPORT_EMPTY: 'This poll has no data available to import.',
   ANSWERS_PREVIEW_OK: 'Information obtained successfully.',
   ANSWERS_ERROR:
     'There was an error with the import, please try again or check the values.',
@@ -33,6 +34,9 @@ export const GENERAL_MESSAGES = {
   SUCCESS_IMPORT_TITLE: 'Successful import',
   WARNING_TITLE: 'Warning',
   DETAILS: 'Details:',
+  ERROR_400: 'Bad Request',
+  INVALID_TYPE_ERROR_400: (attribute: string) =>
+    `The property ${attribute} cannot be converted to the required type.`,
 };
 
 export const TYPE_ICON: Record<DialogType, string> = {
