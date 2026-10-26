@@ -64,7 +64,9 @@ describe('ModalQuestionDetailsComponent', () => {
       ['getStudentsByFilters']
     );
 
-    evaluationServiceSpy.getStudentsByFilters.and.returnValue(of([]));
+    evaluationServiceSpy.getStudentsByFilters.and.returnValue(
+      of({ items: [], count: 0 })
+    );
 
     await TestBed.configureTestingModule({
       imports: [

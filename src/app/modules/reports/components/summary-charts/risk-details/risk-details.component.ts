@@ -114,14 +114,15 @@ export default class RiskDetailsComponent {
         pollInstanceUUID,
         [this.data.data.componentName.toLowerCase()],
         this.data.data.cohorts,
-        [this.variableId]
+        [this.variableId],
+        this.pagination.pageSize,
+        this.pagination.page
       )
       .subscribe(data => {
-        this.riskStudentData.set(risk.position, {
-          items: data || [],
-          total: data.length || 0,
-        });
-        this.totalStudentRisks.set(data.length);
+        const items = data?.items ?? [];
+        const total = data?.count ?? 0;
+        this.riskStudentData.set(risk.position, { items, total });
+        this.totalStudentRisks.set(total);
       });
   }
 
