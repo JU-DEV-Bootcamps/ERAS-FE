@@ -1,4 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  flushMicrotasks,
+  tick,
+} from '@angular/core/testing';
 import { StudentsListComponent } from './students-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
@@ -1142,5 +1148,171 @@ describe('StudentsListComponent', () => {
         jasmine.any(Object)
       );
     });
+  });
+
+  describe('search by name', () => {
+    const DEBOUNCE_MS = 300;
+
+    const searchInput = (): HTMLInputElement =>
+      fixture.nativeElement.querySelector('.students-search input');
+    const clearButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('.students-search-clear');
+    const typeSearch = (text: string): void => {
+      const input = searchInput();
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+    };
+    const lastGetDataCall = () => studentServiceSpy.getData.calls.mostRecent();
+
+    beforeEach(() => {
+      studentServiceSpy.getData.calls.reset();
+    });
+
+    it('[642-search-students-by-name/AC-6] shows the search input above the list without the clear button', () => {
+      const root: HTMLElement = fixture.nativeElement;
+      const input = searchInput();
+      const list = root.querySelector('app-list') as HTMLElement;
+
+      expect(input).toBeTruthy();
+      expect(input.placeholder).toBe('Search by name');
+      expect(
+        input.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+      expect(clearButton()).toBeNull();
+    });
+
+    it('[642-search-students-by-name/AC-7] sends one request with the typed text after the 300 ms pause', fakeAsync(() => {
+      typeSearch('j');
+      tick(100);
+      typeSearch('jo');
+      tick(100);
+      typeSearch('jos');
+      tick(DEBOUNCE_MS - 1);
+
+      expect(studentServiceSpy.getData).not.toHaveBeenCalled();
+
+      tick(1);
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledTimes(1);
+      expect(lastGetDataCall().args).toEqual([
+        { page: 0, pageSize: 10 },
+        'jos',
+      ]);
+    }));
+
+    it('[642-search-students-by-name/AC-8] clear button empties the input and reloads the full list', fakeAsync(() => {
+      typeSearch('jos');
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+      studentServiceSpy.getData.calls.reset();
+
+      clearButton()!.click();
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+
+      expect(searchInput().value).toBe('');
+      expect(clearButton()).toBeNull();
+      expect(studentServiceSpy.getData).toHaveBeenCalledTimes(1);
+      expect(lastGetDataCall().args).toEqual([{ page: 0, pageSize: 10 }]);
+    }));
+
+    it('[642-search-students-by-name/AC-9] shows "No students found." when the search has no matches', fakeAsync(() => {
+      studentServiceSpy.getData.and.returnValue(of({ items: [], count: 0 }));
+
+      typeSearch('zzzz');
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+
+      const message = fixture.nativeElement.querySelector(
+        'app-empty-data-message .description'
+      );
+      expect(message.textContent).toContain('No students found.');
+      expect(searchInput().value).toBe('zzzz');
+      expect(clearButton()).toBeTruthy();
+    }));
+
+    it('[642-search-students-by-name/AC-10] keeps the search when the user changes page', fakeAsync(() => {
+      typeSearch('garcia');
+      tick(DEBOUNCE_MS);
+      studentServiceSpy.getData.calls.reset();
+
+      component.handleLoadCalled({ page: 1, pageSize: 10 });
+      fixture.detectChanges();
+
+      expect(lastGetDataCall().args).toEqual([
+        { page: 1, pageSize: 10 },
+        'garcia',
+      ]);
+      expect(searchInput().value).toBe('garcia');
+    }));
+
+    it('[642-search-students-by-name/AC-11] a new search goes back to the first page keeping the page size', fakeAsync(() => {
+      component.handleLoadCalled({ page: 2, pageSize: 25 });
+      studentServiceSpy.getData.calls.reset();
+
+      typeSearch('ana');
+      tick(DEBOUNCE_MS);
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledTimes(1);
+      expect(lastGetDataCall().args).toEqual([
+        { page: 0, pageSize: 25 },
+        'ana',
+      ]);
+    }));
+
+    it('[642-search-students-by-name/AC-12] keeps the search after opening and closing a student modal', fakeAsync(() => {
+      typeSearch('jose');
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+      const namesBefore = component.students.map(s => s.name);
+      studentServiceSpy.getStudentProfile.and.returnValue(
+        of({ studentId: 1 } as StudentRegistrationModel)
+      );
+      dialogSpy.open.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<NewStudentModalComponent>);
+      studentServiceSpy.getData.calls.reset();
+
+      component.handleActionCalled({
+        item: { id: 1 },
+        data: { id: 'viewProfile' },
+      } as unknown as EventAction);
+      fixture.detectChanges();
+
+      expect(searchInput().value).toBe('jose');
+      expect(component.students.map(s => s.name)).toEqual(namesBefore);
+      expect(lastGetDataCall().args).toEqual([
+        { page: 0, pageSize: 10 },
+        'jose',
+      ]);
+    }));
+
+    it('[642-search-students-by-name/AC-13] exports only the students matching the active search', fakeAsync(() => {
+      studentServiceSpy.getData.and.returnValue(
+        of({ items: [buildStudent({ id: 1 })], count: 1 })
+      );
+      component.onExportRequested('csv');
+      flushMicrotasks();
+      expect(component.allStudents.map(s => s.id)).toEqual([1]);
+
+      const matches = [2, 3, 4].map(id =>
+        buildStudent({ id, name: `Jose ${id}` })
+      );
+      studentServiceSpy.getData.and.returnValue(
+        of({ items: matches, count: 3 })
+      );
+      typeSearch('jose');
+      tick(DEBOUNCE_MS);
+      studentServiceSpy.getData.calls.reset();
+
+      component.onExportRequested('csv');
+      flushMicrotasks();
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledWith(
+        { page: 0, pageSize: 100 },
+        'jose'
+      );
+      expect(component.allStudents.map(s => s.id)).toEqual([2, 3, 4]);
+    }));
   });
 });

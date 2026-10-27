@@ -39,6 +39,13 @@ export const GENERAL_MESSAGES = {
     `The property ${attribute} cannot be converted to the required type.`,
 };
 
+export const STUDENTS_MESSAGES = {
+  SEARCH_PLACEHOLDER: 'Search by name',
+  SEARCH_CLEAR: 'Clear search',
+  SEARCH_NO_RESULTS: 'No students found.',
+  NO_DATA: 'No data available.',
+};
+
 export const TYPE_ICON: Record<DialogType, string> = {
   error: 'error',
   info: 'info',

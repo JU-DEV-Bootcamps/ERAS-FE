@@ -2,6 +2,33 @@
   <mat-spinner />
 } @else {
   <div class="buttons-container">
+    <mat-form-field
+      class="students-search"
+      appearance="outline"
+      subscriptSizing="dynamic"
+    >
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        [formControl]="searchControl"
+        [placeholder]="messages.SEARCH_PLACEHOLDER"
+        [attr.aria-label]="messages.SEARCH_PLACEHOLDER"
+      />
+      @if (searchControl.value) {
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          class="students-search-clear"
+          [attr.aria-label]="messages.SEARCH_CLEAR"
+          (click)="clearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
     <app-eras-button
       class="light-button"
       [textButton]="'Import'"
@@ -58,6 +85,8 @@
     [itemsAreSelectable]="itemsAreSelectable"
     [externalExport]="true"
     [allItems]="allStudents"
+    [pageIndex]="pagination.page"
+    [emptyDescription]="emptyDescription"
   >
   </app-list>
 }

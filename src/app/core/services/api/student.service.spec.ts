@@ -237,6 +237,19 @@ describe('StudentService', () => {
       );
       req.flush({ items: [] });
     });
+
+    it('should send the trimmed Search param only when the text is not blank', () => {
+      service.getData({ page: 0, pageSize: 10 }, '  jose ').subscribe();
+      const withSearch = httpMock.expectOne(
+        r => r.url === `${baseUrl}/` && r.params.get('Search') === 'jose'
+      );
+      withSearch.flush({ items: [] });
+
+      service.getData({ page: 0, pageSize: 10 }, '   ').subscribe();
+      const withoutSearch = httpMock.expectOne(r => r.url === `${baseUrl}/`);
+      expect(withoutSearch.request.params.has('Search')).toBeFalse();
+      withoutSearch.flush({ items: [] });
+    });
   });
 
   describe('getDataStudentsByPoll', () => {

@@ -1,5 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -46,7 +52,7 @@ import {
   OptionalColumns,
 } from '@modules/imports/components/import-preview-students/import-preview-students.model';
 import { StudentImport } from '@core/services/interfaces/student.interface';
-import { GENERAL_MESSAGES } from '@core/constants/messages';
+import { GENERAL_MESSAGES, STUDENTS_MESSAGES } from '@core/constants/messages';
 import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 import { ExportStateService } from '@core/services/exports/export-state.service';
 import { CohortService } from '@core/services/api/cohort.service';
@@ -54,12 +60,14 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { debounceTime, filter, map } from 'rxjs/operators';
 import { Lookup } from '@core/models/lookup';
 import {
   NewStudentModalComponent,
   NewStudentModalData,
 } from './new-student-modal/new-student-modal.component';
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-students-list',
@@ -68,6 +76,11 @@ import {
     ListComponent,
     MatProgressSpinner,
     MatMenuModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
   ],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
@@ -100,6 +113,11 @@ export class StudentsListComponent implements OnInit {
   /** Blocks the "New Student" button while the modal data loads (one at a time). */
   isOpeningStudentModal = false;
   private allStudentsLoaded = false;
+
+  readonly messages = STUDENTS_MESSAGES;
+  readonly searchControl = new FormControl('', { nonNullable: true });
+  /** Debounced, trimmed search text that every students request sends. */
+  appliedSearch = '';
 
   columns: Column<StudentModelFlat>[] = [
     {
@@ -155,14 +173,47 @@ export class StudentsListComponent implements OnInit {
     },
   ];
 
-  constructor(private csvCheckerService: CsvCheckerService) {}
+  constructor(private csvCheckerService: CsvCheckerService) {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        map(text => text.trim()),
+        filter(text => text !== this.appliedSearch),
+        takeUntilDestroyed()
+      )
+      .subscribe(text => this.applySearch(text));
+  }
 
   ngOnInit(): void {
     this.loadStudents();
   }
 
+  get emptyDescription(): string {
+    return this.appliedSearch
+      ? this.messages.SEARCH_NO_RESULTS
+      : this.messages.NO_DATA;
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+  }
+
+  private applySearch(text: string): void {
+    this.appliedSearch = text;
+    this.pagination = { ...this.pagination, page: 0 };
+    this.allStudents = [];
+    this.allStudentsLoaded = false;
+    this.loadStudents();
+  }
+
+  private fetchStudents(pagination: Pagination) {
+    return this.appliedSearch
+      ? this.studentService.getData(pagination, this.appliedSearch)
+      : this.studentService.getData(pagination);
+  }
+
   loadStudents(): void {
-    this.studentService.getData(this.pagination).subscribe({
+    this.fetchStudents(this.pagination).subscribe({
       next: data => {
         const flatStudents = this.flattenStudentModel(data.items);
         this.dataStudents = new MatTableDataSource(flatStudents);
@@ -197,24 +248,22 @@ export class StudentsListComponent implements OnInit {
       let allItems: StudentModel[] = [];
 
       const fetchPage = () => {
-        this.studentService
-          .getData({
-            page,
-            pageSize: batchPageSize,
-          })
-          .subscribe({
-            next: response => {
-              allItems = [...allItems, ...response.items];
-              if (allItems.length < response.count) {
-                page++;
-                fetchPage();
-              } else {
-                this.allStudents = this.flattenStudentModel(allItems);
-                resolve();
-              }
-            },
-            error: () => resolve(),
-          });
+        this.fetchStudents({
+          page,
+          pageSize: batchPageSize,
+        }).subscribe({
+          next: response => {
+            allItems = [...allItems, ...response.items];
+            if (allItems.length < response.count) {
+              page++;
+              fetchPage();
+            } else {
+              this.allStudents = this.flattenStudentModel(allItems);
+              resolve();
+            }
+          },
+          error: () => resolve(),
+        });
       };
 
       fetchPage();
