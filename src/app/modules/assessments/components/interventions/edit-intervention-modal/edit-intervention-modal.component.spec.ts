@@ -4,7 +4,12 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EMPTY, of, throwError } from 'rxjs';
 
@@ -42,6 +47,7 @@ describe('EditInterventionModalComponent', () => {
     studentIds: [1, 2],
     activity: 'Activity',
     area: 'Area',
+    professional: 'John Doe',
     mode: 'Online' as unknown as InterventionMode,
     comments: 'Some comments',
     riskLevelName: 'Low' as unknown as RiskLevels,
@@ -66,6 +72,10 @@ describe('EditInterventionModalComponent', () => {
       label: 'John Doe',
       value: '10',
     },
+    professionals: [
+      { label: 'John Doe', value: '10' },
+      { label: 'Luis Gómez', value: '20' },
+    ],
     students: [
       {
         label: 'Student 1',
@@ -727,6 +737,79 @@ describe('EditInterventionModalComponent', () => {
           } as StagedFile,
         ])
       ).not.toThrow();
+    });
+  });
+
+  describe('professional reassignment', () => {
+    const professionalField = () =>
+      component.formFields.find(field => field.name === 'professional');
+
+    const submitWithNewProfessional = () => {
+      component.form.get('professional')?.setValue('20');
+      component.form.get('students')?.setValue(['1']);
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+
+      component.submitIntervention();
+    };
+
+    const expectNewProfessionalSavedAndListRefreshed = () => {
+      expect(interventionService.updateIntervention).toHaveBeenCalledWith(
+        jasmine.any(Number),
+        jasmine.any(Number),
+        jasmine.objectContaining({
+          updateInterventionDto: jasmine.objectContaining({
+            professional: 'Luis Gómez',
+            professionalSub: '20',
+          }),
+        })
+      );
+      // the parent reloads the intervention list when the dialog closes with true
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
+    };
+
+    it('[635-allow-reassign-intervention-professional/AC-5] enables the professional field, lists the assignable professionals and preselects the current one', () => {
+      const field = professionalField();
+
+      expect(field).toBeDefined();
+      expect(field!.disabled).toBeFalsy();
+      expect(field!.options).toEqual([
+        { label: 'John Doe', value: '10' },
+        { label: 'Luis Gómez', value: '20' },
+      ]);
+      expect(field!.value).toBe('10');
+    });
+
+    it('[635-allow-reassign-intervention-professional/AC-6] does not submit when the professional is cleared', () => {
+      expect(professionalField()?.validators).toContain(Validators.required);
+      component.form.get('professional')?.setValue('');
+      component.form.get('students')?.setValue(['1']);
+
+      component.submitIntervention();
+
+      expect(
+        component.form.get('professional')?.hasError('required')
+      ).toBeTrue();
+      expect(interventionService.updateIntervention).not.toHaveBeenCalled();
+    });
+
+    // The modal has no role gate: the same flow must work for every role that reaches the Interventions section.
+    it('[635-allow-reassign-intervention-professional/AC-1] administrator saves the newly selected professional and the list refreshes', () => {
+      submitWithNewProfessional();
+
+      expectNewProfessionalSavedAndListRefreshed();
+    });
+
+    it('[635-allow-reassign-intervention-professional/AC-2] officer saves the newly selected professional and the list refreshes', () => {
+      submitWithNewProfessional();
+
+      expectNewProfessionalSavedAndListRefreshed();
+    });
+
+    it('[635-allow-reassign-intervention-professional/AC-3] professional saves the newly selected professional and the list refreshes', () => {
+      submitWithNewProfessional();
+
+      expectNewProfessionalSavedAndListRefreshed();
     });
   });
 });

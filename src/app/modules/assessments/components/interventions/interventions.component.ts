@@ -49,6 +49,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies/assessments-fetch.strategies';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { UsersService } from '@core/services/api/users.service';
+import { ERASRoles } from '@core/models/profile.model';
+import { Lookup } from '@core/models/lookup';
 
 @Component({
   selector: 'app-interventions',
@@ -79,6 +81,7 @@ export class InterventionsComponent implements OnInit {
   private readonly usersService = inject(UsersService);
 
   private userDisplayNameBySub = new Map<string, string>();
+  private assignableProfessionals: Lookup[] = [];
 
   readonly isLoadingAssessments: WritableSignal<boolean> = signal(false);
   private readonly allAssessments: WritableSignal<AssessmentModel[]> = signal(
@@ -137,6 +140,12 @@ export class InterventionsComponent implements OnInit {
         this.professionalDisplayLookup.set(
           Object.fromEntries(this.userDisplayNameBySub)
         );
+        this.assignableProfessionals = users
+          .filter(user => !!user.sub && user.role === ERASRoles.PROFESSIONAL)
+          .map(user => ({
+            value: user.sub as string,
+            label: `${user.firstName} ${user.lastName}`.trim() || user.email,
+          }));
         this.loadAssessments();
       },
       error: () => {
@@ -326,8 +335,8 @@ export class InterventionsComponent implements OnInit {
         data: {
           assessmentId: assessment.id!,
           professional: {
-            value: assessment.assignedProfessional ?? '',
-            label: this.resolveDisplayName(assessment.assignedProfessional),
+            value: assessment.assignedProfessionals[0] ?? '',
+            label: this.resolveDisplayName(assessment.assignedProfessionals[0]),
           },
           students,
         },
@@ -360,9 +369,10 @@ export class InterventionsComponent implements OnInit {
         data: {
           assessmentId: assessment.id!,
           professional: {
-            value: assessment.assignedProfessional ?? '',
-            label: this.resolveDisplayName(assessment.assignedProfessional),
+            value: assessment.assignedProfessionals[0] ?? '',
+            label: this.resolveDisplayName(assessment.assignedProfessionals[0]),
           },
+          professionals: this.assignableProfessionals,
           students,
           intervention,
         },

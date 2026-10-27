@@ -43,7 +43,7 @@ describe('Permissions policy functions', () => {
 
     it('should return true if ERAS Professional is the assigned professional', () => {
       const context: PermissionContext = {
-        assignedProfessional: 'Tomás Torres',
+        assignedProfessionals: ['Tomás Torres'],
         currentProfessional: 'Tomás Torres',
       };
 
@@ -54,7 +54,7 @@ describe('Permissions policy functions', () => {
 
     it('should return false if ERAS Professional is not the assigned professional', () => {
       const context: PermissionContext = {
-        assignedProfessional: 'Tomás Torres',
+        assignedProfessionals: ['Tomás Torres'],
         currentProfessional: 'Mario Mendoza',
       };
 
@@ -82,7 +82,7 @@ describe('Permissions policy functions', () => {
 
     it('should return true if ERAS Professional is the assigned professional', () => {
       const context: PermissionContext = {
-        assignedProfessional: 'Tomás Torres',
+        assignedProfessionals: ['Tomás Torres'],
         currentProfessional: 'Tomás Torres',
       };
 
@@ -93,7 +93,7 @@ describe('Permissions policy functions', () => {
 
     it('should return false if ERAS Professional is not the assigned professional', () => {
       const context: PermissionContext = {
-        assignedProfessional: 'Tomás Torres',
+        assignedProfessionals: ['Tomás Torres'],
         currentProfessional: 'Mario Mendoza',
       };
 
