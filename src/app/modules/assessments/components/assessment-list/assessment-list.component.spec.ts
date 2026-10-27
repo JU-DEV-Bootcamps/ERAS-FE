@@ -40,7 +40,7 @@ describe('AssessmentListComponent', () => {
     createdAtUtc: '2026-03-30T00:00:00Z',
     createdBy: 'Roberto Alvarez',
     service: 'Student Services',
-    assignedProfessional: 'Master',
+    assignedProfessionals: ['Master'],
     studentIds: ['12'],
     students: [
       { id: 12, name: 'Jane Doe', email: 'jane@mail.com', avgRiskLevel: 0 },
@@ -421,11 +421,11 @@ describe('AssessmentListComponent', () => {
       );
     });
 
-    it('should fallback to empty string when assignedProfessional is undefined and handle undefined students (branches coverage)', () => {
+    it('should fallback to empty string when assignedProfessionals is empty and handle undefined students (branches coverage)', () => {
       component.loadAssessments();
       const row: AssessmentRowViewModel = {
         ...buildAssessment({
-          assignedProfessional: undefined,
+          assignedProfessionals: [],
           students: undefined,
         }),
         studentDisplay: '',
@@ -447,6 +447,36 @@ describe('AssessmentListComponent', () => {
           }),
         })
       );
+    });
+  });
+
+  describe('professionals column', () => {
+    it('[635-allow-reassign-intervention-professional/AC-15] shows every professional of the assessment in the row', () => {
+      // GIVEN an assessment whose professionals are Ana Pérez and Luis Gómez
+      component['userDisplayNameBySub'] = new Map([
+        ['ana-sub', 'Ana Pérez'],
+        ['luis-sub', 'Luis Gómez'],
+      ]);
+      const assessment = buildAssessment({
+        assignedProfessionals: ['ana-sub', 'luis-sub'],
+      });
+
+      // WHEN the row is built for the assessment list
+      const row = component['mapToRow'](assessment);
+
+      // THEN the row shows both names
+      expect(row.professionalDisplay).toContain('Ana Pérez');
+      expect(row.professionalDisplay).toContain('Luis Gómez');
+    });
+
+    it('shows just the name when the assessment has a single professional', () => {
+      component['userDisplayNameBySub'] = new Map([['ana-sub', 'Ana Pérez']]);
+
+      const row = component['mapToRow'](
+        buildAssessment({ assignedProfessionals: ['ana-sub'] })
+      );
+
+      expect(row.professionalDisplay).toBe('Ana Pérez');
     });
   });
 });

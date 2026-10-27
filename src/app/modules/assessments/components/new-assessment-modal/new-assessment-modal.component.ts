@@ -93,12 +93,13 @@ export class NewAssessmentModalComponent implements FormCreation {
         },
       },
       {
-        type: 'creatableSelect',
+        type: 'searchableSelect',
         name: 'professional',
-        label: 'Professional',
-        placeholder: 'Search professionals...',
+        label: 'Professionals',
+        placeholder: 'Select professionals',
         options: this.data.professionals,
         validators: [Validators.required],
+        multipleSelect: true,
         floatingLabel: 'always',
       },
       {
@@ -133,6 +134,13 @@ export class NewAssessmentModalComponent implements FormCreation {
     return raw as string;
   }
 
+  private extractOptionValues(raw: unknown): string[] {
+    const items = Array.isArray(raw) ? raw : [raw];
+    return Array.from(
+      new Set(items.filter(Boolean).map(item => this.extractOptionValue(item)))
+    );
+  }
+
   submitAssessment() {
     if (this.form.valid && !this.isSubmitting) {
       this.isSubmitting = true;
@@ -141,7 +149,7 @@ export class NewAssessmentModalComponent implements FormCreation {
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
         service: this.extractOptionValue(this.form.value.service),
-        assignedProfessional: this.extractOptionValue(
+        assignedProfessionals: this.extractOptionValues(
           this.form.value.professional
         ),
         studentIds: Array.from(new Set<string>(this.form.value.students)),

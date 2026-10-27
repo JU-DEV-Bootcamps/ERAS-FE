@@ -87,7 +87,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
   ) {
     this.originalAssessment = {
       date: data.assessment.createdAtUtc,
-      professional: data.assessment.assignedProfessional!,
+      professional: data.assessment.assignedProfessionals,
       professionalComment: data.assessment.comments as string | undefined,
       service: data.assessment.service,
       students: data.assessment.studentIds,
@@ -155,14 +155,15 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         value: this.data.assessment.service,
       },
       {
-        type: 'creatableSelect',
+        type: 'searchableSelect',
         name: 'professional',
-        label: 'Professional',
-        placeholder: 'Search professionals...',
+        label: 'Professionals',
+        placeholder: 'Select professionals',
         options: this.data.professionals,
         validators: [Validators.required],
+        multipleSelect: true,
         floatingLabel: 'always',
-        value: this.data.assessment.assignedProfessional,
+        value: this.data.assessment.assignedProfessionals,
       },
       {
         type: 'textarea',
@@ -205,6 +206,13 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
     return raw as string;
   }
 
+  private extractOptionValues(raw: unknown): string[] {
+    const items = Array.isArray(raw) ? raw : [raw];
+    return Array.from(
+      new Set(items.filter(Boolean).map(item => this.extractOptionValue(item)))
+    );
+  }
+
   protected submitAssessment() {
     if (this.form.valid) {
       const editedAssessment: AssessmentModel = {
@@ -212,7 +220,7 @@ export class EditAssessmentModalComponent implements FormCreation, OnDestroy {
         createdAtUtc: new Date(this.form.value.date).toISOString(),
         createdBy: this.form.value.submitter,
         service: this.extractOptionValue(this.form.value.service),
-        assignedProfessional: this.extractOptionValue(
+        assignedProfessionals: this.extractOptionValues(
           this.form.value.professional
         ),
         studentIds: Array.from(new Set<string>(this.form.value.students)),
