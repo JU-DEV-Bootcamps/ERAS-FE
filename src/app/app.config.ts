@@ -12,7 +12,6 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { keycloakHttpInterceptor } from '@core/interceptors/keycloak-interceptor';
 import { AuthService } from '@core/services/access/access.service';
-import { UserDataService } from '@core/services/access/user-data.service';
 import Keycloak from 'keycloak-js';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { firstValueFrom } from 'rxjs';
@@ -26,13 +25,10 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(async () => {
       const authService = inject(AuthService);
       const featureFlags = inject(FeatureFlagsService);
-      const userData = inject(UserDataService);
 
       await authService.init();
 
       if (authService.isAuthenticated()) {
-        // Load the user before routing starts so route components never see a null user.
-        await userData.initUser();
         await firstValueFrom(featureFlags.loadFlags());
       }
     }),
