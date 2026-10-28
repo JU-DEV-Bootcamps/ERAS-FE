@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { StudentResponse } from '../../models/student-request.model';
 import { StudentRegistrationModel } from '../../models/student-registration.model';
+import { StudentProfileSummaryModel } from '../../models/student-profile-summary.model';
 import {
   StudentImport,
   StudentRiskAverage,
@@ -35,11 +36,22 @@ export class StudentService extends BaseApiService implements CacheableHost {
   createManualStudent(
     student: StudentRegistrationModel
   ): Observable<StudentRegistrationModel> {
-    return this.post<StudentRegistrationModel>('manual', student);
+    // The BE requires a positive cohort id and links the new student to it.
+    const cohortId = Number(student.cohortId);
+    return this.post<StudentRegistrationModel>('manual', {
+      ...student,
+      cohortId: Number.isInteger(cohortId) && cohortId > 0 ? cohortId : null,
+    });
   }
 
   getStudentProfile(studentId: number): Observable<StudentRegistrationModel> {
     return this.get<StudentRegistrationModel>(`${studentId}/profile`);
+  }
+
+  getStudentProfileSummary(
+    studentId: number
+  ): Observable<StudentProfileSummaryModel> {
+    return this.get<StudentProfileSummaryModel>(`${studentId}/profile`);
   }
 
   updateStudentProfile(

@@ -404,6 +404,7 @@ describe('StudentService', () => {
       firstName: 'Ana',
       lastName: 'Pérez',
       idPassportNumber: 'AB-1',
+      cohortId: 1,
       primaryEmail: 'ana@jala.university',
     };
 
@@ -418,8 +419,26 @@ describe('StudentService', () => {
       req.flush({ ...student, studentId: 3 });
     });
 
+    it('createManualStudent should send the cohort id as a number', () => {
+      service
+        .createManualStudent({ ...student, cohortId: '4' as unknown as number })
+        .subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/manual`);
+      expect(req.request.body.cohortId).toBe(4);
+      req.flush(student);
+    });
+
     it('getStudentProfile should GET /:id/profile', () => {
       service.getStudentProfile(3).subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/3/profile`);
+      expect(req.request.method).toBe('GET');
+      req.flush(student);
+    });
+
+    it('getStudentProfileSummary should GET /:id/profile', () => {
+      service.getStudentProfileSummary(3).subscribe();
 
       const req = httpMock.expectOne(`${baseUrl}/3/profile`);
       expect(req.request.method).toBe('GET');
