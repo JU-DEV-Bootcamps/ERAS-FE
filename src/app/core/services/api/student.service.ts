@@ -116,8 +116,12 @@ export class StudentService extends BaseApiService implements CacheableHost {
     return this.post('', data);
   }
 
-  getData({ page = 1, pageSize = 10 }: Pagination) {
-    const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
+  getData({ page = 1, pageSize = 10 }: Pagination, search = '') {
+    let params = new HttpParams().set('PageSize', pageSize).set('Page', page);
+    const searchText = search.trim();
+    if (searchText) {
+      params = params.set('Search', searchText);
+    }
     return this.get<PagedResult<StudentModel>>('', params).pipe(
       map(result => {
         result.items = sortArray(result.items, 'name');
