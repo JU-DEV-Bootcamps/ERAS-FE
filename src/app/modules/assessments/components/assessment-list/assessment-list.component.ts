@@ -213,7 +213,7 @@ export class AssessmentListComponent implements OnInit {
       data: {
         assessmentId: assessment.id,
         professional: {
-          value: assessment.assignedProfessional ?? '',
+          value: assessment.assignedProfessionals[0] ?? '',
           label: assessment.professionalDisplay,
         },
         students,
@@ -261,8 +261,10 @@ export class AssessmentListComponent implements OnInit {
       commentPreview: this.buildCommentPreview(item.comments),
       isEditable: this.isItemEditable(item.status),
       submitterDisplay: this.resolveDisplayName(item.createdBy),
-      professionalDisplay: item.assignedProfessional
-        ? this.resolveDisplayName(item.assignedProfessional)
+      professionalDisplay: item.assignedProfessionals.length
+        ? item.assignedProfessionals
+            .map(sub => this.resolveDisplayName(sub))
+            .join(', ')
         : '—',
     };
   }

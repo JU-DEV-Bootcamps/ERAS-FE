@@ -31,7 +31,7 @@ describe('EditAssessmentModalComponent', () => {
   const assessment: AssessmentModel = {
     id: 1,
     createdAtUtc: '2026-01-01',
-    assignedProfessional: 'John',
+    assignedProfessionals: ['John'],
     comments: 'comment',
     service: 'Speech',
     studentIds: ['1'],
@@ -87,7 +87,7 @@ describe('EditAssessmentModalComponent', () => {
         Validators.required
       ),
       professional: new FormControl(
-        overrides['professional'] ?? 'John',
+        overrides['professional'] ?? ['John'],
         Validators.required
       ),
       students: new FormControl(
@@ -263,7 +263,7 @@ describe('EditAssessmentModalComponent', () => {
         '1',
         jasmine.objectContaining({
           service: 'Speech',
-          assignedProfessional: 'John',
+          assignedProfessionals: ['John'],
         })
       );
       expect(toastService.showToast).toHaveBeenCalled();
@@ -292,7 +292,7 @@ describe('EditAssessmentModalComponent', () => {
         '1',
         jasmine.objectContaining({
           service: 'Speech',
-          assignedProfessional: 'John',
+          assignedProfessionals: ['John'],
         })
       );
     });
@@ -387,6 +387,56 @@ describe('EditAssessmentModalComponent', () => {
         undefined as unknown as (typeof component)['valueChangesSubscription'];
 
       expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+  });
+
+  describe('professionals of the assessment', () => {
+    it('[635-allow-reassign-intervention-professional/AC-16] submits the full list of selected professionals', () => {
+      // GIVEN the officer picked Ana and Luis in the multi-select
+      component['setFormGroup'](
+        createForm({ professional: ['ana-sub', 'luis-sub'] })
+      );
+      assessmentService.editAssessment.and.returnValue(of(assessment));
+
+      // WHEN the form is saved
+      component['submitAssessment']();
+
+      // THEN the whole list goes to the API
+      expect(assessmentService.editAssessment).toHaveBeenCalledWith(
+        '1',
+        jasmine.objectContaining({
+          assignedProfessionals: ['ana-sub', 'luis-sub'],
+        })
+      );
+    });
+
+    it('[635-allow-reassign-intervention-professional/AC-19] shows the 409 message and keeps the form open', () => {
+      // GIVEN Luis was removed but still has interventions in the assessment
+      component['setFormGroup'](createForm({ professional: ['ana-sub'] }));
+      const conflict = new HttpErrorResponse({
+        status: 409,
+        statusText: 'Conflict',
+        error: {
+          message:
+            'Error updating assessment: Luis Gómez cannot be removed. Since they still have interventions in this assessment.',
+        },
+      });
+      assessmentService.editAssessment.and.returnValue(
+        throwError(() => conflict)
+      );
+
+      // WHEN the form is saved
+      component['submitAssessment']();
+
+      // THEN the message from the API is shown and the dialog is not closed
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          type: 'error',
+          message: jasmine.stringMatching('Luis Gómez cannot be removed'),
+        })
+      );
+      expect(dialogRef.close).not.toHaveBeenCalled();
+      expect(assessmentService.clearCache).not.toHaveBeenCalled();
     });
   });
 });

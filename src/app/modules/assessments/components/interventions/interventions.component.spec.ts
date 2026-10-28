@@ -36,6 +36,7 @@ const keycloakMock = {
 const assessments: AssessmentModel[] = [
   {
     id: 1,
+    assignedProfessionals: [],
     createdAtUtc: '2026-07-03T10:00:00Z',
     createdBy: 'admin',
     service: 'Support',
@@ -45,6 +46,7 @@ const assessments: AssessmentModel[] = [
   },
   {
     id: 2,
+    assignedProfessionals: [],
     createdAtUtc: '2026-07-03T10:00:00Z',
     createdBy: 'admin',
     service: 'Counseling',
@@ -54,6 +56,7 @@ const assessments: AssessmentModel[] = [
   },
   {
     id: 3,
+    assignedProfessionals: [],
     createdAtUtc: '2026-07-03T10:00:00Z',
     createdBy: 'admin',
     service: 'Psychology',
@@ -231,6 +234,7 @@ describe('InterventionsComponent', () => {
     const assessmentsWithStudents: AssessmentModel[] = [
       {
         id: 1,
+        assignedProfessionals: [],
         createdAtUtc: '2026-07-03T10:00:00Z',
         createdBy: 'admin',
         service: 'Support',
@@ -323,6 +327,7 @@ describe('InterventionsComponent', () => {
   it('should map real student names and risk levels when opening the create modal', () => {
     const assessmentWithStudents: AssessmentModel = {
       id: 1,
+      assignedProfessionals: [],
       createdAtUtc: '2026-07-03T10:00:00Z',
       createdBy: 'admin',
       service: 'Support',
@@ -370,7 +375,7 @@ describe('InterventionsComponent', () => {
           avgRiskLevel: 3,
         },
       ],
-      assignedProfessional: 'Jane Smith',
+      assignedProfessionals: ['Jane Smith'],
       interventions: [exampleIntervention],
       status: AssessmentStatus.Finalized,
     };
@@ -391,6 +396,7 @@ describe('InterventionsComponent', () => {
             value: 'Jane Smith',
             label: 'Jane Smith',
           },
+          professionals: [],
           students: [
             {
               value: '2',
@@ -407,6 +413,7 @@ describe('InterventionsComponent', () => {
   it('should fall back to the student id and default professional when opening edit without student data', () => {
     const assessmentNoStudents: AssessmentModel = {
       id: 1,
+      assignedProfessionals: [],
       createdAtUtc: '',
       createdBy: 'me',
       service: 'Support',

@@ -2,7 +2,7 @@ import { ERASRoles } from '@core/models/profile.model';
 
 interface PermissionContext {
   currentProfessional: string;
-  assignedProfessional: string;
+  assignedProfessionals: string[];
 }
 
 type PermissionCheck = (
@@ -29,12 +29,12 @@ const PermissionChecks: Record<ERASPermissions, PermissionCheck> = {
   CAN_CREATE_SERVICES: (role, requiredRoles) => requiredRoles.includes(role),
   CAN_SEE_ASSESSMENT: (role, requiredRoles, context) =>
     context
-      ? context.currentProfessional === context.assignedProfessional ||
+      ? context.assignedProfessionals.includes(context.currentProfessional) ||
         requiredRoles.includes(role)
       : requiredRoles.includes(role),
   CAN_SEE_INTERVENTION: (role, requiredRoles, context) =>
     context
-      ? context.currentProfessional === context.assignedProfessional ||
+      ? context.assignedProfessionals.includes(context.currentProfessional) ||
         requiredRoles.includes(role)
       : requiredRoles.includes(role),
   CAN_MANAGE_ASSESSMENT: (role, requiredRoles) => requiredRoles.includes(role),

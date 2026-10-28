@@ -61,6 +61,7 @@ describe('AssessmentDetailDialogComponent', () => {
 
     component.data = {
       id: 1,
+      assignedProfessionals: [],
       createdAtUtc: '',
       createdBy: '',
       service: '',
@@ -211,6 +212,7 @@ describe('AssessmentDetailDialogComponent', () => {
     assessmentService.editAssessment.and.returnValue(
       of({
         id: 1,
+        assignedProfessionals: [],
         createdAtUtc: '',
         createdBy: '',
         service: '',

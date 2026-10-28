@@ -8,7 +8,7 @@ export interface AssessmentModel {
   createdBy: string;
   service: string;
 
-  assignedProfessional?: string | null;
+  assignedProfessionals: string[];
   studentIds: string[];
   students?: StudentProfileData[];
 
@@ -99,6 +99,7 @@ export interface UpdateInterventionPayload {
   area?: string | null;
   numberOfParticipants?: number | null;
   professional?: string | null;
+  professionalSub?: string | null;
   comments?: string | null;
   studentIds: number[];
   attendance?: Record<number, boolean> | null;

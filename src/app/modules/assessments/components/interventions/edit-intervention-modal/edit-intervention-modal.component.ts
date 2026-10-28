@@ -43,6 +43,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 import {
   ACTIVITY_OPTIONS,
   ALLOWED_EXTENSIONS,
@@ -58,11 +59,14 @@ import {
 } from '../interventions.constants';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { StagedFile } from '@core/models/attachment.model';
+import { Lookup } from '@core/models/lookup';
 import { AttachmentManagerComponent } from '@shared/components/attachment-manager/attachment-manager.component';
 
 export interface NewInterventionDialogData {
   assessmentId: number;
   professional: { value: string; label: string };
+  /** Professionals the intervention can be assigned to. */
+  professionals: Lookup[];
   students: StudentLookup[];
   intervention?: InterventionModel;
 }
@@ -140,6 +144,36 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     this.isGroup.set(isActuallyGroup);
     this.prefillForm();
     this.buildFormFields();
+  }
+
+  /** Professionals offered in the select; the assessment's own professional is kept even if not listed. */
+  private professionalOptions(): Lookup[] {
+    const options = [...this.data.professionals];
+    const { professional } = this.data;
+    if (
+      professional.value &&
+      !options.some(o => o.value === professional.value)
+    ) {
+      options.unshift(professional);
+    }
+    return options;
+  }
+
+  /** The intervention stores the professional's display name, so the current one is found by label. */
+  private initialProfessionalValue(): string | number {
+    const current = this.data.intervention?.professional;
+    return (
+      this.professionalOptions().find(o => o.label === current)?.value ??
+      this.data.professional.value
+    );
+  }
+
+  private selectedProfessional(formValue?: string | number | null): Lookup {
+    const value = formValue ?? this.initialProfessionalValue();
+    return (
+      this.professionalOptions().find(o => o.value === value) ??
+      this.data.professional
+    );
   }
 
   private buildFormFields(forcedStudentsValue?: number | number[]): void {
@@ -263,11 +297,10 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         type: 'select',
         name: 'professional',
         label: 'Professional',
-        options: [this.data.professional],
+        options: this.professionalOptions(),
         validators: [Validators.required],
         floatingLabel: 'always',
-        value: this.data.professional.value,
-        disabled: true,
+        value: currentValues.professional ?? this.initialProfessionalValue(),
       },
       {
         type: 'file',
@@ -491,13 +524,15 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
 
     const payload = this.buildPayload();
     const values = this.form.getRawValue();
+    const selectedProfessional = this.selectedProfessional(values.professional);
 
     const interventionDto: UpdateInterventionPayload = {
       dateUtc: new Date(values.date).toISOString(),
       activity: values.activity,
       area: values.area,
       numberOfParticipants: payload.intervention['numberOfParticipants'],
-      professional: this.data.professional.label,
+      professional: selectedProfessional.label,
+      professionalSub: String(selectedProfessional.value),
       comments: values.comments,
       studentIds: payload.intervention['studentIds'],
       attendance: payload.intervention['attendance'],
@@ -522,7 +557,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
       draftSessionId,
     };
 
-    const request$ = typeChanged
+    const request$: Observable<unknown> = typeChanged
       ? this.interventionService.replaceInterventionType(
           this.data.assessmentId,
           this.data.intervention!.id!,
@@ -594,7 +629,7 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
         activity: v.activity,
         mode: v.mode,
         comments: v.comments,
-        professional: this.data.professional.label,
+        professional: this.selectedProfessional(v.professional).label,
         studentIds,
         area: v.area,
         numberOfParticipants: studentIds.length,
