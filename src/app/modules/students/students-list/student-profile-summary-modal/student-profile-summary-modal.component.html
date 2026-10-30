@@ -89,26 +89,20 @@
         <p class="empty">{{ messages.NO_COURSES }}</p>
       }
 
-      <h4>Identified risks</h4>
-      @if (p.identifiedRisks?.length) {
-        <ul class="chips">
-          @for (risk of p.identifiedRisks; track $index) {
-            <li class="chip">{{ risk }}</li>
-          }
-        </ul>
-      } @else {
-        <p class="empty">{{ messages.NO_RISKS }}</p>
-      }
+      <h4>{{ interventionMessages.RISKS_TITLE }}</h4>
+      <app-student-intervention-list
+        [entries]="risks()"
+        [emptyText]="interventionMessages.NO_RISKS"
+      />
 
-      <h4>Support received</h4>
-      @if (p.supportReceived?.length) {
-        <ul class="chips">
-          @for (support of p.supportReceived; track $index) {
-            <li class="chip">{{ support }}</li>
-          }
-        </ul>
-      } @else {
-        <p class="empty">{{ messages.NO_SUPPORT }}</p>
+      <h4>{{ interventionMessages.SUPPORT_TITLE }}</h4>
+      <app-student-intervention-list
+        [entries]="support()"
+        [emptyText]="interventionMessages.NO_SUPPORT"
+      />
+
+      @if (entriesError()) {
+        <p class="entries-error">{{ interventionMessages.LOAD_ERROR }}</p>
       }
     </section>
   }

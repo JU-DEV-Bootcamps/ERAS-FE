@@ -26,8 +26,6 @@ export const STUDENT_PROFILE_MESSAGES = {
   TITLE: 'Profile summary',
   NOT_AVAILABLE: '-',
   LOAD_ERROR: 'Could not load the student profile. Please try again later.',
-  NO_RISKS: 'No risks identified.',
-  NO_SUPPORT: 'No support received.',
   NO_COURSES: 'No current courses.',
   THIRD_ATTEMPT: 'Third attempt',
   CLOSE: 'Close',
@@ -48,6 +46,38 @@ export const GENERAL_MESSAGES = {
   ERROR_400: 'Bad Request',
   INVALID_TYPE_ERROR_400: (attribute: string) =>
     `The property ${attribute} cannot be converted to the required type.`,
+};
+
+export const STUDENT_INTERVENTION_MESSAGES = {
+  SECTION_TITLE: 'Interventions',
+  RISKS_TITLE: 'Risks identified',
+  SUPPORT_TITLE: 'Support received',
+  NO_RISKS: 'No risks identified yet.',
+  NO_SUPPORT: 'No support received yet.',
+  ADD_RISK: 'Add risk',
+  ADD_SUPPORT: 'Add support',
+  EDIT: 'Edit',
+  DELETE: 'Delete',
+  CREATED_BY: 'Created by',
+  ADD_RISK_TITLE: 'Add risk identified',
+  EDIT_RISK_TITLE: 'Edit risk identified',
+  ADD_SUPPORT_TITLE: 'Add support received',
+  EDIT_SUPPORT_TITLE: 'Edit support received',
+  FIELD_TYPE: 'Type',
+  FIELD_DESCRIPTION: 'Description',
+  FIELD_DATE: 'Date',
+  SELECT_TYPE: 'Select a type',
+  SAVE: 'Save',
+  SAVING: 'Saving...',
+  CANCEL: 'Cancel',
+  DELETE_TITLE: 'Delete entry',
+  DELETE_SUBTITLE:
+    'This entry will be removed from the student profile. Do you want to continue?',
+  SAVE_SUCCESS: 'The entry was saved.',
+  SAVE_ERROR: 'The entry could not be saved, please try again.',
+  DELETE_SUCCESS: 'The entry was deleted.',
+  DELETE_ERROR: 'The entry could not be deleted, please try again.',
+  LOAD_ERROR: 'The interventions could not be loaded, please try again.',
 };
 
 export const STUDENTS_MESSAGES = {

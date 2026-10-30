@@ -105,6 +105,25 @@ app-new-student-modal mat-form-field {
   box-shadow: 1px var(--color-neutral-200) blur(3px);
 }
 
+app-student-intervention-form-modal form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+app-student-intervention-form-modal form > :nth-child(1),
+app-student-intervention-form-modal form > :nth-child(2) {
+  flex: 1 1 calc(50% - 16px);
+}
+
+app-student-intervention-form-modal form > :nth-child(3) {
+  flex: 1 1 100%;
+}
+
+app-student-intervention-form-modal mat-form-field {
+  margin-bottom: 0px;
+}
+
 app-edit-intervention-modal form,
 app-new-intervention-modal form {
   display: flex;

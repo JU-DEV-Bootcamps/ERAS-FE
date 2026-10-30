@@ -30,6 +30,9 @@ import {
 import { StudentService } from '@core/services/api/student.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { StudentInterventionsComponent } from '../student-interventions/student-interventions.component';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 
 export interface NewStudentModalData {
   cohorts: Lookup[];
@@ -64,7 +67,13 @@ const STUDY_MODALITY_OPTIONS: Lookup[] = [
 
 @Component({
   selector: 'app-new-student-modal',
-  imports: [FormFactoryComponent, MatDialogModule, MatIconModule, NgClass],
+  imports: [
+    FormFactoryComponent,
+    MatDialogModule,
+    MatIconModule,
+    NgClass,
+    StudentInterventionsComponent,
+  ],
   templateUrl: './new-student-modal.component.html',
   styleUrl: '../../../assessments/styles/assessments-modal-styles.scss',
 })
@@ -72,6 +81,10 @@ export class NewStudentModalComponent implements FormCreation {
   private readonly studentService = inject(StudentService);
   private readonly toastService = inject(ToastNotificationService);
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
+  /** Without it (a Professional) the record is read only: it never opens editable and has no Edit button. */
+  readonly canEditStudent = inject(PermissionsService).can(
+    ERASPermissions.CAN_MANAGE_STUDENTS
+  );
 
   formInstance = new EventEmitter<FormGroup>();
   formFields: DynamicField[] = [];
@@ -87,7 +100,8 @@ export class NewStudentModalComponent implements FormCreation {
     @Inject(MAT_DIALOG_DATA) public data: NewStudentModalData
   ) {
     this.isEditing = !!this.data.student?.studentId;
-    this.opensEditable = this.isEditing && this.data.hasProfile === false;
+    this.opensEditable =
+      this.isEditing && this.data.hasProfile === false && this.canEditStudent;
     this.isViewing = this.isEditing && !this.opensEditable;
     this.unsavedChangesGuard.attach(
       this.dialogRef,
@@ -147,7 +161,7 @@ export class NewStudentModalComponent implements FormCreation {
   }
 
   startEditing(): void {
-    if (!this.isViewing) return;
+    if (!this.isViewing || !this.canEditStudent) return;
     this.isViewing = false;
     this.form.enable({ emitEvent: false });
     this.lockedFieldNames.forEach(name =>

@@ -13,6 +13,9 @@
       [fields]="formFields"
       (formReady)="setFormGroup($event)"
     ></app-form-factory>
+    @if (data.student?.studentId; as studentId) {
+      <app-student-interventions [studentId]="studentId" />
+    }
   </mat-dialog-content>
 
   <mat-dialog-actions>
@@ -20,14 +23,16 @@
       <button type="button" class="cancel-button" (click)="requestClose()">
         Close
       </button>
-      <button
-        type="button"
-        class="action-button"
-        data-testid="edit-student"
-        (click)="startEditing()"
-      >
-        Edit
-      </button>
+      @if (canEditStudent) {
+        <button
+          type="button"
+          class="action-button"
+          data-testid="edit-student"
+          (click)="startEditing()"
+        >
+          Edit
+        </button>
+      }
     } @else {
       <button
         type="button"
