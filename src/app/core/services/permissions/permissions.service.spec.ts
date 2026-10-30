@@ -47,4 +47,71 @@ describe('PermissionsService', () => {
 
     expect(response).toBeFalse();
   });
+
+  describe('student permissions', () => {
+    const allowed = (
+      permission: ERASPermissions,
+      role: ERASRoles | undefined
+    ): boolean => {
+      userSignal.set({ role });
+      return service.can(permission);
+    };
+
+    it('CAN_MANAGE_STUDENTS is for administrators and officers only', () => {
+      expect(
+        allowed(ERASPermissions.CAN_MANAGE_STUDENTS, ERASRoles.ADMIN)
+      ).toBeTrue();
+      expect(
+        allowed(ERASPermissions.CAN_MANAGE_STUDENTS, ERASRoles.OFFICER)
+      ).toBeTrue();
+      expect(
+        allowed(ERASPermissions.CAN_MANAGE_STUDENTS, ERASRoles.PROFESSIONAL)
+      ).toBeFalse();
+      expect(
+        allowed(ERASPermissions.CAN_MANAGE_STUDENTS, ERASRoles.GUEST)
+      ).toBeFalse();
+    });
+
+    it('CAN_ADD_STUDENT_INTERVENTIONS is for administrators and professionals only', () => {
+      expect(
+        allowed(ERASPermissions.CAN_ADD_STUDENT_INTERVENTIONS, ERASRoles.ADMIN)
+      ).toBeTrue();
+      expect(
+        allowed(
+          ERASPermissions.CAN_ADD_STUDENT_INTERVENTIONS,
+          ERASRoles.PROFESSIONAL
+        )
+      ).toBeTrue();
+      expect(
+        allowed(
+          ERASPermissions.CAN_ADD_STUDENT_INTERVENTIONS,
+          ERASRoles.OFFICER
+        )
+      ).toBeFalse();
+      expect(
+        allowed(ERASPermissions.CAN_ADD_STUDENT_INTERVENTIONS, ERASRoles.GUEST)
+      ).toBeFalse();
+    });
+
+    it('CAN_MANAGE_ANY_STUDENT_INTERVENTION is for administrators only', () => {
+      expect(
+        allowed(
+          ERASPermissions.CAN_MANAGE_ANY_STUDENT_INTERVENTION,
+          ERASRoles.ADMIN
+        )
+      ).toBeTrue();
+      expect(
+        allowed(
+          ERASPermissions.CAN_MANAGE_ANY_STUDENT_INTERVENTION,
+          ERASRoles.PROFESSIONAL
+        )
+      ).toBeFalse();
+      expect(
+        allowed(
+          ERASPermissions.CAN_MANAGE_ANY_STUDENT_INTERVENTION,
+          ERASRoles.OFFICER
+        )
+      ).toBeFalse();
+    });
+  });
 });

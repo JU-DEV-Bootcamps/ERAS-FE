@@ -1,22 +1,32 @@
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { Component, input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EMPTY, of, Subject, throwError } from 'rxjs';
 
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { StudentService } from '@core/services/api/student.service';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { StudentInterventionsComponent } from '../student-interventions/student-interventions.component';
 import {
   NewStudentModalComponent,
   NewStudentModalData,
 } from './new-student-modal.component';
+
+/** The Interventions section has its own spec; here it only has to be placed in the record. */
+@Component({ selector: 'app-student-interventions', template: '' })
+class StubStudentInterventionsComponent {
+  readonly studentId = input.required<number>();
+}
 
 describe('NewStudentModalComponent', () => {
   let studentService: jasmine.SpyObj<StudentService>;
   let toastService: jasmine.SpyObj<ToastNotificationService>;
   let dialogRef: jasmine.SpyObj<MatDialogRef<NewStudentModalComponent>>;
   let guard: jasmine.SpyObj<UnsavedChangesGuardService>;
+  let permissions: jasmine.SpyObj<PermissionsService>;
 
   const cohorts = [
     { label: 'Cohort A', value: 1 },
@@ -64,6 +74,11 @@ describe('NewStudentModalComponent', () => {
       'requestClose',
     ]);
     guard.requestClose.and.returnValue(of(true));
+    permissions = jasmine.createSpyObj<PermissionsService>(
+      'PermissionsService',
+      ['can']
+    );
+    permissions.can.and.returnValue(true);
 
     await TestBed.configureTestingModule({
       imports: [NewStudentModalComponent],
@@ -73,9 +88,15 @@ describe('NewStudentModalComponent', () => {
         { provide: ToastNotificationService, useValue: toastService },
         { provide: MatDialogRef, useValue: dialogRef },
         { provide: UnsavedChangesGuardService, useValue: guard },
+        { provide: PermissionsService, useValue: permissions },
         { provide: MAT_DIALOG_DATA, useValue: { cohorts } },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(NewStudentModalComponent, {
+        remove: { imports: [StudentInterventionsComponent] },
+        add: { imports: [StubStudentInterventionsComponent] },
+      })
+      .compileComponents();
   });
 
   describe('creating', () => {
@@ -468,6 +489,76 @@ describe('NewStudentModalComponent', () => {
         dialogRef,
         jasmine.any(Function)
       );
+    });
+  });
+
+  describe('interventions section', () => {
+    const existing: NewStudentModalData = {
+      cohorts,
+      student: {
+        studentId: 7,
+        firstName: 'Ana',
+        lastName: 'Torres',
+        idPassportNumber: 'A1',
+        primaryEmail: 'ana@jala.university',
+      },
+      hasProfile: true,
+    };
+
+    it('should show the Interventions section of an existing student', async () => {
+      const { fixture } = await createComponent(existing);
+
+      const section = (fixture.nativeElement as HTMLElement).querySelector(
+        'app-student-interventions'
+      );
+      expect(section).not.toBeNull();
+    });
+
+    it('should not show the section while creating a student', async () => {
+      const { fixture } = await createComponent({ cohorts });
+
+      const section = (fixture.nativeElement as HTMLElement).querySelector(
+        'app-student-interventions'
+      );
+      expect(section).toBeNull();
+    });
+  });
+
+  describe('for a user who cannot manage students', () => {
+    const withoutProfile: NewStudentModalData = {
+      cohorts,
+      student: {
+        studentId: 7,
+        firstName: 'Ana',
+        lastName: 'Torres',
+        idPassportNumber: 'A1',
+        primaryEmail: 'ana@jala.university',
+      },
+      hasProfile: false,
+    };
+
+    it('should open read-only even when the student has no profile yet, without an Edit button', async () => {
+      permissions.can.and.returnValue(false);
+
+      const { fixture, component } = await createComponent(withoutProfile);
+
+      expect(component.isViewing).toBeTrue();
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector(
+          '[data-testid="edit-student"]'
+        )
+      ).toBeNull();
+      expect(component.form.disabled).toBeTrue();
+    });
+
+    it('should not let startEditing unlock the form', async () => {
+      permissions.can.and.returnValue(false);
+      const { component } = await createComponent(withoutProfile);
+
+      component.startEditing();
+
+      expect(component.isViewing).toBeTrue();
+      expect(component.form.disabled).toBeTrue();
     });
   });
 });

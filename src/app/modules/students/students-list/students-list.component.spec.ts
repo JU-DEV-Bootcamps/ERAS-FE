@@ -37,6 +37,8 @@ import { ModalDeleteConfirmationComponent } from '@shared/components/modals/moda
 import { NewStudentModalComponent } from './new-student-modal/new-student-modal.component';
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 
 const mockActivatedRoute = {
   snapshot: { paramMap: { get: () => null } },
@@ -106,6 +108,7 @@ describe('StudentsListComponent', () => {
   let cohortServiceSpy: jasmine.SpyObj<CohortService>;
   let toastSpy: jasmine.SpyObj<ToastNotificationService>;
   let deleteConfirmationSpy: jasmine.SpyObj<ModalDeleteConfirmationService>;
+  let permissionsSpy: jasmine.SpyObj<PermissionsService>;
 
   beforeEach(async () => {
     dialogSpy = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
@@ -163,6 +166,12 @@ describe('StudentsListComponent', () => {
       afterClosed: () => of(true),
     } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
 
+    permissionsSpy = jasmine.createSpyObj<PermissionsService>(
+      'PermissionsService',
+      ['can']
+    );
+    permissionsSpy.can.and.returnValue(true);
+
     await TestBed.configureTestingModule({
       imports: [StudentsListComponent, HttpClientModule],
       providers: [
@@ -175,6 +184,7 @@ describe('StudentsListComponent', () => {
         { provide: CsvCheckerService, useValue: csvCheckerSpy },
         { provide: CohortService, useValue: cohortServiceSpy },
         { provide: ToastNotificationService, useValue: toastSpy },
+        { provide: PermissionsService, useValue: permissionsSpy },
         {
           provide: ModalDeleteConfirmationService,
           useValue: deleteConfirmationSpy,
@@ -1325,5 +1335,71 @@ describe('StudentsListComponent', () => {
       );
       expect(component.allStudents.map(s => s.id)).toEqual([2, 3, 4]);
     }));
+  });
+
+  describe('as an ERAS Professional', () => {
+    const professionalView = () => {
+      permissionsSpy.can.and.callFake(
+        permission => permission !== ERASPermissions.CAN_MANAGE_STUDENTS
+      );
+      fixture = TestBed.createComponent(StudentsListComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    };
+    const actionEvent = (actionId: string): EventAction =>
+      ({
+        item: { id: 1 },
+        data: { id: actionId },
+      }) as unknown as EventAction;
+
+    it('[643-add-student-interventions/AC-22] a Professional opens the profile of an assigned student with the Interventions section', () => {
+      // GIVEN an ERAS Professional; the API returns only the students of their assigned assessments
+      professionalView();
+      const profile = {
+        studentId: 1,
+        firstName: 'Ana',
+      } as StudentRegistrationModel;
+      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+
+      // WHEN they open the profile of a listed student
+      component.handleActionCalled(actionEvent('viewProfile'));
+
+      // THEN the student record opens (it hosts the Interventions section) with that profile
+      expect(component.students.map(student => student.id)).toEqual([1]);
+      expect(component.actionDatas.map(action => action.id)).toContain(
+        'viewProfile'
+      );
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [], student: profile, hasProfile: false },
+        })
+      );
+    });
+
+    it('[643-add-student-interventions/AC-30] hides every student action from a Professional', () => {
+      // GIVEN an ERAS Professional who opens the Students section
+      // WHEN the list is shown
+      professionalView();
+
+      // THEN there is no action to create, import, export, edit or delete a student
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(text).not.toContain('Import');
+      expect(text).not.toContain('Export');
+      expect(text).not.toContain('New Student');
+      expect(component.actionDatas.map(action => action.id)).toEqual([
+        'viewProfile',
+        'profileSummary',
+      ]);
+      expect(component.itemsAreSelectable).toBeFalse();
+    });
+
+    it('keeps the search for a Professional', () => {
+      professionalView();
+
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('.students-search')
+      ).not.toBeNull();
+    });
   });
 });

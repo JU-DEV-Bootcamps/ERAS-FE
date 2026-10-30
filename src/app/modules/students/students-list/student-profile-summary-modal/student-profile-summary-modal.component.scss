@@ -120,15 +120,6 @@
   }
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
 .chip {
   background: #dbeafe;
   color: #1e40af;
@@ -188,4 +179,9 @@
   .profile-modal {
     grid-template-columns: 1fr;
   }
+}
+
+.entries-error {
+  margin-top: 0.5rem;
+  color: #b91c1c;
 }

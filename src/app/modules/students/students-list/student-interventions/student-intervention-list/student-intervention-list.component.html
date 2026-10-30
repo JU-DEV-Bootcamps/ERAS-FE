@@ -1,0 +1,36 @@
+@if (entries().length === 0) {
+  <p class="empty">{{ emptyText() }}</p>
+} @else {
+  <ul class="entries">
+    @for (entry of entries(); track entry.id) {
+      <li class="entry" [attr.data-testid]="testId(entry)">
+        <div class="entry-head">
+          <span class="type">{{ typeLabel(entry) }}</span>
+          <span class="date">{{ entry.entryDate | date: 'mediumDate' }}</span>
+        </div>
+        <p class="description">{{ entry.description }}</p>
+        <p class="meta">{{ messages.CREATED_BY }} {{ entry.createdByName }}</p>
+        @if (canChange()(entry)) {
+          <div class="entry-actions">
+            <button
+              type="button"
+              class="link-button"
+              data-testid="edit-entry"
+              (click)="editEntry.emit(entry)"
+            >
+              <mat-icon>edit</mat-icon>{{ messages.EDIT }}
+            </button>
+            <button
+              type="button"
+              class="link-button danger"
+              data-testid="delete-entry"
+              (click)="deleteEntry.emit(entry)"
+            >
+              <mat-icon>delete</mat-icon>{{ messages.DELETE }}
+            </button>
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}
