@@ -69,4 +69,8 @@ export const ROUTE_METADATA = {
   ACCOUNT_AND_INFORMATION: {
     headerTitle: 'Account & Information',
   },
+  USER_MANUALS: {
+    breadcrumb: 'User Manuals',
+    headerTitle: 'User Manuals',
+  },
 } as const satisfies Record<string, AppRouteData>;

@@ -1,0 +1,33 @@
+<section class="user-manuals">
+  @if (error(); as message) {
+    <p class="error-message" role="alert">{{ message }}</p>
+  } @else if (manuals().length === 0) {
+    <p class="user-manuals__empty">{{ messages.EMPTY }}</p>
+  }
+
+  @if (manuals().length > 0) {
+    <ul class="user-manuals__list">
+      @for (manual of manuals(); track manual.id) {
+        <li class="manual-item">
+          <mat-icon class="manual-item__icon">menu_book</mat-icon>
+          <div class="manual-item__info">
+            <span class="manual-item__title">{{ manual.title }}</span>
+            <span class="manual-item__meta">
+              {{ manual.fileFormat }} · {{ manual.language }} · v{{
+                manual.version
+              }}
+            </span>
+          </div>
+          <button
+            mat-icon-button
+            type="button"
+            [attr.aria-label]="'Download ' + manual.title"
+            (click)="download(manual)"
+          >
+            <mat-icon>download</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>

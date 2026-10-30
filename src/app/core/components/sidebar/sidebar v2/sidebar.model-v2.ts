@@ -32,4 +32,15 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
     route: '/assessments',
     requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
   },
+  {
+    label: 'User Manuals',
+    icon: 'menu_book',
+    route: '/user-manuals',
+    requiredRoles: [
+      ERASRoles.ADMIN,
+      ERASRoles.OFFICER,
+      ERASRoles.PROFESSIONAL,
+      ERASRoles.GUEST,
+    ],
+  },
 ];
