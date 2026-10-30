@@ -43,7 +43,7 @@ export class UserManualsComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: blob => this.save(blob, manual.fileName),
-        error: () => this.error.set(this.messages.DOWNLOAD_ERROR),
+        error: () => this.error.set(this.messages.LOAD_ERROR),
       });
   }
 
