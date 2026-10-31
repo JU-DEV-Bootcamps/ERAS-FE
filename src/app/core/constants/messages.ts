@@ -33,6 +33,11 @@ export const STUDENT_PROFILE_MESSAGES = {
   CLOSE: 'Close',
 };
 
+export const USER_MANUALS_MESSAGES = {
+  EMPTY: 'No user manuals are available yet.',
+  LOAD_ERROR: 'Could not load the user manuals. Please try again later.',
+};
+
 export const GENERAL_MESSAGES = {
   ERROR_TITLE: 'Error',
   ERROR_IMPORT_TITLE: 'Error Importing file',
