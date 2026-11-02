@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+
+  h3 {
+    margin: 0 0 1rem;
+  }
+
+  h4 {
+    margin: 0 0 0.5rem;
+  }
+}
+
+dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.field {
+  dt {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-neutral-800);
+  }
+
+  dd {
+    margin: 0.25rem 0 0;
+    word-break: break-word;
+  }
+
+  &[data-field='currentCourses'] {
+    grid-column: 1 / -1;
+  }
+}
+
+.courses {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-neutral-200);
+  }
+
+  th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-neutral-600);
+  }
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-neutral-600);
+  font-style: italic;
+}
+
+.lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.entries-error {
+  margin-top: 0.5rem;
+  color: #b91c1c;
+}
+
+@media (max-width: 800px) {
+  dl,
+  .lists {
+    grid-template-columns: 1fr;
+  }
+}

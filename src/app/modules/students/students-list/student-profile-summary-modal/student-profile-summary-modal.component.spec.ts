@@ -97,7 +97,7 @@ describe('StudentProfileSummaryModalComponent', () => {
     expect(el.textContent).toContain('STU-1');
     expect(el.textContent).toContain('Cohort Alpha');
     expect(el.textContent).toContain('Math');
-    expect(el.querySelector('.third-attempt')).toBeTruthy();
+    expect(el.querySelector('[data-field="thirdAttempt"]')).toBeTruthy();
   });
 
   it('hides third attempt, falls back to "-" and shows empty states', () => {
@@ -109,7 +109,7 @@ describe('StudentProfileSummaryModalComponent', () => {
       supportReceived: null,
     });
 
-    expect(el.querySelector('.third-attempt')).toBeNull();
+    expect(el.querySelector('[data-field="thirdAttempt"]')).toBeNull();
     expect(el.textContent).toContain('-');
     expect(el.textContent).toContain('No risks identified yet.');
     expect(el.textContent).toContain('No support received yet.');
@@ -119,6 +119,98 @@ describe('StudentProfileSummaryModalComponent', () => {
     const el = create(new Error('boom'));
 
     expect(el.querySelector('.error')).toBeTruthy();
+  });
+
+  it('[641-align-student-modal-fields/AC-1] shows the three sections in order and no other', () => {
+    // GIVEN a user with an ERAS role and a student with profile data
+    // WHEN they open the profile summary
+    const el = create(profile);
+
+    // THEN the summary shows the three sections in order and no other section
+    const titles = Array.from(el.querySelectorAll('h2, h3')).map(heading =>
+      heading.textContent?.trim()
+    );
+    expect(titles).toEqual([
+      'Personal information',
+      'Current academic information',
+      'Interventions',
+    ]);
+    expect(el.querySelectorAll('[data-section]').length).toBe(3);
+  });
+
+  it('[641-align-student-modal-fields/AC-12] does not show the fields outside the agreed list', () => {
+    // GIVEN a student whose profile holds data of the removed fields
+    const hidden: StudentProfileSummaryModel = {
+      ...profile,
+      dateOfBirth: '2001-05-04',
+      gender: 'Female',
+      nationality: 'Costa Rican',
+      countryOfBirth: 'Panama',
+      idPassportNumber: 'ID-777777',
+      secondaryEmail: 'secondary@example.com',
+      city: 'San José',
+      street: 'Calle 5',
+      postalCode: '10101',
+      levelOfStudy: 'Bachelor',
+      facultySchool: 'Engineering',
+      studyModality: 'Hybrid',
+      previousInstitution: 'Old School',
+    };
+
+    // WHEN a user with an ERAS role opens the profile summary
+    const el = create(hidden);
+
+    // THEN none of those fields or their values is shown, nor the former free-text lists
+    const text = el.textContent ?? '';
+    for (const hiddenText of [
+      '2001-05-04',
+      'Female',
+      'Costa Rican',
+      'Panama',
+      'ID-777777',
+      'secondary@example.com',
+      'San José',
+      'Calle 5',
+      '10101',
+      'Bachelor',
+      'Engineering',
+      'Hybrid',
+      'Old School',
+      'Low attendance',
+      'Tutoring',
+    ]) {
+      expect(text).not.toContain(hiddenText);
+    }
+    for (const label of [
+      'Date of birth',
+      'Gender',
+      'ID/Passport',
+      'Secondary email',
+      'City',
+      'Street',
+      'Postal code',
+      'Level of study',
+      'Faculty',
+      'Study modality',
+      'Previous institution',
+    ]) {
+      expect(text.toLowerCase()).not.toContain(label.toLowerCase());
+    }
+  });
+
+  it('[641-align-student-modal-fields/AC-16] requests the profile of the selected student only', () => {
+    // GIVEN the Students list with Ana (id 42) and Luis (id 43), and Luis selected
+    TestBed.overrideProvider(MAT_DIALOG_DATA, { useValue: { studentId: 43 } });
+
+    // WHEN a user opens the profile summary of Luis
+    const el = create({ ...profile, firstName: 'Luis', lastName: 'Anaya' });
+
+    // THEN only the profile of student 43 is requested, and the summary shows his data
+    expect(studentServiceSpy.getStudentProfileSummary).toHaveBeenCalledOnceWith(
+      43
+    );
+    expect(interventionServiceSpy.getByStudent).toHaveBeenCalledOnceWith(43);
+    expect(el.textContent).toContain('Luis Anaya');
   });
 
   it('[643-add-student-interventions/AC-24] shows risks and support as separate lists without actions', () => {

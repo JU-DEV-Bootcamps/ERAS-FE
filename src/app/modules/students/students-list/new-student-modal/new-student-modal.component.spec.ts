@@ -4,19 +4,24 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EMPTY, of, Subject, throwError } from 'rxjs';
 
+import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { StudentService } from '@core/services/api/student.service';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { StudentInterventionsComponent } from '../student-interventions/student-interventions.component';
+import { StudentProfileViewComponent } from '../student-profile-view/student-profile-view.component';
 import {
   NewStudentModalComponent,
   NewStudentModalData,
 } from './new-student-modal.component';
 
-/** The Interventions section has its own spec; here it only has to be placed in the record. */
-@Component({ selector: 'app-student-interventions', template: '' })
+/** The Interventions section has its own spec; here it only has to be placed in the record, under its heading. */
+@Component({
+  selector: 'app-student-interventions',
+  template: '<h3>Interventions</h3>',
+})
 class StubStudentInterventionsComponent {
   readonly studentId = input.required<number>();
 }
@@ -93,6 +98,10 @@ describe('NewStudentModalComponent', () => {
       ],
     })
       .overrideComponent(NewStudentModalComponent, {
+        remove: { imports: [StudentInterventionsComponent] },
+        add: { imports: [StubStudentInterventionsComponent] },
+      })
+      .overrideComponent(StudentProfileViewComponent, {
         remove: { imports: [StudentInterventionsComponent] },
         add: { imports: [StubStudentInterventionsComponent] },
       })
@@ -304,12 +313,16 @@ describe('NewStudentModalComponent', () => {
     };
 
     it('should open read-only as the student profile', async () => {
-      const { component } = await createComponent({ cohorts, student });
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student,
+      });
+      const el = fixture.nativeElement as HTMLElement;
 
       expect(component.title).toBe('Student Profile');
       expect(component.isViewing).toBeTrue();
-      expect(component.form.disabled).toBeTrue();
-      expect(component.form.get('firstName')?.value).toBe('Ana');
+      expect(el.querySelector('app-student-profile-view')).not.toBeNull();
+      expect(el.querySelector('app-form-factory')).toBeNull();
     });
 
     it('should keep a previously typed value visible and the state list tied to the saved country', async () => {
@@ -337,9 +350,13 @@ describe('NewStudentModalComponent', () => {
     });
 
     it('should unlock the form when Edit is pressed', async () => {
-      const { component } = await createComponent({ cohorts, student });
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student,
+      });
 
       component.startEditing();
+      fixture.detectChanges();
 
       expect(component.isViewing).toBeFalse();
       expect(component.title).toBe('Edit Student');
@@ -347,19 +364,30 @@ describe('NewStudentModalComponent', () => {
     });
 
     it('should go back to read-only on cancel when nothing changed', async () => {
-      const { component } = await createComponent({ cohorts, student });
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student,
+      });
+      const el = fixture.nativeElement as HTMLElement;
       component.startEditing();
+      fixture.detectChanges();
 
       component.cancelEditing();
+      fixture.detectChanges();
 
       expect(component.isViewing).toBeTrue();
-      expect(component.form.disabled).toBeTrue();
+      expect(el.querySelector('app-student-profile-view')).not.toBeNull();
+      expect(el.querySelector('app-form-factory')).toBeNull();
       expect(guard.requestClose).not.toHaveBeenCalled();
     });
 
     it('should ask before discarding pending changes on cancel', async () => {
-      const { component } = await createComponent({ cohorts, student });
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student,
+      });
       component.startEditing();
+      fixture.detectChanges();
       component.form.get('city')?.setValue('La Paz');
       component.form.markAsDirty();
 
@@ -369,9 +397,14 @@ describe('NewStudentModalComponent', () => {
     });
 
     it('should prefill the form and omit the cohort field', async () => {
-      const { component } = await createComponent({ cohorts, student });
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student,
+      });
+      component.startEditing();
+      fixture.detectChanges();
 
-      expect(component.title).toBe('Student Profile');
+      expect(component.title).toBe('Edit Student');
       expect(component.formFields.some(f => f.name === 'cohortId')).toBeFalse();
       expect(component.form.get('firstName')?.value).toBe('Ana');
       expect(component.form.get('city')?.value).toBe('Cochabamba');
@@ -382,9 +415,13 @@ describe('NewStudentModalComponent', () => {
     });
 
     it('should update the profile of that student', async () => {
-      const { component } = await createComponent({ cohorts, student });
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student,
+      });
       studentService.updateStudentProfile.and.returnValue(of(student));
       component.startEditing();
+      fixture.detectChanges();
       component.form.get('city')?.setValue('La Paz');
       component.form.markAsDirty();
 
@@ -443,12 +480,13 @@ describe('NewStudentModalComponent', () => {
     });
 
     it('should lock the name and email of imported students but still send them', async () => {
-      const { component } = await createComponent({
+      const { fixture, component } = await createComponent({
         cohorts,
         student: { ...student, isImported: true },
       });
       studentService.updateStudentProfile.and.returnValue(of(student));
       component.startEditing();
+      fixture.detectChanges();
       component.form.get('city')?.setValue('La Paz');
       component.form.markAsDirty();
 
@@ -548,17 +586,221 @@ describe('NewStudentModalComponent', () => {
           '[data-testid="edit-student"]'
         )
       ).toBeNull();
-      expect(component.form.disabled).toBeTrue();
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('app-form-factory')
+      ).toBeNull();
     });
 
     it('should not let startEditing unlock the form', async () => {
       permissions.can.and.returnValue(false);
-      const { component } = await createComponent(withoutProfile);
+      const { fixture, component } = await createComponent(withoutProfile);
 
       component.startEditing();
+      fixture.detectChanges();
 
       expect(component.isViewing).toBeTrue();
-      expect(component.form.disabled).toBeTrue();
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('app-form-factory')
+      ).toBeNull();
+    });
+  });
+
+  describe('agreed profile attributes', () => {
+    const profile: StudentProfileSummaryModel = {
+      studentId: 7,
+      isImported: false,
+      firstName: 'Ana',
+      lastName: 'Torres',
+      idPassportNumber: 'ID-777777',
+      primaryEmail: 'ana.torres@jala.university',
+      sisId: 'S-1001',
+      mobileNumber: '+506 8888 0000',
+      country: 'Costa Rica',
+      cohortId: 1,
+      cohortName: 'Cohort A',
+      cgpa: 3.4,
+      sapStatus: 'Satisfactory',
+      passedCoursesCount: 7,
+      failedCoursesCount: 1,
+      currentCourses: [{ name: 'Algorithms', group: 'A', section: '2' }],
+      dateOfBirth: '2001-05-04',
+      gender: 'Female',
+      nationality: 'Costa Rican',
+      countryOfBirth: 'Panama',
+      secondaryEmail: 'secondary@example.com',
+      stateProvince: 'San José',
+      city: 'Heredia',
+      street: 'Calle 5',
+      postalCode: '10101',
+      levelOfStudy: 'Bachelor',
+      facultySchool: 'Engineering',
+      studyModality: 'Hybrid',
+      previousInstitution: 'Old School',
+      identifiedRisks: ['Low attendance'],
+      supportReceived: ['Tutoring'],
+    };
+
+    it('[641-align-student-modal-fields/AC-2] shows the three sections in order when opened for viewing', async () => {
+      // GIVEN a user with an ERAS role and a student with profile data
+      // WHEN they open the student record for viewing
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student: profile,
+        hasProfile: true,
+      });
+      const el = fixture.nativeElement as HTMLElement;
+
+      // THEN the record shows the three sections in order and no other section
+      expect(component.isViewing).toBeTrue();
+      const titles = Array.from(el.querySelectorAll('[data-section] h3')).map(
+        heading => heading.textContent?.trim()
+      );
+      expect(titles).toEqual([
+        'Personal information',
+        'Current academic information',
+        'Interventions',
+      ]);
+      expect(el.querySelectorAll('[data-section]').length).toBe(3);
+      expect(el.querySelector('app-form-factory')).toBeNull();
+    });
+
+    it('[641-align-student-modal-fields/AC-13] does not show the fields outside the agreed list when viewing', async () => {
+      // GIVEN a student whose profile holds data of the removed fields, and a user with an ERAS role
+      // WHEN they open the student record for viewing
+      const { fixture } = await createComponent({
+        cohorts,
+        student: profile,
+        hasProfile: true,
+      });
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+      // THEN none of those fields or their values is shown, only the agreed ones
+      for (const hidden of [
+        '2001-05-04',
+        'Female',
+        'Costa Rican',
+        'Panama',
+        'ID-777777',
+        'secondary@example.com',
+        'Heredia',
+        'Calle 5',
+        '10101',
+        'Bachelor',
+        'Engineering',
+        'Hybrid',
+        'Old School',
+        'Low attendance',
+      ]) {
+        expect(text).withContext(hidden).not.toContain(hidden);
+      }
+      for (const shown of [
+        'Ana Torres',
+        'ana.torres@jala.university',
+        'S-1001',
+        '+506 8888 0000',
+        'Costa Rica',
+        'Cohort A',
+        'Satisfactory',
+        'Algorithms',
+      ]) {
+        expect(text).withContext(shown).toContain(shown);
+      }
+    });
+
+    it('[641-align-student-modal-fields/AC-14] keeps the fields of the edit and new student forms', async () => {
+      // GIVEN a user who can edit students
+      // WHEN they open the record to edit an existing student
+      const edit = await createComponent({
+        cohorts,
+        student: profile,
+        hasProfile: true,
+      });
+      edit.component.startEditing();
+      edit.fixture.detectChanges();
+
+      // THEN the edit form still shows its current fields
+      const editNames = edit.component.formFields.map(field => field.name);
+      for (const name of [
+        'dateOfBirth',
+        'gender',
+        'idPassportNumber',
+        'city',
+        'street',
+        'levelOfStudy',
+      ]) {
+        expect(editNames).withContext(`edit: ${name}`).toContain(name);
+      }
+      expect(edit.component.title).toBe('Edit Student');
+      expect(
+        (edit.fixture.nativeElement as HTMLElement).querySelector(
+          'app-form-factory'
+        )
+      ).not.toBeNull();
+
+      // AND the new student form too
+      const created = TestBed.runInInjectionContext(
+        () =>
+          new NewStudentModalComponent(
+            dialogRef as unknown as MatDialogRef<
+              NewStudentModalComponent,
+              boolean
+            >,
+            { cohorts }
+          )
+      );
+      const newNames = created.formFields.map(field => field.name);
+      for (const name of [
+        'dateOfBirth',
+        'gender',
+        'idPassportNumber',
+        'city',
+      ]) {
+        expect(newNames).withContext(`new: ${name}`).toContain(name);
+      }
+      expect(created.title).toBe('New Student');
+    });
+
+    it('[641-align-student-modal-fields/AC-15] saves the edited value and sends the unchanged form values', async () => {
+      // GIVEN an existing student with data the form does not show or send
+      const { fixture, component } = await createComponent({
+        cohorts,
+        student: profile,
+        hasProfile: true,
+      });
+      studentService.updateStudentProfile.and.returnValue(of(profile));
+      component.startEditing();
+      fixture.detectChanges();
+
+      // WHEN the user changes only the mobile number and saves
+      component.form.get('mobileNumber')?.setValue('+506 7777 1111');
+      component.form.markAsDirty();
+      component.submit();
+
+      // THEN the mobile number is sent and the unchanged form values go with it
+      const [id, payload] =
+        studentService.updateStudentProfile.calls.mostRecent().args as [
+          number,
+          StudentRegistrationModel,
+        ];
+      expect(id).toBe(7);
+      expect(payload).toEqual(
+        jasmine.objectContaining({
+          mobileNumber: '+506 7777 1111',
+          dateOfBirth: '2001-05-04',
+          city: 'Heredia',
+        })
+      );
+      // AND the profile-view values are not echoed back, so the API keeps the stored ones
+      for (const key of [
+        'sisId',
+        'cgpa',
+        'sapStatus',
+        'currentCourses',
+        'identifiedRisks',
+        'supportReceived',
+      ]) {
+        expect(Object.keys(payload)).withContext(key).not.toContain(key);
+      }
     });
   });
 });

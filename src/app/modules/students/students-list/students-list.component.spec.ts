@@ -35,6 +35,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
 import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 import { NewStudentModalComponent } from './new-student-modal/new-student-modal.component';
+import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
@@ -122,6 +123,7 @@ describe('StudentsListComponent', () => {
       'getData',
       'postData',
       'getStudentProfile',
+      'getStudentProfileSummary',
       'deleteStudent',
     ]);
     studentServiceSpy.getData.and.returnValue(
@@ -1046,7 +1048,7 @@ describe('StudentsListComponent', () => {
     it('should open the profile summary modal fetching on demand', () => {
       component.handleActionCalled(manualEvent('profileSummary'));
 
-      expect(studentServiceSpy.getStudentProfile).not.toHaveBeenCalled();
+      expect(studentServiceSpy.getStudentProfileSummary).not.toHaveBeenCalled();
       expect(dialogSpy.open).toHaveBeenCalledWith(
         StudentProfileSummaryModalComponent,
         jasmine.objectContaining({ data: { studentId: 1 } })
@@ -1058,11 +1060,13 @@ describe('StudentsListComponent', () => {
         studentId: 1,
         firstName: 'Ana',
       } as StudentRegistrationModel;
-      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+      studentServiceSpy.getStudentProfileSummary.and.returnValue(of(profile));
 
       component.handleActionCalled(manualEvent('viewProfile'));
 
-      expect(studentServiceSpy.getStudentProfile).toHaveBeenCalledWith(1);
+      expect(studentServiceSpy.getStudentProfileSummary).toHaveBeenCalledWith(
+        1
+      );
       expect(dialogSpy.open).toHaveBeenCalledWith(
         NewStudentModalComponent,
         jasmine.objectContaining({
@@ -1073,7 +1077,7 @@ describe('StudentsListComponent', () => {
 
     it('should tell the modal when the student already has a profile', () => {
       const profile = { studentId: 1 } as StudentRegistrationModel;
-      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+      studentServiceSpy.getStudentProfileSummary.and.returnValue(of(profile));
       component.students = component.students.map(s => ({
         ...s,
         hasProfile: true,
@@ -1089,9 +1093,47 @@ describe('StudentsListComponent', () => {
       );
     });
 
+    it('[641-align-student-modal-fields/AC-17] opens the record with the profile of the selected student only', () => {
+      // GIVEN the Students list with Ana (id 42) and Luis (id 43), and the profile of Luis
+      const luis = {
+        studentId: 43,
+        firstName: 'Luis',
+        cohortId: 3,
+      } as StudentProfileSummaryModel;
+      studentServiceSpy.getStudentProfileSummary.and.returnValue(of(luis));
+      component.students = [
+        { ...component.students[0], id: 42, name: 'Ana Torres' },
+        { ...component.students[0], id: 43, name: 'Luis Anaya' },
+      ];
+
+      // WHEN a user opens the student record of Luis
+      component.handleActionCalled({
+        item: { id: 43 },
+        data: { id: 'viewProfile' },
+      } as unknown as EventAction);
+
+      // THEN only the profile of student 43 is requested, and the record opens with his data
+      expect(
+        studentServiceSpy.getStudentProfileSummary
+      ).toHaveBeenCalledOnceWith(43);
+      expect(studentServiceSpy.getStudentProfile).not.toHaveBeenCalled();
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({
+            student: jasmine.objectContaining({
+              studentId: 43,
+              firstName: 'Luis',
+              cohortName: 'Cohort 3',
+            }),
+          }),
+        })
+      );
+    });
+
     it('should show an error toast when the profile cannot be loaded', () => {
       spyOn(console, 'error');
-      studentServiceSpy.getStudentProfile.and.returnValue(
+      studentServiceSpy.getStudentProfileSummary.and.returnValue(
         throwError(() => new Error('boom'))
       );
 
@@ -1286,7 +1328,7 @@ describe('StudentsListComponent', () => {
       tick(DEBOUNCE_MS);
       fixture.detectChanges();
       const namesBefore = component.students.map(s => s.name);
-      studentServiceSpy.getStudentProfile.and.returnValue(
+      studentServiceSpy.getStudentProfileSummary.and.returnValue(
         of({ studentId: 1 } as StudentRegistrationModel)
       );
       dialogSpy.open.and.returnValue({
@@ -1359,7 +1401,7 @@ describe('StudentsListComponent', () => {
         studentId: 1,
         firstName: 'Ana',
       } as StudentRegistrationModel;
-      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+      studentServiceSpy.getStudentProfileSummary.and.returnValue(of(profile));
 
       // WHEN they open the profile of a listed student
       component.handleActionCalled(actionEvent('viewProfile'));
