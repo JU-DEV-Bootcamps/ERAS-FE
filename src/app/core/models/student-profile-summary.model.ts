@@ -17,8 +17,8 @@ export interface StudentProfileSummaryModel extends StudentRegistrationModel {
   sapStatus?: string | null;
   isCurrentCourseThirdAttempt?: boolean | null;
   currentCourses?: StudentCurrentCourse[] | null;
-  passedCourses?: number | null;
-  failedCourses?: number | null;
+  passedCoursesCount?: number | null;
+  failedCoursesCount?: number | null;
   identifiedRisks?: string[] | null;
   supportReceived?: string[] | null;
 }

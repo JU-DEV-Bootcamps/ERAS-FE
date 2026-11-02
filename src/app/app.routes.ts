@@ -128,6 +128,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'user-manuals',
+        canActivate: [canActivateAuthRole],
+        data: ROUTE_METADATA.USER_MANUALS,
+        loadComponent: () =>
+          import('./modules/user-manuals/user-manuals.component').then(
+            c => c.UserManualsComponent
+          ),
+      },
+      {
         path: '_unused',
         canActivate: [canActivateAuthRole],
         data: { roles: [ERASRoles.ADMIN] },

@@ -1,11 +1,13 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, RouterLink } from '@angular/router';
+import { By } from '@angular/platform-browser';
 import { SidebarV2Component } from './sidebar.component-v2';
 import { SidebarService } from '../sidebar.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { ERASRoles, Profile } from '@core/models/profile.model';
 import { Menu } from '../sidebar.model';
+import { SIDEBAR_MENUS_NEW } from './sidebar.model-v2';
 
 describe('SidebarV2Component', () => {
   let component: SidebarV2Component;
@@ -170,5 +172,66 @@ describe('SidebarV2Component role-based rendering', () => {
     fixture.detectChanges();
 
     expect(menuItemCount()).toBe(0);
+  });
+});
+
+describe('SidebarV2Component User Manuals item', () => {
+  let fixture: ComponentFixture<SidebarV2Component>;
+  const user = signal<Profile | null>(null);
+
+  const userManualsItem = (): HTMLElement | undefined =>
+    Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('mat-list-item.menu-item')
+    ).find(item => item.textContent?.includes('User Manuals'));
+
+  const userManualsLink = (): string | undefined =>
+    fixture.debugElement
+      .queryAll(By.directive(RouterLink))
+      .find(el => el.nativeElement === userManualsItem())
+      ?.injector.get(RouterLink)
+      .urlTree?.toString();
+
+  beforeEach(async () => {
+    user.set(null);
+    await TestBed.configureTestingModule({
+      imports: [SidebarV2Component],
+      providers: [
+        provideRouter([]),
+        { provide: UserDataService, useValue: { user } },
+        {
+          provide: SidebarService,
+          useValue: {
+            closeMenu: () => undefined,
+            toggleMenu: () => undefined,
+            isRouteActive: (route: string) => route === '/user-manuals',
+            expandedMenu: () => null,
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SidebarV2Component);
+    fixture.componentRef.setInput('menuItems', SIDEBAR_MENUS_NEW);
+  });
+
+  it('[640-add-user-manuals-page/AC-1] highlights the User Manuals item and links to its page for a Professional', () => {
+    user.set({ role: ERASRoles.PROFESSIONAL });
+    fixture.detectChanges();
+
+    const item = userManualsItem();
+
+    expect(item).toBeDefined();
+    expect(userManualsLink()).toBe('/user-manuals');
+    expect(item?.classList).toContain('active-parent');
+  });
+
+  it('[640-add-user-manuals-page/AC-2] shows the User Manuals item to a Guest', () => {
+    user.set({ role: ERASRoles.GUEST });
+    fixture.detectChanges();
+
+    const item = userManualsItem();
+
+    expect(item).toBeDefined();
+    expect(userManualsLink()).toBe('/user-manuals');
   });
 });
