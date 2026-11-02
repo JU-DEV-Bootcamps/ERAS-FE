@@ -40,7 +40,7 @@ export const ROUTE_METADATA = {
   STUDENTS: {
     breadcrumb: 'Students',
     headerTitle: 'Students',
-    roles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
+    roles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
   },
   RISK_STUDENTS: {
     breadcrumb: 'Risk Students',

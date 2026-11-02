@@ -29,46 +29,48 @@
         </button>
       }
     </mat-form-field>
-    <app-eras-button
-      class="light-button"
-      [textButton]="'Import'"
-      [iconButton]="'download'"
-      (clickButton)="openImportModal()"
-    ></app-eras-button>
-    @if (students.length > 0) {
+    @if (canManageStudents) {
       <app-eras-button
-        [matMenuTriggerFor]="menu"
         class="light-button"
-        [textButton]="'Export'"
-        [iconButton]="'upload'"
-      >
-      </app-eras-button>
-      <mat-menu #menu="matMenu">
-        <button
-          mat-menu-item
-          class="export-option-button"
-          [disabled]="isGenerating"
-          (click)="exportToCSV()"
+        [textButton]="'Import'"
+        [iconButton]="'download'"
+        (clickButton)="openImportModal()"
+      ></app-eras-button>
+      @if (students.length > 0) {
+        <app-eras-button
+          [matMenuTriggerFor]="menu"
+          class="light-button"
+          [textButton]="'Export'"
+          [iconButton]="'upload'"
         >
-          To CSV
-        </button>
-        <button
-          id="print-button"
-          mat-menu-item
-          class="export-option-button"
-          [disabled]="isGenerating"
-          (click)="exportToPdf()"
-        >
-          To PDF
-        </button>
-      </mat-menu>
+        </app-eras-button>
+        <mat-menu #menu="matMenu">
+          <button
+            mat-menu-item
+            class="export-option-button"
+            [disabled]="isGenerating"
+            (click)="exportToCSV()"
+          >
+            To CSV
+          </button>
+          <button
+            id="print-button"
+            mat-menu-item
+            class="export-option-button"
+            [disabled]="isGenerating"
+            (click)="exportToPdf()"
+          >
+            To PDF
+          </button>
+        </mat-menu>
+      }
+      <app-eras-button
+        [textButton]="'New Student'"
+        [iconButton]="'add'"
+        [disableButton]="isOpeningStudentModal"
+        (clickButton)="openNewStudentModal()"
+      ></app-eras-button>
     }
-    <app-eras-button
-      [textButton]="'New Student'"
-      [iconButton]="'add'"
-      [disableButton]="isOpeningStudentModal"
-      (clickButton)="openNewStudentModal()"
-    ></app-eras-button>
   </div>
 
   <app-list

@@ -12,7 +12,7 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
     label: 'Students',
     icon: 'school',
     route: '/students',
-    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
   },
   {
     label: 'Evaluation Processes',

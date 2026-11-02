@@ -1,0 +1,51 @@
+<section class="interventions">
+  <h3>{{ messages.SECTION_TITLE }}</h3>
+
+  <div class="lists">
+    <div class="list-block">
+      <div class="list-header">
+        <h4>{{ messages.RISKS_TITLE }}</h4>
+        @if (canAdd()) {
+          <button
+            type="button"
+            class="add-button"
+            data-testid="add-risk"
+            (click)="add('RiskIdentified')"
+          >
+            {{ messages.ADD_RISK }}
+          </button>
+        }
+      </div>
+      <app-student-intervention-list
+        [entries]="risks()"
+        [emptyText]="messages.NO_RISKS"
+        [canChange]="canChange"
+        (editEntry)="edit($event)"
+        (deleteEntry)="remove($event)"
+      />
+    </div>
+
+    <div class="list-block">
+      <div class="list-header">
+        <h4>{{ messages.SUPPORT_TITLE }}</h4>
+        @if (canAdd()) {
+          <button
+            type="button"
+            class="add-button"
+            data-testid="add-support"
+            (click)="add('SupportReceived')"
+          >
+            {{ messages.ADD_SUPPORT }}
+          </button>
+        }
+      </div>
+      <app-student-intervention-list
+        [entries]="support()"
+        [emptyText]="messages.NO_SUPPORT"
+        [canChange]="canChange"
+        (editEntry)="edit($event)"
+        (deleteEntry)="remove($event)"
+      />
+    </div>
+  </div>
+</section>

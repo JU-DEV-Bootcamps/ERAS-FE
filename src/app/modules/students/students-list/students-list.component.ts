@@ -67,6 +67,8 @@ import {
   NewStudentModalData,
 } from './new-student-modal/new-student-modal.component';
 import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -92,6 +94,7 @@ export class StudentsListComponent implements OnInit {
   private readonly studentService = inject(StudentService);
   private readonly lastAccessPipe = new LastAccessPipe();
   private readonly featureFlags = inject(FeatureFlagsService);
+  private readonly permissions = inject(PermissionsService);
   private readonly exportStateService = inject(ExportStateService);
   private readonly cohortService = inject(CohortService);
   private readonly toastService = inject(ToastNotificationService);
@@ -181,7 +184,18 @@ export class StudentsListComponent implements OnInit {
     },
   ];
 
+  /** Creating, importing, exporting, editing and deleting students is for administrators and officers only. */
+  readonly canManageStudents = this.permissions.can(
+    ERASPermissions.CAN_MANAGE_STUDENTS
+  );
+
   constructor(private csvCheckerService: CsvCheckerService) {
+    if (!this.canManageStudents) {
+      this.itemsAreSelectable = false;
+      this.actionDatas = this.actionDatas.filter(
+        action => action.id === 'viewProfile' || action.id === 'profileSummary'
+      );
+    }
     this.searchControl.valueChanges
       .pipe(
         debounceTime(SEARCH_DEBOUNCE_MS),
