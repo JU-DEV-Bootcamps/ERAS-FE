@@ -11,9 +11,9 @@ describe('ProfessionalProfileStore', () => {
     store = TestBed.inject(ProfessionalProfileStore);
   });
 
-  it('should be created with mock professional profile data', () => {
+  it('should start with an empty professional profile', () => {
     expect(store.profile()).toBeTruthy();
-    expect(store.profile().courses.length).toBeGreaterThan(0);
+    expect(store.profile().courses.length).toBe(0);
   });
 
   it('should update the profile when setProfessionalProfile is called', () => {
@@ -21,7 +21,6 @@ describe('ProfessionalProfileStore', () => {
       position: 'Associate Professor',
       faculty: 'Faculty of Science',
       officeHours: 'Tue/Thu 10:00 AM - 12:00 PM',
-      activeEvaluations: '2 Ongoing',
       subjectsTaught: ['Statistics'],
       courses: [{ code: 'ST101', name: 'Intro to Statistics' }],
     };

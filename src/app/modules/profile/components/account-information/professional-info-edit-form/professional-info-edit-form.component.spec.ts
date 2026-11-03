@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { ProfessionalProfileService } from '@core/services/api/professional-profile.service';
 
 import { ProfessionalInfoEditFormComponent } from './professional-info-edit-form.component';
 import { ProfessionalProfile } from '@core/models/professional-profile.model';
@@ -11,17 +12,26 @@ describe('ProfessionalInfoEditFormComponent', () => {
   let fixture: ComponentFixture<ProfessionalInfoEditFormComponent>;
   let mockUnsavedChangesGuard: jasmine.SpyObj<UnsavedChangesGuardService>;
   let store: InstanceType<typeof ProfessionalProfileStore>;
+  let professionalProfileServiceSpy: jasmine.SpyObj<ProfessionalProfileService>;
 
   const mockProfile: ProfessionalProfile = {
     position: 'Professor of Computer Science',
     faculty: 'Faculty of Engineering',
     officeHours: 'Mon/Wed 2:00 PM - 4:00 PM',
-    activeEvaluations: '4 Ongoing',
     subjectsTaught: ['Introduction to UIUX', 'Advanced Algorithms'],
     courses: [{ code: 'CS401', name: 'Neural Network Architectures' }],
   };
 
   beforeEach(async () => {
+    professionalProfileServiceSpy =
+      jasmine.createSpyObj<ProfessionalProfileService>(
+        'ProfessionalProfileService',
+        ['getMyProfessionalProfile', 'updateMyProfessionalProfile']
+      );
+    professionalProfileServiceSpy.updateMyProfessionalProfile.and.returnValue(
+      of(mockProfile)
+    );
+
     mockUnsavedChangesGuard = jasmine.createSpyObj<UnsavedChangesGuardService>(
       'UnsavedChangesGuardService',
       ['requestClose']
@@ -33,6 +43,10 @@ describe('ProfessionalInfoEditFormComponent', () => {
         {
           provide: UnsavedChangesGuardService,
           useValue: mockUnsavedChangesGuard,
+        },
+        {
+          provide: ProfessionalProfileService,
+          useValue: professionalProfileServiceSpy,
         },
       ],
     }).compileComponents();
@@ -56,7 +70,6 @@ describe('ProfessionalInfoEditFormComponent', () => {
       position: mockProfile.position,
       faculty: mockProfile.faculty,
       officeHours: mockProfile.officeHours,
-      activeEvaluations: mockProfile.activeEvaluations,
       subjectsTaught: mockProfile.subjectsTaught.join(', '),
       courses: 'CS401 - Neural Network Architectures',
     });
@@ -81,6 +94,17 @@ describe('ProfessionalInfoEditFormComponent', () => {
   describe('save', () => {
     it('should update the store with the parsed form value and emit "saved"', () => {
       fixture.detectChanges();
+      professionalProfileServiceSpy.updateMyProfessionalProfile.and.returnValue(
+        of({
+          ...mockProfile,
+          position: 'Associate Professor',
+          subjectsTaught: ['Machine Learning', 'Statistics'],
+          courses: [
+            { code: 'CS401', name: 'Neural Network Architectures' },
+            { code: 'CS502', name: 'Advanced ML Seminar' },
+          ],
+        })
+      );
       const savedSpy = jasmine.createSpy('saved');
       component.saved.subscribe(savedSpy);
 
@@ -114,6 +138,43 @@ describe('ProfessionalInfoEditFormComponent', () => {
 
       expect(store.profile()).toEqual(mockProfile);
     });
+  });
+
+  it('[603-persist-professional-profile/AC-13] returns to view mode showing the saved faculty', () => {
+    fixture.detectChanges();
+    professionalProfileServiceSpy.updateMyProfessionalProfile.and.returnValue(
+      of({ ...mockProfile, faculty: 'Science' })
+    );
+    const savedSpy = jasmine.createSpy('saved');
+    component.saved.subscribe(savedSpy);
+    component.form.controls['faculty'].setValue('Science');
+
+    component.save();
+
+    expect(
+      professionalProfileServiceSpy.updateMyProfessionalProfile
+    ).toHaveBeenCalledWith(jasmine.objectContaining({ faculty: 'Science' }));
+    expect(store.profile().faculty).toBe('Science');
+    expect(savedSpy).toHaveBeenCalled();
+  });
+
+  it('[603-persist-professional-profile/AC-14] shows an error and keeps the form open when the save fails', () => {
+    fixture.detectChanges();
+    professionalProfileServiceSpy.updateMyProfessionalProfile.and.returnValue(
+      throwError(() => new Error('save failed'))
+    );
+    const savedSpy = jasmine.createSpy('saved');
+    component.saved.subscribe(savedSpy);
+    component.form.controls['faculty'].setValue('Science');
+
+    component.save();
+    fixture.detectChanges();
+
+    const error: HTMLElement | null =
+      fixture.nativeElement.querySelector('.error-message');
+    expect(error?.textContent).toContain('could not be saved');
+    expect(savedSpy).not.toHaveBeenCalled();
+    expect(component.form.controls['faculty'].value).toBe('Science');
   });
 
   describe('cancel', () => {

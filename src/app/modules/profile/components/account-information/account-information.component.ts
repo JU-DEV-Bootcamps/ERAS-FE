@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ERASRoles } from '@core/models/profile.model';
 import { UserProfile } from '@core/models/user-profile.model';
-import { UserDataService } from '@core/services/access/user-data.service';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { UserProfileService } from '@core/services/api/user-profile.service';
 import { ProfessionalInfoEditFormComponent } from './professional-info-edit-form/professional-info-edit-form.component';
 import { ProfessionalInfoComponent } from './professional-info/professional-info.component';
@@ -22,14 +22,14 @@ import { ProfileSummaryComponent } from './profile-summary/profile-summary.compo
   styleUrl: './account-information.component.scss',
 })
 export class AccountInformationComponent implements OnInit {
-  private readonly userData = inject(UserDataService);
+  private readonly permissions = inject(PermissionsService);
   private readonly userProfileService = inject(UserProfileService);
 
   isEditing = signal(false);
   isEditingProfessional = signal(false);
   summaryProfile = signal<UserProfile | null>(null);
-  isProfessional = computed(
-    () => this.userData.user()?.role === ERASRoles.PROFESSIONAL
+  isProfessional = computed(() =>
+    this.permissions.can(ERASPermissions.CAN_SEE_PROFESSIONAL_PROFILE)
   );
 
   ngOnInit(): void {

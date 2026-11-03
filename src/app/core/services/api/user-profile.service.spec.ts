@@ -88,6 +88,7 @@ describe('UserProfileService', () => {
         email: 'roberto.alvarez@jala.university',
         role: 'Faculty Practitioner',
         ...payload,
+        position: payload.position ?? '',
       };
 
       service.updateMyProfile(payload).subscribe(res => {

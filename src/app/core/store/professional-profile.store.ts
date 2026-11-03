@@ -1,17 +1,13 @@
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { ProfessionalProfile } from '@core/models/professional-profile.model';
 
-// Mock data until the backend exposes a professional-profile endpoint
-const MOCK_PROFESSIONAL_PROFILE: ProfessionalProfile = {
-  position: '-',
-  faculty: '-',
-  officeHours: 'Mon/Fri 2:00 PM - 4:00 PM',
-  activeEvaluations: '-',
-  subjectsTaught: ['First subject', 'Another subject'],
-  courses: [
-    { code: 'CODE1', name: 'Course 1' },
-    { code: 'CODE2', name: 'Course 2' },
-  ],
+// Empty until the professional info section loads the saved profile from the backend.
+const EMPTY_PROFESSIONAL_PROFILE: ProfessionalProfile = {
+  position: '',
+  faculty: '',
+  officeHours: '',
+  subjectsTaught: [],
+  courses: [],
 };
 
 interface ProfessionalProfileState {
@@ -19,7 +15,7 @@ interface ProfessionalProfileState {
 }
 
 const initialState: ProfessionalProfileState = {
-  profile: MOCK_PROFESSIONAL_PROFILE,
+  profile: EMPTY_PROFESSIONAL_PROFILE,
 };
 
 const ProfessionalProfileStore = signalStore(

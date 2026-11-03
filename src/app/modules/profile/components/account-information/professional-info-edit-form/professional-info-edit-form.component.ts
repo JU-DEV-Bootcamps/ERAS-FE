@@ -1,10 +1,20 @@
-import { Component, inject, OnInit, output } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
+import { PROFESSIONAL_PROFILE_MESSAGES } from '@core/constants/messages';
 import { FormFactoryComponent } from '@core/factories/forms/form-factory.component';
 import { DynamicField } from '@core/factories/forms/form-factory.interface';
 import { ProfessionalProfile } from '@core/models/professional-profile.model';
+import { ProfessionalProfileService } from '@core/services/api/professional-profile.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { ProfessionalProfileStore } from '@core/store/professional-profile.store';
 import { areObjectsEqual } from '@core/utils/helpers/are-objects-equal';
@@ -18,6 +28,10 @@ import { areObjectsEqual } from '@core/utils/helpers/are-objects-equal';
 export class ProfessionalInfoEditFormComponent implements OnInit {
   private readonly store = inject(ProfessionalProfileStore);
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
+  private readonly professionalProfileService = inject(
+    ProfessionalProfileService
+  );
+  private readonly destroyRef = inject(DestroyRef);
 
   // UnsavedChangesGuardService.requestClose() only ever calls dialogRef.close();
   // there is no real dialog here since editing happens inline in the card.
@@ -32,6 +46,7 @@ export class ProfessionalInfoEditFormComponent implements OnInit {
 
   formFields: DynamicField[] = [];
   form!: FormGroup;
+  errorMessage = signal<string | null>(null);
 
   private initialFormValue: Record<string, unknown> = {};
 
@@ -44,7 +59,6 @@ export class ProfessionalInfoEditFormComponent implements OnInit {
         name: 'position',
         label: 'Position',
         value: profile.position,
-        validators: [Validators.required],
       },
       {
         type: 'text',
@@ -58,14 +72,6 @@ export class ProfessionalInfoEditFormComponent implements OnInit {
         name: 'officeHours',
         label: 'Office Hours',
         value: profile.officeHours,
-        validators: [Validators.required],
-      },
-      {
-        type: 'text',
-        name: 'activeEvaluations',
-        label: 'Active Evaluations',
-        value: profile.activeEvaluations,
-        validators: [Validators.required],
       },
       {
         type: 'textarea',
@@ -98,26 +104,31 @@ export class ProfessionalInfoEditFormComponent implements OnInit {
   save(): void {
     if (this.form.invalid) return;
 
-    const {
-      position,
-      faculty,
-      officeHours,
-      activeEvaluations,
-      subjectsTaught,
-      courses,
-    } = this.form.getRawValue();
+    const { position, faculty, officeHours, subjectsTaught, courses } =
+      this.form.getRawValue();
 
-    const changes: Partial<ProfessionalProfile> = {
+    const profile: ProfessionalProfile = {
       position,
       faculty,
       officeHours,
-      activeEvaluations,
       subjectsTaught: this.parseSubjects(subjectsTaught),
       courses: this.parseCourses(courses),
     };
 
-    this.store.updateProfessionalProfile(changes);
-    this.saved.emit();
+    this.errorMessage.set(null);
+    this.professionalProfileService
+      .updateMyProfessionalProfile(profile)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: updated => {
+          this.store.setProfessionalProfile(updated);
+          this.saved.emit();
+        },
+        error: error => {
+          console.error('Error while saving professional profile', error);
+          this.errorMessage.set(PROFESSIONAL_PROFILE_MESSAGES.SAVE_ERROR);
+        },
+      });
   }
 
   cancel(): void {

@@ -2,6 +2,9 @@
 
 import { AccountInformationComponent } from './account-information.component';
 import { UserProfileService } from '@core/services/api/user-profile.service';
+import { ProfessionalProfileService } from '@core/services/api/professional-profile.service';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { ERASRoles, Profile } from '@core/models/profile.model';
@@ -27,6 +30,8 @@ describe('AccountInformationComponent', () => {
   let fixture: ComponentFixture<AccountInformationComponent>;
   let userDataServiceSpy: jasmine.SpyObj<UserDataService>;
   let userProfileServiceSpy: jasmine.SpyObj<UserProfileService>;
+  let professionalProfileServiceSpy: jasmine.SpyObj<ProfessionalProfileService>;
+  let permissionsServiceSpy: jasmine.SpyObj<PermissionsService>;
 
   function setup(user: Profile | null): void {
     userDataServiceSpy.user.and.returnValue(user);
@@ -48,6 +53,31 @@ describe('AccountInformationComponent', () => {
     );
     userDataServiceSpy.user.and.returnValue(null);
 
+    professionalProfileServiceSpy =
+      jasmine.createSpyObj<ProfessionalProfileService>(
+        'ProfessionalProfileService',
+        ['getMyProfessionalProfile', 'updateMyProfessionalProfile']
+      );
+    professionalProfileServiceSpy.getMyProfessionalProfile.and.returnValue(
+      of({
+        position: '',
+        faculty: '',
+        officeHours: '',
+        subjectsTaught: [],
+        courses: [],
+      })
+    );
+
+    permissionsServiceSpy = jasmine.createSpyObj<PermissionsService>(
+      'PermissionsService',
+      ['can']
+    );
+    permissionsServiceSpy.can.and.callFake(
+      permission =>
+        permission === ERASPermissions.CAN_SEE_PROFESSIONAL_PROFILE &&
+        userDataServiceSpy.user()?.role === ERASRoles.PROFESSIONAL
+    );
+
     const unsavedChangesGuardSpy =
       jasmine.createSpyObj<UnsavedChangesGuardService>(
         'UnsavedChangesGuardService',
@@ -59,6 +89,11 @@ describe('AccountInformationComponent', () => {
       providers: [
         { provide: UserProfileService, useValue: userProfileServiceSpy },
         { provide: UserDataService, useValue: userDataServiceSpy },
+        {
+          provide: ProfessionalProfileService,
+          useValue: professionalProfileServiceSpy,
+        },
+        { provide: PermissionsService, useValue: permissionsServiceSpy },
         {
           provide: UnsavedChangesGuardService,
           useValue: unsavedChangesGuardSpy,
@@ -173,6 +208,28 @@ describe('AccountInformationComponent', () => {
     editFormDebugElement.triggerEventHandler('saved');
 
     expect(component.isEditing()).toBeFalse();
+  });
+
+  it('[603-persist-professional-profile/AC-10] shows the professional info in place of the summary', () => {
+    setup({ role: ERASRoles.PROFESSIONAL });
+
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-professional-info')
+    ).not.toBeNull();
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-profile-summary')
+    ).toBeNull();
+  });
+
+  it('[603-persist-professional-profile/AC-11] shows the summary and no professional info for an officer', () => {
+    setup({ role: ERASRoles.OFFICER });
+
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-profile-summary')
+    ).not.toBeNull();
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-professional-info')
+    ).toBeNull();
   });
 
   describe('summary panel', () => {

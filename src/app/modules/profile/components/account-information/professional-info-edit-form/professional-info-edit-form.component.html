@@ -5,6 +5,10 @@
   ></app-form-factory>
 </div>
 
+@if (errorMessage()) {
+  <p class="error-message" role="alert">{{ errorMessage() }}</p>
+}
+
 <div class="actions">
   <button mat-button type="button" color="primary" (click)="cancel()">
     Cancel

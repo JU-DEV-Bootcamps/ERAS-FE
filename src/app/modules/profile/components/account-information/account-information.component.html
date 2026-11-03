@@ -6,9 +6,6 @@
       <app-profile-card (edit)="startEdit()" />
     }
   </div>
-  <div class="section-summary">
-    <app-profile-summary [profile]="summaryProfile()" />
-  </div>
 
   @if (isProfessional()) {
     <div class="section-professional">
@@ -18,8 +15,17 @@
           (cancelled)="stopEditProfessional()"
         />
       } @else {
-        <app-professional-info (edit)="startEditProfessional()" />
+        <app-professional-info
+          [activeInterventions]="
+            summaryProfile()?.activeInterventionsCount ?? 0
+          "
+          (edit)="startEditProfessional()"
+        />
       }
+    </div>
+  } @else {
+    <div class="section-summary">
+      <app-profile-summary [profile]="summaryProfile()" />
     </div>
   }
 </div>

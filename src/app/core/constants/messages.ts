@@ -36,6 +36,11 @@ export const USER_MANUALS_MESSAGES = {
   LOAD_ERROR: 'Could not load the user manuals. Please try again later.',
 };
 
+export const PROFESSIONAL_PROFILE_MESSAGES = {
+  SAVE_ERROR:
+    'Your professional information could not be saved. Please try again.',
+};
+
 export const GENERAL_MESSAGES = {
   ERROR_TITLE: 'Error',
   ERROR_IMPORT_TITLE: 'Error Importing file',
