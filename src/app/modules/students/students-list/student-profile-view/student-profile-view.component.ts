@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatIconModule } from '@angular/material/icon';
 import {
   STUDENT_INTERVENTION_MESSAGES,
   STUDENT_PROFILE_MESSAGES,
@@ -30,7 +31,11 @@ import {
  */
 @Component({
   selector: 'app-student-profile-view',
-  imports: [StudentInterventionListComponent, StudentInterventionsComponent],
+  imports: [
+    MatIconModule,
+    StudentInterventionListComponent,
+    StudentInterventionsComponent,
+  ],
   templateUrl: './student-profile-view.component.html',
   styleUrl: './student-profile-view.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

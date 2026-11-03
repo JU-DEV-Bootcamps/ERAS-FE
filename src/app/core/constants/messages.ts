@@ -35,6 +35,7 @@ export const STUDENT_PROFILE_MESSAGES = {
   FIRST_NAMES: 'First names',
   INSTITUTIONAL_EMAIL: 'Institutional email',
   SIS_ID: 'SIS ID',
+  ID_PASSPORT_NUMBER: 'ID/Passport number',
   MOBILE_NUMBER: 'Mobile number',
   COUNTRY: 'Country',
   COHORT: 'Cohort',

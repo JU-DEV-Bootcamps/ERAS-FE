@@ -28,46 +28,62 @@
         }
       } @else {
         <h3>{{ section.title }}</h3>
-        <dl>
+        <div class="fields">
           @for (field of section.fields; track field.id) {
             @if (isVisible(field)) {
-              <div class="field" [attr.data-field]="field.id">
-                <dt>{{ field.label }}</dt>
-                <dd>
-                  @if (field.kind === 'courses') {
-                    @if (profile().currentCourses?.length) {
-                      <table class="courses">
-                        <thead>
-                          <tr>
-                            <th>{{ messages.COURSE_NAME }}</th>
-                            <th>{{ messages.COURSE_GROUP }}</th>
-                            <th>{{ messages.COURSE_SECTION }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (
-                            course of profile().currentCourses;
-                            track $index
-                          ) {
-                            <tr>
-                              <td>{{ course.name }}</td>
-                              <td>{{ displayValue(course.group) }}</td>
-                              <td>{{ displayValue(course.section) }}</td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <p class="empty">{{ messages.NO_COURSES }}</p>
-                    }
-                  } @else {
-                    {{ display(field) }}
-                  }
-                </dd>
+              <div
+                class="field"
+                [class.tile]="field.icon"
+                [attr.data-field]="field.id"
+              >
+                @if (field.icon) {
+                  <mat-icon
+                    class="icon"
+                    [class]="field.tone"
+                    aria-hidden="true"
+                    >{{ field.icon }}</mat-icon
+                  >
+                }
+                <dl>
+                  <div>
+                    <dt>{{ field.label }}</dt>
+                    <dd>
+                      @if (field.kind === 'courses') {
+                        @if (profile().currentCourses?.length) {
+                          <table class="courses">
+                            <thead>
+                              <tr>
+                                <th>{{ messages.COURSE_NAME }}</th>
+                                <th>{{ messages.COURSE_GROUP }}</th>
+                                <th>{{ messages.COURSE_SECTION }}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (
+                                course of profile().currentCourses;
+                                track $index
+                              ) {
+                                <tr>
+                                  <td>{{ course.name }}</td>
+                                  <td>{{ displayValue(course.group) }}</td>
+                                  <td>{{ displayValue(course.section) }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        } @else {
+                          <p class="empty">{{ messages.NO_COURSES }}</p>
+                        }
+                      } @else {
+                        {{ display(field) }}
+                      }
+                    </dd>
+                  </div>
+                </dl>
               </div>
             }
           }
-        </dl>
+        </div>
       }
     </section>
   }

@@ -22,10 +22,13 @@
   }
 }
 
-dl {
+.fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem 1.5rem;
+}
+
+dl {
   margin: 0;
 }
 
@@ -43,8 +46,64 @@ dl {
     word-break: break-word;
   }
 
-  &[data-field='currentCourses'] {
+  &[data-field='currentCourses'],
+  &[data-field='thirdAttempt'] {
     grid-column: 1 / -1;
+  }
+
+  &.tile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    dl {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &[data-field='currentCourses'].tile {
+    align-items: flex-start;
+  }
+}
+
+.icon {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  padding: 11px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  font-size: 24px;
+
+  &.blue {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  &.green {
+    background: #d1fae5;
+    color: #047857;
+  }
+
+  &.purple {
+    background: #ede9fe;
+    color: #7c3aed;
+  }
+
+  &.yellow {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  &.red {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  &.teal {
+    background: #ccfbf1;
+    color: #0f766e;
   }
 }
 
@@ -84,7 +143,7 @@ dl {
 }
 
 @media (max-width: 800px) {
-  dl,
+  .fields,
   .lists {
     grid-template-columns: 1fr;
   }

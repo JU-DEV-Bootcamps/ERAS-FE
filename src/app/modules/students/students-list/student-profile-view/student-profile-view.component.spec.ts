@@ -93,11 +93,12 @@ describe('StudentProfileViewComponent', () => {
     // WHEN a user with an ERAS role opens the view
     const el = create({ ...profile, middleName: null });
 
-    // THEN Personal information lists the six fields in the agreed order, with those values
+    // THEN Personal information lists the seven fields in the agreed order, with those values
     expect(labels(el, 'personal')).toEqual([
       'First names',
       'Institutional email',
       'SIS ID',
+      'ID/Passport number',
       'Mobile number',
       'Country',
       'Cohort',
@@ -105,6 +106,7 @@ describe('StudentProfileViewComponent', () => {
     expect(value(el, 'firstNames')).toBe('Ana Torres');
     expect(value(el, 'institutionalEmail')).toBe('ana.torres@jala.university');
     expect(value(el, 'sisId')).toBe('S-1001');
+    expect(value(el, 'idPassportNumber')).toBe('AB-1');
     expect(value(el, 'mobileNumber')).toBe('+506 8888 0000');
     expect(value(el, 'country')).toBe('Costa Rica');
     expect(value(el, 'cohort')).toBe('Cohort 12');
@@ -114,15 +116,21 @@ describe('StudentProfileViewComponent', () => {
   });
 
   it('[641-align-student-modal-fields/AC-4] shows a dash for a missing personal value', () => {
-    // GIVEN a student with no mobile number and no country
+    // GIVEN a student with no ID/Passport number, no mobile number and no country
     // WHEN a user with an ERAS role opens the view
-    const el = create({ ...profile, mobileNumber: null, country: undefined });
+    const el = create({
+      ...profile,
+      idPassportNumber: '',
+      mobileNumber: null,
+      country: undefined,
+    });
 
-    // THEN both fields show "-" and stay listed in their position
+    // THEN the fields show "-" and stay listed in their position
+    expect(value(el, 'idPassportNumber')).toBe('-');
     expect(value(el, 'mobileNumber')).toBe('-');
     expect(value(el, 'country')).toBe('-');
-    expect(labels(el, 'personal').indexOf('Mobile number')).toBe(3);
-    expect(labels(el, 'personal').indexOf('Country')).toBe(4);
+    expect(labels(el, 'personal').indexOf('Mobile number')).toBe(4);
+    expect(labels(el, 'personal').indexOf('Country')).toBe(5);
   });
 
   it('[641-align-student-modal-fields/AC-5] shows SIS ID and never STU ID', () => {
@@ -144,9 +152,9 @@ describe('StudentProfileViewComponent', () => {
     expect(labels(el, 'academic')).toEqual([
       'Current CGPA',
       'SAP status',
-      'Current courses',
       'Passed courses',
       'Failed courses',
+      'Current courses',
     ]);
     expect(value(el, 'cgpa')).toBe('3.4');
     expect(value(el, 'sapStatus')).toBe('Satisfactory');
@@ -159,14 +167,14 @@ describe('StudentProfileViewComponent', () => {
     // WHEN a user with an ERAS role opens the view
     const el = create({ ...profile, isCurrentCourseThirdAttempt: true });
 
-    // THEN "Third attempt" is shown between "SAP status" and the courses, saying it applies
+    // THEN "Third attempt" is shown between "SAP status" and "Passed courses", saying it applies
     expect(labels(el, 'academic')).toEqual([
       'Current CGPA',
       'SAP status',
       'Third attempt',
-      'Current courses',
       'Passed courses',
       'Failed courses',
+      'Current courses',
     ]);
     expect(value(el, 'thirdAttempt')).toBe('Yes');
   });
@@ -183,9 +191,9 @@ describe('StudentProfileViewComponent', () => {
       expect(labels(el, 'academic')).toEqual([
         'Current CGPA',
         'SAP status',
-        'Current courses',
         'Passed courses',
         'Failed courses',
+        'Current courses',
       ]);
     }
   });
@@ -205,13 +213,11 @@ describe('StudentProfileViewComponent', () => {
       ['Algorithms', 'A', '2'],
       ['Databases', 'B', '1'],
     ]);
-    // AND the courses sit after "SAP status" and before "Passed courses"
+    // AND the courses are the last field of the section, after "Failed courses"
     const academic = labels(el, 'academic');
+    expect(academic[academic.length - 1]).toBe('Current courses');
     expect(academic.indexOf('Current courses')).toBe(
-      academic.indexOf('SAP status') + 1
-    );
-    expect(academic.indexOf('Passed courses')).toBe(
-      academic.indexOf('Current courses') + 1
+      academic.indexOf('Failed courses') + 1
     );
   });
 
@@ -248,5 +254,35 @@ describe('StudentProfileViewComponent', () => {
     expect(section(empty, 'interventions').textContent).toContain(
       'No support received yet.'
     );
+  });
+
+  it('[641-align-student-modal-fields/AC-20] shows an icon with a colour on each academic field and keeps the agreed order', () => {
+    // GIVEN a student with academic data, a third-attempt course and current courses
+    // WHEN a user with an ERAS role opens the view
+    const el = create({ ...profile, isCurrentCourseThirdAttempt: true });
+
+    // THEN each academic field has its own icon
+    const icon = (field: string): string =>
+      el
+        .querySelector(`[data-field="${field}"] mat-icon`)
+        ?.textContent?.trim() ?? '';
+    expect(icon('cgpa')).toBe('school');
+    expect(icon('sapStatus')).toBe('verified');
+    expect(icon('thirdAttempt')).toBe('warning');
+    expect(icon('passedCourses')).toBe('task_alt');
+    expect(icon('failedCourses')).toBe('highlight_off');
+    expect(icon('currentCourses')).toBe('menu_book');
+    expect(
+      el.querySelector('[data-field="cgpa"] mat-icon')?.classList
+    ).toContain('blue');
+    // AND the fields keep the agreed order
+    expect(labels(el, 'academic')).toEqual([
+      'Current CGPA',
+      'SAP status',
+      'Third attempt',
+      'Passed courses',
+      'Failed courses',
+      'Current courses',
+    ]);
   });
 });

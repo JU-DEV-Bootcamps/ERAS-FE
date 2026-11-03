@@ -14,6 +14,9 @@ export interface StudentProfileFieldDefinition {
   /** `courses` renders the list of current courses instead of a single value. */
   kind: 'text' | 'courses';
   value?: (profile: StudentProfileSummaryModel) => string | number | null;
+  /** Material icon and colour that mark the field, as the former profile summary did for its indicators. */
+  icon?: string;
+  tone?: 'blue' | 'green' | 'purple' | 'yellow' | 'red' | 'teal';
   /** A field without a predicate is always listed. */
   isVisible?: (profile: StudentProfileSummaryModel) => boolean;
 }
@@ -77,6 +80,12 @@ export const STUDENT_PROFILE_SECTIONS: StudentProfileSectionDefinition[] = [
         value: profile => profile.sisId ?? null,
       },
       {
+        id: 'idPassportNumber',
+        label: messages.ID_PASSPORT_NUMBER,
+        kind: 'text',
+        value: profile => profile.idPassportNumber,
+      },
+      {
         id: 'mobileNumber',
         label: messages.MOBILE_NUMBER,
         kind: 'text',
@@ -104,12 +113,16 @@ export const STUDENT_PROFILE_SECTIONS: StudentProfileSectionDefinition[] = [
         id: 'cgpa',
         label: messages.CURRENT_CGPA,
         kind: 'text',
+        icon: 'school',
+        tone: 'blue',
         value: profile => profile.cgpa ?? null,
       },
       {
         id: 'sapStatus',
         label: messages.SAP_STATUS,
         kind: 'text',
+        icon: 'verified',
+        tone: 'green',
         value: profile => profile.sapStatus ?? null,
       },
       {
@@ -118,25 +131,33 @@ export const STUDENT_PROFILE_SECTIONS: StudentProfileSectionDefinition[] = [
         id: 'thirdAttempt',
         label: messages.THIRD_ATTEMPT,
         kind: 'text',
+        icon: 'warning',
+        tone: 'red',
         value: () => messages.YES,
         isVisible: profile => profile.isCurrentCourseThirdAttempt === true,
-      },
-      {
-        id: 'currentCourses',
-        label: messages.CURRENT_COURSES,
-        kind: 'courses',
       },
       {
         id: 'passedCourses',
         label: messages.PASSED_COURSES,
         kind: 'text',
+        icon: 'task_alt',
+        tone: 'purple',
         value: profile => profile.passedCoursesCount ?? null,
       },
       {
         id: 'failedCourses',
         label: messages.FAILED_COURSES,
         kind: 'text',
+        icon: 'highlight_off',
+        tone: 'yellow',
         value: profile => profile.failedCoursesCount ?? null,
+      },
+      {
+        id: 'currentCourses',
+        label: messages.CURRENT_COURSES,
+        kind: 'courses',
+        icon: 'menu_book',
+        tone: 'teal',
       },
     ],
   },

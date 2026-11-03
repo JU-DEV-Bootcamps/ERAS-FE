@@ -167,6 +167,7 @@ describe('Student profile modals', () => {
       'First names',
       'Institutional email',
       'SIS ID',
+      'ID/Passport number',
       'Mobile number',
       'Country',
       'Cohort',

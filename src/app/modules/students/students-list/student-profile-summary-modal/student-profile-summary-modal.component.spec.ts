@@ -167,7 +167,6 @@ describe('StudentProfileSummaryModalComponent', () => {
       'Female',
       'Costa Rican',
       'Panama',
-      'ID-777777',
       'secondary@example.com',
       'San José',
       'Calle 5',
@@ -184,7 +183,6 @@ describe('StudentProfileSummaryModalComponent', () => {
     for (const label of [
       'Date of birth',
       'Gender',
-      'ID/Passport',
       'Secondary email',
       'City',
       'Street',
