@@ -21,6 +21,12 @@ export interface ImportJobStatusModel {
   extractedCount: number;
   retryCount: number;
   errorMessage?: string | null;
+  returnedCount: number;
+  skippedCount: number;
+  skippedWithoutScore: number;
+  skippedRequestFailed: number;
+  skippedOutsideDateRange: number;
+  skippedInvalidAnswers: number;
   createdAtUtc: string;
   updatedAtUtc: string;
 }

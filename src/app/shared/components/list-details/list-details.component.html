@@ -21,7 +21,7 @@
       <app-mat-card-details
         [mapClass]="mapClass?.table ? mapClass : undefined"
         [columns]="columns"
-        [items]="items"
+        [items]="exportItems ?? items"
         [columnTemplates]="columnTemplates"
         [templateMap]="templateMap"
         [actionDatas]="actionDatas"

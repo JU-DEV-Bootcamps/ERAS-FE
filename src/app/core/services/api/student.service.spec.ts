@@ -237,6 +237,19 @@ describe('StudentService', () => {
       );
       req.flush({ items: [] });
     });
+
+    it('should send the trimmed Search param only when the text is not blank', () => {
+      service.getData({ page: 0, pageSize: 10 }, '  jose ').subscribe();
+      const withSearch = httpMock.expectOne(
+        r => r.url === `${baseUrl}/` && r.params.get('Search') === 'jose'
+      );
+      withSearch.flush({ items: [] });
+
+      service.getData({ page: 0, pageSize: 10 }, '   ').subscribe();
+      const withoutSearch = httpMock.expectOne(r => r.url === `${baseUrl}/`);
+      expect(withoutSearch.request.params.has('Search')).toBeFalse();
+      withoutSearch.flush({ items: [] });
+    });
   });
 
   describe('getDataStudentsByPoll', () => {
@@ -396,6 +409,70 @@ describe('StudentService', () => {
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
+    });
+  });
+
+  describe('manual student registration', () => {
+    const student = {
+      firstName: 'Ana',
+      lastName: 'Pérez',
+      idPassportNumber: 'AB-1',
+      cohortId: 1,
+      primaryEmail: 'ana@jala.university',
+    };
+
+    it('createManualStudent should POST to /manual', () => {
+      service
+        .createManualStudent(student)
+        .subscribe(res => expect(res).toEqual({ ...student, studentId: 3 }));
+
+      const req = httpMock.expectOne(`${baseUrl}/manual`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(student);
+      req.flush({ ...student, studentId: 3 });
+    });
+
+    it('createManualStudent should send the cohort id as a number', () => {
+      service
+        .createManualStudent({ ...student, cohortId: '4' as unknown as number })
+        .subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/manual`);
+      expect(req.request.body.cohortId).toBe(4);
+      req.flush(student);
+    });
+
+    it('getStudentProfile should GET /:id/profile', () => {
+      service.getStudentProfile(3).subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/3/profile`);
+      expect(req.request.method).toBe('GET');
+      req.flush(student);
+    });
+
+    it('getStudentProfileSummary should GET /:id/profile', () => {
+      service.getStudentProfileSummary(3).subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/3/profile`);
+      expect(req.request.method).toBe('GET');
+      req.flush(student);
+    });
+
+    it('updateStudentProfile should PUT /:id/profile', () => {
+      service.updateStudentProfile(3, student).subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/3/profile`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(student);
+      req.flush(student);
+    });
+
+    it('deleteStudent should DELETE /:id', () => {
+      service.deleteStudent(3).subscribe();
+
+      const req = httpMock.expectOne(`${baseUrl}/3`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
     });
   });
 });

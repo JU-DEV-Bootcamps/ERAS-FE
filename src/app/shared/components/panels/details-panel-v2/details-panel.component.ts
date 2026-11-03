@@ -27,6 +27,7 @@ import { ModalStudentDetailV2Component } from '@shared/components/modals/modal-s
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { ComponentType } from '@angular/cdk/portal';
+import { map, Observable, of } from 'rxjs';
 
 export interface DetailsPanelData {
   cohortId: string;
@@ -124,30 +125,48 @@ export class DetailsPanelComponent implements OnChanges {
       });
   }
 
-  loadStudents(): void {
-    const panelData = this.data();
-    if (!panelData) return;
-
-    this.evaluationDetailsService
-      .getStudentsByFilters(
-        panelData.pollUuid,
-        [panelData.componentName.toLowerCase()],
-        panelData.cohortId.split(',').map(id => Number(id.trim())),
-        [this.variableId],
-        this.pagination.pageSize,
-        this.pagination.page,
-        panelData.riskLevel !== undefined ? [panelData.riskLevel] : undefined,
-        panelData.evaluationId
-      )
-      .subscribe(data => {
-        const items = (data?.items ?? []).sort((a, b) => {
-          if (b.riskLevel !== a.riskLevel) return b.riskLevel - a.riskLevel;
-          return a.answerText.localeCompare(b.answerText);
-        });
-        this.studentList.set(items);
-        this.totalStudentRisks.set(data?.count ?? items.length);
-      });
+  private fetchStudents(pageSize: number, page: number) {
+    const panelData = this.data()!;
+    return this.evaluationDetailsService.getStudentsByFilters(
+      panelData.pollUuid,
+      [panelData.componentName.toLowerCase()],
+      panelData.cohortId.split(',').map(id => Number(id.trim())),
+      [this.variableId],
+      pageSize,
+      page,
+      panelData.riskLevel !== undefined ? [panelData.riskLevel] : undefined,
+      panelData.evaluationId
+    );
   }
+
+  private sortStudents(items: EvaluationDetailsStudentResponse[]) {
+    return [...items].sort((a, b) => {
+      if (b.riskLevel !== a.riskLevel) return b.riskLevel - a.riskLevel;
+      return a.answerText.localeCompare(b.answerText);
+    });
+  }
+
+  loadStudents(): void {
+    if (!this.data()) return;
+
+    this.fetchStudents(
+      this.pagination.pageSize,
+      this.pagination.page
+    ).subscribe(data => {
+      const items = this.sortStudents(data?.items ?? []);
+      this.studentList.set(items);
+      this.totalStudentRisks.set(data?.count ?? items.length);
+    });
+  }
+
+  // Exports must include every row, not only the current page
+  exportItemsLoader = (): Observable<EvaluationDetailsStudentResponse[]> => {
+    if (!this.data()) return of([]);
+    const total = this.totalStudentRisks() || this.studentList().length;
+    return this.fetchStudents(Math.max(total, 1), 0).pipe(
+      map(data => this.sortStudents(data?.items ?? []))
+    );
+  };
 
   getRiskColor(riskLevel: number): string {
     return getRiskColor(riskLevel);

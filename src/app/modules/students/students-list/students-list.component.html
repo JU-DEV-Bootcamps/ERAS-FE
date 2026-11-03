@@ -2,44 +2,75 @@
   <mat-spinner />
 } @else {
   <div class="buttons-container">
-    <app-eras-button
-      class="light-button"
-      [textButton]="'Import'"
-      [iconButton]="'download'"
-      (clickButton)="openImportModal()"
-    ></app-eras-button>
-    @if (students.length > 0) {
+    <mat-form-field
+      class="students-search"
+      appearance="outline"
+      subscriptSizing="dynamic"
+    >
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        [formControl]="searchControl"
+        [placeholder]="messages.SEARCH_PLACEHOLDER"
+        [attr.aria-label]="messages.SEARCH_PLACEHOLDER"
+      />
+      @if (searchControl.value) {
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          class="students-search-clear"
+          [attr.aria-label]="messages.SEARCH_CLEAR"
+          (click)="clearSearch()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+    @if (canManageStudents) {
       <app-eras-button
-        [matMenuTriggerFor]="menu"
         class="light-button"
-        [textButton]="'Export'"
-        [iconButton]="'upload'"
-      >
-      </app-eras-button>
-      <mat-menu #menu="matMenu">
-        <button
-          mat-menu-item
-          class="export-option-button"
-          [disabled]="isGenerating"
-          (click)="exportToCSV()"
+        [textButton]="'Import'"
+        [iconButton]="'download'"
+        (clickButton)="openImportModal()"
+      ></app-eras-button>
+      @if (students.length > 0) {
+        <app-eras-button
+          [matMenuTriggerFor]="menu"
+          class="light-button"
+          [textButton]="'Export'"
+          [iconButton]="'upload'"
         >
-          To CSV
-        </button>
-        <button
-          id="print-button"
-          mat-menu-item
-          class="export-option-button"
-          [disabled]="isGenerating"
-          (click)="exportToPdf()"
-        >
-          To PDF
-        </button>
-      </mat-menu>
+        </app-eras-button>
+        <mat-menu #menu="matMenu">
+          <button
+            mat-menu-item
+            class="export-option-button"
+            [disabled]="isGenerating"
+            (click)="exportToCSV()"
+          >
+            To CSV
+          </button>
+          <button
+            id="print-button"
+            mat-menu-item
+            class="export-option-button"
+            [disabled]="isGenerating"
+            (click)="exportToPdf()"
+          >
+            To PDF
+          </button>
+        </mat-menu>
+      }
+      <app-eras-button
+        [textButton]="'New Student'"
+        [iconButton]="'add'"
+        [disableButton]="isOpeningStudentModal"
+        (clickButton)="openNewStudentModal()"
+      ></app-eras-button>
     }
-    <app-eras-button
-      [textButton]="'New Student'"
-      [iconButton]="'add'"
-    ></app-eras-button>
   </div>
 
   <app-list
@@ -56,6 +87,8 @@
     [itemsAreSelectable]="itemsAreSelectable"
     [externalExport]="true"
     [allItems]="allStudents"
+    [pageIndex]="pagination.page"
+    [emptyDescription]="emptyDescription"
   >
   </app-list>
 }

@@ -12,7 +12,7 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
     label: 'Students',
     icon: 'school',
     route: '/students',
-    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
+    requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
   },
   {
     label: 'Evaluation Processes',
@@ -31,5 +31,16 @@ export const SIDEBAR_MENUS_NEW: Menu[] = [
     icon: 'link',
     route: '/assessments',
     requiredRoles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
+  },
+  {
+    label: 'User Manuals',
+    icon: 'menu_book',
+    route: '/user-manuals',
+    requiredRoles: [
+      ERASRoles.ADMIN,
+      ERASRoles.OFFICER,
+      ERASRoles.PROFESSIONAL,
+      ERASRoles.GUEST,
+    ],
   },
 ];

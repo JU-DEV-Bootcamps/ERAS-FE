@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
 
 import { ConfigurationCardComponent } from './configuration-card.component';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
@@ -72,6 +73,7 @@ describe('ConfigurationCardComponent', () => {
 });
 
 describe('ConfigurationCardComponent - additional interactions', () => {
+  let toastSpy: jasmine.Spy;
   let component: ConfigurationCardComponent;
   let fixture: ComponentFixture<ConfigurationCardComponent>;
   let mockCosmicLatteService: jasmine.SpyObj<CosmicLatteService>;
@@ -110,6 +112,8 @@ describe('ConfigurationCardComponent - additional interactions', () => {
         { provide: ConfigurationsService, useValue: mockConfigurationsService },
       ],
     }).compileComponents();
+
+    toastSpy = spyOn(TestBed.inject(ToastNotificationService), 'showToast');
 
     fixture = TestBed.createComponent(ConfigurationCardComponent);
     component = fixture.componentInstance;
@@ -260,6 +264,82 @@ describe('ConfigurationCardComponent - additional interactions', () => {
     expect(console.error).toHaveBeenCalledWith(
       'Error deleting configuration with ID 1:',
       jasmine.any(Error)
+    );
+  });
+
+  it('should tell the user the configuration was saved after an update', () => {
+    mockDialogRef.afterClosed.and.returnValue(
+      of({
+        configurationName: 'Updated Config',
+        baseURL: 'https://updated.com',
+        apiKey: 'newKey',
+        serviceProvider: 2,
+      })
+    );
+    mockConfigurationsService.updateConfiguration.and.returnValue(
+      of({} as ConfigurationsModel)
+    );
+
+    component.editConfiguration(baseConfiguration);
+
+    expect(toastSpy).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        type: 'success',
+        title: 'Configuration saved',
+      })
+    );
+  });
+
+  it('should show the message sent by the API when an update is rejected', () => {
+    spyOn(console, 'error');
+    spyOn(component.updateList, 'emit');
+    mockDialogRef.afterClosed.and.returnValue(
+      of({
+        configurationName: 'Other Config',
+        baseURL: 'https://updated.com',
+        apiKey: 'newKey',
+        serviceProvider: 2,
+      })
+    );
+    mockConfigurationsService.updateConfiguration.and.returnValue(
+      throwError(() => ({
+        error: "A configuration named 'Other Config' already exists.",
+      }))
+    );
+
+    component.editConfiguration(baseConfiguration);
+
+    expect(toastSpy).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        type: 'error',
+        message: "A configuration named 'Other Config' already exists.",
+      }),
+      true
+    );
+    expect(component.updateList.emit).not.toHaveBeenCalled();
+  });
+
+  it('should show a toast after deleting and when the delete fails', () => {
+    mockConfigurationsService.deleteConfiguration.and.returnValue(of(void 0));
+    component.deleteConfiguration(1);
+    expect(toastSpy).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        type: 'success',
+        title: 'Configuration deleted',
+      })
+    );
+
+    spyOn(console, 'error');
+    mockConfigurationsService.deleteConfiguration.and.returnValue(
+      throwError(() => new Error('delete failed'))
+    );
+    component.deleteConfiguration(1);
+    expect(toastSpy).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        type: 'error',
+        title: 'Configuration not deleted',
+      }),
+      true
     );
   });
 });

@@ -40,7 +40,7 @@ export const ROUTE_METADATA = {
   STUDENTS: {
     breadcrumb: 'Students',
     headerTitle: 'Students',
-    roles: [ERASRoles.ADMIN, ERASRoles.OFFICER],
+    roles: [ERASRoles.ADMIN, ERASRoles.OFFICER, ERASRoles.PROFESSIONAL],
   },
   RISK_STUDENTS: {
     breadcrumb: 'Risk Students',
@@ -67,6 +67,10 @@ export const ROUTE_METADATA = {
     headerTitle: 'Recent Alerts',
   },
   ACCOUNT_AND_INFORMATION: {
-    headerTitle: 'Account and Information',
+    headerTitle: 'Account & Information',
+  },
+  USER_MANUALS: {
+    breadcrumb: 'User Manuals',
+    headerTitle: 'User Manuals',
   },
 } as const satisfies Record<string, AppRouteData>;

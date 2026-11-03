@@ -35,6 +35,20 @@
     </button>
   </header>
 
+  <div
+    class="import-status__notice"
+    *ngIf="skippedReasons.length > 0"
+    role="status"
+  >
+    <mat-icon>info</mat-icon>
+    <div>
+      <strong>{{ skippedTitle }}</strong>
+      <ul>
+        <li *ngFor="let reason of skippedReasons">{{ reason }}</li>
+      </ul>
+    </div>
+  </div>
+
   <mat-progress-bar
     *ngIf="showProgress"
     [mode]="progressMode"

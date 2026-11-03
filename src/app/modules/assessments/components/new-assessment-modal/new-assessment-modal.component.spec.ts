@@ -245,7 +245,7 @@ describe('NewAssessmentModalComponent', () => {
       const request =
         assessmentService.createAssessment.calls.mostRecent().args[0];
       expect(request.service).toBe('speech_therapy');
-      expect(request.assignedProfessional).toBe('prof1');
+      expect(request.assignedProfessionals).toEqual(['prof1']);
     });
 
     it('should create assessment successfully with string options', () => {
@@ -254,7 +254,7 @@ describe('NewAssessmentModalComponent', () => {
         createdAtUtc: '2024-01-01',
         createdBy: '',
         service: 'speech',
-        assignedProfessional: 'teacher',
+        assignedProfessionals: ['teacher'],
         studentIds: ['1'],
         comments: '',
         status: AssessmentStatus.Remitted,
@@ -270,7 +270,7 @@ describe('NewAssessmentModalComponent', () => {
 
       expect(request.createdBy).toBe('teacher');
       expect(request.service).toBe('speech');
-      expect(request.assignedProfessional).toBe('professional');
+      expect(request.assignedProfessionals).toEqual(['professional']);
       expect(request.comments).toBe('Comment');
       expect(request.status).toBe(AssessmentStatus.Remitted);
 

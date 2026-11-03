@@ -19,6 +19,7 @@ describe('ProfileCardComponent', () => {
     isOnline: true,
     employeeId: '#EMP-2024-882',
     department: 'Design',
+    position: 'Professor of Computer Science',
     phone: '+1 (555) 123-4567',
     role: 'Faculty Practitioner',
     about: 'Passionate educator with over 20 years of experience.',

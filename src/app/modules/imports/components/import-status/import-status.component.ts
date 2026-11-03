@@ -149,6 +149,32 @@ export class ImportStatusComponent implements OnInit {
     }
     return 0;
   }
+  get skippedTitle(): string {
+    const s = this.status;
+    return s
+      ? `Cosmic Latte returned ${s.returnedCount} responses; ${s.skippedCount} could not be imported.`
+      : '';
+  }
+  get skippedReasons(): string[] {
+    const s = this.status;
+    if (!s || !(s.skippedCount > 0)) return [];
+
+    const reasons: [number, string][] = [
+      [
+        s.skippedWithoutScore,
+        'without a score (usually not finished in Cosmic Latte)',
+      ],
+      [s.skippedRequestFailed, 'could not be downloaded from Cosmic Latte'],
+      [s.skippedOutsideDateRange, 'finished outside the evaluation dates'],
+      [
+        s.skippedInvalidAnswers,
+        'with missing or invalid name, email or cohort answers',
+      ],
+    ];
+    return reasons
+      .filter(([count]) => count > 0)
+      .map(([count, label]) => `${count} ${label}`);
+  }
   get progressLabel(): string {
     const s = this.status;
     if (!s) return '';

@@ -22,6 +22,20 @@ export const VALIDATION_MESSAGES = {
   CSV_SCAN_ERROR: 'Following errors detected',
 };
 
+export const STUDENT_PROFILE_MESSAGES = {
+  TITLE: 'Profile summary',
+  NOT_AVAILABLE: '-',
+  LOAD_ERROR: 'Could not load the student profile. Please try again later.',
+  NO_COURSES: 'No current courses.',
+  THIRD_ATTEMPT: 'Third attempt',
+  CLOSE: 'Close',
+};
+
+export const USER_MANUALS_MESSAGES = {
+  EMPTY: 'No user manuals are available yet.',
+  LOAD_ERROR: 'Could not load the user manuals. Please try again later.',
+};
+
 export const GENERAL_MESSAGES = {
   ERROR_TITLE: 'Error',
   ERROR_IMPORT_TITLE: 'Error Importing file',
@@ -37,6 +51,45 @@ export const GENERAL_MESSAGES = {
   ERROR_400: 'Bad Request',
   INVALID_TYPE_ERROR_400: (attribute: string) =>
     `The property ${attribute} cannot be converted to the required type.`,
+};
+
+export const STUDENT_INTERVENTION_MESSAGES = {
+  SECTION_TITLE: 'Interventions',
+  RISKS_TITLE: 'Risks identified',
+  SUPPORT_TITLE: 'Support received',
+  NO_RISKS: 'No risks identified yet.',
+  NO_SUPPORT: 'No support received yet.',
+  ADD_RISK: 'Add risk',
+  ADD_SUPPORT: 'Add support',
+  EDIT: 'Edit',
+  DELETE: 'Delete',
+  CREATED_BY: 'Created by',
+  ADD_RISK_TITLE: 'Add risk identified',
+  EDIT_RISK_TITLE: 'Edit risk identified',
+  ADD_SUPPORT_TITLE: 'Add support received',
+  EDIT_SUPPORT_TITLE: 'Edit support received',
+  FIELD_TYPE: 'Type',
+  FIELD_DESCRIPTION: 'Description',
+  FIELD_DATE: 'Date',
+  SELECT_TYPE: 'Select a type',
+  SAVE: 'Save',
+  SAVING: 'Saving...',
+  CANCEL: 'Cancel',
+  DELETE_TITLE: 'Delete entry',
+  DELETE_SUBTITLE:
+    'This entry will be removed from the student profile. Do you want to continue?',
+  SAVE_SUCCESS: 'The entry was saved.',
+  SAVE_ERROR: 'The entry could not be saved, please try again.',
+  DELETE_SUCCESS: 'The entry was deleted.',
+  DELETE_ERROR: 'The entry could not be deleted, please try again.',
+  LOAD_ERROR: 'The interventions could not be loaded, please try again.',
+};
+
+export const STUDENTS_MESSAGES = {
+  SEARCH_PLACEHOLDER: 'Search by name',
+  SEARCH_CLEAR: 'Clear search',
+  SEARCH_NO_RESULTS: 'No students found.',
+  NO_DATA: 'No data available.',
 };
 
 export const TYPE_ICON: Record<DialogType, string> = {

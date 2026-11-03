@@ -30,6 +30,10 @@ export class FormUtils {
         `${field}: "${errors['fileFormat'].fileName}" has an unsupported format. Allowed: ${errors['fileFormat'].extensions}`,
       duplicated: () =>
         `${errors['duplicated'].fileName} has already been added.`,
+      pattern: () => `${field} has an invalid format.`,
+      email: () => `${field} must be a valid email address.`,
+      futureDate: () => `${field} cannot be in the future.`,
+      sameAsPrimary: () => `${field} must be different from the primary one.`,
       min: () => `${field} cannot be lower ${errors['min'].min}.`,
       max: () => `${field} cannot exceeds ${errors['max'].max}.`,
     };

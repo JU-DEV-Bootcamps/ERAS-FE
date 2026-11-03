@@ -1,4 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -45,9 +52,25 @@ import {
   OptionalColumns,
 } from '@modules/imports/components/import-preview-students/import-preview-students.model';
 import { StudentImport } from '@core/services/interfaces/student.interface';
-import { GENERAL_MESSAGES } from '@core/constants/messages';
+import { GENERAL_MESSAGES, STUDENTS_MESSAGES } from '@core/constants/messages';
 import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 import { ExportStateService } from '@core/services/exports/export-state.service';
+import { CohortService } from '@core/services/api/cohort.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
+import { Observable } from 'rxjs';
+import { debounceTime, filter, map } from 'rxjs/operators';
+import { Lookup } from '@core/models/lookup';
+import {
+  NewStudentModalComponent,
+  NewStudentModalData,
+} from './new-student-modal/new-student-modal.component';
+import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-students-list',
@@ -56,6 +79,11 @@ import { ExportStateService } from '@core/services/exports/export-state.service'
     ListComponent,
     MatProgressSpinner,
     MatMenuModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
   ],
   templateUrl: './students-list.component.html',
   styleUrl: './students-list.component.scss',
@@ -66,7 +94,11 @@ export class StudentsListComponent implements OnInit {
   private readonly studentService = inject(StudentService);
   private readonly lastAccessPipe = new LastAccessPipe();
   private readonly featureFlags = inject(FeatureFlagsService);
+  private readonly permissions = inject(PermissionsService);
   private readonly exportStateService = inject(ExportStateService);
+  private readonly cohortService = inject(CohortService);
+  private readonly toastService = inject(ToastNotificationService);
+  private readonly deleteConfirmation = inject(ModalDeleteConfirmationService);
 
   @ViewChild('listComponent') listComponent!: ListComponent<StudentModelFlat>;
 
@@ -82,7 +114,14 @@ export class StudentsListComponent implements OnInit {
   itemsAreSelectable = true;
   isGenerating = false;
   isExporting = signal<boolean>(false);
+  /** Blocks the "New Student" button while the modal data loads (one at a time). */
+  isOpeningStudentModal = false;
   private allStudentsLoaded = false;
+
+  readonly messages = STUDENTS_MESSAGES;
+  readonly searchControl = new FormControl('', { nonNullable: true });
+  /** Debounced, trimmed search text that every students request sends. */
+  appliedSearch = '';
 
   columns: Column<StudentModelFlat>[] = [
     {
@@ -116,16 +155,87 @@ export class StudentsListComponent implements OnInit {
       ngIconName: 'visibility',
       tooltip: 'See more details',
     },
+    // Every student has a profile view; those without one start empty, prefilled
+    // with the name and email that already exist.
+    {
+      columnId: 'actions',
+      id: 'viewProfile',
+      label: 'Profile',
+      ngIconName: 'person',
+      tooltip: 'View profile',
+    },
+    {
+      columnId: 'actions',
+      id: 'profileSummary',
+      label: 'Profile summary',
+      ngIconName: 'badge',
+      tooltip: 'Profile summary',
+    },
+    {
+      columnId: 'actions',
+      id: 'deleteStudent',
+      label: 'Delete',
+      ngIconName: 'delete',
+      tooltip: 'Delete student',
+      isVisible: (item: unknown) => {
+        const student = item as StudentModelFlat;
+        return !!student.hasProfile && !student.isImported;
+      },
+    },
   ];
 
-  constructor(private csvCheckerService: CsvCheckerService) {}
+  /** Creating, importing, exporting, editing and deleting students is for administrators and officers only. */
+  readonly canManageStudents = this.permissions.can(
+    ERASPermissions.CAN_MANAGE_STUDENTS
+  );
+
+  constructor(private csvCheckerService: CsvCheckerService) {
+    if (!this.canManageStudents) {
+      this.itemsAreSelectable = false;
+      this.actionDatas = this.actionDatas.filter(
+        action => action.id === 'viewProfile' || action.id === 'profileSummary'
+      );
+    }
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        map(text => text.trim()),
+        filter(text => text !== this.appliedSearch),
+        takeUntilDestroyed()
+      )
+      .subscribe(text => this.applySearch(text));
+  }
 
   ngOnInit(): void {
     this.loadStudents();
   }
 
+  get emptyDescription(): string {
+    return this.appliedSearch
+      ? this.messages.SEARCH_NO_RESULTS
+      : this.messages.NO_DATA;
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
+  }
+
+  private applySearch(text: string): void {
+    this.appliedSearch = text;
+    this.pagination = { ...this.pagination, page: 0 };
+    this.allStudents = [];
+    this.allStudentsLoaded = false;
+    this.loadStudents();
+  }
+
+  private fetchStudents(pagination: Pagination) {
+    return this.appliedSearch
+      ? this.studentService.getData(pagination, this.appliedSearch)
+      : this.studentService.getData(pagination);
+  }
+
   loadStudents(): void {
-    this.studentService.getData(this.pagination).subscribe({
+    this.fetchStudents(this.pagination).subscribe({
       next: data => {
         const flatStudents = this.flattenStudentModel(data.items);
         this.dataStudents = new MatTableDataSource(flatStudents);
@@ -160,24 +270,22 @@ export class StudentsListComponent implements OnInit {
       let allItems: StudentModel[] = [];
 
       const fetchPage = () => {
-        this.studentService
-          .getData({
-            page,
-            pageSize: batchPageSize,
-          })
-          .subscribe({
-            next: response => {
-              allItems = [...allItems, ...response.items];
-              if (allItems.length < response.count) {
-                page++;
-                fetchPage();
-              } else {
-                this.allStudents = this.flattenStudentModel(allItems);
-                resolve();
-              }
-            },
-            error: () => resolve(),
-          });
+        this.fetchStudents({
+          page,
+          pageSize: batchPageSize,
+        }).subscribe({
+          next: response => {
+            allItems = [...allItems, ...response.items];
+            if (allItems.length < response.count) {
+              page++;
+              fetchPage();
+            } else {
+              this.allStudents = this.flattenStudentModel(allItems);
+              resolve();
+            }
+          },
+          error: () => resolve(),
+        });
       };
 
       fetchPage();
@@ -199,7 +307,19 @@ export class StudentsListComponent implements OnInit {
     });
 
     if (student) {
-      this.openStudentDetails(student);
+      switch (event.data?.id) {
+        case 'viewProfile':
+          this.openStudentProfileModal(student);
+          break;
+        case 'profileSummary':
+          this.openProfileSummaryModal(student);
+          break;
+        case 'deleteStudent':
+          this.confirmDeleteStudent(student);
+          break;
+        default:
+          this.openStudentDetails(student);
+      }
     } else {
       console.warn('Student not found on array.');
     }
@@ -225,6 +345,123 @@ export class StudentsListComponent implements OnInit {
       panelClass: 'border-modalbox-dialog',
       data: { studentId: student.id },
     });
+  }
+
+  openProfileSummaryModal(student: StudentModelFlat): void {
+    this.dialog.open(StudentProfileSummaryModalComponent, {
+      autoFocus: false,
+      width: '1100px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      panelClass: 'student-modal-panel',
+      data: { studentId: student.id },
+    });
+  }
+
+  openNewStudentModal(): void {
+    if (this.isOpeningStudentModal) return;
+    this.isOpeningStudentModal = true;
+
+    this.loadCohortLookups().subscribe({
+      next: cohorts => {
+        this.isOpeningStudentModal = false;
+        this.openStudentModal({ cohorts });
+      },
+      error: err => {
+        this.isOpeningStudentModal = false;
+        this.showError('Could not open the form', err);
+      },
+    });
+  }
+
+  openStudentProfileModal(student: StudentModelFlat): void {
+    if (this.isOpeningStudentModal) return;
+    this.isOpeningStudentModal = true;
+
+    this.studentService.getStudentProfile(student.id).subscribe({
+      next: profile => {
+        this.isOpeningStudentModal = false;
+        this.openStudentModal({
+          cohorts: [],
+          student: profile,
+          hasProfile: !!student.hasProfile,
+        });
+      },
+      error: err => {
+        this.isOpeningStudentModal = false;
+        this.showError('Could not load the student', err);
+      },
+    });
+  }
+
+  confirmDeleteStudent(student: StudentModelFlat): void {
+    this.deleteConfirmation
+      .confirmDelete({
+        title: 'Delete student',
+        subtitle: `Are you sure you want to delete ${student.name}? The student will be removed from the list.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (confirmed) this.deleteStudent(student);
+      });
+  }
+
+  private deleteStudent(student: StudentModelFlat): void {
+    this.studentService.deleteStudent(student.id).subscribe({
+      next: () => {
+        this.toastService.showToast({
+          title: 'Student deleted',
+          message: `${student.name} has been deleted.`,
+          type: 'success',
+        });
+        this.loadStudents();
+      },
+      error: (err: HttpErrorResponse) => {
+        const detail =
+          typeof err.error === 'string' && err.error.trim().length > 0
+            ? err.error
+            : 'Please try again later.';
+        console.error(err);
+        this.toastService.showToast(
+          {
+            title: 'Could not delete the student',
+            message: detail,
+            type: 'error',
+          },
+          true
+        );
+      },
+    });
+  }
+
+  private openStudentModal(data: NewStudentModalData): void {
+    const dialogRef = this.dialog.open(NewStudentModalComponent, {
+      autoFocus: false,
+      width: '1100px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      panelClass: 'student-modal-panel',
+      data,
+    });
+    dialogRef.afterClosed().subscribe(saved => {
+      if (saved) this.loadStudents();
+    });
+  }
+
+  private loadCohortLookups(): Observable<Lookup[]> {
+    return this.cohortService
+      .getCohorts()
+      .pipe(map(response => mapFields(response.body, 'name', 'id')));
+  }
+
+  private showError(title: string, error: unknown): void {
+    console.error(error);
+    this.toastService.showToast(
+      { title, message: 'Please try again later.', type: 'error' },
+      true
+    );
   }
 
   async exportToCSV(): Promise<void> {
@@ -269,6 +506,7 @@ export class StudentsListComponent implements OnInit {
       name: student.name,
       email: student.email,
       isImported: student.isImported,
+      hasProfile: student.hasProfile,
       cohortId: student.cohortId,
       cohort: student.cohort,
       studentId: student.studentDetail.studentId,

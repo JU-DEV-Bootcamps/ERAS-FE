@@ -1,4 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  flushMicrotasks,
+  tick,
+} from '@angular/core/testing';
 import { StudentsListComponent } from './students-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
@@ -6,6 +12,7 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import Keycloak from 'keycloak-js';
 import { EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
 import { StudentService } from '@core/services/api/student.service';
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
@@ -21,6 +28,17 @@ import { MandatoryColumns } from '@modules/imports/components/import-preview-stu
 import { StudentImport } from '@core/services/interfaces/student.interface';
 import { StudentModelPreview } from '@shared/components/list/types/preview';
 import { ListComponent } from '@shared/components/list/list.component';
+import { CohortService } from '@core/services/api/cohort.service';
+import { CohortModel } from '@core/models/cohort.model';
+import { ApiResponse } from '@core/models/api-response.model';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
+import { NewStudentModalComponent } from './new-student-modal/new-student-modal.component';
+import { StudentRegistrationModel } from '@core/models/student-registration.model';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 
 const mockActivatedRoute = {
   snapshot: { paramMap: { get: () => null } },
@@ -87,6 +105,10 @@ describe('StudentsListComponent', () => {
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
   let featureFlagsSpy: jasmine.SpyObj<FeatureFlagsService>;
   let csvCheckerSpy: jasmine.SpyObj<CsvCheckerService>;
+  let cohortServiceSpy: jasmine.SpyObj<CohortService>;
+  let toastSpy: jasmine.SpyObj<ToastNotificationService>;
+  let deleteConfirmationSpy: jasmine.SpyObj<ModalDeleteConfirmationService>;
+  let permissionsSpy: jasmine.SpyObj<PermissionsService>;
 
   beforeEach(async () => {
     dialogSpy = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
@@ -99,6 +121,8 @@ describe('StudentsListComponent', () => {
     studentServiceSpy = jasmine.createSpyObj<StudentService>('StudentService', [
       'getData',
       'postData',
+      'getStudentProfile',
+      'deleteStudent',
     ]);
     studentServiceSpy.getData.and.returnValue(
       of({ items: [buildStudent()], count: 1 })
@@ -118,6 +142,36 @@ describe('StudentsListComponent', () => {
     csvCheckerSpy.getErrors.and.returnValue([]);
     csvCheckerSpy.getCSVData.and.returnValue([]);
 
+    cohortServiceSpy = jasmine.createSpyObj<CohortService>('CohortService', [
+      'getCohorts',
+    ]);
+    cohortServiceSpy.getCohorts.and.returnValue(
+      of({
+        body: [{ id: 3, name: 'Cohort 3' }],
+        success: true,
+        message: '',
+        validationErrors: null,
+      } as unknown as ApiResponse<CohortModel[]>)
+    );
+    toastSpy = jasmine.createSpyObj<ToastNotificationService>(
+      'ToastNotificationService',
+      ['showToast']
+    );
+    deleteConfirmationSpy =
+      jasmine.createSpyObj<ModalDeleteConfirmationService>(
+        'ModalDeleteConfirmationService',
+        ['confirmDelete']
+      );
+    deleteConfirmationSpy.confirmDelete.and.returnValue({
+      afterClosed: () => of(true),
+    } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+
+    permissionsSpy = jasmine.createSpyObj<PermissionsService>(
+      'PermissionsService',
+      ['can']
+    );
+    permissionsSpy.can.and.returnValue(true);
+
     await TestBed.configureTestingModule({
       imports: [StudentsListComponent, HttpClientModule],
       providers: [
@@ -128,6 +182,13 @@ describe('StudentsListComponent', () => {
         { provide: StudentService, useValue: studentServiceSpy },
         { provide: FeatureFlagsService, useValue: featureFlagsSpy },
         { provide: CsvCheckerService, useValue: csvCheckerSpy },
+        { provide: CohortService, useValue: cohortServiceSpy },
+        { provide: ToastNotificationService, useValue: toastSpy },
+        { provide: PermissionsService, useValue: permissionsSpy },
+        {
+          provide: ModalDeleteConfirmationService,
+          useValue: deleteConfirmationSpy,
+        },
       ],
     }).compileComponents();
 
@@ -894,6 +955,202 @@ describe('StudentsListComponent', () => {
     });
   });
 
+  describe('openNewStudentModal', () => {
+    it('should load the cohorts and open the modal with them', () => {
+      component.openNewStudentModal();
+
+      expect(cohortServiceSpy.getCohorts).toHaveBeenCalled();
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [{ label: 'Cohort 3', value: 3 }] },
+        })
+      );
+      expect(component.isOpeningStudentModal).toBeFalse();
+    });
+
+    it('should reload the list only when the modal reports a saved student', () => {
+      const loadSpy = spyOn(component, 'loadStudents');
+      dialogSpy.open.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<unknown>);
+
+      component.openNewStudentModal();
+
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('should not reload the list when the modal is dismissed', () => {
+      const loadSpy = spyOn(component, 'loadStudents');
+      dialogSpy.open.and.returnValue({
+        afterClosed: () => of(undefined),
+      } as unknown as MatDialogRef<unknown>);
+
+      component.openNewStudentModal();
+
+      expect(loadSpy).not.toHaveBeenCalled();
+    });
+
+    it('should ignore clicks while the modal data is still loading', () => {
+      component.isOpeningStudentModal = true;
+
+      component.openNewStudentModal();
+
+      expect(cohortServiceSpy.getCohorts).not.toHaveBeenCalled();
+    });
+
+    it('should show an error toast and release the button when cohorts fail to load', () => {
+      spyOn(console, 'error');
+      cohortServiceSpy.getCohorts.and.returnValue(
+        throwError(() => new Error('boom'))
+      );
+
+      component.openNewStudentModal();
+
+      expect(dialogSpy.open).not.toHaveBeenCalled();
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'error' }),
+        true
+      );
+      expect(component.isOpeningStudentModal).toBeFalse();
+    });
+  });
+
+  describe('edit and delete actions', () => {
+    const manualEvent = (actionId: string): EventAction =>
+      ({
+        item: { id: 1 },
+        data: { id: actionId },
+      }) as unknown as EventAction;
+
+    it('should offer the profile to every student and delete only to manually created ones', () => {
+      const view = component.actionDatas.find(a => a.id === 'viewProfile') as {
+        isVisible?: (item: unknown) => boolean;
+      };
+      const remove = component.actionDatas.find(
+        a => a.id === 'deleteStudent'
+      ) as { isVisible: (item: unknown) => boolean };
+
+      expect(view.isVisible).toBeUndefined();
+      expect(
+        remove.isVisible({ hasProfile: false, isImported: false })
+      ).toBeFalse();
+      expect(
+        remove.isVisible({ hasProfile: true, isImported: false })
+      ).toBeTrue();
+      expect(
+        remove.isVisible({ hasProfile: true, isImported: true })
+      ).toBeFalse();
+    });
+
+    it('should open the profile summary modal fetching on demand', () => {
+      component.handleActionCalled(manualEvent('profileSummary'));
+
+      expect(studentServiceSpy.getStudentProfile).not.toHaveBeenCalled();
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        StudentProfileSummaryModalComponent,
+        jasmine.objectContaining({ data: { studentId: 1 } })
+      );
+    });
+
+    it('should open the profile modal with the loaded profile', () => {
+      const profile = {
+        studentId: 1,
+        firstName: 'Ana',
+      } as StudentRegistrationModel;
+      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+
+      component.handleActionCalled(manualEvent('viewProfile'));
+
+      expect(studentServiceSpy.getStudentProfile).toHaveBeenCalledWith(1);
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [], student: profile, hasProfile: false },
+        })
+      );
+    });
+
+    it('should tell the modal when the student already has a profile', () => {
+      const profile = { studentId: 1 } as StudentRegistrationModel;
+      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+      component.students = component.students.map(s => ({
+        ...s,
+        hasProfile: true,
+      }));
+
+      component.handleActionCalled(manualEvent('viewProfile'));
+
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [], student: profile, hasProfile: true },
+        })
+      );
+    });
+
+    it('should show an error toast when the profile cannot be loaded', () => {
+      spyOn(console, 'error');
+      studentServiceSpy.getStudentProfile.and.returnValue(
+        throwError(() => new Error('boom'))
+      );
+
+      component.handleActionCalled(manualEvent('viewProfile'));
+
+      expect(dialogSpy.open).not.toHaveBeenCalled();
+      expect(toastSpy.showToast).toHaveBeenCalled();
+    });
+
+    it('should delete the student after confirmation and reload the list', () => {
+      const loadSpy = spyOn(component, 'loadStudents');
+      studentServiceSpy.deleteStudent.and.returnValue(of(undefined));
+
+      component.handleActionCalled(manualEvent('deleteStudent'));
+
+      expect(deleteConfirmationSpy.confirmDelete).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          title: 'Delete student',
+          subtitle: jasmine.stringContaining('Ana Perez'),
+        })
+      );
+      expect(studentServiceSpy.deleteStudent).toHaveBeenCalledWith(1);
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('should not delete when the confirmation is declined', () => {
+      deleteConfirmationSpy.confirmDelete.and.returnValue({
+        afterClosed: () => of(false),
+      } as unknown as MatDialogRef<ModalDeleteConfirmationComponent>);
+
+      component.handleActionCalled(manualEvent('deleteStudent'));
+
+      expect(studentServiceSpy.deleteStudent).not.toHaveBeenCalled();
+    });
+
+    it('should surface the server message when the delete is rejected', () => {
+      spyOn(console, 'error');
+      studentServiceSpy.deleteStudent.and.returnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 409,
+              error: 'Student has related data',
+            })
+        )
+      );
+
+      component.handleActionCalled(manualEvent('deleteStudent'));
+
+      expect(toastSpy.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          message: 'Student has related data',
+          type: 'error',
+        }),
+        true
+      );
+    });
+  });
+
   describe('openStudentDetails — feature flag', () => {
     it('should open V2 modal when feature flag is enabled', () => {
       featureFlagsSpy.isEnabled.and.returnValue(true);
@@ -911,6 +1168,238 @@ describe('StudentsListComponent', () => {
         ModalStudentDetailComponent,
         jasmine.any(Object)
       );
+    });
+  });
+
+  describe('search by name', () => {
+    const DEBOUNCE_MS = 300;
+
+    const searchInput = (): HTMLInputElement =>
+      fixture.nativeElement.querySelector('.students-search input');
+    const clearButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('.students-search-clear');
+    const typeSearch = (text: string): void => {
+      const input = searchInput();
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+    };
+    const lastGetDataCall = () => studentServiceSpy.getData.calls.mostRecent();
+
+    beforeEach(() => {
+      studentServiceSpy.getData.calls.reset();
+    });
+
+    it('[642-search-students-by-name/AC-6] shows the search input above the list without the clear button', () => {
+      const root: HTMLElement = fixture.nativeElement;
+      const input = searchInput();
+      const list = root.querySelector('app-list') as HTMLElement;
+
+      expect(input).toBeTruthy();
+      expect(input.placeholder).toBe('Search by name');
+      expect(
+        input.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+      expect(clearButton()).toBeNull();
+    });
+
+    it('[642-search-students-by-name/AC-7] sends one request with the typed text after the 300 ms pause', fakeAsync(() => {
+      typeSearch('j');
+      tick(100);
+      typeSearch('jo');
+      tick(100);
+      typeSearch('jos');
+      tick(DEBOUNCE_MS - 1);
+
+      expect(studentServiceSpy.getData).not.toHaveBeenCalled();
+
+      tick(1);
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledTimes(1);
+      expect(lastGetDataCall().args).toEqual([
+        { page: 0, pageSize: 10 },
+        'jos',
+      ]);
+    }));
+
+    it('[642-search-students-by-name/AC-8] clear button empties the input and reloads the full list', fakeAsync(() => {
+      typeSearch('jos');
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+      studentServiceSpy.getData.calls.reset();
+
+      clearButton()!.click();
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+
+      expect(searchInput().value).toBe('');
+      expect(clearButton()).toBeNull();
+      expect(studentServiceSpy.getData).toHaveBeenCalledTimes(1);
+      expect(lastGetDataCall().args).toEqual([{ page: 0, pageSize: 10 }]);
+    }));
+
+    it('[642-search-students-by-name/AC-9] shows "No students found." when the search has no matches', fakeAsync(() => {
+      studentServiceSpy.getData.and.returnValue(of({ items: [], count: 0 }));
+
+      typeSearch('zzzz');
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+
+      const message = fixture.nativeElement.querySelector(
+        'app-empty-data-message .description'
+      );
+      expect(message.textContent).toContain('No students found.');
+      expect(searchInput().value).toBe('zzzz');
+      expect(clearButton()).toBeTruthy();
+    }));
+
+    it('[642-search-students-by-name/AC-10] keeps the search when the user changes page', fakeAsync(() => {
+      typeSearch('garcia');
+      tick(DEBOUNCE_MS);
+      studentServiceSpy.getData.calls.reset();
+
+      component.handleLoadCalled({ page: 1, pageSize: 10 });
+      fixture.detectChanges();
+
+      expect(lastGetDataCall().args).toEqual([
+        { page: 1, pageSize: 10 },
+        'garcia',
+      ]);
+      expect(searchInput().value).toBe('garcia');
+    }));
+
+    it('[642-search-students-by-name/AC-11] a new search goes back to the first page keeping the page size', fakeAsync(() => {
+      component.handleLoadCalled({ page: 2, pageSize: 25 });
+      studentServiceSpy.getData.calls.reset();
+
+      typeSearch('ana');
+      tick(DEBOUNCE_MS);
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledTimes(1);
+      expect(lastGetDataCall().args).toEqual([
+        { page: 0, pageSize: 25 },
+        'ana',
+      ]);
+    }));
+
+    it('[642-search-students-by-name/AC-12] keeps the search after opening and closing a student modal', fakeAsync(() => {
+      typeSearch('jose');
+      tick(DEBOUNCE_MS);
+      fixture.detectChanges();
+      const namesBefore = component.students.map(s => s.name);
+      studentServiceSpy.getStudentProfile.and.returnValue(
+        of({ studentId: 1 } as StudentRegistrationModel)
+      );
+      dialogSpy.open.and.returnValue({
+        afterClosed: () => of(true),
+      } as unknown as MatDialogRef<NewStudentModalComponent>);
+      studentServiceSpy.getData.calls.reset();
+
+      component.handleActionCalled({
+        item: { id: 1 },
+        data: { id: 'viewProfile' },
+      } as unknown as EventAction);
+      fixture.detectChanges();
+
+      expect(searchInput().value).toBe('jose');
+      expect(component.students.map(s => s.name)).toEqual(namesBefore);
+      expect(lastGetDataCall().args).toEqual([
+        { page: 0, pageSize: 10 },
+        'jose',
+      ]);
+    }));
+
+    it('[642-search-students-by-name/AC-13] exports only the students matching the active search', fakeAsync(() => {
+      studentServiceSpy.getData.and.returnValue(
+        of({ items: [buildStudent({ id: 1 })], count: 1 })
+      );
+      component.onExportRequested('csv');
+      flushMicrotasks();
+      expect(component.allStudents.map(s => s.id)).toEqual([1]);
+
+      const matches = [2, 3, 4].map(id =>
+        buildStudent({ id, name: `Jose ${id}` })
+      );
+      studentServiceSpy.getData.and.returnValue(
+        of({ items: matches, count: 3 })
+      );
+      typeSearch('jose');
+      tick(DEBOUNCE_MS);
+      studentServiceSpy.getData.calls.reset();
+
+      component.onExportRequested('csv');
+      flushMicrotasks();
+
+      expect(studentServiceSpy.getData).toHaveBeenCalledWith(
+        { page: 0, pageSize: 100 },
+        'jose'
+      );
+      expect(component.allStudents.map(s => s.id)).toEqual([2, 3, 4]);
+    }));
+  });
+
+  describe('as an ERAS Professional', () => {
+    const professionalView = () => {
+      permissionsSpy.can.and.callFake(
+        permission => permission !== ERASPermissions.CAN_MANAGE_STUDENTS
+      );
+      fixture = TestBed.createComponent(StudentsListComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    };
+    const actionEvent = (actionId: string): EventAction =>
+      ({
+        item: { id: 1 },
+        data: { id: actionId },
+      }) as unknown as EventAction;
+
+    it('[643-add-student-interventions/AC-22] a Professional opens the profile of an assigned student with the Interventions section', () => {
+      // GIVEN an ERAS Professional; the API returns only the students of their assigned assessments
+      professionalView();
+      const profile = {
+        studentId: 1,
+        firstName: 'Ana',
+      } as StudentRegistrationModel;
+      studentServiceSpy.getStudentProfile.and.returnValue(of(profile));
+
+      // WHEN they open the profile of a listed student
+      component.handleActionCalled(actionEvent('viewProfile'));
+
+      // THEN the student record opens (it hosts the Interventions section) with that profile
+      expect(component.students.map(student => student.id)).toEqual([1]);
+      expect(component.actionDatas.map(action => action.id)).toContain(
+        'viewProfile'
+      );
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        NewStudentModalComponent,
+        jasmine.objectContaining({
+          data: { cohorts: [], student: profile, hasProfile: false },
+        })
+      );
+    });
+
+    it('[643-add-student-interventions/AC-30] hides every student action from a Professional', () => {
+      // GIVEN an ERAS Professional who opens the Students section
+      // WHEN the list is shown
+      professionalView();
+
+      // THEN there is no action to create, import, export, edit or delete a student
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(text).not.toContain('Import');
+      expect(text).not.toContain('Export');
+      expect(text).not.toContain('New Student');
+      expect(component.actionDatas.map(action => action.id)).toEqual([
+        'viewProfile',
+        'profileSummary',
+      ]);
+      expect(component.itemsAreSelectable).toBeFalse();
+    });
+
+    it('keeps the search for a Professional', () => {
+      professionalView();
+
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelector('.students-search')
+      ).not.toBeNull();
     });
   });
 });

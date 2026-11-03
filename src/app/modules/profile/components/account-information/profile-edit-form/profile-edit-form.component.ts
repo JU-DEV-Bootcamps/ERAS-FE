@@ -96,37 +96,45 @@ export class ProfileEditFormComponent implements OnInit {
           },
           {
             type: 'text',
-            name: 'role',
-            label: 'Role',
-            value: profile.role,
-            disabled: true,
-          },
-          {
-            type: 'text',
             name: 'employeeId',
             label: 'Employee ID',
             value: profile.employeeId,
-            validators: [Validators.required],
+            validators: [Validators.required, Validators.maxLength(50)],
           },
           {
             type: 'text',
             name: 'department',
             label: 'Department',
             value: profile.department,
-            validators: [Validators.required],
+            validators: [Validators.required, Validators.maxLength(100)],
+          },
+          {
+            type: 'text',
+            name: 'position',
+            label: 'Position',
+            value: profile.position,
+            validators: [Validators.maxLength(100)],
           },
           {
             type: 'text',
             name: 'phone',
             label: 'Phone',
             value: profile.phone,
-            validators: [Validators.required],
+            validators: [Validators.required, Validators.maxLength(20)],
+          },
+          {
+            type: 'text',
+            name: 'role',
+            label: 'Role',
+            value: profile.role,
+            disabled: true,
           },
           {
             type: 'textarea',
             name: 'about',
             label: 'About',
             value: profile.about,
+            validators: [Validators.maxLength(2000)],
             floatingLabel: 'always',
           },
         ];
@@ -161,10 +169,12 @@ export class ProfileEditFormComponent implements OnInit {
     }
 
     this.isSaving = true;
-    const { employeeId, department, phone, about } = this.form.getRawValue();
+    const { employeeId, department, position, phone, about } =
+      this.form.getRawValue();
     const payload: UpdateUserProfileRequest = {
       employeeId,
       department,
+      position,
       phone,
       about,
     };

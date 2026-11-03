@@ -20,6 +20,7 @@ describe('ProfileEditFormComponent', () => {
     email: 'roberto.alvarez@jala.university',
     employeeId: '#EMP-2024-882',
     department: 'Design',
+    position: 'Professor of Computer Science',
     phone: '+1 (555) 123-4567',
     role: 'Faculty Practitioner',
     about: 'Passionate educator with over 20 years of experience.',
@@ -74,6 +75,7 @@ describe('ProfileEditFormComponent', () => {
       role: mockProfile.role,
       employeeId: mockProfile.employeeId,
       department: mockProfile.department,
+      position: mockProfile.position,
       phone: mockProfile.phone,
       about: mockProfile.about,
     });
@@ -121,6 +123,7 @@ describe('ProfileEditFormComponent', () => {
       expect(mockUserProfileService.updateMyProfile).toHaveBeenCalledWith({
         employeeId: mockProfile.employeeId,
         department: mockProfile.department,
+        position: mockProfile.position,
         phone: '+1 (555) 999-9999',
         about: mockProfile.about,
       });
@@ -134,6 +137,49 @@ describe('ProfileEditFormComponent', () => {
       component.save();
 
       expect(mockUserProfileService.updateMyProfile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('validation', () => {
+    it('should let the profile be saved without a position', () => {
+      fixture.detectChanges();
+
+      component.form.controls['position'].setValue('');
+
+      expect(component.form.controls['position'].valid).toBeTrue();
+      expect(component.form.valid).toBeTrue();
+    });
+
+    it('should enforce the same maximum lengths as the API', () => {
+      fixture.detectChanges();
+      const tooLong = (length: number) => 'x'.repeat(length + 1);
+
+      component.form.controls['employeeId'].setValue(tooLong(50));
+      component.form.controls['department'].setValue(tooLong(100));
+      component.form.controls['position'].setValue(tooLong(100));
+      component.form.controls['phone'].setValue(tooLong(20));
+      component.form.controls['about'].setValue(tooLong(2000));
+
+      ['employeeId', 'department', 'position', 'phone', 'about'].forEach(name =>
+        expect(component.form.controls[name].hasError('maxlength'))
+          .withContext(name)
+          .toBeTrue()
+      );
+    });
+
+    it('should keep name, email and role read-only', () => {
+      fixture.detectChanges();
+
+      ['name', 'email', 'role'].forEach(name =>
+        expect(component.form.controls[name].disabled)
+          .withContext(name)
+          .toBeTrue()
+      );
+      ['employeeId', 'department', 'position', 'phone', 'about'].forEach(name =>
+        expect(component.form.controls[name].enabled)
+          .withContext(name)
+          .toBeTrue()
+      );
     });
   });
 

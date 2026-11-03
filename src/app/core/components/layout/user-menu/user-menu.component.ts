@@ -35,7 +35,7 @@ export class UserMenuComponent {
   private readonly router = inject(Router);
 
   user = this.userData.user;
-  v2Enabled = computed(() => this.featureFlags.isEnabled(FEATURE_FLAGS.home));
+  v1Enabled = computed(() => !this.featureFlags.isEnabled(FEATURE_FLAGS.home));
   viewPermissions: ViewPermissions = {
     v2Button: [ERASRoles.ADMIN],
     platformSettings: [ERASRoles.ADMIN, ERASRoles.OFFICER],
@@ -54,8 +54,8 @@ export class UserMenuComponent {
     this.router.navigate(['account-and-information']);
   }
 
-  onV2Toggle(event: Event): void {
-    const enabled = (event.target as HTMLInputElement).checked;
-    this.featureFlags.toggle('v2', enabled).subscribe();
+  onV1Toggle(event: Event): void {
+    const useV1 = (event.target as HTMLInputElement).checked;
+    this.featureFlags.toggle('v2', !useV1).subscribe();
   }
 }

@@ -21,7 +21,7 @@ export interface AssessmentModalData extends AssessmentsLookups {
 
 export interface EditAssessmentModel {
   date: string;
-  professional: string;
+  professional: string[];
   professionalComment?: string;
   service: string;
   students: string[];

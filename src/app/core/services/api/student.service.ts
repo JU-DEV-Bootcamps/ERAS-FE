@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { StudentResponse } from '../../models/student-request.model';
+import { StudentRegistrationModel } from '../../models/student-registration.model';
+import { StudentProfileSummaryModel } from '../../models/student-profile-summary.model';
 import {
   StudentImport,
   StudentRiskAverage,
@@ -29,6 +31,38 @@ export class StudentService extends BaseApiService implements CacheableHost {
       .set('PageSize', pagination.pageSize)
       .set('Page', pagination.page);
     return this.get<StudentResponse>(studentId, params);
+  }
+
+  createManualStudent(
+    student: StudentRegistrationModel
+  ): Observable<StudentRegistrationModel> {
+    // The BE requires a positive cohort id and links the new student to it.
+    const cohortId = Number(student.cohortId);
+    return this.post<StudentRegistrationModel>('manual', {
+      ...student,
+      cohortId: Number.isInteger(cohortId) && cohortId > 0 ? cohortId : null,
+    });
+  }
+
+  getStudentProfile(studentId: number): Observable<StudentRegistrationModel> {
+    return this.get<StudentRegistrationModel>(`${studentId}/profile`);
+  }
+
+  getStudentProfileSummary(
+    studentId: number
+  ): Observable<StudentProfileSummaryModel> {
+    return this.get<StudentProfileSummaryModel>(`${studentId}/profile`);
+  }
+
+  updateStudentProfile(
+    studentId: number,
+    student: StudentRegistrationModel
+  ): Observable<StudentRegistrationModel> {
+    return this.put<StudentRegistrationModel>(`${studentId}/profile`, student);
+  }
+
+  deleteStudent(studentId: number): Observable<void> {
+    return this.delete<void>(studentId);
   }
 
   getAllStudents() {
@@ -82,8 +116,12 @@ export class StudentService extends BaseApiService implements CacheableHost {
     return this.post('', data);
   }
 
-  getData({ page = 1, pageSize = 10 }: Pagination) {
-    const params = new HttpParams().set('PageSize', pageSize).set('Page', page);
+  getData({ page = 1, pageSize = 10 }: Pagination, search = '') {
+    let params = new HttpParams().set('PageSize', pageSize).set('Page', page);
+    const searchText = search.trim();
+    if (searchText) {
+      params = params.set('Search', searchText);
+    }
     return this.get<PagedResult<StudentModel>>('', params).pipe(
       map(result => {
         result.items = sortArray(result.items, 'name');

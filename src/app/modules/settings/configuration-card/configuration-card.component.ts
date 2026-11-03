@@ -26,6 +26,8 @@ import {
   DialogType,
 } from '@shared/components/modals/modal-dialog/types/dialog';
 import { MODAL_DEFAULT_CONF } from '@core/constants/modal';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { getHttpErrorMessage } from '@core/utils/helpers/http-error-message';
 
 @Component({
   selector: 'app-configuration-card',
@@ -55,6 +57,7 @@ export class ConfigurationCardComponent implements OnInit {
 
   cosmicLatteService = inject(CosmicLatteService);
   configurationsService = inject(ConfigurationsService);
+  private readonly toastService = inject(ToastNotificationService);
 
   constructor(private dialog: MatDialog) {}
 
@@ -103,14 +106,21 @@ export class ConfigurationCardComponent implements OnInit {
         this.configurationsService
           .updateConfiguration(updatedConfiguration)
           .subscribe({
-            next: response => {
-              console.log('Configuration updated successfully', response);
+            next: () => {
+              this.toastService.showToast({
+                title: 'Configuration saved',
+                message: `"${updatedConfiguration.configurationName}" was updated.`,
+                type: 'success',
+              });
+              this.updateList.emit(true);
             },
             error: error => {
               console.error('Error while updating configuration', error);
-            },
-            complete: () => {
-              this.updateList.emit(true);
+              this.showError(
+                'Configuration not saved',
+                error,
+                'The configuration could not be updated. Please try again.'
+              );
             },
           });
       }
@@ -156,9 +166,11 @@ export class ConfigurationCardComponent implements OnInit {
   deleteConfiguration(configurationId: number) {
     this.configurationsService.deleteConfiguration(configurationId).subscribe({
       next: () => {
-        console.log(
-          `Configuration with ID ${configurationId} deleted successfully.`
-        );
+        this.toastService.showToast({
+          title: 'Configuration deleted',
+          message: 'The configuration was deleted.',
+          type: 'success',
+        });
         this.updateList.emit(true);
       },
       error: error => {
@@ -166,7 +178,19 @@ export class ConfigurationCardComponent implements OnInit {
           `Error deleting configuration with ID ${configurationId}:`,
           error
         );
+        this.showError(
+          'Configuration not deleted',
+          error,
+          'The configuration could not be deleted. Please try again.'
+        );
       },
     });
+  }
+
+  private showError(title: string, error: unknown, fallback: string): void {
+    this.toastService.showToast(
+      { title, message: getHttpErrorMessage(error, fallback), type: 'error' },
+      true
+    );
   }
 }

@@ -43,12 +43,12 @@
       class="menu-button version-toggle-item"
       (click)="$event.stopPropagation()"
     >
-      <span class="toggle-label-text">Turn on V2</span>
+      <span class="toggle-label-text">Use V1</span>
       <label class="simple-toggle">
         <input
           type="checkbox"
-          [checked]="v2Enabled()"
-          (change)="onV2Toggle($event)"
+          [checked]="v1Enabled()"
+          (change)="onV1Toggle($event)"
         />
         <span class="slider"></span>
       </label>
