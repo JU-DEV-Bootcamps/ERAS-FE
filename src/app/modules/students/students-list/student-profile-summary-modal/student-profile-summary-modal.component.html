@@ -4,107 +4,11 @@
   } @else if (hasError() || !profile()) {
     <p class="state error">{{ messages.LOAD_ERROR }}</p>
   } @else {
-    @let p = profile()!;
-    <aside class="personal">
-      <h2>{{ fullName(p) }}</h2>
-      <p class="email">{{ display(p.primaryEmail) }}</p>
-      <hr />
-      <dl>
-        <div>
-          <dt>STU ID</dt>
-          <dd>{{ display(p.sisId) }}</dd>
-        </div>
-        <div>
-          <dt>Mobile number</dt>
-          <dd>{{ display(p.mobileNumber) }}</dd>
-        </div>
-        <div>
-          <dt>Country</dt>
-          <dd>{{ display(p.country) }}</dd>
-        </div>
-        <div>
-          <dt>Cohort</dt>
-          <dd>{{ display(p.cohortName) }}</dd>
-        </div>
-      </dl>
-    </aside>
-
-    <section class="academic">
-      <div class="tiles">
-        <div class="tile">
-          <mat-icon class="icon blue">school</mat-icon>
-          <div>
-            <span class="label">Current CGPA</span>
-            <span class="value">{{ display(p.cgpa) }}</span>
-          </div>
-        </div>
-        <div class="tile">
-          <mat-icon class="icon green">verified</mat-icon>
-          <div>
-            <span class="label">SAP status</span>
-            <span class="value">{{ display(p.sapStatus) }}</span>
-          </div>
-        </div>
-        <div class="tile">
-          <mat-icon class="icon purple">task_alt</mat-icon>
-          <div>
-            <span class="label">Passed courses</span>
-            <span class="value">{{ display(p.passedCoursesCount) }}</span>
-          </div>
-        </div>
-        <div class="tile">
-          <mat-icon class="icon yellow">highlight_off</mat-icon>
-          <div>
-            <span class="label">Failed courses</span>
-            <span class="value">{{ display(p.failedCoursesCount) }}</span>
-          </div>
-        </div>
-      </div>
-
-      @if (p.isCurrentCourseThirdAttempt) {
-        <span class="chip third-attempt">{{ messages.THIRD_ATTEMPT }}</span>
-      }
-
-      <h4>Current courses</h4>
-      @if (p.currentCourses?.length) {
-        <table class="courses">
-          <thead>
-            <tr>
-              <th>Course name</th>
-              <th>Group</th>
-              <th>Section</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (course of p.currentCourses; track $index) {
-              <tr>
-                <td>{{ course.name }}</td>
-                <td>{{ display(course.group) }}</td>
-                <td>{{ display(course.section) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      } @else {
-        <p class="empty">{{ messages.NO_COURSES }}</p>
-      }
-
-      <h4>{{ interventionMessages.RISKS_TITLE }}</h4>
-      <app-student-intervention-list
-        [entries]="risks()"
-        [emptyText]="interventionMessages.NO_RISKS"
-      />
-
-      <h4>{{ interventionMessages.SUPPORT_TITLE }}</h4>
-      <app-student-intervention-list
-        [entries]="support()"
-        [emptyText]="interventionMessages.NO_SUPPORT"
-      />
-
-      @if (entriesError()) {
-        <p class="entries-error">{{ interventionMessages.LOAD_ERROR }}</p>
-      }
-    </section>
+    <app-student-profile-view
+      [profile]="profile()!"
+      [studentId]="data.studentId"
+      interventionsMode="read"
+    />
   }
 </div>
 <div class="actions">
