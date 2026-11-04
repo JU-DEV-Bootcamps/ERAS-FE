@@ -2,8 +2,12 @@
 
 import { AccountInformationComponent } from './account-information.component';
 import { UserProfileService } from '@core/services/api/user-profile.service';
+import { ProfessionalProfileService } from '@core/services/api/professional-profile.service';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { ERASRoles, Profile } from '@core/models/profile.model';
 import { of, throwError } from 'rxjs';
 import { UserProfile } from '@core/models/user-profile.model';
 
@@ -24,7 +28,17 @@ const summaryProfile: UserProfile = {
 describe('AccountInformationComponent', () => {
   let component: AccountInformationComponent;
   let fixture: ComponentFixture<AccountInformationComponent>;
+  let userDataServiceSpy: jasmine.SpyObj<UserDataService>;
   let userProfileServiceSpy: jasmine.SpyObj<UserProfileService>;
+  let professionalProfileServiceSpy: jasmine.SpyObj<ProfessionalProfileService>;
+  let permissionsServiceSpy: jasmine.SpyObj<PermissionsService>;
+
+  function setup(user: Profile | null): void {
+    userDataServiceSpy.user.and.returnValue(user);
+    fixture = TestBed.createComponent(AccountInformationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
 
   beforeEach(async () => {
     userProfileServiceSpy = jasmine.createSpyObj<UserProfileService>(
@@ -33,11 +47,36 @@ describe('AccountInformationComponent', () => {
     );
     userProfileServiceSpy.getMyProfile.and.returnValue(of(summaryProfile));
 
-    const userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
+    userDataServiceSpy = jasmine.createSpyObj<UserDataService>(
       'UserDataService',
       ['user']
     );
     userDataServiceSpy.user.and.returnValue(null);
+
+    professionalProfileServiceSpy =
+      jasmine.createSpyObj<ProfessionalProfileService>(
+        'ProfessionalProfileService',
+        ['getMyProfessionalProfile', 'updateMyProfessionalProfile']
+      );
+    professionalProfileServiceSpy.getMyProfessionalProfile.and.returnValue(
+      of({
+        position: '',
+        faculty: '',
+        officeHours: '',
+        subjectsTaught: [],
+        courses: [],
+      })
+    );
+
+    permissionsServiceSpy = jasmine.createSpyObj<PermissionsService>(
+      'PermissionsService',
+      ['can']
+    );
+    permissionsServiceSpy.can.and.callFake(
+      permission =>
+        permission === ERASPermissions.CAN_SEE_PROFESSIONAL_PROFILE &&
+        userDataServiceSpy.user()?.role === ERASRoles.PROFESSIONAL
+    );
 
     const unsavedChangesGuardSpy =
       jasmine.createSpyObj<UnsavedChangesGuardService>(
@@ -51,19 +90,87 @@ describe('AccountInformationComponent', () => {
         { provide: UserProfileService, useValue: userProfileServiceSpy },
         { provide: UserDataService, useValue: userDataServiceSpy },
         {
+          provide: ProfessionalProfileService,
+          useValue: professionalProfileServiceSpy,
+        },
+        { provide: PermissionsService, useValue: permissionsServiceSpy },
+        {
           provide: UnsavedChangesGuardService,
           useValue: unsavedChangesGuardSpy,
         },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AccountInformationComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    setup(null);
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('professional info section', () => {
+    it('should not render for a non-professional role', () => {
+      setup({ role: ERASRoles.OFFICER });
+
+      const professionalInfo = fixture.debugElement.query(
+        el => el.name === 'app-professional-info'
+      );
+
+      expect(professionalInfo).toBeNull();
+    });
+
+    it('should render for the professional role', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+
+      const professionalInfo = fixture.debugElement.query(
+        el => el.name === 'app-professional-info'
+      );
+
+      expect(professionalInfo).not.toBeNull();
+    });
+
+    it('should start in view mode', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+
+      expect(component.isEditingProfessional()).toBeFalse();
+    });
+
+    it('should switch to edit mode when the card emits "edit"', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+
+      const cardDebugElement = fixture.debugElement.query(
+        el => el.name === 'app-professional-info'
+      );
+      cardDebugElement.triggerEventHandler('edit');
+
+      expect(component.isEditingProfessional()).toBeTrue();
+    });
+
+    it('should switch back to view mode when the edit form emits "cancelled"', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+      component.startEditProfessional();
+      fixture.detectChanges();
+
+      const editFormDebugElement = fixture.debugElement.query(
+        el => el.name === 'app-professional-info-edit-form'
+      );
+      editFormDebugElement.triggerEventHandler('cancelled');
+
+      expect(component.isEditingProfessional()).toBeFalse();
+    });
+
+    it('should switch back to view mode when the edit form emits "saved"', () => {
+      setup({ role: ERASRoles.PROFESSIONAL });
+      component.startEditProfessional();
+      fixture.detectChanges();
+
+      const editFormDebugElement = fixture.debugElement.query(
+        el => el.name === 'app-professional-info-edit-form'
+      );
+      editFormDebugElement.triggerEventHandler('saved');
+
+      expect(component.isEditingProfessional()).toBeFalse();
+    });
   });
 
   it('should start in view mode', () => {
@@ -101,6 +208,28 @@ describe('AccountInformationComponent', () => {
     editFormDebugElement.triggerEventHandler('saved');
 
     expect(component.isEditing()).toBeFalse();
+  });
+
+  it('[603-persist-professional-profile/AC-10] shows the professional info in place of the summary', () => {
+    setup({ role: ERASRoles.PROFESSIONAL });
+
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-professional-info')
+    ).not.toBeNull();
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-profile-summary')
+    ).toBeNull();
+  });
+
+  it('[603-persist-professional-profile/AC-11] shows the summary and no professional info for an officer', () => {
+    setup({ role: ERASRoles.OFFICER });
+
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-profile-summary')
+    ).not.toBeNull();
+    expect(
+      fixture.debugElement.query(el => el.name === 'app-professional-info')
+    ).toBeNull();
   });
 
   describe('summary panel', () => {

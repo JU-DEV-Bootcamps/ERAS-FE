@@ -1,6 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { UserProfile } from '@core/models/user-profile.model';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { UserProfileService } from '@core/services/api/user-profile.service';
+import { ProfessionalInfoEditFormComponent } from './professional-info-edit-form/professional-info-edit-form.component';
+import { ProfessionalInfoComponent } from './professional-info/professional-info.component';
 import { ProfileCardComponent } from './profile-card/profile-card.component';
 import { ProfileEditFormComponent } from './profile-edit-form/profile-edit-form.component';
 import { ProfileSummaryComponent } from './profile-summary/profile-summary.component';
@@ -10,16 +14,23 @@ import { ProfileSummaryComponent } from './profile-summary/profile-summary.compo
   imports: [
     ProfileCardComponent,
     ProfileEditFormComponent,
+    ProfessionalInfoComponent,
+    ProfessionalInfoEditFormComponent,
     ProfileSummaryComponent,
   ],
   templateUrl: './account-information.component.html',
   styleUrl: './account-information.component.scss',
 })
 export class AccountInformationComponent implements OnInit {
+  private readonly permissions = inject(PermissionsService);
   private readonly userProfileService = inject(UserProfileService);
 
   isEditing = signal(false);
+  isEditingProfessional = signal(false);
   summaryProfile = signal<UserProfile | null>(null);
+  isProfessional = computed(() =>
+    this.permissions.can(ERASPermissions.CAN_SEE_PROFESSIONAL_PROFILE)
+  );
 
   ngOnInit(): void {
     this.loadSummary();
@@ -31,6 +42,14 @@ export class AccountInformationComponent implements OnInit {
 
   stopEdit(): void {
     this.isEditing.set(false);
+  }
+
+  startEditProfessional(): void {
+    this.isEditingProfessional.set(true);
+  }
+
+  stopEditProfessional(): void {
+    this.isEditingProfessional.set(false);
   }
 
   onSaved(): void {

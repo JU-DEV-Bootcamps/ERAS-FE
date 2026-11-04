@@ -16,7 +16,9 @@ export interface UserProfile {
   activeInterventionsCount?: number;
 }
 
+// Position is optional: a professional's position is saved from the professional info section (AC-15).
 export type UpdateUserProfileRequest = Pick<
   UserProfile,
-  'employeeId' | 'department' | 'position' | 'phone' | 'about'
->;
+  'employeeId' | 'department' | 'phone' | 'about'
+> &
+  Partial<Pick<UserProfile, 'position'>>;

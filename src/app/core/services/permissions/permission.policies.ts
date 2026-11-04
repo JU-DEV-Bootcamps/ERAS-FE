@@ -19,6 +19,7 @@ enum ERASPermissions {
   CAN_MANAGE_STUDENTS = 'CAN_MANAGE_STUDENTS',
   CAN_ADD_STUDENT_INTERVENTIONS = 'CAN_ADD_STUDENT_INTERVENTIONS',
   CAN_MANAGE_ANY_STUDENT_INTERVENTION = 'CAN_MANAGE_ANY_STUDENT_INTERVENTION',
+  CAN_SEE_PROFESSIONAL_PROFILE = 'CAN_SEE_PROFESSIONAL_PROFILE',
 }
 
 const PermissionsRoles: Record<ERASPermissions, ERASRoles[]> = {
@@ -29,6 +30,7 @@ const PermissionsRoles: Record<ERASPermissions, ERASRoles[]> = {
   CAN_MANAGE_STUDENTS: [ERASRoles.ADMIN, ERASRoles.OFFICER],
   CAN_ADD_STUDENT_INTERVENTIONS: [ERASRoles.ADMIN, ERASRoles.PROFESSIONAL],
   CAN_MANAGE_ANY_STUDENT_INTERVENTION: [ERASRoles.ADMIN],
+  CAN_SEE_PROFESSIONAL_PROFILE: [ERASRoles.PROFESSIONAL],
 };
 
 const PermissionChecks: Record<ERASPermissions, PermissionCheck> = {
@@ -48,6 +50,8 @@ const PermissionChecks: Record<ERASPermissions, PermissionCheck> = {
   CAN_ADD_STUDENT_INTERVENTIONS: (role, requiredRoles) =>
     requiredRoles.includes(role),
   CAN_MANAGE_ANY_STUDENT_INTERVENTION: (role, requiredRoles) =>
+    requiredRoles.includes(role),
+  CAN_SEE_PROFESSIONAL_PROFILE: (role, requiredRoles) =>
     requiredRoles.includes(role),
 };
 
