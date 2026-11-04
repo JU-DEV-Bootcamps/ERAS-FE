@@ -20,6 +20,7 @@ import {
   FormCreation,
 } from '@core/factories/forms/form-factory.interface';
 import { Lookup } from '@core/models/lookup';
+import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import {
@@ -31,12 +32,13 @@ import { StudentService } from '@core/services/api/student.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { StudentInterventionsComponent } from '../student-interventions/student-interventions.component';
+import { StudentProfileViewComponent } from '../student-profile-view/student-profile-view.component';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 
 export interface NewStudentModalData {
   cohorts: Lookup[];
-  student?: StudentRegistrationModel;
+  student?: StudentProfileSummaryModel;
   hasProfile?: boolean;
 }
 
@@ -73,6 +75,7 @@ const STUDY_MODALITY_OPTIONS: Lookup[] = [
     MatIconModule,
     NgClass,
     StudentInterventionsComponent,
+    StudentProfileViewComponent,
   ],
   templateUrl: './new-student-modal.component.html',
   styleUrl: '../../../assessments/styles/assessments-modal-styles.scss',
@@ -134,11 +137,7 @@ export class NewStudentModalComponent implements FormCreation {
     event.get('country')?.valueChanges.subscribe(country => {
       this.syncStateOptions(country as string, true);
     });
-    if (this.isViewing) {
-      event.disable({ emitEvent: false });
-    } else {
-      this.syncStateOptions(event.get('country')?.value as string, false);
-    }
+    this.syncStateOptions(event.get('country')?.value as string, false);
   }
 
   private syncStateOptions(country: string, clearSelection: boolean): void {
@@ -162,21 +161,16 @@ export class NewStudentModalComponent implements FormCreation {
 
   startEditing(): void {
     if (!this.isViewing || !this.canEditStudent) return;
+    // The form is created when it is first shown, with the locked fields already disabled.
     this.isViewing = false;
-    this.form.enable({ emitEvent: false });
-    this.lockedFieldNames.forEach(name =>
-      this.form.get(name)?.disable({ emitEvent: false })
-    );
-    this.syncStateOptions(this.form.get('country')?.value as string, false);
   }
 
   cancelEditing(): void {
-    if (this.opensEditable || this.form.dirty) {
+    if (this.opensEditable || this.form?.dirty) {
       this.requestClose();
       return;
     }
     this.isViewing = true;
-    this.form.disable({ emitEvent: false });
   }
 
   requestClose(): void {

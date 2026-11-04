@@ -59,14 +59,15 @@ import { CohortService } from '@core/services/api/cohort.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
-import { Observable } from 'rxjs';
-import { debounceTime, filter, map } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, debounceTime, filter, map } from 'rxjs/operators';
 import { Lookup } from '@core/models/lookup';
 import {
   NewStudentModalComponent,
   NewStudentModalData,
 } from './new-student-modal/new-student-modal.component';
 import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
+import { withCohortName } from './student-profile-view/student-profile-sections';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 
@@ -378,12 +379,19 @@ export class StudentsListComponent implements OnInit {
     if (this.isOpeningStudentModal) return;
     this.isOpeningStudentModal = true;
 
-    this.studentService.getStudentProfile(student.id).subscribe({
-      next: profile => {
+    // The profile only carries the student's `cohortId`; the record in view mode shows the cohort name.
+    forkJoin({
+      profile: this.studentService.getStudentProfileSummary(student.id),
+      cohorts: this.cohortService.getCohorts().pipe(
+        map(response => response.body ?? []),
+        catchError(() => of([]))
+      ),
+    }).subscribe({
+      next: ({ profile, cohorts }) => {
         this.isOpeningStudentModal = false;
         this.openStudentModal({
           cohorts: [],
-          student: profile,
+          student: withCohortName(profile, cohorts),
           hasProfile: !!student.hasProfile,
         });
       },
