@@ -1,14 +1,15 @@
-<mat-sidenav-container>
+<mat-sidenav-container (backdropClick)="menuOpen.set(false)">
   <mat-sidenav
     #sidenav
-    [mode]="'side'"
-    [opened]="true"
-    [disableClose]="true"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="isMobile() ? menuOpen() : true"
+    [disableClose]="!isMobile()"
+    (closedStart)="menuOpen.set(false)"
     [style.width]="sidenavWidth()"
     [ngClass]="newSidebar() ? 'new-theme' : 'old-theme'"
   >
     <button
-      *ngIf="!newSidebar()"
+      *ngIf="!newSidebar() && !isMobile()"
       class="expand-button"
       mat-icon-button
       (click)="collapsed.set(!collapsed())"
@@ -24,9 +25,9 @@
     ></app-sidebar>
   </mat-sidenav>
 
-  <mat-sidenav-content [style.margin-left]="sidenavWidth()">
-    <app-header-container />
-    <div class="container">
+  <mat-sidenav-content [style.margin-left]="contentMargin()">
+    <app-header-container (menuToggle)="menuOpen.set(!menuOpen())" />
+    <div class="container" [class.mobile]="isMobile()">
       <router-outlet></router-outlet>
     </div>
   </mat-sidenav-content>
