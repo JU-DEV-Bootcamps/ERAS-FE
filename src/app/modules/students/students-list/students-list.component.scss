@@ -9,6 +9,25 @@
   padding: 24px 0px;
 }
 
+.buttons-container.mobile {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  app-eras-button:last-of-type {
+    flex: 0 0 100%;
+  }
+
+  .students-search {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin-right: 0;
+  }
+}
+
 .students-search {
   flex: 1 1 240px;
   margin-right: auto;

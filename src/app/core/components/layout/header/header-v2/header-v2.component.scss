@@ -48,3 +48,28 @@ mat-icon {
   font-size: 32px;
   color: var(--primary-900);
 }
+
+mat-toolbar.mobile {
+  height: 64px;
+  padding: 0 8px;
+  gap: 8px;
+
+  .app-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .profile-section {
+    flex: none;
+  }
+}
+
+.menu-button mat-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}

@@ -71,6 +71,10 @@ export const GENERAL_MESSAGES = {
     `The property ${attribute} cannot be converted to the required type.`,
 };
 
+export const LAYOUT_MESSAGES = {
+  OPEN_MENU: 'Open menu',
+};
+
 export const STUDENT_INTERVENTION_MESSAGES = {
   SECTION_TITLE: 'Interventions',
   RISKS_TITLE: 'Risks identified',

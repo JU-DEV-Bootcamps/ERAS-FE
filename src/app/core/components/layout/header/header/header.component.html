@@ -1,4 +1,15 @@
 <mat-toolbar>
+  @if (isMobile()) {
+    <button
+      type="button"
+      mat-icon-button
+      class="menu-button"
+      [attr.aria-label]="messages.OPEN_MENU"
+      (click)="menuToggle.emit()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+  }
   <h1 class="app-title">ERAS</h1>
   <app-user-menu></app-user-menu>
 </mat-toolbar>
