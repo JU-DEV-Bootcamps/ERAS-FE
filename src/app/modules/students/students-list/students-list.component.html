@@ -1,7 +1,7 @@
 @if (isLoading) {
   <mat-spinner />
 } @else {
-  <div class="buttons-container">
+  <div class="buttons-container" [class.mobile]="isMobile()">
     <mat-form-field
       class="students-search"
       appearance="outline"
@@ -80,6 +80,7 @@
     (exporting)="onExporting($event)"
     (actionCalled)="handleActionCalled($event)"
     [showExportDropdown]="true"
+    [compactPaginatorOnMobile]="true"
     [columns]="columns"
     [items]="students"
     [totalItems]="totalStudents"

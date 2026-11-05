@@ -17,6 +17,7 @@ import {
 import { StudentInterventionModel } from '@core/models/student-intervention.model';
 import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
 import { StudentInterventionService } from '@core/services/api/student-intervention.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { StudentInterventionListComponent } from '../student-interventions/student-intervention-list/student-intervention-list.component';
 import { StudentInterventionsComponent } from '../student-interventions/student-interventions.component';
 import {
@@ -43,6 +44,7 @@ import {
 export class StudentProfileViewComponent implements OnInit {
   private readonly interventionService = inject(StudentInterventionService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly isMobile = inject(ViewportService).isMobile;
 
   readonly profile = input.required<StudentProfileSummaryModel>();
   readonly studentId = input.required<number>();

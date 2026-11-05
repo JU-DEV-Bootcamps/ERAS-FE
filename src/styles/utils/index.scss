@@ -101,6 +101,45 @@ body {
   border-radius: 28px;
 }
 
+.mobile-fullscreen-dialog {
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
+
+  .mat-mdc-dialog-container {
+    height: 100%;
+  }
+
+  .mat-mdc-dialog-surface {
+    border-radius: 0;
+
+    > * {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+  }
+
+  .mat-mdc-dialog-content {
+    flex: 1 1 auto;
+    max-height: none;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .profile-modal {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
 .error-message {
   color: red;
   font-size: 0.9em;

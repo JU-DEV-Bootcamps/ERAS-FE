@@ -77,7 +77,8 @@
           [pageSize]="pageSize"
           [pageIndex]="pageIndex"
           [pageSizeOptions]="pageSizeOptions"
-          showFirstLastButtons
+          [hidePageSize]="compactPaginator()"
+          [showFirstLastButtons]="!compactPaginator()"
           aria-label="Select page"
         />
       }

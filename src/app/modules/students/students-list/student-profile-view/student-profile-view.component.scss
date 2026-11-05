@@ -125,6 +125,39 @@ dl {
   }
 }
 
+.courses-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  .course-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-neutral-200);
+    word-break: break-word;
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .course-name {
+    font-weight: 600;
+  }
+
+  .course-group,
+  .course-section {
+    font-size: 0.875rem;
+    color: var(--color-neutral-600);
+  }
+}
+
 .empty {
   margin: 0;
   color: var(--color-neutral-600);

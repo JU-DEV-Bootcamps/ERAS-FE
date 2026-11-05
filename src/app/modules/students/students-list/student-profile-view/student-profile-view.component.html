@@ -50,27 +50,50 @@
                     <dd>
                       @if (field.kind === 'courses') {
                         @if (profile().currentCourses?.length) {
-                          <table class="courses">
-                            <thead>
-                              <tr>
-                                <th>{{ messages.COURSE_NAME }}</th>
-                                <th>{{ messages.COURSE_GROUP }}</th>
-                                <th>{{ messages.COURSE_SECTION }}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
+                          @if (isMobile()) {
+                            <ul class="courses-stacked">
                               @for (
                                 course of profile().currentCourses;
                                 track $index
                               ) {
-                                <tr>
-                                  <td>{{ course.name }}</td>
-                                  <td>{{ displayValue(course.group) }}</td>
-                                  <td>{{ displayValue(course.section) }}</td>
-                                </tr>
+                                <li class="course-entry">
+                                  <span class="course-name">{{
+                                    course.name
+                                  }}</span>
+                                  <span class="course-group"
+                                    >{{ messages.COURSE_GROUP }}:
+                                    {{ displayValue(course.group) }}</span
+                                  >
+                                  <span class="course-section"
+                                    >{{ messages.COURSE_SECTION }}:
+                                    {{ displayValue(course.section) }}</span
+                                  >
+                                </li>
                               }
-                            </tbody>
-                          </table>
+                            </ul>
+                          } @else {
+                            <table class="courses">
+                              <thead>
+                                <tr>
+                                  <th>{{ messages.COURSE_NAME }}</th>
+                                  <th>{{ messages.COURSE_GROUP }}</th>
+                                  <th>{{ messages.COURSE_SECTION }}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (
+                                  course of profile().currentCourses;
+                                  track $index
+                                ) {
+                                  <tr>
+                                    <td>{{ course.name }}</td>
+                                    <td>{{ displayValue(course.group) }}</td>
+                                    <td>{{ displayValue(course.section) }}</td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          }
                         } @else {
                           <p class="empty">{{ messages.NO_COURSES }}</p>
                         }

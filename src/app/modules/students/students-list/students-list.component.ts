@@ -6,7 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogConfig,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { EventAction, EventLoad } from '@core/models/load';
@@ -70,6 +74,7 @@ import { StudentProfileSummaryModalComponent } from './student-profile-summary-m
 import { withCohortName } from './student-profile-view/student-profile-sections';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -91,6 +96,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 })
 export class StudentsListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
+  readonly isMobile = inject(ViewportService).isMobile;
   private readonly router = inject(Router);
   private readonly studentService = inject(StudentService);
   private readonly lastAccessPipe = new LastAccessPipe();
@@ -340,10 +346,11 @@ export class StudentsListComponent implements OnInit {
       ? ModalStudentDetailV2Component
       : ModalStudentDetailComponent;
     this.dialog.open(component, {
-      width: '1152px',
-      maxWidth: '95vw',
-      maxHeight: '921.59px',
-      panelClass: 'border-modalbox-dialog',
+      ...this.studentDialogSize({
+        width: '1152px',
+        maxHeight: '921.59px',
+        panelClass: 'border-modalbox-dialog',
+      }),
       data: { studentId: student.id },
     });
   }
@@ -351,10 +358,11 @@ export class StudentsListComponent implements OnInit {
   openProfileSummaryModal(student: StudentModelFlat): void {
     this.dialog.open(StudentProfileSummaryModalComponent, {
       autoFocus: false,
-      width: '1100px',
-      maxWidth: '95vw',
-      maxHeight: '95vh',
-      panelClass: 'student-modal-panel',
+      ...this.studentDialogSize({
+        width: '1100px',
+        maxHeight: '95vh',
+        panelClass: 'student-modal-panel',
+      }),
       data: { studentId: student.id },
     });
   }
@@ -447,15 +455,41 @@ export class StudentsListComponent implements OnInit {
   private openStudentModal(data: NewStudentModalData): void {
     const dialogRef = this.dialog.open(NewStudentModalComponent, {
       autoFocus: false,
-      width: '1100px',
-      maxWidth: '95vw',
-      maxHeight: '95vh',
-      panelClass: 'student-modal-panel',
+      ...this.studentDialogSize({
+        width: '1100px',
+        maxHeight: '95vh',
+        panelClass: 'student-modal-panel',
+      }),
       data,
     });
     dialogRef.afterClosed().subscribe(saved => {
       if (saved) this.loadStudents();
     });
+  }
+
+  private studentDialogSize(desktop: {
+    width: string;
+    maxHeight: string;
+    panelClass: string;
+  }): Pick<
+    MatDialogConfig,
+    'width' | 'maxWidth' | 'height' | 'maxHeight' | 'panelClass'
+  > {
+    if (!this.isMobile()) {
+      return {
+        width: desktop.width,
+        maxWidth: '95vw',
+        maxHeight: desktop.maxHeight,
+        panelClass: desktop.panelClass,
+      };
+    }
+    return {
+      width: '100vw',
+      maxWidth: '100vw',
+      height: '100dvh',
+      maxHeight: '100dvh',
+      panelClass: [desktop.panelClass, 'mobile-fullscreen-dialog'],
+    };
   }
 
   private loadCohortLookups(): Observable<Lookup[]> {
