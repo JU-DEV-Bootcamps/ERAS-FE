@@ -67,6 +67,14 @@ describe('InterventionActivityHistoryComponent', () => {
     expect(service.getActivity).toHaveBeenCalledWith(1, 5);
   });
 
+  it('should show one bullet for each entry', async () => {
+    const el = await render([created, commented]);
+
+    expect(el.querySelectorAll('.activity-entry .activity-bullet').length).toBe(
+      2
+    );
+  });
+
   it('[680-add-activity-history-to-intervention-details/AC-15] is read only, no edit or delete action', async () => {
     const el = await render([created, commented]);
 
