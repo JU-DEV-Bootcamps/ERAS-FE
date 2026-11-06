@@ -71,6 +71,11 @@ export const GENERAL_MESSAGES = {
     `The property ${attribute} cannot be converted to the required type.`,
 };
 
+export const INTERVENTION_ACTIVITY_MESSAGES = {
+  TITLE: 'Activity history',
+  EMPTY: 'No activity recorded yet.',
+};
+
 export const STUDENT_INTERVENTION_MESSAGES = {
   SECTION_TITLE: 'Interventions',
   RISKS_TITLE: 'Risks identified',
