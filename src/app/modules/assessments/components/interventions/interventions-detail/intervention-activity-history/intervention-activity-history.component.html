@@ -1,0 +1,23 @@
+<section class="activity-history">
+  <h3 class="activity-title">{{ messages.TITLE }}</h3>
+
+  @if (events(); as list) {
+    @if (list.length > 0) {
+      <ol class="activity-list">
+        @for (event of list; track event.id) {
+          <li class="activity-entry">
+            <span class="activity-description">{{ event.description }}</span>
+            <span class="activity-meta">
+              <span class="activity-time">{{
+                event.occurredAtUtc | date: 'yyyy-MM-dd HH:mm'
+              }}</span>
+              <span class="activity-user">{{ event.userName }}</span>
+            </span>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="activity-empty">{{ messages.EMPTY }}</p>
+    }
+  }
+</section>

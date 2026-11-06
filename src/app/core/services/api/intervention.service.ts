@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
+import { InterventionActivityModel } from '@core/models/intervention-activity.model';
 import {
   InterventionModel,
   UpdateInterventionModel,
@@ -21,6 +22,15 @@ export class InterventionService extends BaseApiService {
 
   getByAssessment(assessmentId: number): Observable<InterventionModel[]> {
     return this.get<InterventionModel[]>(`${assessmentId}/interventions`);
+  }
+
+  getActivity(
+    assessmentId: number,
+    interventionId: number
+  ): Observable<InterventionActivityModel[]> {
+    return this.get<InterventionActivityModel[]>(
+      `${assessmentId}/interventions/${interventionId}/history`
+    );
   }
 
   getByAssessmentAndCreator(

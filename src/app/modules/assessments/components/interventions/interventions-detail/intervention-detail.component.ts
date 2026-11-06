@@ -1,8 +1,16 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  input,
+  Output,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { InterventionActivityHistoryComponent } from './intervention-activity-history/intervention-activity-history.component';
 import { InterventionPillBadgeComponent } from '../interventions-list/intervention-status-badge/intervention-pill-badge.component';
 import { InterventionRowViewModel } from '../interventions-list/intervention-list.component';
 import { AttachmentApiService } from '@core/services/api/attachments.service';
@@ -23,6 +31,7 @@ import {
     MatDividerModule,
     MatIconModule,
     InterventionPillBadgeComponent,
+    InterventionActivityHistoryComponent,
   ],
   templateUrl: './intervention-detail.component.html',
   styleUrl: './intervention-detail.component.scss',
@@ -32,6 +41,9 @@ export class InterventionDetailComponent {
 
   @Input({ required: true }) data!: InterventionRowViewModel;
   @Input({ required: false }) attachments: AttachmentModel[] = [];
+
+  /** The assessment being shown; the API does not return it with each intervention. */
+  readonly assessmentId = input<number | null>(null);
 
   @Output() close = new EventEmitter<void>();
 
