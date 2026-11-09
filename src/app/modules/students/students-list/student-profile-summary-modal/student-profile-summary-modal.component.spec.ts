@@ -289,4 +289,26 @@ describe('StudentProfileSummaryModalComponent', () => {
       'The interventions could not be loaded, please try again.'
     );
   });
+
+  describe('height of the profile area', () => {
+    const maxHeightOn = (panelClass: string | null): string => {
+      const panel = document.createElement('div');
+      if (panelClass) panel.classList.add(panelClass);
+      document.body.appendChild(panel);
+      const el = create(profile);
+      panel.appendChild(el);
+      const area = el.querySelector('.profile-modal') as HTMLElement;
+      const maxHeight = getComputedStyle(area).maxHeight;
+      panel.remove();
+      return maxHeight;
+    };
+
+    it('lets the profile area use the full screen height in a full-screen dialog', () => {
+      expect(maxHeightOn('mobile-fullscreen-dialog')).toBe('none');
+    });
+
+    it('keeps the profile area capped at 75% of the screen height on desktop', () => {
+      expect(maxHeightOn(null)).toBe(`${window.innerHeight * 0.75}px`);
+    });
+  });
 });
