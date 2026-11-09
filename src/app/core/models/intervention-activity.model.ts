@@ -1,7 +1,9 @@
 export type InterventionActivityType =
   | 'Created'
   | 'CommentAdded'
-  | 'StatusChanged';
+  | 'StatusChanged'
+  | 'RiskLevelChanged'
+  | 'EndRiskLevelChanged';
 
 /** One event of the activity history of an intervention; mirrors the BE `InterventionActivityDto`. */
 export interface InterventionActivityModel {
