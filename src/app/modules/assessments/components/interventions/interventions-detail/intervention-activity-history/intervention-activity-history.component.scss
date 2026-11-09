@@ -1,16 +1,14 @@
 .activity-history {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-  font-family: 'Inter', sans-serif;
+  border-top: 1px solid var(--color-neutral-200);
 }
 
 .activity-title {
-  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 700;
   line-height: 23px;
-  color: #4b5563;
+  color: var(--color-neutral-700);
 }
 
 .activity-list {
@@ -46,18 +44,18 @@
 
 .activity-description {
   font-size: 14px;
-  color: #1f2937;
+  color: var(--color-neutral-900);
 }
 
 .activity-meta {
   display: flex;
   gap: 12px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-neutral-600);
 }
 
 .activity-empty {
   margin: 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-neutral-600);
 }
