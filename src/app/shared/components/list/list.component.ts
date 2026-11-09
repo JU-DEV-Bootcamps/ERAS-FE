@@ -5,6 +5,8 @@ import {
   EventEmitter,
   inject,
   Input,
+  computed,
+  input,
   OnInit,
   Output,
   QueryList,
@@ -19,6 +21,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { defaultOptions, readOnlyColumns } from './constants/list';
 import {
   EventAction,
@@ -74,6 +77,7 @@ export class ListComponent<T extends object>
   csvService = inject(CsvService);
   pdfHelper = inject(PdfHelper);
   exportStateService = inject(ExportStateService);
+  private readonly viewport = inject(ViewportService);
 
   pageSize = defaultOptions.pageSize;
   currentPage = defaultOptions.currentPage;
@@ -95,6 +99,10 @@ export class ListComponent<T extends object>
   @Input() externalExport = false;
   @Input() isExportable = true;
   @Input() showPaginator = true;
+  readonly compactPaginatorOnMobile = input(false);
+  readonly compactPaginator = computed(
+    () => this.compactPaginatorOnMobile() && this.viewport.isMobile()
+  );
   @Input() columnOrder: Column<T>[] = [];
   @Input() isItemDisabled?: (item: T) => boolean;
   @Input() allItems: T[] = [];

@@ -54,6 +54,11 @@ export const USER_MANUALS_MESSAGES = {
   LOAD_ERROR: 'Could not load the user manuals. Please try again later.',
 };
 
+export const PROFESSIONAL_PROFILE_MESSAGES = {
+  SAVE_ERROR:
+    'Your professional information could not be saved. Please try again.',
+};
+
 export const GENERAL_MESSAGES = {
   ERROR_TITLE: 'Error',
   ERROR_IMPORT_TITLE: 'Error Importing file',
@@ -74,6 +79,10 @@ export const GENERAL_MESSAGES = {
 export const INTERVENTION_ACTIVITY_MESSAGES = {
   TITLE: 'Activity history',
   EMPTY: 'No activity recorded yet.',
+};
+
+export const LAYOUT_MESSAGES = {
+  OPEN_MENU: 'Open menu',
 };
 
 export const STUDENT_INTERVENTION_MESSAGES = {

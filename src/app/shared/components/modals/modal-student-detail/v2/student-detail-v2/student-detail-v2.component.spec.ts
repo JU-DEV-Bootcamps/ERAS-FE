@@ -1,3 +1,4 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -10,6 +11,7 @@ import { StudentService } from '@core/services/api/student.service';
 import { PollService } from '@core/services/api/poll.service';
 import { PollInstanceService } from '@core/services/api/poll-instance.service';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { StudentResponse } from '@core/models/student-request.model';
 import { PollModel } from '@core/models/poll.model';
 import { ComponentsAvgModel } from '@core/models/components-avg.model';
@@ -36,6 +38,7 @@ describe('StudentDetailV2Component', () => {
   let routerSpy: jasmine.SpyObj<Router>;
   let dialogRefSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
   let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+  let isMobile: WritableSignal<boolean>;
 
   const mockStudentResponse: StudentResponse = {
     entity: {
@@ -83,6 +86,7 @@ describe('StudentDetailV2Component', () => {
   };
 
   beforeEach(async () => {
+    isMobile = signal(false);
     spyOn(ChartComponent.prototype, 'render').and.returnValue(
       Promise.resolve()
     );
@@ -129,6 +133,7 @@ describe('StudentDetailV2Component', () => {
         { provide: Router, useValue: routerSpy },
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: MatSnackBar, useValue: snackBarSpy },
+        { provide: ViewportService, useValue: { isMobile } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -155,6 +160,48 @@ describe('StudentDetailV2Component', () => {
   it('should create the component', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
+  });
+
+  it('[659-improve-students-mobile-view/AC-16] stacks the student data and keeps the three buttons in one row on mobile', () => {
+    // GIVEN a student with a name, an email and a UUID, on a 375px wide screen
+    isMobile.set(true);
+    const host = fixture.nativeElement as HTMLElement;
+    host.style.display = 'block';
+    host.style.width = '375px';
+
+    // WHEN the details are shown
+    fixture.detectChanges();
+
+    // THEN name, email and UUID are one under the other, each one inside the modal
+    const hostRect = host.getBoundingClientRect();
+    const fields = Array.from(
+      host.querySelectorAll<HTMLElement>('.info-field')
+    ).map(field => field.getBoundingClientRect());
+    expect(fields.length).toBe(3);
+    fields.forEach((rect, index) => {
+      expect(rect.left).toBeGreaterThanOrEqual(hostRect.left);
+      expect(rect.right).toBeLessThanOrEqual(hostRect.right + 1);
+      if (index > 0) {
+        expect(rect.top).toBeGreaterThanOrEqual(fields[index - 1].bottom - 1);
+      }
+    });
+    // AND the Export, Print and Create Assessment buttons share one row below them, with no horizontal scroll
+    const buttons = Array.from(
+      host.querySelectorAll<HTMLElement>('.header-actions button')
+    ).map(button => button.getBoundingClientRect());
+    expect(buttons.length).toBe(3);
+    buttons.forEach(rect => {
+      expect(
+        Math.abs(
+          rect.top + rect.height / 2 - (buttons[0].top + buttons[0].height / 2)
+        )
+      ).toBeLessThan(2);
+      expect(rect.top).toBeGreaterThanOrEqual(fields[2].bottom - 1);
+      expect(rect.left).toBeGreaterThanOrEqual(hostRect.left);
+      expect(rect.right).toBeLessThanOrEqual(hostRect.right + 1);
+    });
+    const header = host.querySelector('.student-header') as HTMLElement;
+    expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth);
   });
 
   describe('ngOnInit / data loading chain', () => {

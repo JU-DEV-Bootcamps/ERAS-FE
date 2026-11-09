@@ -37,6 +37,7 @@ import { EmptyDataComponent } from '@shared/components/empty-data/empty-data.com
 import { Router } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ExportStateService } from '@core/services/exports/export-state.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 register();
 
@@ -63,6 +64,8 @@ interface SwiperEventTarget extends EventTarget {
 })
 export class StudentDetailV2Component implements OnInit, OnDestroy {
   @ViewChild('mainContainer', { static: false }) mainContainer!: ElementRef;
+
+  readonly isMobile = inject(ViewportService).isMobile;
 
   studentDetails: StudentResponse = {
     entity: {

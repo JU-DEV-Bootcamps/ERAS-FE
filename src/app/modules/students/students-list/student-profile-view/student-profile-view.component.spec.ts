@@ -1,14 +1,17 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { StudentInterventionModel } from '@core/models/student-intervention.model';
 import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
 import { StudentInterventionService } from '@core/services/api/student-intervention.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { StudentProfileViewComponent } from './student-profile-view.component';
 
 describe('StudentProfileViewComponent', () => {
   let fixture: ComponentFixture<StudentProfileViewComponent>;
   let interventionServiceSpy: jasmine.SpyObj<StudentInterventionService>;
+  let isMobile: WritableSignal<boolean>;
 
   const profile: StudentProfileSummaryModel = {
     studentId: 42,
@@ -73,6 +76,7 @@ describe('StudentProfileViewComponent', () => {
       .trim() ?? '';
 
   beforeEach(() => {
+    isMobile = signal(false);
     interventionServiceSpy = jasmine.createSpyObj(
       'StudentInterventionService',
       ['getByStudent']
@@ -84,6 +88,7 @@ describe('StudentProfileViewComponent', () => {
           provide: StudentInterventionService,
           useValue: interventionServiceSpy,
         },
+        { provide: ViewportService, useValue: { isMobile } },
       ],
     });
   });
@@ -284,5 +289,45 @@ describe('StudentProfileViewComponent', () => {
       'Failed courses',
       'Current courses',
     ]);
+  });
+
+  it('[659-improve-students-mobile-view/AC-12] stacks each current course with its group and section on mobile', () => {
+    // GIVEN a student with the courses "Algorithms" (group A, section 2) and "Databases" (group B, section 1), on a mobile screen
+    isMobile.set(true);
+
+    // WHEN a user opens the profile summary
+    const el = create(profile);
+    el.style.display = 'block';
+    el.style.width = '375px';
+
+    // THEN each course is shown with its name, group and section one under the other
+    expect(el.querySelector('table.courses')).toBeNull();
+    const entries = Array.from(
+      el.querySelectorAll<HTMLElement>(
+        '[data-field="currentCourses"] .course-entry'
+      )
+    );
+    expect(entries.length).toBe(2);
+    const lines = (entry: HTMLElement) =>
+      ['.course-name', '.course-group', '.course-section'].map(selector =>
+        entry.querySelector(selector)?.textContent?.replace(/\s+/g, ' ').trim()
+      );
+    expect(lines(entries[0])).toEqual(['Algorithms', 'Group: A', 'Section: 2']);
+    expect(lines(entries[1])).toEqual(['Databases', 'Group: B', 'Section: 1']);
+    const tops = ['.course-name', '.course-group', '.course-section'].map(
+      selector =>
+        entries[0].querySelector(selector)!.getBoundingClientRect().top
+    );
+    expect(tops[0]).toBeLessThan(tops[1]);
+    expect(tops[1]).toBeLessThan(tops[2]);
+    // AND there is no horizontal scroll
+    expect(el.scrollWidth).toBeLessThanOrEqual(el.clientWidth);
+  });
+
+  it('keeps the table of current courses on a desktop screen', () => {
+    const el = create(profile);
+
+    expect(el.querySelector('table.courses')).toBeTruthy();
+    expect(el.querySelector('.courses-stacked')).toBeNull();
   });
 });

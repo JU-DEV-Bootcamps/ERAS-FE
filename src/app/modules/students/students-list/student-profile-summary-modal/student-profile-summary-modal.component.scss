@@ -9,6 +9,14 @@
   overflow-y: auto;
 }
 
+// In the full-screen dialog (mobile) the area fills the screen. It lives here, next to the
+// 75vh cap it overrides, because a global rule with the same specificity loses to this file.
+:host-context(.mobile-fullscreen-dialog) .profile-modal {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
 .state {
   display: flex;
   justify-content: center;
