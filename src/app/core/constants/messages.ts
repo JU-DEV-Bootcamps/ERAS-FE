@@ -85,6 +85,11 @@ export const LAYOUT_MESSAGES = {
   OPEN_MENU: 'Open menu',
 };
 
+export const ASSESSMENT_ACTIVITY_MESSAGES = {
+  TITLE: 'Activity history',
+  EMPTY: 'No activity recorded yet.',
+};
+
 export const STUDENT_INTERVENTION_MESSAGES = {
   SECTION_TITLE: 'Interventions',
   RISKS_TITLE: 'Risks identified',

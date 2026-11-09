@@ -22,6 +22,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { AssessmentModel } from '@core/models/assessment.model';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AssessmentActivityHistoryComponent } from './assessment-activity-history/assessment-activity-history.component';
 
 @Component({
   selector: 'app-assessment-detail-dialog',
@@ -33,6 +34,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     MatIconModule,
     AssessmentStatusBadgeComponent,
     ListWithRemovalComponent,
+    AssessmentActivityHistoryComponent,
   ],
   templateUrl: './assessment-detail-dialog.component.html',
   styleUrl: './assessment-detail-dialog.component.scss',
