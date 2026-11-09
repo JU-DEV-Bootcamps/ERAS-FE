@@ -1,3 +1,4 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TableWithActionsComponent } from './table-with-actions.component';
 import { MatTableModule } from '@angular/material/table';
@@ -11,6 +12,7 @@ import { By } from '@angular/platform-browser';
 import { PollName } from '@core/models/poll-request.model';
 import { Column } from '../list/types/column';
 import { ActionDatas } from '../list/types/action';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 interface SelectablePollName extends PollName {
   isSelected?: boolean;
@@ -23,6 +25,7 @@ type SelectableFixture = ComponentFixture<
 describe('TableWithActionsComponent', () => {
   let component: TableWithActionsComponent<PollName>;
   let fixture: ComponentFixture<TableWithActionsComponent<PollName>>;
+  let isMobile: WritableSignal<boolean>;
 
   const mockItems: PollName[] = [
     {
@@ -62,24 +65,8 @@ describe('TableWithActionsComponent', () => {
     },
   ];
 
-  const originalInnerWidth = window.innerWidth;
-  const DESKTOP_WIDTH = 1024;
-  const MOBILE_WIDTH = 500;
-
-  const setWindowWidth = (width: number) => {
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      writable: true,
-      value: width,
-    });
-  };
-
-  afterEach(() => {
-    setWindowWidth(originalInnerWidth);
-  });
-
   beforeEach(async () => {
-    setWindowWidth(DESKTOP_WIDTH);
+    isMobile = signal(false);
     await TestBed.configureTestingModule({
       imports: [
         MatTableModule,
@@ -89,7 +76,10 @@ describe('TableWithActionsComponent', () => {
         MatCardModule,
         MatProgressSpinnerModule,
       ],
-      providers: [TitleCasePipe],
+      providers: [
+        TitleCasePipe,
+        { provide: ViewportService, useValue: { isMobile } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TableWithActionsComponent<PollName>);
@@ -106,8 +96,43 @@ describe('TableWithActionsComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('[669-unify-mobile-detection-and-touch-targets/AC-1] switches the table with actions between cards and table with the screen size', () => {
+    // GIVEN the table with actions showing two students with their columns and two actions
+    const host = fixture.nativeElement as HTMLElement;
+
+    // WHEN the screen is 375px wide
+    isMobile.set(true);
+    fixture.detectChanges();
+
+    // THEN each student is a card with every column and the actions, and no table is shown
+    const cards = Array.from(host.querySelectorAll<HTMLElement>('mat-card'));
+    expect(cards.length).toBe(mockItems.length);
+    cards.forEach((card, index) => {
+      mockColumns.forEach(column => {
+        expect(card.textContent).toContain(column.label);
+        expect(card.textContent).toContain(
+          String(mockItems[index][column.key])
+        );
+      });
+      expect(card.querySelectorAll('app-action-button').length).toBe(
+        mockActionDatas.length
+      );
+    });
+    expect(host.querySelector('table')).toBeNull();
+
+    // AND when it is resized to 1280px a table with the same students is shown and no card is
+    isMobile.set(false);
+    fixture.detectChanges();
+
+    expect(host.querySelector('table')).not.toBeNull();
+    expect(host.querySelectorAll('tr.mat-mdc-row').length).toBe(
+      mockItems.length
+    );
+    expect(host.querySelectorAll('mat-card').length).toBe(0);
+  });
+
   it('should render action buttons in the Actions column', () => {
-    setWindowWidth(MOBILE_WIDTH);
+    isMobile.set(true);
     const mobileFixture = TestBed.createComponent(
       TableWithActionsComponent<PollName>
     );
@@ -132,21 +157,6 @@ describe('TableWithActionsComponent', () => {
       expect(component.totalItems).toBe(mockItems.length);
     });
 
-    it('should set isMobile based on window width at init time', async () => {
-      setWindowWidth(MOBILE_WIDTH);
-      const localFixture = TestBed.createComponent(
-        TableWithActionsComponent<PollName>
-      );
-      const localComponent = localFixture.componentInstance;
-      localComponent.items = mockItems;
-      localComponent.columns = mockColumns;
-      localFixture.componentRef.setInput('actionDatas', mockActionDatas);
-
-      localFixture.detectChanges();
-
-      expect(localComponent.isMobile).toBeTrue();
-    });
-
     it('should set displayedColumns from getAllColumns()', () => {
       expect(component.displayedColumns).toEqual(component.getAllColumns());
       expect(component.displayedColumns).toEqual([
@@ -155,24 +165,6 @@ describe('TableWithActionsComponent', () => {
         'status',
         'Actions',
       ]);
-    });
-  });
-
-  describe('onResize', () => {
-    it('should set isMobile to true when window width drops below 768', () => {
-      setWindowWidth(600);
-
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should set isMobile to false when window width is 768 or above', () => {
-      setWindowWidth(1024);
-
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeFalse();
     });
   });
 

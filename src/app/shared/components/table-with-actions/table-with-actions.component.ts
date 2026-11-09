@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  HostListener,
+  inject,
   Input,
   OnInit,
   Output,
@@ -15,6 +15,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -79,18 +80,12 @@ export class TableWithActionsComponent<T extends object>
 
   @Output() actionCalled = new EventEmitter<EventAction>();
 
-  isMobile = false;
+  readonly isMobile = inject(ViewportService).isMobile;
   totalItems = 0;
   actionColumns = ['Actions'];
   displayedColumns: string[] = [];
   allItemsSelected: WritableSignal<boolean> = signal<boolean>(false);
   displayCache = new Map<T, Record<string, string>>();
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event: UIEvent): void {
-    const target = event.target as Window;
-    this.isMobile = target.innerWidth < 768;
-  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items']) {
@@ -102,7 +97,6 @@ export class TableWithActionsComponent<T extends object>
   }
 
   ngOnInit() {
-    this.isMobile = window.innerWidth < 768;
     this.totalItems = this.items.length;
     this.displayedColumns = this.getAllColumns();
   }

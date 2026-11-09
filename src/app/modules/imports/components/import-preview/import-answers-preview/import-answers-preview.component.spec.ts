@@ -1,3 +1,4 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ImportAnswersPreviewComponent } from './import-answers-preview.component';
 import {
@@ -17,6 +18,7 @@ import { Answer } from '@core/models/answer.model';
 import { Student } from '@core/models/student.model';
 import { CohortModel } from '@core/models/cohort.model';
 import { StudentPreview } from '@modules/imports/models/preview';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 function createCohort(overrides: Partial<CohortModel> = {}): CohortModel {
   return {
@@ -94,8 +96,10 @@ describe('ImportAnswersPreviewComponent', () => {
   let fixture: ComponentFixture<ImportAnswersPreviewComponent>;
   let mockPollService: jasmine.SpyObj<PollService>;
   let mockCosmicLatteService: jasmine.SpyObj<CosmicLatteService>;
+  let isMobile: WritableSignal<boolean>;
 
   beforeEach(async () => {
+    isMobile = signal(false);
     mockPollService = jasmine.createSpyObj('PollService', ['getPolls']);
     mockCosmicLatteService = jasmine.createSpyObj('CosmicLatteService', [
       'getPollNames',
@@ -110,6 +114,7 @@ describe('ImportAnswersPreviewComponent', () => {
       providers: [
         { provide: CosmicLatteService, useValue: mockCosmicLatteService },
         { provide: PollService, useValue: mockPollService },
+        { provide: ViewportService, useValue: { isMobile } },
         provideNoopAnimations(),
         provideHttpClient(),
       ],
@@ -123,6 +128,55 @@ describe('ImportAnswersPreviewComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('[669-unify-mobile-detection-and-touch-targets/AC-4] switches the students preview between cards and table with the screen size', () => {
+    // GIVEN the students preview of the answers import with two students
+    const pollOf = (id: number, name: string, email: string) =>
+      createPollInstance({
+        id,
+        components: [
+          createComponent({
+            variables: [
+              createVariable({
+                answer: createAnswer({
+                  student: createStudent({ name, email }),
+                }),
+              }),
+            ],
+          }),
+        ],
+      });
+    fixture.componentRef.setInput('importedPollData', [
+      pollOf(1, 'John Doe', 'john@example.com'),
+      pollOf(2, 'Jane Smith', 'jane@example.com'),
+    ]);
+    const host = fixture.nativeElement as HTMLElement;
+
+    // WHEN the screen is 375px wide
+    isMobile.set(true);
+    fixture.detectChanges();
+
+    // THEN each student is a card with its columns and its save switch, and no table is shown
+    const cards = Array.from(
+      host.querySelectorAll<HTMLElement>('.card-container mat-card')
+    );
+    expect(cards.length).toBe(2);
+    expect(cards[0].textContent).toContain('John Doe');
+    expect(cards[0].textContent).toContain('john@example.com');
+    expect(cards[1].textContent).toContain('Jane Smith');
+    cards.forEach(card => {
+      expect(card.querySelectorAll('mat-slide-toggle').length).toBe(1);
+    });
+    expect(host.querySelector('table')).toBeNull();
+
+    // AND when it is resized to 1280px a table with the same students is shown and no card is
+    isMobile.set(false);
+    fixture.detectChanges();
+
+    expect(host.querySelector('table')).not.toBeNull();
+    expect(host.querySelectorAll('tr.mat-mdc-row').length).toBe(2);
+    expect(host.querySelectorAll('.card-container mat-card').length).toBe(0);
   });
 
   describe('ngOnChanges / mapDataCreatedPoll', () => {
@@ -465,42 +519,6 @@ describe('ImportAnswersPreviewComponent', () => {
       expect(component.studentPreviews).toEqual([]);
       expect(component.importedPollData).toEqual([]);
       expect(emitSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('checkScreenSize', () => {
-    let originalInnerWidth: number;
-
-    beforeEach(() => {
-      originalInnerWidth = window.innerWidth;
-    });
-
-    afterEach(() => {
-      Object.defineProperty(window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: originalInnerWidth,
-      });
-    });
-
-    it('should mark isMobile true for narrow screens', () => {
-      Object.defineProperty(window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: 500,
-      });
-      component.checkScreenSize();
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should mark isMobile false for wide screens', () => {
-      Object.defineProperty(window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: 1024,
-      });
-      component.checkScreenSize();
-      expect(component.isMobile).toBeFalse();
     });
   });
 });

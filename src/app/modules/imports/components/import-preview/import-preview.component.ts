@@ -2,7 +2,6 @@ import { AsyncPipe, DatePipe, NgIf } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  HostListener,
   inject,
   OnInit,
 } from '@angular/core';
@@ -51,8 +50,6 @@ export class ImportPreviewComponent implements OnInit {
   columns = ['#', 'name', 'email', 'cohort', 'actions'];
   students = [];
 
-  isMobile = false;
-
   ngOnInit() {
     const routeData = this.routeDataService.routeData();
 
@@ -65,7 +62,6 @@ export class ImportPreviewComponent implements OnInit {
 
     this.evaluationId = evaluationId;
     this.selectedConfiguration = configuration;
-    this.checkScreenSize();
     this.loadingSubject.next(true);
     this.cosmicLatteService
       .importAnswerBySurvey(configuration.id, pollName, startDate, endDate)
@@ -95,11 +91,6 @@ export class ImportPreviewComponent implements OnInit {
           );
         },
       });
-  }
-
-  @HostListener('window:resize', [])
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
   }
 
   handleSavePollState(event: { state: string }) {

@@ -2,7 +2,6 @@ import { AsyncPipe, NgClass, TitleCasePipe } from '@angular/common';
 import {
   Component,
   EventEmitter,
-  HostListener,
   inject,
   Input,
   OnChanges,
@@ -34,6 +33,7 @@ import {
   isFieldEmailValid,
   isFieldNameValid,
 } from '@core/utils/validators/fields.util';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-import-answers-preview',
@@ -60,7 +60,7 @@ import {
   styleUrl: './import-answers-preview.component.scss',
 })
 export class ImportAnswersPreviewComponent implements OnChanges {
-  isMobile = false;
+  readonly isMobile = inject(ViewportService).isMobile;
   dataStudents: MatTableDataSource<StudentPreview> =
     new MatTableDataSource<StudentPreview>([]);
   pollDetails: PollPreview = {
@@ -108,10 +108,6 @@ export class ImportAnswersPreviewComponent implements OnChanges {
     )
   );
 
-  @HostListener('window:resize', [])
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
-  }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['importedPollData']) {
       this.mapDataCreatedPoll(this.importedPollData);

@@ -40,7 +40,7 @@
           @if (!dataStudents) {
             <mat-spinner></mat-spinner>
           } @else {
-            @if (isMobile) {
+            @if (isMobile()) {
               <div class="card-container">
                 @for (studentPreview of studentPreviews; track $index) {
                   <mat-card class="" appearance="outlined">

@@ -136,43 +136,6 @@ describe('EvaluationProcessListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('ngOnInit', () => {
-    it('should set isMobile to true when the initial window width is under 600', () => {
-      const originalWidth = window.innerWidth;
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        value: 500,
-      });
-
-      component.ngOnInit();
-
-      expect(component.isMobile).toBeTrue();
-
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        value: originalWidth,
-      });
-    });
-  });
-
-  describe('onResize', () => {
-    it('should set isMobile to true when width is under 600', () => {
-      component.onResize({
-        target: { innerWidth: 500 },
-      } as unknown as UIEvent);
-
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should set isMobile to false when width is 600 or more', () => {
-      component.onResize({
-        target: { innerWidth: 900 },
-      } as unknown as UIEvent);
-
-      expect(component.isMobile).toBeFalse();
-    });
-  });
-
   describe('viewImport', () => {
     it('should navigate to import-status when latestImportJobId exists', () => {
       const evaluation = buildEvaluation({ latestImportJobId: 42 });

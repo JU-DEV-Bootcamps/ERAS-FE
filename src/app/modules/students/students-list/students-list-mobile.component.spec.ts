@@ -70,19 +70,11 @@ describe('StudentsListComponent on mobile and desktop screens', () => {
   let component: StudentsListComponent;
   let isMobile: WritableSignal<boolean>;
   let studentServiceSpy: jasmine.SpyObj<StudentService>;
-  let originalInnerWidth: number;
 
   const host = () => fixture.nativeElement as HTMLElement;
   const query = <T extends Element>(selector: string) =>
     host().querySelector(selector) as T | null;
   const dialogOf = () => (component as unknown as { dialog: MatDialog }).dialog;
-
-  const setWindowWidth = (width: number) =>
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      writable: true,
-      value: width,
-    });
 
   const create = (mobile: boolean, totalStudents = 1) => {
     isMobile.set(mobile);
@@ -114,7 +106,6 @@ describe('StudentsListComponent on mobile and desktop screens', () => {
 
   beforeEach(async () => {
     isMobile = signal(false);
-    originalInnerWidth = window.innerWidth;
 
     studentServiceSpy = jasmine.createSpyObj<StudentService>('StudentService', [
       'getData',
@@ -195,7 +186,6 @@ describe('StudentsListComponent on mobile and desktop screens', () => {
   });
 
   afterEach(() => {
-    setWindowWidth(originalInnerWidth);
     TestBed.inject(MatDialog).closeAll();
   });
 
@@ -239,8 +229,6 @@ describe('StudentsListComponent on mobile and desktop screens', () => {
 
   it('[659-improve-students-mobile-view/AC-8] shows each student as a card with every column and the actions', () => {
     // GIVEN the student "Ana Torres" in the Students list on a mobile screen
-    setWindowWidth(MOBILE_WIDTH);
-
     // WHEN the list is shown
     create(true);
 
