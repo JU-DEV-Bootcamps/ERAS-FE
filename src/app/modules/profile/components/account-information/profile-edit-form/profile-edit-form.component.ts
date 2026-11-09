@@ -14,6 +14,8 @@ import {
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UserProfileService } from '@core/services/api/user-profile.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
+import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { areObjectsEqual } from '@core/utils/helpers/are-objects-equal';
 
 @Component({
@@ -31,6 +33,7 @@ export class ProfileEditFormComponent implements OnInit {
   private readonly userProfileService = inject(UserProfileService);
   private readonly userDataService = inject(UserDataService);
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
+  private readonly permissions = inject(PermissionsService);
 
   // UnsavedChangesGuardService.requestClose() only ever calls dialogRef.close();
   // there is no real dialog here since editing happens inline in the card.
@@ -70,6 +73,11 @@ export class ProfileEditFormComponent implements OnInit {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
     return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  }
+
+  // A professional's position is edited in the professional info section, not here (AC-15).
+  private get isProfessional(): boolean {
+    return this.permissions.can(ERASPermissions.CAN_SEE_PROFESSIONAL_PROFILE);
   }
 
   loadProfile(): void {
@@ -138,6 +146,11 @@ export class ProfileEditFormComponent implements OnInit {
             floatingLabel: 'always',
           },
         ];
+        if (this.isProfessional) {
+          this.formFields = this.formFields.filter(
+            field => field.name !== 'position'
+          );
+        }
       },
       error: error => {
         this.hasError = true;
@@ -174,9 +187,9 @@ export class ProfileEditFormComponent implements OnInit {
     const payload: UpdateUserProfileRequest = {
       employeeId,
       department,
-      position,
       phone,
       about,
+      ...(this.isProfessional ? {} : { position }),
     };
 
     this.userProfileService.updateMyProfile(payload).subscribe({
