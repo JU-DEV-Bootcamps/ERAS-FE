@@ -6,6 +6,7 @@ import { UserProfileService } from '@core/services/api/user-profile.service';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { UserProfile } from '@core/models/user-profile.model';
+import { ERASRoles, Profile } from '@core/models/profile.model';
 
 describe('ProfileEditFormComponent', () => {
   let component: ProfileEditFormComponent;
@@ -89,6 +90,35 @@ describe('ProfileEditFormComponent', () => {
 
     expect(component.hasError).toBeTrue();
     expect(component.isLoading).toBeFalse();
+  });
+
+  it('[603-persist-professional-profile/AC-15] has no Position field and sends no position for a professional', () => {
+    mockUserDataService.user.and.returnValue({
+      id: 'user-1',
+      role: ERASRoles.PROFESSIONAL,
+    } as Profile);
+    mockUserProfileService.updateMyProfile.and.returnValue(of(mockProfile));
+    fixture.detectChanges();
+
+    expect(component.form.contains('position')).toBeFalse();
+
+    component.save();
+
+    const payload =
+      mockUserProfileService.updateMyProfile.calls.mostRecent().args[0];
+    expect('position' in payload).toBeFalse();
+  });
+
+  it('[603-persist-professional-profile/AC-16] keeps the Position field for an officer', () => {
+    mockUserDataService.user.and.returnValue({
+      id: 'user-1',
+      role: ERASRoles.OFFICER,
+    } as Profile);
+    fixture.detectChanges();
+
+    expect(component.form.controls['position'].value).toBe(
+      mockProfile.position
+    );
   });
 
   describe('hasUnsavedChanges', () => {

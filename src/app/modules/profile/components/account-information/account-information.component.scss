@@ -8,7 +8,8 @@
 }
 
 .section-profile,
-.section-summary {
+.section-summary,
+.section-professional {
   box-sizing: border-box;
   min-width: 0;
   background-color: white;
@@ -24,7 +25,8 @@
   height: 100%;
 }
 
-.section-summary {
+.section-summary,
+.section-professional {
   height: 100%;
 }
 
@@ -35,7 +37,8 @@
   }
 
   .section-profile,
-  .section-summary {
+  .section-summary,
+  .section-professional {
     height: auto;
   }
 }
