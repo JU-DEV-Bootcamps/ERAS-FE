@@ -8,6 +8,7 @@ import { ChipComponent } from '@shared/components/chip/chip.component';
 import { ServiceConfigurationCard } from './service-card.model';
 import { forkJoin, map } from 'rxjs';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-service-card-readable',
@@ -24,6 +25,7 @@ export class ServiceCardReadableComponent implements OnInit {
   configurations: ConfigurationsModel[] = [];
   serviceProvidersService = inject(ServiceProvidersService);
   cosmicLatteService = inject(CosmicLatteService);
+  readonly viewport = inject(ViewportService);
   serviceCards: ServiceConfigurationCard[] = [];
   private readonly userData = inject(UserDataService);
   userId = '';

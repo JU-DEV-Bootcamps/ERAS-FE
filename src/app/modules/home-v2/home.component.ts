@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,6 +8,7 @@ import { ServiceCardReadableComponent } from '@shared/components/cards/service-c
 import { CommonModule } from '@angular/common';
 import { RecentAlertsComponent } from './recent-alerts/recent-alerts.component';
 import { RouterLink } from '@angular/router';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-home-v2',
@@ -26,6 +27,7 @@ import { RouterLink } from '@angular/router';
   styleUrl: './home.component.scss',
 })
 export class HomeV2Component {
+  readonly viewport = inject(ViewportService);
   lastUpdated: Date | null = null;
   allAlertsUrl = '/recent-alerts';
 

@@ -9,6 +9,11 @@ $inter: 'Inter', sans-serif;
   flex-direction: column;
   padding: 25px;
   gap: 24px;
+
+  &.mobile {
+    box-sizing: border-box;
+    width: 100%;
+  }
 }
 
 .graphic-status {

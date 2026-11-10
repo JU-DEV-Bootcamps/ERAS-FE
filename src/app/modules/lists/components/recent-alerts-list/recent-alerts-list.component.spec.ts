@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { delay, of } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { EvaluationDetailsService } from '@core/services/api/evaluation-details.service';
 import { ActivatedRoute } from '@angular/router';
@@ -164,5 +164,71 @@ describe('RecentAlertsListComponent', () => {
         ALERT_RISK_LABEL_COLORS['default']
       );
     });
+  });
+});
+
+describe('RecentAlertsListComponent - mobile layout', () => {
+  const originalInnerWidth = window.innerWidth;
+
+  const setWindowWidth = (width: number) => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      writable: true,
+      value: width,
+    });
+  };
+
+  afterEach(() => setWindowWidth(originalInnerWidth));
+
+  it('[671-home-and-recent-alerts-mobile/AC-2] shows each alert as a card without horizontal scroll on mobile', async () => {
+    // GIVEN a recent alert of "Ana Torres" with risk level "High" on a 375px wide screen
+    setWindowWidth(375);
+    await TestBed.configureTestingModule({
+      imports: [RecentAlertsListComponent],
+      providers: [
+        {
+          provide: EvaluationDetailsService,
+          useValue: {
+            getRecentAlerts: () =>
+              of({
+                items: [
+                  {
+                    studentId: 'S-1001',
+                    studentName: 'Ana Torres',
+                    riskLevel: 'High',
+                    category: 'Attendance',
+                    date: new Date('2026-11-01'),
+                    status: 'Base',
+                  },
+                ],
+                count: 1,
+              }).pipe(delay(0)),
+          },
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: {}, params: of({}), queryParams: of({}) },
+        },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(RecentAlertsListComponent);
+    const host = fixture.nativeElement as HTMLElement;
+    host.style.display = 'block';
+    host.style.width = '375px';
+
+    // WHEN the user opens the Recent Alerts page
+    fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 10));
+    fixture.detectChanges();
+
+    // THEN the alert is a card with all its fields and nothing overflows
+    const card = host.querySelector('mat-card') as HTMLElement;
+    expect(card).not.toBeNull();
+    const text = card.textContent ?? '';
+    ['S-1001', 'Ana Torres', 'High', 'Attendance', '2026'].forEach(v =>
+      expect(text).toContain(v)
+    );
+    expect(host.querySelector('table')).toBeNull();
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
   });
 });

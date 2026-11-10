@@ -4,7 +4,8 @@ import { ServiceCardReadableComponent } from './service-card-readable.component'
 import { ConfigurationsService } from '@core/services/api/configurations.service';
 import { ServiceProvidersService } from '@core/services/api/service-providers.service';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { CosmicLatteService } from '@core/services/api/cosmic-latte.service';
 
 describe('ServiceCardReadableComponent', () => {
@@ -259,5 +260,65 @@ describe('ServiceCardReadableComponent', () => {
 
     expect(consoleSpy).toHaveBeenCalled();
     expect(component.serviceCards).toEqual([]);
+  });
+});
+
+describe('ServiceCardReadableComponent - mobile layout', () => {
+  it('[671-home-and-recent-alerts-mobile/AC-4] makes each service card no wider than the content on mobile', async () => {
+    // GIVEN a connected service on a 375px wide screen
+    await TestBed.configureTestingModule({
+      imports: [ServiceCardReadableComponent],
+      providers: [
+        { provide: ViewportService, useValue: { isMobile: signal(true) } },
+        {
+          provide: ConfigurationsService,
+          useValue: {
+            getConfigurationsByUserId: () =>
+              of([
+                {
+                  id: 1,
+                  configurationName: 'Test Config',
+                  serviceProviderId: 1,
+                },
+              ]),
+          },
+        },
+        {
+          provide: ServiceProvidersService,
+          useValue: {
+            getAllServiceProviders: () =>
+              of([
+                {
+                  id: 1,
+                  serviceProviderName: 'Provider Test',
+                  audit: { createdBy: 'Admin' },
+                },
+              ]),
+          },
+        },
+        { provide: UserDataService, useValue: { user: () => ({ id: '1' }) } },
+        {
+          provide: CosmicLatteService,
+          useValue: {
+            healthCheck: () => of({ status: true, dateTime: 'dd/mm/yy' }),
+          },
+        },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(ServiceCardReadableComponent);
+    const host = fixture.nativeElement as HTMLElement;
+    host.style.display = 'block';
+    host.style.width = '375px';
+
+    // WHEN the user opens Home
+    fixture.detectChanges();
+
+    // THEN the service card is no wider than the content
+    const card = host.querySelector('.card') as HTMLElement;
+    expect(card).not.toBeNull();
+    expect(card.getBoundingClientRect().width).toBeLessThanOrEqual(
+      host.clientWidth
+    );
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
   });
 });

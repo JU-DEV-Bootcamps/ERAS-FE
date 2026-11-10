@@ -1,23 +1,19 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
-  DestroyRef,
   inject,
   OnInit,
   output,
-  signal,
 } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-
 import { StatsCardV2Component } from '@shared/components/cards/stats-card-v2/stats-card-v2.component';
 import { DashboardKpiResponse } from '@core/models/dashboard-kpis.model';
 import { DashboardService } from '@core/services/api/dashboard.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-summary-details-v2',
@@ -32,12 +28,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SummaryDetailsV2Component implements OnInit {
-  gridColumns = signal(3);
   kpi: DashboardKpiResponse | null = null;
   lastUpdated = output<Date>();
 
-  private destroyRef = inject(DestroyRef);
-  breakpointObserver = inject(BreakpointObserver);
+  readonly viewport = inject(ViewportService);
   dashboardService = inject(DashboardService);
 
   ngOnInit() {
@@ -46,12 +40,5 @@ export class SummaryDetailsV2Component implements OnInit {
       const fetchedAt = this.dashboardService.getLastFetchedAt();
       if (fetchedAt) this.lastUpdated.emit(fetchedAt);
     });
-
-    this.breakpointObserver
-      .observe([Breakpoints.XSmall])
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        this.gridColumns.set(result.matches ? 1 : 3);
-      });
   }
 }

@@ -7,6 +7,11 @@ app-stats-card {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+
+  &.mobile {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 app-stats-card-v2 {
