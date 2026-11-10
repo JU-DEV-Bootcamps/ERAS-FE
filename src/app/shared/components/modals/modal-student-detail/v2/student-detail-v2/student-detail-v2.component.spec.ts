@@ -1,8 +1,14 @@
-import { signal, WritableSignal } from '@angular/core';
+import {
+  createComponent,
+  EnvironmentInjector,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Swiper } from 'swiper/types';
 import { ChartComponent } from 'ng-apexcharts';
@@ -208,6 +214,9 @@ describe('StudentDetailV2Component', () => {
     // The list of answers is as wide as the modal: the whole screen on a 375px phone, and
     // 1100px on a desktop, where the modal is at most 1152px wide.
     const PHONE_MODAL_WIDTH = 375;
+    // The narrowest phones in use, such as a 320px one, and the most common Android width.
+    const NARROW_PHONE_MODAL_WIDTH = 320;
+    const COMMON_PHONE_MODAL_WIDTH = 360;
     const DESKTOP_MODAL_WIDTH = 1100;
     // A line of text is at most 1.6 times the font size high; a wrapped one is at least twice.
     const ONE_LINE = 1.6;
@@ -229,9 +238,9 @@ describe('StudentDetailV2Component', () => {
       count: 46,
     });
 
-    // Shows the second page of 46 answers ("21 – 30 of 46", the widest range) in a list
+    // Shows the third page of 46 answers ("21 – 30 of 46", the widest range) in a list
     // as wide as the modal of the given screen.
-    const showSecondPage = (mobile: boolean, width: number) => {
+    const showThirdPage = (mobile: boolean, width: number) => {
       isMobile.set(mobile);
       studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
         of(answersPage())
@@ -249,19 +258,24 @@ describe('StudentDetailV2Component', () => {
       return host;
     };
 
-    // The range "21 – 30 of 46" is on one line and on the same row as the page buttons.
-    const expectRangeOnOneRowWithButtons = (host: HTMLElement) => {
+    // The range "21 – 30 of 46" is on one line.
+    const expectRangeOnOneLine = (host: HTMLElement) => {
       const label = host.querySelector(
         '.mat-mdc-paginator-range-label'
       ) as HTMLElement;
-      const buttons = host
-        .querySelector('.mat-mdc-paginator-range-actions')!
-        .getBoundingClientRect();
       const labelBox = label.getBoundingClientRect();
       expect(label.textContent?.trim()).toBe('21 – 30 of 46');
       expect(labelBox.height).toBeLessThanOrEqual(
         parseFloat(getComputedStyle(label).fontSize) * ONE_LINE
       );
+      const buttons = host
+        .querySelector('.mat-mdc-paginator-range-actions')!
+        .getBoundingClientRect();
+      return { label, labelBox, buttons };
+    };
+
+    // The range and the page buttons are on the same row.
+    const expectSameRow = (labelBox: DOMRect, buttons: DOMRect) =>
       expect(
         Math.abs(
           labelBox.top +
@@ -269,34 +283,112 @@ describe('StudentDetailV2Component', () => {
             (buttons.top + buttons.height / 2)
         )
       ).toBeLessThanOrEqual(SAME_ROW);
-      return { label, labelBox, buttons };
+
+    // Neither the range nor the page buttons are cut or outside the card of the answers.
+    const expectInsideCard = (host: HTMLElement, ...boxes: DOMRect[]) => {
+      const card = host
+        .querySelector('mat-card.card-answers')!
+        .getBoundingClientRect();
+      boxes.forEach(box => {
+        expect(box.left).toBeGreaterThanOrEqual(card.left - 0.5);
+        expect(box.right).toBeLessThanOrEqual(card.right + 0.5);
+      });
     };
 
     it('[670-align-student-details-pagination/AC-1] shows the range of the answers pagination on one line next to the page buttons on a phone', () => {
-      // GIVEN the student details of a student with 46 answers, on its second page, on a phone
+      // GIVEN the student details of a student with 46 answers, on its third page, on a phone
       // WHEN the modal is shown
-      const host = showSecondPage(true, PHONE_MODAL_WIDTH);
+      const host = showThirdPage(true, PHONE_MODAL_WIDTH);
 
       // THEN the range "21 – 30 of 46" is on one line, on the same row as the page buttons
-      const { labelBox, buttons } = expectRangeOnOneRowWithButtons(host);
-      // AND none of them is cut or outside the modal
-      const hostBox = host.getBoundingClientRect();
-      [labelBox, buttons].forEach(box => {
-        expect(box.left).toBeGreaterThanOrEqual(hostBox.left - 0.5);
-        expect(box.right).toBeLessThanOrEqual(hostBox.right + 0.5);
+      const { labelBox, buttons } = expectRangeOnOneLine(host);
+      expectSameRow(labelBox, buttons);
+      // AND none of them is cut or outside the card of the answers
+      expectInsideCard(host, labelBox, buttons);
+    });
+
+    it('[670-align-student-details-pagination/AC-4] keeps the range on one line and the page buttons inside the card on the narrowest phones', () => {
+      // GIVEN the student details of a student with 46 answers, on its third page, on a 320px phone
+      // WHEN the modal is shown
+      const host = showThirdPage(true, NARROW_PHONE_MODAL_WIDTH);
+
+      // THEN the range is on one line
+      const { labelBox, buttons } = expectRangeOnOneLine(host);
+      // AND the range and the page buttons are inside the card of the answers, the buttons below the range
+      expectInsideCard(host, labelBox, buttons);
+      const next = host
+        .querySelector('.mat-mdc-paginator-navigation-next')!
+        .getBoundingClientRect();
+      expect(next.top).toBeGreaterThanOrEqual(labelBox.bottom - 0.5);
+    });
+
+    it('keeps the range on one line and the page buttons inside the card on a 360px phone, the most common Android width', () => {
+      // The row needs more room than a 360px card has, so the buttons go below the range
+      const host = showThirdPage(true, COMMON_PHONE_MODAL_WIDTH);
+
+      const { labelBox, buttons } = expectRangeOnOneLine(host);
+      expectInsideCard(host, labelBox, buttons);
+    });
+
+    it('[670-align-student-details-pagination/AC-3] keeps the style of a pagination outside the answers of the student details', () => {
+      // GIVEN a pagination of 46 items shown outside the answers of the student details, on a phone
+      isMobile.set(true);
+      const host = fixture.nativeElement as HTMLElement;
+      fixture.detectChanges();
+      const outside = document.createElement('div');
+      host.appendChild(outside);
+      const paginator = createComponent(MatPaginator, {
+        environmentInjector: TestBed.inject(EnvironmentInjector),
+        hostElement: outside,
       });
+      paginator.setInput('length', 46);
+      paginator.setInput('pageSize', 10);
+      paginator.setInput('pageIndex', 2);
+
+      // WHEN the student details modal is shown
+      paginator.changeDetectorRef.detectChanges();
+
+      // THEN that pagination keeps the style of its range label, its container and its buttons
+      const label = outside.querySelector(
+        '.mat-mdc-paginator-range-label'
+      ) as HTMLElement;
+      expect(label.textContent?.trim()).toBe('21 – 30 of 46');
+      expect(getComputedStyle(label).whiteSpace).not.toBe('nowrap');
+      expect(parseFloat(getComputedStyle(label).marginLeft)).toBeGreaterThan(0);
+      const container = outside.querySelector(
+        '.mat-mdc-paginator-container'
+      ) as HTMLElement;
+      expect(
+        parseFloat(getComputedStyle(container).paddingLeft)
+      ).toBeGreaterThan(0);
+      const actions = outside.querySelector(
+        '.mat-mdc-paginator-range-actions'
+      ) as HTMLElement;
+      expect(getComputedStyle(actions).flexWrap).toBe('nowrap');
+      paginator.destroy();
     });
 
     it('[670-align-student-details-pagination/AC-2] keeps the answers pagination of a desktop with its range next to the four page buttons', () => {
-      // GIVEN the same student details, on its second page, on a desktop
+      // GIVEN the same student details, on its third page, on a desktop
       // WHEN the modal is shown
-      const host = showSecondPage(false, DESKTOP_MODAL_WIDTH);
+      const host = showThirdPage(false, DESKTOP_MODAL_WIDTH);
 
       // THEN the range is on one line, next to the page buttons
-      const { label } = expectRangeOnOneRowWithButtons(host);
+      const { label, labelBox, buttons } = expectRangeOnOneLine(host);
+      expectSameRow(labelBox, buttons);
       // AND it keeps the style it has today: the rule of the phone is not applied
       expect(getComputedStyle(label).whiteSpace).not.toBe('nowrap');
       expect(parseFloat(getComputedStyle(label).marginLeft)).toBeGreaterThan(0);
+      const container = host.querySelector(
+        '.mat-mdc-paginator-container'
+      ) as HTMLElement;
+      expect(
+        parseFloat(getComputedStyle(container).paddingLeft)
+      ).toBeGreaterThan(0);
+      const actions = host.querySelector(
+        '.mat-mdc-paginator-range-actions'
+      ) as HTMLElement;
+      expect(getComputedStyle(actions).flexWrap).toBe('nowrap');
       // AND the page-size selector and all four page buttons are shown
       expect(host.querySelector('.mat-mdc-paginator-page-size')).toBeTruthy();
       ['first', 'previous', 'next', 'last'].forEach(name =>

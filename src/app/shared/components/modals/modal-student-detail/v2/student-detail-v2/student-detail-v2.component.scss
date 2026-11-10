@@ -337,10 +337,23 @@
 }
 
 // On a phone the range of the pagination ("21 – 30 of 46") stays on one line, on the
-// row of the page buttons. The paginator belongs to the template of the list.
-.card-answers.mobile ::ng-deep .mat-mdc-paginator-range-label {
-  white-space: nowrap;
-  margin: 0;
+// row of the page buttons. On a narrower phone the buttons go below the range instead of
+// out of the card. The paginator belongs to the template of the list.
+.card-answers.mobile ::ng-deep {
+  .mat-mdc-paginator-range-label {
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  // The 8px of side padding are the room the range and the four buttons are short of at 375px.
+  .mat-mdc-paginator-container {
+    padding: 0;
+  }
+
+  .mat-mdc-paginator-range-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 }
 
 // ── BADGES DE COMPONENTE ──────────────────────────────────

@@ -409,8 +409,8 @@ describe('StudentDetailComponent', () => {
 });
 
 // Guard test: the older version of the modal does not wrap the range of its answers pagination
-// on a phone (its list is not inside the padded card of the newer version), so it is left as it
-// is. See 670-align-student-details-pagination.
+// on a phone (its list has less padding than the card of the newer version), measured in a host
+// as wide as a 375px phone, so it is left as it is. See 670-align-student-details-pagination.
 describe('StudentDetailComponent answers pagination on a phone', () => {
   // The modal is the whole screen of a 375px phone.
   const PHONE_MODAL_WIDTH = 375;

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ElementRef, signal } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -11,7 +11,6 @@ import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { EventRemove, EventUpdate } from '../../../core/models/load';
 import { defaultOptions, readOnlyColumns } from './constants/list';
 import { Column } from './types/column';
-import { ViewportService } from '@core/services/layout/viewport.service';
 
 interface TestItem {
   [key: string]: unknown;
@@ -742,55 +741,5 @@ describe('ListComponent', () => {
       );
       expect(component.isGenerating).toBeFalse();
     });
-  });
-});
-
-describe('ListComponent pagination outside the student details', () => {
-  // A list as wide as the screen of a 375px phone.
-  const PHONE_WIDTH = 375;
-
-  it('[670-align-student-details-pagination/AC-3] keeps the style of the range label of a list outside the student details', async () => {
-    // GIVEN a list with 46 items, outside the student details, on a phone
-    await TestBed.configureTestingModule({
-      imports: [ListComponent],
-      providers: [
-        provideAnimations(),
-        { provide: ActivatedRoute, useValue: {} },
-        { provide: ViewportService, useValue: { isMobile: signal(true) } },
-        {
-          provide: CsvService,
-          useValue: jasmine.createSpyObj('CsvService', ['exportToCSV']),
-        },
-        {
-          provide: PdfHelper,
-          useValue: jasmine.createSpyObj('PdfHelper', ['exportToPdf']),
-        },
-        {
-          provide: MatSnackBar,
-          useValue: jasmine.createSpyObj('MatSnackBar', ['open']),
-        },
-      ],
-    }).compileComponents();
-    const fixture = TestBed.createComponent(ListComponent<TestItem>);
-    const host = fixture.nativeElement as HTMLElement;
-    host.style.cssText = `display: block; width: ${PHONE_WIDTH}px`;
-    fixture.componentInstance.columns = [{ key: 'name', label: 'Name' }];
-    fixture.componentInstance.items = Array.from({ length: 10 }, (_, i) => ({
-      name: `Item ${i}`,
-      status: 'ok',
-    }));
-    fixture.componentInstance.totalItems = 46;
-
-    // WHEN the list is shown
-    fixture.detectChanges();
-
-    // THEN its range label keeps the style of the paginator: it is not forced to one line
-    // and it keeps its side margin
-    const label = host.querySelector(
-      '.mat-mdc-paginator-range-label'
-    ) as HTMLElement;
-    expect(label.textContent?.trim()).toBe('1 – 10 of 46');
-    expect(getComputedStyle(label).whiteSpace).not.toBe('nowrap');
-    expect(parseFloat(getComputedStyle(label).marginLeft)).toBeGreaterThan(0);
   });
 });
