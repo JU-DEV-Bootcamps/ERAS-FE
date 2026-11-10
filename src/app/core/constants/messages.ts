@@ -76,6 +76,11 @@ export const GENERAL_MESSAGES = {
     `The property ${attribute} cannot be converted to the required type.`,
 };
 
+export const INTERVENTION_ACTIVITY_MESSAGES = {
+  TITLE: 'Activity history',
+  EMPTY: 'No activity recorded yet.',
+};
+
 export const LAYOUT_MESSAGES = {
   OPEN_MENU: 'Open menu',
 };
