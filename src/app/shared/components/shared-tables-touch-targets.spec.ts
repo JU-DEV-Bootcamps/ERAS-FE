@@ -1,4 +1,5 @@
-import { signal, WritableSignal } from '@angular/core';
+import { Component, signal, WritableSignal } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
@@ -13,10 +14,15 @@ interface Row {
   status: string;
 }
 
+// The only number of the spec (AC-5, AC-6): the minimum tap area, in pixels.
 const MIN_TAP = 48;
-const BUTTON_HEIGHT = 40;
-const ACTIONS_ROW_HEIGHT = 48;
-const REDIRECT_ROW_HEIGHT = 52;
+
+@Component({
+  selector: 'app-reference-button',
+  imports: [MatIconButton],
+  template: '<button mat-icon-button>x</button>',
+})
+class ReferenceButtonComponent {}
 
 describe('Shared tables touch targets', () => {
   let isMobile: WritableSignal<boolean>;
@@ -43,6 +49,20 @@ describe('Shared tables touch targets', () => {
     button.querySelector<HTMLElement>('.mat-mdc-button-touch-target')!;
 
   const rect = (element: Element) => element.getBoundingClientRect();
+
+  const heightOf = (element: Element) => rect(element).height;
+
+  // Height of an element as the layout sees it: with the invisible touch targets hidden, so a
+  // touch target that takes room in the layout shows up as a difference.
+  const heightIgnoringTouchTargets = (host: HTMLElement, element: Element) => {
+    const targets = Array.from(
+      host.querySelectorAll<HTMLElement>('.mat-mdc-button-touch-target')
+    );
+    targets.forEach(target => (target.style.display = 'none'));
+    const height = rect(element).height;
+    targets.forEach(target => (target.style.display = ''));
+    return height;
+  };
 
   const tableWithActions = (
     mobile: boolean
@@ -95,6 +115,7 @@ describe('Shared tables touch targets', () => {
     // THEN the tap area of each action is at least 48 pixels wide and 48 pixels high
     const cards = Array.from(host.querySelectorAll('mat-card'));
     expect(cards.length).toBe(rows.length);
+    const visibleHeights: number[] = [];
     cards.forEach(card => {
       const buttons = Array.from(
         card.querySelectorAll<HTMLElement>('app-action-button button')
@@ -107,14 +128,21 @@ describe('Shared tables touch targets', () => {
       });
       // AND the tap areas do not overlap each other
       expect(areas[1].left).toBeGreaterThanOrEqual(areas[0].right - 0.5);
-      // AND only the tap area is bigger: the visible button keeps its size and the card its height
-      buttons.forEach(button => {
-        expect(rect(button).height).toBe(BUTTON_HEIGHT);
-        expect(getComputedStyle(touchTargetOf(button)).position).toBe(
-          'absolute'
-        );
-      });
+      // AND the card keeps its height: the tap areas take no room in the layout
+      expect(rect(card).height).toBeCloseTo(
+        heightIgnoringTouchTargets(host, card),
+        1
+      );
+      visibleHeights.push(...buttons.map(heightOf));
     });
+
+    // AND only the tap area is bigger: the visible actions are as high as the ones on desktop
+    const desktop = tableWithActions(false).nativeElement as HTMLElement;
+    const desktopHeights = Array.from(
+      desktop.querySelectorAll<HTMLElement>('td button')
+    ).map(heightOf);
+    expect(desktopHeights.length).toBeGreaterThan(0);
+    visibleHeights.forEach(height => expect(height).toBe(desktopHeights[0]));
   });
 
   it('[669-unify-mobile-detection-and-touch-targets/AC-6] gives the detail button of the table with redirect a 48 by 48 tap area', () => {
@@ -123,43 +151,64 @@ describe('Shared tables touch targets', () => {
     const host = tableWithRedirect(true).nativeElement as HTMLElement;
 
     // THEN the tap area of the detail button is at least 48 pixels wide and 48 pixels high
-    const buttons = Array.from(
-      host.querySelectorAll<HTMLElement>('mat-card button')
-    );
-    expect(buttons.length).toBe(rows.length);
-    buttons.forEach(button => {
+    const cards = Array.from(host.querySelectorAll('mat-card'));
+    expect(cards.length).toBe(rows.length);
+    const visibleHeights: number[] = [];
+    cards.forEach(card => {
+      const button = card.querySelector<HTMLElement>('button')!;
       const area = rect(touchTargetOf(button));
       expect(area.width).toBeGreaterThanOrEqual(MIN_TAP);
       expect(area.height).toBeGreaterThanOrEqual(MIN_TAP);
-      // AND the card keeps its height
-      expect(rect(button).height).toBe(BUTTON_HEIGHT);
-      expect(getComputedStyle(touchTargetOf(button)).position).toBe('absolute');
+      // AND the card keeps its height: the tap area takes no room in the layout
+      expect(rect(card).height).toBeCloseTo(
+        heightIgnoringTouchTargets(host, card),
+        1
+      );
+      visibleHeights.push(heightOf(button));
     });
+
+    // AND only the tap area is bigger: the visible button is as high as the one on desktop
+    const desktop = tableWithRedirect(false).nativeElement as HTMLElement;
+    const desktopHeights = Array.from(
+      desktop.querySelectorAll<HTMLElement>('td button')
+    ).map(heightOf);
+    expect(desktopHeights.length).toBeGreaterThan(0);
+    visibleHeights.forEach(height => expect(height).toBe(desktopHeights[0]));
   });
 
   it('[669-unify-mobile-detection-and-touch-targets/AC-7] keeps the size of the table controls and rows on a desktop screen', () => {
     // GIVEN both tables showing rows with their action controls, on a 1280px wide screen
-    // WHEN the tables are shown
-    const sizesOf = (host: HTMLElement) => ({
-      controls: Array.from(host.querySelectorAll<HTMLElement>('td button')).map(
-        control => [rect(control).width, rect(control).height]
-      ),
-      rows: Array.from(host.querySelectorAll('tr.mat-mdc-row')).map(
-        row => rect(row).height
-      ),
-    });
-    const actions = sizesOf(tableWithActions(false).nativeElement);
-    const redirect = sizesOf(tableWithRedirect(false).nativeElement);
+    // (a new fixture replaces the previous one in the document, so each is measured when shown)
+    const reference = TestBed.createComponent(ReferenceButtonComponent);
+    reference.detectChanges();
+    const standardHeight = heightOf(
+      reference.nativeElement.querySelector('button')
+    );
 
-    // THEN no control is enlarged: each one keeps its standard Material size
-    expect(actions.controls).toEqual(
-      rows.map(() => [BUTTON_HEIGHT, BUTTON_HEIGHT])
-    );
-    expect(redirect.controls).toEqual(
-      rows.map(() => [BUTTON_HEIGHT, BUTTON_HEIGHT])
-    );
-    // AND the rows keep their current height
-    expect(actions.rows).toEqual(rows.map(() => ACTIONS_ROW_HEIGHT));
-    expect(redirect.rows).toEqual(rows.map(() => REDIRECT_ROW_HEIGHT));
+    // WHEN the tables are shown
+    const measure = (host: HTMLElement) => ({
+      controls: Array.from(host.querySelectorAll<HTMLElement>('td button')).map(
+        heightOf
+      ),
+      rows: Array.from(host.querySelectorAll('tr.mat-mdc-row')).map(row => [
+        heightOf(row),
+        heightIgnoringTouchTargets(host, row),
+      ]),
+    });
+    const measured = [
+      measure(tableWithActions(false).nativeElement),
+      measure(tableWithRedirect(false).nativeElement),
+    ];
+
+    measured.forEach(({ controls, rows: tableRows }) => {
+      expect(controls.length).toBeGreaterThan(0);
+      expect(tableRows.length).toBe(rows.length);
+      // THEN no control is enlarged: each one is as high as a standard Material icon button
+      controls.forEach(height => expect(height).toBe(standardHeight));
+      // AND the rows keep their current height: the controls take no room beyond their own box
+      tableRows.forEach(([height, withoutTouchTargets]) =>
+        expect(height).toBeCloseTo(withoutTouchTargets, 1)
+      );
+    });
   });
 });
