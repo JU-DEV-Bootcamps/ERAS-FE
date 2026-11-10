@@ -336,6 +336,13 @@
   background-color: #ffffff;
 }
 
+// On a phone the range of the pagination ("21 – 30 of 46") stays on one line, on the
+// row of the page buttons. The paginator belongs to the template of the list.
+.card-answers.mobile ::ng-deep .mat-mdc-paginator-range-label {
+  white-space: nowrap;
+  margin: 0;
+}
+
 // ── BADGES DE COMPONENTE ──────────────────────────────────
 :host ::ng-deep .component-badge {
   display: inline-block;

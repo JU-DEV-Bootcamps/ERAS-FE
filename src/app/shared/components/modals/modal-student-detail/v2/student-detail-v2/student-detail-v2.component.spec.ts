@@ -204,6 +204,109 @@ describe('StudentDetailV2Component', () => {
     expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth);
   });
 
+  describe('answers pagination', () => {
+    // The list of answers is as wide as the modal: the whole screen on a 375px phone, and
+    // 1100px on a desktop, where the modal is at most 1152px wide.
+    const PHONE_MODAL_WIDTH = 375;
+    const DESKTOP_MODAL_WIDTH = 1100;
+    // A line of text is at most 1.6 times the font size high; a wrapped one is at least twice.
+    const ONE_LINE = 1.6;
+    // How far apart, in pixels, the centers of the range and of the buttons may be to be one row.
+    const SAME_ROW = 8;
+
+    const answersPage = (): PagedResult<AnswerResponse> => ({
+      items: Array.from(
+        { length: 10 },
+        (_, i) =>
+          ({
+            variable: `v${i}`,
+            position: i,
+            component: 'academico',
+            answer: 'yes',
+            score: 3,
+          }) as AnswerResponse
+      ),
+      count: 46,
+    });
+
+    // Shows the second page of 46 answers ("21 – 30 of 46", the widest range) in a list
+    // as wide as the modal of the given screen.
+    const showSecondPage = (mobile: boolean, width: number) => {
+      isMobile.set(mobile);
+      studentServiceSpy.getStudentAnswersByPoll.and.returnValue(
+        of(answersPage())
+      );
+      const host = fixture.nativeElement as HTMLElement;
+      host.style.cssText = `display: block; width: ${width}px`;
+      fixture.detectChanges();
+      const next = host.querySelector(
+        '.mat-mdc-paginator-navigation-next'
+      ) as HTMLButtonElement;
+      next.click();
+      fixture.detectChanges();
+      next.click();
+      fixture.detectChanges();
+      return host;
+    };
+
+    // The range "21 – 30 of 46" is on one line and on the same row as the page buttons.
+    const expectRangeOnOneRowWithButtons = (host: HTMLElement) => {
+      const label = host.querySelector(
+        '.mat-mdc-paginator-range-label'
+      ) as HTMLElement;
+      const buttons = host
+        .querySelector('.mat-mdc-paginator-range-actions')!
+        .getBoundingClientRect();
+      const labelBox = label.getBoundingClientRect();
+      expect(label.textContent?.trim()).toBe('21 – 30 of 46');
+      expect(labelBox.height).toBeLessThanOrEqual(
+        parseFloat(getComputedStyle(label).fontSize) * ONE_LINE
+      );
+      expect(
+        Math.abs(
+          labelBox.top +
+            labelBox.height / 2 -
+            (buttons.top + buttons.height / 2)
+        )
+      ).toBeLessThanOrEqual(SAME_ROW);
+      return { label, labelBox, buttons };
+    };
+
+    it('[670-align-student-details-pagination/AC-1] shows the range of the answers pagination on one line next to the page buttons on a phone', () => {
+      // GIVEN the student details of a student with 46 answers, on its second page, on a phone
+      // WHEN the modal is shown
+      const host = showSecondPage(true, PHONE_MODAL_WIDTH);
+
+      // THEN the range "21 – 30 of 46" is on one line, on the same row as the page buttons
+      const { labelBox, buttons } = expectRangeOnOneRowWithButtons(host);
+      // AND none of them is cut or outside the modal
+      const hostBox = host.getBoundingClientRect();
+      [labelBox, buttons].forEach(box => {
+        expect(box.left).toBeGreaterThanOrEqual(hostBox.left - 0.5);
+        expect(box.right).toBeLessThanOrEqual(hostBox.right + 0.5);
+      });
+    });
+
+    it('[670-align-student-details-pagination/AC-2] keeps the answers pagination of a desktop with its range next to the four page buttons', () => {
+      // GIVEN the same student details, on its second page, on a desktop
+      // WHEN the modal is shown
+      const host = showSecondPage(false, DESKTOP_MODAL_WIDTH);
+
+      // THEN the range is on one line, next to the page buttons
+      const { label } = expectRangeOnOneRowWithButtons(host);
+      // AND it keeps the style it has today: the rule of the phone is not applied
+      expect(getComputedStyle(label).whiteSpace).not.toBe('nowrap');
+      expect(parseFloat(getComputedStyle(label).marginLeft)).toBeGreaterThan(0);
+      // AND the page-size selector and all four page buttons are shown
+      expect(host.querySelector('.mat-mdc-paginator-page-size')).toBeTruthy();
+      ['first', 'previous', 'next', 'last'].forEach(name =>
+        expect(host.querySelector(`.mat-mdc-paginator-navigation-${name}`))
+          .withContext(name)
+          .toBeTruthy()
+      );
+    });
+  });
+
   describe('ngOnInit / data loading chain', () => {
     it('should load student details, polls, components avg and answers on init', () => {
       component.ngOnInit();
