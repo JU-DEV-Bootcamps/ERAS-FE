@@ -1,4 +1,6 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 import { TableComponent } from './table.component';
 
@@ -10,24 +12,13 @@ interface TestRow {
 describe('TableComponent', () => {
   let component: TableComponent<TestRow>;
   let fixture: ComponentFixture<TableComponent<TestRow>>;
-
-  const setWindowWidth = (width: number) => {
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      writable: true,
-      value: width,
-    });
-  };
-
-  const originalInnerWidth = window.innerWidth;
-
-  afterEach(() => {
-    setWindowWidth(originalInnerWidth);
-  });
+  let isMobile: WritableSignal<boolean>;
 
   beforeEach(async () => {
+    isMobile = signal(false);
     await TestBed.configureTestingModule({
       imports: [TableComponent],
+      providers: [{ provide: ViewportService, useValue: { isMobile } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TableComponent<TestRow>);
@@ -37,6 +28,36 @@ describe('TableComponent', () => {
   it('should create', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
+  });
+
+  it('[669-unify-mobile-detection-and-touch-targets/AC-2] switches the table between cards and table with the screen size', () => {
+    // GIVEN the table showing two rows with their columns
+    component.dataSource = [
+      { id: 1, name: 'Ana' },
+      { id: 2, name: 'Luis' },
+    ];
+    component.columns = ['id', 'name'];
+    const host = fixture.nativeElement as HTMLElement;
+
+    // WHEN the screen is 375px wide
+    isMobile.set(true);
+    fixture.detectChanges();
+
+    // THEN each row is a card with its columns and no table is shown
+    const cards = Array.from(host.querySelectorAll<HTMLElement>('mat-card'));
+    expect(cards.length).toBe(2);
+    expect(cards[0].textContent).toContain('Name');
+    expect(cards[0].textContent).toContain('Ana');
+    expect(cards[1].textContent).toContain('Luis');
+    expect(host.querySelector('table')).toBeNull();
+
+    // AND when it is resized to 1280px a table with the same rows is shown and no card is
+    isMobile.set(false);
+    fixture.detectChanges();
+
+    expect(host.querySelector('table')).not.toBeNull();
+    expect(host.querySelectorAll('tr.mat-mdc-row').length).toBe(2);
+    expect(host.querySelectorAll('mat-card').length).toBe(0);
   });
 
   it('should have empty dataSource and columns by default', () => {
@@ -64,64 +85,6 @@ describe('TableComponent', () => {
       fixture.detectChanges();
 
       expect(component.totalItems).toBe(0);
-    });
-
-    it('should set isMobile to true when window width is below 768 on init', () => {
-      setWindowWidth(500);
-
-      fixture.detectChanges();
-
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should set isMobile to false when window width is 768 or above on init', () => {
-      setWindowWidth(1024);
-
-      fixture.detectChanges();
-
-      expect(component.isMobile).toBeFalse();
-    });
-  });
-
-  describe('onResize', () => {
-    beforeEach(() => {
-      setWindowWidth(1024);
-      fixture.detectChanges();
-    });
-
-    it('should set isMobile to true when resized below 768px', () => {
-      setWindowWidth(600);
-
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should set isMobile to false when resized to 768px or above', () => {
-      setWindowWidth(500);
-      window.dispatchEvent(new Event('resize'));
-      expect(component.isMobile).toBeTrue();
-
-      setWindowWidth(900);
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeFalse();
-    });
-
-    it('should treat exactly 768px as not mobile (boundary check)', () => {
-      setWindowWidth(768);
-
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeFalse();
-    });
-
-    it('should treat 767px as mobile (boundary check)', () => {
-      setWindowWidth(767);
-
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeTrue();
     });
   });
 });

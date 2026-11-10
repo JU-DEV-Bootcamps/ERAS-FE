@@ -125,7 +125,6 @@ export class StudentDetailComponent implements OnDestroy {
     },
   ];
 
-  isMobile = false;
   pagination: Pagination = {
     pageSize: 10,
     page: 0,

@@ -49,7 +49,6 @@ export class ListImportedStudentComponent {
   currentPage = 0;
   totalStudents = 0;
 
-  isMobile = false;
   isLoading = false;
 
   handleLoad(event: EventLoad) {

@@ -101,7 +101,6 @@ describe('ImportPreviewComponent (additional scenarios)', () => {
   let mockRouteDataService: jasmine.SpyObj<RouteDataService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let route: ActivatedRoute;
-  let originalInnerWidth: number;
 
   const defaultRouteData = {
     evaluationId: 1,
@@ -157,18 +156,6 @@ describe('ImportPreviewComponent (additional scenarios)', () => {
     fixture = TestBed.createComponent(ImportPreviewComponent);
     component = fixture.componentInstance;
     route = TestBed.inject(ActivatedRoute);
-  });
-
-  beforeEach(() => {
-    originalInnerWidth = window.innerWidth;
-  });
-
-  afterEach(() => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: originalInnerWidth,
-    });
   });
 
   it('should navigate to the parent route when routeData is missing', () => {
@@ -231,32 +218,6 @@ describe('ImportPreviewComponent (additional scenarios)', () => {
       'Something went wrong'
     );
     expect(component.loadingSubject.value).toBeFalse();
-  });
-
-  it('should mark isMobile true for narrow screens', () => {
-    initHappyPath();
-
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: 500,
-    });
-    component.checkScreenSize();
-
-    expect(component.isMobile).toBeTrue();
-  });
-
-  it('should mark isMobile false for wide screens', () => {
-    initHappyPath();
-
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: 1024,
-    });
-    component.checkScreenSize();
-
-    expect(component.isMobile).toBeFalse();
   });
 
   it('should set loading true on a pending poll save state', () => {

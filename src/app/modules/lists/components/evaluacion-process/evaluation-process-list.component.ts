@@ -1,12 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  HostListener,
-  inject,
-  OnInit,
-  untracked,
-} from '@angular/core';
+import { Component, computed, effect, inject, untracked } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -71,7 +63,7 @@ import {
     './evaluation-process-list.component.scss',
   ],
 })
-export class EvaluationProcessListComponent implements OnInit {
+export class EvaluationProcessListComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
@@ -143,7 +135,6 @@ export class EvaluationProcessListComponent implements OnInit {
   ];
   evaluationProcessList: EvaluationModel[] = [];
   totalEvaluations = 0;
-  isMobile = false;
   isLoading = false;
   importPollsDisabled = [Status.INCOMPLETE, Status.NOT_STARTED];
   pagination: Pagination = {
@@ -153,16 +144,6 @@ export class EvaluationProcessListComponent implements OnInit {
   displayV2 = computed(() =>
     this.featureFlagsService.isEnabled(FEATURE_FLAGS.reportsV2)
   );
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event: UIEvent): void {
-    const target = event.target as Window;
-    this.isMobile = target.innerWidth < 600;
-  }
-
-  ngOnInit(): void {
-    this.isMobile = window.innerWidth < 600;
-  }
 
   constructor() {
     effect(() => {

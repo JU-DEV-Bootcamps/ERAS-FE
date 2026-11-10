@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -122,17 +122,10 @@ export class PollsAnsweredComponent implements OnInit {
   pageSize = 10;
   currentPage = 0;
 
-  isMobile = false;
   hasNoResults = false;
 
   ngOnInit(): void {
     this.loadCohortsList();
-    this.checkScreenSize();
-  }
-
-  @HostListener('window:resize', [])
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 768;
   }
 
   loadCohortsList(): void {

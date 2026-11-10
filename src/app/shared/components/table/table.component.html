@@ -1,5 +1,5 @@
 <div class="mat-elevation-z8">
-  <ng-container *ngIf="isMobile; else tableView">
+  <ng-container *ngIf="isMobile(); else tableView">
     <div class="card-container">
       <mat-card
         *ngFor="let element of dataSource"

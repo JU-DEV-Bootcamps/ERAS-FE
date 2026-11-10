@@ -1,38 +1,67 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { TableWithRedirectComponent } from './table-with-redirect.component';
 
 describe('TableWithRedirectComponent', () => {
   let component: TableWithRedirectComponent;
   let fixture: ComponentFixture<TableWithRedirectComponent>;
   let routerSpy: jasmine.SpyObj<Router>;
-
-  const originalInnerWidth = window.innerWidth;
-
-  const setWindowWidth = (width: number) => {
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      writable: true,
-      value: width,
-    });
-  };
+  let isMobile: WritableSignal<boolean>;
 
   afterEach(() => {
-    setWindowWidth(originalInnerWidth);
     localStorage.clear();
   });
 
   beforeEach(async () => {
+    isMobile = signal(false);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [TableWithRedirectComponent],
-      providers: [{ provide: Router, useValue: routerSpy }],
+      providers: [
+        { provide: Router, useValue: routerSpy },
+        { provide: ViewportService, useValue: { isMobile } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TableWithRedirectComponent);
     component = fixture.componentInstance;
+  });
+
+  it('[669-unify-mobile-detection-and-touch-targets/AC-3] switches the table with redirect between cards and table with the screen size', () => {
+    // GIVEN the table with redirect showing two rows with their columns and the detail button
+    component.columns = ['name', 'status'];
+    component.dataSource = [
+      { name: 'Ana', status: 'Active' },
+      { name: 'Luis', status: 'Inactive' },
+    ];
+    component.icon = 'visibility';
+    const host = fixture.nativeElement as HTMLElement;
+
+    // WHEN the screen is 375px wide
+    isMobile.set(true);
+    fixture.detectChanges();
+
+    // THEN each row is a card with its detail button and no table is shown
+    const cards = Array.from(host.querySelectorAll<HTMLElement>('mat-card'));
+    expect(cards.length).toBe(2);
+    cards.forEach(card => {
+      expect(card.querySelectorAll('button').length).toBe(1);
+    });
+    expect(cards[0].textContent).toContain('Ana');
+    expect(host.querySelector('table')).toBeNull();
+
+    // AND when it is resized to 1280px a table with a detail button per row is shown and no card is
+    isMobile.set(false);
+    fixture.detectChanges();
+
+    expect(host.querySelector('table')).not.toBeNull();
+    expect(host.querySelectorAll('tr.mat-mdc-row').length).toBe(2);
+    expect(host.querySelectorAll('td button').length).toBe(2);
+    expect(host.querySelectorAll('mat-card').length).toBe(0);
   });
 
   it('should create', () => {
@@ -55,48 +84,6 @@ describe('TableWithRedirectComponent', () => {
       fixture.detectChanges();
 
       expect(component.totalItems).toBe(0);
-    });
-
-    it('should set isMobile to true when window width is below 768 on init', () => {
-      setWindowWidth(500);
-
-      fixture.detectChanges();
-
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should set isMobile to false when window width is 768 or above on init', () => {
-      setWindowWidth(1024);
-
-      fixture.detectChanges();
-
-      expect(component.isMobile).toBeFalse();
-    });
-  });
-
-  describe('onResize', () => {
-    beforeEach(() => {
-      setWindowWidth(1024);
-      fixture.detectChanges();
-    });
-
-    it('should set isMobile to true when resized below 768px', () => {
-      setWindowWidth(600);
-
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should set isMobile to false when resized to 768px or above', () => {
-      setWindowWidth(500);
-      window.dispatchEvent(new Event('resize'));
-      expect(component.isMobile).toBeTrue();
-
-      setWindowWidth(900);
-      window.dispatchEvent(new Event('resize'));
-
-      expect(component.isMobile).toBeFalse();
     });
   });
 

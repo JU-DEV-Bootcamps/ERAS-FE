@@ -111,26 +111,6 @@ describe('PollsAnsweredComponent', () => {
     );
   });
 
-  describe('checkScreenSize', () => {
-    it('should update isMobile to true when window innerWidth < 768', () => {
-      Object.defineProperty(window, 'innerWidth', {
-        value: 500,
-        configurable: true,
-      });
-      component.checkScreenSize();
-      expect(component.isMobile).toBeTrue();
-    });
-
-    it('should update isMobile to false when window innerWidth >= 768', () => {
-      Object.defineProperty(window, 'innerWidth', {
-        value: 1000,
-        configurable: true,
-      });
-      component.checkScreenSize();
-      expect(component.isMobile).toBeFalse();
-    });
-  });
-
   describe('getPollsByCohortId', () => {
     it('should fetch polls and assign them', () => {
       const mockPolls = [{ id: 1, name: 'Poll 1' }] as unknown as PollModel[];
