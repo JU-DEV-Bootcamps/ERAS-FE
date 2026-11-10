@@ -105,4 +105,11 @@
       </div>
     </div>
   }
+
+  @if (data.id !== undefined && assessmentId() !== null) {
+    <app-intervention-activity-history
+      [assessmentId]="assessmentId()!"
+      [interventionId]="data.id"
+    />
+  }
 </div>

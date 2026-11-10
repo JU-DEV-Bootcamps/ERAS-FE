@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AttachmentApiService } from '@core/services/api/attachments.service';
+import { InterventionService } from '@core/services/api/intervention.service';
 
 describe('InterventionDetailComponent', () => {
   let component: InterventionDetailComponent;
@@ -110,4 +111,42 @@ describe('InterventionDetailComponent', () => {
     tick(10000);
     expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:fake-url');
   }));
+});
+
+describe('InterventionDetailComponent activity history', () => {
+  it('should show the activity history using the assessment id given by the list', async () => {
+    const interventionService = jasmine.createSpyObj<InterventionService>(
+      'InterventionService',
+      ['getActivity']
+    );
+    interventionService.getActivity.and.returnValue(of([]));
+    await TestBed.configureTestingModule({
+      imports: [InterventionDetailComponent],
+      providers: [
+        { provide: InterventionService, useValue: interventionService },
+        {
+          provide: AttachmentApiService,
+          useValue: jasmine.createSpyObj('AttachmentApiService', [
+            'downloadAttachment',
+          ]),
+        },
+      ],
+    }).compileComponents();
+
+    // The BE does not return the assessment id with an intervention, so the row has none.
+    const row = {
+      id: 5,
+      commentPreview: '',
+      studentDisplay: 'No student assigned',
+    } as unknown as InterventionRowViewModel;
+    const fixture = TestBed.createComponent(InterventionDetailComponent);
+    fixture.componentRef.setInput('data', row);
+    fixture.componentRef.setInput('assessmentId', 1);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Activity history');
+    expect(interventionService.getActivity).toHaveBeenCalledWith(1, 5);
+  });
 });
