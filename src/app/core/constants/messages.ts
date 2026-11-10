@@ -81,13 +81,13 @@ export const INTERVENTION_ACTIVITY_MESSAGES = {
   EMPTY: 'No activity recorded yet.',
 };
 
-export const LAYOUT_MESSAGES = {
-  OPEN_MENU: 'Open menu',
-};
-
 export const ASSESSMENT_ACTIVITY_MESSAGES = {
   TITLE: 'Activity history',
   EMPTY: 'No activity recorded yet.',
+};
+
+export const LAYOUT_MESSAGES = {
+  OPEN_MENU: 'Open menu',
 };
 
 export const STUDENT_INTERVENTION_MESSAGES = {
