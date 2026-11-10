@@ -12,6 +12,26 @@ $inter: 'Inter', sans-serif;
   gap: 24px;
 }
 
+.home.mobile {
+  .section-alerts-support {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-alerts {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .header-section {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-header-alerts {
+    padding: 16px;
+  }
+}
+
 .services-card {
   color: #008581;
   text-align: center;

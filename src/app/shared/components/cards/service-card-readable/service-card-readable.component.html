@@ -1,5 +1,5 @@
 <div *ngFor="let service of serviceCards">
-  <div class="card">
+  <div class="card" [class.mobile]="viewport.isMobile()">
     <div class="graphic-status">
       <div class="graphic">
         <img src="assets/icons/serviceIcon.svg" alt="service icon" />
