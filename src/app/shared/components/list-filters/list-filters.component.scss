@@ -28,6 +28,27 @@ form {
   align-items: flex-start;
 }
 
+form.mobile {
+  flex-direction: column;
+  margin-bottom: 16px;
+
+  .form-container {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .form-container > app-select-virtual-scroll,
+  .form-container > app-select-multiple-virtual-scroll {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .button-container {
+    justify-content: flex-end;
+  }
+}
+
 .apply-button {
   border: 1px solid transparent;
   border-radius: 30px;

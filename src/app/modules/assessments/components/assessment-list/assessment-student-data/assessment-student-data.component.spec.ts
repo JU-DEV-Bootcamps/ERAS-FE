@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ElementRef } from '@angular/core';
+import { ElementRef, WritableSignal, signal } from '@angular/core';
+
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 import {
   AssessmentStudentDataComponent,
@@ -9,6 +11,7 @@ import {
 describe('AssessmentStudentDataComponent', () => {
   let component: AssessmentStudentDataComponent;
   let fixture: ComponentFixture<AssessmentStudentDataComponent>;
+  let isMobile: WritableSignal<boolean>;
 
   const students: StudentProfileData[] = [
     { id: 1, name: 'Ana', email: 'ana@mail.com' },
@@ -36,8 +39,11 @@ describe('AssessmentStudentDataComponent', () => {
     }) as ElementRef;
 
   beforeEach(async () => {
+    isMobile = signal(false);
+
     await TestBed.configureTestingModule({
       imports: [AssessmentStudentDataComponent],
+      providers: [{ provide: ViewportService, useValue: { isMobile } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AssessmentStudentDataComponent);
@@ -176,5 +182,46 @@ describe('AssessmentStudentDataComponent', () => {
       expect(component.show).toBeTrue();
       expect(component.pinned).toBeTrue();
     });
+  });
+
+  it('[672-improve-assessments-interventions-mobile-view/AC-8] shows every student name inside the screen when the badge is tapped on mobile', () => {
+    // GIVEN an assessment with three students whose card shows a "+2" badge, on a mobile screen
+    isMobile.set(true);
+    component.studentData = [
+      { id: 1, name: 'Ana Torres', email: 'ana@mail.com' },
+      { id: 2, name: 'Luis Rojas', email: 'luis@mail.com' },
+      { id: 3, name: 'Eva Paz', email: 'eva@mail.com' },
+    ];
+    component.ngOnChanges();
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const badge = host.querySelector<HTMLElement>('.badge-number-student')!;
+    expect(badge.textContent?.trim()).toBe('+2');
+
+    // WHEN the user taps the badge (a click, with no hover before it)
+    badge.click();
+    fixture.detectChanges();
+
+    // THEN the names of the three students are shown
+    const popover = host.querySelector<HTMLElement>('.students-popover')!;
+    expect(popover.classList).toContain('visible');
+    expect(host.querySelector('.set-names')?.textContent).toContain(
+      'Ana Torres'
+    );
+    expect(popover.textContent).toContain('Luis Rojas');
+    expect(popover.textContent).toContain('Eva Paz');
+
+    // AND the list of names is completely inside the screen
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position: fixed; inset: 0;';
+    document.body.appendChild(probe);
+    const screenRect = probe.getBoundingClientRect();
+    probe.remove();
+    const rect = popover.getBoundingClientRect();
+    expect(rect.width).toBeGreaterThan(0);
+    expect(rect.left).toBeGreaterThanOrEqual(screenRect.left);
+    expect(rect.right).toBeLessThanOrEqual(screenRect.right);
+    expect(popover.style.left).toBe('8px');
+    expect(popover.style.right).toBe('8px');
   });
 });

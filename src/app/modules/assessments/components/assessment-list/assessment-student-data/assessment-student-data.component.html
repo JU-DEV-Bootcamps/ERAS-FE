@@ -24,6 +24,7 @@
         class="students-popover"
         [class.visible]="show"
         [class.pinned]="pinned"
+        [class.mobile]="isMobile()"
         [ngStyle]="popoverStyle"
         (mouseenter)="show = true"
         (mouseleave)="closePopover()"

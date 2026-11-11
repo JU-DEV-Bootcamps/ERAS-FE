@@ -1,3 +1,5 @@
+@use '../../../styles/mobile-list' as mobile;
+
 $primary: #117473;
 
 :host {
@@ -139,3 +141,5 @@ mat-divider {
   color: #9ca3af;
   flex-shrink: 0;
 }
+
+@include mobile.mobile-detail-close-button;

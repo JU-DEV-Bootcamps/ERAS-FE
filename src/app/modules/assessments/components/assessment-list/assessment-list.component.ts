@@ -39,6 +39,8 @@ import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies
 import { UsersService } from '@core/services/api/users.service';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { responsiveDialogSize } from '@core/utils/dialogs/responsive-dialog-size';
 
 export interface AssessmentRowViewModel extends AssessmentModel {
   studentDisplay: string;
@@ -78,6 +80,8 @@ export class AssessmentListComponent implements OnInit {
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
   private readonly usersService = inject(UsersService);
   private readonly permissionsService = inject(PermissionsService);
+
+  protected readonly isMobile = inject(ViewportService).isMobile;
 
   private userDisplayNameBySub = new Map<string, string>();
 
@@ -207,18 +211,21 @@ export class AssessmentListComponent implements OnInit {
       riskLevel: student.avgRiskLevel,
     }));
 
-    this.matDialog.open(NewInterventionModalComponent, {
-      width: '520px',
-      disableClose: true,
-      data: {
-        assessmentId: assessment.id,
-        professional: {
-          value: assessment.assignedProfessionals[0] ?? '',
-          label: assessment.professionalDisplay,
+    this.matDialog.open(
+      NewInterventionModalComponent,
+      responsiveDialogSize(this.isMobile(), {
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: assessment.id,
+          professional: {
+            value: assessment.assignedProfessionals[0] ?? '',
+            label: assessment.professionalDisplay,
+          },
+          students,
         },
-        students,
-      },
-    });
+      })
+    );
   }
 
   loadAssessments(): void {

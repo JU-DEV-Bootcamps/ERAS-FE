@@ -1,3 +1,4 @@
+import { expectFitsMobileDialog } from '@modules/assessments/testing/expect-fits-mobile-dialog';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
@@ -133,6 +134,10 @@ describe('NewInterventionModalComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('fits a 375px full-screen dialog with no field or button cut off', () => {
+    expectFitsMobileDialog(fixture.nativeElement);
   });
 
   it('should set isGroup to true on init when more than one student', () => {

@@ -23,6 +23,8 @@ import { NewInterventionModalComponent } from './new-intervention-modal/new-inte
 import { EditInterventionModalComponent } from './edit-intervention-modal/edit-intervention-modal.component';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { UsersService } from '@core/services/api/users.service';
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 const keycloakMock = {
   token: 'fake-token',
@@ -121,6 +123,7 @@ describe('InterventionsComponent', () => {
         { provide: RoleBasedFetchResolver, useValue: fetchResolverSpy },
         { provide: UsersService, useValue: usersServiceSpy },
         { provide: MatDialog, useValue: dialog },
+        { provide: ViewportService, useValue: { isMobile: signal(false) } },
       ],
     })
       .overrideComponent(InterventionsComponent, {
