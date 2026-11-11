@@ -3,6 +3,7 @@ import { Observable, shareReplay } from 'rxjs';
 
 import { BaseApiService } from '@core/services/api/base-api.service';
 import { AssessmentModel } from '../../models/assessment.model';
+import { AssessmentActivityModel } from '../../models/assessment-activity.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,6 +38,10 @@ export class AssessmentService extends BaseApiService {
 
   getById(id: string): Observable<AssessmentModel> {
     return this.get<AssessmentModel>(id);
+  }
+
+  getActivity(assessmentId: number): Observable<AssessmentActivityModel[]> {
+    return this.get<AssessmentActivityModel[]>(`${assessmentId}/history`);
   }
 
   createAssessment(

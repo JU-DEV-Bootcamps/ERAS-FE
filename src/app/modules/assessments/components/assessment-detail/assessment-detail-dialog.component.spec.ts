@@ -35,7 +35,9 @@ describe('AssessmentDetailDialogComponent', () => {
     assessmentService = jasmine.createSpyObj('AssessmentService', [
       'editAssessment',
       'clearCache',
+      'getActivity',
     ]);
+    assessmentService.getActivity.and.returnValue(of([]));
 
     toastService = jasmine.createSpyObj('ToastNotificationService', [
       'showToast',
@@ -92,6 +94,25 @@ describe('AssessmentDetailDialogComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should render the activity history of the assessment when it has an id', () => {
+    const history = fixture.nativeElement.querySelector(
+      'app-assessment-activity-history'
+    );
+
+    expect(history).not.toBeNull();
+    expect(assessmentService.getActivity).toHaveBeenCalledWith(1);
+  });
+
+  it('should not render the activity history when the assessment has no id', () => {
+    const noId = TestBed.createComponent(AssessmentDetailDialogComponent);
+    noId.componentInstance.data = { ...component.data, id: undefined };
+    noId.detectChanges();
+
+    expect(
+      noId.nativeElement.querySelector('app-assessment-activity-history')
+    ).toBeNull();
   });
 
   it('should emit close', () => {

@@ -53,6 +53,10 @@
     <span class="field-label">Comment:</span>
     <span class="field-value">{{ data.comments || '—' }}</span>
   </div>
+
+  @if (data.id !== undefined) {
+    <app-assessment-activity-history [assessmentId]="data.id" />
+  }
 </div>
 
 <div class="dialog-actions">
