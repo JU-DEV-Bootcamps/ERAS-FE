@@ -30,14 +30,14 @@
       [disabled]="exportState.isExporting()"
     >
       <mat-icon>download</mat-icon>
-      Export
+      {{ exportMessages.EXPORT_BUTTON }}
     </button>
     <mat-menu #exportMenu="matMenu">
       <button mat-menu-item type="button" (click)="exportAssessments('csv')">
-        CSV
+        {{ exportMessages.EXPORT_CSV }}
       </button>
       <button mat-menu-item type="button" (click)="exportAssessments('pdf')">
-        PDF
+        {{ exportMessages.EXPORT_PDF }}
       </button>
     </mat-menu>
     <button

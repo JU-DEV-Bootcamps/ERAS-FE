@@ -10,7 +10,6 @@ interface AutoTableDoc {
   lastAutoTable: {
     body: unknown[];
     head: { cells: Record<string, { text: string[] }> }[];
-    settings: { showHead: string };
   };
 }
 
@@ -172,17 +171,21 @@ describe('AssessmentExportService', () => {
 
     const options = buildSpy.calls.mostRecent().args[0];
     expect(options.title).toBe('Assessments');
-    expect(options.exportedAt).toBeTruthy();
-    expect(options.exportedBy).toBe('Laura Gómez');
-    expect(options.filtersText).toBe('None');
+    expect(options.headerLines[0]).toMatch(/^Exported: .+/);
+    expect(options.headerLines[1]).toBe('Exported by: Laura Gómez');
+    expect(options.headerLines[2]).toBe('Filters: None');
   });
 
   it('[678-export-assessments-list/AC-14] PDF has several pages and repeats headers', async () => {
     const doc = await service.buildPdf(manyRows(100));
 
-    expect(doc.getNumberOfPages()).toBeGreaterThan(1);
-    expect(
-      (doc as unknown as AutoTableDoc).lastAutoTable.settings.showHead
-    ).toBe('everyPage');
+    const pageCount = doc.getNumberOfPages();
+    const pages = (doc.internal as unknown as { pages: string[][] }).pages;
+    expect(pageCount).toBeGreaterThan(1);
+    for (let page = 1; page <= pageCount; page++) {
+      expect(pages[page].join('\n'))
+        .withContext(`page ${page}`)
+        .toContain('(Submitter)');
+    }
   });
 });

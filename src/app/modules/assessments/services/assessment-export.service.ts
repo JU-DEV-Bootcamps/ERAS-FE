@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import type { jsPDF } from 'jspdf';
 import Papa from 'papaparse';
 import { CSV_CONFIG } from '@core/constants/csv';
+import { ASSESSMENT_EXPORT_MESSAGES } from '@core/constants/messages';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { BaseExportService } from '@core/services/exports/base-export.service';
 import { TablePdfService } from '@core/services/exports/table-pdf.service';
@@ -40,11 +41,16 @@ export class AssessmentExportService extends BaseExportService {
 
   async buildPdf(rows: AssessmentRowViewModel[]): Promise<jsPDF> {
     const user = this.userData.user();
+    const messages = ASSESSMENT_EXPORT_MESSAGES;
+    const exportedBy =
+      `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
     return this.tablePdf.buildDocument({
-      title: 'Assessments',
-      exportedAt: new Date().toLocaleString(),
-      exportedBy: `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim(),
-      filtersText: 'None',
+      title: messages.PDF_TITLE,
+      headerLines: [
+        `${messages.PDF_EXPORTED_AT} ${new Date().toLocaleString()}`,
+        `${messages.PDF_EXPORTED_BY} ${exportedBy}`,
+        `${messages.PDF_FILTERS} ${messages.PDF_NO_FILTERS}`,
+      ],
       columns: ASSESSMENT_EXPORT_COLUMNS.map(column => column.label),
       rows: buildAssessmentExportRows(rows),
     });

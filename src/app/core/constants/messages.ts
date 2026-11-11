@@ -146,4 +146,12 @@ export const TYPE_TITLE: Record<DialogType, string> = {
 export const ASSESSMENT_EXPORT_MESSAGES = {
   ERROR_TITLE: 'Export failed',
   ERROR_MESSAGE: 'The file could not be generated. Please try again.',
+  EXPORT_BUTTON: 'Export',
+  EXPORT_CSV: 'CSV',
+  EXPORT_PDF: 'PDF',
+  PDF_TITLE: 'Assessments',
+  PDF_EXPORTED_AT: 'Exported:',
+  PDF_EXPORTED_BY: 'Exported by:',
+  PDF_FILTERS: 'Filters:',
+  PDF_NO_FILTERS: 'None',
 };

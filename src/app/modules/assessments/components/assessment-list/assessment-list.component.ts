@@ -84,6 +84,7 @@ export class AssessmentListComponent implements OnInit {
   private readonly permissionsService = inject(PermissionsService);
   private readonly exportService = inject(AssessmentExportService);
   protected readonly exportState = inject(ExportStateService);
+  protected readonly exportMessages = ASSESSMENT_EXPORT_MESSAGES;
 
   private userDisplayNameBySub = new Map<string, string>();
 
@@ -150,7 +151,10 @@ export class AssessmentListComponent implements OnInit {
     if (this.exportState.isExporting()) return;
 
     const rows = this.assessments();
-    this.exportState.startExport(type, rows.length);
+    this.exportState.startExport(type, rows.length, {
+      indeterminate: true,
+      background: true,
+    });
     try {
       if (type === 'csv') {
         this.exportService.exportCsv(rows);

@@ -3,9 +3,8 @@ import type { jsPDF } from 'jspdf';
 
 export interface TablePdfOptions {
   title: string;
-  exportedAt: string;
-  exportedBy: string;
-  filtersText: string;
+  /** Lines printed under the title, already worded by the caller. */
+  headerLines: string[];
   columns: string[];
   rows: string[][];
 }
@@ -26,12 +25,12 @@ export class TablePdfService {
     doc.setFontSize(16);
     doc.text(options.title, margin, 16);
     doc.setFontSize(10);
-    doc.text(`Exported: ${options.exportedAt}`, margin, 23);
-    doc.text(`Exported by: ${options.exportedBy}`, margin, 28);
-    doc.text(`Filters: ${options.filtersText}`, margin, 33);
+    options.headerLines.forEach((line, index) =>
+      doc.text(line, margin, 23 + index * 5)
+    );
 
     autoTable(doc, {
-      startY: 38,
+      startY: 23 + options.headerLines.length * 5 + 2,
       head: [options.columns],
       body: options.rows,
       showHead: 'everyPage',

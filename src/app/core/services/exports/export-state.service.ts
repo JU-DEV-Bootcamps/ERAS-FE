@@ -3,6 +3,13 @@ import { Injectable, signal } from '@angular/core';
 export type ExportType = 'csv' | 'pdf' | null;
 export type ExportDisplayMode = 'blocking' | 'background';
 
+export interface ExportStartOptions {
+  /** The export has no measurable progress: no time estimate and an indeterminate bar. */
+  indeterminate?: boolean;
+  /** Show the non-blocking notification instead of the full-screen overlay. */
+  background?: boolean;
+}
+
 const CSV_OVERLAY_DELAY_MS = 400;
 const BACKGROUND_THRESHOLD_MS = 60_000;
 
@@ -17,16 +24,22 @@ export class ExportStateService {
   estimatedTimeRemaining = signal<number>(0);
   message = signal<string>('');
   displayMode = signal<ExportDisplayMode>('blocking');
+  indeterminate = signal<boolean>(false);
 
   private startTime = 0;
   private overlayTimer: ReturnType<typeof setTimeout> | null = null;
   private backgroundTimer: ReturnType<typeof setTimeout> | null = null;
 
-  startExport(type: ExportType, itemCount = 0): void {
+  startExport(
+    type: ExportType,
+    itemCount = 0,
+    options: ExportStartOptions = {}
+  ): void {
     this.exportType.set(type);
     this.startTime = Date.now();
     this.progress.set(0);
-    this.displayMode.set('blocking');
+    this.indeterminate.set(options.indeterminate ?? false);
+    this.displayMode.set(options.background ? 'background' : 'blocking');
 
     if (this.backgroundTimer !== null) {
       clearTimeout(this.backgroundTimer);
@@ -40,10 +53,10 @@ export class ExportStateService {
     const estimatedSeconds = this.calculateEstimatedTime(type, itemCount);
     this.estimatedTimeRemaining.set(estimatedSeconds);
 
-    const message =
-      type === 'csv'
-        ? 'Exporting to CSV...'
-        : `Generating PDF (estimated ${estimatedSeconds}s)...`;
+    const pdfMessage = options.indeterminate
+      ? 'Generating PDF...'
+      : `Generating PDF (estimated ${estimatedSeconds}s)...`;
+    const message = type === 'csv' ? 'Exporting to CSV...' : pdfMessage;
     this.message.set(message);
 
     this.isExporting.set(true);
@@ -74,6 +87,7 @@ export class ExportStateService {
     this.progress.set(0);
     this.message.set('');
     this.displayMode.set('blocking');
+    this.indeterminate.set(false);
   }
 
   updateProgress(current: number, total: number): void {
