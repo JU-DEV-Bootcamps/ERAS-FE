@@ -23,6 +23,24 @@
 } @else {
   <div class="page-header">
     <button
+      mat-stroked-button
+      type="button"
+      class="export-button"
+      [matMenuTriggerFor]="exportMenu"
+      [disabled]="exportState.isExporting()"
+    >
+      <mat-icon>download</mat-icon>
+      Export
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item type="button" (click)="exportAssessments('csv')">
+        CSV
+      </button>
+      <button mat-menu-item type="button" (click)="exportAssessments('pdf')">
+        PDF
+      </button>
+    </mat-menu>
+    <button
       mat-flat-button
       type="button"
       [disabled]="lookupsLoading() || !canManageAssessment()"
