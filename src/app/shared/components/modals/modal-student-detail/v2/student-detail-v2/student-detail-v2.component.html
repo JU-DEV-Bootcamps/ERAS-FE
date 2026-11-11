@@ -156,7 +156,7 @@
       </mat-card>
     </div>
 
-    <mat-card class="card-answers">
+    <mat-card class="card-answers" [class.mobile]="isMobile()">
       <app-list
         (loadCalled)="handleLoad(studentId, $event)"
         [columns]="columns"
