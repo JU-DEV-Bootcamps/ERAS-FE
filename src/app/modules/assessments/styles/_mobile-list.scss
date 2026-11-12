@@ -59,6 +59,7 @@
       border-radius: 0;
       box-shadow: none;
       transition: none;
+      overscroll-behavior: contain;
     }
   }
 }
