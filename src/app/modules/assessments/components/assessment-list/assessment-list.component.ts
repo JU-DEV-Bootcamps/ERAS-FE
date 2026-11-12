@@ -116,6 +116,9 @@ export class AssessmentListComponent implements OnInit {
   protected readonly selectedAssessment = signal<AssessmentRowViewModel | null>(
     null
   );
+  protected readonly detailCoversScreen = computed(
+    () => this.isMobile() && this.selectedAssessment() !== null
+  );
 
   protected readonly pagedAssessments = computed(() => {
     const start = this.pageIndex() * this.pageSize;

@@ -383,6 +383,31 @@ describe('InterventionListComponent on mobile and desktop screens', () => {
       table.getBoundingClientRect().right
     );
   });
+  it('hides the page header while the detail covers a mobile screen, and keeps it on desktop', () => {
+    const headerDisplay = () =>
+      getComputedStyle(one<HTMLElement>('.page-header')!).display;
+
+    create(true);
+    cardButton('View')!.click();
+    fixture.detectChanges();
+    expect(headerDisplay()).toBe('none');
+
+    one<HTMLButtonElement>(
+      'app-intervention-detail button[aria-label="Close"]'
+    )!.click();
+    fixture.detectChanges();
+    expect(headerDisplay()).not.toBe('none');
+
+    isMobile.set(false);
+    fixture.detectChanges();
+    one<HTMLButtonElement>(
+      'tr[mat-row] .inline-actions button[mattooltip="View"]'
+    )!.click();
+    fixture.detectChanges();
+    expect(one('app-intervention-detail')).not.toBeNull();
+    expect(headerDisplay()).not.toBe('none');
+  });
+
   it('keeps the cards and the pagination inside a 320px phone', () => {
     create(true);
     host().style.width = '320px';

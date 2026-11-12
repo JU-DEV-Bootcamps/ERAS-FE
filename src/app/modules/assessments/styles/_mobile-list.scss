@@ -44,6 +44,10 @@
     flex-wrap: wrap;
   }
 
+  .page-header.behind-detail {
+    display: none;
+  }
+
   .push-layout-container.mobile.panel-is-open {
     .main-content-area {
       display: none;

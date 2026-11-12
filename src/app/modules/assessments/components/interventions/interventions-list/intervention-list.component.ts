@@ -151,6 +151,9 @@ export class InterventionListComponent {
   protected readonly interventions = signal<InterventionRowViewModel[]>([]);
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
+  readonly detailCoversScreen = computed(
+    () => this.isMobile() && this.selectedIntervention() !== null
+  );
   protected readonly listAttachments = signal<AttachmentModel[]>([]);
 
   protected activityLabel(value: string | null | undefined): string {

@@ -1,5 +1,6 @@
 <div class="container">
   <app-list-filters
+    [class.behind-detail]="interventionList.detailCoversScreen()"
     [filterFields]="filters()"
     (appliedFilters)="handleFilters($event)"
   ></app-list-filters>

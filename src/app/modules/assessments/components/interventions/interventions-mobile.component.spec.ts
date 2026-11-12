@@ -296,4 +296,39 @@ describe('InterventionsComponent on mobile and desktop screens', () => {
     });
     expect(panel.scrollWidth).toBeLessThanOrEqual(panel.clientWidth);
   });
+
+  it('hides the filters while the detail covers a mobile screen, and keeps them on desktop', () => {
+    const filtersDisplay = () =>
+      getComputedStyle(host().querySelector('app-list-filters')!).display;
+    const detail = () => host().querySelector('app-intervention-detail');
+
+    create(true);
+    expect(filtersDisplay()).not.toBe('none');
+    host()
+      .querySelector<HTMLButtonElement>('mat-card button[aria-label="View"]')!
+      .click();
+    fixture.detectChanges();
+    expect(detail()).not.toBeNull();
+    expect(filtersDisplay()).toBe('none');
+
+    host()
+      .querySelector<HTMLButtonElement>(
+        'app-intervention-detail button[aria-label="Close"]'
+      )!
+      .click();
+    fixture.detectChanges();
+    expect(detail()).toBeNull();
+    expect(filtersDisplay()).not.toBe('none');
+
+    isMobile.set(false);
+    fixture.detectChanges();
+    host()
+      .querySelector<HTMLButtonElement>(
+        'tr[mat-row] .inline-actions button[mattooltip="View"]'
+      )!
+      .click();
+    fixture.detectChanges();
+    expect(detail()).not.toBeNull();
+    expect(filtersDisplay()).not.toBe('none');
+  });
 });
