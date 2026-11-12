@@ -41,3 +41,12 @@
   display: flex;
   gap: 8px;
 }
+
+// Below 670px the grid has one column and 1fr would stretch the card across it.
+@media screen and (max-width: 669.98px) {
+  :host {
+    width: 100%;
+    max-width: 350px;
+    justify-self: start;
+  }
+}
