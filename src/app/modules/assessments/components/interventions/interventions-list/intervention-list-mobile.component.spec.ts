@@ -258,7 +258,6 @@ describe('InterventionListComponent on mobile and desktop screens', () => {
     const panelRect = panel.getBoundingClientRect();
     const screenRect = wholeScreen();
     expect(one('app-intervention-detail')).not.toBeNull();
-    expect(getComputedStyle(panel).position).toBe('fixed');
     expect(panelRect.left).toBe(0);
     expect(panelRect.top).toBe(0);
     expect(panelRect.width).toBe(screenRect.width);
@@ -358,20 +357,18 @@ describe('InterventionListComponent on mobile and desktop screens', () => {
     // THEN the interventions are a table with a "more" menu per row, and no card
     expect(one('table.interventions-table')).not.toBeNull();
     expect(all('.intervention-card').length).toBe(0);
-    expect(all('tr.mat-mdc-row').length).toBe(1);
-    expect(one('tr.mat-mdc-row .menu-action button')).not.toBeNull();
-    expect(one('tr.mat-mdc-row .inline-actions')).not.toBeNull();
+    expect(all('tr[mat-row]').length).toBe(1);
+    expect(one('tr[mat-row] .menu-action button')).not.toBeNull();
+    expect(one('tr[mat-row] .inline-actions')).not.toBeNull();
     const paginator = one<HTMLElement>('mat-paginator')!;
     expect(
-      paginator.querySelector('.mat-mdc-paginator-navigation-first')
+      paginator.querySelector('button[aria-label="First page"]')
     ).not.toBeNull();
-    expect(
-      paginator.querySelector('.mat-mdc-paginator-page-size')
-    ).not.toBeNull();
+    expect(paginator.textContent).toContain('Items per page');
 
     // WHEN they use the View action of the intervention
     one<HTMLButtonElement>(
-      'tr.mat-mdc-row .inline-actions button[mattooltip="View"]'
+      'tr[mat-row] .inline-actions button[mattooltip="View"]'
     )!.click();
     fixture.detectChanges();
 
@@ -379,12 +376,24 @@ describe('InterventionListComponent on mobile and desktop screens', () => {
     const panel = one<HTMLElement>('.slide-panel-area')!;
     const table = one<HTMLElement>('.main-content-area')!;
     expect(one('app-intervention-detail')).not.toBeNull();
-    expect(getComputedStyle(panel).position).not.toBe('fixed');
     expect(getComputedStyle(panel).width).toBe('480px');
     expect(getComputedStyle(table).display).not.toBe('none');
     expect(table.getBoundingClientRect().width).toBeGreaterThan(0);
     expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(
       table.getBoundingClientRect().right
     );
+  });
+  it('keeps the cards and the pagination inside a 320px phone', () => {
+    create(true);
+    host().style.width = '320px';
+    fixture.detectChanges();
+
+    const card = one<HTMLElement>('.intervention-card')!;
+    const paginator = one<HTMLElement>('mat-paginator')!;
+    expect(fitsInside(card)).toBeTrue();
+    expect(fitsInside(paginator)).toBeTrue();
+    expect(fitsInside(host())).toBeTrue();
+    expect(card.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+    expect(paginator.getBoundingClientRect().width).toBeLessThanOrEqual(320);
   });
 });

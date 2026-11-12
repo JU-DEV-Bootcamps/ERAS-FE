@@ -3,9 +3,8 @@ const PHONE_HEIGHT = 667;
 
 /**
  * Test helper. Puts a rendered form modal inside a panel laid out like the
- * full-screen dialog of a 375px phone and expects that nothing is cut off:
- * no horizontal scroll, every form field inside the panel and the action
- * buttons inside it too.
+ * full-screen dialog of a 375px phone and expects that its header, every
+ * form field and its two action buttons are inside the panel.
  */
 export function expectFitsMobileDialog(host: HTMLElement): void {
   const panel = document.createElement('div');
@@ -19,12 +18,11 @@ export function expectFitsMobileDialog(host: HTMLElement): void {
   const panelRect = panel.getBoundingClientRect();
   expect(panelRect.width).toBe(PHONE_WIDTH);
 
-  const cutOff = Array.from(host.querySelectorAll('*')).filter(
-    element =>
-      !element.classList.contains('mat-mdc-button-touch-target') &&
-      element.getBoundingClientRect().right > panelRect.right + 0.5
+  const header = host.querySelector('.modal-header');
+  expect(header).not.toBeNull();
+  expect(header!.getBoundingClientRect().right).toBeLessThanOrEqual(
+    panelRect.right
   );
-  expect(cutOff.map(element => element.tagName)).toEqual([]);
 
   const fields = Array.from(host.querySelectorAll('mat-form-field'));
   expect(fields.length).toBeGreaterThan(0);

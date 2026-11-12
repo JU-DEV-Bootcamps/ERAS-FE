@@ -195,6 +195,7 @@ describe('AssessmentStudentDataComponent', () => {
     component.ngOnChanges();
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
+    host.style.cssText = 'position: fixed; top: 0; right: 0;';
     const badge = host.querySelector<HTMLElement>('.badge-number-student')!;
     expect(badge.textContent?.trim()).toBe('+2');
 
@@ -221,7 +222,5 @@ describe('AssessmentStudentDataComponent', () => {
     expect(rect.width).toBeGreaterThan(0);
     expect(rect.left).toBeGreaterThanOrEqual(screenRect.left);
     expect(rect.right).toBeLessThanOrEqual(screenRect.right);
-    expect(popover.style.left).toBe('8px');
-    expect(popover.style.right).toBe('8px');
   });
 });

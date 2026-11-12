@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -81,6 +83,7 @@ describe('AssessmentListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AssessmentListComponent],
       providers: [
+        { provide: ViewportService, useValue: { isMobile: signal(false) } },
         { provide: AssessmentService, useValue: assessmentService },
         {
           provide: ModalDeleteConfirmationService,
