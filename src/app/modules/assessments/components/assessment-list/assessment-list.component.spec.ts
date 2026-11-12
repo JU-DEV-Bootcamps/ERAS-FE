@@ -4,10 +4,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import {
-  AssessmentListComponent,
-  AssessmentRowViewModel,
-} from './assessment-list.component';
+import { AssessmentListComponent } from './assessment-list.component';
+import { AssessmentRowViewModel } from '../../models/assessment-row.model';
 import {
   AssessmentModel,
   AssessmentStatus,

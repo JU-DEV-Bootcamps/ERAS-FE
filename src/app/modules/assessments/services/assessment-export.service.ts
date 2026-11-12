@@ -7,12 +7,19 @@ import { UserDataService } from '@core/services/access/user-data.service';
 import { BaseExportService } from '@core/services/exports/base-export.service';
 import { TablePdfService } from '@core/services/exports/table-pdf.service';
 import { FileNameUtils } from '@core/utils/file/file-name';
-import { AssessmentRowViewModel } from '../components/assessment-list/assessment-list.component';
+import { AssessmentRowViewModel } from '../models/assessment-row.model';
 import { ASSESSMENT_EXPORT_COLUMNS } from '../models/assessment-export.columns';
 import { buildAssessmentExportRows } from '../utils/assessment-export-rows';
 
 const UTF8_BOM = '﻿';
 const FILE_PREFIX = 'assessments';
+// Papa's escapeFormulae only matches single-line cells, so a comment such as
+// "=1+1<newline>second line" would slip through. Test the first character only
+// (tab and carriage return included).
+const FORMULA_START = /^[=+\-@\t\r]/;
+
+const neutralizeFormula = (value: string): string =>
+  FORMULA_START.test(value) ? `'${value}` : value;
 
 @Injectable({
   providedIn: 'root',
@@ -27,10 +34,11 @@ export class AssessmentExportService extends BaseExportService {
     const csv = Papa.unparse(
       {
         fields: ASSESSMENT_EXPORT_COLUMNS.map(column => column.label),
-        data: buildAssessmentExportRows(rows),
+        data: buildAssessmentExportRows(rows).map(row =>
+          row.map(neutralizeFormula)
+        ),
       },
-      // escapeFormulae also prefixes cells that start with tab or carriage return.
-      { ...CSV_CONFIG, columns: undefined, escapeFormulae: true }
+      { ...CSV_CONFIG, columns: undefined }
     );
 
     this.downloadTextFile(

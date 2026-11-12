@@ -1,5 +1,5 @@
 import { formatDate, TitleCasePipe } from '@angular/common';
-import { AssessmentRowViewModel } from '../components/assessment-list/assessment-list.component';
+import { AssessmentRowViewModel } from '../models/assessment-row.model';
 import { ASSESSMENT_EXPORT_COLUMNS } from '../models/assessment-export.columns';
 import { ASSESSMENT_STATUS_LABELS } from '../models/assessment-status-labels';
 

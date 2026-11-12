@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import Papa from 'papaparse';
 import { AssessmentStatus } from '@core/models/assessment.model';
 import { UserDataService } from '@core/services/access/user-data.service';
-import { AssessmentRowViewModel } from '../components/assessment-list/assessment-list.component';
+import { AssessmentRowViewModel } from '../models/assessment-row.model';
 import { TablePdfService } from '@core/services/exports/table-pdf.service';
 import { AssessmentExportService } from './assessment-export.service';
 
@@ -153,13 +153,23 @@ describe('AssessmentExportService', () => {
       buildRow({ comments: '+1' }),
       buildRow({ comments: '-1' }),
       buildRow({ comments: '@cmd' }),
+      buildRow({ comments: '=1+1\nsecond line' }),
+      buildRow({ comments: '@cmd\nsecond line' }),
       buildRow({ comments: 'plain' }),
     ]);
 
     const comments = csvTable()
       .slice(1)
       .map(r => r[6]);
-    expect(comments).toEqual(["'=SUM(A1:A9)", "'+1", "'-1", "'@cmd", 'plain']);
+    expect(comments).toEqual([
+      "'=SUM(A1:A9)",
+      "'+1",
+      "'-1",
+      "'@cmd",
+      "'=1+1\nsecond line",
+      "'@cmd\nsecond line",
+      'plain',
+    ]);
   });
 
   it('[678-export-assessments-list/AC-13] PDF shows title, date and time, user and filters', async () => {

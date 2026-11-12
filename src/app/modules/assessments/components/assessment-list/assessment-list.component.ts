@@ -42,15 +42,8 @@ import { ERASPermissions } from '@core/services/permissions/permission.policies'
 import { ExportStateService } from '@core/services/exports/export-state.service';
 import { ASSESSMENT_EXPORT_MESSAGES } from '@core/constants/messages';
 import { AssessmentExportService } from '@modules/assessments/services/assessment-export.service';
+import { AssessmentRowViewModel } from '@modules/assessments/models/assessment-row.model';
 import { ASSESSMENT_EXPORT_COLUMNS } from '@modules/assessments/models/assessment-export.columns';
-
-export interface AssessmentRowViewModel extends AssessmentModel {
-  studentDisplay: string;
-  commentPreview: string;
-  isEditable: boolean;
-  submitterDisplay: string;
-  professionalDisplay: string;
-}
 
 @Component({
   selector: 'app-assessment-list',
