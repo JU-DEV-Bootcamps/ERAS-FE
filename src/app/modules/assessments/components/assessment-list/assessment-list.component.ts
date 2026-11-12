@@ -41,14 +41,11 @@ import { PermissionsService } from '@core/services/permissions/permissions.servi
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
 import { ViewportService } from '@core/services/layout/viewport.service';
 import { responsiveDialogSize } from '@core/utils/dialogs/responsive-dialog-size';
-
-export interface AssessmentRowViewModel extends AssessmentModel {
-  studentDisplay: string;
-  commentPreview: string;
-  isEditable: boolean;
-  submitterDisplay: string;
-  professionalDisplay: string;
-}
+import { ExportStateService } from '@core/services/exports/export-state.service';
+import { ASSESSMENT_EXPORT_MESSAGES } from '@core/constants/messages';
+import { AssessmentExportService } from '@modules/assessments/services/assessment-export.service';
+import { AssessmentRowViewModel } from '@modules/assessments/models/assessment-row.model';
+import { ASSESSMENT_EXPORT_COLUMNS } from '@modules/assessments/models/assessment-export.columns';
 
 @Component({
   selector: 'app-assessment-list',
@@ -80,6 +77,9 @@ export class AssessmentListComponent implements OnInit {
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
   private readonly usersService = inject(UsersService);
   private readonly permissionsService = inject(PermissionsService);
+  private readonly exportService = inject(AssessmentExportService);
+  protected readonly exportState = inject(ExportStateService);
+  protected readonly exportMessages = ASSESSMENT_EXPORT_MESSAGES;
 
   protected readonly isMobile = inject(ViewportService).isMobile;
 
@@ -98,13 +98,7 @@ export class AssessmentListComponent implements OnInit {
   @Output() moreClicked = new EventEmitter<AssessmentModel>();
 
   protected readonly displayedColumns = [
-    'date',
-    'submitter',
-    'service',
-    'professional',
-    'student',
-    'status',
-    'comment',
+    ...ASSESSMENT_EXPORT_COLUMNS.map(column => column.key),
     'actions',
   ];
 
@@ -151,6 +145,33 @@ export class AssessmentListComponent implements OnInit {
 
   protected onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
+  }
+
+  protected async exportAssessments(type: 'csv' | 'pdf'): Promise<void> {
+    if (this.exportState.isExporting()) return;
+
+    const rows = this.assessments();
+    this.exportState.startExport(type, rows.length, {
+      indeterminate: true,
+      background: true,
+    });
+    try {
+      if (type === 'csv') {
+        this.exportService.exportCsv(rows);
+      } else {
+        await new Promise(resolve => setTimeout(resolve));
+        await this.exportService.exportPdf(rows);
+      }
+    } catch (error) {
+      console.error('Failed to export assessments', error);
+      this.toastService.showToast({
+        type: 'error',
+        title: ASSESSMENT_EXPORT_MESSAGES.ERROR_TITLE,
+        message: ASSESSMENT_EXPORT_MESSAGES.ERROR_MESSAGE,
+      });
+    } finally {
+      this.exportState.endExport();
+    }
   }
 
   protected onCreateClick(): void {

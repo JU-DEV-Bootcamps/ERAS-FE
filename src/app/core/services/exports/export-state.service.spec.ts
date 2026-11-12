@@ -195,4 +195,32 @@ describe('ExportStateService', () => {
       expect(() => service.updateProgress(1, 5)).not.toThrow();
     });
   });
+
+  describe('startExport options', () => {
+    it('shows an indeterminate, non-blocking notification without a time estimate', () => {
+      service.startExport('pdf', 100, {
+        indeterminate: true,
+        background: true,
+      });
+
+      expect(service.indeterminate()).toBeTrue();
+      expect(service.displayMode()).toBe('background');
+      expect(service.message()).toBe('Generating PDF...');
+    });
+
+    it('keeps the blocking, determinate behavior without options', () => {
+      service.startExport('pdf', 100);
+
+      expect(service.indeterminate()).toBeFalse();
+      expect(service.displayMode()).toBe('blocking');
+      expect(service.message()).toContain('estimated');
+    });
+
+    it('resets the indeterminate flag when the export ends', () => {
+      service.startExport('pdf', 10, { indeterminate: true });
+      service.endExport();
+
+      expect(service.indeterminate()).toBeFalse();
+    });
+  });
 });

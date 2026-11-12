@@ -18,6 +18,7 @@ import { PermissionsService } from '@core/services/permissions/permissions.servi
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { AssessmentExportService } from '@modules/assessments/services/assessment-export.service';
 
 import { AssessmentListComponent } from './assessment-list.component';
 
@@ -132,6 +133,7 @@ describe('AssessmentListComponent on mobile and desktop screens', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ViewportService, useValue: { isMobile } },
+        { provide: AssessmentExportService, useValue: {} },
         { provide: PermissionsService, useValue: permissions },
         { provide: RoleBasedFetchResolver, useValue: fetchResolver },
         { provide: AssessmentService, useValue: assessmentService },
@@ -278,7 +280,9 @@ describe('AssessmentListComponent on mobile and desktop screens', () => {
     create(true);
 
     // THEN Create Assessment, Edit and Delete are shown disabled
-    const create$ = one<HTMLButtonElement>('.page-header button')!;
+    const create$ = one<HTMLButtonElement>(
+      '.page-header button[mat-flat-button]'
+    )!;
     expect(create$.textContent).toContain('Create Assessment');
     expect(create$.disabled).toBeTrue();
     expect(cardButton('Edit')!.disabled).toBeTrue();
@@ -361,5 +365,14 @@ describe('AssessmentListComponent on mobile and desktop screens', () => {
     expect(fitsInside(host())).toBeTrue();
     expect(card.getBoundingClientRect().width).toBeLessThanOrEqual(320);
     expect(paginator.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+
+    const hostRect = host().getBoundingClientRect();
+    const headerButtons = all<HTMLButtonElement>('.page-header > button');
+    expect(headerButtons.length).toBe(2);
+    headerButtons.forEach(button => {
+      const rect = button.getBoundingClientRect();
+      expect(rect.left).toBeGreaterThanOrEqual(hostRect.left);
+      expect(rect.right).toBeLessThanOrEqual(hostRect.right);
+    });
   });
 });

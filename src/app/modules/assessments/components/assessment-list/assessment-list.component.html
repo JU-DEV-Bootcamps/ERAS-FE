@@ -23,6 +23,24 @@
 } @else {
   <div class="page-header" [class.behind-detail]="detailCoversScreen()">
     <button
+      mat-stroked-button
+      type="button"
+      class="export-button"
+      [matMenuTriggerFor]="exportMenu"
+      [disabled]="exportState.isExporting()"
+    >
+      <mat-icon>download</mat-icon>
+      {{ exportMessages.EXPORT_BUTTON }}
+    </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item type="button" (click)="exportAssessments('csv')">
+        {{ exportMessages.EXPORT_CSV }}
+      </button>
+      <button mat-menu-item type="button" (click)="exportAssessments('pdf')">
+        {{ exportMessages.EXPORT_PDF }}
+      </button>
+    </mat-menu>
+    <button
       mat-flat-button
       type="button"
       [disabled]="lookupsLoading() || !canManageAssessment()"

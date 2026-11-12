@@ -27,6 +27,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { InterventionFilterStrategy } from '@shared/components/list-filters/strategies/interventions.strategy';
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
+import { AssessmentExportService } from '@modules/assessments/services/assessment-export.service';
 
 import { AssessmentListComponent } from '../../assessment-list/assessment-list.component';
 import { InterventionListComponent } from './intervention-list.component';
@@ -163,6 +164,7 @@ describe('InterventionListComponent on mobile and desktop screens', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ViewportService, useValue: { isMobile } },
+        { provide: AssessmentExportService, useValue: {} },
         { provide: AssessmentService, useValue: assessmentService },
         { provide: InterventionService, useValue: interventionService },
         { provide: AttachmentApiService, useValue: attachments },

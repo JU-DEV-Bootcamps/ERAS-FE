@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { AssessmentStatusBadgeComponent } from '../assessment-list/assessment-status-badge/assessment-status-badge.component';
-import { AssessmentRowViewModel } from '../assessment-list/assessment-list.component';
+import { AssessmentRowViewModel } from '../../models/assessment-row.model';
 import { ListWithRemovalComponent } from '@modules/lists/components/list-with-removal/list-with-removal.component';
 import { Column } from '@shared/components/list/types/column';
 import { StudentProfileData } from '../assessment-list/assessment-student-data/assessment-student-data.component';

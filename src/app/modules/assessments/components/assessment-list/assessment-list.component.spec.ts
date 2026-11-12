@@ -6,10 +6,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import {
-  AssessmentListComponent,
-  AssessmentRowViewModel,
-} from './assessment-list.component';
+import { AssessmentListComponent } from './assessment-list.component';
+import { AssessmentRowViewModel } from '../../models/assessment-row.model';
 import {
   AssessmentModel,
   AssessmentStatus,
@@ -22,6 +20,9 @@ import { NewInterventionModalComponent } from '../interventions/new-intervention
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { UsersService } from '@core/services/api/users.service';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
+import { UserDataService } from '@core/services/access/user-data.service';
+import { ExportStateService } from '@core/services/exports/export-state.service';
+import { AssessmentExportService } from '@modules/assessments/services/assessment-export.service';
 
 describe('AssessmentListComponent', () => {
   let component: AssessmentListComponent;
@@ -93,6 +94,10 @@ describe('AssessmentListComponent', () => {
         { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
         { provide: UsersService, useValue: usersService },
         { provide: PermissionsService, useValue: permissionsService },
+        {
+          provide: UserDataService,
+          useValue: { user: () => ({ firstName: 'Laura', lastName: 'Gómez' }) },
+        },
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -480,6 +485,127 @@ describe('AssessmentListComponent', () => {
       );
 
       expect(row.professionalDisplay).toBe('Ana Pérez');
+    });
+  });
+
+  describe('export', () => {
+    const buildMany = (count: number): AssessmentModel[] =>
+      Array.from({ length: count }, (_, i) =>
+        buildAssessment({ id: i + 1, comments: `A${i + 1}` })
+      );
+    const withList = (list: AssessmentModel[]): void => {
+      fetchResolverMock.resolve.and.returnValue(of(list));
+      fixture.detectChanges();
+    };
+    const exportButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('button.export-button');
+    const csvRows = (spy: jasmine.Spy): string[] =>
+      (spy.calls.mostRecent().args[0] as string)
+        .replace(/^\uFEFF/, '')
+        .split('\r\n')
+        .filter(line => line.length > 0);
+
+    it('[678-export-assessments-list/AC-1] shows an Export control offering CSV and PDF', () => {
+      withList(buildMany(3));
+
+      const button = exportButton();
+      expect(button).not.toBeNull();
+      button!.click();
+      fixture.detectChanges();
+      const items = Array.from(
+        document.querySelectorAll('.mat-mdc-menu-item')
+      ).map(item => item.textContent?.trim());
+      expect(items).toEqual(['CSV', 'PDF']);
+    });
+
+    it('[678-export-assessments-list/AC-2] shows no Export control for an empty list', () => {
+      withList([]);
+
+      expect(
+        fixture.nativeElement.querySelector('.empty-state')
+      ).not.toBeNull();
+      expect(exportButton()).toBeNull();
+    });
+
+    it('[678-export-assessments-list/AC-3] CSV has all 25 rows while the table shows page 1 of 3', () => {
+      withList(buildMany(25));
+      const download = spyOn(
+        TestBed.inject(AssessmentExportService),
+        'downloadTextFile'
+      );
+
+      component['exportAssessments']('csv');
+
+      expect(component['pagedAssessments']().length).toBe(10);
+      expect(csvRows(download).length).toBe(26);
+    });
+
+    it('[678-export-assessments-list/AC-5] exports only the 3 assessments of the professional list', async () => {
+      withList(buildMany(3));
+      const exportPdf = spyOn(
+        TestBed.inject(AssessmentExportService),
+        'exportPdf'
+      ).and.resolveTo();
+
+      await component['exportAssessments']('pdf');
+
+      expect(exportPdf.calls.mostRecent().args[0].map(r => r.id)).toEqual([
+        1, 2, 3,
+      ]);
+    });
+
+    it('[678-export-assessments-list/AC-15] shows progress and blocks the control until the file is downloaded', async () => {
+      withList(buildMany(3));
+      const exportState = TestBed.inject(ExportStateService);
+      let finish!: () => void;
+      spyOn(
+        TestBed.inject(AssessmentExportService),
+        'exportPdf'
+      ).and.returnValue(new Promise<void>(resolve => (finish = resolve)));
+
+      const running = component['exportAssessments']('pdf');
+      await new Promise(resolve => setTimeout(resolve));
+      fixture.detectChanges();
+
+      expect(exportState.isExporting()).toBeTrue();
+      expect(exportButton()!.disabled).toBeTrue();
+
+      finish();
+      await running;
+      fixture.detectChanges();
+
+      expect(exportState.isExporting()).toBeFalse();
+      expect(exportButton()!.disabled).toBeFalse();
+    });
+
+    it('[678-export-assessments-list/AC-16] a failed export shows an error and no file', async () => {
+      withList(buildMany(3));
+      const exportService = TestBed.inject(AssessmentExportService);
+      const download = spyOn(exportService, 'downloadTextFile');
+      spyOn(exportService, 'exportPdf').and.rejectWith(new Error('boom'));
+
+      await component['exportAssessments']('pdf');
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'error' })
+      );
+      expect(download).not.toHaveBeenCalled();
+      expect(TestBed.inject(ExportStateService).isExporting()).toBeFalse();
+    });
+
+    it('[678-export-assessments-list/AC-17] rows keep the order of the table', () => {
+      withList(buildMany(25));
+      const download = spyOn(
+        TestBed.inject(AssessmentExportService),
+        'downloadTextFile'
+      );
+
+      component['exportAssessments']('csv');
+
+      const comments = csvRows(download)
+        .slice(1)
+        .map(line => line.split(',').pop());
+      expect(comments).toEqual(buildMany(25).map(a => a.comments!));
     });
   });
 });
