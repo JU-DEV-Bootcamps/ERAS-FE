@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { AssessmentStatus } from '@core/models/assessment.model';
+import { ASSESSMENT_STATUS_LABELS } from '@modules/assessments/models/assessment-status-labels';
 
 @Component({
   selector: 'app-assessment-status-badge',
@@ -20,11 +21,7 @@ export class AssessmentStatusBadgeComponent {
     return this.statusClassMap[this.status] ?? 'status-created';
   }
 
-  private readonly statusLabelMap: Record<AssessmentStatus, string> = {
-    [AssessmentStatus.Remitted]: 'Remitted',
-    [AssessmentStatus.InProgress]: 'In Progress',
-    [AssessmentStatus.Finalized]: 'Finalized',
-  };
+  private readonly statusLabelMap = ASSESSMENT_STATUS_LABELS;
 
   private readonly statusClassMap: Record<AssessmentStatus, string> = {
     [AssessmentStatus.Remitted]: 'status-remitted',

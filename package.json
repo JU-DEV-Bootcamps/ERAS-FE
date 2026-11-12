@@ -42,6 +42,7 @@
     "immutable": "^5.1.9",
     "js-yaml": "^4.3.0",
     "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.9",
     "keycloak-angular": "^19.0.2",
     "keycloak-js": "^26.1.4",
     "ng-apexcharts": "^1.15.0",

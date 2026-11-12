@@ -34,8 +34,11 @@ describe('PdfService', () => {
     document.body.appendChild(element);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     element.remove();
+    // jsPDF.save triggers the download in a setTimeout(0). Wait for it while the
+    // anchor stubs are still active, otherwise a real download starts after they are restored.
+    await new Promise(resolve => setTimeout(resolve));
   });
 
   it('should be created', () => {

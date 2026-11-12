@@ -20,6 +20,9 @@ export class ExportLoadingOverlayComponent {
   exportType = computed(() => this.exportStateService.exportType());
   showProgressBar = computed(() => this.exportType() === 'pdf');
   displayMode = computed(() => this.exportStateService.displayMode());
+  progressMode = computed(() =>
+    this.exportStateService.indeterminate() ? 'indeterminate' : 'determinate'
+  );
 
   overlayLabel = computed(() => `Export in progress: ${this.displayMessage()}`);
 

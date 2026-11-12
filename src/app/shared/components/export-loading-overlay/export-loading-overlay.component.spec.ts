@@ -11,6 +11,7 @@ function makeServiceStub(
     progress: number;
     exportType: 'csv' | 'pdf' | null;
     displayMode: 'blocking' | 'background';
+    indeterminate: boolean;
   }> = {}
 ) {
   const cfg = {
@@ -19,6 +20,7 @@ function makeServiceStub(
     progress: 0,
     exportType: null as 'csv' | 'pdf' | null,
     displayMode: 'blocking' as 'blocking' | 'background',
+    indeterminate: false,
     ...overrides,
   };
 
@@ -28,6 +30,7 @@ function makeServiceStub(
     progress: signal(cfg.progress),
     exportType: signal(cfg.exportType),
     displayMode: signal(cfg.displayMode),
+    indeterminate: signal(cfg.indeterminate),
   };
 }
 
@@ -159,6 +162,19 @@ describe('ExportLoadingOverlayComponent', () => {
       const progressBar =
         fixture.nativeElement.querySelector('mat-progress-bar');
       expect(progressBar).not.toBeNull();
+    });
+
+    it('renders an indeterminate progress bar when the export has no measurable progress', async () => {
+      await setup({
+        shouldShowOverlay: true,
+        exportType: 'pdf',
+        indeterminate: true,
+      });
+
+      expect(component.progressMode()).toBe('indeterminate');
+      expect(
+        fixture.nativeElement.querySelector('mat-progress-bar')
+      ).not.toBeNull();
     });
 
     it('does not render the progress bar for csv', async () => {

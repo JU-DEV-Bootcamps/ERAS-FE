@@ -10,7 +10,7 @@
         <p class="export-overlay-label">{{ displayMessage() }}</p>
         @if (showProgressBar()) {
           <mat-progress-bar
-            mode="determinate"
+            [mode]="progressMode()"
             [value]="progress()"
             class="export-overlay-progress"
           ></mat-progress-bar>
@@ -27,7 +27,7 @@
         <p class="export-toast-message">{{ displayMessage() }}</p>
         @if (showProgressBar()) {
           <mat-progress-bar
-            mode="determinate"
+            [mode]="progressMode()"
             [value]="progress()"
             class="export-toast-progress"
           ></mat-progress-bar>
