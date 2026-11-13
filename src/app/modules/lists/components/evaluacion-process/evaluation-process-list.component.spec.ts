@@ -651,9 +651,7 @@ describe('EvaluationProcessListComponent', () => {
   });
 
   describe('long Poll Name', () => {
-    const LONG_POLL_NAME = '100CharactersLengthPollName'
-      .repeat(4)
-      .slice(0, 100);
+    const LONG_POLL_NAME = 'P'.repeat(100);
 
     const renderWithLongPollName = (width: string): HTMLElement => {
       mockFeatureFlagsService.isEnabled.and.returnValue(false);
@@ -684,6 +682,7 @@ describe('EvaluationProcessListComponent', () => {
       expect(pollNameRow?.textContent).toContain(LONG_POLL_NAME);
       const pollNameValue =
         pollNameRow!.querySelector<HTMLElement>('.information')!;
+      expect(pollNameValue.getClientRects().length).toBeGreaterThan(1);
       const cardRect = card!.getBoundingClientRect();
       expect(pollNameValue.getBoundingClientRect().right).toBeLessThanOrEqual(
         cardRect.right
