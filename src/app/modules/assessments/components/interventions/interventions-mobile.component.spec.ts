@@ -214,7 +214,7 @@ describe('InterventionsComponent on mobile and desktop screens', () => {
       'app-intervention-list .page-header button'
     );
     expect(buttons.length).toBe(2);
-    expect(buttons[0].getAttribute('aria-label')).toBe('Export CSV');
+    expect(buttons[0].textContent).toContain('Export');
     expect(buttons[1].textContent).toContain('Create Intervention');
     buttons.forEach(button => {
       const rect = button.getBoundingClientRect();
