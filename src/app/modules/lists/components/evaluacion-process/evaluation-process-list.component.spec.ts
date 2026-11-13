@@ -1,6 +1,8 @@
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EvaluationProcessListComponent } from './evaluation-process-list.component';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { provideHttpClient } from '@angular/common/http';
 import {
   MAT_DIALOG_DATA,
@@ -30,6 +32,7 @@ import {
 describe('EvaluationProcessListComponent', () => {
   let component: EvaluationProcessListComponent;
   let fixture: ComponentFixture<EvaluationProcessListComponent>;
+  let isMobile: WritableSignal<boolean>;
 
   const mockEvaluationService = jasmine.createSpyObj(
     'EvaluationProcessService',
@@ -95,9 +98,11 @@ describe('EvaluationProcessListComponent', () => {
     }) as EvaluationModel;
 
   beforeEach(async () => {
+    isMobile = signal(false);
     await TestBed.configureTestingModule({
       imports: [EvaluationProcessListComponent],
       providers: [
+        { provide: ViewportService, useValue: { isMobile } },
         { provide: EvaluationsService, useValue: mockEvaluationService },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -642,6 +647,86 @@ describe('EvaluationProcessListComponent', () => {
         message: 'Could not start the import extraction.',
       });
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('long Poll Name', () => {
+    const LONG_POLL_NAME = 'P'.repeat(100);
+
+    const renderWithLongPollName = (width: string): HTMLElement => {
+      mockFeatureFlagsService.isEnabled.and.returnValue(false);
+      const host = fixture.nativeElement as HTMLElement;
+      host.style.display = 'block';
+      host.style.width = width;
+      component.evaluationProcessList = [
+        buildEvaluation({ pollName: LONG_POLL_NAME }),
+      ];
+      component.totalEvaluations = 1;
+      fixture.detectChanges();
+      return host;
+    };
+
+    it('[673-evaluation-process-lists-and-imports/AC-1] keeps a 100-character Poll Name inside its card on a mobile screen', () => {
+      // GIVEN an evaluation process with a 100-character Poll Name without spaces, on a 375px screen
+      isMobile.set(true);
+
+      // WHEN the user opens Evaluation Process
+      const host = renderWithLongPollName('343px');
+
+      // THEN the whole Poll Name is shown inside its card, broken over several lines
+      const card = host.querySelector<HTMLElement>('mat-card');
+      expect(card).not.toBeNull();
+      const pollNameRow = Array.from(
+        card!.querySelectorAll<HTMLElement>('.row-info')
+      ).find(row => row.textContent?.includes('Poll Name'));
+      expect(pollNameRow?.textContent).toContain(LONG_POLL_NAME);
+      const pollNameValue =
+        pollNameRow!.querySelector<HTMLElement>('.information')!;
+      expect(pollNameValue.getClientRects().length).toBeGreaterThan(1);
+      const cardRect = card!.getBoundingClientRect();
+      expect(pollNameValue.getBoundingClientRect().right).toBeLessThanOrEqual(
+        cardRect.right
+      );
+      expect(pollNameRow!.scrollWidth).toBeLessThanOrEqual(
+        pollNameRow!.clientWidth
+      );
+
+      // AND the card is not wider than the screen and the page has no horizontal scroll
+      expect(cardRect.width).toBeLessThanOrEqual(host.clientWidth);
+      expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+    });
+
+    it('[673-evaluation-process-lists-and-imports/AC-2] keeps the table and does not wrap the Poll Name on a desktop screen', () => {
+      // GIVEN an evaluation process with a 100-character Poll Name without spaces, on a 1280px screen
+      isMobile.set(false);
+
+      // WHEN the user opens Evaluation Process
+      const host = renderWithLongPollName('1280px');
+
+      // THEN the evaluation processes are shown in a table with the same columns as today and no card is shown
+      expect(host.querySelector('mat-card')).toBeNull();
+      expect(host.querySelector('table')).not.toBeNull();
+      const headers = Array.from(host.querySelectorAll('th')).map(header =>
+        header.textContent?.trim()
+      );
+      expect(headers).toEqual([
+        'ID',
+        'NAME',
+        'COUNTRY',
+        'POLL NAME',
+        'PERIOD',
+        'STATUS',
+        'ACTIONS',
+      ]);
+
+      // AND the Poll Name is not broken over several lines
+      const cells = host.querySelectorAll<HTMLElement>('td .cell-text');
+      const singleLineCell = cells[0];
+      const pollNameCell = cells[3];
+      expect(pollNameCell.textContent).toContain(LONG_POLL_NAME);
+      expect(pollNameCell.getBoundingClientRect().height).toBe(
+        singleLineCell.getBoundingClientRect().height
+      );
     });
   });
 });
