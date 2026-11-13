@@ -43,6 +43,10 @@ import {
 } from '../interventions.constants';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { InterventionsFetchStrategies } from '@modules/assessments/fetch-strategies/interventions-fetch.strategies';
+import { InterventionExportService } from '@modules/assessments/services/intervention-export.service';
+import { ExportStateService } from '@core/services/exports/export-state.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { INTERVENTION_EXPORT_MESSAGES } from '@core/constants/messages';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -93,6 +97,10 @@ export class InterventionListComponent {
   private readonly filterStrategy = inject(InterventionFilterStrategy);
   private readonly csvService = inject(CsvService);
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
+  private readonly exportService = inject(InterventionExportService);
+  private readonly toastService = inject(ToastNotificationService);
+  protected readonly exportState = inject(ExportStateService);
+  protected readonly exportMessages = INTERVENTION_EXPORT_MESSAGES;
 
   @Input() pageSize = 10;
 
@@ -348,6 +356,38 @@ export class InterventionListComponent {
       this.sortDirection.set('asc');
     }
     this.pageIndex.set(0);
+  }
+
+  protected async exportInterventions(type: 'csv' | 'pdf'): Promise<void> {
+    if (this.exportState.isExporting()) return;
+
+    if (type === 'csv') {
+      this.exportToCSV();
+      return;
+    }
+
+    const rows = this.sortedInterventions();
+    this.exportState.startExport('pdf', rows.length, {
+      indeterminate: true,
+      background: true,
+    });
+    try {
+      await new Promise(resolve => setTimeout(resolve));
+      await this.exportService.exportPdf(
+        rows,
+        this.appliedFilters(),
+        this.assessment()
+      );
+    } catch (error) {
+      console.error('Failed to export interventions', error);
+      this.toastService.showToast({
+        type: 'error',
+        title: INTERVENTION_EXPORT_MESSAGES.ERROR_TITLE,
+        message: INTERVENTION_EXPORT_MESSAGES.ERROR_MESSAGE,
+      });
+    } finally {
+      this.exportState.endExport();
+    }
   }
 
   exportToCSV(): void {

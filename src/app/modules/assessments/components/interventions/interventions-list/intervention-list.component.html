@@ -41,15 +41,23 @@
 } @else {
   <div class="page-header">
     <button
-      mat-icon-button
-      matTooltip="Export CSV"
-      class="action-icon"
-      disableRipple
-      [disabled]="isGenerating()"
-      (click)="exportToCSV()"
+      mat-stroked-button
+      type="button"
+      class="export-button"
+      [matMenuTriggerFor]="exportMenu"
+      [disabled]="exportState.isExporting() || isGenerating()"
     >
-      <mat-icon class="material-symbols-outlined">ios_share</mat-icon>
+      <mat-icon>download</mat-icon>
+      {{ exportMessages.EXPORT_BUTTON }}
     </button>
+    <mat-menu #exportMenu="matMenu">
+      <button mat-menu-item type="button" (click)="exportInterventions('csv')">
+        {{ exportMessages.EXPORT_CSV }}
+      </button>
+      <button mat-menu-item type="button" (click)="exportInterventions('pdf')">
+        {{ exportMessages.EXPORT_PDF }}
+      </button>
+    </mat-menu>
     @if (!statusFinalizedAssessment) {
       <button mat-flat-button type="button" (click)="onCreateClick()">
         <mat-icon>add</mat-icon>
