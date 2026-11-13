@@ -1,3 +1,4 @@
+import { expectFitsMobileDialog } from '@modules/assessments/testing/expect-fits-mobile-dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
@@ -345,5 +346,11 @@ describe('NewAssessmentModalComponent', () => {
       );
       expect(toast.message).toContain('There was an error submitting the form');
     });
+  });
+
+  it('fits a 375px full-screen dialog with no field or button cut off', () => {
+    fixture.detectChanges();
+
+    expectFitsMobileDialog(fixture.nativeElement);
   });
 });

@@ -30,6 +30,8 @@ import { JuService } from '@modules/supports-referrals/models/referrals.interfac
 import { Lookup } from '@core/models/lookup';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { responsiveDialogSize } from '@core/utils/dialogs/responsive-dialog-size';
 
 @Component({
   selector: 'app-assessments',
@@ -45,6 +47,7 @@ export class AssessmentsComponent implements OnInit {
   private readonly userDataService = inject(UserDataService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly permissionsService = inject(PermissionsService);
+  private readonly isMobile = inject(ViewportService).isMobile;
 
   private readonly listComponent = viewChild(AssessmentListComponent);
 
@@ -152,10 +155,13 @@ export class AssessmentsComponent implements OnInit {
             professionals,
           }));
           this.lookupLoading.set(false);
-          const dialogRef = this.matDialog.open(NewAssessmentModalComponent, {
-            ...this.modalConfig,
-            data: { ...modalData, ...this.lookups() },
-          });
+          const dialogRef = this.matDialog.open(
+            NewAssessmentModalComponent,
+            responsiveDialogSize(this.isMobile(), {
+              ...this.modalConfig,
+              data: { ...modalData, ...this.lookups() },
+            })
+          );
 
           dialogRef
             .afterClosed()
@@ -181,10 +187,13 @@ export class AssessmentsComponent implements OnInit {
             professionals,
           }));
           this.lookupLoading.set(false);
-          const dialogRef = this.matDialog.open(EditAssessmentModalComponent, {
-            ...this.modalConfig,
-            data: { assessment, ...this.lookups() },
-          });
+          const dialogRef = this.matDialog.open(
+            EditAssessmentModalComponent,
+            responsiveDialogSize(this.isMobile(), {
+              ...this.modalConfig,
+              data: { assessment, ...this.lookups() },
+            })
+          );
           dialogRef
             .afterClosed()
             .pipe(takeUntilDestroyed(this.destroyRef))

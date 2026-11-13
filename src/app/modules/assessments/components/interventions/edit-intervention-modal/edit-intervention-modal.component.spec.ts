@@ -1,3 +1,4 @@
+import { expectFitsMobileDialog } from '@modules/assessments/testing/expect-fits-mobile-dialog';
 import {
   ComponentFixture,
   fakeAsync,
@@ -179,6 +180,10 @@ describe('EditInterventionModalComponent', () => {
         students: new FormControl([]),
       });
     }
+  });
+
+  it('fits a 375px full-screen dialog with no field or button cut off', () => {
+    expectFitsMobileDialog(fixture.nativeElement);
   });
 
   it('should update attendance', () => {

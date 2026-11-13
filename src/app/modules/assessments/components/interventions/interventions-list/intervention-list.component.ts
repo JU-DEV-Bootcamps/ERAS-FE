@@ -47,6 +47,7 @@ import { InterventionExportService } from '@modules/assessments/services/interve
 import { ExportStateService } from '@core/services/exports/export-state.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { INTERVENTION_EXPORT_MESSAGES } from '@core/constants/messages';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -102,6 +103,8 @@ export class InterventionListComponent {
   protected readonly exportState = inject(ExportStateService);
   protected readonly exportMessages = INTERVENTION_EXPORT_MESSAGES;
 
+  protected readonly isMobile = inject(ViewportService).isMobile;
+
   @Input() pageSize = 10;
 
   @Input() set studentNamesLookup(value: Record<string, StudentProfileData>) {
@@ -156,6 +159,9 @@ export class InterventionListComponent {
   protected readonly interventions = signal<InterventionRowViewModel[]>([]);
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
+  readonly detailCoversScreen = computed(
+    () => this.isMobile() && this.selectedIntervention() !== null
+  );
   protected readonly listAttachments = signal<AttachmentModel[]>([]);
 
   protected activityLabel(value: string | null | undefined): string {

@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ExportableIntervention,
@@ -113,6 +115,7 @@ describe('InterventionListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [InterventionListComponent],
       providers: [
+        { provide: ViewportService, useValue: { isMobile: signal(false) } },
         { provide: AssessmentService, useValue: mockAssessmentService },
         { provide: AttachmentApiService, useValue: mockAttachmentService },
         { provide: InterventionService, useValue: mockInterventionService },

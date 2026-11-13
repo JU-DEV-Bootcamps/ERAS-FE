@@ -23,6 +23,8 @@ import { AssessmentModel } from '@core/models/assessment.model';
 import { ToastNotificationData } from '@core/models/toast-notification.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AssessmentActivityHistoryComponent } from './assessment-activity-history/assessment-activity-history.component';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { responsiveDialogSize } from '@core/utils/dialogs/responsive-dialog-size';
 
 @Component({
   selector: 'app-assessment-detail-dialog',
@@ -51,6 +53,7 @@ export class AssessmentDetailDialogComponent {
   private readonly modalDeleteService = inject(ModalDeleteConfirmationService);
   private readonly assessmentService = inject(AssessmentService);
   private readonly toastService = inject(ToastNotificationService);
+  private readonly isMobile = inject(ViewportService).isMobile;
 
   columns: Column<StudentProfileData>[] = [
     { key: 'name', label: 'Name', showLabel: false },
@@ -98,13 +101,16 @@ export class AssessmentDetailDialogComponent {
     const component: ComponentType<object> = showV2
       ? ModalStudentDetailV2Component
       : ModalStudentDetailComponent;
-    this.dialog.open(component, {
-      width: '1152px',
-      maxWidth: '95vw',
-      maxHeight: '921.59px',
-      panelClass: 'border-modalbox-dialog',
-      data: { studentId },
-    });
+    this.dialog.open(
+      component,
+      responsiveDialogSize(this.isMobile(), {
+        width: '1152px',
+        maxWidth: '95vw',
+        maxHeight: '921.59px',
+        panelClass: 'border-modalbox-dialog',
+        data: { studentId },
+      })
+    );
   }
 
   onDeleteStudent(studentId: number): void {

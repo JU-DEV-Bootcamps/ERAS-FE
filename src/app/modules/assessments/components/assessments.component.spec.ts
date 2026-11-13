@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
@@ -105,6 +107,7 @@ describe('AssessmentsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AssessmentsComponent],
       providers: [
+        { provide: ViewportService, useValue: { isMobile: signal(false) } },
         { provide: Keycloak, useValue: keycloakMock },
         { provide: StudentService, useValue: studentServiceSpy },
         { provide: JuServicesService, useValue: juServicesServiceSpy },
