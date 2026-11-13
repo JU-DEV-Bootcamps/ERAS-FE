@@ -42,6 +42,7 @@ describe('ModalDeleteConfirmationService', () => {
           data: mockConfig,
           autoFocus: false,
           width: '418px',
+          maxWidth: 'calc(100vw - 32px)',
           panelClass: 'delete-confirmation-modal',
         }
       );

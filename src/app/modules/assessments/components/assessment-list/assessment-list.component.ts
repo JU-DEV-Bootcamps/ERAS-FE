@@ -39,6 +39,8 @@ import { AssessmentFetchStrategies } from '@modules/assessments/fetch-strategies
 import { UsersService } from '@core/services/api/users.service';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { responsiveDialogSize } from '@core/utils/dialogs/responsive-dialog-size';
 import { ExportStateService } from '@core/services/exports/export-state.service';
 import { ASSESSMENT_EXPORT_MESSAGES } from '@core/constants/messages';
 import { AssessmentExportService } from '@modules/assessments/services/assessment-export.service';
@@ -79,6 +81,8 @@ export class AssessmentListComponent implements OnInit {
   protected readonly exportState = inject(ExportStateService);
   protected readonly exportMessages = ASSESSMENT_EXPORT_MESSAGES;
 
+  protected readonly isMobile = inject(ViewportService).isMobile;
+
   private userDisplayNameBySub = new Map<string, string>();
 
   protected readonly canManageAssessment = computed(() =>
@@ -105,6 +109,9 @@ export class AssessmentListComponent implements OnInit {
   protected readonly assessments = signal<AssessmentRowViewModel[]>([]);
   protected readonly selectedAssessment = signal<AssessmentRowViewModel | null>(
     null
+  );
+  protected readonly detailCoversScreen = computed(
+    () => this.isMobile() && this.selectedAssessment() !== null
   );
 
   protected readonly pagedAssessments = computed(() => {
@@ -228,18 +235,21 @@ export class AssessmentListComponent implements OnInit {
       riskLevel: student.avgRiskLevel,
     }));
 
-    this.matDialog.open(NewInterventionModalComponent, {
-      width: '520px',
-      disableClose: true,
-      data: {
-        assessmentId: assessment.id,
-        professional: {
-          value: assessment.assignedProfessionals[0] ?? '',
-          label: assessment.professionalDisplay,
+    this.matDialog.open(
+      NewInterventionModalComponent,
+      responsiveDialogSize(this.isMobile(), {
+        width: '520px',
+        disableClose: true,
+        data: {
+          assessmentId: assessment.id,
+          professional: {
+            value: assessment.assignedProfessionals[0] ?? '',
+            label: assessment.professionalDisplay,
+          },
+          students,
         },
-        students,
-      },
-    });
+      })
+    );
   }
 
   loadAssessments(): void {

@@ -1,3 +1,5 @@
+@use '../../styles/mobile-list' as mobile;
+
 $primary: #117473;
 
 :host {
@@ -123,4 +125,28 @@ mat-divider {
   width: 100%;
   max-height: 282px;
   overflow-y: auto;
+}
+
+@include mobile.mobile-detail-close-button;
+
+:host-context(.push-layout-container.mobile) .list-of-student {
+  ::ng-deep {
+    mat-card {
+      min-width: 0;
+    }
+
+    mat-card-content {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .row-info {
+      width: auto;
+      overflow-wrap: anywhere;
+    }
+
+    mat-card-actions {
+      flex: 0 0 auto;
+    }
+  }
 }

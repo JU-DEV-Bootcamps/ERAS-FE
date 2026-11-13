@@ -5,7 +5,9 @@ import {
   Input,
   ViewChild,
   OnChanges,
+  inject,
 } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 
@@ -26,6 +28,8 @@ export class AssessmentStudentDataComponent implements OnChanges {
   @Input({ required: true }) studentData!: StudentProfileData[];
   @Input({ required: false }) numberOfStudent = 1;
   @ViewChild('badgeRef') badgeRef!: ElementRef;
+
+  protected readonly isMobile = inject(ViewportService).isMobile;
 
   show = false;
   pinned = false;
@@ -55,7 +59,9 @@ export class AssessmentStudentDataComponent implements OnChanges {
     const showAbove = spaceBelow < popoverHeight;
 
     this.popoverStyle = {
-      left: `${rect.left}px`,
+      ...(this.isMobile()
+        ? { left: '8px', right: '8px' }
+        : { left: `${rect.left}px` }),
       ...(showAbove
         ? { bottom: `${window.innerHeight - rect.top + 6}px` }
         : { top: `${rect.bottom + 6}px` }),
@@ -73,6 +79,10 @@ export class AssessmentStudentDataComponent implements OnChanges {
 
   togglePin() {
     this.pinned = !this.pinned;
-    if (!this.pinned) this.show = false;
+    if (!this.pinned) {
+      this.show = false;
+    } else if (!this.show) {
+      this.openPopover();
+    }
   }
 }

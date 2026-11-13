@@ -1,3 +1,5 @@
+@use '../../../styles/mobile-list' as mobile;
+
 :host {
   display: block;
   flex-direction: column;
@@ -206,6 +208,8 @@ td.mat-column-student {
   background: white;
   border-radius: 12px;
 }
+
+@include mobile.mobile-list;
 
 .push-layout-container.panel-is-open {
   .interventions-table {

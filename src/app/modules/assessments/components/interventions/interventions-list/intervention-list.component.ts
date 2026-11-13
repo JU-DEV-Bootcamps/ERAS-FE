@@ -43,6 +43,7 @@ import {
 } from '../interventions.constants';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
 import { InterventionsFetchStrategies } from '@modules/assessments/fetch-strategies/interventions-fetch.strategies';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 export interface InterventionRowViewModel extends InterventionModel {
   studentDisplay: StudentProfileData[] | string;
@@ -93,6 +94,8 @@ export class InterventionListComponent {
   private readonly filterStrategy = inject(InterventionFilterStrategy);
   private readonly csvService = inject(CsvService);
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
+
+  protected readonly isMobile = inject(ViewportService).isMobile;
 
   @Input() pageSize = 10;
 
@@ -148,6 +151,9 @@ export class InterventionListComponent {
   protected readonly interventions = signal<InterventionRowViewModel[]>([]);
   protected readonly selectedIntervention =
     signal<InterventionRowViewModel | null>(null);
+  readonly detailCoversScreen = computed(
+    () => this.isMobile() && this.selectedIntervention() !== null
+  );
   protected readonly listAttachments = signal<AttachmentModel[]>([]);
 
   protected activityLabel(value: string | null | undefined): string {

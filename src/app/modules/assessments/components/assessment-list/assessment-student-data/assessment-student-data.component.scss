@@ -107,4 +107,17 @@ $color-stroke: #e5e5e5;
     pointer-events: auto;
     transform: translateY(0);
   }
+
+  &.mobile {
+    min-width: 0;
+
+    .student-item {
+      min-width: 0;
+    }
+
+    .student-info {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
 }

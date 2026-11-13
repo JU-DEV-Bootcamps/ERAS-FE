@@ -1,7 +1,8 @@
 import { AssessmentService } from '@core/services/api/assessement.service';
 import { AssessmentDetailDialogComponent } from './assessment-detail-dialog.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, WritableSignal, signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { ModalStudentDetailComponent } from '@shared/components/modals/modal-student-detail/modal-student-detail.component';
@@ -21,8 +22,10 @@ describe('AssessmentDetailDialogComponent', () => {
   let modalDeleteService: jasmine.SpyObj<ModalDeleteConfirmationService>;
   let assessmentService: jasmine.SpyObj<AssessmentService>;
   let toastService: jasmine.SpyObj<ToastNotificationService>;
+  let isMobile: WritableSignal<boolean>;
 
   beforeEach(async () => {
+    isMobile = signal(false);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
 
     featureFlags = jasmine.createSpyObj('FeatureFlagsService', ['isEnabled']);
@@ -54,6 +57,7 @@ describe('AssessmentDetailDialogComponent', () => {
         },
         { provide: AssessmentService, useValue: assessmentService },
         { provide: ToastNotificationService, useValue: toastService },
+        { provide: ViewportService, useValue: { isMobile } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -255,5 +259,63 @@ describe('AssessmentDetailDialogComponent', () => {
     expect(assessmentService.clearCache).toHaveBeenCalled();
 
     expect(component.onCloseRefresh).toHaveBeenCalled();
+  });
+
+  it('keeps the list of students inside a 375px mobile detail, with no horizontal scroll', () => {
+    const host = fixture.nativeElement as HTMLElement;
+    const screen = document.createElement('div');
+    screen.className = 'push-layout-container mobile panel-is-open';
+    screen.style.cssText = 'display: block; width: 375px; height: 667px;';
+    host.parentElement?.insertBefore(screen, host);
+    screen.appendChild(host);
+    component.data = {
+      ...component.data,
+      students: [
+        { id: 10, name: 'Juan Perez Testeador', email: 'tester@gmail.com' },
+        { id: 11, name: 'Luis Herbas', email: 'luis.herbas@jalasoft.com' },
+      ],
+    };
+    fixture.detectChanges();
+
+    const screenRect = screen.getBoundingClientRect();
+    const cards = Array.from(
+      host.querySelectorAll('.list-of-student mat-card')
+    );
+    expect(cards.length).toBe(2);
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      expect(rect.left).toBeGreaterThanOrEqual(screenRect.left);
+      expect(rect.right).toBeLessThanOrEqual(screenRect.right);
+    });
+    [
+      host.querySelector('.list-of-student')!,
+      host.querySelector('.dialog-content')!,
+    ].forEach(area =>
+      expect(area.scrollWidth).toBeLessThanOrEqual(area.clientWidth)
+    );
+
+    screen.remove();
+  });
+
+  it('[672-improve-assessments-interventions-mobile-view/AC-14] opens the student details full screen from the assessment detail on mobile', () => {
+    // GIVEN the detail of an assessment open on a mobile screen
+    isMobile.set(true);
+    featureFlags.isEnabled.and.returnValue(true);
+
+    // WHEN the user opens the details of a student of the assessment
+    component.openStudentDetails(15);
+
+    // THEN the student details cover the whole screen, with no margin around them
+    const [modal, config] = dialog.open.calls.mostRecent().args;
+    expect(modal).toBe(ModalStudentDetailV2Component);
+    expect(config?.data).toEqual({ studentId: 15 });
+    expect(config?.width).toBe('100vw');
+    expect(config?.maxWidth).toBe('100vw');
+    expect(config?.height).toBe('100dvh');
+    expect(config?.maxHeight).toBe('100dvh');
+    expect(config?.panelClass).toEqual([
+      'border-modalbox-dialog',
+      'mobile-fullscreen-dialog',
+    ]);
   });
 });

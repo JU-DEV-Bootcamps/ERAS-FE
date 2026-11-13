@@ -51,6 +51,11 @@ import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-
 import { UsersService } from '@core/services/api/users.service';
 import { ERASRoles } from '@core/models/profile.model';
 import { Lookup } from '@core/models/lookup';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import {
+  CONFIRMATION_DIALOG_MAX_WIDTH,
+  responsiveDialogSize,
+} from '@core/utils/dialogs/responsive-dialog-size';
 
 @Component({
   selector: 'app-interventions',
@@ -79,6 +84,7 @@ export class InterventionsComponent implements OnInit {
   private readonly toastService = inject(ToastNotificationService);
   private readonly fetchResolver = inject(RoleBasedFetchResolver);
   private readonly usersService = inject(UsersService);
+  private readonly isMobile = inject(ViewportService).isMobile;
 
   private userDisplayNameBySub = new Map<string, string>();
   private assignableProfessionals: Lookup[] = [];
@@ -329,18 +335,23 @@ export class InterventionsComponent implements OnInit {
     }));
 
     this.matDialog
-      .open(NewInterventionModalComponent, {
-        width: '520px',
-        disableClose: true,
-        data: {
-          assessmentId: assessment.id!,
-          professional: {
-            value: assessment.assignedProfessionals[0] ?? '',
-            label: this.resolveDisplayName(assessment.assignedProfessionals[0]),
+      .open(
+        NewInterventionModalComponent,
+        responsiveDialogSize(this.isMobile(), {
+          width: '520px',
+          disableClose: true,
+          data: {
+            assessmentId: assessment.id!,
+            professional: {
+              value: assessment.assignedProfessionals[0] ?? '',
+              label: this.resolveDisplayName(
+                assessment.assignedProfessionals[0]
+              ),
+            },
+            students,
           },
-          students,
-        },
-      })
+        })
+      )
       .afterClosed()
       .subscribe((created: boolean) => {
         if (created) {
@@ -363,20 +374,25 @@ export class InterventionsComponent implements OnInit {
     }));
 
     this.matDialog
-      .open(EditInterventionModalComponent, {
-        width: '520px',
-        disableClose: true,
-        data: {
-          assessmentId: assessment.id!,
-          professional: {
-            value: assessment.assignedProfessionals[0] ?? '',
-            label: this.resolveDisplayName(assessment.assignedProfessionals[0]),
+      .open(
+        EditInterventionModalComponent,
+        responsiveDialogSize(this.isMobile(), {
+          width: '520px',
+          disableClose: true,
+          data: {
+            assessmentId: assessment.id!,
+            professional: {
+              value: assessment.assignedProfessionals[0] ?? '',
+              label: this.resolveDisplayName(
+                assessment.assignedProfessionals[0]
+              ),
+            },
+            professionals: this.assignableProfessionals,
+            students,
+            intervention,
           },
-          professionals: this.assignableProfessionals,
-          students,
-          intervention,
-        },
-      })
+        })
+      )
       .afterClosed()
       .subscribe((updated: boolean) => {
         if (updated)
@@ -391,6 +407,7 @@ export class InterventionsComponent implements OnInit {
     this.matDialog
       .open(ModalDeleteConfirmationComponent, {
         width: '400px',
+        maxWidth: CONFIRMATION_DIALOG_MAX_WIDTH,
         data: {
           title: 'Delete Intervention',
           subtitle:

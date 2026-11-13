@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ListFiltersComponent } from './list-filters.component';
@@ -52,7 +54,10 @@ describe('ListFiltersComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ListFiltersComponent, ReactiveFormsModule],
-      providers: [FormBuilder],
+      providers: [
+        FormBuilder,
+        { provide: ViewportService, useValue: { isMobile: signal(false) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ListFiltersComponent);

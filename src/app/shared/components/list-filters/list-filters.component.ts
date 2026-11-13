@@ -21,6 +21,7 @@ import {
 import { CustomValidators } from '@core/utils/forms/custom-validators';
 import { ErasButtonComponent } from '../buttons/eras-button/eras-button.component';
 import { NgClass } from '@angular/common';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-list-filters',
@@ -36,6 +37,8 @@ import { NgClass } from '@angular/common';
 })
 export class ListFiltersComponent implements OnInit {
   private _formBuilder = inject(FormBuilder);
+
+  protected readonly isMobile = inject(ViewportService).isMobile;
 
   readonly filterFields = input<FilterField[]>([]);
   readonly appliedFilters = output<AppliedFilter[]>();

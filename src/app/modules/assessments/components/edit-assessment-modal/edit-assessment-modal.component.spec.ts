@@ -1,3 +1,4 @@
+import { expectFitsMobileDialog } from '@modules/assessments/testing/expect-fits-mobile-dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ReactiveFormsModule,
@@ -438,5 +439,11 @@ describe('EditAssessmentModalComponent', () => {
       expect(dialogRef.close).not.toHaveBeenCalled();
       expect(assessmentService.clearCache).not.toHaveBeenCalled();
     });
+  });
+
+  it('fits a 375px full-screen dialog with no field or button cut off', () => {
+    fixture.detectChanges();
+
+    expectFitsMobileDialog(fixture.nativeElement);
   });
 });
