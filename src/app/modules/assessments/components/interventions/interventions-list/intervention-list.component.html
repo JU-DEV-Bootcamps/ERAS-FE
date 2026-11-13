@@ -39,7 +39,11 @@
     </div>
   </div>
 } @else {
-  <div class="page-header">
+  <div
+    class="page-header"
+    [class.mobile]="isMobile()"
+    [class.behind-detail]="detailCoversScreen()"
+  >
     <button
       mat-stroked-button
       type="button"
