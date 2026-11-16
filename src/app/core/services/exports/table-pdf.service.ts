@@ -5,6 +5,8 @@ export interface TablePdfOptions {
   title: string;
   /** Lines printed under the title, already worded by the caller. */
   headerLines: string[];
+  /** Print the text up to the first colon of each header line in bold. */
+  boldHeaderLabels?: boolean;
   columns: string[];
   rows: string[][];
 }
@@ -25,9 +27,20 @@ export class TablePdfService {
     doc.setFontSize(16);
     doc.text(options.title, margin, 16);
     doc.setFontSize(10);
-    options.headerLines.forEach((line, index) =>
-      doc.text(line, margin, 23 + index * 5)
-    );
+    options.headerLines.forEach((line, index) => {
+      const y = 23 + index * 5;
+      const separator = options.boldHeaderLabels ? line.indexOf(':') : -1;
+      if (separator < 0) {
+        doc.text(line, margin, y);
+        return;
+      }
+      const label = line.slice(0, separator + 1);
+      doc.setFont('helvetica', 'bold');
+      doc.text(label, margin, y);
+      const labelWidth = doc.getTextWidth(label);
+      doc.setFont('helvetica', 'normal');
+      doc.text(line.slice(separator + 1), margin + labelWidth, y);
+    });
 
     autoTable(doc, {
       startY: 23 + options.headerLines.length * 5 + 2,

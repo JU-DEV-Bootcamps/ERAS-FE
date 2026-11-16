@@ -4,6 +4,7 @@ import { WritableSignal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import Keycloak from 'keycloak-js';
 import { of } from 'rxjs';
 
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
@@ -163,6 +164,7 @@ describe('InterventionListComponent on mobile and desktop screens', () => {
         provideNoopAnimations(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        { provide: Keycloak, useValue: { token: 'fake-token' } },
         { provide: ViewportService, useValue: { isMobile } },
         { provide: AssessmentExportService, useValue: {} },
         { provide: AssessmentService, useValue: assessmentService },

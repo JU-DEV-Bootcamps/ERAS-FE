@@ -25,6 +25,10 @@ import { PageEvent } from '@angular/material/paginator';
 import { CsvService } from '@core/services/exports/csv.service';
 import { AttachmentApiService } from '@core/services/api/attachments.service';
 import { RoleBasedFetchResolver } from '@core/utils/strategies/role-based-fetch-strategy/role-based-fetch.resolver';
+import { UserDataService } from '@core/services/access/user-data.service';
+import { ExportStateService } from '@core/services/exports/export-state.service';
+import { ToastNotificationService } from '@core/services/toast-notification.service';
+import { InterventionExportService } from '@modules/assessments/services/intervention-export.service';
 
 describe('InterventionListComponent', () => {
   let component: InterventionListComponent;
@@ -35,6 +39,7 @@ describe('InterventionListComponent', () => {
   let mockFilterStrategy: jasmine.SpyObj<InterventionFilterStrategy>;
   let mockCsvService: jasmine.SpyObj<CsvService>;
   let fetchResolverMock: jasmine.SpyObj<RoleBasedFetchResolver>;
+  let toastServiceMock: jasmine.SpyObj<ToastNotificationService>;
 
   const intervention: InterventionModel = {
     id: 1,
@@ -103,6 +108,10 @@ describe('InterventionListComponent', () => {
       'resolve',
     ]);
 
+    toastServiceMock = jasmine.createSpyObj('ToastNotificationService', [
+      'showToast',
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [InterventionListComponent],
       providers: [
@@ -113,6 +122,8 @@ describe('InterventionListComponent', () => {
         { provide: InterventionFilterStrategy, useValue: mockFilterStrategy },
         { provide: CsvService, useValue: mockCsvService },
         { provide: RoleBasedFetchResolver, useValue: fetchResolverMock },
+        { provide: ToastNotificationService, useValue: toastServiceMock },
+        { provide: UserDataService, useValue: { user: () => null } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -596,6 +607,164 @@ describe('InterventionListComponent', () => {
         const result = component['pagedInterventions']();
         expect(result.map(r => r.id)).toEqual([11, 12, 13]);
       });
+    });
+  });
+
+  describe('export', () => {
+    const buildMany = (
+      count: number,
+      risk: (i: number) => RiskLevels = () => RiskLevels.High
+    ): InterventionModel[] =>
+      Array.from({ length: count }, (_, i) => ({
+        ...intervention,
+        id: i + 1,
+        riskLevelName: risk(i),
+      }));
+    const withList = (
+      list: InterventionModel[],
+      keep: (item: InterventionModel) => boolean = () => true
+    ): void => {
+      fetchResolverMock.resolve.and.returnValue(of(list));
+      mockAssessmentService.getById.and.returnValue(of(assessment));
+      mockFilterStrategy.apply.and.callFake(items => items.filter(keep));
+      component.studentNamesLookup = studentLookup;
+      component.assessmentIdInput = 10;
+      fixture.detectChanges();
+    };
+    const exportButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('button.export-button');
+    const spyExportPdf = (): jasmine.Spy =>
+      spyOn(TestBed.inject(InterventionExportService), 'exportPdf');
+    const exportedIds = (spy: jasmine.Spy): (number | undefined)[] =>
+      spy.calls.mostRecent().args[0].map((r: InterventionRowViewModel) => r.id);
+
+    it('[679-export-interventions-list/AC-1] Export menu offers CSV and PDF and the icon button is gone', () => {
+      withList(buildMany(3));
+
+      const button = exportButton();
+      expect(button).not.toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('button.action-icon')
+      ).toBeNull();
+      button!.click();
+      fixture.detectChanges();
+      const items = Array.from(
+        document.querySelectorAll('.mat-mdc-menu-item')
+      ).map(item => item.textContent?.trim());
+      expect(items).toEqual(['CSV', 'PDF']);
+    });
+
+    it('[679-export-interventions-list/AC-2] shows no Export control until an assessment is selected', () => {
+      component.assessmentIdInput = null;
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('.empty-state')
+      ).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain(
+        'Select an assessment'
+      );
+      expect(exportButton()).toBeNull();
+    });
+
+    it('[679-export-interventions-list/AC-21] shows no Export control when no intervention matches', () => {
+      withList(buildMany(3), () => false);
+
+      expect(fixture.nativeElement.textContent).toContain(
+        'No interventions match the current filters'
+      );
+      expect(exportButton()).toBeNull();
+    });
+
+    it('[679-export-interventions-list/AC-3] CSV option runs the existing CSV export with the matching rows', () => {
+      withList(buildMany(5));
+
+      component['exportInterventions']('csv');
+
+      expect(mockCsvService.exportToCSV).toHaveBeenCalledTimes(1);
+      expect(mockCsvService.exportToCSV.calls.mostRecent().args[0].length).toBe(
+        5
+      );
+    });
+
+    it('[679-export-interventions-list/AC-4] PDF receives only the 12 rows matching the filters', async () => {
+      withList(buildMany(30), item => item.id! <= 12);
+      const spy = spyExportPdf().and.resolveTo();
+
+      await component['exportInterventions']('pdf');
+
+      expect(exportedIds(spy)).toEqual(
+        Array.from({ length: 12 }, (_, i) => i + 1)
+      );
+    });
+
+    it('[679-export-interventions-list/AC-5] PDF receives all 25 rows while the table shows page 1 of 3', async () => {
+      withList(buildMany(25));
+      const spy = spyExportPdf().and.resolveTo();
+
+      await component['exportInterventions']('pdf');
+
+      expect(component['pagedInterventions']().length).toBe(10);
+      expect(exportedIds(spy).length).toBe(25);
+    });
+
+    it('[679-export-interventions-list/AC-6] PDF rows keep the Risk Level order of the table', async () => {
+      const risks = [RiskLevels.Low, RiskLevels.High, RiskLevels.Medium];
+      withList(buildMany(9, i => risks[i % 3]));
+      component['onSortClick']('risk');
+      const spy = spyExportPdf().and.resolveTo();
+
+      await component['exportInterventions']('pdf');
+
+      expect(exportedIds(spy)).toEqual([1, 4, 7, 3, 6, 9, 2, 5, 8]);
+    });
+
+    it('[679-export-interventions-list/AC-7] PDF has only the 3 interventions of the professional list', async () => {
+      withList(buildMany(3));
+      const spy = spyExportPdf().and.resolveTo();
+
+      await component['exportInterventions']('pdf');
+
+      expect(exportedIds(spy)).toEqual([1, 2, 3]);
+    });
+
+    it('[679-export-interventions-list/AC-19] shows progress and blocks the control until the file is downloaded', async () => {
+      withList(buildMany(3));
+      const exportState = TestBed.inject(ExportStateService);
+      let finish!: () => void;
+      spyExportPdf().and.returnValue(
+        new Promise<void>(resolve => (finish = resolve))
+      );
+
+      const running = component['exportInterventions']('pdf');
+      await new Promise(resolve => setTimeout(resolve));
+      fixture.detectChanges();
+
+      expect(exportState.isExporting()).toBeTrue();
+      expect(exportButton()!.disabled).toBeTrue();
+
+      finish();
+      await running;
+      fixture.detectChanges();
+
+      expect(exportState.isExporting()).toBeFalse();
+      expect(exportButton()!.disabled).toBeFalse();
+    });
+
+    it('[679-export-interventions-list/AC-20] a failed export shows an error and no file', async () => {
+      withList(buildMany(3));
+      spyOn(console, 'error');
+      spyExportPdf().and.rejectWith(new Error('boom'));
+
+      await component['exportInterventions']('pdf');
+
+      expect(toastServiceMock.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          type: 'error',
+          message: 'The file could not be generated. Please try again.',
+        })
+      );
+      expect(TestBed.inject(ExportStateService).isExporting()).toBeFalse();
     });
   });
 });
