@@ -3,6 +3,10 @@ import { of, throwError } from 'rxjs';
 import { UserManualsComponent } from './user-manuals.component';
 import { UserManualsApiService } from '@core/services/api/user-manuals.service';
 import { UserManualModel } from '@core/models/user-manual.model';
+import {
+  UserManualErrorCode,
+  UserManualsApiError,
+} from '@core/models/user-manual-error.model';
 import { USER_MANUALS_MESSAGES } from '@core/constants/messages';
 
 const ADMIN_GUIDE: UserManualModel = {
@@ -124,6 +128,87 @@ describe('UserManualsComponent', () => {
     clickDownload('Admin Guide');
 
     expect(api.download).toHaveBeenCalledOnceWith('admin-guide');
+    expect(clicked.length).toBe(1);
+    expect(clicked[0].download).toBe('admin-guide.odt');
+  });
+
+  const renderFailedList = (code: UserManualErrorCode | null) => {
+    api.list.and.returnValue(throwError(() => new UserManualsApiError(code)));
+    fixture = TestBed.createComponent(UserManualsComponent);
+    fixture.detectChanges();
+  };
+
+  it('[687-distinguish-user-manuals-errors/AC-8] shows the manifest-missing message when the list fails with that code', () => {
+    renderFailedList('manuals_manifest_missing');
+
+    expect(text()).toContain(
+      'The list of user manuals is not available right now. Please contact support.'
+    );
+  });
+
+  it('[687-distinguish-user-manuals-errors/AC-9] shows the manifest-invalid message when the list fails with that code', () => {
+    renderFailedList('manuals_manifest_invalid');
+
+    expect(text()).toContain(
+      'The list of user manuals is set up incorrectly. Please contact support.'
+    );
+  });
+
+  it('[687-distinguish-user-manuals-errors/AC-10] shows the file-missing message and downloads nothing when the download fails with that code', () => {
+    const clicked = stubBrowserDownload();
+    api.download.and.returnValue(
+      throwError(() => new UserManualsApiError('manuals_file_missing'))
+    );
+    render([STUDENT_GUIDE]);
+
+    clickDownload('Student Guide');
+    fixture.detectChanges();
+
+    expect(text()).toContain(
+      'The file of this manual is not available right now. Please contact support.'
+    );
+    expect(clicked.length).toBe(0);
+  });
+
+  it('[687-distinguish-user-manuals-errors/AC-11] shows the not-found message and downloads nothing when the download fails with that code', () => {
+    const clicked = stubBrowserDownload();
+    api.download.and.returnValue(
+      throwError(() => new UserManualsApiError('manuals_not_found'))
+    );
+    render([STUDENT_GUIDE]);
+
+    clickDownload('Student Guide');
+    fixture.detectChanges();
+
+    expect(text()).toContain(
+      'This manual no longer exists. Reload the page to see the current manuals.'
+    );
+    expect(clicked.length).toBe(0);
+  });
+
+  it('[687-distinguish-user-manuals-errors/AC-12] shows the generic message when the list fails without a known code', () => {
+    renderFailedList(null);
+
+    expect(text()).toContain(
+      'Could not load the user manuals. Please try again later.'
+    );
+  });
+
+  it('[687-distinguish-user-manuals-errors/AC-23] clears the error message when a later download succeeds', () => {
+    const clicked = stubBrowserDownload();
+    api.download.and.returnValues(
+      throwError(() => new UserManualsApiError('manuals_file_missing')),
+      of(new Blob(['odt']))
+    );
+    render([ADMIN_GUIDE, STUDENT_GUIDE]);
+    clickDownload('Student Guide');
+    fixture.detectChanges();
+    expect(text()).toContain('is not available right now');
+
+    clickDownload('Admin Guide');
+    fixture.detectChanges();
+
+    expect(text()).not.toContain('is not available right now');
     expect(clicked.length).toBe(1);
     expect(clicked[0].download).toBe('admin-guide.odt');
   });

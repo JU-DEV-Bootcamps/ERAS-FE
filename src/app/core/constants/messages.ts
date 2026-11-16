@@ -1,3 +1,4 @@
+import { UserManualErrorCode } from '@core/models/user-manual-error.model';
 import { DialogType } from '@shared/components/modals/modal-dialog/types/dialog';
 
 export const IMPORT_MESSAGES = {
@@ -52,6 +53,16 @@ export const STUDENT_PROFILE_MESSAGES = {
 export const USER_MANUALS_MESSAGES = {
   EMPTY: 'No user manuals are available yet.',
   LOAD_ERROR: 'Could not load the user manuals. Please try again later.',
+  BY_ERROR_CODE: {
+    manuals_manifest_missing:
+      'The list of user manuals is not available right now. Please contact support.',
+    manuals_manifest_invalid:
+      'The list of user manuals is set up incorrectly. Please contact support.',
+    manuals_file_missing:
+      'The file of this manual is not available right now. Please contact support.',
+    manuals_not_found:
+      'This manual no longer exists. Reload the page to see the current manuals.',
+  } satisfies Record<UserManualErrorCode, string>,
 };
 
 export const PROFESSIONAL_PROFILE_MESSAGES = {
