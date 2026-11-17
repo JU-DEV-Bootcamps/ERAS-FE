@@ -8,6 +8,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { UserManualsApiError } from '@core/models/user-manual-error.model';
 import { UserManualModel } from '@core/models/user-manual.model';
 import { UserManualsApiService } from '@core/services/api/user-manuals.service';
 import { USER_MANUALS_MESSAGES } from '@core/constants/messages';
@@ -33,7 +34,7 @@ export class UserManualsComponent {
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: manuals => this.manuals.set(manuals),
-        error: () => this.error.set(this.messages.LOAD_ERROR),
+        error: error => this.error.set(this.messageOf(error)),
       });
   }
 
@@ -42,9 +43,17 @@ export class UserManualsComponent {
       .download(manual.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: blob => this.save(blob, manual.fileName),
-        error: () => this.error.set(this.messages.LOAD_ERROR),
+        next: blob => {
+          this.error.set(null);
+          this.save(blob, manual.fileName);
+        },
+        error: error => this.error.set(this.messageOf(error)),
       });
+  }
+
+  private messageOf(error: unknown): string {
+    const code = error instanceof UserManualsApiError ? error.code : null;
+    return code ? this.messages.BY_ERROR_CODE[code] : this.messages.LOAD_ERROR;
   }
 
   private save(blob: Blob, fileName: string): void {
