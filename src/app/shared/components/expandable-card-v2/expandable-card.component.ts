@@ -16,6 +16,8 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { DESKTOP_EXPORT_WIDTH } from '@modules/reports/components/summary-charts/constants/export-conf';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { ChartSkeletonComponent } from './chart-skeleton.component';
@@ -35,6 +37,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './expandable-card.component.html',
   styleUrl: './expandable-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.mobile]': 'isMobile()' },
 })
 export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() cardId!: string;
@@ -57,6 +60,7 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   @HostBinding('class.is-dimmed') get hostDimmed() {
     return this.dimmed;
   }
+  readonly isMobile = inject(ViewportService).isMobile;
   pdfHelper = inject(PdfHelper);
   @ViewChild('cardRef') cardRef!: ElementRef<HTMLElement>;
 
@@ -96,6 +100,7 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
     await new Promise(resolve => setTimeout(resolve, 100));
     await this.pdfHelper
       .exportCardToPdf({
+        desktopWidth: DESKTOP_EXPORT_WIDTH.card,
         container: this.cardRef,
         fileName: 'card',
         title: this.title,

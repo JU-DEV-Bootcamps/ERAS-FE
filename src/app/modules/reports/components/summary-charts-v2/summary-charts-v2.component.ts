@@ -6,6 +6,7 @@ import {
   EnvironmentInjector,
   inject,
   signal,
+  computed,
   ViewChild,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -30,7 +31,9 @@ import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config';
 import { MatDialog } from '@angular/material/dialog';
 import { PollAvgQuestion, PollAvgReport } from '@core/models/summary.model';
 import { StudentRiskAverage } from '@core/services/interfaces/student.interface';
+import { MOBILE_CHART_LABEL_FONT_SIZE } from '@core/utils/apex-chart/chart.constants';
 import { SummarySerie } from '@core/models/heatmap-data.model';
+import { SummaryReport } from '@core/models/reports/reports-data.model';
 
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { ReportService } from '@core/services/api/report.service';
@@ -55,6 +58,17 @@ import {
 import { SummaryColumnChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-column-charts-v2/summary-column-charts-v2.component';
 import { TooltipChartV2Component } from '../tooltip-chart-v2/tooltip-chart-v2.component';
 import { ExportStateService } from '@core/services/exports/export-state.service';
+import { DESKTOP_EXPORT_WIDTH } from '../summary-charts/constants/export-conf';
+import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
+import { ViewportService } from '@core/services/layout/viewport.service';
+
+const MOBILE_HEATMAP_YAXIS: ApexOptions['yaxis'] = {
+  labels: { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } },
+};
+
+const MOBILE_HEATMAP_DATA_LABELS: ApexOptions['dataLabels'] = {
+  enabled: false,
+};
 
 @Component({
   selector: 'app-students-risk',
@@ -75,9 +89,11 @@ import { ExportStateService } from '@core/services/exports/export-state.service'
     SummaryColumnChartsV2Component,
     DetailsPanelComponent,
     ColumnRiskPanelComponent,
+    ApexTooltipDirective,
   ],
   templateUrl: './summary-charts-v2.component.html',
   styleUrl: './summary-charts-v2.component.scss',
+  host: { '[class.mobile]': 'isMobile()' },
 })
 export class SummaryChartsV2Component {
   studentService = inject(StudentService);
@@ -89,10 +105,12 @@ export class SummaryChartsV2Component {
   hasNoResults = false;
   private featureFlagsService = inject(FeatureFlagsService);
   isExpanded = false;
+  readonly isMobile = inject(ViewportService).isMobile;
 
   @ViewChild('contentToExport') contentToExport!: ElementRef;
 
   chartOptions: ApexOptions = {};
+  private heatmapSeries: SummaryReport[] = [];
 
   columns: Column<StudentRiskAverage>[] = [
     {
@@ -131,6 +149,9 @@ export class SummaryChartsV2Component {
   isPanelOpen = signal(false);
   selectedPanelData = signal<DetailsPanelData | null>(null);
   isColumnPanelOpen = signal(false);
+  readonly detailOpen = computed(
+    () => this.isMobile() && (this.isPanelOpen() || this.isColumnPanelOpen())
+  );
   selectedColumnPanelData = signal<ColumnRiskPanelData | null>(null);
   title = '';
   components = signal<PollAvgReport | null>(null);
@@ -184,6 +205,7 @@ export class SummaryChartsV2Component {
             response.body
           );
           const series = this.reportService.regroupSummaryByColor(reportSeries);
+          this.heatmapSeries = series;
 
           this.chartOptions = GetChartOptions(
             '',
@@ -206,29 +228,10 @@ export class SummaryChartsV2Component {
                 );
               }
             },
-            { legend: { show: false } },
-            (x, y) => {
-              const category = `${series[x].data[y].x}`;
-              const value = `Total answers: ${this.components()?.pollCount}`;
-              const answers = series[x].data[y].z;
-
-              const compRef = createComponent(TooltipChartV2Component, {
-                environmentInjector: this.injector,
-              });
-
-              compRef.instance.value = value;
-              compRef.instance.category = category;
-              compRef.instance.answers = answers;
-
-              const container = document.createElement('div');
-              container.appendChild(compRef.location.nativeElement);
-              compRef.changeDetectorRef.detectChanges();
-
-              const html = container.innerHTML;
-              compRef.destroy();
-
-              return html;
-            }
+            {
+              legend: { show: false },
+            },
+            this.heatmapTooltip
           );
           this.isLoading = false;
         },
@@ -238,6 +241,41 @@ export class SummaryChartsV2Component {
         },
       });
   }
+
+  get heatmapYaxis(): ApexOptions['yaxis'] {
+    return this.isMobile() ? MOBILE_HEATMAP_YAXIS : this.chartOptions.yaxis;
+  }
+
+  get heatmapDataLabels(): ApexOptions['dataLabels'] {
+    return this.isMobile()
+      ? MOBILE_HEATMAP_DATA_LABELS
+      : this.chartOptions.dataLabels;
+  }
+
+  heatmapTooltip = (x: number, y: number): string => {
+    const point = this.heatmapSeries[x]?.data[y];
+    if (!point) return '';
+    const category = `${point.x}`;
+    const value = `Total answers: ${this.components()?.pollCount}`;
+    const answers = point.z;
+
+    const compRef = createComponent(TooltipChartV2Component, {
+      environmentInjector: this.injector,
+    });
+
+    compRef.instance.value = value;
+    compRef.instance.category = category;
+    compRef.instance.answers = answers;
+
+    const container = document.createElement('div');
+    container.appendChild(compRef.location.nativeElement);
+    compRef.changeDetectorRef.detectChanges();
+
+    const html = container.innerHTML;
+    compRef.destroy();
+
+    return html;
+  };
 
   getPollAvgQuestionFromSeries(
     report: PollAvgReport,
@@ -268,6 +306,7 @@ export class SummaryChartsV2Component {
 
       await this.pdfHelper.exportToPdf({
         fileName: 'cohort_report',
+        desktopWidth: DESKTOP_EXPORT_WIDTH.report,
         container: this.contentToExport,
         snackBar: this.snackBar,
       });

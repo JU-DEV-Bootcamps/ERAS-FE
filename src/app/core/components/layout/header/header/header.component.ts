@@ -15,5 +15,5 @@ import { UserMenuComponent } from '../../user-menu/user-menu.component';
 export class HeaderComponent {
   readonly menuToggle = output<void>();
   readonly messages = LAYOUT_MESSAGES;
-  readonly isMobile = inject(ViewportService).isMobile;
+  readonly isMobile = inject(ViewportService).isMobileScreen;
 }

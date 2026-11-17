@@ -129,6 +129,16 @@ describe('ColumnChartUtils', () => {
     });
   });
 
+  describe('createXAxis on mobile', () => {
+    it('uses a smaller label font only when the mobile flag is set', () => {
+      const mobile = ColumnChartUtils.createXAxis(['Socioeconomic'], true);
+      const desktop = ColumnChartUtils.createXAxis(['Socioeconomic']);
+
+      expect(mobile.labels?.style?.fontSize).toBe('10px');
+      expect(desktop.labels?.style).toBeUndefined();
+    });
+  });
+
   describe('createFill', () => {
     it('should return fill configuration with opacity 1', () => {
       const result = ColumnChartUtils.createFill();

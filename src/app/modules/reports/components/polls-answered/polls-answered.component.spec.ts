@@ -1,8 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Observable, of } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  Input,
+  NO_ERRORS_SCHEMA,
+  output,
+  signal,
+} from '@angular/core';
 import Keycloak from 'keycloak-js';
 
 import { PollsAnsweredComponent } from './polls-answered.component';
@@ -18,6 +24,8 @@ import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { Filter } from '../../components/poll-filters/types/filters';
 import { EventAction, EventLoad } from '@core/models/load';
 import { PollModel } from '@core/models/poll.model';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 
 type PollInstancesResponse =
   ReturnType<
@@ -295,5 +303,103 @@ describe('PollsAnsweredComponent', () => {
       component.selectedPollUuid = 'poll-123';
       expect(component.showEmpty).toBeFalse();
     });
+  });
+});
+
+@Component({
+  selector: 'app-poll-filters',
+  standalone: true,
+  template: '',
+})
+class StubPollFiltersComponent {
+  @Input() showVariables = false;
+  filters = output<unknown>();
+}
+
+describe('PollsAnsweredComponent on a mobile screen', () => {
+  let fixture: ComponentFixture<PollsAnsweredComponent>;
+
+  beforeEach(async () => {
+    const cohortService = jasmine.createSpyObj<CohortService>('CohortService', [
+      'getCohorts',
+    ]);
+    cohortService.getCohorts.and.returnValue(
+      of({ body: [] } as unknown as CohortsResponse)
+    );
+
+    await TestBed.configureTestingModule({
+      imports: [PollsAnsweredComponent],
+      providers: [
+        {
+          provide: PollInstanceService,
+          useValue: { getPollInstancesByFilters: () => EMPTY },
+        },
+        { provide: CohortService, useValue: cohortService },
+        {
+          provide: PollService,
+          useValue: jasmine.createSpyObj('PollService', ['getAllPolls']),
+        },
+        {
+          provide: MatDialog,
+          useValue: jasmine.createSpyObj('MatDialog', ['open']),
+        },
+        {
+          provide: FeatureFlagsService,
+          useValue: jasmine.createSpyObj('FeatureFlagsService', ['isEnabled']),
+        },
+        { provide: Keycloak, useValue: {} },
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(true),
+            renderAsDesktop: signal(false),
+          },
+        },
+        provideNoopAnimations(),
+        provideHttpClient(),
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+      .overrideComponent(PollsAnsweredComponent, {
+        remove: { imports: [PollFiltersComponent] },
+        add: { imports: [StubPollFiltersComponent] },
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(PollsAnsweredComponent);
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: '375px',
+    });
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  it('[674-improve-reports-charts-mobile-view/AC-9] shows each poll instance as a card on mobile', () => {
+    const component = fixture.componentInstance;
+    component.selectedPollUuid = 'poll-uuid';
+    component.pollInstances = [
+      {
+        'student.uuid': 'uuid-1',
+        'student.name': 'Ana Torres',
+        'student.email': 'ana@example.com',
+        finishedAt: '2026-11-10T10:00:00Z',
+        'student.audit.modifiedAt': '2026-11-11T10:00:00Z',
+      },
+    ] as unknown as typeof component.pollInstances;
+    component.totalPollInstances = 1;
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const cards = Array.from(host.querySelectorAll<HTMLElement>('mat-card'));
+    expect(cards.length).toBe(1);
+    expect(host.querySelector('app-list table')).toBeNull();
+    ['uuid-1', 'Ana Torres', 'ana@example.com'].forEach(text =>
+      expect(cards[0].textContent).toContain(text)
+    );
+    expect(cards[0].querySelector('app-action-button')).not.toBeNull();
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
   });
 });

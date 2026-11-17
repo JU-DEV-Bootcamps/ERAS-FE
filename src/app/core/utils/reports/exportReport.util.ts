@@ -3,12 +3,14 @@ import { FileNameUtils } from '@core/utils/file/file-name';
 import { PdfService } from '@core/services/exports/pdf.service';
 import {
   DEFAULT_VALUES,
+  EXPORT_REDRAW_WAIT_MS,
   SNACKBAR_CONF,
   STYLE_CONF,
 } from '../../../modules/reports/components/summary-charts/constants/export-conf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas-pro';
 import { PDF_CONFIG } from '@core/constants/pdf';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import {
   ExportArgs,
   ExportArgsChunked,
@@ -18,6 +20,8 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PdfHelper {
   pdfService = inject(PdfService);
+  private readonly viewport = inject(ViewportService);
+  private exportReferenceWidth: number | null = null;
 
   private waitForReflow(): Promise<void> {
     return new Promise(resolve =>
@@ -25,15 +29,44 @@ export class PdfHelper {
     );
   }
 
+  private waitForRedraw(): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, EXPORT_REDRAW_WAIT_MS));
+  }
+
+  private async withDesktopRendering<T>(
+    container: HTMLElement | undefined,
+    width: number | undefined,
+    run: () => Promise<T>
+  ): Promise<T> {
+    if (!width || !this.viewport.isMobile()) return run();
+
+    const previousWidth = container?.style.width ?? '';
+    this.viewport.renderAsDesktop.set(true);
+    this.exportReferenceWidth = width;
+    if (container) container.style.width = `${width}px`;
+    window.dispatchEvent(new Event('resize'));
+
+    try {
+      await this.waitForRedraw();
+      return await run();
+    } finally {
+      if (container) container.style.width = previousWidth;
+      this.exportReferenceWidth = null;
+      this.viewport.renderAsDesktop.set(false);
+      window.dispatchEvent(new Event('resize'));
+    }
+  }
+
   private async measureAndPrepare(
     cloned: HTMLElement,
     initialWidth?: number
   ): Promise<{ width: number; height: number }> {
+    const startWidth = initialWidth ?? this.exportReferenceWidth;
     Object.assign(cloned.style, {
       position: 'fixed',
       top: '0px',
       left: '0px',
-      width: initialWidth ? `${initialWidth}px` : '100%',
+      width: startWidth ? `${startWidth}px` : '100%',
       height: 'auto',
       overflow: 'visible',
       zIndex: '-9999',
@@ -368,6 +401,14 @@ export class PdfHelper {
   }
 
   async exportToPdfChunked(args: ExportArgsChunked): Promise<void> {
+    return this.withDesktopRendering(
+      args.container?.nativeElement,
+      args.desktopWidth,
+      () => this.runExportToPdfChunked(args)
+    );
+  }
+
+  private async runExportToPdfChunked(args: ExportArgsChunked): Promise<void> {
     if (args.snackBar) {
       args.snackBar.open('Starting PDF export...', 'Close', {
         duration: 3000,
@@ -502,6 +543,14 @@ export class PdfHelper {
   }
 
   async exportToPdf(args: ExportArgs): Promise<void> {
+    return this.withDesktopRendering(
+      args.container?.nativeElement,
+      args.desktopWidth,
+      () => this.runExportToPdf(args)
+    );
+  }
+
+  private async runExportToPdf(args: ExportArgs): Promise<void> {
     if (args.snackBar) {
       args.snackBar.open(SNACKBAR_CONF.message_start, 'Close', {
         duration: SNACKBAR_CONF.duration,
@@ -539,6 +588,14 @@ export class PdfHelper {
   }
 
   async exportCardToPdf(args: ExportArgs): Promise<void> {
+    return this.withDesktopRendering(
+      args.container?.nativeElement,
+      args.desktopWidth,
+      () => this.runExportCardToPdf(args)
+    );
+  }
+
+  private async runExportCardToPdf(args: ExportArgs): Promise<void> {
     const element = args.container?.nativeElement as HTMLElement;
     const fileName = FileNameUtils.generateFileName(
       args.fileName ?? DEFAULT_VALUES.fileName

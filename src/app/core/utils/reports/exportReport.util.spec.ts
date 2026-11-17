@@ -1,14 +1,19 @@
-import { ElementRef } from '@angular/core';
+import { Component, ElementRef, computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PdfService } from '@core/services/exports/pdf.service';
 import { FileNameUtils } from '@core/utils/file/file-name';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { TableWithActionsComponent } from '@shared/components/table-with-actions/table-with-actions.component';
+import { Column } from '@shared/components/list/types/column';
 import {
   ExportArgs,
   ExportArgsChunked,
+  LETTER_PX,
 } from '../../../modules/reports/components/summary-charts/types/export';
 import {
   DEFAULT_VALUES,
+  DESKTOP_EXPORT_WIDTH,
   SNACKBAR_CONF,
 } from '../../../modules/reports/components/summary-charts/constants/export-conf';
 import { PdfHelper } from './exportReport.util';
@@ -22,7 +27,17 @@ describe('PdfHelper', () => {
     pdfServiceSpy = jasmine.createSpyObj('PdfService', ['exportToPDF']);
 
     TestBed.configureTestingModule({
-      providers: [PdfHelper, { provide: PdfService, useValue: pdfServiceSpy }],
+      providers: [
+        PdfHelper,
+        { provide: PdfService, useValue: pdfServiceSpy },
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(false),
+            renderAsDesktop: signal(false),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(PdfHelper);
@@ -549,5 +564,249 @@ describe('PdfHelper', () => {
       expect(setFontSpy).not.toHaveBeenCalled();
       expect(addImageSpy).toHaveBeenCalled();
     });
+  });
+});
+
+@Component({
+  standalone: true,
+  imports: [TableWithActionsComponent],
+  template: `
+    <div class="report-box">
+      <div class="form-container">filters</div>
+      <app-table-with-actions
+        [columns]="columns"
+        [items]="items"
+        [actionDatas]="[]"
+      />
+    </div>
+  `,
+})
+class ReportHostComponent {
+  columns = [{ key: 'name', label: 'Name' }] as Column<{ name: string }>[];
+  items = [{ name: 'Ana Torres' }];
+}
+
+describe('PdfHelper on a mobile screen', () => {
+  const createViewport = (mobile: boolean) => {
+    const matches = signal(mobile);
+    const renderAsDesktop = signal(false);
+    return {
+      renderAsDesktop,
+      isMobile: computed(() => matches() && !renderAsDesktop()),
+    };
+  };
+
+  const setup = (mobile: boolean) => {
+    TestBed.resetTestingModule();
+    const viewport = createViewport(mobile);
+    const pdfService = jasmine.createSpyObj<PdfService>('PdfService', [
+      'exportToPDF',
+    ]);
+    TestBed.configureTestingModule({
+      providers: [
+        PdfHelper,
+        { provide: PdfService, useValue: pdfService },
+        { provide: ViewportService, useValue: viewport },
+      ],
+    });
+    const helper = TestBed.inject(PdfHelper);
+    const internals = helper as unknown as {
+      waitForReflow: () => Promise<void>;
+      waitForRedraw: () => Promise<void>;
+    };
+    spyOn(internals, 'waitForReflow').and.resolveTo();
+    spyOn(internals, 'waitForRedraw').and.resolveTo();
+    return { helper, viewport, pdfService, internals };
+  };
+
+  const chartContent = (height: number) =>
+    `<div style="height: ${height}px"></div><div><div class="apexcharts-canvas"><svg viewBox="0 0 500 300" style="display: block; height: 0"></svg></div></div>`;
+
+  const sizedSource = (width: string, height: string, content = '') => {
+    const source = document.createElement('div');
+    source.style.cssText = `width: ${width}; height: ${height};`;
+    source.innerHTML = content;
+    document.body.appendChild(source);
+    return source;
+  };
+
+  it('[674-improve-reports-charts-mobile-view/AC-17] gives the report PDF from a mobile screen the page size and orientation of the desktop one', async () => {
+    const { helper, viewport, pdfService } = setup(true);
+    const source = sizedSource('343px', 'auto', chartContent(800));
+    const seen: { forced?: boolean; width?: string; chart?: string | null } =
+      {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      seen.forced = viewport.renderAsDesktop();
+      seen.width = source.style.width;
+      seen.chart = (cloned as HTMLElement)
+        .querySelector('svg')
+        ?.getAttribute('width');
+      done?.();
+      return Promise.resolve();
+    });
+
+    await helper.exportToPdf({
+      container: new ElementRef(source),
+      fileName: 'cohort_report',
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
+    } as unknown as ExportArgs);
+
+    const [, , width] = pdfService.exportToPDF.calls.mostRecent().args;
+    expect(width).toBe(LETTER_PX.landscape);
+    expect(seen.forced).toBeTrue();
+    expect(seen.width).toBe(`${DESKTOP_EXPORT_WIDTH.report}px`);
+    expect(seen.chart).toBe(String(LETTER_PX.landscape));
+    expect(source.style.width).toBe('343px');
+    expect(viewport.renderAsDesktop()).toBeFalse();
+    source.remove();
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-18] gives the chart card PDF from a mobile screen the page size and orientation of the desktop one', async () => {
+    const { helper, viewport, pdfService } = setup(true);
+    const source = sizedSource('343px', 'auto', chartContent(400));
+    const seen: { forced?: boolean; width?: string; chart?: string | null } =
+      {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      seen.forced = viewport.renderAsDesktop();
+      seen.width = source.style.width;
+      seen.chart = (cloned as HTMLElement)
+        .querySelector('svg')
+        ?.getAttribute('width');
+      done?.();
+      return Promise.resolve();
+    });
+
+    await helper.exportCardToPdf({
+      container: new ElementRef(source),
+      fileName: 'card',
+      desktopWidth: DESKTOP_EXPORT_WIDTH.card,
+    } as unknown as ExportArgs);
+
+    const [, , width] = pdfService.exportToPDF.calls.mostRecent().args;
+    expect(width).toBe(LETTER_PX.landscape);
+    expect(seen.forced).toBeTrue();
+    expect(seen.width).toBe(`${DESKTOP_EXPORT_WIDTH.card}px`);
+    expect(seen.chart).toBe(String(LETTER_PX.landscape));
+    expect(source.style.width).toBe('343px');
+    expect(viewport.renderAsDesktop()).toBeFalse();
+    source.remove();
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-19] keeps the students as a table without cards, filters or close buttons in the report PDF from mobile', async () => {
+    const { helper, viewport, pdfService, internals } = setup(true);
+    const fixture = TestBed.createComponent(ReportHostComponent);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('mat-card')).not.toBeNull();
+    internals.waitForRedraw = () => {
+      fixture.detectChanges();
+      return Promise.resolve();
+    };
+    const snapshot: { html?: string } = {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      snapshot.html = (cloned as HTMLElement).innerHTML;
+      done?.();
+      return Promise.resolve();
+    });
+
+    await helper.exportToPdf({
+      container: new ElementRef(
+        fixture.nativeElement.querySelector('.report-box')
+      ),
+      fileName: 'cohort_report',
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
+    } as unknown as ExportArgs);
+
+    expect(snapshot.html).toContain('<table');
+    expect(snapshot.html).toContain('Ana Torres');
+    expect(snapshot.html).not.toContain('<mat-card');
+    expect(snapshot.html).not.toContain('class="form-container"');
+    expect(snapshot.html).not.toContain('close-btn');
+    expect(viewport.renderAsDesktop()).toBeFalse();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('mat-card')).not.toBeNull();
+    fixture.nativeElement.remove();
+  });
+
+  it('asks the page to redraw again after turning the desktop rendering off', async () => {
+    const { helper, viewport, pdfService } = setup(true);
+    const source = sizedSource('343px', '300px');
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      done?.();
+      return Promise.resolve();
+    });
+    const forcedAtResize: boolean[] = [];
+    spyOn(window, 'dispatchEvent').and.callFake(event => {
+      if (event.type === 'resize') {
+        forcedAtResize.push(viewport.renderAsDesktop());
+      }
+      return true;
+    });
+
+    await helper.exportToPdf({
+      container: new ElementRef(source),
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
+    } as unknown as ExportArgs);
+
+    expect(forcedAtResize).toEqual([true, false]);
+    source.remove();
+  });
+
+  it('turns the desktop rendering off again when the export fails', async () => {
+    const { helper, viewport, pdfService } = setup(true);
+    const source = sizedSource('343px', '300px');
+    pdfService.exportToPDF.and.throwError('boom');
+
+    await expectAsync(
+      helper.exportToPdf({
+        container: new ElementRef(source),
+        desktopWidth: DESKTOP_EXPORT_WIDTH.report,
+      } as unknown as ExportArgs)
+    ).toBeRejected();
+
+    expect(viewport.renderAsDesktop()).toBeFalse();
+    expect(source.style.width).toBe('343px');
+    source.remove();
+  });
+
+  it('does not force desktop rendering or change the container on a desktop screen', async () => {
+    const { helper, viewport, pdfService } = setup(false);
+    const source = sizedSource('343px', '300px');
+    const seen: { forced?: boolean; width?: string } = {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      seen.forced = viewport.renderAsDesktop();
+      seen.width = source.style.width;
+      done?.();
+      return Promise.resolve();
+    });
+
+    await helper.exportToPdf({
+      container: new ElementRef(source),
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
+    } as unknown as ExportArgs);
+
+    expect(seen.forced).toBeFalse();
+    expect(seen.width).toBe('343px');
+    source.remove();
+  });
+
+  it('does not force desktop rendering when the export does not ask for it, even on a mobile screen', async () => {
+    const { helper, viewport, pdfService } = setup(true);
+    const source = sizedSource('343px', '300px');
+    const seen: { forced?: boolean; width?: string } = {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      seen.forced = viewport.renderAsDesktop();
+      seen.width = source.style.width;
+      done?.();
+      return Promise.resolve();
+    });
+
+    await helper.exportToPdf({
+      container: new ElementRef(source),
+    } as unknown as ExportArgs);
+
+    expect(seen.forced).toBeFalse();
+    expect(seen.width).toBe('343px');
+    source.remove();
   });
 });

@@ -4,6 +4,8 @@ import {
   PollCountAnswer,
   PollCountComponent,
 } from '@core/models/summary.model';
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 
@@ -218,5 +220,95 @@ describe('DynamicColumnChartsV2Component', () => {
 
     const option2 = component.chartOption();
     expect(option1).not.toBe(option2);
+  });
+});
+
+describe('DynamicColumnChartV2Component on a mobile screen', () => {
+  let fixture: ComponentFixture<DynamicColumnChartV2Component>;
+
+  const componentData = {
+    description: 'Socioeconomic' as ComponentValueType,
+    text: 'Text here',
+    questions: [
+      {
+        question: 'How is your income?',
+        averageRisk: 1,
+        position: 1,
+        answers: [
+          {
+            answerRisk: 1,
+            count: 5,
+            students: [{ email: 'ana@example.com' }],
+          },
+        ] as unknown as PollCountAnswer[],
+      },
+    ],
+  } as PollCountComponent;
+
+  const waitFor = async (condition: () => boolean) => {
+    for (let attempt = 0; attempt < 150 && !condition(); attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+  };
+
+  const render = async (mobile: boolean) => {
+    await TestBed.configureTestingModule({
+      imports: [DynamicColumnChartV2Component],
+      providers: [
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(mobile),
+            renderAsDesktop: signal(false),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DynamicColumnChartV2Component);
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: mobile ? '343px' : '1000px',
+    });
+    fixture.componentRef.setInput('componentData', componentData);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await waitFor(
+      () =>
+        !!(fixture.nativeElement as HTMLElement).querySelector(
+          '.apexcharts-legend'
+        )
+    );
+  };
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  it('[674-improve-reports-charts-mobile-view/AC-4] fits the column chart and uses smaller axis labels on mobile', async () => {
+    await render(true);
+
+    const host = fixture.nativeElement as HTMLElement;
+    const hostRect = host.getBoundingClientRect();
+    const canvas = host.querySelector<HTMLElement>('.apexcharts-canvas')!;
+    const title = host.querySelector<SVGElement>('.apexcharts-title-text')!;
+    const legend = host.querySelector<HTMLElement>('.apexcharts-legend')!;
+
+    [canvas, title, legend].forEach(element => {
+      const rect = element.getBoundingClientRect();
+      expect(rect.left).toBeGreaterThanOrEqual(hostRect.left - 1);
+      expect(rect.right).toBeLessThanOrEqual(hostRect.right + 1);
+    });
+    expect(
+      fixture.componentInstance.chartOption()?.xaxis?.labels?.style?.fontSize
+    ).toBe('10px');
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+  });
+
+  it('keeps the current axis labels on a desktop screen', async () => {
+    await render(false);
+
+    expect(
+      fixture.componentInstance.chartOption()?.xaxis?.labels?.style
+    ).toBeUndefined();
   });
 });

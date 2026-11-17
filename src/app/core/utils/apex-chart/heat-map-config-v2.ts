@@ -1,7 +1,11 @@
 import { ApexOptions } from 'ng-apexcharts';
 import { getRiskGroup } from '@core/constants/riskLevel';
 import { customTooltip } from '@core/utils/apex-chart/customTooltip-v2';
-import { CHART_LAYOUT, fixedColorRange } from './chart.constants';
+import {
+  CHART_LAYOUT,
+  MOBILE_CHART_LABEL_FONT_SIZE,
+  fixedColorRange,
+} from './chart.constants';
 
 interface ChartContext {
   el: HTMLElement;
@@ -15,7 +19,8 @@ export function GetChartOptions(
   tooltipCustomFunction?: (x: number, y: number) => string,
   availableWidth = 1500,
   isExpanded = false,
-  fixColors = true
+  fixColors = true,
+  isMobile = false
 ): ApexOptions {
   const CARD_HEADER_WIDTH = 96;
   const MIN_CHART_HEIGHT = 230;
@@ -78,7 +83,7 @@ export function GetChartOptions(
     title: {
       text: title,
       style: {
-        fontSize: '22px',
+        fontSize: isMobile ? '14px' : '22px',
         fontWeight: '600',
       },
     },
@@ -96,6 +101,7 @@ export function GetChartOptions(
       labels: {
         maxWidth: questionSection,
         offsetX: 0,
+        ...(isMobile && { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } }),
       },
     },
     plotOptions: {
@@ -152,6 +158,9 @@ export function GetChartOptions(
         return wrap(content());
       },
     },
+    ...(isMobile && {
+      dataLabels: { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } },
+    }),
     ...baseChartOptions,
   };
   return options;

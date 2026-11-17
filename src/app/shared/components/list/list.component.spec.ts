@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ElementRef } from '@angular/core';
+import { ElementRef, computed, signal } from '@angular/core';
+import { PdfService } from '@core/services/exports/pdf.service';
+import { LETTER_PX } from '../../../modules/reports/components/summary-charts/types/export';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -8,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ListComponent } from './list.component';
 import { CsvService } from '@core/services/exports/csv.service';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { EventRemove, EventUpdate } from '../../../core/models/load';
 import { defaultOptions, readOnlyColumns } from './constants/list';
 import { Column } from './types/column';
@@ -741,5 +744,169 @@ describe('ListComponent', () => {
       );
       expect(component.isGenerating).toBeFalse();
     });
+  });
+});
+
+describe('ListComponent export controls on a mobile screen', () => {
+  let fixture: ComponentFixture<ListComponent<TestItem>>;
+
+  const render = async (stackExport: boolean) => {
+    await TestBed.configureTestingModule({
+      imports: [ListComponent],
+      providers: [
+        provideAnimations(),
+        { provide: ActivatedRoute, useValue: {} },
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(true),
+            renderAsDesktop: signal(false),
+          },
+        },
+        {
+          provide: MatSnackBar,
+          useValue: jasmine.createSpyObj('MatSnackBar', ['open']),
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ListComponent<TestItem>);
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: '343px',
+    });
+    fixture.componentRef.setInput('title', 'Student Answers');
+    fixture.componentRef.setInput('showExportDropdown', true);
+    fixture.componentRef.setInput('columns', [
+      { key: 'name', label: 'Name' },
+    ] as Column<TestItem>[]);
+    fixture.componentRef.setInput('items', [
+      { name: 'Ana Torres', status: 'x' },
+    ]);
+    fixture.componentRef.setInput('totalItems', 1);
+    if (stackExport) {
+      fixture.componentRef.setInput('stackExportOnMobile', true);
+    }
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  it('[674-improve-reports-charts-mobile-view/AC-24] places the export selector and button below the list title without overlap on mobile', async () => {
+    await render(true);
+
+    const host = fixture.nativeElement as HTMLElement;
+    const title = host.querySelector('.title')!.getBoundingClientRect();
+    const container = host
+      .querySelector('.export-container')!
+      .getBoundingClientRect();
+    const select = host
+      .querySelector('.export-select')!
+      .getBoundingClientRect();
+    const button = host.querySelector('.export-btn')!.getBoundingClientRect();
+
+    expect(container.top).toBeGreaterThanOrEqual(title.bottom - 1);
+    expect(button.top).toBeGreaterThanOrEqual(select.bottom - 1);
+    expect(Math.round(select.width)).toBe(host.clientWidth);
+    expect(Math.round(button.width)).toBe(host.clientWidth);
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+  });
+
+  it('keeps the title and the export controls in one row without the opt-in input', async () => {
+    await render(false);
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(
+      getComputedStyle(host.querySelector('.container-title-button')!)
+        .flexDirection
+    ).toBe('row');
+  });
+});
+
+describe('ListComponent PDF export on a mobile screen', () => {
+  const exportFromMobile = async (asDesktop: boolean) => {
+    const matches = signal(true);
+    const renderAsDesktop = signal(false);
+    const pdfService = jasmine.createSpyObj<PdfService>('PdfService', [
+      'exportToPDF',
+    ]);
+    const snapshot: { html?: string; forced?: boolean } = {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      snapshot.html = (cloned as HTMLElement).innerHTML;
+      snapshot.forced = renderAsDesktop();
+      done?.();
+      return Promise.resolve();
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [ListComponent],
+      providers: [
+        provideAnimations(),
+        { provide: ActivatedRoute, useValue: {} },
+        { provide: PdfService, useValue: pdfService },
+        {
+          provide: ViewportService,
+          useValue: {
+            renderAsDesktop,
+            isMobile: computed(() => matches() && !renderAsDesktop()),
+          },
+        },
+        {
+          provide: MatSnackBar,
+          useValue: jasmine.createSpyObj('MatSnackBar', ['open']),
+        },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ListComponent<TestItem>);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.componentRef.setInput('title', 'Student Answers');
+    fixture.componentRef.setInput('columns', [
+      { key: 'name', label: 'Name' },
+    ] as Column<TestItem>[]);
+    fixture.componentRef.setInput('items', [
+      { name: 'Ana Torres', status: 'x' },
+    ]);
+    fixture.componentRef.setInput('totalItems', 1);
+    if (asDesktop) {
+      fixture.componentRef.setInput('exportAsDesktopOnMobile', true);
+    }
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('mat-card')).not.toBeNull();
+
+    const helper = TestBed.inject(PdfHelper) as unknown as {
+      waitForReflow: () => Promise<void>;
+      waitForRedraw: () => Promise<void>;
+    };
+    helper.waitForReflow = () => Promise.resolve();
+    helper.waitForRedraw = () => {
+      fixture.detectChanges();
+      return Promise.resolve();
+    };
+
+    await fixture.componentInstance.exportToPdf();
+
+    const [, , width] = pdfService.exportToPDF.calls.mostRecent().args;
+    expect(renderAsDesktop()).toBeFalse();
+    fixture.nativeElement.remove();
+    return { snapshot, width };
+  };
+
+  it('[674-improve-reports-charts-mobile-view/AC-20] exports the student list to PDF as a table with the desktop page size from mobile', async () => {
+    const { snapshot, width } = await exportFromMobile(true);
+
+    expect(snapshot.forced).toBeTrue();
+    expect(snapshot.html).toContain('<table');
+    expect(snapshot.html).toContain('Ana Torres');
+    expect(snapshot.html).not.toContain('<mat-card');
+    expect(width).toBe(LETTER_PX.landscape);
+  });
+
+  it('keeps the screen rendering of a list that does not ask for the desktop one', async () => {
+    const { snapshot } = await exportFromMobile(false);
+
+    expect(snapshot.forced).toBeFalse();
+    expect(snapshot.html).toContain('<mat-card');
   });
 });

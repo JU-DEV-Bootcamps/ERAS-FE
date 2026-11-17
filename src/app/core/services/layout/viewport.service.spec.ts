@@ -40,6 +40,26 @@ describe('ViewportService', () => {
     expect(service.isMobile()).toBeFalse();
   });
 
+  it('reports a desktop screen while renderAsDesktop is on and goes back after', () => {
+    const service = setup(true);
+    expect(service.isMobile()).toBeTrue();
+
+    service.renderAsDesktop.set(true);
+    expect(service.isMobile()).toBeFalse();
+
+    service.renderAsDesktop.set(false);
+    expect(service.isMobile()).toBeTrue();
+  });
+
+  it('keeps isMobileScreen true while renderAsDesktop is on', () => {
+    const service = setup(true);
+
+    service.renderAsDesktop.set(true);
+
+    expect(service.isMobile()).toBeFalse();
+    expect(service.isMobileScreen()).toBeTrue();
+  });
+
   it('treats screens narrower than 768px as mobile', () => {
     expect(MOBILE_MEDIA_QUERY).toBe('(max-width: 767.98px)');
   });

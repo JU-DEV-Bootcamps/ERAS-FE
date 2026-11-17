@@ -27,6 +27,7 @@ import { EvaluationDetailsService } from '@core/services/api/evaluation-details.
 import { FeatureFlagsService } from '@core/components/feature-flags/feature-flags.service';
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { MatDialog } from '@angular/material/dialog';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 import { ListComponent } from '@shared/components/list/list.component';
 import { BadgeRiskComponent } from '@shared/components/badge-risk-level/badge-risk-level.component';
@@ -56,6 +57,7 @@ export interface ColumnRiskPanelData {
     MatProgressSpinner,
   ],
   templateUrl: './column-risk-panel.component.html',
+  host: { '[class.mobile]': 'isMobile()' },
   styleUrl: './column-risk-panel.component.scss',
 })
 export class ColumnRiskPanelComponent implements OnChanges {
@@ -63,6 +65,7 @@ export class ColumnRiskPanelComponent implements OnChanges {
   closed = output<void>();
 
   private readonly dialog = inject(MatDialog);
+  readonly isMobile = inject(ViewportService).isMobile;
   private readonly pollService = inject(PollService);
   private readonly evaluationDetailsService = inject(EvaluationDetailsService);
   private readonly featureFlags = inject(FeatureFlagsService);

@@ -22,6 +22,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ViewportService } from '@core/services/layout/viewport.service';
+import { DESKTOP_EXPORT_WIDTH } from '@modules/reports/components/summary-charts/constants/export-conf';
 import { defaultOptions, readOnlyColumns } from './constants/list';
 import {
   EventAction,
@@ -70,6 +71,7 @@ const WAIT_ALL_ITEMS_TIMEOUT_MS = 30000;
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
+  host: { '[class.stack-export]': 'stackExport()' },
 })
 export class ListComponent<T extends object>
   implements OnInit, AfterContentInit, OnChanges
@@ -102,6 +104,11 @@ export class ListComponent<T extends object>
   readonly compactPaginatorOnMobile = input(false);
   readonly compactPaginator = computed(
     () => this.compactPaginatorOnMobile() && this.viewport.isMobile()
+  );
+  readonly stackExportOnMobile = input(false);
+  readonly exportAsDesktopOnMobile = input(false);
+  readonly stackExport = computed(
+    () => this.stackExportOnMobile() && this.viewport.isMobile()
   );
   @Input() columnOrder: Column<T>[] = [];
   @Input() isItemDisabled?: (item: T) => boolean;
@@ -316,6 +323,12 @@ export class ListComponent<T extends object>
     return selectedItems;
   }
 
+  private desktopExportWidth(): number | undefined {
+    return this.exportAsDesktopOnMobile()
+      ? DESKTOP_EXPORT_WIDTH.report
+      : undefined;
+  }
+
   private async exportWithAllItems(itemsToExport: T[]) {
     const originalItems = this.items;
     this.items = itemsToExport;
@@ -324,6 +337,7 @@ export class ListComponent<T extends object>
 
     await this.pdfHelper.exportToPdf({
       fileName: 'report_detail',
+      desktopWidth: this.desktopExportWidth(),
       container: this.contentToExport,
       snackBar: this.snackBar,
       preProcess: 'list',
@@ -363,6 +377,7 @@ export class ListComponent<T extends object>
 
     await this.pdfHelper.exportToPdfChunked({
       fileName: 'report_detail',
+      desktopWidth: this.desktopExportWidth(),
       container: this.contentToExport,
       snackBar: this.snackBar,
       preProcess: 'list',

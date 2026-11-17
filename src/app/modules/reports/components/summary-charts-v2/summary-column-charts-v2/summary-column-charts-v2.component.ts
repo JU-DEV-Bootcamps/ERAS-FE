@@ -19,13 +19,15 @@ import {
 import { RISK_COLORS, RISK_LABELS } from '@core/constants/riskLevel';
 
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { ColumnRiskPanelData } from '../column-risk-panel/column-risk-panel.component';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { TooltipChartV2Component } from '../../tooltip-chart-v2/tooltip-chart-v2.component';
+import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
 
 @Component({
   selector: 'app-summary-column-charts-v2',
-  imports: [NgApexchartsModule],
+  imports: [NgApexchartsModule, ApexTooltipDirective],
   templateUrl: './summary-column-charts-v2.component.html',
 })
 export class SummaryColumnChartsV2Component {
@@ -38,6 +40,8 @@ export class SummaryColumnChartsV2Component {
   openPanel = output<ColumnRiskPanelData>();
 
   private injector = inject(EnvironmentInjector);
+  private readonly viewport = inject(ViewportService);
+  readonly isMobile = this.viewport.isMobile;
 
   chartOptions = computed<Partial<ChartOptions>>(() => {
     const data = this.components();
@@ -86,12 +90,15 @@ export class SummaryColumnChartsV2Component {
       series: this._createSeries(components),
       plotOptions: ColumnChartUtils.createPlotOptions(),
       xaxis: ColumnChartUtils.createXAxis(
-        components.map(component => component.description)
+        components.map(component => component.description),
+        this.isMobile()
       ),
       fill: ColumnChartUtils.createFill(),
       legend: ColumnChartUtils.createLegend(),
       tooltip: this._createTooltip(),
-      responsive: ColumnChartUtils.createResponsive(),
+      responsive: this.viewport.renderAsDesktop()
+        ? []
+        : ColumnChartUtils.createResponsive(),
     };
   }
 
@@ -134,28 +141,38 @@ export class SummaryColumnChartsV2Component {
     return {
       followCursor: true,
       custom: ({ seriesIndex, dataPointIndex, w }) => {
-        const value =
-          w.config.series[seriesIndex].data[dataPointIndex].meta.length;
-        const category = w.globals.labels[dataPointIndex];
-        const emails = w.config.series[seriesIndex].data[dataPointIndex].meta;
-
-        const compRef = createComponent(TooltipChartV2Component, {
-          environmentInjector: this.injector,
-        });
-
-        compRef.instance.value = `Students: ${value}`;
-        compRef.instance.category = category;
-        compRef.instance.emails = emails;
-
-        const container = document.createElement('div');
-        container.appendChild(compRef.location.nativeElement);
-        compRef.changeDetectorRef.detectChanges();
-
-        const html = container.innerHTML;
-        compRef.destroy();
-
-        return html;
+        const meta: string[] =
+          w.config.series[seriesIndex].data[dataPointIndex].meta;
+        return this._tooltipHtml(w.globals.labels[dataPointIndex], meta);
       },
     };
+  }
+
+  tooltipFn = (componentIndex: number, riskIndex: number): string => {
+    const component = this.components()?.components[componentIndex];
+    const point = this.chartOptions().series?.[riskIndex]?.data[
+      componentIndex
+    ] as { meta?: string[] } | undefined;
+    if (!component || !point) return '';
+    return this._tooltipHtml(component.description, point.meta ?? []);
+  };
+
+  private _tooltipHtml(category: string, emails: string[]): string {
+    const compRef = createComponent(TooltipChartV2Component, {
+      environmentInjector: this.injector,
+    });
+
+    compRef.instance.value = `Students: ${emails.length}`;
+    compRef.instance.category = category;
+    compRef.instance.emails = emails;
+
+    const container = document.createElement('div');
+    container.appendChild(compRef.location.nativeElement);
+    compRef.changeDetectorRef.detectChanges();
+
+    const html = container.innerHTML;
+    compRef.destroy();
+
+    return html;
   }
 }

@@ -1,4 +1,5 @@
 import { ComponentRisk } from '@core/models/summary.model';
+import { MOBILE_CHART_LABEL_FONT_SIZE } from '@core/utils/apex-chart/chart.constants';
 import {
   ApexChart,
   ApexFill,
@@ -49,13 +50,14 @@ export class ColumnChartUtils {
     return { bar: { horizontal: false } };
   }
 
-  static createXAxis(categories: string[]): ApexXAxis {
+  static createXAxis(categories: string[], isMobile = false): ApexXAxis {
     return {
       categories: categories,
       labels: {
         trim: true,
         hideOverlappingLabels: false,
         maxHeight: 100,
+        ...(isMobile && { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } }),
       },
     };
   }

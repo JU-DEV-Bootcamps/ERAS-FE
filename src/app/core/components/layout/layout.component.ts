@@ -64,7 +64,7 @@ export class LayoutComponent implements OnInit {
   private breakpointObserver = inject(BreakpointObserver);
   private router = inject(Router);
   private featureFlagsService = inject(FeatureFlagsService);
-  readonly isMobile = inject(ViewportService).isMobile;
+  readonly isMobile = inject(ViewportService).isMobileScreen;
 
   collapsed = model<boolean>(false);
   menuOpen = signal(false);

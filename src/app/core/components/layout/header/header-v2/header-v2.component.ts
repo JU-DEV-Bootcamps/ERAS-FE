@@ -18,6 +18,6 @@ export class HeaderV2Component {
   readonly menuToggle = output<void>();
   readonly messages = LAYOUT_MESSAGES;
   private readonly userData = inject(UserDataService);
-  readonly isMobile = inject(ViewportService).isMobile;
+  readonly isMobile = inject(ViewportService).isMobileScreen;
   user = this.userData.user;
 }

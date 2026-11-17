@@ -22,6 +22,7 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ColumnRiskPanelData } from './column-risk-panel/column-risk-panel.component';
+import { DESKTOP_EXPORT_WIDTH } from '../summary-charts/constants/export-conf';
 import { DetailsPanelData } from '@shared/components/panels/details-panel-v2/details-panel.component';
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 
@@ -530,6 +531,7 @@ describe('SummaryChartsV2Component', () => {
         fileName: 'cohort_report',
         container: component.contentToExport,
         snackBar,
+        desktopWidth: DESKTOP_EXPORT_WIDTH.report,
       });
       expect(component.isGeneratingPDF).toBeFalse();
       void promise;

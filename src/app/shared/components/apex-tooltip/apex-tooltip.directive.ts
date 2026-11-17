@@ -4,6 +4,8 @@ import {
   OnDestroy,
   Input,
   ComponentRef,
+  inject,
+  input,
 } from '@angular/core';
 import {
   Overlay,
@@ -12,6 +14,9 @@ import {
 } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { ApexTooltipComponent } from './apex-tooltip.component';
+import { ViewportService } from '@core/services/layout/viewport.service';
+
+const TAP_EVENTS = ['touchstart', 'mousedown', 'mouseup', 'click'];
 
 @Directive({
   selector: '[appApexTooltip]',
@@ -20,12 +25,21 @@ import { ApexTooltipComponent } from './apex-tooltip.component';
 export class ApexTooltipDirective implements OnDestroy {
   // Función que recibe (seriesIndex, dataPointIndex) y retorna el HTML del tooltip
   @Input() appApexTooltip!: (x: number, y: number) => string;
+  readonly appApexTooltipEnabled = input(true);
 
   private overlayRef: OverlayRef | null = null;
   private compRef: ComponentRef<ApexTooltipComponent> | null = null;
 
   private boundMouseMove = this.onMouseMove.bind(this);
   private boundMouseLeave = this.onMouseLeave.bind(this);
+  private boundPointerDownCapture = this.onPointerDownCapture.bind(this);
+  private boundTapEventCapture = this.onTapEventCapture.bind(this);
+  private boundOutsidePointerDown = this.onOutsidePointerDown.bind(this);
+
+  private readonly viewport = inject(ViewportService);
+  private armedKey: string | null = null;
+  private blockTap = false;
+  private suppressTooltip = false;
 
   constructor(
     private el: ElementRef<HTMLElement>,
@@ -34,11 +48,39 @@ export class ApexTooltipDirective implements OnDestroy {
   ) {
     this.el.nativeElement.addEventListener('mousemove', this.boundMouseMove);
     this.el.nativeElement.addEventListener('mouseleave', this.boundMouseLeave);
+    this.el.nativeElement.addEventListener(
+      'pointerdown',
+      this.boundPointerDownCapture,
+      true
+    );
+    TAP_EVENTS.forEach(name =>
+      this.el.nativeElement.addEventListener(
+        name,
+        this.boundTapEventCapture,
+        true
+      )
+    );
+    document.addEventListener('pointerdown', this.boundOutsidePointerDown);
   }
 
   ngOnDestroy(): void {
     this.hide();
+    this.overlayRef?.dispose();
+    this.overlayRef = null;
     this.el.nativeElement.removeEventListener('mousemove', this.boundMouseMove);
+    this.el.nativeElement.removeEventListener(
+      'pointerdown',
+      this.boundPointerDownCapture,
+      true
+    );
+    TAP_EVENTS.forEach(name =>
+      this.el.nativeElement.removeEventListener(
+        name,
+        this.boundTapEventCapture,
+        true
+      )
+    );
+    document.removeEventListener('pointerdown', this.boundOutsidePointerDown);
     this.el.nativeElement.removeEventListener(
       'mouseleave',
       this.boundMouseLeave
@@ -46,6 +88,10 @@ export class ApexTooltipDirective implements OnDestroy {
   }
 
   private onMouseMove(event: MouseEvent): void {
+    if (!this.appApexTooltipEnabled() || this.suppressTooltip) {
+      this.hide();
+      return;
+    }
     const cell = this.getHeatmapCellAt(event);
     if (!cell) {
       this.hide();
@@ -60,14 +106,50 @@ export class ApexTooltipDirective implements OnDestroy {
     }
 
     this.show(html, event);
+    this.armedKey = this.cellKey(cell);
   }
 
   private onMouseLeave(): void {
     this.hide();
   }
 
+  private onPointerDownCapture(event: Event): void {
+    this.blockTap = false;
+    this.suppressTooltip = false;
+    if (!this.appApexTooltipEnabled() || !this.viewport.isMobile()) return;
+
+    const cell = this.getHeatmapCellAt(event);
+    if (!cell) {
+      this.hide();
+      return;
+    }
+
+    if (this.cellKey(cell) === this.armedKey) {
+      this.hide();
+      this.suppressTooltip = true;
+      return;
+    }
+    this.blockTap = true;
+  }
+
+  private onTapEventCapture(event: Event): void {
+    if (this.blockTap) event.stopPropagation();
+  }
+
+  private onOutsidePointerDown(event: Event): void {
+    if (this.el.nativeElement.contains(event.target as Node)) return;
+    this.hide();
+  }
+
+  private cellKey(cell: {
+    seriesIndex: number;
+    dataPointIndex: number;
+  }): string {
+    return `${cell.seriesIndex}-${cell.dataPointIndex}`;
+  }
+
   private getHeatmapCellAt(
-    event: MouseEvent
+    event: Event
   ): { seriesIndex: number; dataPointIndex: number } | null {
     const target = event.target as SVGElement;
 
@@ -121,25 +203,24 @@ export class ApexTooltipDirective implements OnDestroy {
       this.createOverlay();
     }
 
+    if (!this.overlayRef!.hasAttached()) {
+      this.compRef = this.overlayRef!.attach(
+        new ComponentPortal(ApexTooltipComponent)
+      );
+    }
+
     if (this.compRef) {
       this.compRef.instance.html = html;
       this.compRef.instance.cdr.detectChanges();
     }
 
     this.updatePosition(event);
-
-    if (!this.overlayRef!.hasAttached()) {
-      this.compRef = this.overlayRef!.attach(
-        new ComponentPortal(ApexTooltipComponent)
-      );
-      this.compRef.instance.html = html;
-      this.compRef.instance.cdr.detectChanges();
-    }
   }
 
   private hide(): void {
     this.overlayRef?.detach();
     this.compRef = null;
+    this.armedKey = null;
   }
 
   private createOverlay(): void {
@@ -160,19 +241,39 @@ export class ApexTooltipDirective implements OnDestroy {
     const tooltipWidth = tooltipEl?.offsetWidth ?? 402;
     const tooltipHeight = tooltipEl?.offsetHeight ?? 400;
 
-    const spaceOnRight = window.innerWidth - event.clientX;
-    const spaceOnBottom = window.innerHeight - event.clientY;
+    const screenWidth = document.documentElement.clientWidth;
+    const screenHeight = document.documentElement.clientHeight;
+    const screenMargin = 8;
+    let left: number;
+    let top: number;
 
-    const showOnLeft = spaceOnRight < tooltipWidth + offsetX;
-    const showOnTop = spaceOnBottom < tooltipHeight + offsetY;
+    if (this.viewport.isMobile()) {
+      const pointGap = 16;
+      const above = event.clientY - tooltipHeight - pointGap;
+      left = event.clientX - tooltipWidth / 2;
+      top = above >= screenMargin ? above : event.clientY + pointGap;
+      top = Math.max(
+        screenMargin,
+        Math.min(top, screenHeight - tooltipHeight - screenMargin)
+      );
+    } else {
+      const spaceOnRight = window.innerWidth - event.clientX;
+      const spaceOnBottom = window.innerHeight - event.clientY;
+      const showOnLeft = spaceOnRight < tooltipWidth + offsetX;
+      const showOnTop = spaceOnBottom < tooltipHeight + offsetY;
 
-    const left = showOnLeft
-      ? event.clientX - tooltipWidth - offsetX
-      : event.clientX + offsetX;
+      left = showOnLeft
+        ? event.clientX - tooltipWidth - offsetX
+        : event.clientX + offsetX;
+      top = showOnTop
+        ? event.clientY - tooltipHeight - offsetY
+        : event.clientY + offsetY;
+    }
 
-    const top = showOnTop
-      ? event.clientY - tooltipHeight - offsetY
-      : event.clientY + offsetY;
+    left = Math.max(
+      screenMargin,
+      Math.min(left, screenWidth - tooltipWidth - screenMargin)
+    );
 
     const strategy = this.overlay
       .position()
