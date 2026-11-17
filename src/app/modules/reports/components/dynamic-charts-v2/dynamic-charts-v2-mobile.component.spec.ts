@@ -186,6 +186,19 @@ describe('DynamicChartsV2Component on mobile and desktop screens', () => {
     expect(host().scrollWidth).toBeLessThanOrEqual(host().clientWidth);
   });
 
+  it('leaves space between the filters and the charts on mobile', async () => {
+    await setup(true, 375);
+
+    const filters = host()
+      .querySelector('app-poll-filters')!
+      .getBoundingClientRect();
+    const charts = host()
+      .querySelector('.charts-layout')!
+      .getBoundingClientRect();
+
+    expect(charts.top - filters.bottom).toBeGreaterThanOrEqual(16);
+  });
+
   it('generates the charts at the desktop card width while a PDF is rendered as desktop', async () => {
     await setup(true, 375);
 
