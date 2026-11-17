@@ -383,7 +383,17 @@ describe('DetailsPanelComponent on a mobile screen', () => {
     evaluationId: 10,
   } as DetailsPanelData;
 
-  const render = async (mobile: boolean) => {
+  const render = async (
+    mobile: boolean,
+    students: EvaluationDetailsStudentResponse[] = [
+      {
+        id: 1,
+        name: 'Ana Torres',
+        answerText: 'I feel good most of the days of the week',
+        riskLevel: 2,
+      } as unknown as EvaluationDetailsStudentResponse,
+    ]
+  ) => {
     const pollService = jasmine.createSpyObj<PollService>('PollService', [
       'getVariablesByComponents',
     ]);
@@ -427,15 +437,8 @@ describe('DetailsPanelComponent on a mobile screen', () => {
     });
     fixture.componentRef.setInput('data', panelData);
     fixture.detectChanges();
-    fixture.componentInstance.studentList.set([
-      {
-        id: 1,
-        name: 'Ana Torres',
-        answerText: 'I feel good most of the days of the week',
-        riskLevel: 2,
-      } as unknown as EvaluationDetailsStudentResponse,
-    ]);
-    fixture.componentInstance.totalStudentRisks.set(1);
+    fixture.componentInstance.studentList.set(students);
+    fixture.componentInstance.totalStudentRisks.set(students.length);
     fixture.detectChanges();
   };
 
@@ -460,5 +463,48 @@ describe('DetailsPanelComponent on a mobile screen', () => {
       );
     });
     expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-28] aligns the risk badge and the action of every student card on mobile whatever the text length', async () => {
+    await render(true, [
+      {
+        id: 1,
+        name: 'Ana',
+        answerText: 'Yes',
+        riskLevel: 2,
+      },
+      {
+        id: 2,
+        name: 'Carlos Alberto Fernandez de la Torre Santillana',
+        answerText: 'Ninguna de las anteriores ni las opciones restantes',
+        riskLevel: 4,
+      },
+    ] as unknown as EvaluationDetailsStudentResponse[]);
+
+    const cards = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+        'app-mat-card-details mat-card'
+      )
+    );
+    const parts = cards.map(card => ({
+      badge: card
+        .querySelector<HTMLElement>('.row-mobile.badge')!
+        .getBoundingClientRect(),
+      action: card
+        .querySelector<HTMLElement>('mat-card-actions')!
+        .getBoundingClientRect(),
+    }));
+
+    expect(cards.length).toBe(2);
+    expect(Math.abs(parts[0].badge.left - parts[1].badge.left)).toBeLessThan(1);
+    expect(Math.abs(parts[0].badge.width - parts[1].badge.width)).toBeLessThan(
+      1
+    );
+    expect(Math.abs(parts[0].action.left - parts[1].action.left)).toBeLessThan(
+      1
+    );
+    parts.forEach(part => {
+      expect(part.action.top).toBeLessThan(part.badge.bottom);
+    });
   });
 });
