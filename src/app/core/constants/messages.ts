@@ -24,6 +24,8 @@ export const VALIDATION_MESSAGES = {
 
 export const STUDENT_PROFILE_MESSAGES = {
   TITLE: 'Profile summary',
+  EDIT_TITLE: 'Edit Student Profile',
+  EDIT_ACTION_LABEL: 'Edit profile',
   NOT_AVAILABLE: '-',
   LOAD_ERROR: 'Could not load the student profile. Please try again later.',
   NO_COURSES: 'No current courses.',

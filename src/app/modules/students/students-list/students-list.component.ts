@@ -56,22 +56,29 @@ import {
   OptionalColumns,
 } from '@modules/imports/components/import-preview-students/import-preview-students.model';
 import { StudentImport } from '@core/services/interfaces/student.interface';
-import { GENERAL_MESSAGES, STUDENTS_MESSAGES } from '@core/constants/messages';
+import {
+  GENERAL_MESSAGES,
+  STUDENT_PROFILE_MESSAGES,
+  STUDENTS_MESSAGES,
+} from '@core/constants/messages';
 import { openDialogWithStatus } from '@modules/imports/utils/dialogWithStatus';
 import { ExportStateService } from '@core/services/exports/export-state.service';
 import { CohortService } from '@core/services/api/cohort.service';
 import { ToastNotificationService } from '@core/services/toast-notification.service';
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
 import { mapFields } from '@modules/supports-referrals/utils/fieldMapper';
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, debounceTime, filter, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { debounceTime, filter, map } from 'rxjs/operators';
 import { Lookup } from '@core/models/lookup';
 import {
   NewStudentModalComponent,
   NewStudentModalData,
 } from './new-student-modal/new-student-modal.component';
 import { StudentProfileSummaryModalComponent } from './student-profile-summary-modal/student-profile-summary-modal.component';
-import { withCohortName } from './student-profile-view/student-profile-sections';
+import {
+  EditStudentModalComponent,
+  EditStudentModalData,
+} from './edit-student-modal/edit-student-modal.component';
 import { ERASPermissions } from '@core/services/permissions/permission.policies';
 import { PermissionsService } from '@core/services/permissions/permissions.service';
 import { ViewportService } from '@core/services/layout/viewport.service';
@@ -161,15 +168,17 @@ export class StudentsListComponent implements OnInit {
       label: 'Actions',
       ngIconName: 'visibility',
       tooltip: 'See more details',
+      text: 'Check details',
     },
-    // Every student has a profile view; those without one start empty, prefilled
+    // Every student can be edited; those without a profile start empty, prefilled
     // with the name and email that already exist.
     {
       columnId: 'actions',
-      id: 'viewProfile',
-      label: 'Profile',
-      ngIconName: 'person',
-      tooltip: 'View profile',
+      id: 'editProfile',
+      label: STUDENT_PROFILE_MESSAGES.EDIT_ACTION_LABEL,
+      ngIconName: 'edit',
+      tooltip: STUDENT_PROFILE_MESSAGES.EDIT_TITLE,
+      text: 'Edit Profile',
     },
     {
       columnId: 'actions',
@@ -177,6 +186,7 @@ export class StudentsListComponent implements OnInit {
       label: 'Profile summary',
       ngIconName: 'badge',
       tooltip: 'Profile summary',
+      text: 'Profile summary',
     },
     {
       columnId: 'actions',
@@ -184,6 +194,7 @@ export class StudentsListComponent implements OnInit {
       label: 'Delete',
       ngIconName: 'delete',
       tooltip: 'Delete student',
+      text: 'Delete student',
       isVisible: (item: unknown) => {
         const student = item as StudentModelFlat;
         return !!student.hasProfile && !student.isImported;
@@ -200,7 +211,7 @@ export class StudentsListComponent implements OnInit {
     if (!this.canManageStudents) {
       this.itemsAreSelectable = false;
       this.actionDatas = this.actionDatas.filter(
-        action => action.id === 'viewProfile' || action.id === 'profileSummary'
+        action => action.id === 'editProfile' || action.id === 'profileSummary'
       );
     }
     this.searchControl.valueChanges
@@ -315,8 +326,8 @@ export class StudentsListComponent implements OnInit {
 
     if (student) {
       switch (event.data?.id) {
-        case 'viewProfile':
-          this.openStudentProfileModal(student);
+        case 'editProfile':
+          this.openEditStudentModal(student);
           break;
         case 'profileSummary':
           this.openProfileSummaryModal(student);
@@ -374,7 +385,7 @@ export class StudentsListComponent implements OnInit {
     this.loadCohortLookups().subscribe({
       next: cohorts => {
         this.isOpeningStudentModal = false;
-        this.openStudentModal({ cohorts });
+        this.openStudentModal(NewStudentModalComponent, { cohorts });
       },
       error: err => {
         this.isOpeningStudentModal = false;
@@ -383,25 +394,14 @@ export class StudentsListComponent implements OnInit {
     });
   }
 
-  openStudentProfileModal(student: StudentModelFlat): void {
+  openEditStudentModal(student: StudentModelFlat): void {
     if (this.isOpeningStudentModal) return;
     this.isOpeningStudentModal = true;
 
-    // The profile only carries the student's `cohortId`; the record in view mode shows the cohort name.
-    forkJoin({
-      profile: this.studentService.getStudentProfileSummary(student.id),
-      cohorts: this.cohortService.getCohorts().pipe(
-        map(response => response.body ?? []),
-        catchError(() => of([]))
-      ),
-    }).subscribe({
-      next: ({ profile, cohorts }) => {
+    this.studentService.getStudentProfileSummary(student.id).subscribe({
+      next: profile => {
         this.isOpeningStudentModal = false;
-        this.openStudentModal({
-          cohorts: [],
-          student: withCohortName(profile, cohorts),
-          hasProfile: !!student.hasProfile,
-        });
+        this.openStudentModal(EditStudentModalComponent, { student: profile });
       },
       error: err => {
         this.isOpeningStudentModal = false;
@@ -452,8 +452,13 @@ export class StudentsListComponent implements OnInit {
     });
   }
 
-  private openStudentModal(data: NewStudentModalData): void {
-    const dialogRef = this.dialog.open(NewStudentModalComponent, {
+  private openStudentModal(
+    component: ComponentType<
+      NewStudentModalComponent | EditStudentModalComponent
+    >,
+    data: NewStudentModalData | EditStudentModalData
+  ): void {
+    const dialogRef = this.dialog.open(component, {
       autoFocus: false,
       ...this.studentDialogSize({
         width: '1100px',

@@ -261,7 +261,7 @@ describe('StudentProfileViewComponent', () => {
     );
   });
 
-  it('[641-align-student-modal-fields/AC-20] shows an icon with a colour on each academic field and keeps the agreed order', () => {
+  it('[686-edit-focused-student-profile-modal/AC-11] shows an icon with a colour on each academic field and keeps the agreed order', () => {
     // GIVEN a student with academic data, a third-attempt course and current courses
     // WHEN a user with an ERAS role opens the view
     const el = create({ ...profile, isCurrentCourseThirdAttempt: true });

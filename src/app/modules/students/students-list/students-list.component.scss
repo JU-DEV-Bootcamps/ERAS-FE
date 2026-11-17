@@ -66,3 +66,7 @@ mat-spinner {
   align-items: center;
   width: 100%;
 }
+
+:host app-eras-button {
+  height: fit-content;
+}

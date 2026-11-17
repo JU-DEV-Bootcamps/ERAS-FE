@@ -332,8 +332,8 @@ describe('StudentsListComponent on mobile and desktop screens', () => {
     create(true);
     const open = stubDialog();
 
-    // WHEN they open the profile of a student with the "View profile" action
-    component.handleActionCalled(actionOn('viewProfile'));
+    // WHEN they open the profile of a student with the "Edit Student Profile" action
+    component.handleActionCalled(actionOn('editProfile'));
 
     // THEN the modal covers the whole screen
     expectFullScreen(configOf(open));
