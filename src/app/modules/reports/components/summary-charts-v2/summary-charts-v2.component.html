@@ -1,8 +1,5 @@
 <div class="summary-charts-wrapper" #contentToExport>
-  <div
-    class="filter-bar"
-    [class.behind-detail]="isMobile() && (isPanelOpen() || isColumnPanelOpen())"
-  >
+  <div class="filter-bar" [class.behind-detail]="detailOpen()">
     <app-poll-filters
       [showVariables]="false"
       (filters)="handleFilterSelect($event)"
@@ -24,12 +21,7 @@
       class="summary-layout"
       [class.panel-open]="isPanelOpen() || isColumnPanelOpen()"
     >
-      <div
-        class="summary-content"
-        [class.behind-detail]="
-          isMobile() && (isPanelOpen() || isColumnPanelOpen())
-        "
-      >
+      <div class="summary-content" [class.behind-detail]="detailOpen()">
         <div class="report-card">
           <div class="report-card__header">
             <span class="report-card__title">Global Academic Risk</span>
@@ -173,6 +165,7 @@
               [title]="'Student Answers'"
               [showExportDropdown]="true"
               [stackExportOnMobile]="true"
+              [exportAsDesktopOnMobile]="true"
               [allItems]="allStudents"
               [areExportedAllItems]="true"
             >

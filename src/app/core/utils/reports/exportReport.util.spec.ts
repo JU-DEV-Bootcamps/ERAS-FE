@@ -619,20 +619,28 @@ describe('PdfHelper on a mobile screen', () => {
     return { helper, viewport, pdfService, internals };
   };
 
-  const sizedSource = (width: string, height: string) => {
+  const chartContent = (height: number) =>
+    `<div style="height: ${height}px"></div><div><div class="apexcharts-canvas"><svg viewBox="0 0 500 300" style="display: block; height: 0"></svg></div></div>`;
+
+  const sizedSource = (width: string, height: string, content = '') => {
     const source = document.createElement('div');
     source.style.cssText = `width: ${width}; height: ${height};`;
+    source.innerHTML = content;
     document.body.appendChild(source);
     return source;
   };
 
   it('[674-improve-reports-charts-mobile-view/AC-17] gives the report PDF from a mobile screen the page size and orientation of the desktop one', async () => {
     const { helper, viewport, pdfService } = setup(true);
-    const source = sizedSource('343px', '800px');
-    const seen: { forced?: boolean; width?: string } = {};
+    const source = sizedSource('343px', 'auto', chartContent(800));
+    const seen: { forced?: boolean; width?: string; chart?: string | null } =
+      {};
     pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
       seen.forced = viewport.renderAsDesktop();
       seen.width = source.style.width;
+      seen.chart = (cloned as HTMLElement)
+        .querySelector('svg')
+        ?.getAttribute('width');
       done?.();
       return Promise.resolve();
     });
@@ -640,12 +648,14 @@ describe('PdfHelper on a mobile screen', () => {
     await helper.exportToPdf({
       container: new ElementRef(source),
       fileName: 'cohort_report',
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
     } as unknown as ExportArgs);
 
     const [, , width] = pdfService.exportToPDF.calls.mostRecent().args;
     expect(width).toBe(LETTER_PX.landscape);
     expect(seen.forced).toBeTrue();
     expect(seen.width).toBe(`${DESKTOP_EXPORT_WIDTH.report}px`);
+    expect(seen.chart).toBe(String(LETTER_PX.landscape));
     expect(source.style.width).toBe('343px');
     expect(viewport.renderAsDesktop()).toBeFalse();
     source.remove();
@@ -653,11 +663,15 @@ describe('PdfHelper on a mobile screen', () => {
 
   it('[674-improve-reports-charts-mobile-view/AC-18] gives the chart card PDF from a mobile screen the page size and orientation of the desktop one', async () => {
     const { helper, viewport, pdfService } = setup(true);
-    const source = sizedSource('343px', '300px');
-    const seen: { forced?: boolean; width?: string } = {};
+    const source = sizedSource('343px', 'auto', chartContent(400));
+    const seen: { forced?: boolean; width?: string; chart?: string | null } =
+      {};
     pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
       seen.forced = viewport.renderAsDesktop();
       seen.width = source.style.width;
+      seen.chart = (cloned as HTMLElement)
+        .querySelector('svg')
+        ?.getAttribute('width');
       done?.();
       return Promise.resolve();
     });
@@ -665,12 +679,14 @@ describe('PdfHelper on a mobile screen', () => {
     await helper.exportCardToPdf({
       container: new ElementRef(source),
       fileName: 'card',
+      desktopWidth: DESKTOP_EXPORT_WIDTH.card,
     } as unknown as ExportArgs);
 
     const [, , width] = pdfService.exportToPDF.calls.mostRecent().args;
     expect(width).toBe(LETTER_PX.landscape);
     expect(seen.forced).toBeTrue();
     expect(seen.width).toBe(`${DESKTOP_EXPORT_WIDTH.card}px`);
+    expect(seen.chart).toBe(String(LETTER_PX.landscape));
     expect(source.style.width).toBe('343px');
     expect(viewport.renderAsDesktop()).toBeFalse();
     source.remove();
@@ -698,6 +714,7 @@ describe('PdfHelper on a mobile screen', () => {
         fixture.nativeElement.querySelector('.report-box')
       ),
       fileName: 'cohort_report',
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
     } as unknown as ExportArgs);
 
     expect(snapshot.html).toContain('<table');
@@ -728,6 +745,7 @@ describe('PdfHelper on a mobile screen', () => {
 
     await helper.exportToPdf({
       container: new ElementRef(source),
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
     } as unknown as ExportArgs);
 
     expect(forcedAtResize).toEqual([true, false]);
@@ -742,6 +760,7 @@ describe('PdfHelper on a mobile screen', () => {
     await expectAsync(
       helper.exportToPdf({
         container: new ElementRef(source),
+        desktopWidth: DESKTOP_EXPORT_WIDTH.report,
       } as unknown as ExportArgs)
     ).toBeRejected();
 
@@ -752,6 +771,27 @@ describe('PdfHelper on a mobile screen', () => {
 
   it('does not force desktop rendering or change the container on a desktop screen', async () => {
     const { helper, viewport, pdfService } = setup(false);
+    const source = sizedSource('343px', '300px');
+    const seen: { forced?: boolean; width?: string } = {};
+    pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {
+      seen.forced = viewport.renderAsDesktop();
+      seen.width = source.style.width;
+      done?.();
+      return Promise.resolve();
+    });
+
+    await helper.exportToPdf({
+      container: new ElementRef(source),
+      desktopWidth: DESKTOP_EXPORT_WIDTH.report,
+    } as unknown as ExportArgs);
+
+    expect(seen.forced).toBeFalse();
+    expect(seen.width).toBe('343px');
+    source.remove();
+  });
+
+  it('does not force desktop rendering when the export does not ask for it, even on a mobile screen', async () => {
+    const { helper, viewport, pdfService } = setup(true);
     const source = sizedSource('343px', '300px');
     const seen: { forced?: boolean; width?: string } = {};
     pdfService.exportToPDF.and.callFake((cloned, name, w, h, offset, done) => {

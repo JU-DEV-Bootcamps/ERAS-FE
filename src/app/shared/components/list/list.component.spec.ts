@@ -825,7 +825,7 @@ describe('ListComponent export controls on a mobile screen', () => {
 });
 
 describe('ListComponent PDF export on a mobile screen', () => {
-  it('[674-improve-reports-charts-mobile-view/AC-20] exports the student list to PDF as a table with the desktop page size from mobile', async () => {
+  const exportFromMobile = async (asDesktop: boolean) => {
     const matches = signal(true);
     const renderAsDesktop = signal(false);
     const pdfService = jasmine.createSpyObj<PdfService>('PdfService', [
@@ -869,6 +869,9 @@ describe('ListComponent PDF export on a mobile screen', () => {
       { name: 'Ana Torres', status: 'x' },
     ]);
     fixture.componentRef.setInput('totalItems', 1);
+    if (asDesktop) {
+      fixture.componentRef.setInput('exportAsDesktopOnMobile', true);
+    }
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('mat-card')).not.toBeNull();
 
@@ -885,12 +888,25 @@ describe('ListComponent PDF export on a mobile screen', () => {
     await fixture.componentInstance.exportToPdf();
 
     const [, , width] = pdfService.exportToPDF.calls.mostRecent().args;
+    expect(renderAsDesktop()).toBeFalse();
+    fixture.nativeElement.remove();
+    return { snapshot, width };
+  };
+
+  it('[674-improve-reports-charts-mobile-view/AC-20] exports the student list to PDF as a table with the desktop page size from mobile', async () => {
+    const { snapshot, width } = await exportFromMobile(true);
+
     expect(snapshot.forced).toBeTrue();
     expect(snapshot.html).toContain('<table');
     expect(snapshot.html).toContain('Ana Torres');
     expect(snapshot.html).not.toContain('<mat-card');
     expect(width).toBe(LETTER_PX.landscape);
-    expect(renderAsDesktop()).toBeFalse();
-    fixture.nativeElement.remove();
+  });
+
+  it('keeps the screen rendering of a list that does not ask for the desktop one', async () => {
+    const { snapshot } = await exportFromMobile(false);
+
+    expect(snapshot.forced).toBeFalse();
+    expect(snapshot.html).toContain('<mat-card');
   });
 });

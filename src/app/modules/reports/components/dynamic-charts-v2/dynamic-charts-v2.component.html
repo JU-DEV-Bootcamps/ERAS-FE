@@ -1,8 +1,8 @@
-<h2 class="page-subtitle" [class.behind-detail]="isMobile() && isPanelOpen()">
+<h2 class="page-subtitle" [class.behind-detail]="detailOpen()">
   {{ title }}
 </h2>
 <app-poll-filters
-  [class.behind-detail]="isMobile() && isPanelOpen()"
+  [class.behind-detail]="detailOpen()"
   [showVariables]="true"
   (filters)="handleFilterSelect($event)"
 ></app-poll-filters>
@@ -27,7 +27,7 @@
   <div class="charts-layout" [class.panel-open]="isPanelOpen()">
     <div
       class="charts-area-wrapper"
-      [class.behind-detail]="isMobile() && isPanelOpen()"
+      [class.behind-detail]="detailOpen()"
       [class.has-expanded-card]="isAnyCardExpanded"
     >
       <div

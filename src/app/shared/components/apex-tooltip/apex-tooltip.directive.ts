@@ -5,6 +5,7 @@ import {
   Input,
   ComponentRef,
   inject,
+  input,
 } from '@angular/core';
 import {
   Overlay,
@@ -24,7 +25,7 @@ const TAP_EVENTS = ['touchstart', 'mousedown', 'mouseup', 'click'];
 export class ApexTooltipDirective implements OnDestroy {
   // Función que recibe (seriesIndex, dataPointIndex) y retorna el HTML del tooltip
   @Input() appApexTooltip!: (x: number, y: number) => string;
-  @Input() appApexTooltipEnabled = true;
+  readonly appApexTooltipEnabled = input(true);
 
   private overlayRef: OverlayRef | null = null;
   private compRef: ComponentRef<ApexTooltipComponent> | null = null;
@@ -64,6 +65,8 @@ export class ApexTooltipDirective implements OnDestroy {
 
   ngOnDestroy(): void {
     this.hide();
+    this.overlayRef?.dispose();
+    this.overlayRef = null;
     this.el.nativeElement.removeEventListener('mousemove', this.boundMouseMove);
     this.el.nativeElement.removeEventListener(
       'pointerdown',
@@ -85,7 +88,7 @@ export class ApexTooltipDirective implements OnDestroy {
   }
 
   private onMouseMove(event: MouseEvent): void {
-    if (!this.appApexTooltipEnabled || this.suppressTooltip) {
+    if (!this.appApexTooltipEnabled() || this.suppressTooltip) {
       this.hide();
       return;
     }
@@ -103,6 +106,7 @@ export class ApexTooltipDirective implements OnDestroy {
     }
 
     this.show(html, event);
+    this.armedKey = this.cellKey(cell);
   }
 
   private onMouseLeave(): void {
@@ -112,18 +116,19 @@ export class ApexTooltipDirective implements OnDestroy {
   private onPointerDownCapture(event: Event): void {
     this.blockTap = false;
     this.suppressTooltip = false;
-    if (!this.appApexTooltipEnabled || !this.viewport.isMobile()) return;
+    if (!this.appApexTooltipEnabled() || !this.viewport.isMobile()) return;
 
     const cell = this.getHeatmapCellAt(event);
-    if (!cell) return;
+    if (!cell) {
+      this.hide();
+      return;
+    }
 
-    const key = `${cell.seriesIndex}-${cell.dataPointIndex}`;
-    if (key === this.armedKey) {
+    if (this.cellKey(cell) === this.armedKey) {
       this.hide();
       this.suppressTooltip = true;
       return;
     }
-    this.armedKey = key;
     this.blockTap = true;
   }
 
@@ -132,9 +137,15 @@ export class ApexTooltipDirective implements OnDestroy {
   }
 
   private onOutsidePointerDown(event: Event): void {
-    if (!this.overlayRef?.hasAttached()) return;
     if (this.el.nativeElement.contains(event.target as Node)) return;
     this.hide();
+  }
+
+  private cellKey(cell: {
+    seriesIndex: number;
+    dataPointIndex: number;
+  }): string {
+    return `${cell.seriesIndex}-${cell.dataPointIndex}`;
   }
 
   private getHeatmapCellAt(
@@ -231,6 +242,7 @@ export class ApexTooltipDirective implements OnDestroy {
     const tooltipHeight = tooltipEl?.offsetHeight ?? 400;
 
     const screenWidth = document.documentElement.clientWidth;
+    const screenHeight = document.documentElement.clientHeight;
     const screenMargin = 8;
     let left: number;
     let top: number;
@@ -240,6 +252,10 @@ export class ApexTooltipDirective implements OnDestroy {
       const above = event.clientY - tooltipHeight - pointGap;
       left = event.clientX - tooltipWidth / 2;
       top = above >= screenMargin ? above : event.clientY + pointGap;
+      top = Math.max(
+        screenMargin,
+        Math.min(top, screenHeight - tooltipHeight - screenMargin)
+      );
     } else {
       const spaceOnRight = window.innerWidth - event.clientX;
       const spaceOnBottom = window.innerHeight - event.clientY;

@@ -1,9 +1,11 @@
 import { ApexOptions } from 'ng-apexcharts';
 import { getRiskGroup } from '@core/constants/riskLevel';
 import { customTooltip } from '@core/utils/apex-chart/customTooltip-v2';
-import { CHART_LAYOUT, fixedColorRange } from './chart.constants';
-
-const MOBILE_LABEL_FONT_SIZE = '10px';
+import {
+  CHART_LAYOUT,
+  MOBILE_CHART_LABEL_FONT_SIZE,
+  fixedColorRange,
+} from './chart.constants';
 
 interface ChartContext {
   el: HTMLElement;
@@ -99,7 +101,7 @@ export function GetChartOptions(
       labels: {
         maxWidth: questionSection,
         offsetX: 0,
-        ...(isMobile && { style: { fontSize: MOBILE_LABEL_FONT_SIZE } }),
+        ...(isMobile && { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } }),
       },
     },
     plotOptions: {
@@ -157,7 +159,7 @@ export function GetChartOptions(
       },
     },
     ...(isMobile && {
-      dataLabels: { style: { fontSize: MOBILE_LABEL_FONT_SIZE } },
+      dataLabels: { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } },
     }),
     ...baseChartOptions,
   };

@@ -20,7 +20,7 @@ export class ViewportService {
   /** While true, `isMobile` reports a desktop screen (used to export PDFs). */
   readonly renderAsDesktop = signal(false);
 
-  readonly isMobileScreen = computed(() => this.matchesMobile());
+  readonly isMobileScreen = this.matchesMobile;
 
   readonly isMobile = computed(
     () => this.matchesMobile() && !this.renderAsDesktop()

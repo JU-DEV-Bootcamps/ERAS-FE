@@ -9,6 +9,7 @@ import { ExpandableCardComponent } from './expandable-card.component';
 import { ElementRef, SimpleChange, signal } from '@angular/core';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
 import { ViewportService } from '@core/services/layout/viewport.service';
+import { DESKTOP_EXPORT_WIDTH } from '@modules/reports/components/summary-charts/constants/export-conf';
 
 describe('ExpandableCardComponent', () => {
   let component: ExpandableCardComponent;
@@ -222,6 +223,7 @@ describe('ExpandableCardComponent', () => {
         container: component.cardRef,
         fileName: 'card',
         title: 'Test Card',
+        desktopWidth: DESKTOP_EXPORT_WIDTH.card,
       });
     }));
 

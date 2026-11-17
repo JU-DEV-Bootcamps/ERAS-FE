@@ -1,4 +1,5 @@
 import { ComponentRisk } from '@core/models/summary.model';
+import { MOBILE_CHART_LABEL_FONT_SIZE } from '@core/utils/apex-chart/chart.constants';
 import {
   ApexChart,
   ApexFill,
@@ -56,7 +57,7 @@ export class ColumnChartUtils {
         trim: true,
         hideOverlappingLabels: false,
         maxHeight: 100,
-        ...(isMobile && { style: { fontSize: '10px' } }),
+        ...(isMobile && { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } }),
       },
     };
   }

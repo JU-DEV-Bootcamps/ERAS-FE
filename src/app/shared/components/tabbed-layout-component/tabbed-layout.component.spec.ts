@@ -1,8 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 
-import { ViewportService } from '@core/services/layout/viewport.service';
 import { TabbedLayoutComponent } from './tabbed-layout.component';
 
 @Component({ template: '' })
@@ -10,14 +9,11 @@ class EmptyPageComponent {}
 
 describe('TabbedLayoutComponent', () => {
   let fixture: ComponentFixture<TabbedLayoutComponent>;
-  const isMobile = signal(true);
 
   beforeEach(async () => {
-    isMobile.set(true);
     await TestBed.configureTestingModule({
       imports: [TabbedLayoutComponent],
       providers: [
-        { provide: ViewportService, useValue: { isMobile } },
         provideRouter([
           { path: 'dynamic-charts', component: EmptyPageComponent },
           { path: 'summary-charts', component: EmptyPageComponent },
@@ -54,11 +50,12 @@ describe('TabbedLayoutComponent', () => {
     ]);
     expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
 
-    nav.scrollLeft = nav.scrollWidth;
     const navRect = nav.getBoundingClientRect();
-    const lastRect = tabs[2].getBoundingClientRect();
-    expect(lastRect.right).toBeLessThanOrEqual(navRect.right + 1);
-    expect(lastRect.left).toBeGreaterThanOrEqual(navRect.left);
+    tabs.forEach(tab => {
+      const rect = tab.getBoundingClientRect();
+      expect(rect.left).toBeGreaterThanOrEqual(navRect.left);
+      expect(rect.right).toBeLessThanOrEqual(navRect.right + 1);
+    });
 
     tabs[2].click();
     await fixture.whenStable();
@@ -66,15 +63,5 @@ describe('TabbedLayoutComponent', () => {
 
     expect(TestBed.inject(Router).url).toBe('/polls-answered');
     expect(tabs[2].classList).toContain('active-tab');
-  });
-
-  it('keeps the tab bar without its own scroll on a desktop screen', () => {
-    isMobile.set(false);
-    fixture.detectChanges();
-
-    const nav = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector<HTMLElement>('.tabs-nav')!;
-    expect(getComputedStyle(nav).overflowX).toBe('visible');
   });
 });

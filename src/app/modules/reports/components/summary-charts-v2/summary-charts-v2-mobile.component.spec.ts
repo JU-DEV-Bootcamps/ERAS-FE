@@ -333,7 +333,12 @@ describe('SummaryChartsV2Component on mobile and desktop screens', () => {
     expect(Math.round(rect.top)).toBe(0);
     expect(Math.round(rect.width)).toBe(viewport.clientWidth);
     expect(Math.round(rect.height)).toBe(viewport.clientHeight);
-    expect(aside.querySelector('.close-btn')).not.toBeNull();
+    const close = aside
+      .querySelector<HTMLElement>('.close-btn')!
+      .getBoundingClientRect();
+    expect(close.width).toBeGreaterThan(0);
+    expect(close.top).toBeGreaterThanOrEqual(0);
+    expect(close.top).toBeLessThan(rect.top + 100);
     expect(aside.scrollWidth).toBeLessThanOrEqual(aside.clientWidth);
     ['.filter-bar', '.summary-content'].forEach(selector =>
       expect(
@@ -417,5 +422,18 @@ describe('SummaryChartsV2Component on mobile and desktop screens', () => {
 
     await setup(false, 1280);
     expect(hoverCell()).toBeNull();
+  });
+
+  it('gives the heatmap the same option objects on every change detection pass', async () => {
+    await setup(true, 375);
+
+    expect(component.heatmapYaxis).toBe(component.heatmapYaxis);
+    expect(component.heatmapDataLabels).toBe(component.heatmapDataLabels);
+  });
+
+  it('returns an empty tooltip when the heatmap data point no longer exists', async () => {
+    await setup(true, 375);
+
+    expect(component.heatmapTooltip(9, 9)).toBe('');
   });
 });

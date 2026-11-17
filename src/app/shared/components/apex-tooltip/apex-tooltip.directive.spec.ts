@@ -489,12 +489,6 @@ describe('ApexTooltipDirective on mobile and desktop screens', () => {
     expect(tooltip()).not.toBeNull();
 
     document
-      .querySelector('#touch-host svg')!
-      .dispatchEvent(new Event('pointerdown', { bubbles: true }));
-    fixture.detectChanges();
-    expect(tooltip()).not.toBeNull();
-
-    document
       .querySelector('#touch-outside')!
       .dispatchEvent(new Event('pointerdown', { bubbles: true }));
     fixture.detectChanges();
@@ -503,6 +497,54 @@ describe('ApexTooltipDirective on mobile and desktop screens', () => {
 
     tap(cell(), 100, 300);
     expect(opened).not.toHaveBeenCalled();
+  });
+
+  it('does not count a cancelled pointer gesture as the first tap', async () => {
+    await setup(true);
+
+    cell().dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+    );
+    cell().dispatchEvent(
+      new PointerEvent('pointercancel', { bubbles: true, cancelable: true })
+    );
+    expect(tooltip()).toBeNull();
+
+    tap(cell(), 100, 300);
+    expect(opened).not.toHaveBeenCalled();
+    expect(tooltip()).not.toBeNull();
+  });
+
+  it('hides the tooltip and forgets the first tap when a part of the chart without data is tapped', async () => {
+    await setup(true);
+
+    tap(cell(), 100, 300);
+    expect(tooltip()).not.toBeNull();
+
+    document
+      .querySelector('#touch-host svg')!
+      .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    fixture.detectChanges();
+    expect(tooltip()).toBeNull();
+
+    tap(cell(), 100, 300);
+    expect(opened).not.toHaveBeenCalled();
+  });
+
+  it('keeps a tall tooltip inside the screen vertically on mobile', async () => {
+    await setup(true);
+    const screenHeight = document.documentElement.clientHeight;
+    const lines = Math.ceil((screenHeight * 0.7) / 18);
+    fixture.componentInstance.tooltipFn = () => 'line<br>'.repeat(lines);
+    fixture.detectChanges();
+
+    tap(cell(), 100, Math.round(screenHeight * 0.4));
+
+    const rect = tooltip()!.getBoundingClientRect();
+    expect(rect.bottom).toBeLessThanOrEqual(
+      document.documentElement.clientHeight - 7
+    );
+    expect(rect.top).toBeGreaterThanOrEqual(7);
   });
 
   it('does not show the tooltip when the directive is disabled', async () => {

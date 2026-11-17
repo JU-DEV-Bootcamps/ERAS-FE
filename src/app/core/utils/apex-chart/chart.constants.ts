@@ -61,3 +61,5 @@ export const CHART_LAYOUT = {
     labelPercent: 0.3,
   },
 };
+
+export const MOBILE_CHART_LABEL_FONT_SIZE = '10px';

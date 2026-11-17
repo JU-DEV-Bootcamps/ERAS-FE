@@ -580,4 +580,22 @@ describe('PollFiltersComponent mobile layout', () => {
     });
     expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
   });
+
+  it('stacks the evaluation, cohort and Apply controls when the variables are hidden', () => {
+    fixture.componentInstance.showVariables = false;
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const rects = Array.from(
+      host.querySelectorAll<HTMLElement>('.form-container > *')
+    ).map(item => item.getBoundingClientRect());
+
+    expect(rects.length).toBe(3);
+    rects.forEach((rect, index) => {
+      expect(Math.round(rect.width)).toBe(host.clientWidth);
+      if (index > 0) {
+        expect(rect.top).toBeGreaterThanOrEqual(rects[index - 1].bottom - 1);
+      }
+    });
+  });
 });

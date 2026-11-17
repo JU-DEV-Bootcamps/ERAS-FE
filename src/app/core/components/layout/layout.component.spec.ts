@@ -182,7 +182,7 @@ describe('LayoutComponent', () => {
     expect(header.textContent).toContain('notifications_none');
   });
 
-  it('keeps the mobile shell while a PDF is rendered as desktop', () => {
+  it('[674-improve-reports-charts-mobile-view/AC-27] keeps the mobile shell while a PDF is rendered as desktop', () => {
     TestBed.overrideProvider(ViewportService, {
       useValue: { isMobile: signal(false), isMobileScreen: signal(true) },
     });

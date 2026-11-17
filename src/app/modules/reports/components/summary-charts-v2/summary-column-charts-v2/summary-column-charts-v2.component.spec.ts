@@ -286,6 +286,12 @@ describe('SummaryColumnChartsV2Component on a mobile screen', () => {
     ],
   } as unknown as PollAvgReport;
 
+  const waitFor = async (condition: () => boolean) => {
+    for (let attempt = 0; attempt < 150 && !condition(); attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+  };
+
   const render = async (mobile: boolean) => {
     await TestBed.configureTestingModule({
       imports: [SummaryColumnChartsV2Component],
@@ -311,7 +317,12 @@ describe('SummaryColumnChartsV2Component on a mobile screen', () => {
     fixture.componentRef.setInput('data', 'Poll');
     fixture.detectChanges();
     await fixture.whenStable();
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await waitFor(
+      () =>
+        !!(fixture.nativeElement as HTMLElement).querySelector(
+          '.apexcharts-legend'
+        )
+    );
   };
 
   afterEach(() => fixture.nativeElement.remove());
@@ -341,5 +352,21 @@ describe('SummaryColumnChartsV2Component on a mobile screen', () => {
     expect(
       fixture.componentInstance.chartOptions().xaxis?.labels?.style
     ).toBeUndefined();
+  });
+
+  it('builds the tooltip of a column from its component and its students', async () => {
+    await render(true);
+
+    const html = fixture.componentInstance.tooltipFn(0, 2);
+
+    expect(html).toContain('Socioeconomic');
+    expect(html).toContain('Students: 1');
+  });
+
+  it('returns an empty tooltip for a column that does not exist', async () => {
+    await render(true);
+
+    expect(fixture.componentInstance.tooltipFn(7, 0)).toBe('');
+    expect(fixture.componentInstance.tooltipFn(0, 9)).toBe('');
   });
 });

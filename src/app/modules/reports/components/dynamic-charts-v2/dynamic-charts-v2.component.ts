@@ -4,6 +4,7 @@ import {
   ElementRef,
   inject,
   signal,
+  computed,
   ViewChild,
   AfterViewInit,
   QueryList,
@@ -84,6 +85,7 @@ export class DynamicChartsV2Component implements AfterViewInit, OnDestroy {
 
   selectedPanelData = signal<DetailsPanelData | null>(null);
   isPanelOpen = signal(false);
+  readonly detailOpen = computed(() => this.isMobile() && this.isPanelOpen());
   hasNoResults = false;
   isAnyCardExpanded = false;
   expandedComponent: string | null | undefined = null;

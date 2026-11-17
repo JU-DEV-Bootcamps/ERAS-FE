@@ -186,7 +186,7 @@ describe('DynamicChartsV2Component on mobile and desktop screens', () => {
     expect(host().scrollWidth).toBeLessThanOrEqual(host().clientWidth);
   });
 
-  it('leaves space between the filters and the charts on mobile', async () => {
+  it('[674-improve-reports-charts-mobile-view/AC-26] leaves space between the filters and the charts on mobile', async () => {
     await setup(true, 375);
 
     const filters = host()
@@ -231,7 +231,12 @@ describe('DynamicChartsV2Component on mobile and desktop screens', () => {
     expect(Math.round(rect.width)).toBe(viewport.clientWidth);
     expect(Math.round(rect.height)).toBe(viewport.clientHeight);
     expect(Math.round(rect.left + rect.right)).toBe(viewport.clientWidth);
-    expect(aside.querySelector('.close-btn')).not.toBeNull();
+    const close = aside
+      .querySelector<HTMLElement>('.close-btn')!
+      .getBoundingClientRect();
+    expect(close.width).toBeGreaterThan(0);
+    expect(close.top).toBeGreaterThanOrEqual(0);
+    expect(close.top).toBeLessThan(rect.top + 100);
     expect(aside.scrollWidth).toBeLessThanOrEqual(aside.clientWidth);
     expect(host().scrollWidth).toBeLessThanOrEqual(host().clientWidth);
     expect(

@@ -6,6 +6,7 @@ import {
   EnvironmentInjector,
   inject,
   signal,
+  computed,
   ViewChild,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -30,6 +31,7 @@ import { GetChartOptions } from '@core/utils/apex-chart/heat-map-config';
 import { MatDialog } from '@angular/material/dialog';
 import { PollAvgQuestion, PollAvgReport } from '@core/models/summary.model';
 import { StudentRiskAverage } from '@core/services/interfaces/student.interface';
+import { MOBILE_CHART_LABEL_FONT_SIZE } from '@core/utils/apex-chart/chart.constants';
 import { SummarySerie } from '@core/models/heatmap-data.model';
 import { SummaryReport } from '@core/models/reports/reports-data.model';
 
@@ -56,11 +58,16 @@ import {
 import { SummaryColumnChartsV2Component } from '@modules/reports/components/summary-charts-v2/summary-column-charts-v2/summary-column-charts-v2.component';
 import { TooltipChartV2Component } from '../tooltip-chart-v2/tooltip-chart-v2.component';
 import { ExportStateService } from '@core/services/exports/export-state.service';
+import { DESKTOP_EXPORT_WIDTH } from '../summary-charts/constants/export-conf';
 import { ApexTooltipDirective } from '@shared/components/apex-tooltip/apex-tooltip.directive';
 import { ViewportService } from '@core/services/layout/viewport.service';
 
 const MOBILE_HEATMAP_YAXIS: ApexOptions['yaxis'] = {
-  labels: { style: { fontSize: '10px' } },
+  labels: { style: { fontSize: MOBILE_CHART_LABEL_FONT_SIZE } },
+};
+
+const MOBILE_HEATMAP_DATA_LABELS: ApexOptions['dataLabels'] = {
+  enabled: false,
 };
 
 @Component({
@@ -142,6 +149,9 @@ export class SummaryChartsV2Component {
   isPanelOpen = signal(false);
   selectedPanelData = signal<DetailsPanelData | null>(null);
   isColumnPanelOpen = signal(false);
+  readonly detailOpen = computed(
+    () => this.isMobile() && (this.isPanelOpen() || this.isColumnPanelOpen())
+  );
   selectedColumnPanelData = signal<ColumnRiskPanelData | null>(null);
   title = '';
   components = signal<PollAvgReport | null>(null);
@@ -237,14 +247,17 @@ export class SummaryChartsV2Component {
   }
 
   get heatmapDataLabels(): ApexOptions['dataLabels'] {
-    return this.isMobile() ? { enabled: false } : this.chartOptions.dataLabels;
+    return this.isMobile()
+      ? MOBILE_HEATMAP_DATA_LABELS
+      : this.chartOptions.dataLabels;
   }
 
   heatmapTooltip = (x: number, y: number): string => {
-    const series = this.heatmapSeries;
-    const category = `${series[x].data[y].x}`;
+    const point = this.heatmapSeries[x]?.data[y];
+    if (!point) return '';
+    const category = `${point.x}`;
     const value = `Total answers: ${this.components()?.pollCount}`;
-    const answers = series[x].data[y].z;
+    const answers = point.z;
 
     const compRef = createComponent(TooltipChartV2Component, {
       environmentInjector: this.injector,
@@ -293,6 +306,7 @@ export class SummaryChartsV2Component {
 
       await this.pdfHelper.exportToPdf({
         fileName: 'cohort_report',
+        desktopWidth: DESKTOP_EXPORT_WIDTH.report,
         container: this.contentToExport,
         snackBar: this.snackBar,
       });

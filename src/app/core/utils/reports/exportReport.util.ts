@@ -3,7 +3,6 @@ import { FileNameUtils } from '@core/utils/file/file-name';
 import { PdfService } from '@core/services/exports/pdf.service';
 import {
   DEFAULT_VALUES,
-  DESKTOP_EXPORT_WIDTH,
   EXPORT_REDRAW_WAIT_MS,
   SNACKBAR_CONF,
   STYLE_CONF,
@@ -36,10 +35,10 @@ export class PdfHelper {
 
   private async withDesktopRendering<T>(
     container: HTMLElement | undefined,
-    width: number,
+    width: number | undefined,
     run: () => Promise<T>
   ): Promise<T> {
-    if (!this.viewport.isMobile()) return run();
+    if (!width || !this.viewport.isMobile()) return run();
 
     const previousWidth = container?.style.width ?? '';
     this.viewport.renderAsDesktop.set(true);
@@ -404,7 +403,7 @@ export class PdfHelper {
   async exportToPdfChunked(args: ExportArgsChunked): Promise<void> {
     return this.withDesktopRendering(
       args.container?.nativeElement,
-      DESKTOP_EXPORT_WIDTH.report,
+      args.desktopWidth,
       () => this.runExportToPdfChunked(args)
     );
   }
@@ -546,7 +545,7 @@ export class PdfHelper {
   async exportToPdf(args: ExportArgs): Promise<void> {
     return this.withDesktopRendering(
       args.container?.nativeElement,
-      DESKTOP_EXPORT_WIDTH.report,
+      args.desktopWidth,
       () => this.runExportToPdf(args)
     );
   }
@@ -591,7 +590,7 @@ export class PdfHelper {
   async exportCardToPdf(args: ExportArgs): Promise<void> {
     return this.withDesktopRendering(
       args.container?.nativeElement,
-      DESKTOP_EXPORT_WIDTH.card,
+      args.desktopWidth,
       () => this.runExportCardToPdf(args)
     );
   }

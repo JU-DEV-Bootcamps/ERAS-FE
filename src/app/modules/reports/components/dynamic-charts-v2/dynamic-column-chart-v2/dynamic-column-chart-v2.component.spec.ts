@@ -245,6 +245,12 @@ describe('DynamicColumnChartV2Component on a mobile screen', () => {
     ],
   } as PollCountComponent;
 
+  const waitFor = async (condition: () => boolean) => {
+    for (let attempt = 0; attempt < 150 && !condition(); attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+  };
+
   const render = async (mobile: boolean) => {
     await TestBed.configureTestingModule({
       imports: [DynamicColumnChartV2Component],
@@ -268,7 +274,12 @@ describe('DynamicColumnChartV2Component on a mobile screen', () => {
     fixture.componentRef.setInput('componentData', componentData);
     fixture.detectChanges();
     await fixture.whenStable();
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await waitFor(
+      () =>
+        !!(fixture.nativeElement as HTMLElement).querySelector(
+          '.apexcharts-legend'
+        )
+    );
   };
 
   afterEach(() => fixture.nativeElement.remove());
