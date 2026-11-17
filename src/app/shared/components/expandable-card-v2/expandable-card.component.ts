@@ -16,6 +16,7 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { ChartSkeletonComponent } from './chart-skeleton.component';
@@ -57,6 +58,10 @@ export class ExpandableCardComponent implements OnInit, OnChanges, OnDestroy {
   @HostBinding('class.is-dimmed') get hostDimmed() {
     return this.dimmed;
   }
+  @HostBinding('class.mobile') get hostMobile() {
+    return this.isMobile();
+  }
+  readonly isMobile = inject(ViewportService).isMobile;
   pdfHelper = inject(PdfHelper);
   @ViewChild('cardRef') cardRef!: ElementRef<HTMLElement>;
 

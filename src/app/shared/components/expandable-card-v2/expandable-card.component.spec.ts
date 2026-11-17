@@ -6,8 +6,9 @@ import {
 } from '@angular/core/testing';
 
 import { ExpandableCardComponent } from './expandable-card.component';
-import { ElementRef, SimpleChange } from '@angular/core';
+import { ElementRef, SimpleChange, signal } from '@angular/core';
 import { PdfHelper } from '@core/utils/reports/exportReport.util';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 describe('ExpandableCardComponent', () => {
   let component: ExpandableCardComponent;
@@ -237,5 +238,76 @@ describe('ExpandableCardComponent', () => {
       tick(100);
       expect(exportingValues).toEqual([true, false]);
     }));
+  });
+});
+
+describe('ExpandableCardComponent on mobile and desktop screens', () => {
+  let fixture: ComponentFixture<ExpandableCardComponent>;
+
+  const render = async (mobile: boolean) => {
+    await TestBed.configureTestingModule({
+      imports: [ExpandableCardComponent],
+      providers: [
+        { provide: PdfHelper, useValue: {} },
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(mobile),
+            renderAsDesktop: signal(false),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ExpandableCardComponent);
+    fixture.componentInstance.cardId = 'card-1';
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: '343px',
+      height: '300px',
+    });
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  const overlaps = (a: DOMRect, b: DOMRect) =>
+    a.left < b.right &&
+    b.left < a.right &&
+    a.top < b.bottom &&
+    b.top < a.bottom;
+
+  it('[674-improve-reports-charts-mobile-view/AC-5] keeps the card buttons inside the card and off the chart title on mobile', async () => {
+    await render(true);
+
+    const host = fixture.nativeElement as HTMLElement;
+    const cardRect = host.querySelector('.card')!.getBoundingClientRect();
+    const buttons = ['.pdf-export', '.change-to-column', '.toggle-btn'].map(
+      selector => host.querySelector(selector)!.getBoundingClientRect()
+    );
+    const body = host.querySelector<HTMLElement>('.card-body')!;
+    const contentTop =
+      body.getBoundingClientRect().top +
+      parseFloat(getComputedStyle(body).paddingTop);
+
+    buttons.forEach(rect => {
+      expect(rect.left).toBeGreaterThanOrEqual(cardRect.left);
+      expect(rect.right).toBeLessThanOrEqual(cardRect.right);
+      expect(rect.top).toBeGreaterThanOrEqual(cardRect.top);
+      expect(contentTop).toBeGreaterThanOrEqual(rect.bottom);
+    });
+    expect(overlaps(buttons[0], buttons[1])).toBeFalse();
+    expect(overlaps(buttons[1], buttons[2])).toBeFalse();
+    expect(overlaps(buttons[0], buttons[2])).toBeFalse();
+  });
+
+  it('keeps the card body padding on a desktop screen', async () => {
+    await render(false);
+
+    const body = (fixture.nativeElement as HTMLElement).querySelector(
+      '.card-body'
+    )!;
+    expect(getComputedStyle(body).paddingTop).toBe('8px');
   });
 });

@@ -25,3 +25,10 @@ export const SNACKBAR_CONF = {
 export const DEFAULT_VALUES = {
   fileName: 'report_detail',
 };
+
+export const DESKTOP_EXPORT_WIDTH = {
+  report: 1000,
+  card: 490,
+};
+
+export const EXPORT_REDRAW_WAIT_MS = 800;

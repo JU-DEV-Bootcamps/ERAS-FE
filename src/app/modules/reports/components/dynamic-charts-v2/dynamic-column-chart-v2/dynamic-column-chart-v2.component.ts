@@ -32,6 +32,7 @@ import {
   getRiskGroup,
 } from '@core/constants/riskLevel';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 export interface ChartOptions {
   chart?: ApexChart;
@@ -69,6 +70,8 @@ export class DynamicColumnChartV2Component {
 
   selectPoint = output<SelectPointEvent>();
   private injector = inject(EnvironmentInjector);
+  private readonly viewport = inject(ViewportService);
+  private readonly isMobile = this.viewport.isMobile;
 
   chartOption = computed((): Partial<ChartOptions> | null => {
     const data = this.componentData();
@@ -102,11 +105,16 @@ export class DynamicColumnChartV2Component {
       chart: ColumnChartUtils.createChartBase((x, s) => onSelect?.(x, s)),
       series: this._createSeries(questions),
       plotOptions: ColumnChartUtils.createPlotOptions(),
-      xaxis: ColumnChartUtils.createXAxis(questions.map(q => q.question)),
+      xaxis: ColumnChartUtils.createXAxis(
+        questions.map(q => q.question),
+        this.isMobile()
+      ),
       fill: ColumnChartUtils.createFill(),
       legend: ColumnChartUtils.createLegend(),
       tooltip: this._createTooltip(),
-      responsive: ColumnChartUtils.createResponsive(),
+      responsive: this.viewport.renderAsDesktop()
+        ? []
+        : ColumnChartUtils.createResponsive(),
     };
   }
 

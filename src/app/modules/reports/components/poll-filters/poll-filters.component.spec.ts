@@ -4,13 +4,14 @@ import {
   fakeAsync,
   tick,
 } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 
 import { PollFiltersComponent } from './poll-filters.component';
 import { CohortService } from '@core/services/api/cohort.service';
 import { PollService } from '@core/services/api/poll.service';
 import { EvaluationsService } from '@core/services/api/evaluations.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { EvaluationModel } from '@core/models/evaluation.model';
@@ -512,5 +513,71 @@ describe('PollFiltersComponent', () => {
 
       expect(component.filtersLoading()).toBeFalse();
     });
+  });
+});
+
+describe('PollFiltersComponent mobile layout', () => {
+  let fixture: ComponentFixture<PollFiltersComponent>;
+
+  beforeEach(async () => {
+    const evaluationsService = jasmine.createSpyObj<EvaluationsService>(
+      'EvaluationsService',
+      ['getAllEvalProc']
+    );
+    evaluationsService.getAllEvalProc.and.returnValue(
+      of({ count: 0, items: [] } as unknown as ObsType<
+        ReturnType<EvaluationsService['getAllEvalProc']>
+      >)
+    );
+
+    await TestBed.configureTestingModule({
+      imports: [PollFiltersComponent],
+      providers: [
+        {
+          provide: CohortService,
+          useValue: jasmine.createSpyObj<CohortService>('CohortService', [
+            'getCohorts',
+          ]),
+        },
+        {
+          provide: PollService,
+          useValue: jasmine.createSpyObj<PollService>('PollService', [
+            'getVariablesByComponents',
+          ]),
+        },
+        { provide: EvaluationsService, useValue: evaluationsService },
+        { provide: ViewportService, useValue: { isMobile: signal(true) } },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(PollFiltersComponent);
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: '375px',
+    });
+  });
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  it('[674-improve-reports-charts-mobile-view/AC-1] stacks the four filters and the Apply button at full width on mobile', () => {
+    fixture.componentInstance.showVariables = true;
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    const items = Array.from(
+      host.querySelectorAll<HTMLElement>('.form-container > *')
+    );
+    const rects = items.map(item => item.getBoundingClientRect());
+
+    expect(items.length).toBe(5);
+    rects.forEach((rect, index) => {
+      expect(Math.round(rect.width)).toBe(host.clientWidth);
+      if (index > 0) {
+        expect(rect.top).toBeGreaterThanOrEqual(rects[index - 1].bottom - 1);
+      }
+    });
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
   });
 });

@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 
 import { ApexTooltipDirective } from './apex-tooltip.directive';
 import { ApexTooltipComponent } from './apex-tooltip.component';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   standalone: true,
@@ -303,5 +304,214 @@ describe('ApexTooltipDirective', () => {
 
       expect(document.querySelector('.apex-cdk-tooltip')).toBeNull();
     });
+  });
+});
+
+@Component({
+  standalone: true,
+  imports: [ApexTooltipDirective],
+  template: `
+    <div
+      [appApexTooltip]="tooltipFn"
+      [appApexTooltipEnabled]="enabled"
+      id="touch-host"
+      style="position: fixed; left: 0; top: 0; width: 100%; height: 100%;"
+    >
+      <svg width="300" height="300">
+        <rect
+          id="touch-cell"
+          class="apexcharts-heatmap-rect"
+          i="0"
+          j="1"
+        ></rect>
+        <path id="touch-bar" class="apexcharts-bar-area" index="1" j="0"></path>
+      </svg>
+    </div>
+    <p id="touch-outside">outside</p>
+  `,
+})
+class TouchHostComponent {
+  enabled = true;
+  tooltipFn: (x: number, y: number) => string = (seriesIndex, dataPointIndex) =>
+    `<span>Tooltip ${seriesIndex}-${dataPointIndex}</span>`;
+}
+
+describe('ApexTooltipDirective on mobile and desktop screens', () => {
+  let fixture: ComponentFixture<TouchHostComponent>;
+  let overlayContainer: OverlayContainer;
+  let opened: jasmine.Spy;
+  const isMobile = signal(true);
+
+  const setup = async (mobile: boolean) => {
+    isMobile.set(mobile);
+    await TestBed.configureTestingModule({
+      imports: [TouchHostComponent, ApexTooltipComponent, OverlayModule],
+      providers: [
+        provideNoopAnimations(),
+        {
+          provide: ViewportService,
+          useValue: { isMobile, renderAsDesktop: signal(false) },
+        },
+      ],
+    }).compileComponents();
+
+    overlayContainer = TestBed.inject(OverlayContainer);
+    fixture = TestBed.createComponent(TouchHostComponent);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.detectChanges();
+    opened = jasmine.createSpy('opened');
+    fixture.nativeElement
+      .querySelectorAll('#touch-cell, #touch-bar')
+      .forEach((element: Element) =>
+        element.addEventListener('mousedown', opened)
+      );
+  };
+
+  afterEach(() => {
+    overlayContainer.ngOnDestroy();
+    fixture.nativeElement.remove();
+  });
+
+  const cell = () => document.querySelector<SVGElement>('#touch-cell')!;
+  const bar = () => document.querySelector<SVGElement>('#touch-bar')!;
+  const tooltip = () =>
+    document.querySelector<HTMLElement>('.apex-cdk-tooltip');
+  const screenWidth = () => document.documentElement.clientWidth;
+
+  const hover = (target: Element, clientX: number, clientY: number) => {
+    target.dispatchEvent(
+      new MouseEvent('mousemove', { bubbles: true, clientX, clientY })
+    );
+    fixture.detectChanges();
+  };
+
+  const tap = (target: Element, clientX: number, clientY: number) => {
+    const init = { bubbles: true, cancelable: true, clientX, clientY };
+    target.dispatchEvent(new PointerEvent('pointerdown', init));
+    target.dispatchEvent(new MouseEvent('mousemove', init));
+    target.dispatchEvent(new MouseEvent('mousedown', init));
+    target.dispatchEvent(new MouseEvent('mouseup', init));
+    target.dispatchEvent(new MouseEvent('click', init));
+    fixture.detectChanges();
+  };
+
+  it('[674-improve-reports-charts-mobile-view/AC-23] keeps the hover tooltip next to the pointer, up to 402px wide, with the click opening the cell on desktop', async () => {
+    await setup(false);
+
+    cell().dispatchEvent(
+      new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 100,
+        clientY: 100,
+      })
+    );
+    fixture.detectChanges();
+    const near = tooltip()!.getBoundingClientRect();
+    expect(Math.round(near.left)).toBe(116);
+    expect(near.width).toBeLessThanOrEqual(402);
+    expect(opened).not.toHaveBeenCalled();
+
+    cell().dispatchEvent(
+      new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: screenWidth() - 20,
+        clientY: 100,
+      })
+    );
+    fixture.detectChanges();
+    expect(tooltip()!.getBoundingClientRect().right).toBeLessThanOrEqual(
+      screenWidth() - 20
+    );
+
+    cell().dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    expect(opened).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the tooltip inside the screen at both edges and places it above the tapped point on mobile', async () => {
+    await setup(true);
+
+    tap(cell(), 5, 300);
+    const atLeft = tooltip()!.getBoundingClientRect();
+    expect(atLeft.left).toBeGreaterThanOrEqual(7);
+    expect(atLeft.bottom).toBeLessThanOrEqual(300);
+
+    hover(cell(), screenWidth() - 5, 300);
+    const atRight = tooltip()!.getBoundingClientRect();
+    expect(atRight.right).toBeLessThanOrEqual(screenWidth() - 7);
+    expect(atRight.bottom).toBeLessThanOrEqual(300);
+
+    hover(cell(), 100, 5);
+    expect(tooltip()!.getBoundingClientRect().top).toBeGreaterThanOrEqual(5);
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-14] shows the heatmap tooltip inside the screen on the first tap without opening the details', async () => {
+    await setup(true);
+
+    tap(cell(), screenWidth() - 5, 200);
+    const rect = tooltip()!.getBoundingClientRect();
+    expect(tooltip()!.innerHTML).toContain('Tooltip 0-1');
+    expect(rect.left).toBeGreaterThanOrEqual(7);
+    expect(rect.right).toBeLessThanOrEqual(screenWidth() - 7);
+    expect(rect.width).toBeLessThanOrEqual(screenWidth());
+    expect(opened).not.toHaveBeenCalled();
+
+    tap(cell(), screenWidth() - 5, 200);
+    expect(opened).toHaveBeenCalledTimes(1);
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-15] shows the column tooltip inside the screen, off the tapped column, without opening the details', async () => {
+    await setup(true);
+
+    tap(bar(), screenWidth() - 5, 300);
+    const rect = tooltip()!.getBoundingClientRect();
+    expect(tooltip()!.innerHTML).toContain('Tooltip 0-1');
+    expect(rect.right).toBeLessThanOrEqual(screenWidth() - 7);
+    expect(rect.bottom).toBeLessThanOrEqual(300);
+    expect(opened).not.toHaveBeenCalled();
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-25] hides the tooltip when the second tap opens the details', async () => {
+    await setup(true);
+
+    tap(cell(), 100, 300);
+    expect(tooltip()).not.toBeNull();
+    expect(opened).not.toHaveBeenCalled();
+
+    tap(cell(), 100, 300);
+    expect(opened).toHaveBeenCalledTimes(1);
+    expect(tooltip()).toBeNull();
+  });
+
+  it('[674-improve-reports-charts-mobile-view/AC-16] hides the tooltip when the user taps outside the chart', async () => {
+    await setup(true);
+
+    tap(cell(), 100, 300);
+    expect(tooltip()).not.toBeNull();
+
+    document
+      .querySelector('#touch-host svg')!
+      .dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    fixture.detectChanges();
+    expect(tooltip()).not.toBeNull();
+
+    document
+      .querySelector('#touch-outside')!
+      .dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    fixture.detectChanges();
+    expect(tooltip()).toBeNull();
+    expect(opened).not.toHaveBeenCalled();
+
+    tap(cell(), 100, 300);
+    expect(opened).not.toHaveBeenCalled();
+  });
+
+  it('does not show the tooltip when the directive is disabled', async () => {
+    await setup(true);
+    fixture.componentInstance.enabled = false;
+    fixture.detectChanges();
+
+    tap(cell(), 100, 300);
+    expect(tooltip()).toBeNull();
+    expect(opened).toHaveBeenCalledTimes(1);
   });
 });

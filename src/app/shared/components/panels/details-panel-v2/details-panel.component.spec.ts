@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, of } from 'rxjs';
+import { signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -360,5 +362,103 @@ describe('DetailsPanelComponent', () => {
     component.handleActionCalled(event);
 
     expect(component.openStudentDetails).not.toHaveBeenCalled();
+  });
+});
+
+describe('DetailsPanelComponent on a mobile screen', () => {
+  let fixture: ComponentFixture<DetailsPanelComponent>;
+
+  const panelData = {
+    cohortId: '1',
+    pollUuid: 'poll-uuid',
+    componentName: 'ACADEMIC' as ComponentValueType,
+    question: {
+      question: 'How are you feeling?',
+      position: 1,
+      averageAnswer: '3',
+      averageRisk: 2,
+      answersDetails: [],
+    } as unknown as PollAvgQuestion,
+    riskLevel: 2,
+    evaluationId: 10,
+  } as DetailsPanelData;
+
+  const render = async (mobile: boolean) => {
+    const pollService = jasmine.createSpyObj<PollService>('PollService', [
+      'getVariablesByComponents',
+    ]);
+    pollService.getVariablesByComponents.and.returnValue(of([]));
+
+    await TestBed.configureTestingModule({
+      imports: [DetailsPanelComponent],
+      providers: [
+        provideAnimations(),
+        { provide: ActivatedRoute, useValue: {} },
+        { provide: PollService, useValue: pollService },
+        {
+          provide: EvaluationDetailsService,
+          useValue: jasmine.createSpyObj('EvaluationDetailsService', [
+            'getStudentsByFilters',
+          ]),
+        },
+        {
+          provide: MatDialog,
+          useValue: jasmine.createSpyObj('MatDialog', ['open']),
+        },
+        {
+          provide: FeatureFlagsService,
+          useValue: jasmine.createSpyObj('FeatureFlagsService', ['isEnabled']),
+        },
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(mobile),
+            renderAsDesktop: signal(false),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DetailsPanelComponent);
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: '375px',
+    });
+    fixture.componentRef.setInput('data', panelData);
+    fixture.detectChanges();
+    fixture.componentInstance.studentList.set([
+      {
+        id: 1,
+        name: 'Ana Torres',
+        answerText: 'I feel good most of the days of the week',
+        riskLevel: 2,
+      } as unknown as EvaluationDetailsStudentResponse,
+    ]);
+    fixture.componentInstance.totalStudentRisks.set(1);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  it('[674-improve-reports-charts-mobile-view/AC-13] keeps the student list of the details inside the screen on mobile', async () => {
+    await render(true);
+
+    const host = fixture.nativeElement as HTMLElement;
+    const card = host.querySelector<HTMLElement>(
+      'app-mat-card-details mat-card'
+    )!;
+    const cardRect = card.getBoundingClientRect();
+
+    expect(card.textContent).toContain('Ana Torres');
+    expect(cardRect.right).toBeLessThanOrEqual(
+      host.getBoundingClientRect().right + 1
+    );
+    Array.from(card.querySelectorAll<HTMLElement>('*')).forEach(element => {
+      expect(element.getBoundingClientRect().right).toBeLessThanOrEqual(
+        cardRect.right + 1
+      );
+    });
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
   });
 });

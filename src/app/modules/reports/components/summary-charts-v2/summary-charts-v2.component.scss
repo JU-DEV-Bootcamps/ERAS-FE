@@ -244,7 +244,7 @@
   break-before: page;
 }
 
-@media (max-width: 768px) {
+:host(.mobile) {
   .summary-charts-wrapper {
     padding: 16px;
     gap: 16px;
@@ -302,4 +302,34 @@
 .selected-option > .check-icon {
   opacity: 1;
   visibility: visible;
+}
+
+:host(.mobile) {
+  .behind-detail {
+    display: none;
+  }
+
+  .summary-layout .details-aside {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-height: none;
+    z-index: 999;
+    overflow-y: auto;
+    background-color: var(--color-white);
+  }
+}
+
+:host(.mobile) ::ng-deep .apexcharts-tooltip {
+  display: none !important;
+}
+
+:host(.mobile) {
+  .heatmap-scroll {
+    overflow-x: auto;
+  }
+
+  .heatmap-inner {
+    min-width: 640px;
+  }
 }

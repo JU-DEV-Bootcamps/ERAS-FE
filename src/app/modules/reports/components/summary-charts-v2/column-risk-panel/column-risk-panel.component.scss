@@ -70,3 +70,9 @@
   width: 100%;
   table-layout: fixed;
 }
+
+:host(.mobile) {
+  .panel-body {
+    min-width: 0;
+  }
+}

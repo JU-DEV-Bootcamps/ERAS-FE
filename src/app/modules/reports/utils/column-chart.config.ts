@@ -49,13 +49,14 @@ export class ColumnChartUtils {
     return { bar: { horizontal: false } };
   }
 
-  static createXAxis(categories: string[]): ApexXAxis {
+  static createXAxis(categories: string[], isMobile = false): ApexXAxis {
     return {
       categories: categories,
       labels: {
         trim: true,
         hideOverlappingLabels: false,
         maxHeight: 100,
+        ...(isMobile && { style: { fontSize: '10px' } }),
       },
     };
   }

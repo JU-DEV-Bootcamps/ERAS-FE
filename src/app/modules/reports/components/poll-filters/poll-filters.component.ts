@@ -44,6 +44,7 @@ import {
 import { switchMap } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { FormFieldSkeletonComponent } from '@shared/components/load-skeleton/form-field-skeleton/form-field-skeleton.component';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-poll-filters',
@@ -61,9 +62,12 @@ import { FormFieldSkeletonComponent } from '@shared/components/load-skeleton/for
   providers: [DatePipe],
   templateUrl: './poll-filters.component.html',
   styleUrl: './poll-filters.component.scss',
+  host: { '[class.mobile]': 'isMobile()' },
 })
 export class PollFiltersComponent implements OnInit {
   @Input() showVariables = true;
+
+  readonly isMobile = inject(ViewportService).isMobile;
 
   private cohortsService = inject(CohortService);
   private destroyRef = inject(DestroyRef);

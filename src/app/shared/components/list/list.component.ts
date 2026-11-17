@@ -70,6 +70,7 @@ const WAIT_ALL_ITEMS_TIMEOUT_MS = 30000;
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
+  host: { '[class.stack-export]': 'stackExport()' },
 })
 export class ListComponent<T extends object>
   implements OnInit, AfterContentInit, OnChanges
@@ -102,6 +103,10 @@ export class ListComponent<T extends object>
   readonly compactPaginatorOnMobile = input(false);
   readonly compactPaginator = computed(
     () => this.compactPaginatorOnMobile() && this.viewport.isMobile()
+  );
+  readonly stackExportOnMobile = input(false);
+  readonly stackExport = computed(
+    () => this.stackExportOnMobile() && this.viewport.isMobile()
   );
   @Input() columnOrder: Column<T>[] = [];
   @Input() isItemDisabled?: (item: T) => boolean;

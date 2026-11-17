@@ -1,5 +1,8 @@
 <div class="summary-charts-wrapper" #contentToExport>
-  <div class="filter-bar">
+  <div
+    class="filter-bar"
+    [class.behind-detail]="isMobile() && (isPanelOpen() || isColumnPanelOpen())"
+  >
     <app-poll-filters
       [showVariables]="false"
       (filters)="handleFilterSelect($event)"
@@ -21,7 +24,12 @@
       class="summary-layout"
       [class.panel-open]="isPanelOpen() || isColumnPanelOpen()"
     >
-      <div class="summary-content">
+      <div
+        class="summary-content"
+        [class.behind-detail]="
+          isMobile() && (isPanelOpen() || isColumnPanelOpen())
+        "
+      >
         <div class="report-card">
           <div class="report-card__header">
             <span class="report-card__title">Global Academic Risk</span>
@@ -119,17 +127,26 @@
             </div>
 
             @if (heatmapChart) {
-              <apx-chart
-                id="heatmap"
-                [series]="chartOptions.series!"
-                [chart]="chartOptions.chart!"
-                [xaxis]="chartOptions.xaxis!"
-                [yaxis]="chartOptions.yaxis!"
-                [colors]="chartOptions.colors!"
-                [plotOptions]="chartOptions.plotOptions!"
-                [title]="chartOptions.title!"
-                [tooltip]="chartOptions.tooltip!"
-              ></apx-chart>
+              <div class="heatmap-scroll">
+                <div
+                  class="heatmap-inner"
+                  [appApexTooltip]="heatmapTooltip"
+                  [appApexTooltipEnabled]="isMobile()"
+                >
+                  <apx-chart
+                    id="heatmap"
+                    [series]="chartOptions.series!"
+                    [chart]="chartOptions.chart!"
+                    [xaxis]="chartOptions.xaxis!"
+                    [yaxis]="heatmapYaxis!"
+                    [colors]="chartOptions.colors!"
+                    [plotOptions]="chartOptions.plotOptions!"
+                    [title]="chartOptions.title!"
+                    [tooltip]="chartOptions.tooltip!"
+                    [dataLabels]="heatmapDataLabels!"
+                  ></apx-chart>
+                </div>
+              </div>
             } @else {
               <app-summary-column-charts-v2
                 [components]="components()!"
@@ -155,6 +172,7 @@
               [columnTemplates]="columnTemplates"
               [title]="'Student Answers'"
               [showExportDropdown]="true"
+              [stackExportOnMobile]="true"
               [allItems]="allStudents"
               [areExportedAllItems]="true"
             >

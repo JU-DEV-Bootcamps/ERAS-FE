@@ -61,7 +61,10 @@ describe('LayoutComponent', () => {
         provideRouter([
           { path: 'students', component: StudentsPageStubComponent },
         ]),
-        { provide: ViewportService, useValue: { isMobile } },
+        {
+          provide: ViewportService,
+          useValue: { isMobile, isMobileScreen: isMobile },
+        },
         {
           provide: FeatureFlagsService,
           useValue: {
@@ -177,6 +180,18 @@ describe('LayoutComponent', () => {
     expect(header.textContent).toContain('Ana Torres');
     expect(header.textContent).toContain('ERAS Administrator');
     expect(header.textContent).toContain('notifications_none');
+  });
+
+  it('keeps the mobile shell while a PDF is rendered as desktop', () => {
+    TestBed.overrideProvider(ViewportService, {
+      useValue: { isMobile: signal(false), isMobileScreen: signal(true) },
+    });
+    fixture = TestBed.createComponent(LayoutComponent);
+    fixture.detectChanges();
+
+    expect(sidenav().mode).toBe('over');
+    expect(sidenav().opened).toBeFalse();
+    expect(content().style.marginLeft).toBe('0px');
   });
 
   it('keeps the side menu coherent when the screen changes between desktop and mobile', () => {

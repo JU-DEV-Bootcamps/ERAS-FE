@@ -37,7 +37,10 @@ describe('HeaderV2Component', () => {
       providers: [
         provideNoopAnimations(),
         provideRouter([]),
-        { provide: ViewportService, useValue: { isMobile } },
+        {
+          provide: ViewportService,
+          useValue: { isMobile, isMobileScreen: isMobile },
+        },
         {
           provide: FeatureFlagsService,
           useValue: { isEnabled: () => true, toggle: () => undefined },

@@ -9,7 +9,8 @@ import {
 import { ComponentValueType } from '@core/models/types/risk-students-detail.type';
 import { ColumnChartUtils } from '@modules/reports/utils/column-chart.config';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 interface ChartDataPoint {
   y: number;
@@ -260,5 +261,85 @@ describe('SummaryColumnChartsV2Component', () => {
       expect(resultHtml).toContain('Students: 2');
       expect(resultHtml).toContain('Ansiedad');
     });
+  });
+});
+
+describe('SummaryColumnChartsV2Component on a mobile screen', () => {
+  let fixture: ComponentFixture<SummaryColumnChartsV2Component>;
+
+  const report = {
+    pollCount: 10,
+    components: [
+      {
+        description: 'Socioeconomic' as ComponentValueType,
+        text: 'Socioeconomic description',
+        averageRisk: 2,
+        questions: [
+          {
+            question: 'How is your income?',
+            averageRisk: 2,
+            position: 1,
+            answersDetails: [{ studentsEmails: ['ana@example.com'] }],
+          },
+        ],
+      },
+    ],
+  } as unknown as PollAvgReport;
+
+  const render = async (mobile: boolean) => {
+    await TestBed.configureTestingModule({
+      imports: [SummaryColumnChartsV2Component],
+      providers: [
+        provideNoopAnimations(),
+        {
+          provide: ViewportService,
+          useValue: {
+            isMobile: signal(mobile),
+            renderAsDesktop: signal(false),
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SummaryColumnChartsV2Component);
+    document.body.appendChild(fixture.nativeElement);
+    Object.assign((fixture.nativeElement as HTMLElement).style, {
+      display: 'block',
+      width: mobile ? '343px' : '1000px',
+    });
+    fixture.componentRef.setInput('components', report);
+    fixture.componentRef.setInput('data', 'Poll');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise(resolve => setTimeout(resolve, 300));
+  };
+
+  afterEach(() => fixture.nativeElement.remove());
+
+  it('[674-improve-reports-charts-mobile-view/AC-7] fits the summary column chart and uses smaller axis labels on mobile', async () => {
+    await render(true);
+
+    const host = fixture.nativeElement as HTMLElement;
+    const hostRect = host.getBoundingClientRect();
+    const canvas = host.querySelector<HTMLElement>('.apexcharts-canvas')!;
+    const legend = host.querySelector<HTMLElement>('.apexcharts-legend')!;
+
+    [canvas, legend].forEach(element => {
+      const rect = element.getBoundingClientRect();
+      expect(rect.left).toBeGreaterThanOrEqual(hostRect.left - 1);
+      expect(rect.right).toBeLessThanOrEqual(hostRect.right + 1);
+    });
+    expect(
+      fixture.componentInstance.chartOptions().xaxis?.labels?.style?.fontSize
+    ).toBe('10px');
+    expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+  });
+
+  it('keeps the current axis labels on a desktop screen', async () => {
+    await render(false);
+
+    expect(
+      fixture.componentInstance.chartOptions().xaxis?.labels?.style
+    ).toBeUndefined();
   });
 });

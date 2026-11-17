@@ -38,6 +38,8 @@ import { PollFiltersComponent } from '../poll-filters/poll-filters.component';
 import { Filter } from '../poll-filters/types/filters';
 import { DynamicColumnChartV2Component } from './dynamic-column-chart-v2/dynamic-column-chart-v2.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ViewportService } from '@core/services/layout/viewport.service';
+import { DESKTOP_EXPORT_WIDTH } from '@modules/reports/components/summary-charts/constants/export-conf';
 
 @Component({
   selector: 'app-dynamic-charts--v2',
@@ -56,9 +58,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   ],
   templateUrl: './dynamic-charts-v2.component.html',
   styleUrl: './dynamic-charts-v2.component.scss',
+  host: { '[class.mobile]': 'isMobile()' },
 })
 export class DynamicChartsV2Component implements AfterViewInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
+  private readonly viewport = inject(ViewportService);
+  readonly isMobile = this.viewport.isMobile;
 
   title = '';
   uuid: string | null = null;
@@ -145,16 +150,19 @@ export class DynamicChartsV2Component implements AfterViewInit, OnDestroy {
     const totalWidth = this.cardWidth();
     const CARD_LAYOUT = {
       spacing: 16,
-      columns: 2,
+      columns: this.isMobile() ? 1 : 2,
       fallbackWidth: 400,
     };
 
-    const cardWidth =
+    const gridCardWidth =
       totalWidth > 0
         ? this.isAnyCardExpanded
           ? totalWidth - CARD_LAYOUT.spacing
           : totalWidth / CARD_LAYOUT.columns - CARD_LAYOUT.spacing
         : CARD_LAYOUT.fallbackWidth;
+    const cardWidth = this.viewport.renderAsDesktop()
+      ? DESKTOP_EXPORT_WIDTH.card - CARD_LAYOUT.spacing
+      : gridCardWidth;
 
     this.chartsOptions = [];
     const hmSeries = report.components.map(c =>
@@ -223,7 +231,9 @@ export class DynamicChartsV2Component implements AfterViewInit, OnDestroy {
           );
         },
         cardWidth,
-        this.isAnyCardExpanded
+        this.isAnyCardExpanded,
+        true,
+        this.isMobile()
       );
     });
     this.cdr.detectChanges();

@@ -173,3 +173,27 @@
   font-weight: 500;
   border-radius: 17px;
 }
+
+:host(.mobile) {
+  .charts-grid,
+  .charts-layout,
+  .charts-layout.panel-open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .behind-detail {
+    display: none;
+  }
+
+  .details-aside {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    min-height: 0;
+    z-index: 999;
+    overflow-y: auto;
+    border-radius: 0;
+    background-color: var(--color-white);
+    animation: none;
+  }
+}

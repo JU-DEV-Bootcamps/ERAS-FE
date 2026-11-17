@@ -15,6 +15,36 @@ describe('Chart Setup Utilities', () => {
       expect(options.plotOptions?.heatmap?.colorScale).toBeDefined();
     });
 
+    it('uses smaller title and label fonts only when the mobile flag is set', () => {
+      const mobile = GetChartOptions(
+        'Title',
+        mockSeries,
+        undefined,
+        undefined,
+        undefined,
+        343,
+        false,
+        true,
+        true
+      );
+      const desktop = GetChartOptions('Title', mockSeries);
+
+      expect(mobile.title?.style?.fontSize).toBe('14px');
+      expect(mobile.yaxis).toEqual(
+        jasmine.objectContaining({
+          labels: jasmine.objectContaining({
+            style: jasmine.objectContaining({ fontSize: '10px' }),
+          }),
+        })
+      );
+      expect(mobile.dataLabels?.style?.fontSize).toBe('10px');
+      expect(desktop.title?.style?.fontSize).toBe('22px');
+      expect(
+        (desktop.yaxis as { labels: { style?: unknown } }).labels.style
+      ).toBeUndefined();
+      expect(desktop.dataLabels).toBeUndefined();
+    });
+
     it('should not include colorScale in plotOptions when fixColors is false', () => {
       const options = GetChartOptions(
         'My Chart Title',

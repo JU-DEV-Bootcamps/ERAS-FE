@@ -28,6 +28,7 @@ import { FeatureFlagsService } from '@core/components/feature-flags/feature-flag
 import { FEATURE_FLAGS } from '@core/components/feature-flags/feature-flags';
 import { ComponentType } from '@angular/cdk/portal';
 import { map, Observable, of } from 'rxjs';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 export interface DetailsPanelData {
   cohortId: string;
@@ -50,12 +51,14 @@ export interface DetailsPanelData {
   ],
   templateUrl: './details-panel.component.html',
   styleUrl: './details-panel.component.scss',
+  host: { '[class.mobile]': 'isMobile()' },
 })
 export class DetailsPanelComponent implements OnChanges {
   data = input.required<DetailsPanelData | null>();
   closed = output<void>();
 
   private readonly dialog = inject(MatDialog);
+  readonly isMobile = inject(ViewportService).isMobile;
   private readonly pollService = inject(PollService);
   private readonly evaluationDetailsService = inject(EvaluationDetailsService);
   private readonly featureFlags = inject(FeatureFlagsService);
