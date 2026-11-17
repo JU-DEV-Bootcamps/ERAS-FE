@@ -35,6 +35,7 @@ import { ToastNotificationService } from '@core/services/toast-notification.serv
 import { ModalDeleteConfirmationService } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.service';
 import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 import { NewStudentModalComponent } from './new-student-modal/new-student-modal.component';
+import { EditStudentModalComponent } from './edit-student-modal/edit-student-modal.component';
 import { StudentProfileSummaryModel } from '@core/models/student-profile-summary.model';
 import { StudentRegistrationModel } from '@core/models/student-registration.model';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -1026,7 +1027,7 @@ describe('StudentsListComponent', () => {
       }) as unknown as EventAction;
 
     it('should offer the profile to every student and delete only to manually created ones', () => {
-      const view = component.actionDatas.find(a => a.id === 'viewProfile') as {
+      const view = component.actionDatas.find(a => a.id === 'editProfile') as {
         isVisible?: (item: unknown) => boolean;
       };
       const remove = component.actionDatas.find(
@@ -1062,38 +1063,18 @@ describe('StudentsListComponent', () => {
       } as StudentRegistrationModel;
       studentServiceSpy.getStudentProfileSummary.and.returnValue(of(profile));
 
-      component.handleActionCalled(manualEvent('viewProfile'));
+      component.handleActionCalled(manualEvent('editProfile'));
 
       expect(studentServiceSpy.getStudentProfileSummary).toHaveBeenCalledWith(
         1
       );
       expect(dialogSpy.open).toHaveBeenCalledWith(
-        NewStudentModalComponent,
-        jasmine.objectContaining({
-          data: { cohorts: [], student: profile, hasProfile: false },
-        })
+        EditStudentModalComponent,
+        jasmine.objectContaining({ data: { student: profile } })
       );
     });
 
-    it('should tell the modal when the student already has a profile', () => {
-      const profile = { studentId: 1 } as StudentRegistrationModel;
-      studentServiceSpy.getStudentProfileSummary.and.returnValue(of(profile));
-      component.students = component.students.map(s => ({
-        ...s,
-        hasProfile: true,
-      }));
-
-      component.handleActionCalled(manualEvent('viewProfile'));
-
-      expect(dialogSpy.open).toHaveBeenCalledWith(
-        NewStudentModalComponent,
-        jasmine.objectContaining({
-          data: { cohorts: [], student: profile, hasProfile: true },
-        })
-      );
-    });
-
-    it('[641-align-student-modal-fields/AC-17] opens the record with the profile of the selected student only', () => {
+    it('[686-edit-focused-student-profile-modal/AC-16] opens the edit modal with the profile of the selected student only', () => {
       // GIVEN the Students list with Ana (id 42) and Luis (id 43), and the profile of Luis
       const luis = {
         studentId: 43,
@@ -1105,29 +1086,23 @@ describe('StudentsListComponent', () => {
         { ...component.students[0], id: 42, name: 'Ana Torres' },
         { ...component.students[0], id: 43, name: 'Luis Anaya' },
       ];
+      cohortServiceSpy.getCohorts.calls.reset();
 
-      // WHEN a user opens the student record of Luis
+      // WHEN a user who can manage students opens "Edit Student Profile" for Luis
       component.handleActionCalled({
         item: { id: 43 },
-        data: { id: 'viewProfile' },
+        data: { id: 'editProfile' },
       } as unknown as EventAction);
 
-      // THEN only the profile of student 43 is requested, and the record opens with his data
+      // THEN only the profile of student 43 is requested, and the modal opens with his data
       expect(
         studentServiceSpy.getStudentProfileSummary
       ).toHaveBeenCalledOnceWith(43);
       expect(studentServiceSpy.getStudentProfile).not.toHaveBeenCalled();
+      expect(cohortServiceSpy.getCohorts).not.toHaveBeenCalled();
       expect(dialogSpy.open).toHaveBeenCalledWith(
-        NewStudentModalComponent,
-        jasmine.objectContaining({
-          data: jasmine.objectContaining({
-            student: jasmine.objectContaining({
-              studentId: 43,
-              firstName: 'Luis',
-              cohortName: 'Cohort 3',
-            }),
-          }),
-        })
+        EditStudentModalComponent,
+        jasmine.objectContaining({ data: { student: luis } })
       );
     });
 
@@ -1137,7 +1112,7 @@ describe('StudentsListComponent', () => {
         throwError(() => new Error('boom'))
       );
 
-      component.handleActionCalled(manualEvent('viewProfile'));
+      component.handleActionCalled(manualEvent('editProfile'));
 
       expect(dialogSpy.open).not.toHaveBeenCalled();
       expect(toastSpy.showToast).toHaveBeenCalled();
@@ -1333,12 +1308,12 @@ describe('StudentsListComponent', () => {
       );
       dialogSpy.open.and.returnValue({
         afterClosed: () => of(true),
-      } as unknown as MatDialogRef<NewStudentModalComponent>);
+      } as unknown as MatDialogRef<EditStudentModalComponent>);
       studentServiceSpy.getData.calls.reset();
 
       component.handleActionCalled({
         item: { id: 1 },
-        data: { id: 'viewProfile' },
+        data: { id: 'editProfile' },
       } as unknown as EventAction);
       fixture.detectChanges();
 
@@ -1404,18 +1379,16 @@ describe('StudentsListComponent', () => {
       studentServiceSpy.getStudentProfileSummary.and.returnValue(of(profile));
 
       // WHEN they open the profile of a listed student
-      component.handleActionCalled(actionEvent('viewProfile'));
+      component.handleActionCalled(actionEvent('editProfile'));
 
       // THEN the student record opens (it hosts the Interventions section) with that profile
       expect(component.students.map(student => student.id)).toEqual([1]);
       expect(component.actionDatas.map(action => action.id)).toContain(
-        'viewProfile'
+        'editProfile'
       );
       expect(dialogSpy.open).toHaveBeenCalledWith(
-        NewStudentModalComponent,
-        jasmine.objectContaining({
-          data: { cohorts: [], student: profile, hasProfile: false },
-        })
+        EditStudentModalComponent,
+        jasmine.objectContaining({ data: { student: profile } })
       );
     });
 
@@ -1430,10 +1403,28 @@ describe('StudentsListComponent', () => {
       expect(text).not.toContain('Export');
       expect(text).not.toContain('New Student');
       expect(component.actionDatas.map(action => action.id)).toEqual([
-        'viewProfile',
+        'editProfile',
         'profileSummary',
       ]);
       expect(component.itemsAreSelectable).toBeFalse();
+    });
+
+    it('[686-edit-focused-student-profile-modal/AC-5] shows Edit Student Profile and Profile summary to a Professional but no delete', () => {
+      // GIVEN an ERAS Professional
+      // WHEN they open the Students list
+      professionalView();
+
+      // THEN the rows offer "Edit Student Profile" and "Profile summary", and no delete action
+      const actions = component.actionDatas;
+      expect(actions.map(action => action.id)).toEqual([
+        'editProfile',
+        'profileSummary',
+      ]);
+      const edit = actions.find(a => a.id === 'editProfile') as {
+        tooltip?: string;
+      };
+      expect(edit.tooltip).toBe('Edit Student Profile');
+      expect(actions.some(action => action.id === 'deleteStudent')).toBeFalse();
     });
 
     it('keeps the search for a Professional', () => {

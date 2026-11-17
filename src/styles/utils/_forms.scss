@@ -63,13 +63,16 @@ mat-option[appselectall] {
 }
 
 app-new-student-modal .section-headings,
-app-new-student-modal form {
+app-new-student-modal form,
+app-edit-student-modal .section-headings,
+app-edit-student-modal form {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 24px;
 }
 
-app-new-student-modal .section-headings {
+app-new-student-modal .section-headings,
+app-edit-student-modal .section-headings {
   margin-bottom: 16px;
 
   h3 {
@@ -79,21 +82,25 @@ app-new-student-modal .section-headings {
   }
 }
 
+app-edit-student-modal form,
 app-new-student-modal form {
   grid-auto-flow: column;
   grid-template-rows: repeat(8, auto);
   row-gap: 8px;
 }
 
+app-edit-student-modal mat-form-field,
 app-new-student-modal mat-form-field {
   margin-bottom: 0;
 }
 
 @media (max-width: 900px) {
+  app-edit-student-modal .section-headings,
   app-new-student-modal .section-headings {
     display: none;
   }
 
+  app-edit-student-modal form,
   app-new-student-modal form {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;

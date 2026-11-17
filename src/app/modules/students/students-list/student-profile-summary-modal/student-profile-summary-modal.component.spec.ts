@@ -121,7 +121,7 @@ describe('StudentProfileSummaryModalComponent', () => {
     expect(el.querySelector('.error')).toBeTruthy();
   });
 
-  it('[641-align-student-modal-fields/AC-1] shows the three sections in order and no other', () => {
+  it('[686-edit-focused-student-profile-modal/AC-1] shows the three sections in order and no other', () => {
     // GIVEN a user with an ERAS role and a student with profile data
     // WHEN they open the profile summary
     const el = create(profile);
@@ -138,7 +138,7 @@ describe('StudentProfileSummaryModalComponent', () => {
     expect(el.querySelectorAll('[data-section]').length).toBe(3);
   });
 
-  it('[641-align-student-modal-fields/AC-12] does not show the fields outside the agreed list', () => {
+  it('[686-edit-focused-student-profile-modal/AC-12] does not show the fields outside the agreed list', () => {
     // GIVEN a student whose profile holds data of the removed fields
     const hidden: StudentProfileSummaryModel = {
       ...profile,
@@ -196,7 +196,7 @@ describe('StudentProfileSummaryModalComponent', () => {
     }
   });
 
-  it('[641-align-student-modal-fields/AC-16] requests the profile of the selected student only', () => {
+  it('[686-edit-focused-student-profile-modal/AC-15] requests the profile of the selected student only', () => {
     // GIVEN the Students list with Ana (id 42) and Luis (id 43), and Luis selected
     TestBed.overrideProvider(MAT_DIALOG_DATA, { useValue: { studentId: 43 } });
 
@@ -209,6 +209,22 @@ describe('StudentProfileSummaryModalComponent', () => {
     );
     expect(interventionServiceSpy.getByStudent).toHaveBeenCalledOnceWith(43);
     expect(el.textContent).toContain('Luis Anaya');
+  });
+
+  it('[686-edit-focused-student-profile-modal/AC-2] shows no editable field and only a way to close', () => {
+    // GIVEN a user who can manage students and a student with profile data
+    // WHEN they open the profile summary
+    const el = create(profile);
+
+    // THEN there is no input, select or date field and no Edit or Save button
+    expect(el.querySelector('input, select, textarea, mat-select')).toBeNull();
+    const buttons = Array.from(el.querySelectorAll('button')).map(button =>
+      button.textContent?.trim()
+    );
+    expect(buttons).not.toContain('Edit');
+    expect(buttons).not.toContain('Save');
+    // AND it offers only a way to close it
+    expect(buttons).toEqual(['Close']);
   });
 
   it('[643-add-student-interventions/AC-24] shows risks and support as separate lists without actions', () => {
