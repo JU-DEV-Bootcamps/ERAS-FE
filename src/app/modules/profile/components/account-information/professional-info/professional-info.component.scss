@@ -149,3 +149,26 @@ $secondary-color: #64748b;
   display: flex;
   justify-content: flex-end;
 }
+
+.main-container.mobile {
+  .info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .info-text {
+    min-width: 0;
+  }
+
+  .value,
+  .chip {
+    overflow-wrap: anywhere;
+  }
+
+  .courses-table {
+    table-layout: fixed;
+
+    td {
+      overflow-wrap: anywhere;
+    }
+  }
+}

@@ -10,6 +10,8 @@ import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard
 import { ERASRoles, Profile } from '@core/models/profile.model';
 import { of, throwError } from 'rxjs';
 import { UserProfile } from '@core/models/user-profile.model';
+import { signal, WritableSignal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 const summaryProfile: UserProfile = {
   firstName: 'Roberto',
@@ -32,6 +34,7 @@ describe('AccountInformationComponent', () => {
   let userProfileServiceSpy: jasmine.SpyObj<UserProfileService>;
   let professionalProfileServiceSpy: jasmine.SpyObj<ProfessionalProfileService>;
   let permissionsServiceSpy: jasmine.SpyObj<PermissionsService>;
+  let isMobile: WritableSignal<boolean>;
 
   function setup(user: Profile | null): void {
     userDataServiceSpy.user.and.returnValue(user);
@@ -41,6 +44,7 @@ describe('AccountInformationComponent', () => {
   }
 
   beforeEach(async () => {
+    isMobile = signal(false);
     userProfileServiceSpy = jasmine.createSpyObj<UserProfileService>(
       'UserProfileService',
       ['getMyProfile']
@@ -94,6 +98,7 @@ describe('AccountInformationComponent', () => {
           useValue: professionalProfileServiceSpy,
         },
         { provide: PermissionsService, useValue: permissionsServiceSpy },
+        { provide: ViewportService, useValue: { isMobile } },
         {
           provide: UnsavedChangesGuardService,
           useValue: unsavedChangesGuardSpy,
@@ -277,6 +282,133 @@ describe('AccountInformationComponent', () => {
 
       expect(component.summaryProfile()).toEqual(summaryProfile);
       expect(console.error).toHaveBeenCalled();
+    });
+  });
+  describe('mobile layout', () => {
+    const LONG_EMAIL = `${'a'.repeat(60)}@example.com`;
+    const LONG_VALUE = 'X'.repeat(40);
+
+    const render = (user: Profile, width: number, mobile: boolean): void => {
+      isMobile.set(mobile);
+      userProfileServiceSpy.getMyProfile.and.returnValue(
+        of({
+          ...summaryProfile,
+          email: LONG_EMAIL,
+          employeeId: LONG_VALUE,
+          phone: LONG_VALUE,
+        })
+      );
+      userDataServiceSpy.user.and.returnValue(user);
+      fixture = TestBed.createComponent(AccountInformationComponent);
+      fixture.nativeElement.style.cssText = `display:block;width:${width}px`;
+      fixture.detectChanges();
+    };
+
+    const all = (selector: string): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll(selector));
+
+    // Number of lines a text takes, counted as the different tops of its line boxes.
+    const lines = (element: HTMLElement): number => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return new Set(
+        Array.from(range.getClientRects()).map(rect => Math.round(rect.top))
+      ).size;
+    };
+
+    it('[676-improve-account-user-manuals-mobile-view/AC-1] keeps a 60-character email and long values inside the profile card on a mobile screen', () => {
+      render({ role: ERASRoles.OFFICER }, 343, true);
+
+      const host: HTMLElement = fixture.nativeElement;
+      const card = host
+        .querySelector('.section-profile')!
+        .getBoundingClientRect();
+      const email = all('app-profile-card .email')[0];
+      const values = all('app-profile-card .info-grid .value');
+      const items = all('app-profile-card .info-item');
+
+      [email, ...values].forEach(element =>
+        expect(element.getBoundingClientRect().right).toBeLessThanOrEqual(
+          card.right
+        )
+      );
+      const longTexts = [
+        email,
+        ...values.filter(value => value.textContent?.trim() === LONG_VALUE),
+      ];
+      expect(longTexts.length).toBe(3);
+      longTexts.forEach(element => expect(lines(element)).toBeGreaterThan(1));
+      expect(
+        new Set(
+          items.map(item => Math.round(item.getBoundingClientRect().left))
+        ).size
+      ).toBe(1);
+      expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+    });
+    it('[676-improve-account-user-manuals-mobile-view/AC-2] stacks the professional info and keeps a long course name inside its card on a mobile screen', () => {
+      professionalProfileServiceSpy.getMyProfessionalProfile.and.returnValue(
+        of({
+          position: 'Professor',
+          faculty: 'Engineering',
+          officeHours: 'Mon 10:00',
+          subjectsTaught: ['Algorithms'],
+          courses: [
+            { code: 'CS101', name: 'N'.repeat(80) },
+            { code: 'CS102', name: 'Databases' },
+          ],
+        })
+      );
+      render({ role: ERASRoles.PROFESSIONAL }, 343, true);
+
+      const host: HTMLElement = fixture.nativeElement;
+      const card = host
+        .querySelector('.section-professional')!
+        .getBoundingClientRect();
+      const table = all('app-professional-info .courses-table')[0];
+      const longName = all('app-professional-info .course-name')[0];
+      const items = all('app-professional-info .info-item');
+
+      expect(items.length).toBe(4);
+      expect(
+        new Set(
+          items.map(item => Math.round(item.getBoundingClientRect().left))
+        ).size
+      ).toBe(1);
+      expect(table.getBoundingClientRect().right).toBeLessThanOrEqual(
+        card.right
+      );
+      expect(longName.textContent?.trim()).toBe('N'.repeat(80));
+      expect(lines(longName)).toBeGreaterThan(1);
+      expect(host.scrollWidth).toBeLessThanOrEqual(host.clientWidth);
+    });
+    it('[676-improve-account-user-manuals-mobile-view/AC-5] keeps two columns and does not break values on a desktop screen', () => {
+      professionalProfileServiceSpy.getMyProfessionalProfile.and.returnValue(
+        of({
+          position: 'Professor',
+          faculty: 'Engineering',
+          officeHours: 'Mon 10:00',
+          subjectsTaught: ['Algorithms'],
+          courses: [{ code: 'CS101', name: 'Algorithms' }],
+        })
+      );
+      render({ role: ERASRoles.PROFESSIONAL }, 1280, false);
+
+      const columns = (selector: string): number =>
+        new Set(
+          all(selector).map(item =>
+            Math.round(item.getBoundingClientRect().left)
+          )
+        ).size;
+      const values = [
+        ...all('app-profile-card .email'),
+        ...all('app-profile-card .info-grid .value'),
+        ...all('app-professional-info .info-grid .value'),
+      ];
+
+      expect(columns('app-profile-card .info-item')).toBe(2);
+      expect(columns('app-professional-info .info-item')).toBe(2);
+      expect(values.length).toBeGreaterThan(0);
+      values.forEach(value => expect(lines(value)).toBe(1));
     });
   });
 });

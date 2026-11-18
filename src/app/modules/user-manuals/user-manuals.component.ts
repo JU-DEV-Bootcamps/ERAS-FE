@@ -12,6 +12,7 @@ import { UserManualsApiError } from '@core/models/user-manual-error.model';
 import { UserManualModel } from '@core/models/user-manual.model';
 import { UserManualsApiService } from '@core/services/api/user-manuals.service';
 import { USER_MANUALS_MESSAGES } from '@core/constants/messages';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-user-manuals',
@@ -23,6 +24,7 @@ import { USER_MANUALS_MESSAGES } from '@core/constants/messages';
 export class UserManualsComponent {
   private readonly api = inject(UserManualsApiService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly viewport = inject(ViewportService);
 
   readonly messages = USER_MANUALS_MESSAGES;
   readonly manuals = signal<UserManualModel[]>([]);

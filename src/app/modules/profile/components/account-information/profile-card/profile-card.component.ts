@@ -7,6 +7,7 @@ import { AVATAR_COLORS } from '@core/constants/avatarColors';
 import { UserProfile } from '@core/models/user-profile.model';
 import { UserDataService } from '@core/services/access/user-data.service';
 import { UserProfileService } from '@core/services/api/user-profile.service';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 @Component({
   selector: 'app-profile-card',
@@ -22,6 +23,7 @@ import { UserProfileService } from '@core/services/api/user-profile.service';
 export class ProfileCardComponent implements OnInit {
   private readonly userProfileService = inject(UserProfileService);
   private readonly userData = inject(UserDataService);
+  readonly viewport = inject(ViewportService);
   user = this.userData.user;
 
   edit = output<void>();

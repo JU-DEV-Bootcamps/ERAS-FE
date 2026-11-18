@@ -1,4 +1,4 @@
-<section class="user-manuals">
+<section class="user-manuals" [class.mobile]="viewport.isMobile()">
   @if (error(); as message) {
     <p class="error-message" role="alert">{{ message }}</p>
   } @else if (manuals().length === 0) {
