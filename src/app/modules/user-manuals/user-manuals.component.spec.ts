@@ -8,6 +8,8 @@ import {
   UserManualsApiError,
 } from '@core/models/user-manual-error.model';
 import { USER_MANUALS_MESSAGES } from '@core/constants/messages';
+import { signal, WritableSignal } from '@angular/core';
+import { ViewportService } from '@core/services/layout/viewport.service';
 
 const ADMIN_GUIDE: UserManualModel = {
   id: 'admin-guide',
@@ -30,6 +32,7 @@ const STUDENT_GUIDE: UserManualModel = {
 describe('UserManualsComponent', () => {
   let fixture: ComponentFixture<UserManualsComponent>;
   let api: jasmine.SpyObj<UserManualsApiService>;
+  let isMobile: WritableSignal<boolean>;
 
   const render = (manuals: UserManualModel[]) => {
     api.list.and.returnValue(of(manuals));
@@ -59,13 +62,17 @@ describe('UserManualsComponent', () => {
   };
 
   beforeEach(async () => {
+    isMobile = signal(false);
     api = jasmine.createSpyObj<UserManualsApiService>('UserManualsApiService', [
       'list',
       'download',
     ]);
     await TestBed.configureTestingModule({
       imports: [UserManualsComponent],
-      providers: [{ provide: UserManualsApiService, useValue: api }],
+      providers: [
+        { provide: UserManualsApiService, useValue: api },
+        { provide: ViewportService, useValue: { isMobile } },
+      ],
     }).compileComponents();
   });
 
@@ -211,5 +218,67 @@ describe('UserManualsComponent', () => {
     expect(text()).not.toContain('is not available right now');
     expect(clicked.length).toBe(1);
     expect(clicked[0].download).toBe('admin-guide.odt');
+  });
+  describe('mobile layout', () => {
+    const LONG_TITLE = 'M'.repeat(100);
+
+    const renderLongTitle = (width: number, mobile: boolean) => {
+      isMobile.set(mobile);
+      api.list.and.returnValue(
+        of([{ ...ADMIN_GUIDE, title: LONG_TITLE }, STUDENT_GUIDE])
+      );
+      fixture = TestBed.createComponent(UserManualsComponent);
+      fixture.nativeElement.style.cssText = `display:block;width:${width}px`;
+      fixture.detectChanges();
+      const item: HTMLElement =
+        fixture.nativeElement.querySelector('.manual-item');
+      const title: HTMLElement = item.querySelector('.manual-item__title')!;
+      const button: HTMLElement = item.querySelector('button')!;
+      return { item, title, button };
+    };
+
+    // Number of lines a text takes, counted as the different tops of its line boxes.
+    const lines = (element: HTMLElement): number => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return new Set(
+        Array.from(range.getClientRects()).map(rect => Math.round(rect.top))
+      ).size;
+    };
+
+    it('[676-improve-account-user-manuals-mobile-view/AC-6] keeps a 100-character title and the Download button inside the row on a mobile screen', () => {
+      const { item, title, button } = renderLongTitle(343, true);
+      const row = item.getBoundingClientRect();
+
+      expect(title.getBoundingClientRect().right).toBeLessThanOrEqual(
+        row.right
+      );
+      expect(lines(title)).toBeGreaterThan(1);
+      expect(button.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+        row.left
+      );
+      expect(button.getBoundingClientRect().right).toBeLessThanOrEqual(
+        row.right
+      );
+      expect(fixture.nativeElement.scrollWidth).toBeLessThanOrEqual(
+        fixture.nativeElement.clientWidth
+      );
+    });
+    it('[676-improve-account-user-manuals-mobile-view/AC-8] keeps the row and does not break the title on a desktop screen', () => {
+      const { item, title, button } = renderLongTitle(1280, false);
+
+      expect(item.querySelector('mat-icon')?.textContent).toContain(
+        'menu_book'
+      );
+      expect(title.textContent?.trim()).toBe(LONG_TITLE);
+      expect(item.querySelector('.manual-item__meta')?.textContent).toContain(
+        'ODT'
+      );
+      expect(lines(title)).toBe(1);
+      expect(button.classList).toContain('mat-mdc-icon-button');
+      expect(Math.round(button.getBoundingClientRect().width)).toBe(40);
+      expect(Math.round(button.getBoundingClientRect().height)).toBe(40);
+      expect(item.parentElement?.closest('.mobile')).toBeNull();
+    });
   });
 });

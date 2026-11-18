@@ -126,3 +126,16 @@ $secondary-color: #64748b;
   // margin-bottom: 8px;
   // margin-right: 8px;
 }
+
+.data-container.mobile {
+  .info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .full-name,
+  .email,
+  .value,
+  .about-text {
+    overflow-wrap: anywhere;
+  }
+}
