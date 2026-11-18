@@ -505,12 +505,9 @@ export class EditInterventionModalComponent implements FormCreation, OnInit {
     if (!control) return;
 
     const hasUploading = staged.some(s => s.status === 'uploading');
-    const hasError = staged.some(s => s.status === 'error');
 
     if (hasUploading) {
       control.setErrors({ uploading: true });
-    } else if (hasError) {
-      control.setErrors({ uploadError: true });
     } else {
       control.setErrors(null);
     }

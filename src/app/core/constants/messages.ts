@@ -178,3 +178,29 @@ export const INTERVENTION_EXPORT_MESSAGES = {
   PDF_EXPORTED_BY: ASSESSMENT_EXPORT_MESSAGES.PDF_EXPORTED_BY,
   PDF_FILTERS: ASSESSMENT_EXPORT_MESSAGES.PDF_FILTERS,
 };
+
+export type AttachmentAction = 'created' | 'saved';
+
+export const ATTACHMENT_MESSAGES = {
+  SIZE_EXCEEDED: (fileName: string, maxMb: number, action: AttachmentAction) =>
+    `"${fileName}" is larger than the ${maxMb}MB limit, so the intervention will be ${action} without it.`,
+  UNSUPPORTED_TYPE: (
+    fileName: string,
+    extensions: string,
+    action: AttachmentAction
+  ) =>
+    `"${fileName}" is not a supported file type (allowed: ${extensions.split(',').join(', ')}), so the intervention will be ${action} without it.`,
+  DUPLICATED: (fileName: string) =>
+    `"${fileName}" has already been added, so it will only be attached once.`,
+  MAX_FILES: (max: number) =>
+    `You can attach up to ${max} documents, so the extra files will not be added.`,
+  TOO_MANY_SELECTED: (slots: number) =>
+    `Only ${slots} more file${slots === 1 ? '' : 's'} can be added. Please select fewer files.`,
+  UPLOAD_FAILED: (fileName: string, action: AttachmentAction) =>
+    `"${fileName}" could not be uploaded, so the intervention will be ${action} without it. Click the file to try again.`,
+  CONFIRM_TITLE: 'Attachments with errors',
+  CONFIRM_BODY:
+    'Some attachments have errors and will not be saved. Review them, or create the intervention without them.',
+  CONFIRM_ACCEPT: 'Create anyway',
+  CONFIRM_CANCEL: 'Keep editing',
+};

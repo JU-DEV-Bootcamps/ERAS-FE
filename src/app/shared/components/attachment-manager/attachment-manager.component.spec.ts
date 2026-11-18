@@ -395,7 +395,7 @@ describe('AttachmentManagerComponent', () => {
     component.onFilesSelected(event);
 
     expect(component.stagedFiles().length).toBe(0);
-    expect(component.errorMessage()).toContain('5');
+    expect(component.errorMessages().join(' ')).toContain('5');
     expect(attachmentApi.createDraftSession).not.toHaveBeenCalled();
   });
 
@@ -422,7 +422,7 @@ describe('AttachmentManagerComponent', () => {
     component.onFilesSelected(event);
 
     expect(component.stagedFiles().length).toBe(0);
-    expect(component.errorMessage()).toContain('1');
+    expect(component.errorMessages().join(' ')).toContain('1');
     expect(attachmentApi.createDraftSession).not.toHaveBeenCalled();
   });
 
@@ -442,7 +442,7 @@ describe('AttachmentManagerComponent', () => {
 
     expect(attachmentApi.createDraftSession).not.toHaveBeenCalled();
     expect(component.stagedFiles().length).toBe(0);
-    expect(component.errorMessage()).toContain('5');
+    expect(component.errorMessages().join(' ')).toContain('5');
   });
 
   it('should do nothing when no files are selected', () => {
@@ -526,7 +526,7 @@ describe('AttachmentManagerComponent', () => {
       expect(control.errors).toEqual({ uploading: true });
     });
 
-    it('should set uploadError when a file has an upload error', () => {
+    it('should not block the form when a file has an upload error', () => {
       const file = new File(['content'], 'test.txt');
 
       component.stagedFiles.set([
@@ -535,7 +535,7 @@ describe('AttachmentManagerComponent', () => {
 
       component['notifyFormControl']();
 
-      expect(control.errors).toEqual({ uploadError: true });
+      expect(control.errors).toBeNull();
     });
 
     it('should clear errors when there are no uploading or errored files', () => {
@@ -590,6 +590,149 @@ describe('AttachmentManagerComponent', () => {
 
       expect(control.markAsDirty).not.toHaveBeenCalled();
       expect(control.markAsTouched).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('friendly attachment messages', () => {
+    const tenMb = 10 * 1024 * 1024;
+
+    const select = (...files: File[]): void => {
+      component.onFilesSelected({
+        target: { files, value: 'selected' },
+      } as unknown as Event);
+    };
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-7] shows the friendly size-limit message', () => {
+      // GIVEN a user adding attachments to an intervention
+      fileValidation.validate.and.returnValue({
+        maxSize: { fileName: 'report.pdf', maxMb: tenMb },
+      });
+
+      // WHEN they select "report.pdf" larger than 10MB
+      select(new File(['x'], 'report.pdf'));
+
+      // THEN the field shows the friendly size message and the file is not added
+      expect(component.errorMessages()).toEqual([
+        '"report.pdf" is larger than the 10MB limit, so the intervention will be created without it.',
+      ]);
+      expect(component.stagedFiles().length).toBe(0);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-8] shows the friendly unsupported-type message', () => {
+      // GIVEN a user adding attachments to an intervention
+      fileValidation.validate.and.returnValue({
+        fileFormat: {
+          fileName: 'notes.exe',
+          extensions: '.pdf,.jpg,.png,.txt',
+        },
+      });
+
+      // WHEN they select "notes.exe"
+      select(new File(['x'], 'notes.exe'));
+
+      // THEN the field shows the friendly type message and the file is not added
+      expect(component.errorMessages()).toEqual([
+        '"notes.exe" is not a supported file type (allowed: .pdf, .jpg, .png, .txt), so the intervention will be created without it.',
+      ]);
+      expect(component.stagedFiles().length).toBe(0);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-9] shows the friendly duplicated-file message', () => {
+      // GIVEN a form that already lists "plan.pdf"
+      component.stagedFiles.set([
+        {
+          file: new File(['x'], 'plan.pdf'),
+          status: 'done',
+          localId: '1',
+          attachmentId: 1,
+        },
+      ]);
+      fileValidation.validate.and.returnValue({
+        duplicated: { fileName: 'plan.pdf' },
+      });
+
+      // WHEN the user selects another file named "plan.pdf"
+      select(new File(['y'], 'plan.pdf'));
+
+      // THEN the field shows the friendly duplicate message and the list keeps one file
+      expect(component.errorMessages()).toEqual([
+        '"plan.pdf" has already been added, so it will only be attached once.',
+      ]);
+      expect(component.stagedFiles().length).toBe(1);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-10] shows the friendly maximum-files message', () => {
+      // GIVEN a form that already lists 5 attachments
+      component.existingAttachments.set(
+        Array.from({ length: 5 }, (_, i) => ({ id: i + 1 }) as AttachmentModel)
+      );
+
+      // WHEN the user selects one more file
+      select(new File(['x'], 'extra.pdf'));
+
+      // THEN the field shows the friendly maximum message and the list is unchanged
+      expect(component.errorMessages()).toEqual([
+        'You can attach up to 5 documents, so the extra files will not be added.',
+      ]);
+      expect(component.stagedFiles().length).toBe(0);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-11] shows the friendly upload-failure message', () => {
+      // GIVEN a user whose upload of "plan.pdf" fails
+      // WHEN the file shows its error state
+      component.stagedFiles.set([
+        {
+          file: new File(['x'], 'plan.pdf'),
+          status: 'error',
+          localId: '1',
+          attachmentId: null,
+        },
+      ]);
+
+      // THEN the field shows the friendly upload message and the file stays in the list
+      expect(component.errorMessages()).toEqual([
+        '"plan.pdf" could not be uploaded, so the intervention will be created without it. Click the file to try again.',
+      ]);
+      expect(component.stagedFiles().length).toBe(1);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-12] says "saved" instead of "created" when editing an existing intervention', () => {
+      // GIVEN a user editing an existing intervention
+      fixture.componentRef.setInput('entityId', 7);
+      fileValidation.validate.and.returnValue({
+        maxSize: { fileName: 'report.pdf', maxMb: tenMb },
+      });
+
+      // WHEN they select "report.pdf" larger than 10MB
+      select(new File(['x'], 'report.pdf'));
+
+      // THEN the field shows the size message with "saved"
+      expect(component.errorMessages()).toEqual([
+        '"report.pdf" is larger than the 10MB limit, so the intervention will be saved without it.',
+      ]);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-13] shows one message per rejected file', () => {
+      // GIVEN a user adding attachments to an intervention
+      fileValidation.validate.and.callFake(file =>
+        file.name === 'report.pdf'
+          ? { maxSize: { fileName: 'report.pdf', maxMb: tenMb } }
+          : {
+              fileFormat: {
+                fileName: 'notes.exe',
+                extensions: '.pdf,.jpg,.png,.txt',
+              },
+            }
+      );
+
+      // WHEN they select both files at once
+      select(new File(['x'], 'report.pdf'), new File(['y'], 'notes.exe'));
+
+      // THEN one message per file is shown and neither file is added
+      expect(component.errorMessages().length).toBe(2);
+      expect(component.errorMessages()[0]).toContain('"report.pdf"');
+      expect(component.errorMessages()[1]).toContain('"notes.exe"');
+      expect(component.stagedFiles().length).toBe(0);
     });
   });
 });

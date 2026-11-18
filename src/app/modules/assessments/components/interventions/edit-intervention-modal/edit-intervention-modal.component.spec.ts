@@ -334,6 +334,30 @@ describe('EditInterventionModalComponent', () => {
   });
 
   describe('submitIntervention', () => {
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-14] keeps Save enabled and saves without a modal when an upload failed', () => {
+      // GIVEN a valid edit form where the upload of "plan.pdf" failed
+      component.form.get('students')?.setValue(['1']);
+      component.attendedStudentIds.set(['1', '2']);
+      component.attendedStudentIdsModel = ['1', '2'];
+      component.onStagedFilesChange([
+        {
+          status: 'error',
+          file: new File(['x'], 'plan.pdf'),
+          attachmentId: null,
+          localId: '1',
+        },
+      ]);
+
+      // WHEN the user looks at the Save button and clicks it
+      const disabled = component.isSubmitDisabled;
+      component.submitIntervention();
+
+      // THEN Save is enabled and the intervention is saved without a confirmation modal
+      expect(disabled).toBeFalse();
+      expect(interventionService.updateIntervention).toHaveBeenCalled();
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
+    });
+
     it('should proceed with update when an attendee is not among the selected students', () => {
       component.form.get('students')?.setValue(['1']);
       component.attendedStudentIds.set(['1', '2']);
@@ -716,7 +740,7 @@ describe('EditInterventionModalComponent', () => {
         } as StagedFile,
       ]);
 
-      expect(control.errors).toEqual({ uploadError: true });
+      expect(control.errors).toBeNull();
 
       component.onStagedFilesChange([
         {

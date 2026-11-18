@@ -23,8 +23,11 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
 } from '@angular/forms';
+import {
+  ATTACHMENT_MESSAGES,
+  AttachmentAction,
+} from '@core/constants/messages';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormUtils } from '@core/utils/forms/form-utils';
 import { FileValidationService } from '@core/utils/file/file-validation.service';
 import {
   ALLOWED_EXTENSIONS,
@@ -62,7 +65,7 @@ export class AttachmentManagerComponent implements OnInit {
   markedForRemoval = signal<Set<number>>(new Set());
   stagedFiles = signal<StagedFile[]>([]);
   isLoadingExisting = signal(false);
-  errorMessage = signal<string | null>(null);
+  rejectionMessages = signal<string[]>([]);
   stagedFilesChange = output<StagedFile[]>();
 
   private draftSessionId: number | null = null;
@@ -79,7 +82,22 @@ export class AttachmentManagerComponent implements OnInit {
     () => this.visibleExisting().length > 0 || this.stagedFiles().length > 0
   );
 
-  hasErrors = computed(() => this.errorMessage() !== null);
+  private readonly action = computed<AttachmentAction>(() =>
+    this.entityId() === null ? 'created' : 'saved'
+  );
+
+  private readonly uploadFailureMessages = computed(() =>
+    this.stagedFiles()
+      .filter(s => s.status === 'error')
+      .map(s => ATTACHMENT_MESSAGES.UPLOAD_FAILED(s.file.name, this.action()))
+  );
+
+  readonly errorMessages = computed(() => [
+    ...this.rejectionMessages(),
+    ...this.uploadFailureMessages(),
+  ]);
+
+  readonly hasErrors = computed(() => this.errorMessages().length > 0);
 
   ngOnInit(): void {
     const id = this.entityId();
@@ -128,20 +146,18 @@ export class AttachmentManagerComponent implements OnInit {
     input.value = '';
 
     if (availableSlots === 0) {
-      this.errorMessage.set(
-        `The maximum number of attached documents allowed is ${this.maxFiles()}.`
-      );
+      this.rejectionMessages.set([
+        ATTACHMENT_MESSAGES.MAX_FILES(this.maxFiles()),
+      ]);
       return;
     }
 
     if (selectedFiles.length > availableSlots) {
-      this.errorMessage.set(
-        `Too many files selected. Only ${availableSlots} more file${availableSlots === 1 ? '' : 's'} can be added.`
-      );
+      this.rejectionMessages.set([
+        ATTACHMENT_MESSAGES.TOO_MANY_SELECTED(availableSlots),
+      ]);
       return;
     }
-
-    let accumulatedErrors: ValidationErrors = {};
 
     const currentFiles = this.stagedFiles().map(s => s.file);
 
@@ -150,6 +166,7 @@ export class AttachmentManagerComponent implements OnInit {
       s => s.originalFileName
     );
     const validFiles: File[] = [];
+    const messages: string[] = [];
     for (const file of selectedFiles) {
       const errors = this.fileValidation.validate(
         file,
@@ -164,21 +181,37 @@ export class AttachmentManagerComponent implements OnInit {
       );
 
       if (errors) {
-        accumulatedErrors = { ...accumulatedErrors, ...errors };
+        messages.push(this.toFriendlyMessage(errors));
       } else {
         validFiles.push(file);
         currentFiles.push(file);
       }
     }
-    if (Object.keys(accumulatedErrors).length > 0) {
-      this.errorMessage.set(FormUtils.getTextError(accumulatedErrors, ''));
-    } else {
-      this.errorMessage.set(null);
-    }
+    this.rejectionMessages.set(messages);
 
     if (validFiles.length > 0) {
       this.stageFiles(validFiles);
     }
+  }
+
+  private toFriendlyMessage(errors: ValidationErrors): string {
+    const action = this.action();
+    if (errors['maxSize']) {
+      const { fileName, maxMb } = errors['maxSize'];
+      return ATTACHMENT_MESSAGES.SIZE_EXCEEDED(
+        fileName,
+        maxMb / (1024 * 1024),
+        action
+      );
+    }
+    if (errors['fileFormat']) {
+      const { fileName, extensions } = errors['fileFormat'];
+      return ATTACHMENT_MESSAGES.UNSUPPORTED_TYPE(fileName, extensions, action);
+    }
+    if (errors['duplicated']) {
+      return ATTACHMENT_MESSAGES.DUPLICATED(errors['duplicated'].fileName);
+    }
+    return ATTACHMENT_MESSAGES.MAX_FILES(this.maxFiles());
   }
 
   private stageFiles(files: File[]): void {
@@ -277,14 +310,11 @@ export class AttachmentManagerComponent implements OnInit {
     if (!control) return;
 
     const hasUploading = this.stagedFiles().some(s => s.status === 'uploading');
-    const hasUploadError = this.stagedFiles().some(s => s.status === 'error');
     const hasPendingChanges =
       this.stagedFiles().length > 0 || this.markedForRemoval().size > 0;
 
     if (hasUploading) {
       control.setErrors({ uploading: true });
-    } else if (hasUploadError) {
-      control.setErrors({ uploadError: true });
     } else {
       control.setErrors(null);
     }

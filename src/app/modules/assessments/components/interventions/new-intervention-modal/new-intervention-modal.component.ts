@@ -21,6 +21,7 @@ import {
 } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
@@ -42,6 +43,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { InterventionModel } from '@core/models/assessment.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import {
   ACTIVITY_OPTIONS,
   ALLOWED_EXTENSIONS,
@@ -56,6 +58,8 @@ import {
 import { UnsavedChangesGuardService } from '@core/services/unsaved-changes-guard.service';
 import { AttachmentManagerComponent } from '@shared/components/attachment-manager/attachment-manager.component';
 import { StagedFile } from '@core/models/attachment.model';
+import { ATTACHMENT_MESSAGES } from '@core/constants/messages';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 
 export interface StudentLookup {
   value: number;
@@ -93,6 +97,7 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly unsavedChangesGuard = inject(UnsavedChangesGuardService);
   private readonly injector = inject(Injector);
+  private readonly dialog = inject(MatDialog);
 
   @ViewChild('attachmentManagerNew')
   private readonly attachmentManagerNew!: AttachmentManagerComponent;
@@ -386,6 +391,31 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
   submitIntervention(): void {
     if (this.form.invalid) return;
 
+    if (!this.attachmentManagerNew.hasErrors()) {
+      this.createIntervention();
+      return;
+    }
+
+    this.dialog
+      .open(ModalDeleteConfirmationComponent, {
+        data: {
+          title: ATTACHMENT_MESSAGES.CONFIRM_TITLE,
+          subtitle: ATTACHMENT_MESSAGES.CONFIRM_BODY,
+          confirmText: ATTACHMENT_MESSAGES.CONFIRM_ACCEPT,
+          cancelText: ATTACHMENT_MESSAGES.CONFIRM_CANCEL,
+        },
+        autoFocus: false,
+        width: '418px',
+        panelClass: 'delete-confirmation-modal',
+      })
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(confirmed => {
+        if (confirmed) this.createIntervention();
+      });
+  }
+
+  private createIntervention(): void {
     const payload = this.buildPayload();
     this.isSubmitting = true;
     const { draftSessionId } = this.attachmentManagerNew.getPendingChanges();
@@ -462,12 +492,9 @@ export class NewInterventionModalComponent implements FormCreation, OnInit {
     if (!control) return;
 
     const hasUploading = staged.some(s => s.status === 'uploading');
-    const hasError = staged.some(s => s.status === 'error');
 
     if (hasUploading) {
       control.setErrors({ uploading: true });
-    } else if (hasError) {
-      control.setErrors({ uploadError: true });
     } else {
       control.setErrors(null);
     }

@@ -9,6 +9,7 @@ import {
 } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ModalDeleteConfirmationComponent } from '@shared/components/modals/modal-delete-confirmation/modal-delete-confirmation.component';
 import { of, throwError, EMPTY } from 'rxjs';
 
 import {
@@ -616,7 +617,7 @@ describe('NewInterventionModalComponent', () => {
         } as StagedFile,
       ]);
 
-      expect(control.errors).toEqual({ uploadError: true });
+      expect(control.errors).toBeNull();
 
       component.onStagedFilesChange([
         {
@@ -642,6 +643,157 @@ describe('NewInterventionModalComponent', () => {
           } as StagedFile,
         ])
       ).not.toThrow();
+    });
+  });
+
+  describe('attachment errors confirmation', () => {
+    const rejected =
+      '"notes.exe" is not a supported file type (allowed: .pdf, .jpg, .png, .txt), so the intervention will be created without it.';
+
+    const manager = () => component['attachmentManagerNew'];
+
+    const answerModal = (confirmed: boolean) =>
+      spyOn(component['dialog'], 'open').and.returnValue({
+        afterClosed: () => of(confirmed),
+      } as never);
+
+    beforeEach(() => {
+      component.form = buildValidFormGroup({
+        type: InterventionType.Individual,
+        students: [1],
+      });
+      component.form.markAsDirty();
+      mockInterventionService.createIntervention.and.returnValue(
+        of({ id: 5 } as InterventionModel)
+      );
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-1] opens the "Attachments with errors" modal when Create is clicked with an attachment error', () => {
+      // GIVEN a valid form where "notes.exe" was rejected
+      manager().rejectionMessages.set([rejected]);
+      const open = answerModal(false);
+
+      // WHEN the user clicks Create
+      component.submitIntervention();
+
+      // THEN the confirmation modal opens and nothing is created yet
+      expect(open).toHaveBeenCalledWith(
+        ModalDeleteConfirmationComponent,
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({
+            title: 'Attachments with errors',
+            subtitle:
+              'Some attachments have errors and will not be saved. Review them, or create the intervention without them.',
+            confirmText: 'Create anyway',
+            cancelText: 'Keep editing',
+          }),
+        })
+      );
+      expect(mockInterventionService.createIntervention).not.toHaveBeenCalled();
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-2] creates the intervention without the rejected files after "Create anyway"', () => {
+      // GIVEN the modal is open, "plan.pdf" uploaded and "notes.exe" rejected
+      manager()['draftSessionId'] = 55;
+      manager().stagedFiles.set([
+        {
+          file: new File(['x'], 'plan.pdf'),
+          status: 'done',
+          localId: '1',
+          attachmentId: 9,
+        },
+      ]);
+      manager().rejectionMessages.set([rejected]);
+      answerModal(true);
+
+      // WHEN the user chooses "Create anyway"
+      component.submitIntervention();
+
+      // THEN it is created with the draft session that only holds "plan.pdf" and the form closes
+      expect(mockInterventionService.createIntervention).toHaveBeenCalledWith(
+        jasmine.objectContaining({ draftSessionId: 55 })
+      );
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        jasmine.objectContaining({ type: 'success' })
+      );
+      expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-3] keeps the form open and creates nothing after "Keep editing"', () => {
+      // GIVEN the modal is open with a rejected file listed
+      manager().rejectionMessages.set([rejected]);
+      answerModal(false);
+
+      // WHEN the user chooses "Keep editing"
+      component.submitIntervention();
+
+      // THEN the form stays open with its error and nothing is created
+      expect(mockDialogRef.close).not.toHaveBeenCalled();
+      expect(manager().errorMessages()).toEqual([rejected]);
+      expect(mockInterventionService.createIntervention).not.toHaveBeenCalled();
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-4] creates the intervention without a modal when every attachment is valid', () => {
+      // GIVEN a valid form whose attachments all uploaded correctly
+      manager().stagedFiles.set([
+        {
+          file: new File(['x'], 'plan.pdf'),
+          status: 'done',
+          localId: '1',
+          attachmentId: 9,
+        },
+      ]);
+      const open = spyOn(component['dialog'], 'open');
+
+      // WHEN the user clicks Create
+      component.submitIntervention();
+
+      // THEN it is created and no modal is shown
+      expect(open).not.toHaveBeenCalled();
+      expect(mockInterventionService.createIntervention).toHaveBeenCalled();
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-5] keeps Create enabled and opens the modal when an upload failed', () => {
+      // GIVEN a valid form where the upload of "plan.pdf" failed
+      manager().stagedFiles.set([
+        {
+          file: new File(['x'], 'plan.pdf'),
+          status: 'error',
+          localId: '1',
+          attachmentId: null,
+        },
+      ]);
+      component.onStagedFilesChange(manager().stagedFiles());
+      const open = answerModal(true);
+
+      // WHEN the user looks at the Create button and clicks it
+      const disabled = component.isSubmitDisabled;
+      component.submitIntervention();
+
+      // THEN Create is enabled, the modal opens and "Create anyway" creates it
+      expect(disabled).toBeFalse();
+      expect(open).toHaveBeenCalled();
+      expect(mockInterventionService.createIntervention).toHaveBeenCalled();
+    });
+
+    it('[605-allow-intervention-creation-with-attachment-errors/AC-6] creates without the modal after a valid file replaces the rejected one', () => {
+      // GIVEN "notes.exe" was rejected and its error is shown
+      manager().rejectionMessages.set([rejected]);
+      const open = spyOn(component['dialog'], 'open');
+
+      // WHEN the user adds a valid file "plan.pdf" and clicks Create
+      manager().onFilesSelected({
+        target: {
+          files: [new File(['x'], 'plan.pdf', { type: 'application/pdf' })],
+          value: 'selected',
+        },
+      } as unknown as Event);
+      component.submitIntervention();
+
+      // THEN it is created without the modal and the old error is gone
+      expect(open).not.toHaveBeenCalled();
+      expect(manager().errorMessages()).toEqual([]);
+      expect(mockInterventionService.createIntervention).toHaveBeenCalled();
     });
   });
 });

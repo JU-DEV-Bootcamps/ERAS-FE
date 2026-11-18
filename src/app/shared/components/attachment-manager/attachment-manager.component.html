@@ -79,9 +79,11 @@
   </mat-form-field>
 
   @if (hasErrors()) {
-    <p class="file-error-message">
-      {{ errorMessage() }}
-    </p>
+    @for (message of errorMessages(); track message) {
+      <p class="file-error-message">
+        {{ message }}
+      </p>
+    }
   }
 
   @if (isLoadingExisting()) {
